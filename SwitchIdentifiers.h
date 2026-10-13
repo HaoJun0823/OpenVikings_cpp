@@ -1625,6 +1625,23 @@ namespace SwitchIds
         inline constexpr auto Usewind = 0x75736577;
     }
 
+    namespace MacroMapSection
+    {
+        inline constexpr auto PatternNames = 0;
+        inline constexpr auto Patterns = 1;
+        inline constexpr auto TransitionNames = 2;
+        inline constexpr auto Transitions = 3;
+        inline constexpr auto LandscapeNames = 4;
+        inline constexpr auto Landscapes = 5;
+        inline constexpr auto Heights = 6;
+        inline constexpr auto VertexColors = 7;
+        inline constexpr auto Roads = 8;
+        inline constexpr auto Humans = 9;
+        inline constexpr auto Animals = 10;
+        inline constexpr auto Houses = 11;
+        inline constexpr auto FishSwarms = 12;
+    }
+
     namespace ParticleMotionMode
     {
         inline constexpr auto Stationary = 0;

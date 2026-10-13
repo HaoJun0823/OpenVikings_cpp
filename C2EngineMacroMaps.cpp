@@ -40,7 +40,7 @@ namespace NC2E2
     {
         struct SMacroMapSection { const char* command; std::uint32_t countOffset, stride; };
         // Windows command pointer table 004F46C0..004F46F3; section layouts follow their allocation/parsing instructions.
-        const SMacroMapSection gMacroMapSections[] = {{"patname", 0x110, 44}, {"pat", 0x118, 12}, {"transname", 0x120, 44}, {"trans", 0x128, 16}, {"landname", 0x130, 44}, {"land", 0x138, 16}, {"hgt", 0x140, 6}, {"veco", 0x148, 6}, {"road", 0x150, 4}, {"human", 0x158, 16}, {"animal", 0x160, 16}, {"house", 0x168, 20}, {"fishswarm", 0x170, 8}};
+        const SMacroMapSection gMacroMapSections[] = {{"patname", NC2Layout::MacroMapOffset::PatternNamesCount, NC2Layout::RecordSize::MacroMapName}, {"pat", NC2Layout::MacroMapOffset::PatternsCount, NC2Layout::RecordSize::MacroMapPattern}, {"transname", NC2Layout::MacroMapOffset::TransitionNamesCount, NC2Layout::RecordSize::MacroMapName}, {"trans", NC2Layout::MacroMapOffset::TransitionsCount, NC2Layout::RecordSize::MacroMapTransition}, {"landname", NC2Layout::MacroMapOffset::LandscapeNamesCount, NC2Layout::RecordSize::MacroMapName}, {"land", NC2Layout::MacroMapOffset::LandscapesCount, NC2Layout::RecordSize::MacroMapLandscape}, {"hgt", NC2Layout::MacroMapOffset::HeightsCount, NC2Layout::RecordSize::MacroMapHeight}, {"veco", NC2Layout::MacroMapOffset::VertexColorsCount, NC2Layout::RecordSize::MacroMapVertexColor}, {"road", NC2Layout::MacroMapOffset::RoadsCount, NC2Layout::RecordSize::MacroMapRoad}, {"human", NC2Layout::MacroMapOffset::HumansCount, NC2Layout::RecordSize::MacroMapCreature}, {"animal", NC2Layout::MacroMapOffset::AnimalsCount, NC2Layout::RecordSize::MacroMapCreature}, {"house", NC2Layout::MacroMapOffset::HousesCount, NC2Layout::RecordSize::MacroMapHouse}, {"fishswarm", NC2Layout::MacroMapOffset::FishSwarmsCount, NC2Layout::RecordSize::MacroMapFishSwarm}};
         // Complete Windows token region 00568430..005684BF.
         const NXBasics::SToken gMacroMapTokens[] = {{"version", NC2DataIds::EngineMacroMapsToken::Version}, {"size", NC2DataIds::EngineMacroMapsToken::Size}, {"center", NC2DataIds::EngineMacroMapsToken::Center}, {"patname", NC2DataIds::EngineMacroMapsToken::Patname}, {"pat", NC2DataIds::EngineMacroMapsToken::Pat}, {"transname", NC2DataIds::EngineMacroMapsToken::Transname}, {"trans", NC2DataIds::EngineMacroMapsToken::Trans}, {"landname", NC2DataIds::EngineMacroMapsToken::LandName}, {"land", NC2DataIds::EngineMacroMapsToken::Land}, {"hgt", NC2DataIds::EngineMacroMapsToken::Hgt}, {"veco", NC2DataIds::EngineMacroMapsToken::Veco}, {"road", NC2DataIds::EngineMacroMapsToken::Road}, {"human", NC2DataIds::EngineMacroMapsToken::Human}, {"animal", NC2DataIds::EngineMacroMapsToken::Animal}, {"house", NC2DataIds::EngineMacroMapsToken::House}, {"fishswarm", NC2DataIds::EngineMacroMapsToken::FishSwarm}, {nullptr, 0}};
         std::uint8_t gMacroMapTokenFlags = 0;
@@ -54,11 +54,12 @@ namespace NC2E2
     // Original function: FUN_00487508.
     void* MacroMap_Construct(void* map, const char* filename)
     {
-        std::memset(map, 0, 376);
+        std::memset(map, 0, NC2Layout::RecordSize::MacroMap);
         if (filename != nullptr)
         {
             if (NXBasics::CFile::FileSystem_Tool_FileExists(filename, true)) MacroMap_LoadFromIniFile(map, filename);
-            else { std::strcpy(static_cast<char*>(map) + 1, filename); Write<std::uint8_t>(map, 0, 1); }
+            else { std::strcpy(static_cast<char*>(map) + NC2Layout::MacroMapOffset::Filename, filename);
+            Write<std::uint8_t>(map, NC2Layout::MacroMapOffset::Initialized, 1); }
         }
         return map;
     }
@@ -80,7 +81,7 @@ namespace NC2E2
             void* entries = NXBasics::Runtime_AllocateWithNewHandler(count * section.stride, 1);
             Write(map, section.countOffset + 4u, entries);
             std::memset(entries, 0, count * section.stride);
-            if (section.countOffset == 0x138) for (std::uint32_t i = 0; i < count; ++i) Write<std::int32_t>(entries, i * 16u + 12u, -1);
+            if (section.countOffset == NC2Layout::MacroMapOffset::LandscapesCount) for (std::uint32_t i = 0; i < count; ++i) Write<std::int32_t>(entries, i * 16u + 12u, -1);
         }
         if ((gMacroMapTokenFlags & 1u) == 0) gMacroMapTokenFlags |= 1u;
         if ((gMacroMapTokenFlags & 2u) == 0)
@@ -89,82 +90,105 @@ namespace NC2E2
             gMacroMapTokenList = ::new (gMacroMapTokenStorage) NXBasics::CTokenList(gMacroMapTokens);
             NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(MacroMap_TokenList_AtExit));
         }
-        std::uint32_t indices[13]{};
+        std::uint32_t indices[NC2Layout::MacroMapSectionLimits::Count]{};
         reader.SetCurrentLineToGroupStart();
         while (reader.GetNextLine() != nullptr)
         {
             if (reader.GetCurrentLineType() != 2) break;
             const auto token = gMacroMapTokenList->FindToken(reader.GetCurrentName());
             if (token == NC2DataIds::EngineMacroMapsToken::Version) { reader.GetInt(); continue; }
-            if (token == NC2DataIds::EngineMacroMapsToken::Size) { Write<std::uint16_t>(map, 0x106, static_cast<std::uint16_t>(reader.GetInt())); Write<std::uint16_t>(map, 0x108, static_cast<std::uint16_t>(reader.GetInt())); continue; }
-            if (token == NC2DataIds::EngineMacroMapsToken::Center) { Write<std::uint16_t>(map, 0x10A, static_cast<std::uint16_t>(reader.GetInt())); Write<std::uint16_t>(map, 0x10C, static_cast<std::uint16_t>(reader.GetInt()) & NXBasics::BitMask::WordExceptBit0); continue; }
+            if (token == NC2DataIds::EngineMacroMapsToken::Size) { Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::Width, static_cast<std::uint16_t>(reader.GetInt()));
+            Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::Height, static_cast<std::uint16_t>(reader.GetInt())); continue; }
+            if (token == NC2DataIds::EngineMacroMapsToken::Center) { Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX, static_cast<std::uint16_t>(reader.GetInt()));
+            Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY, static_cast<std::uint16_t>(reader.GetInt()) & NXBasics::BitMask::WordExceptBit0); continue; }
             const std::uint32_t sectionTokens[] = {NC2DataIds::EngineMacroMapsToken::Patname, NC2DataIds::EngineMacroMapsToken::Pat, SwitchIds::LogicLandscapeToken::Transition, NC2DataIds::EngineMacroMapsToken::Trans, NC2DataIds::EngineMacroMapsToken::LandName, SwitchIds::GoodToken::LandscapeType, NC2DataIds::EngineMacroMapsToken::Hgt, NC2DataIds::EngineMacroMapsToken::Veco, NC2DataIds::EngineMacroMapsToken::Road, NC2DataIds::EngineMacroMapsToken::Human, SwitchIds::ParticleToken::Animloop, NC2DataIds::EngineMacroMapsToken::House, NC2DataIds::EngineMacroMapsToken::FishSwarm};
             std::uint32_t section = 0;
-            while (section < 13 && sectionTokens[section] != token) ++section;
-            if (section == 13) continue;
+            while (section < NC2Layout::MacroMapSectionLimits::Count && sectionTokens[section] != token) ++section;
+            if (section == NC2Layout::MacroMapSectionLimits::Count) continue;
             const auto& schema = gMacroMapSections[section];
             if (indices[section] == Read<std::uint32_t>(map, schema.countOffset)) continue;
             auto* entry = static_cast<std::byte*>(Read<void*>(map, schema.countOffset + 4u)) + indices[section] * schema.stride;
-            if (section == 0 || section == 2 || section == 4)
+            if (section == SwitchIds::MacroMapSection::PatternNames || section == SwitchIds::MacroMapSection::TransitionNames || section == SwitchIds::MacroMapSection::LandscapeNames)
             {
                 std::strncpy(reinterpret_cast<char*>(entry), reader.GetString(), 39);
-                const auto id = section == 0 ? E2StaticDataPatternManager_GetPatternId(reinterpret_cast<char*>(entry)) : section == 2 ? E2StaticDataTransitionsManager_GetTransitionId(reinterpret_cast<char*>(entry)) : E2StaticDataLandscapesManager_GetLandscapeId(reinterpret_cast<char*>(entry));
-                Write(entry, 40, id);
+                const auto id = section == SwitchIds::MacroMapSection::PatternNames ? E2StaticDataPatternManager_GetPatternId(reinterpret_cast<char*>(entry)) : section == SwitchIds::MacroMapSection::TransitionNames ? E2StaticDataTransitionsManager_GetTransitionId(reinterpret_cast<char*>(entry)) : E2StaticDataLandscapesManager_GetLandscapeId(reinterpret_cast<char*>(entry));
+                Write(entry, NC2Layout::MacroMapNameOffset::StaticDataId, id);
             }
-            else if (section == 11)
+            else if (section == SwitchIds::MacroMapSection::Houses)
             {
                 const auto player = reader.GetInt(), x = reader.GetInt(), y = reader.GetInt();
                 const char* name = reader.GetString();
                 const auto stage = reader.GetInt();
                 const bool completed = reader.GetInt() != 0;
-                Write(entry, 0, player); Write<std::uint16_t>(entry, 4, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 6, static_cast<std::uint16_t>(y));
-                Write(entry, 8, StaticDataHouses_GetHouseId(name)); Write(entry, 12, stage); Write<std::uint8_t>(entry, 16, completed);
+                Write(entry, NC2Layout::MacroMapHouseOffset::PlayerId, player);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapX, static_cast<std::uint16_t>(x));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapY, static_cast<std::uint16_t>(y));
+                Write(entry, NC2Layout::MacroMapHouseOffset::HouseType, StaticDataHouses_GetHouseId(name));
+                Write(entry, NC2Layout::MacroMapHouseOffset::DevelopmentStage, stage);
+                Write<std::uint8_t>(entry, NC2Layout::MacroMapHouseOffset::Completed, completed);
             }
             else
             {
                 const auto x = reader.GetInt(), y = reader.GetInt();
-                if (section == 9 || section == 10)
+                if (section == SwitchIds::MacroMapSection::Humans || section == SwitchIds::MacroMapSection::Animals)
                 {
-                    const auto type = section == 9 && reader.GetTypeOfNextParameter() == 2 ? NC2Logic::Logic_EntryPoint_GetJobType(reader.GetString()) : static_cast<std::uint32_t>(reader.GetInt());
+                    const auto type = section == SwitchIds::MacroMapSection::Humans && reader.GetTypeOfNextParameter() == 2 ? NC2Logic::Logic_EntryPoint_GetJobType(reader.GetString()) : static_cast<std::uint32_t>(reader.GetInt());
                     const auto tribe = reader.GetInt(), player = reader.GetInt();
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y)); Write(entry, 4, type); Write(entry, 8, tribe); Write(entry, 12, player);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapX, static_cast<std::uint16_t>(x));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapY, static_cast<std::uint16_t>(y));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::Type, type);
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::TribeType, tribe);
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::PlayerId, player);
                 }
-                else if (section == 8)
+                else if (section == SwitchIds::MacroMapSection::Roads)
                 {
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX, static_cast<std::uint16_t>(x));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY, static_cast<std::uint16_t>(y));
                 }
                 else
                 {
                     const auto value = reader.GetInt();
-                    if (section == 1)
+                    if (section == SwitchIds::MacroMapSection::Patterns)
                     {
                         const bool triangleA = reader.GetInt() != 0;
-                        Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y)); Write(entry, 8, value); Write<std::uint8_t>(entry, 4, triangleA);
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapX, static_cast<std::uint16_t>(x));
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapY, static_cast<std::uint16_t>(y));
+                        Write(entry, NC2Layout::MacroMapPatternOffset::NameIndex, value);
+                        Write<std::uint8_t>(entry, NC2Layout::MacroMapPatternOffset::TriangleA, triangleA);
                     }
-                    else if (section == 3)
+                    else if (section == SwitchIds::MacroMapSection::Transitions)
                     {
                         const bool triangleA = reader.GetInt() != 0;
                         const auto nameId = reader.GetInt();
-                        Write(entry, 4, value); Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y)); Write<std::uint8_t>(entry, 8, triangleA); Write(entry, 12, nameId);
+                        Write(entry, NC2Layout::MacroMapTransitionOffset::Layer, value);
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapX, static_cast<std::uint16_t>(x));
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapY, static_cast<std::uint16_t>(y));
+                        Write<std::uint8_t>(entry, NC2Layout::MacroMapTransitionOffset::TriangleA, triangleA);
+                        Write(entry, NC2Layout::MacroMapTransitionOffset::NameIndex, nameId);
                     }
-                    else if (section == 5)
+                    else if (section == SwitchIds::MacroMapSection::Landscapes)
                     {
                         const auto valency = static_cast<std::uint8_t>(reader.GetInt());
                         const auto player = reader.GetTypeOfNextParameter() == 3 ? reader.GetInt() : -1;
-                        Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y)); Write(entry, 4, value); Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint32_t>(entry, 8, valency); Write(entry, 12, player);
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapY, static_cast<std::uint16_t>(y));
+                        Write(entry, NC2Layout::MacroMapLandscapeOffset::NameIndex, value);
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapX, static_cast<std::uint16_t>(x));
+                        Write<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::Valency, valency);
+                        Write(entry, NC2Layout::MacroMapLandscapeOffset::PlayerId, player);
                     }
                     else
                     {
-                        Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y));
-                        if (section == 12) Write(entry, 4, value);
-                        else Write<std::uint8_t>(entry, 4, static_cast<std::uint8_t>(value));
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX, static_cast<std::uint16_t>(x));
+                        Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY, static_cast<std::uint16_t>(y));
+                        if (section == SwitchIds::MacroMapSection::FishSwarms) Write(entry, NC2Layout::MacroMapFishSwarmOffset::FishCount, value);
+                        else Write<std::uint8_t>(entry, NC2Layout::MacroMapByteValueOffset::Value, static_cast<std::uint8_t>(value));
                     }
                 }
             }
             ++indices[section];
         }
-        NXBasics::CFile::FileSystem_Tool_GetRealFilename(filename, static_cast<char*>(map) + 1);
-        Write<std::uint8_t>(map, 0, 1);
+        NXBasics::CFile::FileSystem_Tool_GetRealFilename(filename, static_cast<char*>(map) + NC2Layout::MacroMapOffset::Filename);
+        Write<std::uint8_t>(map, NC2Layout::MacroMapOffset::Initialized, 1);
         return true;
     }
 
@@ -183,14 +207,16 @@ namespace NC2E2
         MacroMapManager_l_FreeAllMacroMaps(manager);
         const char* extension = "ini";
         auto count = NXBasics::DirectoryScanner_GetNumberOfMatchingFiles("data\\edit\\macromaps\\", extension, false);
-        Write(manager, 0, count);
-        if (count == 0) { extension = "cif"; count = NXBasics::DirectoryScanner_GetNumberOfMatchingFiles("data\\edit\\macromaps\\", extension, false); Write(manager, 0, count); }
+        Write(manager, NC2Layout::MacroMapManagerOffset::Count, count);
+        if (count == 0) { extension = "cif"; count = NXBasics::DirectoryScanner_GetNumberOfMatchingFiles("data\\edit\\macromaps\\", extension, false);
+        Write(manager, NC2Layout::MacroMapManagerOffset::Count, count); }
         const bool pickedExists = NXBasics::CFile::FileSystem_Tool_FileExists("data\\edit\\macromaps\\z_system_picked.ini", true);
-        if (!pickedExists) { count = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(count) + 1u); Write(manager, 0, count); }
+        if (!pickedExists) { count = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(count) + 1u);
+        Write(manager, NC2Layout::MacroMapManagerOffset::Count, count); }
         if (count == 0) return;
         void* entries = NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(count) * 4u, 1);
-        Write(manager, 4, entries);
-        std::memset(entries, 0, Read<std::uint32_t>(manager, 0) * 4u);
+        Write(manager, NC2Layout::MacroMapManagerOffset::Entries, entries);
+        std::memset(entries, 0, Read<std::uint32_t>(manager, NC2Layout::MacroMapManagerOffset::Count) * 4u);
         NXBasics::SDirectoryScannerState scanner;
         NXBasics::DirectoryScanner_Initialize(&scanner);
         std::uint32_t index = 0;
@@ -198,17 +224,17 @@ namespace NC2E2
         while (found)
         {
             const char* name = NXBasics::DirectoryScanner_GetCurrentNamePtr(&scanner);
-            void* map = NXBasics::Runtime_AllocateWithNewHandler(376, 1);
+            void* map = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::MacroMap, 1);
             if (map != nullptr) MacroMap_Construct(map, name);
-            Write(Read<void*>(manager, 4), index++ * 4u, map);
+            Write(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), index++ * 4u, map);
             found = NXBasics::DirectoryScanner_GetNextMatchingFile(&scanner);
         }
         NXBasics::DirectoryScanner_Destroy(&scanner);
         if (!pickedExists)
         {
-            void* map = NXBasics::Runtime_AllocateWithNewHandler(376, 1);
+            void* map = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::MacroMap, 1);
             if (map != nullptr) MacroMap_Construct(map, "data\\edit\\macromaps\\z_system_picked.ini");
-            Write(Read<void*>(manager, 4), index * 4u, map);
+            Write(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), index * 4u, map);
         }
     }
 
@@ -223,14 +249,14 @@ namespace NC2E2
     void MacroMap_SetPatternToGameMap(void* map, const void* root, MacroMapPositionCallback callback)
     {
 
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x118); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::PatternsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x11c)) + i * 12u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Patterns)) + i * NC2Layout::RecordSize::MacroMapPatternUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - Read<std::uint16_t>(map, 0x10A) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - Read<std::uint16_t>(map, 0x10C) + Read<std::uint16_t>(root, 2)), false);
-            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, 2) & 1) != 0) ++point[0];
-            const auto triangle = Read<std::uint8_t>(entry, 4);
-            if (callback == nullptr || callback(point, triangle)) EngineMap_MapMacroPoint_TrianglePattern_SetType(point, triangle != 0, Read<std::uint32_t>(Read<void*>(map, 0x114), Read<std::uint32_t>(entry, 8) * 44u + 40));
+            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapX) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapY) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY) + Read<std::uint16_t>(root, 2)), false);
+            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapY) & 1) != 0) ++point[0];
+            const auto triangle = Read<std::uint8_t>(entry, NC2Layout::MacroMapPatternOffset::TriangleA);
+            if (callback == nullptr || callback(point, triangle)) EngineMap_MapMacroPoint_TrianglePattern_SetType(point, triangle != 0, Read<std::uint32_t>(Read<void*>(map, NC2Layout::MacroMapOffset::PatternNames), Read<std::uint32_t>(entry, NC2Layout::MacroMapPatternOffset::NameIndex) * NC2Layout::RecordSize::MacroMapNameUnsigned + NC2Layout::MacroMapNameOffset::StaticDataId));
         }
     }
 
@@ -238,14 +264,14 @@ namespace NC2E2
     void MacroMap_SetTransitionsToGameMap(void* map, const void* root, MacroMapPositionCallback callback)
     {
 
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x128); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::TransitionsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x12c)) + i * 16u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Transitions)) + i * NC2Layout::RecordSize::MacroMapTransitionUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - Read<std::uint16_t>(map, 0x10A) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - Read<std::uint16_t>(map, 0x10C) + Read<std::uint16_t>(root, 2)), false);
-            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, 2) & 1) != 0) ++point[0];
-            const auto triangle = Read<std::uint8_t>(entry, 8);
-            if (callback == nullptr || callback(point, triangle)) EngineMap_Transition_Set(point, Read<std::int32_t>(Read<void*>(map, 0x124), Read<std::uint32_t>(entry, 12) * 44u + 40), Read<std::uint32_t>(entry, 4), triangle != 0);
+            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapX) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapY) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY) + Read<std::uint16_t>(root, 2)), false);
+            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapY) & 1) != 0) ++point[0];
+            const auto triangle = Read<std::uint8_t>(entry, NC2Layout::MacroMapTransitionOffset::TriangleA);
+            if (callback == nullptr || callback(point, triangle)) EngineMap_Transition_Set(point, Read<std::int32_t>(Read<void*>(map, NC2Layout::MacroMapOffset::TransitionNames), Read<std::uint32_t>(entry, NC2Layout::MacroMapTransitionOffset::NameIndex) * NC2Layout::RecordSize::MacroMapNameUnsigned + NC2Layout::MacroMapNameOffset::StaticDataId), Read<std::uint32_t>(entry, NC2Layout::MacroMapTransitionOffset::Layer), triangle != 0);
         }
     }
 
@@ -254,14 +280,14 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x138); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::LandscapesCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x13c)) + i * 16u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Landscapes)) + i * NC2Layout::RecordSize::MacroMapLandscapeUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - center[1] + base[1]), false);
-            if (callback == nullptr || callback(point, 1)) EngineMap_MapMicroPoint_Landscape_SetType(point, Read<std::int32_t>(Read<void*>(map, 0x134), Read<std::uint32_t>(entry, 4) * 44u + 40), Read<std::uint32_t>(entry, 8), preserveWalkingBlock, Read<std::int32_t>(entry, 12));
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapY) - center[1] + base[1]), false);
+            if (callback == nullptr || callback(point, 1)) EngineMap_MapMicroPoint_Landscape_SetType(point, Read<std::int32_t>(Read<void*>(map, NC2Layout::MacroMapOffset::LandscapeNames), Read<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::NameIndex) * NC2Layout::RecordSize::MacroMapNameUnsigned + NC2Layout::MacroMapNameOffset::StaticDataId), Read<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::Valency), preserveWalkingBlock, Read<std::int32_t>(entry, NC2Layout::MacroMapLandscapeOffset::PlayerId));
         }
     }
 
@@ -270,21 +296,21 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x140); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HeightsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x144)) + i * 6u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Heights)) + i * NC2Layout::RecordSize::MacroMapHeightUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - Read<std::uint16_t>(map, 0x10A) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - Read<std::uint16_t>(map, 0x10C) + Read<std::uint16_t>(root, 2)), false);
-            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, 2) & 1) != 0) ++point[0];
+            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapHeightOffset::MapX) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapHeightOffset::MapY) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY) + Read<std::uint16_t>(root, 2)), false);
+            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, NC2Layout::MacroMapHeightOffset::MapY) & 1) != 0) ++point[0];
             if (callback != nullptr)
             {
                 std::uint16_t microPoint[2];
                 NC2Logic::MapMigPoint_ConstructFromMag(microPoint, point, false);
                 if (!callback(microPoint, 1)) continue;
             }
-            const auto height = Read<std::uint8_t>(entry, 4);
+            const auto height = Read<std::uint8_t>(entry, NC2Layout::MacroMapHeightOffset::Height);
             if (mode == 0) NC2Logic::GameMap_MapMacroPoint_Height_Set(point, height);
             else if (mode == 1) NC2Logic::GameMap_MapMacroPoint_Height_Modify(point, height);
             else if (mode == 2) NC2Logic::GameMap_MapMacroPoint_Height_Modify(point, -static_cast<std::int32_t>(height));
@@ -296,21 +322,21 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x148); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::VertexColorsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x14c)) + i * 6u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::VertexColors)) + i * NC2Layout::RecordSize::MacroMapVertexColorUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - Read<std::uint16_t>(map, 0x10A) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - Read<std::uint16_t>(map, 0x10C) + Read<std::uint16_t>(root, 2)), false);
-            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, 2) & 1) != 0) ++point[0];
+            NC2Logic::MapMagPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapVertexColorOffset::MapX) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX) + Read<std::uint16_t>(root, 0)), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapVertexColorOffset::MapY) - Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY) + Read<std::uint16_t>(root, 2)), false);
+            if ((Read<std::uint16_t>(root, 2) & 1) != 0 && (Read<std::uint16_t>(entry, NC2Layout::MacroMapVertexColorOffset::MapY) & 1) != 0) ++point[0];
             if (callback != nullptr)
             {
                 std::uint16_t microPoint[2];
                 NC2Logic::MapMigPoint_ConstructFromMag(microPoint, point, false);
                 if (!callback(microPoint, 1)) continue;
             }
-            EngineMap_VertexColorIndex_Set(point, Read<std::uint8_t>(entry, 4));
+            EngineMap_VertexColorIndex_Set(point, Read<std::uint8_t>(entry, NC2Layout::MacroMapVertexColorOffset::ColorIndex));
         }
     }
 
@@ -319,13 +345,13 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x150); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::RoadsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x154)) + i * 4u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Roads)) + i * NC2Layout::RecordSize::MacroMapRoadUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - center[1] + base[1]), false);
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapY) - center[1] + base[1]), false);
             if (callback == nullptr || callback(point, 1)) NC2Logic::GameMap_MapMicroPoint_Road_Set(point, true);
         }
     }
@@ -335,15 +361,15 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x158); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HumansCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x15c)) + i * 16u;
-            if (Read<std::int32_t>(entry, 4) == -1) continue;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Humans)) + i * NC2Layout::RecordSize::MacroMapCreatureUnsigned;
+            if (Read<std::int32_t>(entry, NC2Layout::MacroMapCreatureOffset::Type) == -1) continue;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - center[1] + base[1]), false);
-            NC2Logic::Logic_EntryPoint_Add_Human(Read<std::uint32_t>(entry, 12), Read<std::uint32_t>(entry, 8), Read<std::uint32_t>(entry, 4), point, 0, 0);
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapY) - center[1] + base[1]), false);
+            NC2Logic::Logic_EntryPoint_Add_Human(Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::PlayerId), Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::TribeType), Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::Type), point, 0, 0);
         }
     }
 
@@ -352,14 +378,14 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x160); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::AnimalsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x164)) + i * 16u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Animals)) + i * NC2Layout::RecordSize::MacroMapCreatureUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - center[1] + base[1]), false);
-            NC2Logic::Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(entry, 12), Read<std::uint32_t>(entry, 8), Read<std::uint32_t>(entry, 4), point, 0, 0);
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapY) - center[1] + base[1]), false);
+            NC2Logic::Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::PlayerId), Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::TribeType), Read<std::uint32_t>(entry, NC2Layout::MacroMapCreatureOffset::Type), point, 0, 0);
         }
     }
 
@@ -368,17 +394,17 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x168); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HousesCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x16c)) + i * 20u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::Houses)) + i * NC2Layout::RecordSize::MacroMapHouseUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 4) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 6) - center[1] + base[1]), false);
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapY) - center[1] + base[1]), false);
             // Windows constructs a translated point but places the house at its stored coordinates.
             std::uint16_t storedPoint[2];
-            NC2Logic::MapMigPoint_Construct(storedPoint, Read<std::uint16_t>(entry, 4), Read<std::uint16_t>(entry, 6), false);
-            Engine2d_EntryPoint_Edit_SetHouse(Read<std::uint32_t>(entry, 0), Read<std::int32_t>(entry, 8), Read<std::uint32_t>(entry, 12), storedPoint, Read<std::uint8_t>(entry, 16) != 0);
+            NC2Logic::MapMigPoint_Construct(storedPoint, Read<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapX), Read<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapY), false);
+            Engine2d_EntryPoint_Edit_SetHouse(Read<std::uint32_t>(entry, NC2Layout::MacroMapHouseOffset::PlayerId), Read<std::int32_t>(entry, NC2Layout::MacroMapHouseOffset::HouseType), Read<std::uint32_t>(entry, NC2Layout::MacroMapHouseOffset::DevelopmentStage), storedPoint, Read<std::uint8_t>(entry, NC2Layout::MacroMapHouseOffset::Completed) != 0);
         }
     }
 
@@ -387,14 +413,14 @@ namespace NC2E2
     {
         std::uint16_t base[2], centerMacro[2], center[2];
         NC2Logic::MapMigPoint_ConstructFromMag(base, root, false);
-        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(centerMacro, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         NC2Logic::MapMigPoint_ConstructFromMag(center, centerMacro, false);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, 0x170); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::FishSwarmsCount); ++i)
         {
-            const auto entry = static_cast<const std::byte*>(Read<void*>(map, 0x174)) + i * 8u;
+            const auto entry = static_cast<const std::byte*>(Read<void*>(map, NC2Layout::MacroMapOffset::FishSwarms)) + i * NC2Layout::RecordSize::MacroMapFishSwarmUnsigned;
             std::uint16_t point[2];
-            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 2) - center[1] + base[1]), false);
-            static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->AddFishAtMapPosition(point, Read<std::uint32_t>(entry, 4), 7);
+            NC2Logic::MapMigPoint_Construct(point, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX) - center[0] + base[0]), static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapY) - center[1] + base[1]), false);
+            static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->AddFishAtMapPosition(point, Read<std::uint32_t>(entry, NC2Layout::MacroMapFishSwarmOffset::FishCount), 7);
         }
     }
 
@@ -411,8 +437,8 @@ namespace NC2E2
         if (minX > maxX) { const auto swap = minX; minX = maxX; maxX = swap; }
         if (minY > maxY) { const auto swap = minY; minY = maxY; maxY = swap; }
         if (minX == maxX || minY == maxY) return;
-        Write<std::uint16_t>(map, 0x106, static_cast<std::uint16_t>(maxX - minX));
-        Write<std::uint16_t>(map, 0x108, static_cast<std::uint16_t>(maxY - minY));
+        Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::Width, static_cast<std::uint16_t>(maxX - minX));
+        Write<std::uint16_t>(map, NC2Layout::MacroMapOffset::Height, static_cast<std::uint16_t>(maxY - minY));
         const auto microMinX = static_cast<std::int16_t>(minX * 2), microMinY = static_cast<std::int16_t>(minY * 2);
         const auto microMaxX = static_cast<std::int16_t>(maxX * 2), microMaxY = static_cast<std::int16_t>(maxY * 2);
         const auto allocateSection = [&](std::uint32_t countOffset, std::uint32_t stride, bool clear)
@@ -432,11 +458,11 @@ namespace NC2E2
                 for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, countOffset); ++i)
                 {
                     auto* entry = entryAt(countOffset, i, stride);
-                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, 0x106) - Read<std::uint16_t>(entry, 0));
+                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Width) - Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX));
                     const bool triangle = Read<std::uint8_t>(entry, triangleOffset) != 0;
-                    if ((Read<std::uint16_t>(entry, 2) & 1u) == 0) { if (triangle) ++x; }
+                    if ((Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY) & 1u) == 0) { if (triangle) ++x; }
                     else if (!triangle) --x;
-                    Write(entry, 0, x);
+                    Write(entry, NC2Layout::MacroMapPointOffset::MapX, x);
                 }
             }
             if (mirrorY)
@@ -445,8 +471,8 @@ namespace NC2E2
                 {
                     auto* entry = entryAt(countOffset, i, stride);
                     const bool triangle = Read<std::uint8_t>(entry, triangleOffset) != 0;
-                    if (triangle) Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - 1));
-                    Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(Read<std::uint16_t>(map, 0x108) - Read<std::uint16_t>(entry, 2)));
+                    if (triangle) Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX) - 1));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY, static_cast<std::uint16_t>(Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Height) - Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY)));
                     Write<std::uint8_t>(entry, triangleOffset, !triangle);
                 }
             }
@@ -458,9 +484,10 @@ namespace NC2E2
                 for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, countOffset); ++i)
                 {
                     auto* entry = entryAt(countOffset, i, stride) + positionOffset;
-                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, 0x106) * (micro ? 2u : 1u) - Read<std::uint16_t>(entry, 0));
-                    if ((Read<std::uint16_t>(entry, 2) & 1u) != 0) --x;
-                    x = static_cast<std::uint16_t>(x + (micro ? 2u : 1u)); Write(entry, 0, x);
+                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Width) * (micro ? 2u : 1u) - Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX));
+                    if ((Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY) & 1u) != 0) --x;
+                    x = static_cast<std::uint16_t>(x + (micro ? 2u : 1u));
+                    Write(entry, NC2Layout::MacroMapPointOffset::MapX, x);
                 }
             }
             if (mirrorY)
@@ -468,9 +495,9 @@ namespace NC2E2
                 for (std::uint32_t i = 0; i < Read<std::uint32_t>(map, countOffset); ++i)
                 {
                     auto* entry = entryAt(countOffset, i, stride) + positionOffset;
-                    if (micro || (Read<std::uint16_t>(entry, 2) & 1u) == 0) Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - 1));
-                    const auto height = Read<std::uint16_t>(map, 0x108);
-                    Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>((micro ? static_cast<std::uint16_t>(height + 1u) * 2u : height + 1u) - Read<std::uint16_t>(entry, 2)));
+                    if (micro || (Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY) & 1u) == 0) Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapX) - 1));
+                    const auto height = Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Height);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY, static_cast<std::uint16_t>((micro ? static_cast<std::uint16_t>(height + 1u) * 2u : height + 1u) - Read<std::uint16_t>(entry, NC2Layout::MacroMapPointOffset::MapY)));
                 }
             }
         };
@@ -485,23 +512,24 @@ namespace NC2E2
             {
                 if (Read<std::uint8_t>(logic, triangle) == 0) continue;
                 const auto id = Read<std::uint16_t>(engine, triangle * 2);
-                if (Read<std::uint32_t>(patternUsage, id * 8u) == 0) increment(0x110);
-                Write(patternUsage, id * 8u, Read<std::uint32_t>(patternUsage, id * 8u) + 1u); increment(0x118);
+                if (Read<std::uint32_t>(patternUsage, id * 8u) == 0) increment(NC2Layout::MacroMapOffset::PatternNamesCount);
+                Write(patternUsage, id * 8u, Read<std::uint32_t>(patternUsage, id * 8u) + 1u);
+                increment(NC2Layout::MacroMapOffset::PatternsCount);
             }
         }
-        if (Read<std::uint32_t>(map, 0x110) != 0)
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::PatternNamesCount) != 0)
         {
-            allocateSection(0x110, 44, false);
+            allocateSection(NC2Layout::MacroMapOffset::PatternNamesCount, NC2Layout::RecordSize::MacroMapName, false);
             std::uint32_t nameIndex = 0;
             for (std::int32_t id = 0; id < gStaticPatternCount; ++id)
             {
                 if (Read<std::uint32_t>(patternUsage, static_cast<std::uint32_t>(id) * 8u) == 0) { Write<std::int32_t>(patternUsage, static_cast<std::uint32_t>(id) * 8u + 4u, -1); continue; }
                 Write(patternUsage, static_cast<std::uint32_t>(id) * 8u + 4u, nameIndex);
-                auto* name = entryAt(0x110, nameIndex++, 44);
+                auto* name = entryAt(NC2Layout::MacroMapOffset::PatternNamesCount, nameIndex++, NC2Layout::RecordSize::MacroMapName);
                 NXBasics::Runtime_CopyString(reinterpret_cast<char*>(name), reinterpret_cast<const char*>(gStaticPatternEntries) + static_cast<std::uint32_t>(id) * 112u);
-                Write(name, 40, id);
+                Write(name, NC2Layout::MacroMapNameOffset::StaticDataId, id);
             }
-            allocateSection(0x118, 12, true);
+            allocateSection(NC2Layout::MacroMapOffset::PatternsCount, NC2Layout::RecordSize::MacroMapPattern, true);
             std::uint32_t index = 0;
             for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
             {
@@ -510,12 +538,14 @@ namespace NC2E2
                 for (std::uint32_t triangle = 0; triangle < 2; ++triangle)
                 {
                     if (Read<std::uint8_t>(logic, triangle) == 0) continue;
-                    auto* entry = entryAt(0x118, index++, 12);
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - minX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - minY)); Write<std::uint8_t>(entry, 4, triangle == 0);
-                    Write(entry, 8, Read<std::uint32_t>(patternUsage, Read<std::uint16_t>(engine, triangle * 2) * 8u + 4u));
+                    auto* entry = entryAt(NC2Layout::MacroMapOffset::PatternsCount, index++, NC2Layout::RecordSize::MacroMapPattern);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapX, static_cast<std::uint16_t>(x - minX));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapPatternOffset::MapY, static_cast<std::uint16_t>(y - minY));
+                    Write<std::uint8_t>(entry, NC2Layout::MacroMapPatternOffset::TriangleA, triangle == 0);
+                    Write(entry, NC2Layout::MacroMapPatternOffset::NameIndex, Read<std::uint32_t>(patternUsage, Read<std::uint16_t>(engine, triangle * 2) * 8u + 4u));
                 }
             }
-            mirrorTriangles(0x118, 12, 4);
+            mirrorTriangles(NC2Layout::MacroMapOffset::PatternsCount, 12, 4);
         }
         NXBasics::Runtime_Free(patternUsage);
         // Windows transition capture: count occurrences, assign names in static-data order, then copy records.
@@ -529,23 +559,24 @@ namespace NC2E2
                 const auto value = Read<std::uint8_t>(engine, 7u + layer * 2u + triangle);
                 if (value == NXBasics::IntegerRange::UInt8Maximum) continue;
                 const auto id = value / 6u;
-                if (Read<std::uint32_t>(transitionUsage, id * 8u) == 0) increment(0x120);
-                Write(transitionUsage, id * 8u, Read<std::uint32_t>(transitionUsage, id * 8u) + 1u); increment(0x128);
+                if (Read<std::uint32_t>(transitionUsage, id * 8u) == 0) increment(NC2Layout::MacroMapOffset::TransitionNamesCount);
+                Write(transitionUsage, id * 8u, Read<std::uint32_t>(transitionUsage, id * 8u) + 1u);
+                increment(NC2Layout::MacroMapOffset::TransitionsCount);
             }
         }
-        if (Read<std::uint32_t>(map, 0x120) != 0)
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::TransitionNamesCount) != 0)
         {
-            allocateSection(0x120, 44, false);
+            allocateSection(NC2Layout::MacroMapOffset::TransitionNamesCount, NC2Layout::RecordSize::MacroMapName, false);
             std::uint32_t nameIndex = 0;
             for (std::int32_t id = 0; id < gStaticTransitionStorage.count; ++id)
             {
                 if (Read<std::uint32_t>(transitionUsage, static_cast<std::uint32_t>(id) * 8u) == 0) { Write<std::int32_t>(transitionUsage, static_cast<std::uint32_t>(id) * 8u + 4u, -1); continue; }
                 Write(transitionUsage, static_cast<std::uint32_t>(id) * 8u + 4u, nameIndex);
-                auto* name = entryAt(0x120, nameIndex++, 44);
+                auto* name = entryAt(NC2Layout::MacroMapOffset::TransitionNamesCount, nameIndex++, NC2Layout::RecordSize::MacroMapName);
                 NXBasics::Runtime_CopyString(reinterpret_cast<char*>(name), reinterpret_cast<const char*>(gStaticTransitionStorage.entries) + static_cast<std::uint32_t>(id) * 340u);
-                Write(name, 40, id);
+                Write(name, NC2Layout::MacroMapNameOffset::StaticDataId, id);
             }
-            allocateSection(0x128, 16, true);
+            allocateSection(NC2Layout::MacroMapOffset::TransitionsCount, NC2Layout::RecordSize::MacroMapTransition, true);
             std::uint32_t index = 0;
             for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
             {
@@ -554,13 +585,15 @@ namespace NC2E2
                 {
                     const auto value = Read<std::uint8_t>(engine, 7u + layer * 2u + triangle);
                     if (value == NXBasics::IntegerRange::UInt8Maximum) continue;
-                    auto* entry = entryAt(0x128, index++, 16);
-                    Write(entry, 4, layer); Write<std::uint8_t>(entry, 8, triangle == 0);
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - minX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - minY));
-                    Write(entry, 12, Read<std::uint32_t>(transitionUsage, (value / 6u) * 8u + 4u));
+                    auto* entry = entryAt(NC2Layout::MacroMapOffset::TransitionsCount, index++, NC2Layout::RecordSize::MacroMapTransition);
+                    Write(entry, NC2Layout::MacroMapTransitionOffset::Layer, layer);
+                    Write<std::uint8_t>(entry, NC2Layout::MacroMapTransitionOffset::TriangleA, triangle == 0);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapX, static_cast<std::uint16_t>(x - minX));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapTransitionOffset::MapY, static_cast<std::uint16_t>(y - minY));
+                    Write(entry, NC2Layout::MacroMapTransitionOffset::NameIndex, Read<std::uint32_t>(transitionUsage, (value / 6u) * 8u + 4u));
                 }
             }
-            mirrorTriangles(0x128, 16, 8);
+            mirrorTriangles(NC2Layout::MacroMapOffset::TransitionsCount, 16, 8);
         }
         NXBasics::Runtime_Free(transitionUsage);
         // Windows landscape capture: count occurrences, assign names in static-data order, then copy records.
@@ -571,22 +604,23 @@ namespace NC2E2
             const auto engine = EngineMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
             const auto id = Read<std::uint16_t>(engine, 0);
             if (id == NXBasics::IntegerRange::UInt16Maximum) continue;
-            if (Read<std::uint32_t>(landscapeUsage, id * 8u) == 0) increment(0x130);
-            Write(landscapeUsage, id * 8u, Read<std::uint32_t>(landscapeUsage, id * 8u) + 1u); increment(0x138);
+            if (Read<std::uint32_t>(landscapeUsage, id * 8u) == 0) increment(NC2Layout::MacroMapOffset::LandscapeNamesCount);
+            Write(landscapeUsage, id * 8u, Read<std::uint32_t>(landscapeUsage, id * 8u) + 1u);
+            increment(NC2Layout::MacroMapOffset::LandscapesCount);
         }
-        if (Read<std::uint32_t>(map, 0x130) != 0)
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::LandscapeNamesCount) != 0)
         {
-            allocateSection(0x130, 44, false);
+            allocateSection(NC2Layout::MacroMapOffset::LandscapeNamesCount, NC2Layout::RecordSize::MacroMapName, false);
             std::uint32_t nameIndex = 0;
             for (std::int32_t id = 0; id < gStaticLandscapeCount; ++id)
             {
                 if (Read<std::uint32_t>(landscapeUsage, static_cast<std::uint32_t>(id) * 8u) == 0) { Write<std::int32_t>(landscapeUsage, static_cast<std::uint32_t>(id) * 8u + 4u, -1); continue; }
                 Write(landscapeUsage, static_cast<std::uint32_t>(id) * 8u + 4u, nameIndex);
-                auto* name = entryAt(0x130, nameIndex++, 44);
+                auto* name = entryAt(NC2Layout::MacroMapOffset::LandscapeNamesCount, nameIndex++, NC2Layout::RecordSize::MacroMapName);
                 NXBasics::Runtime_CopyString(reinterpret_cast<char*>(name), reinterpret_cast<const char*>(gStaticLandscapeEntries) + static_cast<std::uint32_t>(id) * 140u);
-                Write(name, 40, id);
+                Write(name, NC2Layout::MacroMapNameOffset::StaticDataId, id);
             }
-            allocateSection(0x138, 16, true);
+            allocateSection(NC2Layout::MacroMapOffset::LandscapesCount, NC2Layout::RecordSize::MacroMapLandscape, true);
             std::uint32_t index = 0;
             for (std::int32_t y = microMinY; y < microMaxY; ++y) for (std::int32_t x = microMinX; x < microMaxX; ++x)
             {
@@ -594,58 +628,64 @@ namespace NC2E2
                 const auto logic = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
                 const auto id = Read<std::uint16_t>(engine, 0);
                 if (id == NXBasics::IntegerRange::UInt16Maximum) continue;
-                auto* entry = entryAt(0x138, index++, 16);
-                Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - microMinX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - microMinY));
-                Write(entry, 4, Read<std::uint32_t>(landscapeUsage, id * 8u + 4u));
-                Write<std::uint32_t>(entry, 8, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::uint8_t>(logic, 3) : 0);
-                Write<std::int32_t>(entry, 12, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::int8_t>(logic, 4) : -1);
+                auto* entry = entryAt(NC2Layout::MacroMapOffset::LandscapesCount, index++, NC2Layout::RecordSize::MacroMapLandscape);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapX, static_cast<std::uint16_t>(x - microMinX));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapY, static_cast<std::uint16_t>(y - microMinY));
+                Write(entry, NC2Layout::MacroMapLandscapeOffset::NameIndex, Read<std::uint32_t>(landscapeUsage, id * 8u + 4u));
+                Write<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::Valency, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::uint8_t>(logic, 3) : 0);
+                Write<std::int32_t>(entry, NC2Layout::MacroMapLandscapeOffset::PlayerId, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::int8_t>(logic, 4) : -1);
             }
-            mirrorPoints(0x138, 16, 0, true);
+            mirrorPoints(NC2Layout::MacroMapOffset::LandscapesCount, 16, 0, true);
         }
         NXBasics::Runtime_Free(landscapeUsage);
         for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
-            if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 2) != 0) increment(0x140);
-        if (Read<std::uint32_t>(map, 0x140) != 0)
+            if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 2) != 0) increment(NC2Layout::MacroMapOffset::HeightsCount);
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HeightsCount) != 0)
         {
-            allocateSection(0x140, 6, true);
+            allocateSection(NC2Layout::MacroMapOffset::HeightsCount, NC2Layout::RecordSize::MacroMapHeight, true);
             std::uint32_t index = 0;
             for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
             {
                 const auto data = NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
                 if (Read<std::uint8_t>(data, 2) == 0) continue;
-                auto* entry = entryAt(0x140, index++, 6);
-                Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - minX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - minY)); Write(entry, 4, Read<std::uint8_t>(data, 2));
+                auto* entry = entryAt(NC2Layout::MacroMapOffset::HeightsCount, index++, NC2Layout::RecordSize::MacroMapHeight);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapHeightOffset::MapX, static_cast<std::uint16_t>(x - minX));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapHeightOffset::MapY, static_cast<std::uint16_t>(y - minY));
+                Write(entry, NC2Layout::MacroMapHeightOffset::Height, Read<std::uint8_t>(data, 2));
             }
-            mirrorPoints(0x140, 6, 0, false);
+            mirrorPoints(NC2Layout::MacroMapOffset::HeightsCount, 6, 0, false);
         }
         for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
-            if (Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 5) != 0) increment(0x148);
-        if (Read<std::uint32_t>(map, 0x148) != 0)
+            if (Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 5) != 0) increment(NC2Layout::MacroMapOffset::VertexColorsCount);
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::VertexColorsCount) != 0)
         {
-            allocateSection(0x148, 6, true);
+            allocateSection(NC2Layout::MacroMapOffset::VertexColorsCount, NC2Layout::RecordSize::MacroMapVertexColor, true);
             std::uint32_t index = 0;
             for (std::int32_t y = minY; y < maxY; ++y) for (std::int32_t x = minX; x < maxX; ++x)
             {
                 const auto data = EngineMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
                 if (Read<std::uint8_t>(data, 5) == 0) continue;
-                auto* entry = entryAt(0x148, index++, 6);
-                Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - minX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - minY)); Write(entry, 4, Read<std::uint8_t>(data, 5));
+                auto* entry = entryAt(NC2Layout::MacroMapOffset::VertexColorsCount, index++, NC2Layout::RecordSize::MacroMapVertexColor);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapVertexColorOffset::MapX, static_cast<std::uint16_t>(x - minX));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapVertexColorOffset::MapY, static_cast<std::uint16_t>(y - minY));
+                Write(entry, NC2Layout::MacroMapVertexColorOffset::ColorIndex, Read<std::uint8_t>(data, 5));
             }
-            mirrorPoints(0x148, 6, 0, false);
+            mirrorPoints(NC2Layout::MacroMapOffset::VertexColorsCount, 6, 0, false);
         }
         for (std::int32_t y = microMinY; y < microMaxY; ++y) for (std::int32_t x = microMinX; x < microMaxX; ++x)
-            if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 13) & 2u) != 0) increment(0x150);
-        if (Read<std::uint32_t>(map, 0x150) != 0)
+            if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 13) & 2u) != 0) increment(NC2Layout::MacroMapOffset::RoadsCount);
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::RoadsCount) != 0)
         {
-            allocateSection(0x150, 4, true);
+            allocateSection(NC2Layout::MacroMapOffset::RoadsCount, NC2Layout::RecordSize::MacroMapRoad, true);
             std::uint32_t index = 0;
             for (std::int32_t y = microMinY; y < microMaxY; ++y) for (std::int32_t x = microMinX; x < microMaxX; ++x)
             {
                 if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 13) & 2u) == 0) continue;
-                auto* entry = entryAt(0x150, index++, 4);
-                Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x - microMinX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(y - microMinY));
+                auto* entry = entryAt(NC2Layout::MacroMapOffset::RoadsCount, index++, NC2Layout::RecordSize::MacroMapRoad);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapX, static_cast<std::uint16_t>(x - microMinX));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapY, static_cast<std::uint16_t>(y - microMinY));
             }
-            mirrorPoints(0x150, 4, 0, true);
+            mirrorPoints(NC2Layout::MacroMapOffset::RoadsCount, 4, 0, true);
         }
         const auto inside = [&](const void* point) { const auto x = Read<std::int16_t>(point, 0), y = Read<std::int16_t>(point, 2); return x >= microMinX && x < microMaxX && y >= microMinY && y < microMaxY; };
         if (includeCreatures)
@@ -653,94 +693,105 @@ namespace NC2E2
             for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
             {
                 const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1) increment(0x158);
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1) increment(NC2Layout::MacroMapOffset::HumansCount);
             }
-            if (Read<std::uint32_t>(map, 0x158) != 0)
+            if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HumansCount) != 0)
             {
-                allocateSection(0x158, 16, true);
+                allocateSection(NC2Layout::MacroMapOffset::HumansCount, NC2Layout::RecordSize::MacroMapCreature, true);
                 std::uint32_t index = 0;
                 for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
                 {
                     const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                     if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || !inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) || Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                     const auto object = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * 3160u;
-                    auto* entry = entryAt(0x158, index++, 16);
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Human_GetMapPositionRef(object), 0) - microMinX));
-                    Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Human_GetMapPositionRef(object), 2) - microMinY));
-                    Write(entry, 4, Read<std::uint32_t>(object, 0x18)); Write(entry, 12, Read<std::uint32_t>(object, 0x10)); Write(entry, 8, Read<std::uint32_t>(object, 0x14));
+                    auto* entry = entryAt(NC2Layout::MacroMapOffset::HumansCount, index++, NC2Layout::RecordSize::MacroMapCreature);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Human_GetMapPositionRef(object), 0) - microMinX));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapY, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Human_GetMapPositionRef(object), 2) - microMinY));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::Type, Read<std::uint32_t>(object, NC2Layout::HumanOffset::JobType));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::PlayerId, Read<std::uint32_t>(object, NC2Layout::HumanOffset::PlayerId));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::TribeType, Read<std::uint32_t>(object, NC2Layout::HumanOffset::TribeType));
                 }
-                mirrorPoints(0x158, 16, 0, true);
+                mirrorPoints(NC2Layout::MacroMapOffset::HumansCount, 16, 0, true);
             }
             for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
             {
                 const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 2) increment(0x160);
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 2) increment(NC2Layout::MacroMapOffset::AnimalsCount);
             }
-            if (Read<std::uint32_t>(map, 0x160) != 0)
+            if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::AnimalsCount) != 0)
             {
-                allocateSection(0x160, 16, true);
+                allocateSection(NC2Layout::MacroMapOffset::AnimalsCount, NC2Layout::RecordSize::MacroMapCreature, true);
                 std::uint32_t index = 0;
                 for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
                 {
                     const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                     if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || !inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) || Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 2) continue;
                     const auto object = NC2Logic::CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * 152u;
-                    auto* entry = entryAt(0x160, index++, 16);
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Animal_GetMapPositionRef(object), 0) - microMinX));
-                    Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Animal_GetMapPositionRef(object), 2) - microMinY));
-                    Write(entry, 4, Read<std::uint32_t>(object, 0x18)); Write(entry, 12, Read<std::uint32_t>(object, 0x10)); Write(entry, 8, Read<std::uint32_t>(object, 0x14));
+                    auto* entry = entryAt(NC2Layout::MacroMapOffset::AnimalsCount, index++, NC2Layout::RecordSize::MacroMapCreature);
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Animal_GetMapPositionRef(object), 0) - microMinX));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapCreatureOffset::MapY, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Animal_GetMapPositionRef(object), 2) - microMinY));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::Type, Read<std::uint32_t>(object, NC2Layout::AnimalOffset::AnimalType));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::PlayerId, Read<std::uint32_t>(object, NC2Layout::AnimalOffset::PlayerId));
+                    Write(entry, NC2Layout::MacroMapCreatureOffset::TribeType, Read<std::uint32_t>(object, NC2Layout::AnimalOffset::TribeType));
                 }
-                mirrorPoints(0x160, 16, 0, true);
+                mirrorPoints(NC2Layout::MacroMapOffset::AnimalsCount, 16, 0, true);
             }
             for (std::int32_t id = 0; id < NC2Logic::CHouseArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * 0x7E0u;
-                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && inside(house + NC2Layout::HouseOffset::MapPosition)) increment(0x168);
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && inside(house + NC2Layout::HouseOffset::MapPosition)) increment(NC2Layout::MacroMapOffset::HousesCount);
             }
-            if (Read<std::uint32_t>(map, 0x168) != 0)
+            if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::HousesCount) != 0)
             {
-                allocateSection(0x168, 20, true);
+                allocateSection(NC2Layout::MacroMapOffset::HousesCount, NC2Layout::RecordSize::MacroMapHouse, true);
                 std::uint32_t index = 0;
                 for (std::int32_t id = 0; id < NC2Logic::CHouseArray::sTheObjectPtr->mCapacity; ++id)
                 {
                     const auto house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * 0x7E0u;
                     if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || !inside(house + NC2Layout::HouseOffset::MapPosition)) continue;
-                    auto* entry = entryAt(0x168, index++, 20);
-                    Write(entry, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)); Write<std::uint16_t>(entry, 4, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX) - microMinX)); Write<std::uint16_t>(entry, 6, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY) - microMinY));
-                    Write(entry, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)); Write(entry, 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage)); Write<std::uint8_t>(entry, 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3);
+                    auto* entry = entryAt(NC2Layout::MacroMapOffset::HousesCount, index++, NC2Layout::RecordSize::MacroMapHouse);
+                    Write(entry, NC2Layout::MacroMapHouseOffset::PlayerId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX) - microMinX));
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapHouseOffset::MapY, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY) - microMinY));
+                    Write(entry, NC2Layout::MacroMapHouseOffset::HouseType, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+                    Write(entry, NC2Layout::MacroMapHouseOffset::DevelopmentStage, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
+                    Write<std::uint8_t>(entry, NC2Layout::MacroMapHouseOffset::Completed, Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3);
                 }
-                mirrorPoints(0x168, 20, 4, true);
+                mirrorPoints(NC2Layout::MacroMapOffset::HousesCount, 20, 4, true);
             }
         }
         // Windows retains the total swarm count; out-of-region slots stay zero rather than being compacted.
-        Write(map, 0x170, static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->mSwarmCount);
-        if (Read<std::uint32_t>(map, 0x170) != 0)
+        Write(map, NC2Layout::MacroMapOffset::FishSwarmsCount, static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->mSwarmCount);
+        if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::FishSwarmsCount) != 0)
         {
-            allocateSection(0x170, 8, true);
-            for (std::int32_t id = 0; id < Read<std::int32_t>(map, 0x170); ++id)
+            allocateSection(NC2Layout::MacroMapOffset::FishSwarmsCount, NC2Layout::RecordSize::MacroMapFishSwarm, true);
+            for (std::int32_t id = 0; id < Read<std::int32_t>(map, NC2Layout::MacroMapOffset::FishSwarmsCount); ++id)
             {
                 const auto* swarm = &static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->mSwarms[id];
                 if (!inside(swarm)) continue;
-                auto* entry = entryAt(0x170, static_cast<std::uint32_t>(id), 8);
-                Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(swarm, 0) - microMinX)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(Read<std::uint16_t>(swarm, 2) - microMinY)); Write(entry, 4, Read<std::uint32_t>(swarm, 4));
+                auto* entry = entryAt(NC2Layout::MacroMapOffset::FishSwarmsCount, static_cast<std::uint32_t>(id), NC2Layout::RecordSize::MacroMapFishSwarm);
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(swarm, 0) - microMinX));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapY, static_cast<std::uint16_t>(Read<std::uint16_t>(swarm, 2) - microMinY));
+                Write(entry, NC2Layout::MacroMapFishSwarmOffset::FishCount, Read<std::uint32_t>(swarm, 4));
                 if (mirrorX)
                 {
-                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, 0x106) * 2u - Read<std::uint16_t>(entry, 0));
-                    if ((Read<std::uint16_t>(entry, 2) & 1u) != 0) --x;
-                    Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(x + 2u));
+                    auto x = static_cast<std::uint16_t>(Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Width) * 2u - Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX));
+                    if ((Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapY) & 1u) != 0) --x;
+                    Write<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX, static_cast<std::uint16_t>(x + 2u));
                 }
-                if (mirrorY) { Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, 0) - 1)); Write<std::uint16_t>(entry, 2, static_cast<std::uint16_t>(static_cast<std::uint16_t>(Read<std::uint16_t>(map, 0x108) + 1u) * 2u - Read<std::uint16_t>(entry, 2))); }
+                if (mirrorY) { Write<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX, static_cast<std::uint16_t>(Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapX) - 1));
+                Write<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapY, static_cast<std::uint16_t>(static_cast<std::uint16_t>(Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::Height) + 1u) * 2u - Read<std::uint16_t>(entry, NC2Layout::MacroMapFishSwarmOffset::MapY))); }
             }
         }
-        if (filename != nullptr) NXBasics::Runtime_CopyString(static_cast<char*>(map) + 1, filename);
-        Write<std::uint8_t>(map, 0, 1);
+        if (filename != nullptr) NXBasics::Runtime_CopyString(static_cast<char*>(map) + NC2Layout::MacroMapOffset::Filename, filename);
+        Write<std::uint8_t>(map, NC2Layout::MacroMapOffset::Initialized, 1);
     }
     // Original function: FUN_00493472; MapIO_NewMap; the Mac symbol supplies the name only.
     void MapIO_NewMap(void* map, bool enableTime, std::int16_t width, std::int16_t height, bool initializeAllPlayers)
     {
-        if (Read<std::uint8_t>(map, 0) == 0) return;
-        if (width == 0) width = Read<std::int16_t>(map, 0x106);
-        if (height == 0) height = Read<std::int16_t>(map, 0x108);
+        if (Read<std::uint8_t>(map, NC2Layout::MacroMapOffset::Initialized) == 0) return;
+        if (width == 0) width = Read<std::int16_t>(map, NC2Layout::MacroMapOffset::Width);
+        if (height == 0) height = Read<std::int16_t>(map, NC2Layout::MacroMapOffset::Height);
         if (width == 0 || height == 0) return;
         NC2Logic::Game_ShutDown();
         NC2Logic::gGameControlStartupData.Reset();
@@ -750,13 +801,15 @@ namespace NC2E2
             for (std::uint32_t offset = 0; offset < NC2Layout::RecordSize::GameControlPlayerArray; offset += NC2Layout::RecordSize::GameControlPlayer)
             {
                 auto* player = static_cast<std::byte*>(NC2Logic::gGameControl) + offset;
-                Write<std::uint8_t>(player, 0, 1); Write<std::uint32_t>(player, 4, 1); Write<std::uint32_t>(player, 12, 1);
+                Write<std::uint8_t>(player, 0, 1);
+                Write<std::uint32_t>(player, 4, 1);
+                Write<std::uint32_t>(player, 12, 1);
             }
             NC2Logic::GameControl_MiscSystem_PlayerDynamicData_InitStructures(NC2Logic::gGameControl);
         }
         NC2Logic::GameMapModifyManager_StartGameMapModify();
         std::uint16_t root[2];
-        NC2Logic::MapMagPoint_Construct(root, Read<std::uint16_t>(map, 0x10A), Read<std::uint16_t>(map, 0x10C), false);
+        NC2Logic::MapMagPoint_Construct(root, Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterX), Read<std::uint16_t>(map, NC2Layout::MacroMapOffset::CenterY), false);
         MacroMap_SetPatternToGameMap(map, root, nullptr);
         MacroMap_SetTransitionsToGameMap(map, root, nullptr);
         MacroMap_SetLandscapesToGameMap(map, root, nullptr, true);
@@ -776,7 +829,7 @@ namespace NC2E2
         std::byte guid[16];
         std::memcpy(guid, &NC2Logic::gGameStaticVars.mapGuid, 16);
         NC2Logic::GameMapModifyManager_StartGameMapModify();
-        std::byte map[376];
+        std::byte map[NC2Layout::RecordSize::MacroMap];
         MacroMap_Construct(map, nullptr);
         MacroMap_CreateFromGameMap(map, nullptr, false, 0, 0, static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth()), static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight()), false, false);
         if (width == 0) width = static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth());

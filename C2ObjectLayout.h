@@ -954,6 +954,143 @@ namespace NC2Layout
         inline constexpr auto Entries = 4;
     }
 
+
+    // Windows macro-map storage and section records.
+    namespace MacroMapSectionLimits
+    {
+        inline constexpr auto Count = 13;
+    }
+
+    namespace MacroMapByteValueOffset
+    {
+        inline constexpr auto Value = 4;
+    }
+
+    namespace MacroMapOffset
+    {
+        inline constexpr auto Initialized = 0;
+        inline constexpr auto Width = 0x106;
+        inline constexpr auto Height = 0x108;
+        inline constexpr auto CenterX = 0x10A;
+        inline constexpr auto CenterY = 0x10C;
+        inline constexpr auto PatternsCount = 0x118;
+        inline constexpr auto Patterns = 0x11c;
+        inline constexpr auto PatternNames = 0x114;
+        inline constexpr auto TransitionsCount = 0x128;
+        inline constexpr auto Transitions = 0x12c;
+        inline constexpr auto TransitionNames = 0x124;
+        inline constexpr auto LandscapesCount = 0x138;
+        inline constexpr auto Landscapes = 0x13c;
+        inline constexpr auto LandscapeNames = 0x134;
+        inline constexpr auto HeightsCount = 0x140;
+        inline constexpr auto Heights = 0x144;
+        inline constexpr auto VertexColorsCount = 0x148;
+        inline constexpr auto VertexColors = 0x14c;
+        inline constexpr auto RoadsCount = 0x150;
+        inline constexpr auto Roads = 0x154;
+        inline constexpr auto HumansCount = 0x158;
+        inline constexpr auto Humans = 0x15c;
+        inline constexpr auto AnimalsCount = 0x160;
+        inline constexpr auto Animals = 0x164;
+        inline constexpr auto HousesCount = 0x168;
+        inline constexpr auto Houses = 0x16c;
+        inline constexpr auto FishSwarmsCount = 0x170;
+        inline constexpr auto FishSwarms = 0x174;
+        inline constexpr auto PatternNamesCount = 0x110;
+        inline constexpr auto TransitionNamesCount = 0x120;
+        inline constexpr auto LandscapeNamesCount = 0x130;
+        inline constexpr auto Filename = 1;
+    }
+
+    namespace MacroMapManagerOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Entries = 4;
+    }
+
+    namespace MacroMapNameOffset
+    {
+        inline constexpr auto StaticDataId = 40;
+    }
+
+    namespace MacroMapHouseOffset
+    {
+        inline constexpr auto PlayerId = 0;
+        inline constexpr auto MapX = 4;
+        inline constexpr auto MapY = 6;
+        inline constexpr auto HouseType = 8;
+        inline constexpr auto DevelopmentStage = 12;
+        inline constexpr auto Completed = 16;
+    }
+
+    namespace MacroMapCreatureOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+        inline constexpr auto Type = 4;
+        inline constexpr auto TribeType = 8;
+        inline constexpr auto PlayerId = 12;
+    }
+
+    namespace MacroMapPatternOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+        inline constexpr auto NameIndex = 8;
+        inline constexpr auto TriangleA = 4;
+    }
+
+    namespace MacroMapTransitionOffset
+    {
+        inline constexpr auto Layer = 4;
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+        inline constexpr auto TriangleA = 8;
+        inline constexpr auto NameIndex = 12;
+    }
+
+    namespace MacroMapLandscapeOffset
+    {
+        inline constexpr auto MapY = 2;
+        inline constexpr auto NameIndex = 4;
+        inline constexpr auto MapX = 0;
+        inline constexpr auto Valency = 8;
+        inline constexpr auto PlayerId = 12;
+    }
+
+    namespace MacroMapPointOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+    }
+
+    namespace MacroMapFishSwarmOffset
+    {
+        inline constexpr auto FishCount = 4;
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+    }
+
+    namespace MacroMapHeightOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+        inline constexpr auto Height = 4;
+    }
+
+    namespace MacroMapVertexColorOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+        inline constexpr auto ColorIndex = 4;
+    }
+
+    namespace MacroMapRoadOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 2;
+    }
+
     namespace ParticleManagerOffset
     {
         inline constexpr auto FirstParticleActiveUnsigned = 0x9F74u;
@@ -975,6 +1112,29 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MacroMapPatternUnsigned = 12u;
+        inline constexpr auto MacroMapTransitionUnsigned = 16u;
+        inline constexpr auto MacroMapLandscapeUnsigned = 16u;
+        inline constexpr auto MacroMapHeightUnsigned = 6u;
+        inline constexpr auto MacroMapVertexColorUnsigned = 6u;
+        inline constexpr auto MacroMapRoadUnsigned = 4u;
+        inline constexpr auto MacroMapCreatureUnsigned = 16u;
+        inline constexpr auto MacroMapHouseUnsigned = 20u;
+        inline constexpr auto MacroMapFishSwarmUnsigned = 8u;
+
+        inline constexpr auto MacroMapNameUnsigned = 44u;
+        inline constexpr auto MacroMapName = 44;
+        inline constexpr auto MacroMapPattern = 12;
+        inline constexpr auto MacroMapTransition = 16;
+        inline constexpr auto MacroMapLandscape = 16;
+        inline constexpr auto MacroMapHeight = 6;
+        inline constexpr auto MacroMapVertexColor = 6;
+        inline constexpr auto MacroMapRoad = 4;
+        inline constexpr auto MacroMapCreature = 16;
+        inline constexpr auto MacroMapHouse = 20;
+        inline constexpr auto MacroMapFishSwarm = 8;
+        inline constexpr auto MacroMap = 376;
+
         inline constexpr auto Particle = 304;
         inline constexpr auto ParticlePosition = 40;
         inline constexpr auto ParticlePositionStateCopy = 112;
