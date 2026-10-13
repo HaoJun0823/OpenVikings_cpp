@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XStringArray.h"
 #include "XDiagnostics.h"
 #include "XFileAccess.h"
@@ -11,9 +12,9 @@ namespace NXBasics
     // Original function: FUN_0042ba56
     CStringArray::CStringArray(std::uint8_t useCountForNextId) : mUseCountForNextId(useCountForNextId), mPadding05{}, mStringCount(0), mIdUpperBound(1), mOffsetCapacity(100), mUsedStringBytes(0), mOffsets(nullptr), mStrings(nullptr)
     {
-        void* allocation = Runtime_AllocateWithNewHandler(0x0C, 1);
+        void* allocation = Runtime_AllocateWithNewHandler(12, 1);
         mOffsets = allocation != nullptr ? ::new (allocation) CMemory(mOffsetCapacity * std::uint32_t{ 4 }) : nullptr;
-        mOffsets->Fill(0xFF);
+        mOffsets->Fill(ReadableValues::IntegerRange::UInt8MaximumSigned);
     }
 
     // Original function: FUN_0042bad3
@@ -107,7 +108,7 @@ namespace NXBasics
         std::uint32_t offset;
         std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-        if (offset == UINT32_C(0xFFFFFFFF))
+        if (offset == ReadableValues::IntegerRange::UInt32Maximum)
         {
             return nullptr;
         }
@@ -123,7 +124,7 @@ namespace NXBasics
             std::uint32_t offset;
             std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-            if (offset != UINT32_C(0xFFFFFFFF))
+            if (offset != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 return false;
             }
@@ -137,14 +138,14 @@ namespace NXBasics
             }
 
             mOffsetCapacity = stringId + std::uint32_t{ 100 };
-            mOffsets->ChangeBufferSize(mOffsetCapacity * std::uint32_t{ 4 }, true, 0xFF);
+            mOffsets->ChangeBufferSize(mOffsetCapacity * std::uint32_t{ 4 }, true, ReadableValues::IntegerRange::UInt8MaximumSigned);
         }
 
         const std::uint32_t byteCount = Runtime_StringLength(text) + std::uint32_t{ 1 };
 
         if (mStrings == nullptr)
         {
-            void* allocation = Runtime_AllocateWithNewHandler(0x0C, 1);
+            void* allocation = Runtime_AllocateWithNewHandler(12, 1);
             mStrings = allocation != nullptr ? ::new (allocation) CMemory(byteCount + std::uint32_t{ 10000 }) : nullptr;
         }
         else
@@ -180,7 +181,7 @@ namespace NXBasics
 
         if (!InsertString(stringId, text))
         {
-            return UINT32_C(0xFFFFFFFF);
+            return ReadableValues::IntegerRange::UInt32Maximum;
         }
 
         return stringId;
@@ -204,7 +205,7 @@ namespace NXBasics
             std::uint32_t offset;
             std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-            if (offset == UINT32_C(0xFFFFFFFF))
+            if (offset == ReadableValues::IntegerRange::UInt32Maximum)
             {
                 return stringId;
             }

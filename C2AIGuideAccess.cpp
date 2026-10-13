@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AIGuideAccess.h"
 #include "C2AIMilitaryAccess.h"
 #include "C2AIObjectAccess.h"
@@ -25,7 +26,7 @@ namespace NC2Logic
     {
         // Complete Windows static region 005125A0..005125F3: ten link IDs and points.
         struct SGuideCandidates { std::uint32_t count; std::uint32_t links[10]; std::uint32_t points[10]; } sGuideCandidates{};
-        static_assert(sizeof(SGuideCandidates) == 0x54);
+        static_assert(sizeof(SGuideCandidates) == 84);
         std::uint8_t sGuideCandidateInitFlags = 0; // 005125F4.
         // Original function: FUN_00429e61.
         void AIGuideCandidateList_Construct(SGuideCandidates* candidates)
@@ -94,8 +95,8 @@ namespace NC2Logic
         AIGuideManager_CalcVars_CreateGuideCalcArray(static_cast<std::byte*>(manager) + 24);
         if (Read<std::uint32_t>(manager, 24) == 0 || Read<std::uint32_t>(manager, 28) == 0) return;
         auto* destination = static_cast<std::byte*>(manager) + 16;
-        if (Read<std::uint16_t>(destination, 0) != 0xFFFF && !Tool_Guide_IsAllowedToBeBuild(player, destination, true)) Write<std::uint16_t>(destination, 0, 0xFFFF);
-        if (Read<std::uint16_t>(destination, 0) == 0xFFFF)
+        if (Read<std::uint16_t>(destination, 0) != ReadableValues::IntegerRange::UInt16MaximumSigned && !Tool_Guide_IsAllowedToBeBuild(player, destination, true)) Write<std::uint16_t>(destination, 0, ReadableValues::IntegerRange::UInt16MaximumSigned);
+        if (Read<std::uint16_t>(destination, 0) == ReadableValues::IntegerRange::UInt16MaximumSigned)
         {
             NXBasics::Runtime_FillMemory(Read<void*>(manager, 32), 0, Read<std::uint32_t>(manager, 24) * Read<std::uint32_t>(manager, 28) * 12);
             CGuideIterator guides;
@@ -115,7 +116,7 @@ namespace NC2Logic
             }
             AIGuideManager_l_CheckForNewGuideBuildPos(manager, player);
         }
-        if (Read<std::uint16_t>(destination, 0) == 0xFFFF)
+        if (Read<std::uint16_t>(destination, 0) == ReadableValues::IntegerRange::UInt16MaximumSigned)
         {
             if (Read<std::int32_t>(manager, 12) != -1) { AIMilitaryManager_MilitaryPoint_Clear(military, Read<std::int32_t>(manager, 12)); Write<std::int32_t>(manager, 12, -1); }
             AIScout_Clear(manager); return;

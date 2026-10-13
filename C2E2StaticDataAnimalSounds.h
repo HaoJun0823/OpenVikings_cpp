@@ -13,7 +13,7 @@ namespace NC2E2
         std::uint32_t staticSoundId;
     };
 
-    static_assert(sizeof(SStaticAnimalSoundData) == 0x10);
+    static_assert(sizeof(SStaticAnimalSoundData) == 16);
     static_assert(offsetof(SStaticAnimalSoundData, staticSoundId) == 0x0C);
 
     class CE2StaticDataAnimalSoundManager

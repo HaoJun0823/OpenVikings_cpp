@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "ApplicationGlobals.h"
 #include "C2GameMapAccess.h"
 #include "C2EngineLandscapeAccess.h"
@@ -18,7 +19,7 @@ namespace NC2Logic
     void MapMicroPointData_House_SetRoot(void* micro, std::uint32_t house)
     {
         if (NC2Lifetime::Read<std::uint8_t>(micro, 0) != 0) return;
-        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & 0xFDu) | 1u);
+        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & ReadableValues::BitMask::ByteExceptBit1) | 1u);
         NC2Lifetime::Write<std::uint8_t>(micro, 0, 2);
         NC2Lifetime::Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(house));
     }
@@ -27,7 +28,7 @@ namespace NC2Logic
     void MapMicroPointData_House_SetDoor(void* micro, std::uint32_t house)
     {
         if (NC2Lifetime::Read<std::uint8_t>(micro, 0) != 0) return;
-        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & 0xFEu) | 2u);
+        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & ReadableValues::BitMask::ByteExceptBit0) | 2u);
         NC2Lifetime::Write<std::uint8_t>(micro, 0, 2);
         NC2Lifetime::Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(house));
     }
@@ -36,7 +37,7 @@ namespace NC2Logic
     bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-        return (NC2Lifetime::Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 && NC2Lifetime::Read<std::uint8_t>(micro, 7) != 0;
+        return (NC2Lifetime::Read<std::uint8_t>(micro, 0x0C) & ReadableValues::BitMask::Bit7) == 0 && NC2Lifetime::Read<std::uint8_t>(micro, 7) != 0;
     }
 
     // Original function: FUN_004248ed; try five independently selected area positions.
@@ -79,21 +80,21 @@ namespace NC2Logic
     std::int16_t GameMap_GetHeight()
     {
         std::int16_t height;
-        std::memcpy(&height, gGameMapStaticStorage + 0x02, sizeof(height));
+        std::memcpy(&height, gGameMapStaticStorage + ReadableValues::GameMapOffset::MicroHeight, sizeof(height));
         return height;
     }
 
     std::uint16_t GameMap_GetMacroWidth()
     {
         std::uint16_t width;
-        std::memcpy(&width, gGameMapStaticStorage + 0x04, sizeof(width));
+        std::memcpy(&width, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, sizeof(width));
         return width;
     }
 
     std::uint16_t GameMap_GetMacroHeight()
     {
         std::uint16_t height;
-        std::memcpy(&height, gGameMapStaticStorage + 0x06, sizeof(height));
+        std::memcpy(&height, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, sizeof(height));
         return height;
     }
 
@@ -122,8 +123,8 @@ namespace NC2Logic
     void GameMap_InitAndCreateEmptyMap(std::int16_t macroWidth, std::int16_t macroHeight)
     {
         static_assert(sizeof(void*) == 4);
-        static_assert(sizeof(NXBasics::SRectangle) == 0x10);
-        static_assert(sizeof(gGameMapStaticStorage) == 0x100C);
+        static_assert(sizeof(NXBasics::SRectangle) == 16);
+        static_assert(sizeof(gGameMapStaticStorage) == 4108);
 
         const auto doubleLowWord = [] (std::int16_t value) -> std::int16_t
         {
@@ -141,8 +142,8 @@ namespace NC2Logic
 
         const std::uint32_t macroPointCount = static_cast<std::uint32_t>(static_cast<std::int32_t>(macroWidth) * static_cast<std::int32_t>(macroHeight));
 
-        std::memcpy(gGameMapStaticStorage + 0x04, &macroWidth, sizeof(macroWidth));
-        std::memcpy(gGameMapStaticStorage + 0x06, &macroHeight, sizeof(macroHeight));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, &macroWidth, sizeof(macroWidth));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, &macroHeight, sizeof(macroHeight));
         std::memcpy(gGameMapStaticStorage + 0x08, &macroPointCount, sizeof(macroPointCount));
 
         const NXBasics::SRectangle macroRectangle(0, 0, macroWidth, macroHeight);
@@ -152,8 +153,8 @@ namespace NC2Logic
         const std::int16_t microHeight = doubleLowWord(macroHeight);
         const std::uint32_t microPointCount = static_cast<std::uint32_t>(static_cast<std::int32_t>(microWidth) * static_cast<std::int32_t>(microHeight));
 
-        std::memcpy(gGameMapStaticStorage + 0x00, &microWidth, sizeof(microWidth));
-        std::memcpy(gGameMapStaticStorage + 0x02, &microHeight, sizeof(microHeight));
+        std::memcpy(gGameMapStaticStorage + 0, &microWidth, sizeof(microWidth));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::MicroHeight, &microHeight, sizeof(microHeight));
         std::memcpy(gGameMapStaticStorage + 0x0C, &microPointCount, sizeof(microPointCount));
 
         const NXBasics::SRectangle microRectangle(0, 0, microWidth, microHeight);
@@ -166,15 +167,15 @@ namespace NC2Logic
         gMapPointDimensions.microHeight = GameMap_GetHeight();
         const std::uint32_t macroBytes = macroPointCount * 3u;
         void* macroPoints = NXBasics::Runtime_AllocateWithNewHandler(macroBytes, 1);
-        std::memcpy(gGameMapStaticStorage + 0x30, &macroPoints, sizeof(macroPoints));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroPointStorage, &macroPoints, sizeof(macroPoints));
         std::memset(macroPoints, 0, macroBytes);
 
         const std::uint32_t microBytes = microPointCount * 14u;
         auto* microPoints = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(microBytes, 1));
-        std::memcpy(gGameMapStaticStorage + 0x34, &microPoints, sizeof(microPoints));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::MicroPointStorage, &microPoints, sizeof(microPoints));
         std::memset(microPoints, 0, microBytes);
 
-        const std::uint16_t initialWord0A = 0xFFFFu;
+        const std::uint16_t initialWord0A = ReadableValues::IntegerRange::UInt16Maximum;
         std::uint32_t microOffset = 0;
 
         for (std::uint32_t index = 0; index < microPointCount; ++index)
@@ -186,7 +187,7 @@ namespace NC2Logic
 
         const std::uint32_t allocationBytes38 = microPointCount * 2u;
         void* allocation38 = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes38, 1);
-        std::memcpy(gGameMapStaticStorage + 0x38, &allocation38, sizeof(allocation38));
+        std::memcpy(gGameMapStaticStorage + ReadableValues::GameMapOffset::PackingScratchBuffer, &allocation38, sizeof(allocation38));
         std::memset(allocation38, 0, allocationBytes38);
     }
 
@@ -196,14 +197,14 @@ namespace NC2Logic
         std::int16_t width;
         std::int16_t height;
 
-        std::memcpy(&width, gGameMapStaticStorage + 0x04, sizeof(width));
-        std::memcpy(&height, gGameMapStaticStorage + 0x06, sizeof(height));
+        std::memcpy(&width, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, sizeof(width));
+        std::memcpy(&height, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, sizeof(height));
 
         if (x < 0 || x >= width || y < 0 || y >= height)
             return nullptr;
 
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x30, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroPointStorage, sizeof(baseAddress));
 
         const std::uint32_t index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(width)) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
         const std::uint32_t address = baseAddress + index * 3u;
@@ -219,7 +220,7 @@ namespace NC2Logic
         std::memcpy(&x, packedMagPoint, sizeof(x));
         std::memcpy(&y, static_cast<const std::byte*>(packedMagPoint) + 2, sizeof(y));
         std::memcpy(&width, gGameMapStaticStorage + 4, sizeof(width));
-        std::memcpy(&base, gGameMapStaticStorage + 0x30, sizeof(base));
+        std::memcpy(&base, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroPointStorage, sizeof(base));
         const auto index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(width)) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
         return reinterpret_cast<void*>(static_cast<std::uintptr_t>(base + index * 3u));
     }
@@ -248,7 +249,7 @@ namespace NC2Logic
         const std::uint32_t offset = index * 14u;
 
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x34, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::MicroPointStorage, sizeof(baseAddress));
 
         const std::uint32_t address = baseAddress + offset;
         return reinterpret_cast<const void*>(static_cast<std::uintptr_t>(address));
@@ -280,7 +281,7 @@ namespace NC2Logic
         std::memcpy(&y, static_cast<const std::byte*>(packedMigPoint) + 2, sizeof(y));
         const std::uint32_t index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x38, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::PackingScratchBuffer, sizeof(baseAddress));
         std::int16_t value;
         std::memcpy(&value, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(baseAddress + index * 2u)), sizeof(value));
         return value;
@@ -295,7 +296,7 @@ namespace NC2Logic
         std::memcpy(&y, static_cast<const std::byte*>(packedMigPoint) + 2, sizeof(y));
         const std::uint32_t index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x38, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::PackingScratchBuffer, sizeof(baseAddress));
         std::memcpy(reinterpret_cast<void*>(static_cast<std::uintptr_t>(baseAddress + index * 2u)), &value, sizeof(value));
     }
 
@@ -312,7 +313,7 @@ namespace NC2Logic
         std::memcpy(&bounds, gGameMapStaticStorage + 0x10, sizeof(bounds));
         rectangle.CutInside(bounds);
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x38, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::PackingScratchBuffer, sizeof(baseAddress));
         const std::uint32_t stride = static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) * 2u;
         std::uint32_t address = baseAddress + static_cast<std::uint32_t>(rectangle.y) * stride + static_cast<std::uint32_t>(rectangle.x) * 2u;
         for (std::int32_t row = 0; row < rectangle.height; ++row)
@@ -326,7 +327,7 @@ namespace NC2Logic
     void GameMap_CalculationMap_Clear(const std::int16_t* rectangle)
     {
         std::uint32_t baseAddress;
-        std::memcpy(&baseAddress, gGameMapStaticStorage + 0x38, sizeof(baseAddress));
+        std::memcpy(&baseAddress, gGameMapStaticStorage + ReadableValues::GameMapOffset::PackingScratchBuffer, sizeof(baseAddress));
         const auto stride = static_cast<std::int32_t>(GameMap_GetWidth());
         auto* values = reinterpret_cast<std::int16_t*>(static_cast<std::uintptr_t>(baseAddress)) + rectangle[1] * stride + rectangle[0];
         for (std::int32_t row = 0; row < rectangle[3]; ++row) { std::memset(values, 0, static_cast<std::uint32_t>(static_cast<std::int32_t>(rectangle[2])) * 2u); values += stride; }
@@ -354,8 +355,8 @@ namespace NC2Logic
         std::int16_t macroWidth;
         std::int16_t macroHeight;
 
-        std::memcpy(&macroWidth, gGameMapStaticStorage + 0x04, sizeof(macroWidth));
-        std::memcpy(&macroHeight, gGameMapStaticStorage + 0x06, sizeof(macroHeight));
+        std::memcpy(&macroWidth, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, sizeof(macroWidth));
+        std::memcpy(&macroHeight, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, sizeof(macroHeight));
 
         const auto floorHalf = [] (std::int32_t value) -> std::int32_t
         {
@@ -447,14 +448,14 @@ namespace NC2Logic
     {
         const auto width = GameMap_GetWidth();
         if (x < 0 || x >= width || y < 0 || y >= GameMap_GetHeight()) return nullptr;
-        const auto base = NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, 0x34);
+        const auto base = NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage);
         return reinterpret_cast<const void*>(base + static_cast<std::uint32_t>(y * width + x) * 14u);
     }
     // Original function: FUN_0042388D; distinct linear-index overload.
     void* GameMap_GetMapMicroPointPtr(std::uint32_t index)
     {
         if (index >= NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, 12)) return nullptr;
-        return reinterpret_cast<void*>(NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, 0x34) + index * 14u);
+        return reinterpret_cast<void*>(NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage) + index * 14u);
     }
     // Original function: FUN_00423EEC.
     void GameMap_MapMacroPoint_Height_Set(const void* point, std::int32_t height)

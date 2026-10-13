@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2CampaignStaticDataManager.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicIOAccess.h"
@@ -15,7 +16,7 @@ namespace NC2Logic
     namespace
     {
         // Complete original token table: 005007E8..005007FF.
-        constexpr NXBasics::SToken campaignTokens[] = { { "a", 0x616C6C6F }, { "v", 0x00766172 }, { nullptr, 0 } };
+        constexpr NXBasics::SToken campaignTokens[] = { { "a", ReadableValues::CampaignStaticDataManagerToken::A }, { "v", ReadableValues::CampaignStaticDataManagerToken::V }, { nullptr, 0 } };
     }
 
     // Original function: FUN_00416c1e
@@ -98,7 +99,7 @@ namespace NC2Logic
                 std::uint32_t offset = 0;
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
-                    if (NXBasics::XB_Token_FindTokenInArray(campaignTokens, reader.GetCurrentName()) != 0x616C6C6F) continue;
+                    if (NXBasics::XB_Token_FindTokenInArray(campaignTokens, reader.GetCurrentName()) != ReadableValues::CampaignStaticDataManagerToken::A) continue;
                     auto* entry = reinterpret_cast<SCampaignSubMission*>(reinterpret_cast<std::byte*>(mSubMissions) + offset);
                     entry->campaignId = static_cast<std::uint32_t>(reader.GetInt());
                     entry->subMissionId = static_cast<std::uint32_t>(reader.GetInt());
@@ -116,7 +117,7 @@ namespace NC2Logic
                 std::uint32_t offset = 0;
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
-                    if (NXBasics::XB_Token_FindTokenInArray(campaignTokens, reader.GetCurrentName()) != 0x00766172) continue;
+                    if (NXBasics::XB_Token_FindTokenInArray(campaignTokens, reader.GetCurrentName()) != ReadableValues::CampaignStaticDataManagerToken::V) continue;
                     auto* entry = reinterpret_cast<SCampaignVariable*>(reinterpret_cast<std::byte*>(mVariables) + offset);
                     entry->campaignId = static_cast<std::uint32_t>(reader.GetInt());
                     entry->variableId = static_cast<std::uint32_t>(reader.GetInt());

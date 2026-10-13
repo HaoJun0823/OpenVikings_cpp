@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiSupportAccess.h"
@@ -16,7 +17,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1e0f.
     static void StatisticsWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x58737461, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::StatisticsWindow, 1);
         io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gStatisticsWindowStatics, 0));
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -24,14 +25,14 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1e38.
     static void StatisticsWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x58737461 && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gStatisticsWindowStatics, 0, io->IO_File_ReadLong());
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::StatisticsWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gStatisticsWindowStatics, 0, io->IO_File_ReadLong());
         else { StatisticsWindow_Statics_Init(); io->IO_File_Chunk_Skip(); }
     }
 
     // Original function: FUN_004b00f0.
     static void HumanListWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x5868756C, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::HumanListWindow, 1);
         io->IO_Memory_WriteBinary(gHumanListWindowStatics, 0x18);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -39,14 +40,14 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b011a.
     static void HumanListWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x5868756C && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) io->IO_File_ReadBinary(gHumanListWindowStatics, 0x18);
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::HumanListWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) io->IO_File_ReadBinary(gHumanListWindowStatics, 0x18);
         else { HumanListWindow_Statics_Init(); io->IO_File_Chunk_Skip(); }
     }
 
     // Original function: FUN_004af070.
     static void DiplomacyWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x58646970, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DiplomacyWindow, 1);
         io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gDiplomacyWindowStatics, 0));
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -54,7 +55,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004af099.
     static void DiplomacyWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x58646970 && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gDiplomacyWindowStatics, 0, io->IO_File_ReadLong());
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::DiplomacyWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gDiplomacyWindowStatics, 0, io->IO_File_ReadLong());
         else { std::memset(gDiplomacyWindowStatics, 0, 4); io->IO_File_Chunk_Skip(); }
     }
 }
@@ -66,7 +67,7 @@ namespace NC2InGameGuiMessages
     // Original function: FUN_004b3b2e; mini-button pointers are not serialized.
     void CMessageManager::IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x586D6D61, 2);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::Messages, 2);
         io->IO_Memory_WriteBinary(this, 8);
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0); ++index) io->IO_Memory_WriteBinary(Read<std::byte*>(this, 0x10) + index * 0x310u, 0x30C);
         io->IO_Memory_WriteBinary(Read<void*>(this, 0x14), 0x26160);
@@ -77,7 +78,7 @@ namespace NC2InGameGuiMessages
     void CMessageManager::IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
         while (Read<std::uint32_t>(this, 0) != 0) Message_Remove(Read<std::uint32_t>(Read<void*>(this, 0x10), 4), false);
-        if (io->mReadHeader.marker != 0x586D6D61 || io->mReadHeader.version != 2) { io->IO_File_Chunk_Skip(); return; }
+        if (io->mReadHeader.marker != SwitchIds::GuiSavegameChunk::Messages || io->mReadHeader.version != 2) { io->IO_File_Chunk_Skip(); return; }
         io->IO_File_ReadBinary(this, 8);
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0); ++index)
         {
@@ -101,7 +102,7 @@ namespace NC2InGameGuiGroups
     // Original function: FUN_004a3251.
     void CObjectGroupManager::IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x586F676D, 2);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::ObjectGroups, 2);
         io->IO_Memory_WriteBinary(this, 0x2F0C);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -109,10 +110,10 @@ namespace NC2InGameGuiGroups
     // Original function: FUN_004a3280; network loading deliberately discards saved groups.
     void CObjectGroupManager::IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x586F676D && io->mReadHeader.version == 2)
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::ObjectGroups && io->mReadHeader.version == 2)
         {
             if (NC2Logic::gGameStaticVars.networkGame == 0) { io->IO_File_ReadBinary(this, 0x2F0C); return; }
-            std::memset(this, 0, 0x2F0C);
+            std::memset(this, 0, 12044);
         }
         io->IO_File_Chunk_Skip();
     }
@@ -123,7 +124,7 @@ namespace NC2InGameGuiDeadHumanDataManager
     // Original function: FUN_004b3818; owned buffer is serialized separately from its pointer.
     void CDeadHumanDataManager::IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x5864686D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DeadHumanData, 1);
         io->IO_Memory_WriteBinary(this, 8);
         io->IO_Memory_WriteBinary(NC2Lifetime::Read<void*>(this, 8), 0xBB8);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -132,7 +133,7 @@ namespace NC2InGameGuiDeadHumanDataManager
     // Original function: FUN_004b3853.
     void CDeadHumanDataManager::IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x5864686D && io->mReadHeader.version == 1)
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::DeadHumanData && io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(this, 8);
             io->IO_File_ReadBinary(NC2Lifetime::Read<void*>(this, 8), 0xBB8);
@@ -149,8 +150,8 @@ namespace NInGameGuiManager
     // Original function: FUN_004c9c3b; preserve child-chunk order inside XGUI.
     void CInGameGuiManager::l_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x58475549, 1);
-        io->IO_Tool_Chunk_StartCreation(0x58647372, 1);
+        io->IO_Tool_Chunk_StartCreation(ReadableValues::GuiSavegameChunk::GuiHeader, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DisplayPosition, 1);
         std::uint32_t mapPoint = 0;
         NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(sTheObjectPtr->GetDesktop(), 0x30), &mapPoint);
         io->IO_Memory_WriteLong(mapPoint);
@@ -162,7 +163,7 @@ namespace NInGameGuiManager
         static_cast<NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->IO_Savegame_Save(io);
         static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->IO_Savegame_Save(io);
         MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Save(io);
-        io->IO_Tool_Chunk_StartCreation(0x586D6C65, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::MessagePriority, 1);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(NC2InGameGuiMessages::gMessageManager, 8));
         io->IO_Tool_Chunk_FinishAndWrite();
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -173,7 +174,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::l_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
         std::uint32_t version = 0;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(0x58475549, &version, nullptr)) { io->IO_File_Chunk_Skip(); return; }
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::GuiSavegameChunk::GuiHeader, &version, nullptr)) { io->IO_File_Chunk_Skip(); return; }
         while (io->IO_File_Chunk_ReadHeader())
         {
             switch (io->mReadHeader.marker)

@@ -29,7 +29,7 @@ namespace NXBasics
         std::uint8_t mRemapIndices[256];          // +0x04; destination palette index for each source index.
     };
 
-    static_assert(sizeof(CRemapTable) == 0x104, "CRemapTable requires the original x86 layout");
+    static_assert(sizeof(CRemapTable) == 260, "CRemapTable requires the original x86 layout");
     static_assert(!std::has_virtual_destructor_v<CStorable>, "CStorable must not introduce a destructor slot");
     static_assert(!std::has_virtual_destructor_v<CRemapTable>, "CRemapTable has only three virtual slots");
 }

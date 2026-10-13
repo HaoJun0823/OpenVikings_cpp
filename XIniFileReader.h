@@ -92,7 +92,7 @@ namespace NXBasics
         void l_CreateCompiledFilename(char* fileName, const char* compiledExtension);
 
         std::uint8_t mLoaded;           // +0x000
-        char mFileName[0x104];          // +0x001
+        char mFileName[260];          // +0x001
         std::byte mPadding105[3];       // +0x105
         CStringArray* mLines;           // +0x108
         std::uint32_t mCurrentLine;     // +0x10C
@@ -106,6 +106,6 @@ namespace NXBasics
     };
 
     static_assert(sizeof(void*) == 4, "CIniFileReader requires an x86 build");
-    static_assert(sizeof(CIniFileReader) == 0x1890, "CIniFileReader must be 0x1890 bytes");
+    static_assert(sizeof(CIniFileReader) == 6288, "CIniFileReader must be 0x1890 bytes");
     static_assert(alignof(CIniFileReader) == 4, "CIniFileReader requires four-byte alignment");
 }

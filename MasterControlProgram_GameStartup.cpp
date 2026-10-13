@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "MasterControlProgram.h"
 #include "ApplicationGlobals.h"
 #include "C2GameEngineStartup.h"
@@ -18,7 +19,7 @@ namespace NC2Logic
     {
         if (playerId >= 20) return;
         const std::uint32_t index = static_cast<std::uint32_t>(playerId);
-        if (NC2Lifetime::Read<std::uint8_t>(gGameControl, index * 0x4A80) == 0) return;
+        if (NC2Lifetime::Read<std::uint8_t>(gGameControl, index * ReadableValues::RecordSize::GameControlPlayerSigned) == 0) return;
         NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, index * 4), 4, 1);
         NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, 0x50 + index * 4), 4, 1);
     }
@@ -72,7 +73,7 @@ namespace NMasterControlProgram
             mGameControlStartupData.Reset();
         }
 
-        std::byte savedStartupData[0x120];
+        std::byte savedStartupData[288];
         std::memcpy(savedStartupData, &NC2Logic::gGameControlStartupData, sizeof(savedStartupData));
         NC2Logic::Game_WorkOnStartUpData();
         std::memcpy(&NC2Logic::gGameControlStartupData, savedStartupData, sizeof(savedStartupData));
@@ -98,7 +99,7 @@ namespace NMasterControlProgram
             {
                 const std::uint32_t type = Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x2C + player * 0x0C);
                 if (type == 0) continue;
-                void* playerData = static_cast<std::byte*>(NC2Logic::gGameControl) + player * 0x4A80;
+                void* playerData = static_cast<std::byte*>(NC2Logic::gGameControl) + player * ReadableValues::RecordSize::GameControlPlayerSigned;
                 if (type == 1)
                 {
                     Write<std::uint32_t>(playerData, 0x14, Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x34 + player * 0x0C));

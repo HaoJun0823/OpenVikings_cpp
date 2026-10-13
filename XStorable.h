@@ -48,5 +48,5 @@ namespace NXBasics
     };
 
     static_assert(sizeof(void*) == 4, "CStorable requires an x86 build");
-    static_assert(sizeof(CStorable) == 0x04, "CStorable must contain only its virtual-table pointer");
+    static_assert(sizeof(CStorable) == 4, "CStorable must contain only its virtual-table pointer");
 }

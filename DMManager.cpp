@@ -188,7 +188,7 @@ namespace NDMManager
         3000    // Event 30
     };
 
-    static_assert(sizeof(kVolumeRecoveryDelayMs) == 0x24);
+    static_assert(sizeof(kVolumeRecoveryDelayMs) == 36);
 
     template<typename T>
     static T ReadField(const void* object, std::size_t offset)
@@ -268,7 +268,7 @@ namespace NDMManager
     {
         WriteField(manager, 0, gManagerVirtualTable + 0);
         gDirectMusicManager = manager;
-        std::memset(static_cast<std::byte*>(manager) + 4, 0, 0x218);
+        std::memset(static_cast<std::byte*>(manager) + 4, 0, 536);
         std::memset(static_cast<std::byte*>(manager) + 0x21C, 0, 8);
         WriteField<std::int32_t>(manager, 0x1C, 70);
         return manager;
@@ -357,7 +357,7 @@ namespace NDMManager
         DriverFunction<DriverDestroyInstanceFn>(manager, 0x0C)(ReadField<void*>(manager, 0x30));
         DriverFunction<DriverGlobalFn>(manager, 4)();
         FreeLibrary(ReadField<HMODULE>(manager, 0x20));
-        std::memset(static_cast<std::byte*>(manager) + 4, 0, 0x218);
+        std::memset(static_cast<std::byte*>(manager) + 4, 0, 536);
         return 1;
     }
 
@@ -460,7 +460,7 @@ namespace NDMManager
         {
             std::byte* entry = entries + index * 0x18u;
 
-            if (ReadField<std::uint8_t>(entry, 0x00) != 0)
+            if (ReadField<std::uint8_t>(entry, 0) != 0)
             {
                 DriverFunction<ResetSegmentFn>(manager, 0x58)(ReadField<void*>(manager, 0x30), ReadField<void*>(entry, 0x04), 0);
             }
@@ -502,7 +502,7 @@ namespace NDMManager
         {
             std::byte* candidate = entries + index * 0x18u;
 
-            if (ReadField<std::uint8_t>(candidate, 0x00) == 0)
+            if (ReadField<std::uint8_t>(candidate, 0) == 0)
             {
                 entry = candidate;
                 break;
@@ -515,7 +515,7 @@ namespace NDMManager
             return 0;
         }
 
-        std::memset(entry, 0, 0x18);
+        std::memset(entry, 0, 24);
 
         WriteField<std::int32_t>(entry, 0x10, eventId);
         WriteField<std::uint32_t>(entry, 0x14, eventParameter);
@@ -528,7 +528,7 @@ namespace NDMManager
             return 0;
         }
 
-        WriteField<std::uint8_t>(entry, 0x00, 1);
+        WriteField<std::uint8_t>(entry, 0, 1);
 
         const std::int32_t mode = ReadField<std::int32_t>(manager, 0x10);
         const std::uint32_t configuration[2] =
@@ -699,7 +699,7 @@ namespace NDMManager
         {
             std::byte* entry = entries + index * 0x18u;
 
-            if (ReadField<std::uint8_t>(entry, 0x00) == 0)
+            if (ReadField<std::uint8_t>(entry, 0) == 0)
             {
                 continue;
             }

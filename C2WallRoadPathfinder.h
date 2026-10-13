@@ -32,7 +32,7 @@ namespace NC2Logic
         std::uint32_t vectorIndex;
         struct SVector { std::uint8_t direction, amount; } vectors[20];
     };
-    static_assert(sizeof(CMapPathfinderSpecialWallRoadElement) == 0x54);
+    static_assert(sizeof(CMapPathfinderSpecialWallRoadElement) == 84);
     static_assert(offsetof(CMapPathfinderSpecialWallRoadElement, source) == 0x20);
     static_assert(offsetof(CMapPathfinderSpecialWallRoadElement, vectors) == 0x2C);
 

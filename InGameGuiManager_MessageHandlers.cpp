@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiManager_MessageHandlers.h"
 #include "C2LifetimeAccess.h"
@@ -60,7 +61,7 @@ namespace
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify)
     };
-    static_assert(sizeof(gInGameDefaultMessageHandlerVirtualTable) == 0x48);
+    static_assert(sizeof(gInGameDefaultMessageHandlerVirtualTable) == 72);
 }
 
 // Original function: FUN_004a0145; flags zero destroy the embedded handler without freeing it.
@@ -85,7 +86,7 @@ namespace
 {
     // Complete Windows keyboard scratch region 00569454..00569477.
     struct SInGameKeyboardHistory { char characters[21]; std::byte padding[3]; std::uint32_t smallMapCounter; std::uint32_t largeMapCounter; std::uint32_t screenshotCounter; };
-    static_assert(sizeof(SInGameKeyboardHistory) == 0x24);
+    static_assert(sizeof(SInGameKeyboardHistory) == 36);
     static SInGameKeyboardHistory gInGameKeyboardHistory{};
     // Native leading block of FUN_004bc36f, 004BC388..004BC50D.
     static void InGameKeyboard_ProcessHiddenCommands(std::uint8_t character)
@@ -163,7 +164,7 @@ namespace
         if (check(20)) { std::byte packet[20]{}; packet[0] = std::byte{0x86}; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); Write<std::uint32_t>(packet, 4, 1); queue(packet); return confirm(); }
         if (check(21)) { std::byte packet[20]{}; packet[0] = std::byte{0x86}; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); queue(packet); return confirm(); }
         if (check(35)) { desktop->Message_SendToAllElements(2007, 0, 0, 0); return confirm(); }
-        if (check(36)) { CHouseIterator iterator; for (auto id = iterator.GetFirstHouseId(manager->GetLocalPlayerId()); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; const auto type = Read<std::uint32_t>(house, 0x14); if (type == 7 || type == 8 || type == 9 || type == 1) { NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + 0x1C)); return confirm(); } } return true; }
+        if (check(36)) { CHouseIterator iterator; for (auto id = iterator.GetFirstHouseId(manager->GetLocalPlayerId()); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; const auto type = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType); if (type == 7 || type == 8 || type == 9 || type == 1) { NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + 0x1C)); return confirm(); } } return true; }
         if (check(22)) { std::byte packet[20]{}; packet[0] = std::byte{0x87}; Write<std::uint32_t>(packet, 4, gGameTime.speed < 0.01 ? static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.retainedSpeed)) : 0); queue(packet); return confirm(); }
         if (check(23)) { const auto speed = Logic_EntryPoint_GameTime_GetSpeed(); std::byte packet[20]{}; packet[0] = std::byte{0x87}; Write<std::uint32_t>(packet, 4, speed < 12.0 ? 12 : speed < 24.0 ? 24 : speed < 36.0 ? 36 : 12); queue(packet); return confirm(); }
         if (check(15)) { GameIO_Savegame_Save("user_quicksave", nullptr, 0); manager->MiscWindows_StringOutputWindow_PrintString(StringTool_GetMiscMenuStringPtr(80)); return confirm(); }
@@ -268,7 +269,7 @@ bool __fastcall InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Han
         else if (command == 0xF3F) manager->MiscWindows_DiplomacyWindow_Toggle();
         else if (command == 0xF40) manager->MiscWindows_HumanListWindow_Toggle(0, 0);
         else if (command == 0xF41) manager->MiscWindows_StatisticsWindow_Toggle();
-        else if (command == 0xF42) manager->MiscWindows_MissionInfoWindow_Toggle(0xFFFFFFFFu, true);
+        else if (command == 0xF42) manager->MiscWindows_MissionInfoWindow_Toggle(ReadableValues::IntegerRange::UInt32Maximum, true);
         else if (command == 0xF43) manager->MiscWindows_TechTreeWindow_Toggle();
         else if (command == 0xF44) manager->MiscWindows_HelpWindow_Toggle();
         else if (command == 0xF45) manager->MiscWindows_OverviewWindow_Open();
@@ -278,7 +279,7 @@ bool __fastcall InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Han
             std::uint32_t nextSpeed = 12;
             if (speed >= 12.0 && speed < 24.0) nextSpeed = 24;
             else if (speed >= 24.0 && speed < 36.0) nextSpeed = 36;
-            std::byte networkCommand[0x14]{};
+            std::byte networkCommand[20]{};
             networkCommand[0] = std::byte{0x87};
             std::memcpy(networkCommand + 4, &nextSpeed, sizeof(nextSpeed));
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, networkCommand, false, true);

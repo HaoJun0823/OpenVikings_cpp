@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2VehicleIterator.h"
 #include "C2VehicleAccess.h"
 #include "C2LifetimeAccess.h"
@@ -50,7 +51,7 @@ namespace NC2Logic
         for (auto id = previous + 1; id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(vehicle, 0x1E0) != selection)) continue;
+            if (Read<std::uint8_t>(vehicle, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId) != selection)) continue;
             if ((flags & 2u) != 0)
             {
                 const void* point = Vehicle_GetMapPositionRef(vehicle);

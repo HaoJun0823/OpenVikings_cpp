@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReadableValues.h"
+
 #include <Windows.h>
 
 #include <cstdarg>
@@ -47,7 +49,7 @@ namespace NXBasics
         std::int32_t accessTime;   // +0x008
         std::int32_t writeTime;	   // +0x00C
         std::uint32_t fileSize;	   // +0x010
-        char name[0x104];		   // +0x014
+        char name[260];		   // +0x014
     };
 
     struct RuntimeSmallBlockRegion
@@ -130,7 +132,7 @@ namespace NXBasics
         double result;
     };
 
-    static_assert(sizeof(RuntimeMathError) == 0x20);
+    static_assert(sizeof(RuntimeMathError) == 32);
     static_assert(offsetof(RuntimeMathError, argument1) == 8);
     static_assert(offsetof(RuntimeMathError, argument2) == 0x10);
     static_assert(offsetof(RuntimeMathError, result) == 0x18);
@@ -177,7 +179,7 @@ namespace NXBasics
         std::byte reserved08[8];
         double value;
     };
-    static_assert(sizeof(RuntimeDoubleParseResult) == 0x18);
+    static_assert(sizeof(RuntimeDoubleParseResult) == 24);
     static_assert(offsetof(RuntimeDoubleParseResult, value) == 0x10);
 
     using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
@@ -828,18 +830,18 @@ namespace NXBasics
     // Original data: DAT_004fb9d8 through 004fba33.
     inline constexpr std::uint8_t gRuntimeFormatTable[] =
         {
-            0x06, 0x00, 0x00, 0x06, 0x00, 0x01, 0x00, 0x00,
-            0x10, 0x00, 0x03, 0x06, 0x00, 0x06, 0x02, 0x10,
+            0x06, 0, 0, 0x06, 0, 1, 0, 0,
+            0x10, 0, 0x03, 0x06, 0, 0x06, 0x02, 0x10,
             0x04, 0x45, 0x45, 0x45, 0x05, 0x05, 0x05, 0x05,
-            0x05, 0x35, 0x30, 0x00, 0x50, 0x00, 0x00, 0x00,
-            0x00, 0x20, 0x28, 0x38, 0x50, 0x58, 0x07, 0x08,
-            0x00, 0x37, 0x30, 0x30, 0x57, 0x50, 0x07, 0x00,
-            0x00, 0x20, 0x20, 0x08, 0x00, 0x00, 0x00, 0x00,
-            0x08, 0x60, 0x68, 0x60, 0x60, 0x60, 0x60, 0x00,
-            0x00, 0x70, 0x70, 0x78, 0x78, 0x78, 0x78, 0x08,
-            0x07, 0x08, 0x00, 0x00, 0x07, 0x00, 0x08, 0x08,
-            0x08, 0x00, 0x00, 0x08, 0x00, 0x08, 0x00, 0x07,
-            0x08, 0x00, 0x00, 0x00};
+            0x05, 0x35, 0x30, 0, 0x50, 0, 0, 0,
+            0, 0x20, 0x28, 0x38, 0x50, 0x58, 0x07, 0x08,
+            0, 0x37, 0x30, 0x30, 0x57, 0x50, 0x07, 0,
+            0, 0x20, 0x20, 0x08, 0, 0, 0, 0,
+            0x08, 0x60, 0x68, 0x60, 0x60, 0x60, 0x60, 0,
+            0, 0x70, 0x70, 0x78, 0x78, 0x78, 0x78, 0x08,
+            0x07, 0x08, 0, 0, 0x07, 0, 0x08, 0x08,
+            0x08, 0, 0, 0x08, 0, 0x08, 0, 0x07,
+            0x08, 0, 0, 0};
 
     // Original range: 004fe070..004fe07c, end exclusive.
     // The adapter discards the original temporary-stream cleanup return value.
@@ -861,7 +863,7 @@ namespace NXBasics
     // Original data: 0050c250 through 0050c3b7.
     inline constexpr RuntimeErrorMapping gRuntimeErrorMappings[] =
         {
-            {0x0001u, 0x16u},
+            {1u, 0x16u},
             {0x0002u, 0x02u},
             {0x0003u, 0x02u},
             {0x0004u, 0x18u},
@@ -1013,24 +1015,24 @@ namespace NXBasics
 
     // Original data: 0050cb50.
     inline constexpr std::uint8_t gRuntimeMultibyteRangeMasks[4] = {
-        0x01, 0x02, 0x04, 0x08};
+        1, 0x02, 0x04, 0x08};
 
     // Original data: 0050cb58 through 0050cc47.
     inline constexpr RuntimeMultibyteProfile gRuntimeMultibyteProfiles[5] = {
         {932,
-         {0x82798260u, 0x00000021u, 0x00000000u},
+         {0x82798260u, 0x00000021u, 0u},
          {{0xA6, 0xDF, 0, 0, 0, 0, 0, 0},
           {0xA1, 0xA5, 0, 0, 0, 0, 0, 0},
           {0x81, 0x9F, 0xE0, 0xFC, 0, 0, 0, 0},
           {0x40, 0x7E, 0x80, 0xFC, 0, 0, 0, 0}}},
         {936,
-         {0xA3DAA3C1u, 0x00000020u, 0x00000000u},
+         {0xA3DAA3C1u, 0x00000020u, 0u},
          {{},
           {},
           {0x81, 0xFE, 0, 0, 0, 0, 0, 0},
           {0x40, 0xFE, 0, 0, 0, 0, 0, 0}}},
         {949,
-         {0xA3DAA3C1u, 0x00000020u, 0x00000000u},
+         {0xA3DAA3C1u, 0x00000020u, 0u},
          {{},
           {},
           {0x81, 0xFE, 0, 0, 0, 0, 0, 0},
@@ -1074,15 +1076,15 @@ namespace NXBasics
 
     // Original data: DAT_0050f360
     inline constexpr std::uint32_t Runtime_PositivePowerFactors[29][3] = {
-        {0x00000000u, 0x00000000u, 0x4002A000u}, // 10^1
-        {0x00000000u, 0x00000000u, 0x4005C800u}, // 10^2
-        {0x00000000u, 0x00000000u, 0x4008FA00u}, // 10^3
-        {0x00000000u, 0x00000000u, 0x400C9C40u}, // 10^4
-        {0x00000000u, 0x00000000u, 0x400FC350u}, // 10^5
-        {0x00000000u, 0x00000000u, 0x4012F424u}, // 10^6
-        {0x00000000u, 0x80000000u, 0x40169896u}, // 10^7
-        {0x00000000u, 0x20000000u, 0x4019BEBCu}, // 10^8
-        {0x00000000u, 0xC9BF0400u, 0x40348E1Bu}, // 10^16
+        {0u, 0u, 0x4002A000u}, // 10^1
+        {0u, 0u, 0x4005C800u}, // 10^2
+        {0u, 0u, 0x4008FA00u}, // 10^3
+        {0u, 0u, 0x400C9C40u}, // 10^4
+        {0u, 0u, 0x400FC350u}, // 10^5
+        {0u, 0u, 0x4012F424u}, // 10^6
+        {0u, ReadableValues::IntegerRange::Bit31, 0x40169896u}, // 10^7
+        {0u, 0x20000000u, 0x4019BEBCu}, // 10^8
+        {0u, 0xC9BF0400u, 0x40348E1Bu}, // 10^16
         {0xA1000000u, 0x1BCECCEDu, 0x404ED3C2u}, // 10^24
         {0xB59EF020u, 0xADA82B70u, 0x40699DC5u}, // 10^32
         {0x25FD5DD0u, 0x4F8E1AE5u, 0x4083EB19u}, // 10^40
@@ -1149,7 +1151,7 @@ namespace NXBasics
 
     // Original storage starts at 005699a0.
     // The next known global starts at 005699cc; this span holds every table string.
-    extern char gRuntimeFallbackErrorText[0x2C];
+    extern char gRuntimeFallbackErrorText[44];
 
     // Original data: 005699c8.
     extern RuntimeNewHandler gRuntimeNewHandler;
@@ -1263,7 +1265,7 @@ namespace NXBasics
     extern RuntimeFormatStream** gRuntimeStreamTable;
 
     // Original data: 0056a3a0 through 0056b39f.
-    extern char gRuntimeStdinBuffer[0x1000];
+    extern char gRuntimeStdinBuffer[4096];
 
     // Original data: 0050ecc8 through 0050ef47.
     extern RuntimeFormatStream gRuntimeStaticStreams[20];
@@ -1357,11 +1359,11 @@ namespace NXBasics
 
     // Layout and table assertions
 
-    static_assert(sizeof(RuntimeFindData) == 0x118, "Unexpected runtime find data size");
+    static_assert(sizeof(RuntimeFindData) == 280, "Unexpected runtime find data size");
 
     static_assert(offsetof(RuntimeFindData, name) == 0x14, "Unexpected runtime find name offset");
 
-    static_assert(sizeof(RuntimeSmallBlockRegion) == 0x14);
+    static_assert(sizeof(RuntimeSmallBlockRegion) == 20);
 
     static_assert(offsetof(RuntimeSmallBlockRegion, reservation) == 0x0C);
 
@@ -1369,7 +1371,7 @@ namespace NXBasics
 
     static_assert(sizeof(RuntimeSmallBlockPageEntryMode2) == 8);
 
-    static_assert(sizeof(RuntimeSmallBlockRegionMode2) == 0x2020);
+    static_assert(sizeof(RuntimeSmallBlockRegionMode2) == 8224);
 
     static_assert(offsetof(RuntimeSmallBlockRegionMode2, searchStart) == 0x08);
 
@@ -1381,9 +1383,9 @@ namespace NXBasics
 
     static_assert(sizeof(void*) == 4, "The reconstructed runtime requires x86");
 
-    static_assert(sizeof(CRITICAL_SECTION) == 0x18);
+    static_assert(sizeof(CRITICAL_SECTION) == 24);
 
-    static_assert(sizeof(RuntimeDescriptorRecord) == 0x24);
+    static_assert(sizeof(RuntimeDescriptorRecord) == 36);
 
     static_assert(offsetof(RuntimeDescriptorRecord, flags) == 0x04);
 
@@ -1393,16 +1395,16 @@ namespace NXBasics
 
     static_assert(offsetof(RuntimeDescriptorRecord, lock) == 0x0C);
 
-    static_assert(sizeof(RuntimeExceptionAction) == 0x0C);
+    static_assert(sizeof(RuntimeExceptionAction) == 12);
 
-    static_assert(sizeof(RuntimeNonLocalGotoNotification) == 0x10);
+    static_assert(sizeof(RuntimeNonLocalGotoNotification) == 16);
     static_assert(offsetof(RuntimeNonLocalGotoNotification, destination) == 4);
     static_assert(offsetof(RuntimeNonLocalGotoNotification, code) == 8);
     static_assert(offsetof(RuntimeNonLocalGotoNotification, frame) == 0x0C);
 
-    static_assert(sizeof(RuntimeMathExceptionValue) == 0x18);
+    static_assert(sizeof(RuntimeMathExceptionValue) == 24);
     static_assert(offsetof(RuntimeMathExceptionValue, flags) == 0x10);
-    static_assert(sizeof(RuntimeMathExceptionRecord) == 0x58);
+    static_assert(sizeof(RuntimeMathExceptionRecord) == 88);
     static_assert(offsetof(RuntimeMathExceptionRecord, cause) == 4);
     static_assert(offsetof(RuntimeMathExceptionRecord, enable) == 8);
     static_assert(offsetof(RuntimeMathExceptionRecord, status) == 0x0C);
@@ -1412,13 +1414,13 @@ namespace NXBasics
 
     static_assert(offsetof(RuntimeExceptionAction, action) == 0x08);
 
-    static_assert(sizeof(gRuntimeDefaultExceptionActions) == 0x78);
+    static_assert(sizeof(gRuntimeDefaultExceptionActions) == 120);
 
     static_assert(sizeof(void*) == 4, "RuntimeFormatStream requires an x86 build");
 
-    static_assert(sizeof(RuntimeFormatStream) == 0x20);
+    static_assert(sizeof(RuntimeFormatStream) == 32);
 
-    static_assert(offsetof(RuntimeFormatStream, position) == 0x00);
+    static_assert(offsetof(RuntimeFormatStream, position) == 0);
 
     static_assert(offsetof(RuntimeFormatStream, remainingBytes) == 0x04);
 
@@ -1432,21 +1434,21 @@ namespace NXBasics
 
     static_assert(sizeof(gRuntimeErrorMappings) / sizeof(gRuntimeErrorMappings[0]) == 45, "The original error table contains 45 entries");
 
-    static_assert(sizeof(gRuntimeStaticLocks) == 0x60);
+    static_assert(sizeof(gRuntimeStaticLocks) == 96);
 
-    static_assert(sizeof(gRuntimeLockTable) == 0xC0);
+    static_assert(sizeof(gRuntimeLockTable) == 192);
 
-    static_assert(sizeof(gRuntimeStaticStreams) == 0x280);
+    static_assert(sizeof(gRuntimeStaticStreams) == 640);
 
-    static_assert(sizeof(gRuntimeFormatTable) == 0x5C);
+    static_assert(sizeof(gRuntimeFormatTable) == 92);
 
-    static_assert(sizeof(gRuntimeDescriptorBlocks) == 0x100);
+    static_assert(sizeof(gRuntimeDescriptorBlocks) == 256);
 
-    static_assert(sizeof(RuntimeDescriptorRecord) * 32 == 0x480);
+    static_assert(sizeof(RuntimeDescriptorRecord) * 32 == 1152);
 
-    static_assert(sizeof(RuntimeFloatConversionState) == 0x10);
+    static_assert(sizeof(RuntimeFloatConversionState) == 16);
 
-    static_assert(offsetof(RuntimeFloatConversionState, sign) == 0x00);
+    static_assert(offsetof(RuntimeFloatConversionState, sign) == 0);
 
     static_assert(offsetof(RuntimeFloatConversionState, decimalPosition) == 0x04);
 
@@ -1454,11 +1456,11 @@ namespace NXBasics
 
     static_assert(offsetof(RuntimeFloatConversionState, digits) == 0x0C);
 
-    static_assert(sizeof(RuntimeFloatIntermediate) == 0x0C);
+    static_assert(sizeof(RuntimeFloatIntermediate) == 12);
 
     static_assert(offsetof(RuntimeFloatIntermediate, word2) == 0x08);
 
-    static_assert(sizeof(RuntimeFloatDecimalResult) == 0x1C);
+    static_assert(sizeof(RuntimeFloatDecimalResult) == 28);
 
     static_assert(offsetof(RuntimeFloatDecimalResult, sign) == 0x02);
 
@@ -1466,19 +1468,19 @@ namespace NXBasics
 
     static_assert(offsetof(RuntimeFloatDecimalResult, digits) == 0x04);
 
-    static_assert(sizeof(Runtime_PositivePowerFactors) == 0x15C);
+    static_assert(sizeof(Runtime_PositivePowerFactors) == 348);
 
-    static_assert(sizeof(Runtime_NegativePowerFactors) == 0x15C);
+    static_assert(sizeof(Runtime_NegativePowerFactors) == 348);
 
     static_assert(sizeof(va_list) == 4, "Argument access requires the MSVC x86 va_list layout");
 
-    static_assert(sizeof(CRITICAL_SECTION) == 0x18, "Descriptor locks require the Win32 critical-section layout");
+    static_assert(sizeof(CRITICAL_SECTION) == 24, "Descriptor locks require the Win32 critical-section layout");
 
     static_assert(sizeof(void*) == 4, "These CRT descriptor accesses require an x86 build");
 
     static_assert(sizeof(wchar_t) == 2, "The runtime requires Windows UTF-16 wchar_t");
 
-    static_assert(sizeof(RuntimeCalendarTime) == 0x24, "Unexpected runtime calendar size");
+    static_assert(sizeof(RuntimeCalendarTime) == 36, "Unexpected runtime calendar size");
 
     static_assert(offsetof(RuntimeCalendarTime, year) == 0x14, "Unexpected calendar year offset");
 

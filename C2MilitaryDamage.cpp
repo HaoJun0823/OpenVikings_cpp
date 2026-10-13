@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MilitaryDamage.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
@@ -27,8 +28,8 @@ namespace NC2Logic
     // Original function: FUN_00442188; weapon category chooses the experience field.
     std::uint32_t Human_GetExperienceForEquippedWeapon(const void* human)
     {
-        const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
-        const auto category = weapons[Read<std::uint32_t>(human, 0xAE4)].mainType;
+        const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)]);
+        const auto category = weapons[Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon)].mainType;
         const auto offset = category == 1 ? 0x140u : category == 2 ? 0x144u : category == 3 ? 0x148u : category == 6 ? 0x150u : category == 7 ? 0x154u : 0u;
         return offset != 0 ? Read<std::uint32_t>(human, offset) : 0;
     }
@@ -57,7 +58,7 @@ namespace NC2Logic
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
                 if (MapMigPoint_IsBorderPoint(&point)) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::uint8_t>(micro, 6) != continent || Read<std::uint8_t>(micro, 0) == 2) continue;
+                if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent || Read<std::uint8_t>(micro, 0) == 2) continue;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2)));
                 if (distance <= maximum) continue;
                 maximum = distance;
@@ -69,11 +70,11 @@ namespace NC2Logic
     // Original function: FUN_0044723b; sector membership changes before resetting the timer.
     void Animal_l_Aggressive_GetAngry(void* animal)
     {
-        const auto& type = static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u];
+        const auto& type = static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType) - 8u];
         if (type.getAngry == 0) return;
         if (Read<std::uint8_t>(animal, 0x5C) == 0)
         {
-            auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * 0x58u;
+            auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * ReadableValues::RecordSize::MapMoveable;
             MapMoveable_Attachment_DetachFromSectorMap(moveable);
             Write<std::uint8_t>(animal, 0x5C, 1);
             MapMoveable_Attachment_AttachToSectorMap(moveable);
@@ -92,8 +93,8 @@ namespace NC2Logic
         if (attackerType == 6) attacker[1] = attackerId;
         else { attacker[1] = attackerId; attacker[2] = attackerRevision; }
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
-        const auto player = Read<std::uint32_t>(animal, 0x10);
-        if (Read<std::uint32_t>(gGameControl, 0x5D200) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) damage = static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(damage) / 2);
+        const auto player = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId);
+        if (Read<std::uint32_t>(gGameControl, ReadableValues::GameControlOffset::DifficultyLevel) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) damage = static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(damage) / 2);
         if (NXBasics::Runtime_TimeSigned32(damage) > 0)
         {
             if ((Read<std::uint32_t>(animal, 0x90) & 8u) == 0) Write(animal, 0x64, Read<std::uint32_t>(animal, 0x64) - damage);
@@ -105,8 +106,8 @@ namespace NC2Logic
         if (!TargetData_IsValid(attacker)) return false;
         std::uint32_t position = 0, flee = 10000u | (10000u << 16);
         TargetData_GetMapPosition(attacker, &position);
-        const auto aggressive = Read<std::uint32_t>(animal, 0x18) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0;
-        if ((attackerType == 1 || attackerType == 3) && aggressive && TargetData_GetPlayerId(attacker) != Read<std::int32_t>(animal, 0x10))
+        const auto aggressive = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        if ((attackerType == 1 || attackerType == 3) && aggressive && TargetData_GetPlayerId(attacker) != Read<std::int32_t>(animal, ReadableValues::AnimalOffset::PlayerId))
         {
             if (!TargetData_IsValid(static_cast<const std::byte*>(animal) + 0x44))
             {
@@ -128,11 +129,11 @@ namespace NC2Logic
         if (propagate)
         {
             CAnimalIterator iterator;
-            for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, 0x10), Animal_GetMapPositionRef(animal), 20); id != -1; id = iterator.GetNextAnimalId())
+            for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId), Animal_GetMapPositionRef(animal), 20); id != -1; id = iterator.GetNextAnimalId())
             {
                 if (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(animal, 4)) continue;
                 auto* other = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-                if (Read<std::uint32_t>(other, 0x14) == Read<std::uint32_t>(animal, 0x14)) Animal_Military_StartGettingHitByWeapon(other, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
+                if (Read<std::uint32_t>(other, 0x14) == Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType)) Animal_Military_StartGettingHitByWeapon(other, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
             }
         }
         return NXBasics::Runtime_TimeSigned32(damage) > 0;

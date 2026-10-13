@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReadableValues.h"
+
 #include "XCrtFileAccess.h"
 #include "XPixelFormatConverter.h"
 
@@ -17,7 +19,7 @@ namespace NXBasics
         const auto* paletteBytes = static_cast<const std::uint8_t*>(palette);
 
         std::uint32_t bestIndex = 0;
-        std::uint32_t bestDistance = 0x7FFFFFFFu;
+        std::uint32_t bestDistance = ReadableValues::IntegerRange::Int32Maximum;
 
         for (std::uint32_t index = 0; index < 256; ++index)
         {
@@ -73,7 +75,7 @@ namespace NXBasics
             return;
         }
 
-        table = static_cast<std::uint16_t*>(Runtime_Allocate(0x200));
+        table = static_cast<std::uint16_t*>(Runtime_Allocate(512));
         std::memcpy(paletteBytes + 0x404, &table, sizeof(table));
 
         for (std::uint32_t index = 0; index < 256; ++index)
@@ -158,7 +160,7 @@ namespace NXBasics
             return;
         }
 
-        table = static_cast<std::uint32_t*>(Runtime_Allocate(0x400));
+        table = static_cast<std::uint32_t*>(Runtime_Allocate(1024));
         std::memcpy(paletteBytes + 0x408, &table, sizeof(table));
 
         for (std::uint32_t index = 0; index < 256; ++index)

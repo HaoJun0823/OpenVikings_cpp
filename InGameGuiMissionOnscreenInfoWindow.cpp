@@ -64,7 +64,7 @@ namespace NC2InGameGuiMiscWindows
                 }
                 else if (type == 2)
                 {
-                    *caption = 0; std::byte goods[0x88]{}; Tool_PlayerStatistics_CountGoods(player, goods);
+                    *caption = 0; std::byte goods[136]{}; Tool_PlayerStatistics_CountGoods(player, goods);
                     for (std::int32_t good = 0; good < Read<std::int32_t>(goal, 4); ++good)
                     {
                         if (good != 0) std::strcat(caption, " - "); const auto id = Read<std::uint32_t>(goal, 8 + static_cast<std::uint32_t>(good) * 8u), amount = Read<std::uint32_t>(goal, 0xC + static_cast<std::uint32_t>(good) * 8u);
@@ -90,5 +90,5 @@ namespace NC2InGameGuiMiscWindows
 // Original function: FUN_004b8607; replaces the isolated temporary constructor stub.
 void* __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void* window)
 {
-    const NXBasics::SRectangle area(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayWidth - 600, 0, 600, 160); NXBaseGui::BaseWindow_Construct(window, nullptr, &area, 0, 0); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 0x2744); NC2Lifetime::Write(window, 0, NC2InGameGuiMiscWindows::gMissionOnscreenInfoVirtualTable.data()); return window;
+    const NXBasics::SRectangle area(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayWidth - 600, 0, 600, 160); NXBaseGui::BaseWindow_Construct(window, nullptr, &area, 0, 0); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 10052); NC2Lifetime::Write(window, 0, NC2InGameGuiMiscWindows::gMissionOnscreenInfoVirtualTable.data()); return window;
 }

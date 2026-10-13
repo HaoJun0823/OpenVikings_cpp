@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XGuiDesktop.h"
 #include "XGuiWindowAccess.h"
 #include "C2LifetimeAccess.h"
@@ -13,8 +14,8 @@ namespace NXBaseGui
     void CDesktop::Element_Add(CBaseElement* element, bool insertAtEnd)
     {
         const auto flags = Read<std::uint32_t>(element, 0x18);
-        if ((flags & 0x800u) != 0) return;
-        Write(element, 0x18, flags | 0x800u);
+        if ((flags & ReadableValues::BitMask::Bit11) != 0) return;
+        Write(element, 0x18, flags | ReadableValues::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(element) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         auto* drawList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x14));
@@ -37,8 +38,8 @@ namespace NXBaseGui
     void CDesktop::Element_AddOverlay(CBaseElement* element, bool insertAtEnd)
     {
         const auto flags = Read<std::uint32_t>(element, 0x18);
-        if ((flags & 0x800u) != 0) return;
-        Write(element, 0x18, flags | 0x800u);
+        if ((flags & ReadableValues::BitMask::Bit11) != 0) return;
+        Write(element, 0x18, flags | ReadableValues::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(element) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         auto* drawList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x3C));
@@ -52,9 +53,9 @@ namespace NXBaseGui
     {
         if (window == nullptr) return;
         const auto flags = Read<std::uint32_t>(window, 0x18);
-        if ((flags & 0x800u) != 0) return;
+        if ((flags & ReadableValues::BitMask::Bit11) != 0) return;
         Write<std::uint8_t>(window, 0x68, static_cast<std::uint8_t>(Read<std::uint8_t>(window, 0x68) | 1u));
-        Write(window, 0x18, flags | 0x800u);
+        Write(window, 0x18, flags | ReadableValues::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(window) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x64))->InsertAtEnd(window);
@@ -104,7 +105,7 @@ namespace NXBaseGui
     CBaseElement* CDesktop::Window_GetActivePtr() const
     {
         auto* active = mActiveElement;
-        if (active == nullptr || (Read<std::uint32_t>(active, 0x18) & 0x40u) != 0) return active;
+        if (active == nullptr || (Read<std::uint32_t>(active, 0x18) & ReadableValues::BitMask::Bit6) != 0) return active;
         return Read<CBaseElement*>(active, 0x20);
     }
 }

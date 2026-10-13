@@ -95,10 +95,10 @@ namespace NC2Logic
     void Map_BioSystem_UpdateRectangle(const std::int16_t* rectangle);
     void Map_BioSystem_DoOneGameTick();
 
-    static_assert(sizeof(CMapBioRegrowManager) == 0x34);
-    static_assert(sizeof(CMapLandscapeAutoTransitionManager) == 0x34);
-    static_assert(sizeof(SFishSwarm) == 0x0C);
-    static_assert(sizeof(CMapFishManager) == 0x1774);
+    static_assert(sizeof(CMapBioRegrowManager) == 52);
+    static_assert(sizeof(CMapLandscapeAutoTransitionManager) == 52);
+    static_assert(sizeof(SFishSwarm) == 12);
+    static_assert(sizeof(CMapFishManager) == 6004);
     static_assert(offsetof(CMapFishManager, mSwarmCount) == 0x1770);
     static_assert(sizeof(CWallBuildManager) == 8);
     static_assert(sizeof(CRoadBuildManager) == 8);

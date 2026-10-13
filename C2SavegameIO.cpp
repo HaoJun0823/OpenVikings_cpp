@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2SavegameIO.h"
 #include "C2SavegamesManager.h"
@@ -38,11 +39,11 @@ namespace NC2Logic
     std::int32_t l_GameIO_Savegame_DoLoad_CheckHeaderAndGetInfos(CIoHelper& io, SSavegameInfoHeaderData* header)
     {
         std::uint32_t version = 0;
-        if (!io.IO_File_Chunk_CheckMarkerAndGetVersion(0x78736776, &version, nullptr))
+        if (!io.IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::SavegameChunk::Header, &version, nullptr))
             return -1;
         io.IO_File_Chunk_Skip();
         std::uint32_t infoVersion = 0;
-        if (!io.IO_File_Chunk_CheckMarkerAndGetVersion(0x78736769, &infoVersion, nullptr))
+        if (!io.IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::SavegameChunk::Info, &infoVersion, nullptr))
             return -1;
         if (header == nullptr)
         {
@@ -109,40 +110,40 @@ namespace NC2Logic
     // Original function: FUN_00426229.
     static void l_GameIO_Savegame_DoSave_WriteHeaderAndInfos(CIoHelper* io, const char* info, std::int32_t slotId)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78736776, 1);
+        io->IO_Tool_Chunk_StartCreation(ReadableValues::SavegameChunk::Header, 1);
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x78736769, 2);
-        io->IO_Tool_Chunk_StartCreation(0x49436973, 1);
+        io->IO_Tool_Chunk_StartCreation(ReadableValues::SavegameChunk::Info, 2);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::InfoText, 1);
         io->IO_Memory_WriteString(info != nullptr && std::strlen(info) != 0 ? info : "(no infos)");
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x49436D6E, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::MapName, 1);
         char mapName[220];
         mapName[0] = '\0';
         if (auto* map = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(gGameStaticVars.mapGuid)) map->Tool_GetMapName(mapName);
         io->IO_Memory_WriteString(std::strlen(mapName) != 0 ? mapName : "");
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x49437369, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::SlotId, 1);
         io->IO_Memory_WriteLong(static_cast<std::uint32_t>(slotId));
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x4943656E, 1);
+        io->IO_Tool_Chunk_StartCreation(ReadableValues::SavegameInfoChunk::EndMetadata, 1);
         char version[96];
         Misc_GetInternalNameAndVersionString(version);
         io->IO_Memory_WriteString(version);
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x49437469, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::CreationTime, 1);
         SYSTEMTIME time;
         ::GetLocalTime(&time);
         for (auto value : {time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds}) io->IO_Memory_WriteLong(value);
         io->IO_Tool_Chunk_FinishAndWrite();
-        io->IO_Tool_Chunk_StartCreation(0x49436367, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::MapGuid, 1);
         io->IO_Memory_WriteBinary(&gGameStaticVars.mapGuid, 16);
         io->IO_Tool_Chunk_FinishAndWrite();
         if (gGameStaticVars.networkGame != 0)
         {
-            io->IO_Tool_Chunk_StartCreation(0x49436D70, 1);
+            io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::MultiplayerPlayers, 1);
             for (std::uint32_t player = 0; player < 20; ++player)
             {
-                const auto offset = player * 0x4A80;
+                const auto offset = player * ReadableValues::RecordSize::GameControlPlayerSigned;
                 if (NC2Lifetime::Read<std::uint8_t>(gGameControl, offset) == 0) break;
                 const auto type = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + 4);
                 const auto color = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + 0x10);
@@ -154,10 +155,10 @@ namespace NC2Logic
                 io->IO_Memory_WriteString(name);
                 io->IO_Memory_WriteLong(color);
             }
-            io->IO_Memory_WriteLong(0xFFFFFFFF);
+            io->IO_Memory_WriteLong(ReadableValues::IntegerRange::UInt32Maximum);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
-        io->IO_Tool_Chunk_StartCreation(0x49437878, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameInfoChunk::EndInfoHeader, 1);
         io->IO_Tool_Chunk_FinishAndWrite();
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -166,7 +167,7 @@ namespace NC2Logic
     static void l_GameIO_Savegame_DoSave(CIoHelper* io, const char* info, std::int32_t slotId)
     {
         l_GameIO_Savegame_DoSave_WriteHeaderAndInfos(io, info, slotId);
-        io->IO_Tool_Chunk_StartCreation(0x7867616D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::GameState, 1);
         io->IO_Memory_WriteBinary(&gGameStaticVars.mapGuid, 0x98);
         io->IO_Tool_Chunk_FinishAndWrite();
         GameControl_IO_Savegame_DoSave(gGameControl, nullptr, io);
@@ -238,21 +239,21 @@ namespace NC2Logic
         {
             switch (io->mReadHeader.marker)
             {
-            case SwitchIds::SavegameChunk::GameAssistant: LoadOriginalManager(0x460, GameAssistantManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::GameAssistant: LoadOriginalManager(ReadableValues::ObjectSize::GameAssistantManager, GameAssistantManager_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::Animals: LoadNativeArray<CAnimalArray>(io); break;
-            case SwitchIds::SavegameChunk::DelayedActions: LoadOriginalManager(0x34, DelayedActionManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::AI: LoadOriginalManager(0xA0, AIManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::DelayedActions: LoadOriginalManager(ReadableValues::ObjectSize::DelayedActionManager, DelayedActionManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::AI: LoadOriginalManager(ReadableValues::ObjectSize::AIManager, AIManager_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::EmbeddedSavegame: LoadOriginalManager(8, EmbeddedSavegameManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::Guides: LoadOriginalManager(0x1368, GuideManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Guides: LoadOriginalManager(ReadableValues::ObjectSize::GuideManager, GuideManager_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::Houses: LoadNativeArray<CHouseArray>(io); break;
-            case SwitchIds::SavegameChunk::Happiness: LoadOriginalManager(0xAA0, HappinessManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Happiness: LoadOriginalManager(ReadableValues::ObjectSize::HappinessManager, HappinessManager_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::Humans: LoadNativeArray<CHumanArray>(io); break;
-            case SwitchIds::SavegameChunk::Merchants: LoadOriginalManager(0x5D8, HumanMerchantArray_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::MapMoveables: LoadOriginalManager(0x30, MapMoveableArray_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::Missions: LoadOriginalManager(0x81CAC, MissionManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::Markers: LoadOriginalManager(0x30, MarkerArray_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::Pathfinders: LoadOriginalManager(0x30, MapPathfinderManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::Tributes: LoadOriginalManager(0x960, TributeManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Merchants: LoadOriginalManager(ReadableValues::ObjectSize::HumanMerchantArray, HumanMerchantArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MapMoveables: LoadOriginalManager(ReadableValues::ObjectSize::MapMoveableArray, MapMoveableArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Missions: LoadOriginalManager(ReadableValues::ObjectSize::MissionManager, MissionManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Markers: LoadOriginalManager(ReadableValues::ObjectSize::MarkerArray, MarkerArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Pathfinders: LoadOriginalManager(ReadableValues::ObjectSize::MapPathfinderManager, MapPathfinderManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Tributes: LoadOriginalManager(ReadableValues::ObjectSize::TributeManager, TributeManager_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::Vehicles: LoadNativeArray<CVehicleArray>(io); break;
             case SwitchIds::SavegameChunk::GameState:
             {
@@ -261,18 +262,18 @@ namespace NC2Logic
                 auto* map = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(gGameStaticVars.mapGuid);
                 if (map != nullptr && map->userMap != 0)
                 {
-                    void* library = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+                    void* library = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
                     if (library != nullptr) library = NXBasics::Archive_Initialize(library, map->archiveFilename);
                     gGameStaticVars.mapFileLibrary = library;
                     NXBasics::CFile::FileSystem_FileLibrary_Add(library);
                 }
                 break;
             }
-            case SwitchIds::SavegameChunk::GameControl: LoadOriginalManager(0x5D204, GameControl_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::GameControl: LoadOriginalManager(ReadableValues::ObjectSize::GameControl, GameControl_ConstructFromSavegame, io); break;
             case SwitchIds::SavegameChunk::GameMap: LoadOriginalManager(1, GameMap_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::MultiplayerGoals: LoadOriginalManager(0x740, MultiPlayerGoalManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::MissionOnscreenInfo: LoadOriginalManager(0xFA0, MissionOnscreenInfoManager_ConstructFromSavegame, io); break;
-            case SwitchIds::SavegameChunk::PlayerStatistics: LoadOriginalManager(0xA8, PlayerStatisticManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MultiplayerGoals: LoadOriginalManager(ReadableValues::ObjectSize::MultiPlayerGoalManager, MultiPlayerGoalManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MissionOnscreenInfo: LoadOriginalManager(ReadableValues::ObjectSize::MissionOnscreenInfoManager, MissionOnscreenInfoManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::PlayerStatistics: LoadOriginalManager(ReadableValues::ObjectSize::PlayerStatisticManager, PlayerStatisticManager_ConstructFromSavegame, io); break;
             default: io->IO_File_Chunk_Skip(); break;
             }
         }

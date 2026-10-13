@@ -12,11 +12,11 @@ namespace NC2E2
 {
     struct SE2StaticDataTextureData
     {
-        char name[0x78];
+        char name[120];
         NXBasics::CBitmap* bitmap;
         NXBasics::CPalette* palette;
     };
-    static_assert(sizeof(SE2StaticDataTextureData) == 0x80);
+    static_assert(sizeof(SE2StaticDataTextureData) == 128);
     static_assert(offsetof(SE2StaticDataTextureData, bitmap) == 0x78);
     static_assert(offsetof(SE2StaticDataTextureData, palette) == 0x7C);
 

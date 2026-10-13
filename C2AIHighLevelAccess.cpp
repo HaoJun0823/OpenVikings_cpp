@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AIHighLevelAccess.h"
 #include "C2AIAnimalDiplomacy.h"
 #include "C2AIBuildingAccess.h"
@@ -86,7 +87,7 @@ namespace NC2Logic
     void AIHighLevelHandler_l_Villages_CheckForNeedments(void* handler)
     {
         auto* bytes = static_cast<std::byte*>(handler); auto* villages = bytes + 0x1C; auto* resources = bytes + 0x67B4;
-        std::byte areas[0x194]; AIInvalidAreaManager_Construct(areas); Write<std::uint32_t>(areas, 0, 0);
+        std::byte areas[404]; AIInvalidAreaManager_Construct(areas); Write<std::uint32_t>(areas, 0, 0);
         for (std::uint32_t good = 0; good < 66; ++good)
         {
             if (!AIGlobalGoods_IsNeedingVillage(bytes + 0x9520, good)) continue;
@@ -109,7 +110,7 @@ namespace NC2Logic
     {
         auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + 0xAA18;
         const auto player = Read<std::uint32_t>(handler, 0);
-        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, 0xAA28) == 0xFFFF)
+        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, 0xAA28) == ReadableValues::IntegerRange::UInt16MaximumSigned)
         {
             if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE)) { if (Read<std::uint8_t>(handler, 0xAA2C) != 0) Write<std::uint8_t>(handler, 0x67AD, 1); }
             else AIGuideManager_BuildGuideNearPosition(guides, player, bytes + 0x67AE);
@@ -149,7 +150,7 @@ namespace NC2Logic
         }
         for (; count < 4; ++count)
         {
-            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * 0x4A80 + 12) : 1;
+            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
             CHumanArray::sTheObjectPtr->AllocateHuman(player, tribe, 6, &chosen, 0, 0);
         }
         AIVillagesData_Init(static_cast<std::byte*>(handler) + 0x1C, player, &chosen); return true;

@@ -15,12 +15,12 @@ namespace
 {
     // Complete Windows token arrays 004F45C0..004F45E7 and 004F45E8..004F45FF.
     const NXBasics::SToken gPalette256Tokens[] = {
-        { "editname", 0x65646E61u }, { "gfxfile", 0x67667866u },
-        { "gfxpreshade", 0x67667870u }, { "gfxremaptopreshaded", 0x67667872u },
+        { "editname", SwitchIds::Palette16Token::EditName }, { "gfxfile", SwitchIds::PaletteToken::Gfxfile },
+        { "gfxpreshade", SwitchIds::PaletteToken::GfxPreshade }, { "gfxremaptopreshaded", SwitchIds::PaletteToken::GfxRemapToPreshaded },
         { nullptr, 0 }
     };
     const NXBasics::SToken gPalette16Tokens[] = {
-        { "editname", 0x65646E61u }, { "gfxcolorrange", 0x67667863u }, { nullptr, 0 }
+        { "editname", SwitchIds::Palette16Token::EditName }, { "gfxcolorrange", SwitchIds::Palette16Token::GfxColorRange }, { nullptr, 0 }
     };
     // Complete Windows token-list region 00555100..0055510B.
     struct SPaletteTokenState
@@ -30,9 +30,9 @@ namespace
         const NXBasics::SToken* table256;
     };
     SPaletteTokenState gPaletteTokenState{};
-    static_assert(sizeof(gPalette256Tokens) == 0x28);
-    static_assert(sizeof(gPalette16Tokens) == 0x18);
-    static_assert(sizeof(SPaletteTokenState) == 0x0C);
+    static_assert(sizeof(gPalette256Tokens) == 40);
+    static_assert(sizeof(gPalette16Tokens) == 24);
+    static_assert(sizeof(SPaletteTokenState) == 12);
     static_assert(offsetof(SPaletteTokenState, flags) == 4);
     static_assert(offsetof(SPaletteTokenState, table256) == 8);
 
@@ -85,7 +85,7 @@ namespace NC2E2
                         case SwitchIds::PaletteToken::GfxPreshade:
                         {
                             if (entry->palette == nullptr) break;
-                            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x7D78, 1);
+                            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(32120, 1);
                             NXBasics::CPalette* palettes = nullptr;
                             if (allocation != nullptr)
                             {
@@ -115,7 +115,7 @@ namespace NC2E2
                             if (id == -1) break;
                             auto* target = &gStaticPalettes.palettes256[id];
                             if (target->palette == nullptr || target->preshadedPalettes == nullptr) break;
-                            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x104, 1);
+                            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(260, 1);
                             entry->remapTable = allocation == nullptr ? nullptr : new (allocation) NXBasics::CRemapTable(*entry->palette, *target->palette, 0, 255);
                             entry->remapTarget = target;
                             break;
@@ -162,7 +162,7 @@ namespace NC2E2
         }
         gStaticPalettes.fishPaletteId = E2StaticDataPalettesManager_GetPalette256Id("fishes");
         gStaticPalettes.guiBubblesPaletteId = E2StaticDataPalettesManager_GetPalette256Id("gui_bubbles");
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x40C, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(1036, 1);
         gStaticPalettes.blackPalette = allocation == nullptr ? nullptr : new (allocation) NXBasics::CPalette();
         gStaticPalettes.vertexColorsPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\engine2d\\bin\\palettes\\misc\\vertexcolors.pcx");
         return manager;

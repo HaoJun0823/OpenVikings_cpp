@@ -269,7 +269,7 @@ namespace NMasterPropertyManager
     // Original function: FUN_004e178f
     void CPropertyManager::Options_Load()
     {
-        char fileName[0x104];
+        char fileName[260];
         NXBasics::Runtime_PrintString(fileName, OriginalStrings::GlobalOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
         Property_WorkOnIniFile(fileName);
         NXBasics::Runtime_PrintString(fileName, OriginalStrings::CallsignOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
@@ -283,7 +283,7 @@ namespace NMasterPropertyManager
     {
         NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
-        char fileName[0x104];
+        char fileName[260];
         NXBasics::Runtime_PrintString(fileName, OriginalStrings::GlobalOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
         {
@@ -322,7 +322,7 @@ namespace NMasterPropertyManager
     {
         NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
-        char fileName[0x104];
+        char fileName[260];
         NXBasics::Runtime_PrintString(fileName, OriginalStrings::GameOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
         NXBasics::CFile file(fileName, false);

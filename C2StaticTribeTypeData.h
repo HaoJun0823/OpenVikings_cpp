@@ -92,10 +92,10 @@ namespace NC2Logic
     };
     extern SStaticTribeTypeStorage gStaticTribeTypeStorage;
 
-    static_assert(sizeof(STribeExperienceRequirement) == 0x14);
+    static_assert(sizeof(STribeExperienceRequirement) == 20);
     static_assert(offsetof(STribeExperienceRequirement, jobCount) == 4);
     static_assert(offsetof(STribeExperienceRequirement, jobs) == 8);
-    static_assert(sizeof(STribeJobEnables) == 0x400);
+    static_assert(sizeof(STribeJobEnables) == 1024);
     static_assert(offsetof(STribeJobEnables, jobs) == 0x10);
     static_assert(offsetof(STribeJobEnables, goods) == 0xD8);
     static_assert(offsetof(STribeJobEnables, houses) == 0x1A0);
@@ -104,12 +104,12 @@ namespace NC2Logic
     static_assert(offsetof(STribeJobEnables, equipmentCount) == 0x334);
     static_assert(offsetof(STribeJobEnables, equipment) == 0x338);
     static_assert(sizeof(STribeGoodProduction) == 8);
-    static_assert(sizeof(STribeBuildRequirement) == 0x198);
+    static_assert(sizeof(STribeBuildRequirement) == 408);
     static_assert(offsetof(STribeBuildRequirement, jobs) == 8);
     static_assert(offsetof(STribeBuildRequirement, goods) == 0xD0);
-    static_assert(sizeof(SStaticTribeTypeData) == 0x1AE08);
+    static_assert(sizeof(SStaticTribeTypeData) == 110088);
     static_assert(offsetof(SStaticTribeTypeData, atomicIds) == 0x20);
-    static_assert(sizeof(SStaticTribeTypeData::atomicIds) == 0x5080);
+    static_assert(sizeof(SStaticTribeTypeData::atomicIds) == 20608);
     static_assert(offsetof(SStaticTribeTypeData, allowedJobs) == 0x50A0);
     static_assert(offsetof(SStaticTribeTypeData, allowedGoods) == 0x50D8);
     static_assert(offsetof(SStaticTribeTypeData, allowedEquipment) == 0x511A);
@@ -128,7 +128,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticTribeTypeData, goodProduction) == 0x14928);
     static_assert(offsetof(SStaticTribeTypeData, houseBuildNeeds) == 0x14B38);
     static_assert(offsetof(SStaticTribeTypeData, vehicleBuildNeeds) == 0x1A2E0);
-    static_assert(sizeof(SStaticTribeTypeStorage) == 0xF8);
+    static_assert(sizeof(SStaticTribeTypeStorage) == 248);
     static_assert(offsetof(SStaticTribeTypeStorage, tokenInitFlags) == 4);
     static_assert(offsetof(SStaticTribeTypeStorage, records) == 8);
     static_assert(offsetof(SStaticTribeTypeStorage, owner) == 0x0C);

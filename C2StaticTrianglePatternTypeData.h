@@ -45,7 +45,7 @@ namespace NC2Logic
     };
     extern SStaticTrianglePatternTypeStorage gStaticTrianglePatternTypeStorage;
 
-    static_assert(sizeof(SStaticTrianglePatternTypeData) == 0x30);
+    static_assert(sizeof(SStaticTrianglePatternTypeData) == 48);
     static_assert(offsetof(SStaticTrianglePatternTypeData, humanCanWalkOn) == 0);
     static_assert(offsetof(SStaticTrianglePatternTypeData, houseCanBeBuiltOn) == 1);
     static_assert(offsetof(SStaticTrianglePatternTypeData, bioCanGrowOn) == 2);
@@ -59,7 +59,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticTrianglePatternTypeData, padding2A) == 0x2A);
     static_assert(offsetof(SStaticTrianglePatternTypeData, debugColor) == 0x2C);
     static_assert(sizeof(CStaticTrianglePatternTypeDataManager) == 1);
-    static_assert(sizeof(SStaticTrianglePatternTypeStorage) == 0x70);
+    static_assert(sizeof(SStaticTrianglePatternTypeStorage) == 112);
     static_assert(offsetof(SStaticTrianglePatternTypeStorage, tokenList) == 4);
     static_assert(offsetof(SStaticTrianglePatternTypeStorage, records) == 8);
     static_assert(offsetof(SStaticTrianglePatternTypeStorage, owner) == 0x0C);

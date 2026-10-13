@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanHuntingJobs.h"
 #include "C2AnimalAccess.h"
@@ -28,7 +29,7 @@ namespace NC2Logic
         CAnimalIterator iterator;
         void* best = nullptr;
         std::uint32_t bestDistance = 10000;
-        for (auto id = iterator.GetFirstSectorAnimalId(20, Read<std::uint32_t>(human, 0xB30), 50, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
+        for (auto id = iterator.GetFirstSectorAnimalId(20, Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkCenter), 50, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
             if ((Read<std::uint32_t>(animal, 0x90) & 8u) != 0) continue;
@@ -57,12 +58,12 @@ namespace NC2Logic
     // Original function: FUN_0046c8de; only circulation states 0, 2, 4 and 5 have actions.
     void Human_l_StartTask_ExecuteJob_Hunter(void* human)
     {
-        switch (Read<std::uint32_t>(human, 0xACC))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Hunter_TryToCollect(human); return;
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Hunter_Collect(human); return;
         case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case SwitchIds::GoodCirculationMode::FlushStock: Write<std::uint32_t>(human, 0x374, 0); Write<std::uint32_t>(human, 0x36C, 3); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 0); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); return;
         default: return;
         }
     }
@@ -75,7 +76,7 @@ namespace NC2Logic
         if (landscape == 25 || landscape == 44)
         {
             Human_l_StartAtomicAnimation(human, 22, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human)));
-            Write<std::uint32_t>(human, 0x36C, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
         }
         else if (landscape > 78 && landscape <= 80) Human_l_StartTask_ExecuteJob_Hunter_Harvest(human);
         else Human_Target_Reset(human);
@@ -85,44 +86,44 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Hunter_TryToCollect(void* human)
     {
         Human_Target_Reset(human);
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        if (Read<std::uint32_t>(human, 0xA84) == 2 && (Read<std::uint32_t>(human, 0xA90) == 79 || Read<std::uint32_t>(human, 0xA90) == 80))
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::SecondaryInteractionTarget) == 2 && (Read<std::uint32_t>(human, 0xA90) == 79 || Read<std::uint32_t>(human, 0xA90) == 80))
         {
             const void* real = static_cast<const std::byte*>(human) + 0xA88;
             const void* micro = GameMap_GetConstMapMicroPointPtr(real);
             const auto landscape = Read<std::uint8_t>(micro, 2);
             if (Read<std::uint8_t>(micro, 0) == 1 && (landscape == 79 || landscape == 80))
             {
-                Write<std::uint32_t>(human, 0xAD0, landscape == 79 ? 9 : 21);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, landscape == 79 ? 9 : 21);
                 if (Human_l_StartAtomicWalkAndFetch(human, real, static_cast<const std::byte*>(human) + 0xA8C, false)) return;
             }
         }
-        Write<std::uint32_t>(human, 0xA84, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::SecondaryInteractionTarget, 0);
         std::uint32_t real = 0, work = 0, good;
-        if (Human_FindCadaverForHarvesting(human, &real, &work, &good, Human_GetMapPositionRef(human)) || Human_FindCadaverForHarvesting(human, &real, &work, &good, static_cast<const std::byte*>(human) + 0xB30))
+        if (Human_FindCadaverForHarvesting(human, &real, &work, &good, Human_GetMapPositionRef(human)) || Human_FindCadaverForHarvesting(human, &real, &work, &good, static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter))
         {
-            Write(human, 0xAD0, good);
+            Write(human, ReadableValues::HumanOffset::RequestedGood, good);
             Write<std::uint32_t>(human, 0xB64, 0);
             Write(human, 0xA88, real); Write(human, 0xA8C, work);
-            Write<std::uint32_t>(human, 0xA84, 2); Write<std::uint32_t>(human, 0xA90, good == 9 ? 79 : 80);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::SecondaryInteractionTarget, 2); Write<std::uint32_t>(human, 0xA90, good == 9 ? 79 : 80);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
         }
         void* target = static_cast<std::byte*>(human) + 0xB64;
-        Write<std::uint32_t>(human, 0xAD0, 56);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 56);
         if (TargetData_GetTargetType(target) != 3 || !TargetData_IsValid(target))
         {
             const void* animal = Human_FindAnimalForHunting(human);
-            if (animal == nullptr) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); return; }
+            if (animal == nullptr) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 3); return; }
             Write(target, 4, Read<std::uint32_t>(animal, 4)); Write(target, 8, Read<std::uint32_t>(animal, 8)); Write<std::uint32_t>(target, 0, 3);
         }
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
     }
 
     // Original function: FUN_0046cb0e.
     void Human_l_StartTask_ExecuteJob_Hunter_Harvest(void* human)
     {
         Human_l_StartAtomicAnimation(human, 33, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human)));
-        Write<std::uint32_t>(human, 0x36C, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
     }
 }

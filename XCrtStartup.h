@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReadableValues.h"
+
 #include "SwitchIdentifiers.h"
 
 #include "XCrtFileAccess.h"
@@ -43,7 +45,7 @@ namespace NXBasics
     inline char* gRuntimeProgramPath = nullptr;
 
     // Original data: DAT_00569bbc.
-    inline char gRuntimeExecutablePathBuffer[0x104] = {};
+    inline char gRuntimeExecutablePathBuffer[260] = {};
 
     // Original data: DAT_0056b714.
     inline char* gRuntimeCommandLine = nullptr;
@@ -56,8 +58,8 @@ namespace NXBasics
     {
         const DWORD version = GetVersion();
 
-        gRuntimeWindowsMinorVersion = (version >> 8) & 0xFFu;
-        gRuntimeWindowsMajorVersion = version & 0xFFu;
+        gRuntimeWindowsMinorVersion = (version >> 8) & ReadableValues::IntegerRange::UInt8Maximum;
+        gRuntimeWindowsMajorVersion = version & ReadableValues::IntegerRange::UInt8Maximum;
         gRuntimeWindowsVersion = (gRuntimeWindowsMajorVersion << 8) + gRuntimeWindowsMinorVersion;
         gRuntimeOsVersion = version >> 16;
 

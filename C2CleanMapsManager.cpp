@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2CleanMapsManager.h"
 #include "C2LifetimeGlobals.h"
@@ -129,7 +130,7 @@ namespace NC2Logic
         for (bool found = DirectoryScanner_GetFirstMatchingFile(&scanner, IO_Tool_GetUserMapDirectoryNamePtr(), "c2m", false); found; found = DirectoryScanner_GetNextMatchingFile(&scanner))
         {
             const char* filename = DirectoryScanner_GetCurrentNamePtr(&scanner);
-            void* archive = Runtime_AllocateWithNewHandler(0x14, 1);
+            void* archive = Runtime_AllocateWithNewHandler(20, 1);
             if (archive != nullptr)
                 archive = Archive_Initialize(archive, filename);
             CFile::FileSystem_FileLibrary_Add(archive);
@@ -149,8 +150,8 @@ namespace NC2Logic
     // Original function: FUN_004167a1; complete token regions: 004F37B0..004F37E7.
     bool CCleanMapsManager::l_CleanMapList_Update_WorkOnMap(CIniFileReader& reader, const char* mapRoot, bool userMap, const char* archiveFilename)
     {
-        static constexpr SToken typeTokens[] = { { "maptype", 0x6D617074 }, { "mapcampaignid", 0x6D616369 }, { "mapmultiplayeronly", 0x6D6D6F6E }, { nullptr, 0 } };
-        static constexpr SToken nameTokens[] = { { "mapnamestringid", 0x6D617073 }, { "mapdescriptionstringid", 0x6D617064 }, { nullptr, 0 } };
+        static constexpr SToken typeTokens[] = { { "maptype", SwitchIds::CleanMapToken::MapType }, { "mapcampaignid", SwitchIds::CleanMapToken::Mapcampaignid }, { "mapmultiplayeronly", SwitchIds::CleanMapToken::Mapmultiplayeronly }, { nullptr, 0 } };
+        static constexpr SToken nameTokens[] = { { "mapnamestringid", ReadableValues::CleanMapsManagerToken::MapNameStringId }, { "mapdescriptionstringid", ReadableValues::CleanMapsManagerToken::MapDescriptionStringId }, { nullptr, 0 } };
         if (!reader.IsLoaded() || !reader.SearchGroup("logiccontrol"))
             return false;
         SCleanMapInfoData info;
@@ -218,7 +219,7 @@ namespace NC2Logic
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
                 const std::uint32_t token = tokens.FindToken(reader.GetCurrentName());
-                if (token != 0x6D617073 && token != 0x6D617064)
+                if (token != ReadableValues::CleanMapsManagerToken::MapNameStringId && token != ReadableValues::CleanMapsManagerToken::MapDescriptionStringId)
                     continue;
                 const auto id = static_cast<std::uint32_t>(reader.GetInt());
                 CStringArray* strings = StringIO_GetMissionStringArrayPtr(info.mapRoot);
@@ -226,8 +227,8 @@ namespace NC2Logic
                     continue;
                 if (const char* text = strings->GetStringPtr(id))
                 {
-                    char* destination = token == 0x6D617073 ? info.mapName : info.description;
-                    const std::uint32_t capacity = token == 0x6D617073 ? 200u : 400u;
+                    char* destination = token == ReadableValues::CleanMapsManagerToken::MapNameStringId ? info.mapName : info.description;
+                    const std::uint32_t capacity = token == ReadableValues::CleanMapsManagerToken::MapNameStringId ? 200u : 400u;
                     std::strncpy(destination, text, capacity - 1);
                     destination[capacity - 1] = '\0';
                 }

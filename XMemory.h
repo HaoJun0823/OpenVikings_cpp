@@ -76,5 +76,5 @@ namespace NXBasics
     };
 
     static_assert(sizeof(void*) == 4, "CMemory requires an x86 build");
-    static_assert(sizeof(CMemory) == 0x0C, "CMemory must be 12 bytes");
+    static_assert(sizeof(CMemory) == 12, "CMemory must be 12 bytes");
 }

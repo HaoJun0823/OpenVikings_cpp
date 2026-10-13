@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -26,15 +27,15 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[9] = {nullptr, 0};
-                storage.tokens[0] = {"type", 0x74797065};
-                storage.tokens[1] = {"name", 0x6E616D65};
-                storage.tokens[2] = {"allowedonland", 0x616C6C6C};
-                storage.tokens[3] = {"allowedonwater", 0x616C6C77};
-                storage.tokens[4] = {"allowedoneverything", 0x616C6C65};
-                storage.tokens[5] = {"maximumvalency", 0x6D617876};
-                storage.tokens[6] = {"playeridallowed", 0x706C6964};
-                storage.tokens[7] = {"transition", 0x7472616E};
-                storage.tokens[8] = {"debugcolor", 0x64626763};
+                storage.tokens[0] = {"type", ReadableValues::LandscapeToken::Type};
+                storage.tokens[1] = {"name", SwitchIds::LogicLandscapeToken::Name};
+                storage.tokens[2] = {"allowedonland", SwitchIds::LogicLandscapeToken::Allowedonland};
+                storage.tokens[3] = {"allowedonwater", SwitchIds::LogicLandscapeToken::Allowedonwater};
+                storage.tokens[4] = {"allowedoneverything", SwitchIds::LogicLandscapeToken::Allowedoneverything};
+                storage.tokens[5] = {"maximumvalency", SwitchIds::LogicLandscapeToken::MaximumValency};
+                storage.tokens[6] = {"playeridallowed", SwitchIds::LogicLandscapeToken::Playeridallowed};
+                storage.tokens[7] = {"transition", SwitchIds::LogicLandscapeToken::Transition};
+                storage.tokens[8] = {"debugcolor", SwitchIds::LogicLandscapeToken::DebugColor};
             }
             if ((storage.tokenInitFlags & 2) == 0)
             {
@@ -52,12 +53,12 @@ namespace NC2Logic
         gStaticLandscapeTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticLandscapeTypeData = nullptr;
-        auto* records = static_cast<SStaticLandscapeTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0x35A0, 1));
+        auto* records = static_cast<SStaticLandscapeTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(13728, 1));
         if (records != nullptr)
             for (std::uint32_t index = 0; index < 88; ++index) ::new (records + index) SStaticLandscapeTypeData;
         gStaticLandscapeTypeData = records;
         // Windows continues unconditionally after the conditional color construction.
-        std::memset(records, 0, 0x35A0);
+        std::memset(records, 0, 13728);
         std::strcpy(records[0].name, "none");
         records[0].debugColor.SetColors(100, 100, 100);
 

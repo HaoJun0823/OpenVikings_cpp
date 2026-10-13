@@ -10,7 +10,7 @@ namespace NC2E2
 {
     struct SE2StaticDataPalette256
     {
-        char name[0x20];
+        char name[32];
         NXBasics::CPalette* palette;             // +0x20; owned.
         NXBasics::CPalette* preshadedPalettes;    // +0x24; 31 owned objects after a DWORD cookie.
         NXBasics::CRemapTable* remapTable;        // +0x28; owned.
@@ -19,7 +19,7 @@ namespace NC2E2
 
     struct SE2StaticDataPalette16
     {
-        char name[0x20];
+        char name[32];
         std::int32_t palette256Id;
         std::uint32_t colorRange;
     };
@@ -42,15 +42,15 @@ namespace NC2E2
     std::int32_t E2StaticDataPalettesManager_GetPalette256Id(const char* name);
     std::int32_t E2StaticDataPalettesManager_GetPalette16Id(const char* name);
 
-    static_assert(sizeof(SE2StaticDataPalette256) == 0x30);
+    static_assert(sizeof(SE2StaticDataPalette256) == 48);
     static_assert(offsetof(SE2StaticDataPalette256, palette) == 0x20);
     static_assert(offsetof(SE2StaticDataPalette256, preshadedPalettes) == 0x24);
     static_assert(offsetof(SE2StaticDataPalette256, remapTable) == 0x28);
     static_assert(offsetof(SE2StaticDataPalette256, remapTarget) == 0x2C);
-    static_assert(sizeof(SE2StaticDataPalette16) == 0x28);
+    static_assert(sizeof(SE2StaticDataPalette16) == 40);
     static_assert(offsetof(SE2StaticDataPalette16, palette256Id) == 0x20);
     static_assert(offsetof(SE2StaticDataPalette16, colorRange) == 0x24);
-    static_assert(sizeof(SStaticDataPalettes) == 0x20);
+    static_assert(sizeof(SStaticDataPalettes) == 32);
     static_assert(offsetof(SStaticDataPalettes, palettes256) == 0x04);
     static_assert(offsetof(SStaticDataPalettes, palette16Count) == 0x08);
     static_assert(offsetof(SStaticDataPalettes, palettes16) == 0x0C);

@@ -9,9 +9,9 @@ namespace NC2InGameGuiMiscWindows
     struct SMissionBriefingHistory { std::uint32_t count; std::int32_t entries[50]; };
     inline SMissionBriefingHistory gMissionBriefingHistory{};
     // Complete Windows class statics; unidentified field meanings retain offsets.
-    alignas(4) inline std::byte gTechTreeWindowStatics[0x10]{}; // 005691B8..005691C7.
+    alignas(4) inline std::byte gTechTreeWindowStatics[16]{}; // 005691B8..005691C7.
     alignas(4) inline std::byte gDiplomacyWindowStatics[4]{}; // 005691E4..005691E7.
-    alignas(4) inline std::byte gHumanListWindowStatics[0x18]{}; // 005691E8..005691FF.
+    alignas(4) inline std::byte gHumanListWindowStatics[24]{}; // 005691E8..005691FF.
     alignas(4) inline std::byte gStatisticsWindowStatics[12]{}; // 00569220..0056922B.
     void MissionInfoWindow_MissionBriefingHistory_Init();
     void TechTreeWindow_Statics_Init();

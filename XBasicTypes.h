@@ -37,7 +37,7 @@ namespace NXBasics
 
         SColorModifier(bool useGrayScale, float red, float green, float blue) noexcept;
     };
-    static_assert(sizeof(SColorModifier) == 0x10);
+    static_assert(sizeof(SColorModifier) == 16);
     static_assert(offsetof(SColorModifier, redFactor) == 4);
     static_assert(offsetof(SColorModifier, greenFactor) == 8);
     static_assert(offsetof(SColorModifier, blueFactor) == 0x0C);
@@ -202,13 +202,13 @@ namespace NXBasics
         {}
     };
 
-    static_assert(sizeof(SRectangle) == 0x10);
+    static_assert(sizeof(SRectangle) == 16);
     static_assert(offsetof(SRectangle, width) == 0x08);
     static_assert(offsetof(SRectangle, height) == 0x0C);
 
-    static_assert(sizeof(SColorRGB) == 0x04);
-    static_assert(offsetof(SColorRGB, blue) == 0x00);
-    static_assert(offsetof(SColorRGB, green) == 0x01);
+    static_assert(sizeof(SColorRGB) == 4);
+    static_assert(offsetof(SColorRGB, blue) == 0);
+    static_assert(offsetof(SColorRGB, green) == 1);
     static_assert(offsetof(SColorRGB, red) == 0x02);
     static_assert(offsetof(SColorRGB, reserved) == 0x03);
 }

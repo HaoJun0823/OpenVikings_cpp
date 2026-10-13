@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HumanUserControl.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanFamily.h"
@@ -16,9 +17,9 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
     // Original function: FUN_00436A68; Windows command-24 predicate, no separate Mac export established.
-    bool Human_UserControl_CanChangeJob(const void* human) { return (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human); }
+    bool Human_UserControl_CanChangeJob(const void* human) { return (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & ReadableValues::BitMask::Bit6) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human); }
     // Original function: FUN_00436A97; Windows command-26 predicate, no separate Mac export established.
-    bool Human_UserControl_CanChooseJob(const void* human) { return !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0; }
+    bool Human_UserControl_CanChooseJob(const void* human) { return !(Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0; }
     // Original function: FUN_0040b01f; failed allocation checks leave the output untouched.
     bool Logic_UserControl_GetHumanCommands(std::int32_t id, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3)
     {
@@ -28,16 +29,16 @@ namespace NC2Logic
         return true;
     }
     // Original function: FUN_0042c8b8.
-    bool Human_IsAbleToHaveWorkHouse(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x82u) != 0; }
+    bool Human_IsAbleToHaveWorkHouse(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) * ReadableValues::RecordSize::JobType + 0x82u) != 0; }
 
     // Original function: FUN_00434f37; action ids are distinct from network opcodes.
     void Human_UserControl_GetCommands(const void* human, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3)
     {
         commands->Init();
-        if ((Read<std::uint32_t>(human, 0xB84) & 0x20u) != 0) return;
-        const auto player = Read<std::int32_t>(human, 0x10);
-        const auto playerTribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0x0Cu) : 1u;
-        const bool sameTribe = Read<std::uint32_t>(human, 0x14) == playerTribe;
+        if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & ReadableValues::BitMask::Bit5) != 0) return;
+        const auto player = Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId);
+        const auto playerTribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0x0Cu) : 1u;
+        const bool sameTribe = Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == playerTribe;
         if (!parameter2)
         {
             if (Human_IsJobTrader(human))
@@ -73,8 +74,8 @@ namespace NC2Logic
             if (!Human_IsAgeAdult(human)) return;
             if (sameTribe)
             {
-                if (!Human_UserControl_IsCommandTypeInQueue(human, 13) && !Human_UserControl_IsCommandTypeInQueue(human, 14) && Read<std::uint32_t>(human, 0x368) != 5 && Human_IsAbleToMarryNow(human)) commands->AddCommand(7);
-                if (!Human_UserControl_IsCommandTypeInQueue(human, 15) && !Human_UserControl_IsCommandTypeInQueue(human, 16) && Read<std::uint32_t>(human, 0x368) != 11 && Read<std::uint32_t>(human, 0x368) != 12 && Human_IsAbleToGetPregnant(human)) { commands->AddCommand(8); commands->AddCommand(9); }
+                if (!Human_UserControl_IsCommandTypeInQueue(human, 13) && !Human_UserControl_IsCommandTypeInQueue(human, 14) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 5 && Human_IsAbleToMarryNow(human)) commands->AddCommand(7);
+                if (!Human_UserControl_IsCommandTypeInQueue(human, 15) && !Human_UserControl_IsCommandTypeInQueue(human, 16) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 11 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 12 && Human_IsAbleToGetPregnant(human)) { commands->AddCommand(8); commands->AddCommand(9); }
             }
             commands->AddCommand(10);
             if (Human_IsAttachedToHomeHouse(human)) commands->AddCommand(11);
@@ -98,8 +99,8 @@ namespace NC2Logic
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
         passenger:
-            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
-            const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
+            const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
             if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0) commands->AddCommand(13);
             return;
         }
@@ -124,9 +125,9 @@ namespace NC2Logic
         if (sameTribe && Human_UserControl_CanChangeJob(human)) commands->AddCommand(24);
         if (Human_IsAgeAdult(human) && sameTribe)
         {
-            if (!Human_UserControl_IsCommandTypeInQueue(human, 13) && !Human_UserControl_IsCommandTypeInQueue(human, 14) && Read<std::uint32_t>(human, 0x368) != 5 && Human_IsAbleToMarryNow(human)) commands->AddCommand(7);
+            if (!Human_UserControl_IsCommandTypeInQueue(human, 13) && !Human_UserControl_IsCommandTypeInQueue(human, 14) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 5 && Human_IsAbleToMarryNow(human)) commands->AddCommand(7);
             // Windows 0043550B repeats opcode 15; it does not check opcode 16 here.
-            if (!Human_UserControl_IsCommandTypeInQueue(human, 15) && !Human_UserControl_IsCommandTypeInQueue(human, 15) && Read<std::uint32_t>(human, 0x368) != 11 && Read<std::uint32_t>(human, 0x368) != 12 && Human_IsAbleToGetPregnant(human)) { commands->AddCommand(8); commands->AddCommand(9); }
+            if (!Human_UserControl_IsCommandTypeInQueue(human, 15) && !Human_UserControl_IsCommandTypeInQueue(human, 15) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 11 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 12 && Human_IsAbleToGetPregnant(human)) { commands->AddCommand(8); commands->AddCommand(9); }
         }
         if (!parameter3 || !Human_IsAgeAdult(human)) return;
         commands->AddCommand(10);

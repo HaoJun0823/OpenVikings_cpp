@@ -34,7 +34,7 @@ namespace NC2Logic
         std::uint8_t maximizeSpeed;
         std::byte unknown066[2];
     };
-    static_assert(sizeof(SGameTimeState) == 0x68);
+    static_assert(sizeof(SGameTimeState) == 104);
     static_assert(offsetof(SGameTimeState, lastRealTime) == 8);
     static_assert(offsetof(SGameTimeState, networkFrequency) == 0x30);
     static_assert(offsetof(SGameTimeState, latencySamples) == 0x3C);
@@ -61,12 +61,12 @@ namespace NC2Logic
         SGameAutosaveState autosave;
         SGameRandomState random;
         std::uint32_t uniqueIdCounter;
-        std::byte unknown0A0[0x104];
+        std::byte unknown0A0[260];
         NXBasics::CIniFileReader* retainedMapIni;    // +0x1A4; original 005109BC, owned until game shutdown.
         void* mapFileLibrary;                      // +0x1A8; original 005109C0, owned registered map archive.
         std::uint8_t networkGame;                  // +0x1AC; original 005109C4, startup/savegame network mode.
         std::uint8_t networkWait;                    // +0x1AD; original 005109C5.
-        std::byte unknown1AE[0x0A];
+        std::byte unknown1AE[10];
     };
 #pragma pack(pop)
 
@@ -79,7 +79,7 @@ namespace NC2Logic
     std::uint32_t Logic_EntryPoint_Random_GetNumber();
     inline SGameTimeState& gGameTime = gGameStaticVars.gameTime;
     static_assert(sizeof(SGameRandomState) == 8);
-    static_assert(sizeof(SGameStaticVars) == 0x1B8);
+    static_assert(sizeof(SGameStaticVars) == 440);
     static_assert(offsetof(SGameStaticVars, mapGuid) == 0x08);
     static_assert(offsetof(SGameStaticVars, mapType) == 0x18);
     static_assert(offsetof(SGameStaticVars, gameTime) == 0x20);

@@ -53,5 +53,5 @@ namespace NC2Logic
     std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player, std::uint32_t radius);
 
     static_assert(sizeof(void*) == 4);
-    static_assert(sizeof(CGameMapSectorAttachmentManager) == 0x10);
+    static_assert(sizeof(CGameMapSectorAttachmentManager) == 16);
 }

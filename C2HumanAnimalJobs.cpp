@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanAnimalJobs.h"
 #include "C2AnimalAccess.h"
@@ -62,8 +63,8 @@ namespace NC2Logic
                 return result;
             }
         };
-        static_assert(sizeof(SBreederAnimalCandidates) == 0x54);
-        static_assert(sizeof(SBreederAnimalCandidates::SEntry) == 0x10);
+        static_assert(sizeof(SBreederAnimalCandidates) == 84);
+        static_assert(sizeof(SBreederAnimalCandidates::SEntry) == 16);
     }
 
     // Original function: FUN_0046cb2c.
@@ -72,7 +73,7 @@ namespace NC2Logic
         const auto good = Read<std::uint32_t>(human, 0x1C);
         if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
-        switch (Read<std::uint32_t>(human, 0xACC))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
         case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
@@ -80,8 +81,8 @@ namespace NC2Logic
         case SwitchIds::GoodCirculationMode::None: break;
         default: return;
         }
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        auto* house = House(Read<std::uint32_t>(human, 0xB34));
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        auto* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId));
         if (Read<std::uint8_t>(house, 0x798) != 0 || !House_Stock_CanStoreGoodType(house, good, true)) { Fail(human, 2); return; }
         for (const auto animalGood : {57u, 58u}) House_Stock_ModifyAmount(house, animalGood, -static_cast<std::int32_t>(House_Stock_GetAmountOfGoods(house, animalGood, false)), 0, false);
         const auto animalType = good == 57 ? 19u : 10u;
@@ -91,7 +92,7 @@ namespace NC2Logic
         void* slaughter = nullptr;
         SBreederAnimalCandidates candidates;
         CAnimalIterator iterator;
-        for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(human, 0x10)); id != -1; id = iterator.GetNextAnimalId())
+        for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)); id != -1; id = iterator.GetNextAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
             const auto type = Read<std::uint32_t>(animal, 0x14);
@@ -129,8 +130,8 @@ namespace NC2Logic
         }
         const auto flush = [human](std::uint32_t output)
         {
-            Write(human, 0xAD0, output);
-            Write<std::uint32_t>(human, 0xACC, 5);
+            Write(human, ReadableValues::HumanOffset::RequestedGood, output);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
             Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human);
         };
         if (House_Stock_IsFullSoon(house, 21)) { flush(21); return; }
@@ -152,44 +153,44 @@ namespace NC2Logic
                         Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&slaughterPosition, 0, 0, -1, false, -1);
                         Logic_EntryPoint_Edit_Stop();
                     }
-                    Write(human, 0xAD0, good);
-                    Write<std::uint32_t>(human, 0x36C, Human_l_StartAtomicAnimation(human, animalType == 19 ? 87u : 88u, -1) ? 1u : 3u);
+                    Write(human, ReadableValues::HumanOffset::RequestedGood, good);
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, Human_l_StartAtomicAnimation(human, animalType == 19 ? 87u : 88u, -1) ? 1u : 3u);
                     return;
                 }
-                if (Human_l_StartAtomicWalk(human, &entryPosition, &workingPosition)) Write<std::uint32_t>(human, 0x36C, 1);
+                if (Human_l_StartAtomicWalk(human, &entryPosition, &workingPosition)) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
                 else Fail(human, 1);
                 return;
             }
             const auto distance = Distance(Animal_GetMapPositionRef(slaughter), Human_GetMapPositionRef(human));
             if (distance <= 2) Animal_GoIntoHouseInteractionMode(slaughter);
             if (distance <= 1 || !Human_l_StartAtomicWalk(human, Read<std::int32_t>(slaughter, 12), 1)) Human_l_StartAtomicAnimation(human, 2, -1);
-            Write<std::uint32_t>(human, 0x36C, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        if (House_Stock_IsFullSoon(house, good)) { Write(human, 0xAD0, good); Fail(human, 10); return; }
+        if (House_Stock_IsFullSoon(house, good)) { Write(human, ReadableValues::HumanOffset::RequestedGood, good); Fail(human, 10); return; }
         if (adults >= 2) { Human_l_StartTask_ExecuteJob_Tool_TryToProduce(human); return; }
-        Write(human, 0xAD0, good);
+        Write(human, ReadableValues::HumanOffset::RequestedGood, good);
         Fail(human, 3);
     }
 
     // Original function: FUN_004692e9; count two attached adult animals before allocation.
     void Human_l_PerformTaskEvent_Produce_Animal(void* human)
     {
-        const auto* house = House(Read<std::uint32_t>(human, 0xB34));
+        const auto* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId));
         const auto type = Read<std::uint32_t>(human, 0x1C) == 57 ? 19u : 10u;
         CAnimalIterator iterator;
         std::uint32_t adults = 0;
-        for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, 0x10), Read<std::uint32_t>(house, 0x1C), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
+        for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), Read<std::uint32_t>(house, 0x1C), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
             if (Read<std::uint32_t>(animal, 0x14) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50) != Read<std::uint32_t>(house, 8) || Read<std::uint32_t>(animal, 0x18) != 49) continue;
             if (++adults < 2) continue;
-            const auto newborn = Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(human, 0x10), type, 48, Animal_GetMapPositionRef(animal), 0, 0);
+            const auto newborn = Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), type, 48, Animal_GetMapPositionRef(animal), 0, 0);
             if (newborn == -1) return;
             Animal_AttachToHouse(Animal(static_cast<std::uint32_t>(newborn)), Read<std::int32_t>(house, 4));
             Human_l_JobExperience_Gain(human);
             Human_Production_DidProduceGoods(human, 1);
-            Write<std::uint32_t>(human, 0x36C, 2);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
             return;
         }
     }

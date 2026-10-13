@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "FileCompressor.h"
 #include "XCrtFileAccess.h"
 
@@ -21,7 +22,7 @@ namespace NNetwork
             std::uint8_t reserved[6];      // +0x16
         };
 
-        static_assert(sizeof(SCompressedFileHeader) == 0x1C);
+        static_assert(sizeof(SCompressedFileHeader) == 28);
         static_assert(offsetof(SCompressedFileHeader, method) == 0x14);
         static_assert(offsetof(SCompressedFileHeader, marker) == 0x15);
     }
@@ -42,7 +43,7 @@ namespace NNetwork
             return 1;
         }
 
-        header.signature = 0x2E433250u;
+        header.signature = ReadableValues::CompressedFileHeader::Signature;
         header.headerSize = 0x1Cu;
         header.version = 1;
 
@@ -108,7 +109,7 @@ namespace NNetwork
             return 5;
         }
 
-        char outputFileName[0x104]{};
+        char outputFileName[260]{};
 
         std::strcpy(outputFileName, fileName);
         std::strcat(outputFileName, ".c2p");
@@ -159,13 +160,13 @@ namespace NNetwork
         // Preserve the original unchecked header read.
         NXBasics::Runtime_ReadStream(&header, 0x1Cu, 1u, mInput);
 
-        if (header.signature != 0x2E433250u)
+        if (header.signature != ReadableValues::CompressedFileHeader::Signature)
         {
             NXBasics::Runtime_CloseStream(mInput);
             return 3;
         }
 
-        char outputFileName[0x104]{};
+        char outputFileName[260]{};
 
         std::strncpy(outputFileName, fileName, sizeof(outputFileName));
 

@@ -1,3 +1,5 @@
+#include "ReadableValues.h"
+#include "XResultIdentifiers.h"
 #include "MainMenuGuiManager.h"
 #include "C2LifetimeAccess.h"
 #include "C2MapGuid.h"
@@ -89,7 +91,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_HostSession(const char* sessionName, std::uint32_t maximumPlayers)
     {
         const char* error;
-        if (Read<std::uint32_t>(this, 0x51C) == 0xFFFFFFFFu) error = "Host start session - no service provider selected";
+        if (Read<std::uint32_t>(this, 0x51C) == ReadableValues::IntegerRange::UInt32Maximum) error = "Host start session - no service provider selected";
         else
         {
             auto* network = GetNetworkInstance();
@@ -116,7 +118,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_StartSessionSearch(const char* address)
     {
         const char* error;
-        if (Read<std::uint32_t>(this, 0x51C) == 0xFFFFFFFFu) error = "Join session - no service provider selected";
+        if (Read<std::uint32_t>(this, 0x51C) == ReadableValues::IntegerRange::UInt32Maximum) error = "Join session - no service provider selected";
         else
         {
             auto* network = GetNetworkInstance();
@@ -126,7 +128,7 @@ namespace NC2MainMenuGuiManager
                 const auto* provider = reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + Read<std::uint32_t>(this, 0x51C) * 0x78u);
                 const auto result = network->StartSearchingSessions(provider, &NNetwork::gNetworkApplicationGuid, wideAddress);
                 if (result >= 0) return true;
-                error = result == static_cast<HRESULT>(0x80158040u) ? "Join session - passed invalid host name" : "Join session - could not start searching for sessions";
+                error = result == static_cast<HRESULT>(SwitchIds::DirectXResult::Code_DPNERR_ADDRESSING) ? "Join session - passed invalid host name" : "Join session - could not start searching for sessions";
             }
             else
             {
@@ -171,7 +173,7 @@ namespace NC2MainMenuGuiManager
         sessions->flags = 0;
         if (changed == 0) return false;
         auto* storage = reinterpret_cast<std::byte*>(this) + 0x588;
-        std::memset(storage, 0, 0x4B4);
+        std::memset(storage, 0, 1204);
         NNetwork::SSessionSummary* records = nullptr;
         DWORD count = 0;
         NNetwork::GetSessionSummaries(sessions, &records, &count);
@@ -194,7 +196,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_UpdatePlayerList()
     {
         auto* network = GetNetworkInstance();
-        std::memset(reinterpret_cast<std::byte*>(this) + 0xAA4, 0, 0x444);
+        std::memset(reinterpret_cast<std::byte*>(this) + 0xAA4, 0, 1092);
         NNetwork::SPlayerInfo* players = nullptr;
         DWORD count = 0;
         if (!network->GetPlayerInfo(&players, &count))
@@ -237,7 +239,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_SelectedProviderIsTcpIp() const
     {
         const auto selected = Read<std::uint32_t>(this, 0x51C);
-        if (selected == 0xFFFFFFFFu) return false;
+        if (selected == ReadableValues::IntegerRange::UInt32Maximum) return false;
         const auto address = reinterpret_cast<std::uintptr_t>(this) + selected * 0x78u + 0xD4u;
         if (address == 0) return false;
         return std::memcmp(reinterpret_cast<const void*>(address), &cTcpIpProvider, sizeof(GUID)) == 0;
@@ -247,9 +249,9 @@ namespace NC2MainMenuGuiManager
     void CGuiManager::Network_SendLobbyData()
     {
         if (!NNetwork::Network_IsHost()) return;
-        std::uint32_t message[0x168 / sizeof(std::uint32_t)]{};
+        std::uint32_t message[360 / sizeof(std::uint32_t)]{};
         message[0] = 1;
-        std::memcpy(reinterpret_cast<std::byte*>(message) + 8, lobbyData, 0x160);
+        std::memcpy(reinterpret_cast<std::byte*>(message) + 8, lobbyData, 352);
         NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
     }
 
@@ -324,7 +326,7 @@ namespace NC2MainMenuGuiManager
     }
 
     // Original function: FUN_004d7c95.
-    void CGuiManager::Chat_ClearAll() { std::memset(chatHistoryStorage, 0, 0x914); }
+    void CGuiManager::Chat_ClearAll() { std::memset(chatHistoryStorage, 0, 2324); }
 
     // Original function: FUN_004d7d56.
     const char* CGuiManager::Network_GetPlayerName(std::uint32_t playerId) const
@@ -362,7 +364,7 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d8169; mode is read after the initial clear.
     void CGuiManager::Network_ClearLobbyData()
     {
-        std::memset(lobbyData, 0, 0x160);
+        std::memset(lobbyData, 0, 352);
         for (std::uint32_t index = 0; index < 20; ++index)
         {
             auto* row = reinterpret_cast<std::byte*>(this) + 0xF28 + index * 0x10u;
@@ -411,6 +413,6 @@ namespace NC2MainMenuGuiManager
     {
         const auto count = Read<std::uint32_t>(this, 0xAA4);
         for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu) == playerId) return index;
-        return 0xFFFFFFFFu;
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 }

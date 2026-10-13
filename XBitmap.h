@@ -161,5 +161,5 @@ namespace NXBasics
     };
 
     static_assert(sizeof(void*) == 4, "This reconstruction requires an x86 build");
-    static_assert(sizeof(CBitmap) == 0x54, "CBitmap must be 84 bytes");
+    static_assert(sizeof(CBitmap) == 84, "CBitmap must be 84 bytes");
 }

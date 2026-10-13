@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "C2LifetimeAccess.h"
@@ -29,9 +30,9 @@ namespace NC2InGameGuiMessages
         {
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
             std::strcpy(name, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u + 0x85Cu));
-            if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && Read<std::uint32_t>(human, 0x18) != 0 && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32))
+            if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) != 0 && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 32))
             {
-                std::strcat(name, " ("); std::strcat(name, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1)); std::strcat(name, ")");
+                std::strcat(name, " ("); std::strcat(name, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType), 1)); std::strcat(name, ")");
             }
         }
         const auto type = Read<std::uint32_t>(message, 0);
@@ -80,7 +81,7 @@ namespace NC2InGameGuiMessages
         case SwitchIds::UserMessage::HouseFinished: case SwitchIds::UserMessage::HouseUpgradeFinished:
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(message, 0x18) * CHouseArray::ElementSize;
-            Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, 0x14), 1), text(type == 47 ? 90 : 91)); return;
+            Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType), 1), text(type == 47 ? 90 : 91)); return;
         }
         case SwitchIds::UserMessage::HouseAttacked: Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1), text(92)); return;
         case SwitchIds::UserMessage::VehicleNoWay: case SwitchIds::UserMessage::VehicleNoCommander: case SwitchIds::UserMessage::VehicleAttacked: case SwitchIds::UserMessage::VehicleNoDraggingAnimal: case SwitchIds::UserMessage::VehicleNoPassengerSpace: case SwitchIds::UserMessage::VehicleCannotAttach: case SwitchIds::UserMessage::VehicleCannotReachShip: case SwitchIds::UserMessage::VehicleCannotDetach: case SwitchIds::UserMessage::VehicleNeedsCarrier:

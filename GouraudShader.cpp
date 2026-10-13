@@ -35,7 +35,7 @@ namespace NToolGouraudShader
             struct SAttribute { I value, delta; } attributes[6];
         };
         SOriginalScanline gScanlines[1400]{};
-        static_assert(sizeof(SOriginalScanline) == 0x38);
+        static_assert(sizeof(SOriginalScanline) == 56);
 
         struct SEdge
         {
@@ -185,8 +185,8 @@ namespace NToolGouraudShader
     // Original function: FUN_00481e51.
     CGouraudShader::CGouraudShader()
     {
-        std::memset(this, 0, 0x78);
-        std::memset(reinterpret_cast<std::byte*>(this) + 0x78, 0, 0x1C);
+        std::memset(this, 0, 120);
+        std::memset(reinterpret_cast<std::byte*>(this) + 0x78, 0, 28);
     }
 
     // Original function: FUN_0049ec09.

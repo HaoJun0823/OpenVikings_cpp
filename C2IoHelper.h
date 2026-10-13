@@ -23,7 +23,7 @@ namespace NC2Logic
         std::uint32_t unknown1C;           // +0x1C: meaning unresolved
     };
 
-    static_assert(sizeof(SIoChunkHeader) == 0x20);
+    static_assert(sizeof(SIoChunkHeader) == 32);
     static_assert(offsetof(SIoChunkHeader, payloadSize) == 0x0C);
     static_assert(offsetof(SIoChunkHeader, checksum) == 0x14);
 
@@ -89,7 +89,7 @@ namespace NC2Logic
     };
 
     static_assert(sizeof(void*) == 4, "CIoHelper requires an x86 build");
-    static_assert(sizeof(CIoHelper) == 0x50);
+    static_assert(sizeof(CIoHelper) == 80);
     static_assert(offsetof(CIoHelper, mReadHeader) == 0x08);
     static_assert(offsetof(CIoHelper, mPayloadPosition) == 0x28);
     static_assert(offsetof(CIoHelper, mMemory) == 0x2C);

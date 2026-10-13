@@ -35,5 +35,5 @@ namespace NNetwork
     };
 
     static_assert(sizeof(void*) == 4, "CFileCompressor requires an x86 build");
-    static_assert(sizeof(CFileCompressor) == 0x0C, "CFileCompressor must be 12 bytes");
+    static_assert(sizeof(CFileCompressor) == 12, "CFileCompressor must be 12 bytes");
 }

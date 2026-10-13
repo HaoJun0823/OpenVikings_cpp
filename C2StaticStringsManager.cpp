@@ -31,11 +31,11 @@ namespace NC2Logic
     // Original function: FUN_004170b5
     CStaticStringsManager::CStaticStringsManager()
     {
-        static_assert(sizeof(gStaticStrings) == 0x2C);
+        static_assert(sizeof(gStaticStrings) == 44);
         gStaticStringsManager = this;
         std::memset(this, 0, 1);
         std::memset(gStaticStrings, 0, sizeof(gStaticStrings));
-        char fileName[0x104];
+        char fileName[260];
         for (unsigned int index = 0; index < 11; ++index)
         {
             if (staticStringFileNames[index] == nullptr) continue;

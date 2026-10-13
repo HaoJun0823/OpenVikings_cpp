@@ -121,7 +121,7 @@ namespace NC2MainMenuGuiManager
     void* MousePointer_Construct(void* pointer)
     {
         Write(pointer, 0, gMousePointerVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(pointer) + 4, 0, 0x10);
+        std::memset(static_cast<std::byte*>(pointer) + 4, 0, 16);
         return pointer;
     }
 
@@ -165,8 +165,8 @@ namespace NC2MainMenuGuiWorldElement
         auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
         NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, static_cast<const NXBasics::SRectangle*>(rectangle), 1, 0x1E3, Read<std::int32_t>(desktopBitmap, 4));
         Write(element, 0, gWorldDisplayElementVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x28);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x994, 1);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 40);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
         void* display = nullptr;
         if (allocation != nullptr)
         {
@@ -216,7 +216,7 @@ namespace NC2MainMenuGuiWorldElement
             hasFollowTarget = true;
         }
         if (hasFollowTarget && Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == generation) return;
-        std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 0x18);
+        std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 24);
     }
 
     // Original function: FUN_004dadb4.
@@ -239,7 +239,7 @@ namespace NC2MainMenuGuiWorldElement
     // Original function: FUN_004dad1b.
     void WorldDisplayElement_FollowHuman(void* element, std::int32_t humanId)
     {
-        std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 0x18);
+        std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 24);
         Write(element, 0x40, humanId);
         Write<std::uint8_t>(element, 0x3C, 1);
         Write<std::uint8_t>(element, 0x3D, 1);

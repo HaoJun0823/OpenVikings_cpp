@@ -25,8 +25,8 @@ namespace NMasterControlProgram
 
         ProgressBar_Init(mEngineInitialized == 0);
 
-        static_assert(sizeof(NC2MainMenuGuiManager::CGuiManager) == 0x21B4);
-        if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(0x21B4, 1))
+        static_assert(sizeof(NC2MainMenuGuiManager::CGuiManager) == 8628);
+        if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(8628, 1))
             ::new (storage) NC2MainMenuGuiManager::CGuiManager();
 
         GameEngine_StartUpEngine();

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HouseBuildPosition.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2GameMapAccess.h"
@@ -22,7 +23,7 @@ namespace NC2Logic
         {
             if (!MapMigPoint_IsInsideMap(&point)) return;
             void* micro = GameMap_GetMapMicroPointPtr(&point);
-            Write<std::uint8_t>(micro, 0x0D, (Read<std::uint8_t>(micro, 0x0D) & 0xDFu) | ((forbidden & 1u) << 5));
+            Write<std::uint8_t>(micro, 0x0D, (Read<std::uint8_t>(micro, 0x0D) & ReadableValues::BitMask::ByteExceptBit5) | ((forbidden & 1u) << 5));
         };
         setPoint();
         for (std::int32_t ring = 1; ring <= radius; ring = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(ring) + 1u))
@@ -61,7 +62,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&candidate))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
-                    if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & 0x80u) == 0) { Write(workPoint, 0, candidate); return true; }
+                    if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) == 0) { Write(workPoint, 0, candidate); return true; }
                 }
                 Write<std::uint16_t>(&candidate, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, 0) + 1u));
             }
@@ -80,7 +81,7 @@ namespace NC2Logic
         for (auto id = vehicles.GetFirstSectorVehicleId(player, Read<std::uint32_t>(point, 0), radius, false); id != -1; id = vehicles.GetNextSectorVehicleId())
         {
             const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+            const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
             if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) continue;
             if (Vehicle_Passengers_GetAttachedCommanderId(vehicle) != -1) return true;
         }
@@ -101,7 +102,7 @@ namespace NC2Logic
         const auto* maximumArea = Read<const CMapArea*>(definition, 0x1Cu + maximumStage * 4u);
         if (!maximumArea->BuildBlock_Check(&point)) return false;
         if (!ignoreTerrain && !maximumArea->Check_AreAllPointsAroundOnBuildAllowedPattern(&point)) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & 0x20u) != 0) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & ReadableValues::BitMask::Bit5) != 0) return false;
         const auto* baseArea = Read<const CMapArea*>(definition, 0x1C);
         if (!baseArea->WalkBlock_Check(&point)) return false;
         if (!ignoreTerrain && !baseArea->Check_AreAllPointsOnSameLandContinent(&point)) return false;

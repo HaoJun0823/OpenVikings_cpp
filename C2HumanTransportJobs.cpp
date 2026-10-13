@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanTransportJobs.h"
 #include "C2Debug.h"
@@ -37,59 +38,59 @@ namespace NC2Logic
     void Human_l_StartTask_MoveInsideVehicle(void* human)
     {
         auto* vehicle = Vehicle(human);
-        if (Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(human, 0xB4C))
+        if (Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleRevision))
         {
             Human_DetachFromVehicle(human);
-            Write<std::uint32_t>(human, 0x36C, 3);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
             return;
         }
-        const auto cargo = Read<std::uint32_t>(human, 0xAD4);
+        const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
         if (cargo != 0 && Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && Vehicle_Stock_IsFull(vehicle))
         {
             Human_StopCurrentGoodCirculationMode(human);
-            Write<std::uint32_t>(human, 0xAD0, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
             Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human);
-            if (Read<std::uint32_t>(human, 0x36C) != 3) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0xB48), Read<std::uint32_t>(human, 0xB4C));
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus) != 3) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId), Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleRevision));
             return;
         }
         std::uint32_t door = 0;
         if (!IsUsable(vehicle))
         {
-            std::byte message[0x304];
+            std::byte message[772];
             ToUserMessage_Construct(message);
             Write(message, 0x10, Read<std::uint32_t>(human, 4));
-            Write(message, 8, Read<std::uint32_t>(human, 0x10));
+            Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
             Write<std::uint32_t>(message, 0, 43);
             Write(message, 0x2E0, Read<std::uint32_t>(vehicle, 0x1E8));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
-            Write<std::uint32_t>(human, 0x36C, 3);
-            Write<std::uint32_t>(human, 0x374, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 1);
             return;
         }
         Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
-        if (!SameContinent(human, &door)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 1); return; }
+        if (!SameContinent(human, &door)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 1); return; }
         if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == door)
         {
-            if (!Human_VehicleMisc_Enter(human)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
-            const auto circulation = Read<std::uint32_t>(human, 0xACC);
+            if (!Human_VehicleMisc_Enter(human)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); return; }
+            const auto circulation = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode);
             const bool bringing = Human_IsBringingCarriedGood(human);
-            if (!bringing && circulation != 5 && circulation != 2) { Write<std::uint32_t>(human, 0x36C, 2); return; }
-            if (!Human_l_StartAtomicAnimation(human, bringing ? 23 : 22, -1)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
+            if (!bringing && circulation != 5 && circulation != 2) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2); return; }
+            if (!Human_l_StartAtomicAnimation(human, bringing ? 23 : 22, -1)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); return; }
             TargetVehicle(human);
-            Write<std::uint32_t>(human, 0x368, 8);
-            Write<std::uint32_t>(human, 0x36C, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 8);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
         }
         else if (Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door)) TargetVehicle(human);
-        else Write<std::uint32_t>(human, 0x36C, 3);
+        else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_0044611b.
     void Human_l_FinishTask_MoveInsideVehicle(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xACC) == 0) Human_Target_Reset(human);
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 8);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 0) Human_Target_Reset(human);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 8);
     }
 
     // Original function: FUN_0046d3bd.
@@ -102,43 +103,43 @@ namespace NC2Logic
             {
                 if ((Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, 0x4FC) == 1) && Read<std::uint8_t>(human, 0xB51) != 0)
                 {
-                    Write<std::uint32_t>(human, 0x368, 1);
-                    Write<std::uint32_t>(human, 0x36C, 0);
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
                     return;
                 }
                 std::uint32_t door = 0;
                 Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
                 if (Read<std::uint8_t>(human, 0xB51) != 0 || SameContinent(human, &door))
                 {
-                    const auto circulation = Read<std::uint32_t>(human, 0xACC);
+                    const auto circulation = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode);
                     if (circulation == 2) { Human_l_StartTask_ExecuteJob_Carrier_Collect(human); return; }
                     if (circulation == 5)
                     {
-                        const bool started = Read<std::uint32_t>(human, 0xAD4) == 0 ? Human_l_StartTask_ExecuteJob_Carrier_FlushVehicle(human) : Human_l_StartTask_ExecuteJob_Carrier_Flush_Bring(human);
-                        if (!started) { Write<std::uint32_t>(human, 0xACC, 0); Write<std::uint32_t>(human, 0xAD0, 0); Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 2); }
+                        const bool started = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) == 0 ? Human_l_StartTask_ExecuteJob_Carrier_FlushVehicle(human) : Human_l_StartTask_ExecuteJob_Carrier_Flush_Bring(human);
+                        if (!started) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 0); Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 2); }
                         return;
                     }
                     if (circulation == 4)
                     {
-                        const auto cargo = Read<std::uint32_t>(human, 0xAD4);
+                        const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
                         if (Human_IsAtTargetPoint(human))
                         {
-                            if (Read<std::uint32_t>(human, 0xA68) == 6)
+                            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6)
                             {
                                 if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && Vehicle_Stock_GetAmountOfWantedGoods(vehicle, cargo) >= Vehicle_Stock_GetFutureAmount(vehicle, cargo) && !Vehicle_Stock_IsFull(vehicle))
                                 {
                                     TargetVehicle(human);
-                                    Write<std::uint32_t>(human, 0x368, 21);
-                                    Write<std::uint32_t>(human, 0x36C, 0);
+                                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 21);
+                                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
                                 }
-                                else Write<std::uint32_t>(human, 0x36C, 3);
+                                else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
                                 return;
                             }
                         }
                         else if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && Vehicle_Stock_GetFutureAmount(vehicle, cargo) < Vehicle_Stock_GetAmountOfWantedGoods(vehicle, cargo) && !Vehicle_Stock_IsFullSoon(vehicle) && Human_l_StartAtomicWalkAndBring(human, Vehicle_GetMapPositionRef(vehicle), &door))
                         {
                             TargetVehicle(human);
-                            Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD4), 1, Read<std::uint32_t>(human, 8));
+                            Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(human, 8));
                             return;
                         }
                         Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human);
@@ -148,12 +149,12 @@ namespace NC2Logic
                 }
             }
         }
-        switch (Read<std::uint32_t>(human, 0xACC))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Carrier_Collect(human); break;
         case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); break;
         case SwitchIds::GoodCirculationMode::FlushStock:
-            if (Read<std::uint32_t>(human, 0xAD4) == 0) Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human);
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) == 0) Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human);
             else Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
             break;
         default: Human_l_StartTask_ExecuteJob_Carrier_TryToCollect(human); break;
@@ -170,26 +171,26 @@ namespace NC2Logic
             Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
             if (Human_IsAtTargetPoint(human))
             {
-                const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<std::byte*>(human) + 0xA6C);
+                const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<std::byte*>(human) + ReadableValues::HumanOffset::TargetPosition);
                 if (id != -1)
                 {
                     auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                    const auto cargo = Read<std::uint32_t>(human, 0xAD4);
+                    const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
                     if (House_Stock_CanStoreGoodType(house, cargo, false) && House_Stock_HasDemandForGood(house, cargo)) Start(human, 23);
                     else Human_Target_Reset(human);
                     return true;
                 }
                 if (WalkToConsumer(human)) return true;
-                if (Map_GoodTool_CanBePutOnMap(Read<std::uint32_t>(human, 0xAD4), static_cast<std::byte*>(human) + 0xA6C)) { Start(human, 23); return true; }
+                if (Map_GoodTool_CanBePutOnMap(Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::TargetPosition)) { Start(human, 23); return true; }
                 if (WalkToPile(human, &door)) return true;
             }
             else
             {
                 if ((!Human_IsAttachedToWorkHouse(human) || House_GetHouseMainType(WorkHouse(human)) != 1) && WalkToConsumer(human)) return true;
-                if (WalkToPile(human, static_cast<std::byte*>(human) + 0xB30) || WalkToPile(human, &door)) return true;
+                if (WalkToPile(human, static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter) || WalkToPile(human, &door)) return true;
             }
         }
-        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
         return false;
     }
 
@@ -202,7 +203,7 @@ namespace NC2Logic
         {
             if (!Vehicle_Stock_CanStoreGoodType(vehicle, good) || Vehicle_Stock_GetAmountOfWantedGoods(vehicle, good) >= Vehicle_Stock_GetFutureAmount(vehicle, good)) continue;
             Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
-            Write(human, 0xAD0, good);
+            Write(human, ReadableValues::HumanOffset::RequestedGood, good);
             std::uint32_t door = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
             if (Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door)) { TargetVehicle(human); return true; }
@@ -219,14 +220,14 @@ namespace NC2Logic
         Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
         if (Human_FindGoodsDemandedForVehicle(human, &real, &work, &good, &door))
         {
-            Write(human, 0xAD0, good);
+            Write(human, ReadableValues::HumanOffset::RequestedGood, good);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return true;
         }
         for (good = 0; good < 66; ++good)
         {
             if (!Vehicle_Stock_CanStoreGoodType(vehicle, good) || Vehicle_Stock_GetAmountOfWantedGoods(vehicle, good) >= Vehicle_Stock_GetFutureAmount(vehicle, good)) continue;
-            Write<std::uint32_t>(human, 0x36C, 0);
-            Write<std::uint32_t>(human, 0xACC, 5);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
             Human_Target_Reset(human);
             return true;
         }
@@ -241,7 +242,7 @@ namespace NC2Logic
         if (house != nullptr)
         {
             if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
-            const auto good = Read<std::uint32_t>(human, 0xAD0);
+            const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
             if (House_Stock_CanStoreGoodType(house, good, true) && House_Stock_RequestAmountOfGoods(house, good, true) > 0) { Start(human, PickupAnimation(house)); return; }
         }
         else if (Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74)) { Start(human, 22); return; }
@@ -253,15 +254,15 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Carrier_TryToCollect(void* human)
     {
         Human_Target_Reset(human);
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        Write<std::uint32_t>(human, 0x36C, 3);
-        Write<std::uint32_t>(human, 0x374, 2);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 2);
         if (Human_IsAttachedToWorkHouse(human))
         {
             std::uint32_t real = 0, work = 0, good = 0;
-            if (Human_FindGoodsDemandedForStockHouse(human, &real, &work, &good, static_cast<std::byte*>(human) + 0xB30))
+            if (Human_FindGoodsDemandedForStockHouse(human, &real, &work, &good, static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter))
             {
-                Write(human, 0xAD0, good);
+                Write(human, ReadableValues::HumanOffset::RequestedGood, good);
                 if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
             }
         }
@@ -283,17 +284,17 @@ namespace NC2Logic
                 }
                 if (fullest != 0)
                 {
-                    Write<std::uint32_t>(human, 0xACC, 5);
-                    if (Human_FindConsumerNearWorkCenter(human, fullest)) { Write(human, 0xAD0, fullest); Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human); return; }
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
+                    if (Human_FindConsumerNearWorkCenter(human, fullest)) { Write(human, ReadableValues::HumanOffset::RequestedGood, fullest); Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human); return; }
                 }
                 if (largest != 0)
                 {
-                    Write<std::uint32_t>(human, 0xACC, 5);
-                    if (Human_FindConsumerNearWorkCenter(human, largest)) { Write(human, 0xAD0, largest); Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human); return; }
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
+                    if (Human_FindConsumerNearWorkCenter(human, largest)) { Write(human, ReadableValues::HumanOffset::RequestedGood, largest); Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human); return; }
                 }
             }
         }
-        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_0046dce0.
@@ -302,10 +303,10 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human))
         {
             auto* house = WorkHouse(human);
-            const auto good = Read<std::uint32_t>(human, 0xAD0);
+            const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
             if (Human_Target_HasTarget(human) && Human_IsAtTargetPoint(human))
             {
-                if (Read<std::uint32_t>(human, 0xA68) != 5) Start(human, 22);
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) != 5) Start(human, 22);
                 else if (House_Stock_GetAmountOfGoods(house, good, true) > 0) Start(human, PickupAnimation(house));
                 else Human_Target_Reset(human);
                 return;
@@ -324,10 +325,10 @@ namespace NC2Logic
                 if (Human_l_StartAtomicWalk(human, real, work)) { TargetHouse(human, house); return; }
             }
         }
-        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_004464a9; Windows outlined delivery predicate, name inferred from callers.
-    bool Human_IsBringingCarriedGood(const void* human) { const auto mode = Read<std::uint32_t>(human, 0xACC); return mode == 4 || (mode == 5 && Read<std::uint32_t>(human, 0xAD4) != 0); }
+    bool Human_IsBringingCarriedGood(const void* human) { const auto mode = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode); return mode == 4 || (mode == 5 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0); }
 
 }

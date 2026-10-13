@@ -91,7 +91,7 @@ namespace NC2Logic
     // Original function: FUN_00405c5f
     bool LanguageTool_GetDirectoryName(const char* directoryPattern, char* directoryName, const char* referenceFileName)
     {
-        char testFileName[0x104];
+        char testFileName[260];
 
         const auto tryLanguage = [&] (const std::int32_t& languageId) -> bool
         {

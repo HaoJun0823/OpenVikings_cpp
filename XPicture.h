@@ -58,6 +58,6 @@ namespace NXBasics
         std::byte mReserved09[3];                 // +0x09; zeroed by the original constructor.
     };
 
-    static_assert(sizeof(CPicture) == 0x0C, "CPicture requires the original x86 layout");
+    static_assert(sizeof(CPicture) == 12, "CPicture requires the original x86 layout");
     static_assert(!std::is_polymorphic_v<CPicture>, "CPicture must not contain a virtual-table pointer");
 }

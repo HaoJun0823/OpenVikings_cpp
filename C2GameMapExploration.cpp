@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameMapAccess.h"
 #include "C2CallbackManager.h"
 #include "C2EngineDisplayAccess.h"
@@ -35,7 +36,7 @@ namespace NC2Logic
                         }
                     }
                 }
-                cursor = (cursor & 0xFFFF0000u) | static_cast<std::uint16_t>(cursor + 1u);
+                cursor = (cursor & ReadableValues::BitMask::DwordExceptBits0Through15) | static_cast<std::uint16_t>(cursor + 1u);
             }
         }
         return changed;
@@ -46,9 +47,9 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto* micro = GameMap_GetMapMicroPointPtr(point);
-        const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? Read<std::uint16_t>(micro, 4) : 0xFFFFFFFFu;
+        const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? Read<std::uint16_t>(micro, 4) : ReadableValues::IntegerRange::UInt32Maximum;
         const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
-        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         return ls_Exploration_ExploreArea(player, point, Read<const CMapArea*>(definition, 0x1C));
     }
 
@@ -107,7 +108,7 @@ namespace NC2Logic
             const auto extent = radius + extraExtent;
             // Retain Windows DWORD packing, including overflow outside the low WORD.
             const auto size = (extent * 2u) | (extent << 17);
-            const auto x = (static_cast<std::uint32_t>(Read<std::uint16_t>(point, 0)) - extent) & 0xFFFFu;
+            const auto x = (static_cast<std::uint32_t>(Read<std::uint16_t>(point, 0)) - extent) & ReadableValues::IntegerRange::UInt16Maximum;
             const auto y = static_cast<std::uint32_t>(Read<std::int16_t>(point, 2)) - extent;
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x0D, true, player, x | (y << 16), size);
         }

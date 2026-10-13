@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XGuiWindowAccess.h"
 #include "C2LifetimeAccess.h"
 #include "XGuiDesktop.h"
@@ -53,7 +54,7 @@ namespace NXBaseGui
     // including the previously constructed list headers, before setting the area.
     static void BaseWindow_ConstructState(void* window, const NXBasics::SRectangle* rectangle)
     {
-        std::memset(static_cast<std::byte*>(window) + 0x2C, 0, 0x40);
+        std::memset(static_cast<std::byte*>(window) + 0x2C, 0, 64);
         const NXBasics::SRectangle area(0, 0, rectangle->width, rectangle->height);
         Write(window, 0x2C, area);
     }
@@ -61,7 +62,7 @@ namespace NXBaseGui
     // Original function: FUN_0047841b.
     void* __fastcall BaseWindow_Construct(void* window, void*, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
     {
-        BaseElement_Construct(window, rectangle, flags | 0x43u, elementId);
+        BaseElement_Construct(window, rectangle, flags | ReadableValues::BitMask::Bits0Through1AndBit6, elementId);
         BaseWindow_ConstructVars(window);
         Write(window, 0, gBaseWindowVirtualTable + 0);
         BaseWindow_ConstructState(window, rectangle);
@@ -81,7 +82,7 @@ namespace NXBaseGui
     {
         BaseWindow_Element_DeleteAll(window);
         CDesktop::sTheObjectPtr->Element_Remove(static_cast<CBaseElement*>(window));
-        std::memset(static_cast<std::byte*>(window) + 0x2C, 0, 0x40);
+        std::memset(static_cast<std::byte*>(window) + 0x2C, 0, 64);
     }
 
     // Original function: FUN_0047849a.
@@ -97,7 +98,7 @@ namespace NXBaseGui
     // Original function: FUN_004785e8.
     void BaseWindow_Element_Remove(void* window, void* element)
     {
-        Write<std::uint8_t>(element, 0x19, Read<std::uint8_t>(element, 0x19) & 0xF7u);
+        Write<std::uint8_t>(element, 0x19, Read<std::uint8_t>(element, 0x19) & ReadableValues::BitMask::ByteExceptBit3);
         if (Read<void*>(window, 0x64) == element)
         {
             using TDeactivate = void(__thiscall*)(void*);
@@ -213,7 +214,7 @@ namespace NXBaseGui
         NXBasics::CListBase::Iterator iterator(*WindowList(window, 0x3C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & 0x200u) != 0) continue;
+            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
             auto area = BaseElement_GetRectangle(child);
             if (!rectangle.IsTouching(area)) continue;
             area.CutInside(rectangle);
@@ -229,8 +230,8 @@ namespace NXBaseGui
     void BaseWindow_Element_Add(void* window, void* element)
     {
         const auto flags = Read<std::uint32_t>(element, 0x18);
-        if ((flags & 0x800u) != 0) return;
-        Write(element, 0x18, flags | 0x800u);
+        if ((flags & ReadableValues::BitMask::Bit11) != 0) return;
+        Write(element, 0x18, flags | ReadableValues::BitMask::Bit11);
         Write(element, 0x20, window);
         auto* bytes = static_cast<std::byte*>(window);
         std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x3C))->InsertAtEnd(element);
@@ -240,7 +241,7 @@ namespace NXBaseGui
     // Original function: FUN_00478687; CBaseWindow::BW_Internal_Hide.
     void BaseWindow_InternalHide(void* window)
     {
-        if ((Read<std::uint32_t>(window, 0x18) & 0x200u) == 0) BaseElement_InternalHide(window);
+        if ((Read<std::uint32_t>(window, 0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) BaseElement_InternalHide(window);
     }
 
     // Original function: FUN_00478874; CBaseWindow::XGui_BE_Internal_Element_AddedToDesktop.
@@ -255,7 +256,7 @@ namespace NXBaseGui
     // Original function: FUN_00478697.
     void BaseWindow_InternalUnHide(void* window)
     {
-        if ((Read<std::uint32_t>(window, 0x18) & 0x200u) != 0) BaseElement_InternalUnHide(window);
+        if ((Read<std::uint32_t>(window, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) BaseElement_InternalUnHide(window);
     }
 
     // Original function: FUN_0047867a; the desktop handles a null window.
@@ -264,7 +265,7 @@ namespace NXBaseGui
     // Original function: FUN_00478aa3; CBaseElement::BE_Internal_Element_Hide.
     void BaseElement_InternalHide(void* element)
     {
-        if ((Read<std::uint32_t>(element, 0x18) & 0x200u) != 0) return;
+        if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) return;
         CDesktop::sTheObjectPtr->Element_Deactivate(static_cast<CBaseElement*>(element));
         Write<std::uint8_t>(element, 0x19, static_cast<std::uint8_t>(Read<std::uint8_t>(element, 0x19) | 2u));
     }
@@ -272,6 +273,6 @@ namespace NXBaseGui
     void BaseElement_InternalUnHide(void* element)
     {
         const auto flags = Read<std::uint32_t>(element, 0x18);
-        if ((flags & 0x200u) != 0) Write(element, 0x18, flags & ~0x200u);
+        if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0) Write(element, 0x18, flags & ~0x200u);
     }
 }

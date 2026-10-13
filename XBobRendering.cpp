@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "XBobRendering.h"
 #include "XBasicTypes.h"
@@ -104,10 +105,10 @@ namespace NXBasics
 			const std::uint32_t descriptor = ShadowRead<std::uint32_t>(rows);
 			rows = ShadowAddress(rows, 4);
 
-			if (descriptor != 0xFFFFFFFFu)
+			if (descriptor != ReadableValues::IntegerRange::UInt32Maximum)
 			{
 				std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
-				std::byte* source = ShadowAddress(ShadowPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+				std::byte* source = ShadowAddress(ShadowPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
 
 				const std::uint32_t rowIndex = ShadowRead<std::uint32_t>(bitmap, 0x30) * destinationY;
 				constexpr std::uint32_t pixelBytes = static_cast<std::uint32_t>(sizeof(T));
@@ -124,9 +125,9 @@ namespace NXBasics
 					if (token == 0)
 						break;
 
-					const std::uint32_t count = token & 0x7Fu;
+					const std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
 
-					if ((token & 0x80u) != 0)
+					if ((token & ReadableValues::BitMask::Bit7) != 0)
 					{
 						currentX += count;
 					}
@@ -193,19 +194,19 @@ namespace NXBasics
         if (point[0] < left || point[0] > right || point[1] < top || point[1] > bottom) return false;
         const auto row = ShadowRead<std::uint32_t>(entry, 0x14) - static_cast<std::uint32_t>(top) + static_cast<std::uint32_t>(point[1]);
         const auto descriptor = ShadowRead<std::uint32_t>(ShadowPointer(bobManager, 0x2C), row * 4u);
-        if (descriptor == 0xFFFFFFFFu) return false;
+        if (descriptor == ReadableValues::IntegerRange::UInt32Maximum) return false;
         const auto x = Runtime_TimeSigned32(static_cast<std::uint32_t>(point[0]) - static_cast<std::uint32_t>(left));
         std::uint32_t runX = descriptor >> 22;
         if (x < static_cast<std::int32_t>(runX)) return false;
         const auto type = ShadowRead<std::uint32_t>(entry);
         if (type != 1 && type != 4) return false;
-        const auto* cursor = reinterpret_cast<const std::uint8_t*>(ShadowPointer(bobManager, 0x28)) + (descriptor & 0x3FFFFFu);
+        const auto* cursor = reinterpret_cast<const std::uint8_t*>(ShadowPointer(bobManager, 0x28)) + (descriptor & ReadableValues::BitMask::Low22Bits);
         for (;;)
         {
             const auto control = *cursor++;
             if (control == 0) return false;
-            const auto length = static_cast<std::uint32_t>(control & 0x7Fu);
-            if ((control & 0x80u) == 0)
+            const auto length = static_cast<std::uint32_t>(control & ReadableValues::IntegerRange::Int8Maximum);
+            if ((control & ReadableValues::BitMask::Bit7) == 0)
             {
                 if (x >= Runtime_TimeSigned32(runX) && x < Runtime_TimeSigned32(runX + length)) return true;
                 cursor += length * (type == 1 ? 1u : 2u);
@@ -346,12 +347,12 @@ namespace NXBasics
 			const std::uint32_t descriptor = readWord(rowTable);
 			rowTable = offsetAddress(rowTable, 4);
 
-			if (descriptor == 0xFFFFFFFFu)
+			if (descriptor == ReadableValues::IntegerRange::UInt32Maximum)
 				continue;
 
 			// The disassembly's shift count 16 is hexadecimal (22 bits).
 			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
-			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
 
 			bool fast = depth == 1 && !wasClipped;
 			bool fastPrepared = false;
@@ -375,9 +376,9 @@ namespace NXBasics
 				if (token == 0)
 					break;
 
-				const std::uint32_t count = token & 0x7Fu;
+				const std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
 
-				if ((token & 0x80u) != 0)
+				if ((token & ReadableValues::BitMask::Bit7) != 0)
 				{
 					if (fast)
 						output = offsetAddress(output, count * pixelBytes);
@@ -497,11 +498,11 @@ namespace NXBasics
 			const std::uint32_t descriptor = ShadowRead<std::uint32_t>(rows);
 			rows = ShadowAddress(rows, 4);
 
-			if (descriptor == 0xFFFFFFFFu)
+			if (descriptor == ReadableValues::IntegerRange::UInt32Maximum)
 				continue;
 
 			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
-			std::byte* source = ShadowAddress(ShadowPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+			std::byte* source = ShadowAddress(ShadowPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
 
 			const std::uint32_t rowIndex = ShadowRead<std::uint32_t>(bitmap, 0x30) * destinationY;
 			std::byte* destinationRow = ShadowAddress(ShadowPointer(bitmap, pixelPointerOffset), rowIndex * pixelBytes);
@@ -517,9 +518,9 @@ namespace NXBasics
 				if (token == 0)
 					break;
 
-				const std::uint32_t count = token & 0x7Fu;
+				const std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
 
-				if ((token & 0x80u) != 0)
+				if ((token & ReadableValues::BitMask::Bit7) != 0)
 				{
 					currentX += count;
 				}
@@ -616,9 +617,9 @@ namespace NXBasics
 		const auto transform = [] (std::uint32_t pixel) -> std::uint32_t
 		{
 			// Preserve the original masks and blue-channel adjustment.
-			const std::uint32_t upper = ((pixel >> 15) & 0x1FFFEu) / 3u;
-			const std::uint32_t blue = ((pixel & 0xFFu) * 2u) / 3u;
-			const std::uint32_t green = ((pixel >> 7) & 0x1FEu) / 3u;
+			const std::uint32_t upper = ((pixel >> 15) & ReadableValues::BitMask::Bits1Through16) / 3u;
+			const std::uint32_t blue = ((pixel & ReadableValues::IntegerRange::UInt8Maximum) * 2u) / 3u;
+			const std::uint32_t green = ((pixel >> 7) & ReadableValues::BitMask::Bits1Through8) / 3u;
 
 			return (((green | (upper << 8)) << 8) | (blue + ((blue + upper) >> 4)));
 		};
@@ -756,8 +757,8 @@ namespace NXBasics
 				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
 				{
 					const std::uint32_t shift = channel * 8u;
-					const std::uint32_t destinationChannel = (destination >> shift) & 0xFFu;
-					const std::uint32_t sourceChannel = (source >> shift) & 0xFFu;
+					const std::uint32_t destinationChannel = (destination >> shift) & ReadableValues::IntegerRange::UInt8Maximum;
+					const std::uint32_t sourceChannel = (source >> shift) & ReadableValues::IntegerRange::UInt8Maximum;
 					const std::uint32_t blendedChannel = (destinationChannel * inverseAlpha + sourceChannel * alpha) >> 8;
 
 					result |= blendedChannel << shift;
@@ -768,11 +769,11 @@ namespace NXBasics
 
 			if (useMmx && fast)
 			{
-				const std::uint32_t otherMask = (~greenMask) & 0xFFFFu;
+				const std::uint32_t otherMask = (~greenMask) & ReadableValues::IntegerRange::UInt16Maximum;
 				const std::uint32_t destinationOther = destination & otherMask;
 				const std::uint32_t sourceOther = source & otherMask;
 
-				const std::uint32_t lowByte = ((destinationOther & 0xFFu) * inverseAlpha + (sourceOther & 0xFFu) * alpha) >> 8;
+				const std::uint32_t lowByte = ((destinationOther & ReadableValues::IntegerRange::UInt8Maximum) * inverseAlpha + (sourceOther & ReadableValues::IntegerRange::UInt8Maximum) * alpha) >> 8;
 				const std::uint32_t highByte = ((destinationOther >> 8) * inverseAlpha + (sourceOther >> 8) * alpha) >> 8;
 				const std::uint32_t other = (lowByte | (highByte << 8)) & otherMask;
 
@@ -784,9 +785,9 @@ namespace NXBasics
 			}
 
 			// Preserve the scalar RGB555 red-mask defect.
-			const std::uint32_t red = (((destination & 0xF800u) * inverseAlpha + (source & 0xF800u) * alpha) >> 8) & 0xF800u;
+			const std::uint32_t red = (((destination & ReadableValues::BitMask::WordExceptBits0Through10) * inverseAlpha + (source & ReadableValues::BitMask::WordExceptBits0Through10) * alpha) >> 8) & ReadableValues::BitMask::WordExceptBits0Through10;
 			const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (source & greenMask) * alpha) >> 8) & greenMask;
-			const std::uint32_t blue = ((destination & 0x1Fu) * inverseAlpha + (source & 0x1Fu) * alpha) >> 8;
+			const std::uint32_t blue = ((destination & ReadableValues::BitMask::Low5Bits) * inverseAlpha + (source & ReadableValues::BitMask::Low5Bits) * alpha) >> 8;
 
 			return red + green + blue;
 		};
@@ -824,12 +825,12 @@ namespace NXBasics
 			const std::uint32_t descriptor = readWord(rowTable);
 			rowTable = offsetAddress(rowTable, 4);
 
-			if (descriptor == 0xFFFFFFFFu)
+			if (descriptor == ReadableValues::IntegerRange::UInt32Maximum)
 				continue;
 
 			// Windows SHR ..., 16 uses hexadecimal 0x16: the upper ten bits are X.
 			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
-			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
 
 			bool fast = depth == 1 && !wasClipped;
 			bool fastPrepared = false;
@@ -853,9 +854,9 @@ namespace NXBasics
 				if (token == 0)
 					break;
 
-				std::uint32_t count = token & 0x7Fu;
+				std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
 
-				if ((token & 0x80u) != 0)
+				if ((token & ReadableValues::BitMask::Bit7) != 0)
 				{
 					if (fast)
 						output = offsetAddress(output, count * pixelBytes);
@@ -882,7 +883,7 @@ namespace NXBasics
 							const std::uint16_t secondSource = highColorTable[secondIndex];
 							const std::uint32_t secondAlpha = static_cast<std::uint8_t>(input[3]);
 
-							const std::uint32_t firstResult = blend(destinationPair & 0xFFFFu, firstSource, firstAlpha, true);
+							const std::uint32_t firstResult = blend(destinationPair & ReadableValues::IntegerRange::UInt16Maximum, firstSource, firstAlpha, true);
 							const std::uint32_t secondResult = blend(destinationPair >> 16, secondSource, secondAlpha, true);
 							const std::uint32_t resultPair = firstResult | (secondResult << 16);
 
@@ -1048,8 +1049,8 @@ namespace NXBasics
 				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
 				{
 					const std::uint32_t shift = channel * 8u;
-					const std::uint32_t destinationChannel = (destination >> shift) & 0xFFu;
-					const std::uint32_t sourceChannel = (source >> shift) & 0xFFu;
+					const std::uint32_t destinationChannel = (destination >> shift) & ReadableValues::IntegerRange::UInt8Maximum;
+					const std::uint32_t sourceChannel = (source >> shift) & ReadableValues::IntegerRange::UInt8Maximum;
 
 					result |= blendChannel(destinationChannel, sourceChannel, alpha) << shift;
 				}
@@ -1068,11 +1069,11 @@ namespace NXBasics
 				if (useMmx && fast)
 				{
 					// Reproduce the independent MMX byte lanes without changing rounding.
-					const std::uint32_t otherMask = (~greenMask) & 0xFFFFu;
+					const std::uint32_t otherMask = (~greenMask) & ReadableValues::IntegerRange::UInt16Maximum;
 					const std::uint32_t destinationOther = destination & otherMask;
 					const std::uint32_t sourceOther = fastSourceColour & otherMask;
 
-					const std::uint32_t lowByte = blendChannel(destinationOther & 0xFFu, sourceOther & 0xFFu, alpha);
+					const std::uint32_t lowByte = blendChannel(destinationOther & ReadableValues::IntegerRange::UInt8Maximum, sourceOther & ReadableValues::IntegerRange::UInt8Maximum, alpha);
 					const std::uint32_t highByte = blendChannel(destinationOther >> 8, sourceOther >> 8, alpha);
 					const std::uint32_t other = (lowByte | (highByte << 8)) & otherMask;
 
@@ -1085,9 +1086,9 @@ namespace NXBasics
 				else
 				{
 					// The scalar path uses 0xF800 even with the RGB555 green mask.
-					const std::uint32_t red = (((destination & 0xF800u) * inverseAlpha + (sourceColour & 0xF800u) * alpha) >> 8) & 0xF800u;
+					const std::uint32_t red = (((destination & ReadableValues::BitMask::WordExceptBits0Through10) * inverseAlpha + (sourceColour & ReadableValues::BitMask::WordExceptBits0Through10) * alpha) >> 8) & ReadableValues::BitMask::WordExceptBits0Through10;
 					const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (sourceColour & greenMask) * alpha) >> 8) & greenMask;
-					const std::uint32_t blue = ((destination & 0x1Fu) * inverseAlpha + (sourceColour & 0x1Fu) * alpha) >> 8;
+					const std::uint32_t blue = ((destination & ReadableValues::BitMask::Low5Bits) * inverseAlpha + (sourceColour & ReadableValues::BitMask::Low5Bits) * alpha) >> 8;
 
 					result = red + green + blue;
 				}
@@ -1107,12 +1108,12 @@ namespace NXBasics
 			const std::uint32_t descriptor = readWord(rowTable);
 			rowTable = offsetAddress(rowTable, 4);
 
-			if (descriptor == 0xFFFFFFFFu)
+			if (descriptor == ReadableValues::IntegerRange::UInt32Maximum)
 				continue;
 
 			// Windows SHR ..., 16 uses hexadecimal 0x16: the upper ten bits are X.
 			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
-			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
 
 			bool fast = depth == 1 && !wasClipped;
 			bool fastPrepared = false;
@@ -1142,9 +1143,9 @@ namespace NXBasics
 				if (token == 0)
 					break;
 
-				const std::uint32_t count = token & 0x7Fu;
+				const std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
 
-				if ((token & 0x80u) != 0)
+				if ((token & ReadableValues::BitMask::Bit7) != 0)
 				{
 					if (fast)
 						output = offsetAddress(output, count * pixelBytes);

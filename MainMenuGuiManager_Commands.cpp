@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuGuiManager.h"
 #include "C2CleanMapsManager.h"
@@ -24,14 +25,14 @@ namespace
     using namespace NC2Lifetime;
     // Complete Windows token table 004F7E58..004F7E77 and state 005694E8..005694EF.
     const NXBasics::SToken gMultiplayerMapTokens[] = {
-        { "playeroption", 0x706C6F70u }, { "playerhideinmenu", 0x7068696Du },
-        { "playerfixcolors", 0x7066636Fu }, { nullptr, 0 }
+        { "playeroption", SwitchIds::CampaignMenuToken::Playeroption }, { "playerhideinmenu", SwitchIds::CampaignMenuToken::Playerhideinmenu },
+        { "playerfixcolors", SwitchIds::CampaignMenuToken::Playerfixcolors }, { nullptr, 0 }
     };
     struct SMultiplayerMapTokenState { const NXBasics::SToken* table; std::uint32_t flags; };
     SMultiplayerMapTokenState gMultiplayerMapTokenState{};
     // Complete Windows static region 005694F0..00569504; Mac names it lastKeysBuffer.
     char lastKeysBuffer[21]{};
-    static_assert(sizeof(gMultiplayerMapTokens) == 0x20);
+    static_assert(sizeof(gMultiplayerMapTokens) == 32);
     static_assert(sizeof(SMultiplayerMapTokenState) == 8);
 
     // Original function: FUN_004d32f4; Windows CD-identification predicate.
@@ -43,7 +44,7 @@ namespace
     std::uint32_t FixedPlayerColor(std::uint32_t slot) { return slot < 10 ? slot : 9; }
     void SendKickToPlayer(std::uint32_t player)
     {
-        std::byte message[0x168]{};
+        std::byte message[360]{};
         Write<std::uint32_t>(message, 0, 3);
         NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, player, message, sizeof(message));
     }
@@ -133,7 +134,7 @@ namespace NC2MainMenuGuiManager
     const GUID* CGuiManager::Network_GetSelectedServiceProvider() const
     {
         const auto index = Read<std::uint32_t>(this, 0x51C);
-        return index == 0xFFFFFFFFu ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + index * 0x78u);
+        return index == ReadableValues::IntegerRange::UInt32Maximum ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + index * 0x78u);
     }
 
     // Original function: FUN_004d787b.
@@ -149,7 +150,7 @@ namespace NC2MainMenuGuiManager
         const auto player = Read<std::uint32_t>(this, 0xEE4);
         if (player == 0) return;
         const auto index = Network_GetPlayerListIndex(player);
-        if (index == 0xFFFFFFFFu) return;
+        if (index == ReadableValues::IntegerRange::UInt32Maximum) return;
         if (Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) return;
         SendKickToPlayer(player);
     }
@@ -170,7 +171,7 @@ namespace NC2MainMenuGuiManager
     void CGuiManager::Network_SelectPlayer(std::uint32_t playerId)
     {
         const auto index = Network_GetPlayerListIndex(playerId);
-        if (index == 0xFFFFFFFFu) Write<std::uint32_t>(this, 0xEE4, 0);
+        if (index == ReadableValues::IntegerRange::UInt32Maximum) Write<std::uint32_t>(this, 0xEE4, 0);
         else
         {
             Write(this, 0xEE4, playerId);
@@ -192,13 +193,13 @@ namespace NC2MainMenuGuiManager
             if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : 0u);
             if (index != slot && (Read<std::uint8_t>(this, offset + 8) & 4) != 0)
             {
-                if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(0xFFFFFFFFu));
+                if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
                 Write<std::uint32_t>(this, offset + 4, 2);
             }
         }
         const auto offset = 0xF28 + slot * 0x10u;
         Write<std::uint32_t>(this, offset + 4, 0);
-        if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(0xFFFFFFFFu));
+        if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
         Write(this, offset, Read<std::uint32_t>(this, 0xEE4));
         Write<std::uint32_t>(this, offset + 4, 1);
         Screen_UpdateGui();
@@ -227,7 +228,7 @@ namespace NC2MainMenuGuiManager
         else
         {
             if ((flags & 4) == 0) return;
-            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(0xFFFFFFFFu));
+            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
             Write<std::uint32_t>(this, offset + 4, 2);
             Write<std::uint32_t>(this, offset, 0);
         }
@@ -248,7 +249,7 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d80a7; a full cycle returns color zero.
     std::uint32_t CGuiManager::Network_FindNextPlayerColor(std::uint32_t color) const
     {
-        const auto stop = color == 0xFFFFFFFFu ? 9u : color;
+        const auto stop = color == ReadableValues::IntegerRange::UInt32Maximum ? 9u : color;
         for (;;)
         {
             ++color;
@@ -259,7 +260,7 @@ namespace NC2MainMenuGuiManager
             {
                 const auto offset = 0xF2C + slot * 0x10u;
                 const auto type = Read<std::uint32_t>(this, offset);
-                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + 7) & 0x80) == 0 && Read<std::uint32_t>(this, offset + 8) == color) { used = true; break; }
+                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + 7) & ReadableValues::BitMask::Bit7Signed) == 0 && Read<std::uint32_t>(this, offset + 8) == color) { used = true; break; }
             }
             if (!used) return color;
         }
@@ -297,7 +298,7 @@ namespace NC2MainMenuGuiManager
         void* archive = nullptr;
         if (map->userMap != 0)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
             archive = allocation == nullptr ? nullptr : NXBasics::Archive_Initialize(allocation, map->archiveFilename);
             NXBasics::CFile::FileSystem_FileLibrary_Add(archive);
         }
@@ -337,7 +338,7 @@ namespace NC2MainMenuGuiManager
                             if (slot < 20)
                             {
                                 const auto offset = (static_cast<std::uint32_t>(slot) + 0xF3u) * 0x10u + 3u;
-                                Write<std::uint8_t>(this, offset, Read<std::uint8_t>(this, offset) | 0x80);
+                                Write<std::uint8_t>(this, offset, Read<std::uint8_t>(this, offset) | ReadableValues::BitMask::Bit7Signed);
                             }
                             break;
                         }
@@ -353,7 +354,7 @@ namespace NC2MainMenuGuiManager
         {
             const auto offset = 0xF28 + slot * 0x10u;
             if ((Read<std::uint8_t>(this, offset + 8) & 4) == 0) continue;
-            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(0xFFFFFFFFu));
+            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
             Write<std::uint32_t>(this, offset + 4, 2);
             Write<std::uint32_t>(this, offset, 0);
         }
@@ -443,7 +444,7 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
             startup()->Reset();
             Write<std::uint32_t>(startup(), 0, 1);
             std::memcpy(reinterpret_cast<std::byte*>(startup()) + 4, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(data)), 16);
-            if (command == 0x1397) changeScreen(7);
+            if (command == SwitchIds::MainMenuCommand::StartSelectedCampaignMap) changeScreen(7);
             else master->System_ProgramState_ChangeNextTimePossible(TProgramState::Game, false);
             break;
         case SwitchIds::MainMenuCommand::LoadSelectedSavegame:

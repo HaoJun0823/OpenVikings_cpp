@@ -26,7 +26,7 @@ namespace NNetwork
         SEventNode* next;                         // +0x20C
     };
 
-    static_assert(sizeof(SEventNode) == 0x210);
+    static_assert(sizeof(SEventNode) == 528);
     static_assert(offsetof(SEventNode, playerName) == 0x004);
     static_assert(offsetof(SEventNode, timestamp) == 0x204);
     static_assert(offsetof(SEventNode, eventType) == 0x208);
@@ -78,7 +78,7 @@ namespace NNetwork
         wchar_t* name;
         GUID instance;
     };
-    static_assert(sizeof(SSessionSummary) == 0x14);
+    static_assert(sizeof(SSessionSummary) == 20);
     void GetSessionSummaries(SSessionList* list, SSessionSummary** summaries, DWORD* count);
     SSessionNode* CopySessionNode(SSessionList* list, const GUID* instance);
 
@@ -91,12 +91,12 @@ namespace NNetwork
         const wchar_t* sessionName;
         const wchar_t* password;
     };
-    static_assert(sizeof(SHostSessionData) == 0x20);
+    static_assert(sizeof(SHostSessionData) == 32);
 
     // Original function: FUN_004ddd3c
     void UpdateSessionList(SSessionList* list, const DPNMSG_ENUM_HOSTS_RESPONSE* response);
 
-    static_assert(sizeof(DPN_APPLICATION_DESC) == 0x48);
+    static_assert(sizeof(DPN_APPLICATION_DESC) == 72);
     static_assert(offsetof(DPN_APPLICATION_DESC, guidInstance) == 0x08);
     static_assert(offsetof(DPN_APPLICATION_DESC, pwszSessionName) == 0x30);
 
@@ -111,7 +111,7 @@ namespace NNetwork
         std::uint32_t writtenEntries;               // +0x014
         std::uint32_t sequenceNumber;               // +0x018
         std::int32_t level;                         // +0x01C
-        char fileName[0x100];                       // +0x020
+        char fileName[256];                       // +0x020
         void* stream;                               // +0x120
     };
 
@@ -145,15 +145,15 @@ namespace NNetwork
     {
         DPNID sender;                       // +0x000
         std::uint32_t payloadSize;          // +0x004
-        std::uint8_t payload[0x400];         // +0x008
+        std::uint8_t payload[1024];         // +0x008
         std::uint8_t checksumMismatch;      // +0x408
         std::byte padding409[3];            // +0x409
     };
 
-    static_assert(sizeof(SDynamicDataMessage) == 0x40C);
+    static_assert(sizeof(SDynamicDataMessage) == 1036);
     static_assert(offsetof(SDynamicDataMessage, payload) == 0x008);
     static_assert(offsetof(SDynamicDataMessage, checksumMismatch) == 0x408);
-    static_assert(sizeof(SDynamicDataMessage) * 64 == 0x10300);
+    static_assert(sizeof(SDynamicDataMessage) * 64 == 66304);
 
     // Storage required by the original constructor and existing shutdown paths.
     struct SDynamicNetworkData
@@ -174,7 +174,7 @@ namespace NNetwork
         std::uint32_t unknown7C;                   // +0x7C
     };
 
-    static_assert(sizeof(SDynamicNetworkData) == 0x80);
+    static_assert(sizeof(SDynamicNetworkData) == 128);
     static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
     static_assert(offsetof(SDynamicNetworkData, commandBufferIndices) == 0x70);
     static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
@@ -272,7 +272,7 @@ namespace NNetwork
         std::uint32_t throughputBPS;              // +0x94
     };
 
-    static_assert(sizeof(SPlayerInfo) == 0x98);
+    static_assert(sizeof(SPlayerInfo) == 152);
     static_assert(offsetof(SPlayerInfo, playerName) == 0x04);
     static_assert(offsetof(SPlayerInfo, isHost) == 0x84);
     static_assert(offsetof(SPlayerInfo, isLocal) == 0x85);
@@ -281,8 +281,8 @@ namespace NNetwork
     static_assert(offsetof(SPlayerInfo, roundTripLatencyMS) == 0x90);
     static_assert(offsetof(SPlayerInfo, throughputBPS) == 0x94);
 
-    static_assert(sizeof(DPN_PLAYER_INFO) == 0x18);
-    static_assert(sizeof(DPN_CONNECTION_INFO) == 0x5C);
+    static_assert(sizeof(DPN_PLAYER_INFO) == 24);
+    static_assert(sizeof(DPN_CONNECTION_INFO) == 92);
     static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesSentGuaranteed) == 0x10);
     static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesSentNonGuaranteed) == 0x18);
     static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesReceivedGuaranteed) == 0x48);
@@ -388,8 +388,8 @@ namespace NNetwork
         SReceivedMessage* receivedMessages;        // +0x03C
         DPNHANDLE searchOperation;                 // +0x040
         void* callbackContext;                     // +0x044
-        std::byte data48[0x10];                    // +0x048
-        std::byte data58[0x10];                    // +0x058
+        std::byte data48[16];                    // +0x048
+        std::byte data58[16];                    // +0x058
         IDirectPlay8Peer* peer;                    // +0x068
         IUnknown* interface6C;                     // +0x06C
         IUnknown* interface70;                     // +0x070
@@ -420,19 +420,19 @@ namespace NNetwork
     void DestroyNetworkSingleton();
 
     static_assert(sizeof(void*) == 4, "This reconstruction requires an x86 build");
-    static_assert(sizeof(SEventQueue) == 0x10);
+    static_assert(sizeof(SEventQueue) == 16);
     static_assert(offsetof(SEventNode, next) == 0x20C);
-    static_assert(sizeof(SReceivedMessage) == 0x10);
+    static_assert(sizeof(SReceivedMessage) == 16);
     static_assert(offsetof(SReceivedMessage, bufferHandle) == 0x0C);
     static_assert(offsetof(SSessionNode, description) == 0x14);
     static_assert(offsetof(SSessionNode, next) == 0x18);
-    static_assert(sizeof(SSessionNode) == 0x20);
-    static_assert(sizeof(SNetLog) == 0x124);
+    static_assert(sizeof(SSessionNode) == 32);
+    static_assert(sizeof(SNetLog) == 292);
     static_assert(offsetof(SNetLog, formatFlags) == 0x008);
     static_assert(offsetof(SNetLog, stream) == 0x120);
     static_assert(offsetof(STimerPrefix, thread) == 0x04);
-    static_assert(sizeof(SDynamicSlot) == 0xD0);
-    static_assert(sizeof(SDynamicSlotArray) == 0x14);
+    static_assert(sizeof(SDynamicSlot) == 208);
+    static_assert(sizeof(SDynamicSlotArray) == 20);
     static_assert(offsetof(SDynamicNetworkData, events) == 0x14);
     static_assert(offsetof(SDynamicNetworkData, allocation28) == 0x28);
     static_assert(offsetof(SDynamicNetworkData, arrays) == 0x34);
@@ -449,7 +449,7 @@ namespace NNetwork
     static_assert(offsetof(CDPNet, criticalD4) == 0xD4);
     static_assert(offsetof(CDPNet, criticalEC) == 0xEC);
     static_assert(offsetof(CDPNet, log) == 0x104);
-    static_assert(sizeof(CDPNet) == 0x228);
+    static_assert(sizeof(CDPNet) == 552);
 }
 
 // Existing reconstruction interfaces, with their original addresses retained.

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2MapMoveableAccess.h"
 #include "C2AnimalAccess.h"
@@ -25,7 +26,7 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
     // Original function: FUN_0047dbcb; callers pass a CMapMoveable receiver.
-    const void* MapMoveable_GetMapPositionRef(const void* moveable) { return static_cast<const std::byte*>(moveable) + 0x12; }
+    const void* MapMoveable_GetMapPositionRef(const void* moveable) { return static_cast<const std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition; }
 
     namespace
     {
@@ -42,7 +43,7 @@ namespace NC2Logic
     {
         const auto id = array->Element_Allocate();
         if (id == -1) return -1;
-        if (!MapMoveable_Init(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u, id, type, objectId))
+        if (!MapMoveable_Init(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable, id, type, objectId))
         {
             MapMoveableArray_FreeMapMoveable(array, id);
             return -1;
@@ -53,7 +54,7 @@ namespace NC2Logic
     // Original function: FUN_0040bd00. Element_Free leaves the allocation flag intact.
     void MapMoveableArray_FreeMapMoveable(CArrayHandler* array, std::int32_t id)
     {
-        void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+        void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
         if (Read<std::uint8_t>(moveable, 0) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
     }
 
@@ -63,7 +64,7 @@ namespace NC2Logic
         auto* handler = static_cast<CArrayHandler*>(array);
         for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
         {
-            void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
             if (Read<std::uint8_t>(moveable, 0) == 0) continue;
             MapMoveable_DoOneGameTick(moveable);
             if (Read<std::uint8_t>(moveable, 0x0C) != 0) Logic_EntryPoint_FreeMapMoveable(static_cast<std::uint32_t>(id));
@@ -73,7 +74,7 @@ namespace NC2Logic
     // Original function: FUN_0043902B.
     void MapMoveable_DoOneGameTick(void* moveable)
     {
-        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        const auto id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
         switch (Read<std::uint32_t>(moveable, 8))
         {
         case SwitchIds::MapMoveableType::Human: MapMoveable_DoOneGameTick_Human(moveable, CHumanArray::mStaticVars + id * CHumanArray::ElementSize); return;
@@ -89,7 +90,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0x10) != 0)
         {
             if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
-            const auto id = Read<std::int32_t>(moveable, 0x28);
+            const auto id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
@@ -100,11 +101,11 @@ namespace NC2Logic
                     {
                         Write<std::uint8_t>(moveable, 0x38, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
-                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        auto point = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition);
                         MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
-                        Write(moveable, 0x12, point);
+                        Write(moveable, ReadableValues::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
-                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition));
                         const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
@@ -147,7 +148,7 @@ namespace NC2Logic
             }
         }
         Human_AI_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + 0x12);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
         GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(creature) + 0xB88);
     }
 
@@ -158,7 +159,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0x10) != 0)
         {
             if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
-            const auto id = Read<std::int32_t>(moveable, 0x28);
+            const auto id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
@@ -169,11 +170,11 @@ namespace NC2Logic
                     {
                         Write<std::uint8_t>(moveable, 0x38, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
-                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        auto point = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition);
                         MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
-                        Write(moveable, 0x12, point);
+                        Write(moveable, ReadableValues::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
-                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition));
                         const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
@@ -216,7 +217,7 @@ namespace NC2Logic
             }
         }
         Animal_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + 0x12);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
     }
 
     // Original function: FUN_00439352; preserve its distinct native boundary.
@@ -226,7 +227,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0x10) != 0)
         {
             if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
-            const auto id = Read<std::int32_t>(moveable, 0x28);
+            const auto id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
@@ -237,11 +238,11 @@ namespace NC2Logic
                     {
                         Write<std::uint8_t>(moveable, 0x38, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
-                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        auto point = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition);
                         MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
-                        Write(moveable, 0x12, point);
+                        Write(moveable, ReadableValues::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
-                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition));
                         const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
@@ -283,7 +284,7 @@ namespace NC2Logic
             }
         }
         Vehicle_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x1E0), static_cast<std::byte*>(moveable) + 0x12);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x1E0), static_cast<std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
     }
 
     // Original function: FUN_0041cef8.
@@ -305,20 +306,20 @@ namespace NC2Logic
     bool MapMoveable_Init(void* moveable, std::int32_t id, std::uint32_t type, std::int32_t objectId)
     {
         if (Read<std::uint8_t>(moveable, 0) != 0) return false;
-        std::memset(moveable, 0, 0x58);
+        std::memset(moveable, 0, 88);
         Write<std::int32_t>(moveable, 0x24, -1);
         Write<std::int32_t>(moveable, 4, id);
         Write<std::uint8_t>(moveable, 0, 1);
         Write<std::uint32_t>(moveable, 8, type);
         Write<std::uint32_t>(moveable, 0x20, 2);
         const auto pathfinderId = MapPathfinderManager_AllocatePathfinder(static_cast<CArrayHandler*>(gMapPathfinderManager));
-        Write<std::int32_t>(moveable, 0x28, pathfinderId);
+        Write<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId, pathfinderId);
         if (pathfinderId == -1)
         {
             MapMoveable_l_Misc_FreeAllAllocatedData(moveable);
             return false;
         }
-        if (type >= 1u && type <= 4u) Write<std::int32_t>(moveable, 0x54, objectId);
+        if (type >= 1u && type <= 4u) Write<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId, objectId);
         return true;
     }
 
@@ -335,10 +336,10 @@ namespace NC2Logic
     void MapMoveable_l_Misc_FreeAllAllocatedData(void* moveable)
     {
         if (Read<std::uint8_t>(moveable, 0) == 0) return;
-        const auto id = Read<std::int32_t>(moveable, 0x28);
+        const auto id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId);
         if (id == -1) return;
         MapPathfinderManager_FreePathfinder(static_cast<CArrayHandler*>(gMapPathfinderManager), id);
-        Write<std::int32_t>(moveable, 0x28, -1);
+        Write<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId, -1);
     }
 
     // Original function: FUN_00438ebe. The source point is copied after detachment.
@@ -347,7 +348,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0x10) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
         const auto point = Read<std::uint32_t>(packedMigPoint, 0);
         Write<std::int32_t>(moveable, 0x24, -1);
-        Write<std::uint32_t>(moveable, 0x12, point);
+        Write<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition, point);
         Write<std::uint8_t>(moveable, 0x10, 1);
         MapMoveable_l_Attachment_AttachToGameMap(moveable);
         MapMoveable_Attachment_AttachToSectorMap(moveable);
@@ -365,7 +366,7 @@ namespace NC2Logic
     // Original function: FUN_00438F6A. An unrelocated walking object predicts its next point.
     void MapMoveable_Attachment_GetNextMapPosition(const void* moveable, void* point)
     {
-        auto packed = Read<std::uint32_t>(moveable, 0x12);
+        auto packed = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition);
         Write(point, 0, packed);
         if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x38) == 0)
         {
@@ -378,7 +379,7 @@ namespace NC2Logic
     bool MapMoveable_Pathfinder_Start(void* moveable, const void* destination, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
     {
         if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
-        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), static_cast<std::byte*>(moveable) + 0x12, destination, radius, useResistance, useSectors, useGuides, false);
+        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId)), static_cast<std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition, destination, radius, useResistance, useSectors, useGuides, false);
         return true;
     }
 
@@ -386,14 +387,14 @@ namespace NC2Logic
     bool MapMoveable_Pathfinder_Start(void* moveable, std::int32_t targetId, std::int32_t distance, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
     {
         if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
-        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), static_cast<std::byte*>(moveable) + 0x12, targetId, distance, radius, useResistance, useSectors, useGuides, false);
+        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId)), static_cast<std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition, targetId, distance, radius, useResistance, useSectors, useGuides, false);
         return true;
     }
 
     // Original function: FUN_00438FFF.
     bool MapMoveable_Pathfinder_Stop(void* moveable)
     {
-        const auto id = Read<std::int32_t>(moveable, 0x28);
+        const auto id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId);
         if (id == -1 || Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
         MapPathfinderElement_StopPathfinder(GetUnsafePathfinderPtr(id));
         return true;
@@ -402,27 +403,27 @@ namespace NC2Logic
     // Original function: FUN_0043961A. Revisions belong to the creature/marker, not its map slot.
     std::uint32_t MapMoveable_GetUniqueId(const void* moveable)
     {
-        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        const auto id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
         switch (Read<std::uint32_t>(moveable, 8))
         {
         case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, 8);
         case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
         case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
         case SwitchIds::MapMoveableType::Marker: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
-        default: return 0xFFFFFFFFu;
+        default: return ReadableValues::IntegerRange::UInt32Maximum;
         }
     }
 
     // Original function: FUN_00439021.
     const void* MapMoveable_Pathfinder_GetPathfinderPtr(const void* moveable)
     {
-        return GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        return GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId));
     }
 
     // Original function: FUN_004394ad. The micro-point stores a signed 16-bit list head.
     void MapMoveable_l_Attachment_AttachToGameMap(void* moveable)
     {
-        void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + 0x12);
+        void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
         const auto id = Read<std::uint32_t>(moveable, 4);
         const auto previous = Read<std::int16_t>(point, 0x0A);
         Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(id));
@@ -432,7 +433,7 @@ namespace NC2Logic
     // Original function: FUN_004394ca. An absent micro-list entry is ignored.
     void MapMoveable_l_Attachment_DetachFromGameMap(void* moveable)
     {
-        void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + 0x12);
+        void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
         auto current = static_cast<std::int32_t>(Read<std::int16_t>(point, 0x0A));
         if (current == -1) return;
         const auto id = Read<std::int32_t>(moveable, 4);
@@ -443,7 +444,7 @@ namespace NC2Logic
         }
         while (current != -1)
         {
-            void* previous = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(current) * 0x58u;
+            void* previous = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(current) * ReadableValues::RecordSize::MapMoveable;
             current = Read<std::int32_t>(previous, 0x24);
             if (current == id)
             {
@@ -458,9 +459,9 @@ namespace NC2Logic
     {
         const auto type = Read<std::uint32_t>(moveable, 8);
         if (type < 1u || type > 3u) return;
-        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition));
         Write<SSectorGridCursor>(moveable, 0x18, sector);
-        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        const auto id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
         if (type == 1) Human_Sector_AttachHumanToSector(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, sector);
         else if (type == 2) Animal_Sector_AttachAnimalToSector(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, sector);
         else Vehicle_Sector_AttachVehicleToSector(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, sector);
@@ -472,7 +473,7 @@ namespace NC2Logic
         const auto type = Read<std::uint32_t>(moveable, 8);
         if (type < 1u || type > 3u) return;
         const auto sector = Read<SSectorGridCursor>(moveable, 0x18);
-        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        const auto id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
         if (type == 1) Human_Sector_DetachHumanFromSector(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, sector);
         else if (type == 2) Animal_Sector_DetachAnimalFromSector(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, sector);
         else Vehicle_Sector_DetachVehicleFromSector(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, sector);
@@ -487,7 +488,7 @@ namespace NC2Logic
     // Original function: FUN_00447804.
     void MapPathfinderElement_Init(void* pathfinder)
     {
-        std::memset(pathfinder, 0, 0x84);
+        std::memset(pathfinder, 0, 132);
         Write<std::uint32_t>(pathfinder, 0x10, 0);
         Write<std::uint32_t>(pathfinder, 4, 0);
         Write<std::int32_t>(pathfinder, 0x2C, -1);
@@ -501,8 +502,8 @@ namespace NC2Logic
     void Animal_Sector_AttachAnimalToSector(void* animal, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const bool special = Read<std::uint32_t>(animal, 0x18) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
-        const auto offset = (Read<std::uint32_t>(animal, 0x10) << 6) + (special ? 0x38u : 0x30u);
+        const bool special = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        const auto offset = (Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) << 6) + (special ? 0x38u : 0x30u);
         const auto previous = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(animal, 4);
         Write<std::int32_t>(data, offset, id);
@@ -516,8 +517,8 @@ namespace NC2Logic
     void Animal_Sector_DetachAnimalFromSector(void* animal, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const bool special = Read<std::uint32_t>(animal, 0x18) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
-        const auto offset = (Read<std::uint32_t>(animal, 0x10) << 6) + (special ? 0x38u : 0x30u);
+        const bool special = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        const auto offset = (Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) << 6) + (special ? 0x38u : 0x30u);
         auto current = Read<std::int32_t>(data, offset);
         Write<std::uint32_t>(data, offset + 4, Read<std::uint32_t>(data, offset + 4) - 1u);
         const auto id = Read<std::int32_t>(animal, 4);
@@ -544,7 +545,7 @@ namespace NC2Logic
     void Vehicle_Sector_AttachVehicleToSector(void* vehicle, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const auto offset = (Read<std::uint32_t>(vehicle, 0x1E0) << 6) + (Read<std::uint32_t>(vehicle, 0x1EC) == 0x36 ? 0x20u : 8u);
+        const auto offset = (Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId) << 6) + (Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::JobType) == 0x36 ? 0x20u : 8u);
         const auto previous = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(vehicle, 4);
         Write<std::int32_t>(data, offset, id);
@@ -558,7 +559,7 @@ namespace NC2Logic
     void Vehicle_Sector_DetachVehicleFromSector(void* vehicle, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const auto offset = (Read<std::uint32_t>(vehicle, 0x1E0) << 6) + (Read<std::uint32_t>(vehicle, 0x1EC) == 0x36 ? 0x20u : 8u);
+        const auto offset = (Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId) << 6) + (Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::JobType) == 0x36 ? 0x20u : 8u);
         auto current = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(vehicle, 4);
         const auto next = Read<std::int32_t>(vehicle, 0x514);
@@ -587,7 +588,7 @@ namespace NC2Logic
     void Human_Sector_AttachHumanToSector(void* human, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const auto offset = (Read<std::uint32_t>(human, 0x10) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
+        const auto offset = (Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
         const auto previous = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(human, 4);
         Write<std::int32_t>(data, offset, id);
@@ -601,7 +602,7 @@ namespace NC2Logic
     void Human_Sector_DetachHumanFromSector(void* human, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const auto offset = (Read<std::uint32_t>(human, 0x10) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
+        const auto offset = (Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
         auto current = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(human, 4);
         const auto next = Read<std::int32_t>(human, 0xB58);

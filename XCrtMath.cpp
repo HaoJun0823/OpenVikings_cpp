@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XCrtFileAccess.h"
 
 #include <intrin.h>
@@ -335,7 +336,7 @@ namespace NXBasics
     // Original function: FUN_004eb76c; make the EAX input explicit in the recompiled interface.
     __declspec(noinline) std::uint32_t __cdecl Runtime_HandleMathNaN(std::uint32_t highArgumentWord)
     {
-        if ((highArgumentWord & 0x80000u) != 0) return 7;
+        if ((highArgumentWord & ReadableValues::BitMask::Bit19) != 0) return 7;
         return Runtime_RequireMathLeaf(gRuntimeQuietMathNaN)();
     }
 
@@ -486,7 +487,7 @@ namespace NXBasics
         Runtime_CopyMathArgumentWords(&error->argument1, &argument);
         Runtime_DispatchMathError(operation, error, &savedControl);
         Runtime_LoadX87TopFromBinary64(&error->result);
-        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, ReadableValues::IntegerRange::UInt16Maximum));
     }
 
     // Original function: FUN_004eb8d0; EAX/ECX/EDX and the parent-stack inputs are explicit.
@@ -514,15 +515,15 @@ namespace NXBasics
     // Original data: 004FC1D0..004FC1FF, complete six-double scaling region.
     static const volatile RuntimeBinary64Words gRuntimeCompletionConstants[6] =
     {
-        { 0xFFFFFFFFu, 0x7FEFFFFFu }, { 0, 0x00100000u },
+        { ReadableValues::IntegerRange::UInt32Maximum, 0x7FEFFFFFu }, { 0, 0x00100000u },
         { 0, 0xC0980000u }, { 0, 0x40980000u },
-        { 0, 0x7FF00000u }, { 0, 0 }
+        { 0, ReadableValues::Binary64::ExponentHighWordMask }, { 0, 0 }
     };
 
     // Original function: FUN_004ed2b3; distinct entry, then the common continuation.
     __declspec(noinline) void __cdecl Runtime_CompleteStackArgumentMath(RuntimeX87MathCompletionFrame* frame)
     {
-        frame->flags &= 0xFEu;
+        frame->flags &= ReadableValues::BitMask::ByteExceptBit0;
         Runtime_CompleteX87Math(frame);
     }
 
@@ -539,8 +540,8 @@ namespace NXBasics
             if (type == -1 || type == -2)
             {
                 const auto high = Runtime_ReadX87Image<std::uint32_t>(reinterpret_cast<const volatile unsigned char*>(&sample) + 4);
-                const auto exponent = high & 0x7FF00000u;
-                if (exponent == 0 || exponent == 0x7FF00000u)
+                const auto exponent = high & ReadableValues::Binary64::ExponentHighWordMask;
+                if (exponent == 0 || exponent == ReadableValues::Binary64::ExponentHighWordMask)
                 {
                     const bool underflow = exponent == 0;
                     type = underflow ? 4 : 3;
@@ -549,7 +550,7 @@ namespace NXBasics
                     Runtime_DuplicateX87TopForCompletion();
                     const auto* reference = reinterpret_cast<const volatile double*>(&gRuntimeCompletionConstants[underflow ? 1 : 0]);
                     const auto status = Runtime_CompareRetainedX87Magnitude(reference);
-                    const bool adjust = underflow ? (status & 0x100u) != 0 : (status & 0x4100u) == 0;
+                    const bool adjust = underflow ? (status & ReadableValues::BitMask::Bit8) != 0 : (status & ReadableValues::BitMask::Bit8AndBit14) == 0;
                     if (adjust)
                     {
                         const auto* multiplier = reinterpret_cast<const volatile double*>(&gRuntimeCompletionConstants[underflow ? 5 : 4]);
@@ -558,7 +559,7 @@ namespace NXBasics
                 }
                 else type = 0;
             }
-            if (type == 0 && (frame->savedControl & 0x20u) == 0 && (Runtime_ReadX87StatusRaw() & 0x20u) != 0) type = 8;
+            if (type == 0 && (frame->savedControl & ReadableValues::BitMask::Bit5) == 0 && (Runtime_ReadX87StatusRaw() & ReadableValues::BitMask::Bit5) != 0) type = 8;
             if (type != 0)
             {
                 frame->error.type = type;
@@ -573,7 +574,7 @@ namespace NXBasics
                 Runtime_LoadX87TopFromBinary64(&frame->error.result);
             }
         }
-        static_cast<void>(Runtime_ControlX87Raw(frame->savedControl, 0xFFFFu));
+        static_cast<void>(Runtime_ControlX87Raw(frame->savedControl, ReadableValues::IntegerRange::UInt16Maximum));
         static_cast<void>(Runtime_ReadX87StatusRaw());
     }
 
@@ -606,7 +607,7 @@ namespace NXBasics
     // Neither verified kernel/fallback modifies EBX, ESI or EDI.
     __declspec(noinline) static void __cdecl Runtime_InvokeFramedPreparation(RuntimeX87Operation leaf, RuntimeX87PreparationFrame* context)
     {
-        volatile unsigned char reservation[0x2D0];
+        volatile unsigned char reservation[720];
         RuntimePreparationInvocation invocation;
         reservation[0] = 0;
         auto* nativeFrame = static_cast<unsigned char*>(_AddressOfReturnAddress()) - 4;
@@ -654,25 +655,25 @@ namespace NXBasics
     // from 004ED2BA. Preserve the Windows branch even when the mask is set.
     static void Runtime_FinishUnaryX87Math(RuntimeBinary64Words argument, const char* name, std::uint32_t operation, std::uint16_t savedControl)
     {
-        if (gRuntimeMathErrorCompletionBypass == 0 && savedControl != 0x027Fu && (savedControl & 0x20u) != 0 && (Runtime_ReadX87StatusRaw() & 0x20u) != 0)
+        if (gRuntimeMathErrorCompletionBypass == 0 && savedControl != 0x027Fu && (savedControl & ReadableValues::BitMask::Bit5) != 0 && (Runtime_ReadX87StatusRaw() & ReadableValues::BitMask::Bit5) != 0)
             Runtime_DispatchUnaryX87MathError(8, name, operation, argument, savedControl);
-        else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
+        else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, ReadableValues::IntegerRange::UInt16Maximum));
     }
 
     static void Runtime_FailUnaryX87Math(std::int32_t type, RuntimeBinary64Words argument, const char* name, std::uint32_t operation, std::uint16_t savedControl)
     {
         if (gRuntimeMathErrorCompletionBypass == 0) Runtime_DispatchUnaryX87MathError(type, name, operation, argument, savedControl);
-        else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
+        else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, ReadableValues::IntegerRange::UInt16Maximum));
     }
 
     static bool Runtime_IsSpecialMathArgument(RuntimeBinary64Words argument)
     {
-        return (argument.high & 0x7FF00000u) == 0x7FF00000u;
+        return (argument.high & ReadableValues::Binary64::ExponentHighWordMask) == ReadableValues::Binary64::ExponentHighWordMask;
     }
 
     static bool Runtime_IsMathInfinity(RuntimeBinary64Words argument)
     {
-        return (argument.high & 0xFFFFFu) == 0 && argument.low == 0;
+        return (argument.high & ReadableValues::BitMask::Low20Bits) == 0 && argument.low == 0;
     }
 
     // Original function: FUN_004e6e4d; the already-loaded ST(0) and raw caller
@@ -683,7 +684,7 @@ namespace NXBasics
         if (Runtime_IsSpecialMathArgument(argument))
         {
             if (!Runtime_IsMathInfinity(argument)) Runtime_FailUnaryX87Math(static_cast<std::int32_t>(Runtime_HandleMathNaN(argument.high)), argument, "log10", 0x1B, savedControl);
-            else if ((argument.high & 0x80000000u) != 0)
+            else if ((argument.high & ReadableValues::IntegerRange::Bit31) != 0)
             {
                 Runtime_ReplaceX87TopWithDomainNaN();
                 Runtime_FailUnaryX87Math(1, argument, "log10", 0x1B, savedControl);
@@ -691,13 +692,13 @@ namespace NXBasics
             else Runtime_FinishUnaryX87Math(argument, "log10", 0x1B, savedControl);
             return;
         }
-        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, 0xFFFFu));
-        if ((argument.high & 0x7FF00000u) != 0 && (argument.high & 0x80000000u) != 0)
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, ReadableValues::IntegerRange::UInt16Maximum));
+        if ((argument.high & ReadableValues::Binary64::ExponentHighWordMask) != 0 && (argument.high & ReadableValues::IntegerRange::Bit31) != 0)
         {
             Runtime_ReplaceX87TopWithDomainNaN();
             Runtime_FailUnaryX87Math(1, argument, "log10", 0x1B, savedControl);
         }
-        else if ((argument.high & 0x7FFFFFFFu) == 0 && argument.low == 0)
+        else if ((argument.high & ReadableValues::IntegerRange::Int32Maximum) == 0 && argument.low == 0)
         {
             Runtime_RequireMathLeaf(gRuntimeNegativeInfinity)();
             Runtime_FailUnaryX87Math(2, argument, "log10", 0x1B, savedControl);
@@ -724,7 +725,7 @@ namespace NXBasics
             }
             return;
         }
-        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, 0xFFFFu));
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, ReadableValues::IntegerRange::UInt16Maximum));
         Runtime_InvokeFiniteUnary(argument, Runtime_RequireMathLeaf(gRuntimeFiniteSin));
         Runtime_FinishUnaryX87Math(argument, "sin", 0x1E, savedControl);
     }
@@ -743,7 +744,7 @@ namespace NXBasics
             }
             return;
         }
-        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, 0xFFFFu));
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, ReadableValues::IntegerRange::UInt16Maximum));
         Runtime_InvokeFiniteUnary(argument, Runtime_RequireMathLeaf(gRuntimeFiniteCos));
         Runtime_FinishUnaryX87Math(argument, "cos", 0x12, savedControl);
     }
@@ -758,12 +759,12 @@ namespace NXBasics
             else
             {
                 Runtime_ReplaceX87ValueWithHalfPi();
-                if ((argument.high & 0x80000000u) != 0) Runtime_RequireMathLeaf(gRuntimeSignResult)(1);
+                if ((argument.high & ReadableValues::IntegerRange::Bit31) != 0) Runtime_RequireMathLeaf(gRuntimeSignResult)(1);
                 Runtime_FinishUnaryX87Math(argument, "atan", 0x0F, savedControl);
             }
             return;
         }
-        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, 0xFFFFu));
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(0x027F, ReadableValues::IntegerRange::UInt16Maximum));
         Runtime_InvokeFiniteUnary(argument, Runtime_RequireMathLeaf(gRuntimeFiniteAtan));
         Runtime_FinishUnaryX87Math(argument, "atan", 0x0F, savedControl);
     }
@@ -796,7 +797,7 @@ namespace NXBasics
     // The native CFG check uses the loader's validated guard slot and C++ targets.
     __declspec(noinline) static void __cdecl Runtime_InvokeMathClassification(RuntimeNativeClassification leaf, RuntimeX87DispatchFrame* volatile context)
     {
-        volatile unsigned char reservation[0x2D0];
+        volatile unsigned char reservation[720];
         RuntimeClassificationDescriptor descriptor;
         __cpuid(reinterpret_cast<int*>(const_cast<unsigned char*>(reservation)), 0);
         for (std::uint32_t index = 0; index < 16; ++index) descriptor.callbacks[index] = gRuntimeClassificationCaptures[index];
@@ -831,7 +832,7 @@ namespace NXBasics
     {
         if constexpr (Index == 3 || Index == 4 || Index == 5 || Index == 7)
         {
-            if ((signs & 0xFFu) == 0)
+            if ((signs & ReadableValues::IntegerRange::UInt8Maximum) == 0)
             {
                 // Windows returns +zero here, including a negative zero y.
                 // The newer native axis body changes this path; do not use it.
@@ -955,15 +956,15 @@ namespace NXBasics
         std::memcpy(&original, &argument, sizeof(original));
         volatile double copy;
         Runtime_CopyMathArgument(&copy, &original);
-        if ((Runtime_ClassifyDouble(copy) & 0x90u) != 0) return 0;
+        if ((Runtime_ClassifyDouble(copy) & ReadableValues::BitMask::Bit4AndBit7) != 0) return 0;
         Runtime_CopyMathArgument(&copy, &original);
         volatile double rounded = Runtime_RoundDouble(Runtime_ReadMathArgument(&copy));
-        if ((Runtime_CompareDoubleX87(&rounded, &original) & 0x4000u) == 0) return 0;
+        if ((Runtime_CompareDoubleX87(&rounded, &original) & ReadableValues::BitMask::Bit14) == 0) return 0;
         volatile double half;
         Runtime_HalveMathArgument(&half, &original);
         Runtime_CopyMathArgument(&copy, &half);
         rounded = Runtime_RoundDouble(Runtime_ReadMathArgument(&copy));
-        return (Runtime_CompareDoubleX87(&rounded, &half) & 0x4000u) != 0 ? 2u : 1u;
+        return (Runtime_CompareDoubleX87(&rounded, &half) & ReadableValues::BitMask::Bit14) != 0 ? 2u : 1u;
     }
 
     // Original function: FUN_004ef54a; only the magnitude-one/infinite-exponent domain branch returns 1.
@@ -975,13 +976,13 @@ namespace NXBasics
         std::memcpy(&exponentValue, &exponent, sizeof(exponentValue));
         const auto baseStatus = Runtime_CompareDoubleX87(&baseValue, &gRuntimeMathZero);
         volatile double magnitude;
-        Runtime_CopySignedMathArgument(&magnitude, &baseValue, (baseStatus & 0x100u) != 0);
-        const auto above = [](std::uint16_t status) { return (status & 0x4100u) == 0; };
-        if (exponent.high == 0x7FF00000u && exponent.low == 0)
+        Runtime_CopySignedMathArgument(&magnitude, &baseValue, (baseStatus & ReadableValues::BitMask::Bit8) != 0);
+        const auto above = [](std::uint16_t status) { return (status & ReadableValues::BitMask::Bit8AndBit14) == 0; };
+        if (exponent.high == ReadableValues::Binary64::ExponentHighWordMask && exponent.low == 0)
         {
             if (above(Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne)))
-                Runtime_StoreMathBits(result, UINT64_C(0x7FF0000000000000));
-            else if ((Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne) & 0x100u) != 0)
+                Runtime_StoreMathBits(result, ReadableValues::Binary64::ExponentMask);
+            else if ((Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne) & ReadableValues::BitMask::Bit8) != 0)
                 Runtime_CopyMathArgument(result, &gRuntimeMathZero);
             else
             {
@@ -990,41 +991,41 @@ namespace NXBasics
             }
             return 0;
         }
-        if (exponent.high == 0xFFF00000u && exponent.low == 0)
+        if (exponent.high == ReadableValues::Binary64::NegativeInfinityHighWord && exponent.low == 0)
         {
             if (above(Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne)))
                 Runtime_CopyMathArgument(result, &gRuntimeMathZero);
-            else if ((Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne) & 0x100u) == 0)
+            else if ((Runtime_CompareDoubleX87(&magnitude, &gRuntimeMathOne) & ReadableValues::BitMask::Bit8) == 0)
             {
                 Runtime_StoreMathBits(result, UINT64_C(0xFFF8000000000000));
                 return 1;
             }
-            else Runtime_StoreMathBits(result, UINT64_C(0x7FF0000000000000));
+            else Runtime_StoreMathBits(result, ReadableValues::Binary64::ExponentMask);
             return 0;
         }
-        if (base.high == 0x7FF00000u && base.low == 0)
+        if (base.high == ReadableValues::Binary64::ExponentHighWordMask && base.low == 0)
         {
             if (above(Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero)))
-                Runtime_StoreMathBits(result, UINT64_C(0x7FF0000000000000));
-            else if ((Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero) & 0x100u) == 0)
+                Runtime_StoreMathBits(result, ReadableValues::Binary64::ExponentMask);
+            else if ((Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero) & ReadableValues::BitMask::Bit8) == 0)
                 Runtime_CopyMathArgument(result, &gRuntimeMathOne);
             else Runtime_CopyMathArgument(result, &gRuntimeMathZero);
             return 0;
         }
-        if (base.high != 0xFFF00000u || base.low != 0) return 0;
+        if (base.high != ReadableValues::Binary64::NegativeInfinityHighWord || base.low != 0) return 0;
         volatile double copy;
         Runtime_CopyMathArgument(&copy, &exponentValue);
         const auto parity = Runtime_ClassifyDoubleIntegerParity(Runtime_ReadMathArgument(&copy));
         if (above(Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero)))
         {
-            Runtime_StoreMathBits(&copy, UINT64_C(0x7FF0000000000000), parity == 1);
+            Runtime_StoreMathBits(&copy, ReadableValues::Binary64::ExponentMask, parity == 1);
             Runtime_CopyMathArgument(result, &copy);
         }
-        else if ((Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero) & 0x100u) == 0)
+        else if ((Runtime_CompareDoubleX87(&exponentValue, &gRuntimeMathZero) & ReadableValues::BitMask::Bit8) == 0)
             Runtime_CopyMathArgument(result, &gRuntimeMathOne);
         else
         {
-            Runtime_StoreMathBits(&copy, parity == 1 ? UINT64_C(0x8000000000000000) : 0);
+            Runtime_StoreMathBits(&copy, parity == 1 ? ReadableValues::Binary64::SignMask : 0);
             Runtime_CopyMathArgument(result, &copy);
         }
         return 0;

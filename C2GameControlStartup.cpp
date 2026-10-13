@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameControlStartup.h"
 #include "C2GameControlNetwork.h"
 #include "C2LifetimeAccess.h"
@@ -17,24 +18,24 @@
 namespace
 {
     // Complete Windows token tables 004F3558..004F360F, including ignored tokens.
-    const NXBasics::SToken gPlayerTokens[] = { { "player", 0x706C6179 }, { "diplomacy", 0x6469706C }, { nullptr, 0 } };
+    const NXBasics::SToken gPlayerTokens[] = { { "player", ReadableValues::GameControlToken::Player }, { "diplomacy", ReadableValues::GameControlToken::Diplomacy }, { nullptr, 0 } };
     const NXBasics::SToken gMiscTokens[] = {
-        { "nametribe", 0x6E616D74 }, { "nametribeshort", 0x6E616D75 },
-        { "relationnotchangeable", 0x72656C6E }, { "relationhide", 0x72656C68 },
-        { "relationhidedetails", 0x72656C73 }, { "noseenfirstmessage", 0x6E73666D },
-        { "playerneverdies", 0x706E6469 }, { "playeroption", 0x706C6F70 },
-        { "playerhideinmenu", 0x7068696D }, { "playerfixcolors", 0x7066636F },
+        { "nametribe", ReadableValues::GameControlToken::NameTribe }, { "nametribeshort", ReadableValues::GameControlToken::NameTribeShort },
+        { "relationnotchangeable", ReadableValues::GameControlToken::RelationNotChangeable }, { "relationhide", ReadableValues::GameControlToken::RelationHide },
+        { "relationhidedetails", ReadableValues::GameControlToken::RelationHideDetails }, { "noseenfirstmessage", ReadableValues::GameControlToken::NoSeenFirstMessage },
+        { "playerneverdies", ReadableValues::GameControlToken::PlayerNeverDies }, { "playeroption", ReadableValues::GameControlToken::PlayerOption },
+        { "playerhideinmenu", ReadableValues::GameControlToken::PlayerHideInMenu }, { "playerfixcolors", ReadableValues::GameControlToken::PlayerFixColors },
         { nullptr, 0 }
     };
     const NXBasics::SToken gAllowedTokens[] = {
-        { "allowhouse", 0x61686F75 }, { "allowjob", 0x616A6F62 }, { "forbidjob", 0x666A6F62 },
-        { "forbidhouse", 0x66686F75 }, { "allowgood", 0x61676F6F }, { "forbidgood", 0x66676F6F }, { nullptr, 0 }
+        { "allowhouse", ReadableValues::GameControlToken::AllowHouse }, { "allowjob", ReadableValues::GameControlToken::AllowJob }, { "forbidjob", ReadableValues::GameControlToken::ForbidJob },
+        { "forbidhouse", ReadableValues::GameControlToken::ForbidHouse }, { "allowgood", ReadableValues::GameControlToken::AllowGood }, { "forbidgood", ReadableValues::GameControlToken::ForbidGood }, { nullptr, 0 }
     };
-    const NXBasics::SToken gSpecialItemTokens[] = { { "add", 0x61646469 }, { nullptr, 0 } };
-    static_assert(sizeof(gPlayerTokens) == 0x18);
-    static_assert(sizeof(gMiscTokens) == 0x58);
-    static_assert(sizeof(gAllowedTokens) == 0x38);
-    static_assert(sizeof(gSpecialItemTokens) == 0x10);
+    const NXBasics::SToken gSpecialItemTokens[] = { { "add", ReadableValues::GameControlToken::Add }, { nullptr, 0 } };
+    static_assert(sizeof(gPlayerTokens) == 24);
+    static_assert(sizeof(gMiscTokens) == 88);
+    static_assert(sizeof(gAllowedTokens) == 56);
+    static_assert(sizeof(gSpecialItemTokens) == 16);
 
     // Original function: FUN_00409a9d.
     int __cdecl DestroyPlayerTokenList() { return 0; }
@@ -46,7 +47,7 @@ namespace
     int __cdecl DestroySpecialItemTokenList() { return 0; }
 
     bool IsPlayerIndex(std::int32_t player) { return player >= 0 && player < 20; }
-    std::byte* PlayerData(void* gameControl, std::uint32_t player) { return static_cast<std::byte*>(gameControl) + player * 0x4A80u; }
+    std::byte* PlayerData(void* gameControl, std::uint32_t player) { return static_cast<std::byte*>(gameControl) + player * ReadableValues::RecordSize::GameControlPlayer; }
 }
 
 namespace NC2Logic
@@ -56,7 +57,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (player >= 20) return false;
-        auto* data = static_cast<std::byte*>(gameControl) + static_cast<std::uint32_t>(player) * 0x4A80u;
+        auto* data = static_cast<std::byte*>(gameControl) + static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(data, 0) == 0) return false;
         const auto changed = Read<std::uint32_t>(data, 0x460C) + static_cast<std::uint32_t>(amount);
         if (NXBasics::Runtime_TimeSigned32(changed) < 0) return false;
@@ -69,7 +70,7 @@ namespace NC2Logic
     {
         if (playerId == -1 || playerId == 20) return true;
         if (playerId < 0 || playerId >= 20) return false;
-        const auto offset = static_cast<std::uint32_t>(playerId) * 0x4A80u + 0x4A20u;
+        const auto offset = static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer + 0x4A20u;
         const auto count = NC2Lifetime::Read<std::uint32_t>(gameControl, offset);
         if (count == 2u) return false;
         NC2Lifetime::Write(gameControl, offset, count + 1u);
@@ -80,7 +81,7 @@ namespace NC2Logic
     void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* /*unusedEdx*/, std::uint32_t tick)
     {
         using namespace NC2Lifetime;
-        for (std::uint32_t player = 0; player < 20; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * 0x4A80u + 0x4A20u, 0);
+        for (std::uint32_t player = 0; player < 20; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * ReadableValues::RecordSize::GameControlPlayer + 0x4A20u, 0);
         if (tick < 720u || tick % 125u != 0) return;
         for (std::uint32_t player = 0; player < 20; ++player)
         {
@@ -91,15 +92,15 @@ namespace NC2Logic
             for (; id != -1; id = iterator.GetNextHumanId())
             {
                 const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-                if (Read<std::uint32_t>(human, 0x10) == player && Human_IsSexMale(human) && Human_IsAgeAdult(human)) break;
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) == player && Human_IsSexMale(human) && Human_IsAgeAdult(human)) break;
             }
             if (id != -1) continue;
             Write<std::uint8_t>(data, 8, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2A, true, player, 0, 0);
-            std::byte message[0x304];
+            std::byte message[772];
             ToUserMessage_Construct(message);
             Write<std::uint32_t>(message, 0, 0x3E);
-            Write<std::uint32_t>(message, 8, 0xFFFFFFFF);
+            Write<std::uint32_t>(message, 8, ReadableValues::IntegerRange::UInt32Maximum);
             Write(message, 0x0C, player);
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -128,7 +129,7 @@ namespace NC2Logic
     void* __fastcall GameControl_Construct(void* gameControl, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)
     {
         gGameControl = gameControl;
-        std::memset(gameControl, 0, 0x5D204);
+        std::memset(gameControl, 0, 381444);
         auto& runtime = gGameControlRuntimeStorage;
         if (reader != nullptr)
         {
@@ -144,7 +145,7 @@ namespace NC2Logic
                     }
                     NXBasics::CTokenList tokens(runtime.playerTokens);
                     const auto command = tokens.FindToken(reader->GetCurrentName());
-                    if (command == 0x706C6179)
+                    if (command == ReadableValues::GameControlToken::Player)
                     {
                         const auto player = reader->GetInt();
                         const auto type = reader->GetInt();
@@ -157,7 +158,7 @@ namespace NC2Logic
                         Write(data, 0x0C, tribe);
                         Write(data, 0x10, color);
                     }
-                    else if (command == 0x6469706C)
+                    else if (command == ReadableValues::GameControlToken::Diplomacy)
                     {
                         const auto player = reader->GetInt();
                         const auto other = reader->GetInt();
@@ -182,7 +183,7 @@ namespace NC2Logic
                     }
                     NXBasics::CTokenList tokens(runtime.miscTokens);
                     const auto command = tokens.FindToken(reader->GetCurrentName());
-                    if (command == 0x6E616D74 || command == 0x6E616D75)
+                    if (command == ReadableValues::GameControlToken::NameTribe || command == ReadableValues::GameControlToken::NameTribeShort)
                     {
                         // Retry the original string loader after an earlier null result.
                         if (strings == nullptr) strings = StringIO_GetMissionStringArrayPtr("$maproot$");
@@ -192,16 +193,16 @@ namespace NC2Logic
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                         if (Read<std::uint8_t>(data, 0) == 0) continue;
                         const char* name = strings->GetStringPtr(static_cast<std::uint32_t>(reader->GetInt()));
-                        if (name != nullptr) std::strncpy(reinterpret_cast<char*>(data + (command == 0x6E616D74 ? 0x49AC : 0x49E0)), name, 50);
+                        if (name != nullptr) std::strncpy(reinterpret_cast<char*>(data + (command == ReadableValues::GameControlToken::NameTribe ? 0x49AC : 0x49E0)), name, 50);
                     }
-                    else if (command == 0x706E6469)
+                    else if (command == ReadableValues::GameControlToken::PlayerNeverDies)
                     {
                         const auto player = reader->GetInt();
                         if (!IsPlayerIndex(player)) continue;
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                         if (Read<std::uint8_t>(data, 0) != 0) Write<std::uint8_t>(data, 0x49A8, 1);
                     }
-                    else if (command == 0x72656C6E || command == 0x72656C68 || command == 0x72656C73 || command == 0x6E73666D)
+                    else if (command == ReadableValues::GameControlToken::RelationNotChangeable || command == ReadableValues::GameControlToken::RelationHide || command == ReadableValues::GameControlToken::RelationHideDetails || command == ReadableValues::GameControlToken::NoSeenFirstMessage)
                     {
                         const auto player = reader->GetInt();
                         const auto other = reader->GetInt();
@@ -209,10 +210,10 @@ namespace NC2Logic
                         auto* first = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                         auto* second = PlayerData(gameControl, static_cast<std::uint32_t>(other));
                         if (Read<std::uint8_t>(first, 0) == 0 || Read<std::uint8_t>(second, 0) == 0) continue;
-                        const std::uint32_t offset = command == 0x72656C6E ? 0x4958u : command == 0x72656C68 ? 0x496Cu : command == 0x72656C73 ? 0x4980u : 0x4994u;
+                        const std::uint32_t offset = command == ReadableValues::GameControlToken::RelationNotChangeable ? 0x4958u : command == ReadableValues::GameControlToken::RelationHide ? 0x496Cu : command == ReadableValues::GameControlToken::RelationHideDetails ? 0x4980u : 0x4994u;
                         Write<std::uint8_t>(first, offset + static_cast<std::uint32_t>(other), 1);
                         Write<std::uint8_t>(second, offset + static_cast<std::uint32_t>(player), 1);
-                        if (command == 0x72656C68)
+                        if (command == ReadableValues::GameControlToken::RelationHide)
                         {
                             Write<std::uint8_t>(first, 0x4958u + static_cast<std::uint32_t>(other), 1);
                             Write<std::uint8_t>(second, 0x4958u + static_cast<std::uint32_t>(player), 1);
@@ -245,11 +246,11 @@ namespace NC2Logic
                     Write<std::uint8_t>(data, 0, type == 1 || type == 2);
                 }
             }
-            Write(gameControl, 0x5D200, Read<std::uint32_t>(&gGameControlStartupData, 0x11C));
+            Write(gameControl, ReadableValues::GameControlOffset::DifficultyLevel, Read<std::uint32_t>(&gGameControlStartupData, 0x11C));
         }
         if (runtime.pathfinderLimitOverridePending != 0)
         {
-            Write(gameControl, 0x5D200, runtime.pathfinderLimitOverride);
+            Write(gameControl, ReadableValues::GameControlOffset::DifficultyLevel, runtime.pathfinderLimitOverride);
             runtime.pathfinderLimitOverridePending = 0;
         }
         for (std::uint32_t player = 0; player < 20; ++player)
@@ -278,16 +279,16 @@ namespace NC2Logic
                     }
                     NXBasics::CTokenList tokens(runtime.allowedTokens);
                     const auto command = tokens.FindToken(reader->GetCurrentName());
-                    if (command != 0x61686F75 && command != 0x616A6F62 && command != 0x666A6F62 && command != 0x66686F75 && command != 0x61676F6F && command != 0x66676F6F) continue;
+                    if (command != ReadableValues::GameControlToken::AllowHouse && command != ReadableValues::GameControlToken::AllowJob && command != ReadableValues::GameControlToken::ForbidJob && command != ReadableValues::GameControlToken::ForbidHouse && command != ReadableValues::GameControlToken::AllowGood && command != ReadableValues::GameControlToken::ForbidGood) continue;
                     const auto player = reader->GetInt();
                     const auto tribe = reader->GetInt();
                     const auto item = reader->GetInt();
-                    const bool house = command == 0x61686F75 || command == 0x66686F75;
-                    const bool job = command == 0x616A6F62 || command == 0x666A6F62;
+                    const bool house = command == ReadableValues::GameControlToken::AllowHouse || command == ReadableValues::GameControlToken::ForbidHouse;
+                    const bool job = command == ReadableValues::GameControlToken::AllowJob || command == ReadableValues::GameControlToken::ForbidJob;
                     if (!IsPlayerIndex(player) || tribe <= 0 || tribe >= 8 || item < (house ? 1 : 0) || item >= (house ? 55 : job ? 56 : 66)) continue;
                     auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                     if (Read<std::uint8_t>(data, 0) == 0) continue;
-                    if (house && command == 0x61686F75)
+                    if (house && command == ReadableValues::GameControlToken::AllowHouse)
                     {
                         PlayerAllowedThings_MarkHouseAvailable(data + 0x18, static_cast<std::uint32_t>(tribe), static_cast<std::uint32_t>(item));
                         continue;
@@ -296,7 +297,7 @@ namespace NC2Logic
                     const std::uint32_t index = static_cast<std::uint32_t>(tribe) * stride + static_cast<std::uint32_t>(item);
                     const std::uint32_t allowed = house ? 0x2820u : job ? 0x18u : 0x1278u;
                     const std::uint32_t available = house ? 0x3126u : job ? 0x948u : 0x1D4Cu;
-                    if (command == 0x66686F75 || command == 0x666A6F62 || command == 0x66676F6F)
+                    if (command == ReadableValues::GameControlToken::ForbidHouse || command == ReadableValues::GameControlToken::ForbidJob || command == ReadableValues::GameControlToken::ForbidGood)
                     {
                         Write<std::uint8_t>(data, allowed + index, 0);
                         Write<std::uint8_t>(data, available + index, 0);
@@ -315,7 +316,7 @@ namespace NC2Logic
                         NXBasics::Runtime_AtExit(DestroySpecialItemTokenList);
                     }
                     NXBasics::CTokenList tokens(runtime.specialItemTokens);
-                    if (tokens.FindToken(reader->GetCurrentName()) != 0x61646469) continue;
+                    if (tokens.FindToken(reader->GetCurrentName()) != ReadableValues::GameControlToken::Add) continue;
                     const auto player = reader->GetInt();
                     const auto type = reader->GetInt();
                     const auto item = reader->GetInt();
@@ -392,7 +393,7 @@ namespace NC2Logic
                 const auto state = GameControl_Diplomacy_GetState(gGameControl, static_cast<std::int32_t>(player), static_cast<std::int32_t>(other));
                 if (state == 2 || (state != 2 && GameControl_Diplomacy_GetState(gGameControl, static_cast<std::int32_t>(player), static_cast<std::int32_t>(other)) == 1)) GameControl_Diplomacy_SetState(gGameControl, nullptr, player, other, 3);
             }
-            Write<std::uint8_t>(gGameControl, player * 0x4A80u + other + 0x4944u, 1);
+            Write<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + other + 0x4944u, 1);
         }
         return true;
     }

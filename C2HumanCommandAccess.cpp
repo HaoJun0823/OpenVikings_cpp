@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanMerchantAccess.h"
@@ -36,31 +37,31 @@ namespace NC2Logic
     std::uint32_t Human_UserControl_GetDefaultInteractionCommand_TrySendTo(const void* human, void* command, const void* point, bool, bool)
     {
         using namespace NC2Lifetime;
-        if ((Read<std::uint32_t>(human, 0xB84) & 0x20u) != 0) return 0;
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * 0x58u;
+        if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & ReadableValues::BitMask::Bit5) != 0) return 0;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
         if (Read<std::uint8_t>(moveable, 0x10) == 0) return 0;
         const auto* target = GameMap_GetConstMapMicroPointPtr(point);
-        const auto* source = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(moveable) + 0x12);
+        const auto* source = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition);
         if (Read<std::uint8_t>(target, 6) != Read<std::uint8_t>(source, 6)) return 0;
-        const auto player = Read<std::uint32_t>(human, 0x10);
+        const auto player = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId);
         if (player < 16 && (Read<std::uint16_t>(target, 8) & (1u << player)) == 0) return 0;
-        std::memset(command, 0, 0x14);
+        std::memset(command, 0, 20);
         Write<std::uint8_t>(command, 0, 4); Write(command, 4, Read<std::uint32_t>(human, 4)); Write(command, 8, Read<std::uint32_t>(human, 8)); Write(command, 0xC, MapMigPoint_GetLong(point));
         return 2;
     }
 
     // Original function: FUN_0042cc19.
-    bool Human_IsAtWorkCenter(const void* human) { return NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == NC2Lifetime::Read<std::uint32_t>(human, 0xB30); }
+    bool Human_IsAtWorkCenter(const void* human) { return NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkCenter); }
 
     // Original function: FUN_0042cecb.
-    bool Human_Target_HasTarget(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xA68) != 0; }
+    bool Human_Target_HasTarget(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) != 0; }
 
     // Original function: FUN_0042cc40; complete PE selector 0042CD3D..0042CD5C.
     bool Human_IsAtTargetPoint(const void* human)
     {
         using namespace NC2Lifetime;
         if (!Human_Target_IsValid(human)) return false;
-        switch (Read<std::uint32_t>(human, 0xA68))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget))
         {
         case SwitchIds::InteractionTargetType::Position: case SwitchIds::InteractionTargetType::RoadBuildPlace: case SwitchIds::InteractionTargetType::WallBuildPlace: case SwitchIds::InteractionTargetType::House:
             return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70);
@@ -68,10 +69,10 @@ namespace NC2Logic
             return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70) && Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74);
         case SwitchIds::InteractionTargetType::Vehicle:
         {
-            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             std::uint32_t entry = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
-            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            const auto kind = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
             if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return false;
             return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == entry;
         }
@@ -85,8 +86,8 @@ namespace NC2Logic
     bool Human_Target_IsValid(const void* human)
     {
         using namespace NC2Lifetime;
-        if (InteractionTargetData_IsValid(static_cast<const std::byte*>(human) + 0xA68)) return true;
-        return Read<std::uint32_t>(human, 0xA68) == 6 && Read<std::uint32_t>(human, 0xA7C) == Read<std::uint32_t>(human, 0xB48) && Read<std::uint8_t>(human, 0xB51) != 0;
+        if (InteractionTargetData_IsValid(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::InteractionTarget)) return true;
+        return Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetObjectId) == Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) && Read<std::uint8_t>(human, 0xB51) != 0;
     }
 
     // Original function: FUN_0044314a; events precede time advancement and atomic completion.
@@ -95,9 +96,9 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(human, 0xAB8) == 0)
         {
-            Write<std::uint32_t>(human, 0x370, 0);
-            Write<std::uint32_t>(human, 0x368, 1);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return;
         }
         if (Read<std::uint8_t>(human, 0xABC) == 0) return;
@@ -109,79 +110,79 @@ namespace NC2Logic
         const auto done = Read<std::uint32_t>(human, 0xAC4) + 1u;
         Write(human, 0xAC4, done);
         if (done != static_cast<std::uint32_t>(animation.length)) return;
-        if (Read<std::uint32_t>(human, 0x36C) == 1u) Write<std::uint32_t>(human, 0x36C, 2);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus) == 1u) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
         if (animation.endDirection != -1)
         {
-            void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+            void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
             Write(moveable, 0x20, animation.endDirection);
         }
         Human_l_ResetAtomic(human);
     }
 
     // Original function: FUN_0042c5aa.
-    bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
+    bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 5; }
 
     // Original function: FUN_00441cb4; all five Windows circulation modes release their reservations.
     void Human_StopCurrentGoodCirculationMode(void* human)
     {
         using namespace NC2Lifetime;
         const auto houseById = [](std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; };
-        switch (Read<std::uint32_t>(human, 0xACC))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::FetchForSelf:
-            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, false);
             break;
         case SwitchIds::GoodCirculationMode::FillStockFetch:
         {
-            if (Read<std::uint32_t>(human, 0xA68) == 8) break;
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 8) break;
             auto* house = Human_GetTargetHousePtr(human);
-            if (house != nullptr && (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD0), true) || House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD0), false))) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
-            if (Read<std::uint32_t>(human, 0xA68) == 6 && InteractionTargetData_IsValid(static_cast<std::byte*>(human) + 0xA68))
+            if (house != nullptr && (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), true) || House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), false))) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, false);
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6 && InteractionTargetData_IsValid(static_cast<std::byte*>(human) + ReadableValues::HumanOffset::InteractionTarget))
             {
-                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
-                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), 1, Read<std::uint32_t>(human, 8));
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, Read<std::uint32_t>(human, 8));
             }
-            if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, true);
             break;
         }
         case SwitchIds::GoodCirculationMode::FetchForHome:
-            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
-            if (Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, false);
+            if (Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, true);
             break;
         case SwitchIds::GoodCirculationMode::FillStockBringAway:
         {
-            if (Read<std::uint32_t>(human, 0xA68) == 8) break;
-            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), -1, true);
-            else if (Read<std::uint32_t>(human, 0xA68) == 6)
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 8) break;
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, true);
+            else if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6)
             {
-                if (!InteractionTargetData_IsValid(static_cast<std::byte*>(human) + 0xA68)) break;
-                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
-                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), -1, Read<std::uint32_t>(human, 8));
+                if (!InteractionTargetData_IsValid(static_cast<std::byte*>(human) + ReadableValues::HumanOffset::InteractionTarget)) break;
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, Read<std::uint32_t>(human, 8));
             }
-            else if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), -1, true);
-            else if (Human_IsJobWoman(human) && Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            else if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, true);
+            else if (Human_IsJobWoman(human) && Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), -1, true);
             break;
         }
         case SwitchIds::GoodCirculationMode::FlushStock:
-            if (Read<std::uint32_t>(human, 0xAD4) != 0)
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0)
             {
-                if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD4), -1, false);
+                if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), -1, false);
             }
             else if (Human_IsJobWoman(human))
             {
-                if (Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(human, 0xA68) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), 1, false);
+                if (Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, false);
             }
             else
             {
-                if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, 0xA68) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), 1, false);
-                if (Read<std::uint32_t>(human, 0xA68) != 6) break;
-                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CVehicleArray::ElementSize;
-                if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(human, 0xA80) != Read<std::uint32_t>(vehicle, 8)) break;
-                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), 1, Read<std::uint32_t>(human, 8));
+                if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, false);
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) != 6) break;
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetObjectId) * CVehicleArray::ElementSize;
+                if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetObjectRevision) != Read<std::uint32_t>(vehicle, 8)) break;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), 1, Read<std::uint32_t>(human, 8));
             }
             break;
         }
-        Write<std::uint32_t>(human, 0xACC, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 0);
     }
 
     // Original function: FUN_00443dab.
@@ -191,14 +192,14 @@ namespace NC2Logic
         const auto waiting = Read<std::uint32_t>(human, 0x378);
         if (waiting == 0)
         {
-            Write<std::uint32_t>(human, 0xB1C, 0xFFFFFFFFu);
+            Write<std::uint32_t>(human, 0xB1C, ReadableValues::IntegerRange::UInt32Maximum);
             return false;
         }
         Write(human, 0x378, waiting - 1u);
         if (waiting == 1)
         {
-            Write<std::uint32_t>(human, 0xB1C, 0xFFFFFFFFu);
-            if (Read<std::uint32_t>(human, 0x368) == 9) Write<std::uint32_t>(human, 0x368, 1);
+            Write<std::uint32_t>(human, 0xB1C, ReadableValues::IntegerRange::UInt32Maximum);
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 9) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
         }
         return true;
     }
@@ -208,81 +209,81 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto otherId = Read<std::uint32_t>(human, 0xB1C);
-        if (otherId == 0xFFFFFFFFu) return;
+        if (otherId == ReadableValues::IntegerRange::UInt32Maximum) return;
         auto* other = CHumanArray::mStaticVars + otherId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(other, 0) != 0) Human_StopWaitingForOtherHuman(other);
-        Write<std::uint32_t>(human, 0xB1C, 0xFFFFFFFFu);
+        Write<std::uint32_t>(human, 0xB1C, ReadableValues::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0042cea7.
-    void Human_Target_Reset(void* human) { NC2Lifetime::Write<std::uint32_t>(human, 0xA68, 0); }
+    void Human_Target_Reset(void* human) { NC2Lifetime::Write<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget, 0); }
 
     // Original function: FUN_0042ceb7.
-    void Human_Target_SetType(void* human, std::uint32_t type) { NC2Lifetime::Write(human, 0xA68, type); }
+    void Human_Target_SetType(void* human, std::uint32_t type) { NC2Lifetime::Write(human, ReadableValues::HumanOffset::InteractionTarget, type); }
 
     // Original function: FUN_0042d18b; a non-landscape target has type zero.
     std::uint32_t Human_GetLandscapeTypeAtTargetPosition(const void* human)
     {
         using namespace NC2Lifetime;
-        const void* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + 0xA6C);
+        const void* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::TargetPosition);
         return Read<std::uint8_t>(point, 0) == 1 ? Read<std::uint8_t>(point, 2) : 0;
     }
 
     // Original function: FUN_0042d45a.
-    std::uint32_t Human_Equipment_GetWeaponType(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xAE4); }
+    std::uint32_t Human_Equipment_GetWeaponType(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon); }
 
     // Original function: FUN_00462ec6; arriving updates the current task before AI dispatch.
     void Human_AI_DoNewMapPositionReached_DestinationReached(void* human)
     {
         using namespace NC2Lifetime;
-        const auto task = Read<std::uint32_t>(human, 0x368);
+        const auto task = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask);
         switch (task)
         {
         case SwitchIds::HumanTask::Goto: case SwitchIds::HumanTask::GotoAndWait: case SwitchIds::HumanTask::GotoAndResetTarget: case SwitchIds::HumanTask::ChooseGoodie: case SwitchIds::HumanTask::GoodieIdle: case SwitchIds::HumanTask::GoodieWalkAround: case SwitchIds::HumanTask::GoodieSleep: case SwitchIds::HumanTask::GoodieTalkToAny: case SwitchIds::HumanTask::GoodiePlayWithAnimal:
-            Write<std::uint32_t>(human, 0x36C, 2);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
             return;
         case SwitchIds::HumanTask::Marry: case SwitchIds::HumanTask::ReceiveLoveOrEnterHome:
-            if (Read<std::uint32_t>(human, 0x36C) == 1) Write<std::uint32_t>(human, 0x36C, 2);
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus) == 1) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
             return;
         case SwitchIds::HumanTask::FulfillNeeds:
-            if (Read<std::uint32_t>(human, 0x36C) != 1) return;
-            switch (Read<std::uint32_t>(human, 0x370))
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus) != 1) return;
+            switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter))
             {
-            case SwitchIds::HumanNeed::Food: Write<std::uint32_t>(human, 0x36C, 0); return;
+            case SwitchIds::HumanNeed::Food: Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0); return;
             case SwitchIds::HumanNeed::Stamina:
-                if (Human_GetLandscapeTypeAtTargetPosition(human) == 4) Write<std::uint32_t>(human, 0x36C, 2);
-                else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); }
+                if (Human_GetLandscapeTypeAtTargetPosition(human) == 4) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+                else { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 3); }
                 return;
             case SwitchIds::HumanNeed::Social:
             {
                 CMapMoveableIterator iterator;
                 for (auto id = iterator.GetFirstMapMoveableId(Human_GetMapPositionRef(human)); id != -1; id = iterator.GetNextMapMoveableId())
                 {
-                    const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
-                    if (Read<std::uint32_t>(moveable, 8) == 1 && Read<std::uint32_t>(moveable, 0x54) != Read<std::uint32_t>(human, 4))
+                    const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
+                    if (Read<std::uint32_t>(moveable, 8) == 1 && Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId) != Read<std::uint32_t>(human, 4))
                     {
-                        Write<std::uint32_t>(human, 0x36C, 2);
+                        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
                         return;
                     }
                 }
-                Write<std::uint32_t>(human, 0x36C, 3);
-                Write<std::uint32_t>(human, 0x374, 6);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 6);
                 return;
             }
-            case SwitchIds::HumanNeed::Religion: Write<std::uint32_t>(human, 0x36C, 2); return;
+            case SwitchIds::HumanNeed::Religion: Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2); return;
             default: return;
             }
         case SwitchIds::HumanTask::Attack: case SwitchIds::HumanTask::ApproachAttackTarget:
         {
             Human_Target_Reset(human);
-            const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
+            const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)]);
             if (static_cast<std::uint32_t>(weapons[Human_Equipment_GetWeaponType(human)].minimumRange) > 1u)
             {
                 Write<std::uint32_t>(human, 0x37C, 0);
-                Write<std::uint32_t>(human, 0x36C, 0);
-                Write<std::uint32_t>(human, 0x368, 1);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
             }
-            else Write<std::uint32_t>(human, 0x36C, 2);
+            else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
             return;
         }
         default: return;
@@ -293,9 +294,9 @@ namespace NC2Logic
     void Human_AI_DoPathfinderFailed(void* human)
     {
         using namespace NC2Lifetime;
-        const auto task = Read<std::uint32_t>(human, 0x368);
-        Write<std::uint32_t>(human, 0x36C, 3);
-        Write<std::uint32_t>(human, 0x374, 1);
+        const auto task = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 1);
         if (task == 5 || task == 13) Human_StopWaitingForOtherHuman_Detach(human);
         if (Human_IsJobCarrier(human))
         {
@@ -309,7 +310,7 @@ namespace NC2Logic
     void Human_AI_DoPathfinderStopped(void* human)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(human, 0x368) == 2) Write<std::uint32_t>(human, 0x36C, 3);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 2) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
         if (Human_l_IsAtomicInterruptable(human) && Human_UserControl_IsPriorityCommandInQueue(human)) Human_CurrentTask_DoInterrupt(human);
     }
 
@@ -338,7 +339,7 @@ namespace NC2Logic
     {
         for (std::uint32_t index = 0; index < 87; ++index)
         {
-            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, 0x390u + index * 20u);
+            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, ReadableValues::HumanOffset::UserCommandQueue + index * 20u);
             if (opcode != 0 && Human_UserControl_IsAPriorityCommand(opcode)) return true;
         }
         return false;
@@ -349,7 +350,7 @@ namespace NC2Logic
     {
         for (std::int32_t index = 0; index < 87; ++index)
         {
-            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, 0x390u + static_cast<std::uint32_t>(index) * 20u);
+            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, ReadableValues::HumanOffset::UserCommandQueue + static_cast<std::uint32_t>(index) * 20u);
             if (opcode != 0 && Human_UserControl_IsAPriorityCommand(opcode)) return index;
         }
         return -1;
@@ -364,7 +365,7 @@ namespace NC2Logic
     // Original function: FUN_004355da; zero is also a searchable command type.
     bool Human_UserControl_IsCommandTypeInQueue(const void* human, std::uint8_t opcode)
     {
-        for (std::uint32_t slot = 0; slot < 87; ++slot) if (NC2Lifetime::Read<std::uint8_t>(human, 0x390u + slot * 20u) == opcode) return true;
+        for (std::uint32_t slot = 0; slot < 87; ++slot) if (NC2Lifetime::Read<std::uint8_t>(human, ReadableValues::HumanOffset::UserCommandQueue + slot * 20u) == opcode) return true;
         return false;
     }
 
@@ -376,57 +377,57 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x37C, 0);
         Write<std::uint32_t>(human, 0x378, 0);
         Write<std::uint32_t>(human, 0x380, 0);
-        switch (Read<std::uint32_t>(human, 0x368))
+        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask))
         {
         case SwitchIds::HumanTask::Goto:
         case SwitchIds::HumanTask::ExecuteJob:
-            std::memcpy(static_cast<std::byte*>(human) + 0xA84, static_cast<const std::byte*>(human) + 0xA68, 28);
-            Write(human, 0xA94, Read<std::uint32_t>(human, 0xAD0));
-            Write(human, 0xAD8, Read<std::uint32_t>(human, 0xACC));
+            std::memcpy(static_cast<std::byte*>(human) + ReadableValues::HumanOffset::SecondaryInteractionTarget, static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::InteractionTarget, 28);
+            Write(human, 0xA94, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood));
+            Write(human, 0xAD8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode));
             break;
         case SwitchIds::HumanTask::GoHome:
-            Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
         case SwitchIds::HumanTask::GotoAndWait:
-            Write<std::uint32_t>(human, 0xA84, 1);
-            Write(human, 0xA88, Read<std::uint32_t>(human, 0xA6C));
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::SecondaryInteractionTarget, 1);
+            Write(human, 0xA88, Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition));
             break;
         case SwitchIds::HumanTask::Marry:
         {
             const auto otherId = Read<std::uint32_t>(human, 0xB1C);
-            if (otherId != 0xFFFFFFFFu)
+            if (otherId != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 auto* other = CHumanArray::mStaticVars + otherId * CHumanArray::ElementSize;
                 Human_StopWaitingForOtherHuman(other);
                 Human_StopWaitingForOtherHuman_Detach(other);
             }
-            Human_DoAddNewUserCommand(human, 14, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_DoAddNewUserCommand(human, 14, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
         }
         case SwitchIds::HumanTask::GetBoy:
-            Human_DoAddNewUserCommand(human, 15, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_DoAddNewUserCommand(human, 15, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
         case SwitchIds::HumanTask::GetGirl:
-            Human_DoAddNewUserCommand(human, 16, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_DoAddNewUserCommand(human, 16, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
         case SwitchIds::HumanTask::Equip:
         case SwitchIds::HumanTask::DropItem:
-            Write(human, 0x390u + Read<std::uint32_t>(human, 0xA5C) * 20u, static_cast<std::uint8_t>(Human_UserControl_GetLastCommandType(human)));
+            Write(human, ReadableValues::HumanOffset::UserCommandQueue + Read<std::uint32_t>(human, 0xA5C) * 20u, static_cast<std::uint8_t>(Human_UserControl_GetLastCommandType(human)));
             break;
         case SwitchIds::HumanTask::OpenChest:
-            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + 0xA70), 0);
+            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + 0xA70), 0);
             break;
         case SwitchIds::HumanTask::ExploreArea:
-            Human_DoAddNewUserCommand(human, 20, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + 0xB30), 0);
+            Human_DoAddNewUserCommand(human, 20, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter), 0);
             break;
         default: break;
         }
             Human_StopCurrentGoodCirculationMode(human);
-        Write<std::uint32_t>(human, 0xAD0, 0);
-        Write<std::uint32_t>(human, 0x370, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 0);
         Human_StopWaitingForOtherHuman_Detach(human);
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
     }
 
     // Original function: FUN_0045cc64; an inactive non-moveable atomic is interruptable.
@@ -435,7 +436,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(human, 0xAB8) == 1)
         {
-            const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+            const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
             return Read<std::uint8_t>(moveable, 0x2C) == 0;
         }
         if (Read<std::uint8_t>(human, 0xABC) == 0) return true;
@@ -456,11 +457,11 @@ namespace NC2Logic
         if (opcode == 0) return true;
         if (opcode == 4)
         {
-            if (Read<std::uint32_t>(human, 0xAB8) == 1 && Read<std::uint32_t>(human, 0x368) != 15)
+            if (Read<std::uint32_t>(human, 0xAB8) == 1 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 15)
             {
                 std::uint32_t target;
                 MapMigPoint_AssignLong(&target, parameter1);
-                if (target == Read<std::uint32_t>(human, 0xA6C)) return true;
+                if (target == Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition)) return true;
             }
             Write<std::uint32_t>(human, 0x37C, 0);
             Write<std::uint8_t>(human, 0x4F8, 0);
@@ -478,7 +479,7 @@ namespace NC2Logic
         Write(human, offset + 8, revision);
         Write(human, offset + 12, parameter1);
         Write(human, offset + 16, parameter2);
-        if (Read<std::uint32_t>(human, 0x368) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
         return true;
     }
     // Original function: FUN_0043bc7d.
@@ -487,7 +488,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         for (std::uint32_t slot = 0; slot < 87; ++slot)
         {
-            auto* command = static_cast<std::byte*>(human) + 0x390u + slot * 0x14u;
+            auto* command = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::UserCommandQueue + slot * 0x14u;
             if (Read<std::uint8_t>(command, 0) != 0 && Human_DoCheckUserCommand(human, command)) Write<std::uint8_t>(command, 0, 0);
         }
     }
@@ -508,17 +509,17 @@ namespace NC2Logic
     // Original function: FUN_0043e49d.
     void Human_ResetUserCommandArray(void* human)
     {
-        for (std::uint32_t slot = 0; slot < 87; ++slot) NC2Lifetime::Write<std::uint8_t>(human, 0x390u + slot * 0x14u, 0);
+        for (std::uint32_t slot = 0; slot < 87; ++slot) NC2Lifetime::Write<std::uint8_t>(human, ReadableValues::HumanOffset::UserCommandQueue + slot * 0x14u, 0);
     }
 
     // Original function: FUN_0042d348.
     bool Human_HasEquippedItemType(const void* human, std::uint32_t good, std::int32_t slot)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(human, 0xAEC) == good || Read<std::uint32_t>(human, 0xAF0) == good) return true;
-        const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedShoes) == good || Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedTools) == good) return true;
+        const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)]);
         const auto* armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData);
-        if (static_cast<std::uint32_t>(weapons[Read<std::uint32_t>(human, 0xAE4)].goodType) == good || static_cast<std::uint32_t>(armor[Read<std::uint32_t>(human, 0xAE8)].goodType) == good) return true;
+        if (static_cast<std::uint32_t>(weapons[Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon)].goodType) == good || static_cast<std::uint32_t>(armor[Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedArmor)].goodType) == good) return true;
         if (slot == -1) return Human_l_Item_IsGoodTypeEquipped(human, good);
         const auto offset = 0xAF4u + static_cast<std::uint32_t>(slot) * 8u;
         return Read<std::uint32_t>(human, offset) == good && Read<std::int32_t>(human, offset + 4) > 0;
@@ -529,11 +530,11 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         (void)attachmentMask;
-        std::byte message[0x304];
+        std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 42);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
-        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -542,10 +543,10 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void* human)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(human, 0x18) == 7) return 1;
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 7) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (!Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToLearnHouse(human)) return 1;
-        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
         if (House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 2)) return 2;
         Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 2);
         return 1;
@@ -557,7 +558,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (!Human_IsAttachedToWorkHouse(human)) return 1;
-        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
         if (House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 8)) return 2;
         Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 8);
         return 1;
@@ -580,7 +581,7 @@ namespace NC2Logic
             if (!Tool_Map_GetNotBlockedPosition(&fallback, false) || !Human_l_StartAtomicWalkAndWait(human, &fallback)) return 1;
         }
         if (Human_IsAttachedToLearnHouse(human)) Human_DoExecuteUserCommand_DetachLearnHouse(human);
-        const auto job = Read<std::uint32_t>(human, 0x18);
+        const auto job = Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType);
         bool recenter = Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobScout(human);
         if (direct)
         {
@@ -590,7 +591,7 @@ namespace NC2Logic
         }
         if (recenter)
         {
-            Write(human, 0xB30, Read<std::uint32_t>(point, 0));
+            Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(point, 0));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
             if (Human_IsAttachedToWorkHouse(human)) Human_DoExecuteUserCommand_DetachWorkHouse(human);
@@ -635,9 +636,9 @@ namespace NC2Logic
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (Human_HasEquippedItemType(human, 50, -1)) return 1;
         Human_CurrentTask_DoInterrupt(human);
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 7);
-        Write<std::uint32_t>(human, 0x370, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 7);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 1);
         return 2;
     }
 
@@ -647,9 +648,9 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (Human_HasEquippedItemType(human, 51, -1)) return 1;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x370, 2);
-        Write<std::uint32_t>(human, 0x368, 7);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 2);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 7);
         return 2;
     }
 
@@ -659,9 +660,9 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!Human_IsAbleToTalk(human)) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x370, 3);
-        Write<std::uint32_t>(human, 0x368, 7);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 7);
         return 2;
     }
 
@@ -671,9 +672,9 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!Human_IsAbleToPray(human)) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x370, 4);
-        Write<std::uint32_t>(human, 0x368, 7);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter, 4);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 7);
         return 2;
     }
 
@@ -684,8 +685,8 @@ namespace NC2Logic
         if (task < 24 || task > 29) task = 24;
         if (!Human_IsAbleToDoGoodie(human)) return 1;
         if (!Human_IsAbleToDoGoodieNow(human) || !Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write(human, 0x368, task);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write(human, ReadableValues::HumanOffset::CurrentTask, task);
         return 2;
     }
 
@@ -701,14 +702,14 @@ namespace NC2Logic
         Write(human, 0xB6C, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, 0xB30, Read<std::uint32_t>(Human_GetMapPositionRef(target), 0));
+            Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
         }
         Write<std::uint32_t>(human, 0xB70, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
         return 2;
     }
 
@@ -723,14 +724,14 @@ namespace NC2Logic
         Write(human, 0xB6C, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, 0xB30, Read<std::uint32_t>(Animal_GetMapPositionRef(target), 0));
+            Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(Animal_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
         }
         Write<std::uint32_t>(human, 0xB70, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
         return 2;
     }
 
@@ -745,14 +746,14 @@ namespace NC2Logic
         Write(human, 0xB6C, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, 0xB30, Read<std::uint32_t>(target, 0x1C));
+            Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(target, 0x1C));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
         }
         Write<std::uint32_t>(human, 0xB70, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
         return 2;
     }
 
@@ -767,14 +768,14 @@ namespace NC2Logic
         Write(human, 0xB6C, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, 0xB30, Read<std::uint32_t>(Vehicle_GetMapPositionRef(target), 0));
+            Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(Vehicle_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
         }
         Write<std::uint32_t>(human, 0xB70, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
         return 2;
     }
 
@@ -784,14 +785,14 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         std::uint32_t point;
         MapMigPoint_AssignLong(&point, packedPoint);
-        if (!Tool_IsEnemyLandscapeOnPoint(Read<std::int32_t>(human, 0x10), &point)) return 1;
+        if (!Tool_IsEnemyLandscapeOnPoint(Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId), &point)) return 1;
         Write<std::uint32_t>(human, 0xB64, 6);
         Write(human, 0xB68, point);
         Write<std::uint32_t>(human, 0xB6C, 0);
         Write<std::uint32_t>(human, 0xB70, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 14);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
         return 2;
     }
 
@@ -799,11 +800,11 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_MoveInsideVehicle(void* human, std::int32_t id, std::uint32_t revision)
     {
         using namespace NC2Lifetime;
-        if (Read<std::int32_t>(human, 0xB48) != id || Read<std::uint32_t>(human, 0xB4C) != revision || Read<std::uint8_t>(human, 0xB51) != 0) return 1;
-        if (Read<std::uint32_t>(human, 0x368) == 21 && Read<std::uint32_t>(human, 0x36C) <= 1) return 1;
+        if (Read<std::int32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) != id || Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleRevision) != revision || Read<std::uint8_t>(human, 0xB51) != 0) return 1;
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 21 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus) <= 1) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 21);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 21);
         return 2;
     }
 
@@ -833,8 +834,8 @@ namespace NC2Logic
         }
         case SwitchIds::UserCommand::GoHome: // DoExecuteUserCommand_GoHome, inlined at 0043BF80.
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
-            Write<std::uint32_t>(human, 0x368, 3);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 3);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return 2;
         case SwitchIds::UserCommand::Eat: return Human_DoExecuteUserCommand_Eat(human);
         case SwitchIds::UserCommand::Sleep: return Human_DoExecuteUserCommand_Sleep(human);
@@ -861,7 +862,7 @@ namespace NC2Logic
         {
             if (opcode == 20 && Read<std::uint32_t>(command, 16) != 0)
             {
-                Write(human, 0xB30, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+                Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
                 Write<std::uint32_t>(human, 0x38C, 0);
                 Human_WorkCenterMarker_Update(human);
             }
@@ -906,11 +907,11 @@ namespace NC2Logic
         case SwitchIds::UserCommand::AttackMapPosition: return Human_DoExecuteUserCommand_AttackMapPosition(human, Read<std::uint32_t>(command, 12));
         case SwitchIds::UserCommand::StartAttack:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
-            Write<std::uint32_t>(human, 0x368, 14);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return 2;
         case SwitchIds::UserCommand::ResetTraderImportFlags: // Inlined at 0043C2B2: enqueue restart before resetting flags.
-            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             Human_l_Trader_ResetImportFlags(human);
             return 1;
         case SwitchIds::UserCommand::ConfigureTradeGood: // Inlined at 0043C2D9: house id, good and flag share parameter 1.
@@ -922,11 +923,11 @@ namespace NC2Logic
             void* data = nullptr;
             if (opcode == 50)
             {
-                data = MerchantData_GetHouseDataPtr(merchant, static_cast<std::int32_t>(packed & 0xFFFFu), Read<std::uint32_t>(command, 16));
+                data = MerchantData_GetHouseDataPtr(merchant, static_cast<std::int32_t>(packed & ReadableValues::IntegerRange::UInt16Maximum), Read<std::uint32_t>(command, 16));
                 if (data == nullptr) return 1;
             }
-            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
-            if (opcode == 50) MerchantHouseData_SetGoodTypeImportFlag(data, (packed >> 16u) & 0xFFu, (packed & 0xFF000000u) != 0);
+            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (opcode == 50) MerchantHouseData_SetGoodTypeImportFlag(data, (packed >> 16u) & ReadableValues::IntegerRange::UInt8Maximum, (packed & ReadableValues::BitMask::DwordExceptBits0Through23) != 0);
             else Write(merchant, 4, packed);
             return 2;
         }
@@ -938,11 +939,11 @@ namespace NC2Logic
     bool Human_DoExecuteNextUserCommand(void* human)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint8_t>(human, 0xA60) != 0 || (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xACC) != 6) || Read<std::uint32_t>(human, 0x378) != 0) return false;
+        if (Read<std::uint8_t>(human, 0xA60) != 0 || (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 0 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 6) || Read<std::uint32_t>(human, 0x378) != 0) return false;
         const auto priority = Human_UserControl_GetPriorityCommandIndexInQueue(human);
         if (priority != -1)
         {
-            void* command = static_cast<std::byte*>(human) + 0x390u + static_cast<std::uint32_t>(priority) * 0x14u;
+            void* command = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::UserCommandQueue + static_cast<std::uint32_t>(priority) * 0x14u;
             const auto result = Human_DoExecuteUserCommand(human, command);
             if (result == 1) Write<std::uint8_t>(command, 0, 0);
             else if (result != 0)
@@ -955,7 +956,7 @@ namespace NC2Logic
         }
         for (std::uint32_t slot = 0; slot < 87; ++slot)
         {
-            void* command = static_cast<std::byte*>(human) + 0x390u + slot * 0x14u;
+            void* command = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::UserCommandQueue + slot * 0x14u;
             if (Read<std::uint8_t>(command, 0) == 0) continue;
             const auto result = Human_DoExecuteUserCommand(human, command);
             if (result == 1) Write<std::uint8_t>(command, 0, 0);
@@ -978,7 +979,7 @@ namespace NC2Logic
         {
             const auto index = Human_UserControl_GetPriorityCommandIndexInQueue(human);
             if (index == -1) return;
-            void* command = static_cast<std::byte*>(human) + 0x390u + static_cast<std::uint32_t>(index) * 0x14u;
+            void* command = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::UserCommandQueue + static_cast<std::uint32_t>(index) * 0x14u;
             if (Human_UserControl_IsAInterruptingCommand(Read<std::uint8_t>(command, 0))) return;
             const auto result = Human_DoExecuteUserCommand(human, command);
             if (result == 1 || result == 2) Write<std::uint8_t>(command, 0, 0);
@@ -996,32 +997,32 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x2C) == 3) Human_HouseMisc_Enter(human);
-        if (Read<std::uint32_t>(human, 0x370) != 0)
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskParameter) != 0)
         {
-            Write<std::uint32_t>(human, 0x368, 7);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 7);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return;
         }
-        if ((!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0xA68) == 6) || !Human_IsAtTargetPoint(human))
+        if ((!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6) || !Human_IsAtTargetPoint(human))
         {
-            if (!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0xA68) == 6) Human_Target_Reset(human);
-            Write<std::uint32_t>(human, 0x368, 8);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            if (!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 6) Human_Target_Reset(human);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 8);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return;
         }
-        const auto target = Read<std::uint32_t>(human, 0xA68);
+        const auto target = Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget);
         // Native task 0x15 enters a vehicle; task 0x12 opens a chest.
-        if (target == 6) Write<std::uint32_t>(human, 0x368, 21);
-        else if (target == 2 && Read<std::uint32_t>(human, 0xAD0) == 64) Write<std::uint32_t>(human, 0x368, 18);
-        else if (Read<std::uint32_t>(human, 0xACC) == 1)
+        if (target == 6) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 21);
+        else if (target == 2 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood) == 64) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 18);
+        else if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 1)
         {
-            Write<std::uint32_t>(human, 0x368, 16);
-            if (!Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); }
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 16);
+            if (!Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 3); }
             return;
         }
-        else if (Read<std::uint32_t>(human, 0xACC) == 6) { Write<std::uint32_t>(human, 0x368, 17); Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, 0xAD0)); return; }
-        else Write<std::uint32_t>(human, 0x368, 8);
-        Write<std::uint32_t>(human, 0x36C, 0);
+        else if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 6) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 17); Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood)); return; }
+        else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 8);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
     }
 
     // Original function: FUN_00445414.
@@ -1030,8 +1031,8 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x2C) == 3) Human_HouseMisc_Enter(human);
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0x368, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
     }
 
 }

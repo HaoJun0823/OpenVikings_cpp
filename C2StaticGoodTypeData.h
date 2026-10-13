@@ -55,7 +55,7 @@ namespace NC2Logic
     };
     extern SStaticGoodTypeStorage gStaticGoodTypeStorage;
 
-    static_assert(sizeof(SStaticGoodTypeData) == 0xD0);
+    static_assert(sizeof(SStaticGoodTypeData) == 208);
     static_assert(offsetof(SStaticGoodTypeData, landscapeType) == 0x20);
     static_assert(offsetof(SStaticGoodTypeData, engineLandscapeId) == 0x24);
     static_assert(offsetof(SStaticGoodTypeData, weaponType) == 0x28);
@@ -77,7 +77,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticGoodTypeData, productionInputAmounts) == 0x80);
     static_assert(offsetof(SStaticGoodTypeData, productionInputs) == 0xA8);
     static_assert(sizeof(CStaticGoodTypeDataManager) == 1);
-    static_assert(sizeof(SStaticGoodTypeStorage) == 0xA0);
+    static_assert(sizeof(SStaticGoodTypeStorage) == 160);
     static_assert(offsetof(SStaticGoodTypeStorage, tokenList) == 4);
     static_assert(offsetof(SStaticGoodTypeStorage, records) == 8);
     static_assert(offsetof(SStaticGoodTypeStorage, owner) == 0x0C);

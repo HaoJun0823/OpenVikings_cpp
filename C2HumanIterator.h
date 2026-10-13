@@ -21,5 +21,5 @@ namespace NC2Logic
         std::int32_t l_GetNext(std::int32_t previous);
         std::int32_t l_GetNextSectorHumanId(std::int32_t previous);
     };
-    static_assert(sizeof(CHumanIterator) == 0x2C);
+    static_assert(sizeof(CHumanIterator) == 44);
 }

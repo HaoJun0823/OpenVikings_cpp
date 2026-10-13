@@ -38,12 +38,12 @@ namespace NC2Logic
         SCallbackElement* mFirst[CallbackTypeCount];
         SCallbackElement* mLast[CallbackTypeCount];
 
-        static_assert(sizeof(void*) != 4 || sizeof(SCallbackElement) == 0x14, "Unexpected x86 callback element size");
-        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, callback) == 0x04, "Unexpected x86 callback offset");
-        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, userData) == 0x08, "Unexpected x86 user data offset");
-        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, previous) == 0x0C, "Unexpected x86 previous pointer offset");
-        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, next) == 0x10, "Unexpected x86 next pointer offset");
+        static_assert(sizeof(void*) != 4 || sizeof(SCallbackElement) == 20, "Unexpected x86 callback element size");
+        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, callback) == 4, "Unexpected x86 callback offset");
+        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, userData) == 8, "Unexpected x86 user data offset");
+        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, previous) == 12, "Unexpected x86 previous pointer offset");
+        static_assert(sizeof(void*) != 4 || offsetof(SCallbackElement, next) == 16, "Unexpected x86 next pointer offset");
     };
 
-    static_assert(sizeof(void*) != 4 || sizeof(CCallbackManager) == 0x1A0, "Unexpected x86 callback manager size");
+    static_assert(sizeof(void*) != 4 || sizeof(CCallbackManager) == 416, "Unexpected x86 callback manager size");
 }

@@ -113,11 +113,11 @@ namespace NC2InGameGuiSelection
         Write<std::uint8_t>(window, 0x70, 0);
         Write(window, 0, gSelectionWallBuildWindowVirtualTable.data());
         const SRectangle camera(4, 82, 192, 14);
-        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         auto* button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(313), 10100, window);
         NXBaseGui::BaseWindow_Element_Add(window, button);
         const SRectangle cancel(4, 66, 192, 14);
-        memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &cancel, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(311), NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(312), 10101, window);
         NXBaseGui::BaseWindow_Element_Add(window, button);
         return window;
@@ -131,11 +131,11 @@ namespace NC2InGameGuiSelection
         Write<std::uint8_t>(window, 0x70, 0);
         Write(window, 0, gSelectionRoadBuildWindowVirtualTable.data());
         const SRectangle camera(4, 82, 192, 14);
-        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         auto* button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(323), 10100, window);
         NXBaseGui::BaseWindow_Element_Add(window, button);
         const SRectangle cancel(4, 66, 192, 14);
-        memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &cancel, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(321), NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(322), 10101, window);
         NXBaseGui::BaseWindow_Element_Add(window, button);
         return window;

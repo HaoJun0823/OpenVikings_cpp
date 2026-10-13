@@ -47,12 +47,12 @@ namespace NC2MainMenuGuiManager
         std::byte unknown005694d8[4];
     };
 
-    static_assert(sizeof(SMenuGraphicResources) == 0x14);
+    static_assert(sizeof(SMenuGraphicResources) == 20);
     static_assert(offsetof(SGuiManagerStaticVars, displayHeight) == 0x08);
     static_assert(offsetof(SGuiManagerStaticVars, desktopUpdateFlag) == 0x10);
     static_assert(offsetof(SGuiManagerStaticVars, resources) == 0x14);
     static_assert(offsetof(SGuiManagerStaticVars, unknown005694d8) == 0x28);
-    static_assert(sizeof(SGuiManagerStaticVars) == 0x2C);
+    static_assert(sizeof(SGuiManagerStaticVars) == 44);
 
     class CGuiManager
     {
@@ -132,9 +132,9 @@ namespace NC2MainMenuGuiManager
 
         // Unresolved fields retain their original address spans.
         std::int32_t currentScreen;                                         // +0x0000
-        std::byte unknown0004[0x51C];                                       // +0x0004
-        std::byte sessionSearchData[0x66];                                  // +0x0520
-        std::byte unknown0586[0x962];                                       // +0x0586
+        std::byte unknown0004[1308];                                       // +0x0004
+        std::byte sessionSearchData[102];                                  // +0x0520
+        std::byte unknown0586[2402];                                       // +0x0586
         std::uint32_t lobbyValue;                                           // +0x0EE8
         std::uint8_t transferFlags[8];                                      // +0x0EEC
         NNetwork::CFileTransferManager* fileTransferManager;                // +0x0EF4
@@ -142,11 +142,11 @@ namespace NC2MainMenuGuiManager
         DWORD transferStartTick;                                            // +0x0F08
         std::uint8_t transferIsHost;                                        // +0x0F0C
         std::byte padding0F0D[3];                                           // +0x0F0D
-        std::byte lobbyData[0x160];                                         // +0x0F10
-        std::byte chatHistoryStorage[0x914];                                // +0x1070; count followed by 20 records of 0x74 bytes.
+        std::byte lobbyData[352];                                         // +0x0F10
+        std::byte chatHistoryStorage[2324];                                // +0x1070; count followed by 20 records of 0x74 bytes.
         std::uint32_t errorCount;                                           // +0x1984
-        char errorTexts[10][0xCA];                                          // +0x1988
-        std::byte unknown216C[0x2C];                                        // +0x216C
+        char errorTexts[10][202];                                          // +0x1988
+        std::byte unknown216C[44];                                        // +0x216C
         NC2InGameGuiBaseTextInputElement::CStringInputHandler textInput;    // +0x2198
 
     private:
@@ -154,7 +154,7 @@ namespace NC2MainMenuGuiManager
     };
 
     static_assert(sizeof(void*) == 4);
-    static_assert(sizeof(CGuiManager) == 0x21B4);
+    static_assert(sizeof(CGuiManager) == 8628);
     static_assert(offsetof(CGuiManager, sessionSearchData) == 0x520);
     static_assert(offsetof(CGuiManager, lobbyValue) == 0xEE8);
     static_assert(offsetof(CGuiManager, transferFlags) == 0xEEC);

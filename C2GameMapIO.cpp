@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameMapIO.h"
 #include "C2GameMapAccess.h"
 #include "C2CallbackManager.h"
@@ -37,15 +38,15 @@ namespace NC2Logic
             {
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                 if (Read<std::uint8_t>(human, 0) == 0) continue;
-                const auto player = Read<std::uint32_t>(human, 0x10);
+                const auto player = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId);
                 if (player >= 20u) continue;
                 auto& count = counts[player];
                 ++count.allocated;
                 if (Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0) ++count.hidden;
-                const auto moveableId = Read<std::int32_t>(human, 0xC);
+                const auto moveableId = Read<std::int32_t>(human, ReadableValues::HumanOffset::MapMoveableId);
                 if (moveableId != -1)
                 {
-                    const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * 0x58u;
+                    const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * ReadableValues::RecordSize::MapMoveable;
                     if (Read<std::uint8_t>(moveable, 0x39) != 0) ++count.turning;
                     if (Read<std::uint8_t>(moveable, 0x10) != 0)
                     {
@@ -65,7 +66,7 @@ namespace NC2Logic
             ::OutputDebugStringA("\n");
             for (std::uint32_t player = 0; player < 20u; ++player)
             {
-                const auto* data = static_cast<const std::byte*>(gGameControl) + player * 0x4A80u;
+                const auto* data = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
                 if (counts[player].allocated == 0 && Read<std::uint8_t>(data, 0) == 0) continue;
                 const auto& c = counts[player];
                 char line[256];
@@ -122,15 +123,15 @@ namespace NC2Logic
         if (rootMode)
         {
             NXBasics::CFile::FileSystem_SystemPathName_Set("$maproot$", mapRoot);
-            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(0x1890, 1))
+            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(6288, 1))
                 reader = ::new (storage) NXBasics::CIniFileReader("$maproot$\\map.ini", nullptr, false, nullptr, nullptr);
         }
         if (libraryMode)
         {
-            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1))
+            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(20, 1))
                 library = NXBasics::Archive_Initialize(storage, libraryFilename);
             NXBasics::CFile::FileSystem_FileLibrary_Add(library);
-            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(0x1890, 1))
+            if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(6288, 1))
                 reader = ::new (storage) NXBasics::CIniFileReader("currentusermap\\map.ini", nullptr, false, nullptr, nullptr);
         }
 
@@ -170,11 +171,11 @@ namespace NC2Logic
             NXBasics::CFile file(mapDataFilename, true);
             CIoHelper io;
             io.IO_File_Init(&file);
-            bool loaded = io.IO_File_Chunk_CheckMarkerAndVersion(0x6C6F6769, 0) && GameMap_IO_Cleanmap_Load(&io);
+            bool loaded = io.IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::LogicMapChunk::LogicFileStart, 0) && GameMap_IO_Cleanmap_Load(&io);
             if (loaded)
             {
                 CCallbackManager::sTheObjectPtr->ExecuteCallback(0x13, false, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&io)), 0, 0);
-                loaded = io.IO_File_Chunk_CheckMarkerAndVersion(0x74656E64, 0);
+                loaded = io.IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::LogicMapChunk::LogicFileEnd, 0);
             }
             if (!loaded)
             {
@@ -208,7 +209,7 @@ namespace NC2Logic
     bool GameMap_IO_Cleanmap_Load(CIoHelper* io)
     {
         std::uint32_t version;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(0x6C676D6D, &version, nullptr)) return false;
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::LogicMapChunk::MapData, &version, nullptr)) return false;
         return GameMap_l_GlobalIO_Load(io);
     }
 }

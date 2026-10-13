@@ -31,13 +31,13 @@ namespace NXBasics
         CFile* archiveFile;                       // +0x10
     };
 
-    static_assert(sizeof(SArchiveFileEntry) == 0x10, "Unexpected archive file entry size");
+    static_assert(sizeof(SArchiveFileEntry) == 16, "Unexpected archive file entry size");
     static_assert(offsetof(SArchiveFileEntry, nameCheck) == 0x04, "Unexpected name check offset");
     static_assert(offsetof(SArchiveFileEntry, fileOffset) == 0x08, "Unexpected file offset field");
     static_assert(offsetof(SArchiveFileEntry, fileSize) == 0x0C, "Unexpected file size field");
-    static_assert(sizeof(SArchiveDirectoryEntry) == 0x08, "Unexpected secondary entry size");
+    static_assert(sizeof(SArchiveDirectoryEntry) == 8, "Unexpected secondary entry size");
     static_assert(offsetof(SArchiveDirectoryEntry, value) == 0x04, "Unexpected directory value offset");
-    static_assert(sizeof(SArchiveState) == 0x14, "Archive state requires the original x86 layout");
+    static_assert(sizeof(SArchiveState) == 20, "Archive state requires the original x86 layout");
     static_assert(offsetof(SArchiveState, entries) == 0x04, "Unexpected archive entries offset");
     static_assert(offsetof(SArchiveState, directoryEntryCount) == 0x08, "Unexpected directory count offset");
     static_assert(offsetof(SArchiveState, directoryEntries) == 0x0C, "Unexpected directory table offset");
@@ -46,16 +46,16 @@ namespace NXBasics
     struct SFileSystemPathName
     {
         std::uint8_t enabled;           // +0x000
-        char systemPathName[0x104];     // +0x001
+        char systemPathName[260];     // +0x001
         std::uint8_t padding[3];        // +0x105
         std::uint32_t nameLength;       // +0x108
-        char replacementPath[0x104];    // +0x10C
+        char replacementPath[260];    // +0x10C
     };
 
     struct SFileAdditionalLoadPath
     {
         std::uint8_t enabled;           // +0x000
-        char path[0x104];               // +0x001
+        char path[260];               // +0x001
     };
 
     struct SFileStaticVars
@@ -66,14 +66,14 @@ namespace NXBasics
         void* fileLibraries[5];                          // +0xF6C
     };
 
-    static_assert(sizeof(SFileSystemPathName) == 0x210, "Unexpected system path record size");
-    static_assert(offsetof(SFileSystemPathName, systemPathName) == 0x001, "Unexpected system path name offset");
+    static_assert(sizeof(SFileSystemPathName) == 528, "Unexpected system path record size");
+    static_assert(offsetof(SFileSystemPathName, systemPathName) == 1, "Unexpected system path name offset");
     static_assert(offsetof(SFileSystemPathName, nameLength) == 0x108, "Unexpected system path length offset");
     static_assert(offsetof(SFileSystemPathName, replacementPath) == 0x10C, "Unexpected replacement path offset");
-    static_assert(sizeof(SFileAdditionalLoadPath) == 0x105, "Unexpected additional load path size");
+    static_assert(sizeof(SFileAdditionalLoadPath) == 261, "Unexpected additional load path size");
     static_assert(offsetof(SFileStaticVars, additionalLoadPaths) == 0xA50, "Unexpected additional load paths offset");
     static_assert(offsetof(SFileStaticVars, fileLibraries) == 0xF6C, "Unexpected file libraries offset");
-    static_assert(sizeof(SFileStaticVars) == 0xF80, "File system state requires the original x86 layout");
+    static_assert(sizeof(SFileStaticVars) == 3968, "File system state requires the original x86 layout");
 
     class CFile
     {
@@ -148,10 +148,10 @@ namespace NXBasics
 
     private:
         std::int32_t mDescriptor;    // +0x004
-        char mFileName[0x104];       // +0x008
+        char mFileName[260];       // +0x008
         std::int32_t mArchiveIndex;  // +0x10C
     };
 
     static_assert(sizeof(void*) == 4, "CFile requires an x86 build");
-    static_assert(sizeof(CFile) == 0x110, "CFile must be 272 bytes");
+    static_assert(sizeof(CFile) == 272, "CFile must be 272 bytes");
 }

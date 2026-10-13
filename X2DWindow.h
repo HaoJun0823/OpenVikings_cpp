@@ -72,5 +72,5 @@ namespace NXSys2DApp
         int mShowCommand;                // +0x10
     };
 
-    static_assert(sizeof(CWindow) == 0x14);
+    static_assert(sizeof(CWindow) == 20);
 }

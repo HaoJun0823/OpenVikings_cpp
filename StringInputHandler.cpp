@@ -12,7 +12,7 @@ const char kAdditionalAcceptedCharacters[] =
 "\x5F\x20\x25\x2F\x3F\xB4\x60\x23\x2A\x27\x2C\x3B\x2E\x3A\x40\x3C"
 "\x3E\x7C\x5C\x7E\x5E\x5E\xB0\xE7\xE2\xE1\xE0\xF4\xE9\xE8\xEA";
 
-static_assert(sizeof(kAdditionalAcceptedCharacters) == 0x30);
+static_assert(sizeof(kAdditionalAcceptedCharacters) == 48);
 
 namespace NC2InGameGuiBaseTextInputElement
 {

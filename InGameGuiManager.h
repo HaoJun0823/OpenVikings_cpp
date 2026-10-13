@@ -24,7 +24,7 @@ namespace NInGameGuiManager
         std::byte padding11[3];
     };
 
-    static_assert(sizeof(SInGameGuiStaticVars) == 0x14);
+    static_assert(sizeof(SInGameGuiStaticVars) == 20);
     static_assert(offsetof(SInGameGuiStaticVars, displayWidth) == 0x04);
     static_assert(offsetof(SInGameGuiStaticVars, displayHeight) == 0x08);
     static_assert(offsetof(SInGameGuiStaticVars, displayDepth) == 0x0C);
@@ -139,10 +139,10 @@ namespace NInGameGuiManager
         void l_Selection_ActionButtons_CheckUpdate();
         bool l_IsElement0038Required() const;
         void l_UpdateElement0038();
-        std::byte mLegacyState[0x1A8];              // +0x000
-        std::byte mDisplayObject[0x2C];             // +0x1A8
-        alignas(4) std::byte mStringInputStorage[0x1C]; // +0x1D4; CStringInputHandler.
+        std::byte mLegacyState[424];              // +0x000
+        std::byte mDisplayObject[44];             // +0x1A8
+        alignas(4) std::byte mStringInputStorage[28]; // +0x1D4; CStringInputHandler.
     };
 
-    static_assert(sizeof(CInGameGuiManager) == 0x1F0);
+    static_assert(sizeof(CInGameGuiManager) == 496);
 }

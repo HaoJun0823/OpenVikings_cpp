@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AIResourceAccess.h"
 #include "C2AIBuildingAccess.h"
 #include "C2GameMapAccess.h"
@@ -53,12 +54,12 @@ namespace NC2Logic
     {
         Write(manager, 0, player); Write<std::int32_t>(manager, 0x2F8, -1);
         for (std::uint32_t i = 0; i < 88; ++i) Write<std::int32_t>(manager, 0x194 + i * 4, -1);
-        const auto tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::uint32_t>(gGameControl, player * 0x4A80 + 12) : 1;
-        const auto* control = static_cast<const std::byte*>(gGameControl) + player * 0x4A80;
+        const auto tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto* control = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayerSigned;
         for (std::uint32_t job = 0; job < 48; ++job)
         {
             if (Read<std::uint8_t>(control, 0x18 + tribe * 56 + job) == 0) continue;
-            const auto* jobData = static_cast<const std::byte*>(gStaticJobTypeData) + job * 0x88;
+            const auto* jobData = static_cast<const std::byte*>(gStaticJobTypeData) + job * ReadableValues::RecordSize::JobTypeSigned;
             if (Read<std::uint8_t>(jobData, 0x85) == 0) continue;
             for (std::uint32_t good = 0; good < 66; ++good)
             {

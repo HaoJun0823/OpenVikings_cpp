@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -26,16 +27,16 @@ struct SReceivedNetworkRecord
 {
     std::uint32_t senderPlayerId; // +0x000
     std::uint16_t type;           // +0x004
-    wchar_t text[0x7F];           // +0x006
+    wchar_t text[ReadableValues::IntegerRange::Int8MaximumSigned];           // +0x006
 };
 
 static_assert(sizeof(wchar_t) == 2);
 static_assert(offsetof(SReceivedNetworkRecord, text) == 0x06);
-static_assert(sizeof(SReceivedNetworkRecord) == 0x104);
+static_assert(sizeof(SReceivedNetworkRecord) == 260);
 
 using SQueuedNetworkMessage = NNetwork::SEventNode;
 
-static_assert(sizeof(SQueuedNetworkMessage) == 0x210);
+static_assert(sizeof(SQueuedNetworkMessage) == 528);
 static_assert(offsetof(SQueuedNetworkMessage, eventType) == 0x208);
 static_assert(offsetof(SQueuedNetworkMessage, next) == 0x20C);
 
@@ -89,7 +90,7 @@ namespace NMasterControlProgram
 
         ProgressBar_Init(false);
 
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x1F0, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(496, 1);
         if (allocation != nullptr) new (allocation) NInGameGuiManager::CInGameGuiManager;
 
         GameEngine_StartUpEngine();

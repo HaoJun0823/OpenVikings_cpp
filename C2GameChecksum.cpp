@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameChecksum.h"
 #include "C2ChecksumTools.h"
 #include "C2GameState.h"
@@ -21,7 +22,7 @@ namespace NC2Logic
         std::uint32_t checksum = 1234567u;
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            if (Read<std::uint8_t>(gGameControl, player * 0x4A80u) == 0) continue;
+            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
             Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, player * 4u), 0xB068);
             Tool_Checksum_Combine(&checksum, AIHighLevelHandler_Checksum_Calculate(Read<const void*>(manager, 0x50u + player * 4u), nullptr));
         }
@@ -31,15 +32,15 @@ namespace NC2Logic
     // Original function: FUN_00409b39.
     std::uint32_t __fastcall GameControl_Checksum_Calculate(void* control, void* /*unusedEdx*/)
     {
-        std::byte saved[20][0x68];
+        std::byte saved[20][104];
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            auto* statistics = static_cast<std::byte*>(control) + player * 0x4A80u + 0x49ACu;
-            std::memcpy(saved[player], statistics, 0x68);
-            std::memset(statistics, 0, 0x68);
+            auto* statistics = static_cast<std::byte*>(control) + player * ReadableValues::RecordSize::GameControlPlayer + 0x49ACu;
+            std::memcpy(saved[player], statistics, 104);
+            std::memset(statistics, 0, 104);
         }
         const auto checksum = Tool_Checksum_Calculate(control, 0x5D204);
-        for (std::uint32_t player = 0; player < 20; ++player) std::memcpy(static_cast<std::byte*>(control) + player * 0x4A80u + 0x49ACu, saved[player], 0x68);
+        for (std::uint32_t player = 0; player < 20; ++player) std::memcpy(static_cast<std::byte*>(control) + player * ReadableValues::RecordSize::GameControlPlayer + 0x49ACu, saved[player], 104);
         return checksum;
     }
 
@@ -98,8 +99,8 @@ namespace NC2Logic
     void __fastcall GameMap_Checksum_Calculate(void* /*map*/, void* /*unusedEdx*/, SGameChecksum* output)
     {
         output->components[4] = Tool_Checksum_Calculate(gGameMapStaticStorage, 0x30);
-        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, 0x30), Read<std::uint32_t>(gGameMapStaticStorage, 8) * 3u);
-        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, 0x34), Read<std::uint32_t>(gGameMapStaticStorage, 0x0C) * 14u);
+        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MacroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, 8) * 3u);
+        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, 0x0C) * 14u);
         output->components[7] = Tool_Checksum_Calculate(gGameMapStaticStorage + 0x3C, 0xFA4);
     }
 

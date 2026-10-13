@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameState.h"
 
 namespace NC2Logic
@@ -6,10 +7,10 @@ namespace NC2Logic
     std::uint32_t Random_Get(SGameRandomState& random)
     {
         const std::uint32_t high = (random.currentState >> 16) * 0x41A7u;
-        std::uint32_t value = (random.currentState & 0xFFFFu) * 0x41A7u + ((high & 0x7FFFu) << 16);
-        if (value > 0x7FFFFFFFu) value = (value & 0x7FFFFFFFu) + 1u;
+        std::uint32_t value = (random.currentState & ReadableValues::IntegerRange::UInt16Maximum) * 0x41A7u + ((high & ReadableValues::IntegerRange::Int16Maximum) << 16);
+        if (value > ReadableValues::IntegerRange::Int32Maximum) value = (value & ReadableValues::IntegerRange::Int32Maximum) + 1u;
         value += high >> 15;
-        if (value > 0x7FFFFFFFu) value = (value & 0x7FFFFFFFu) + 1u;
+        if (value > ReadableValues::IntegerRange::Int32Maximum) value = (value & ReadableValues::IntegerRange::Int32Maximum) + 1u;
         random.currentState = value;
         return value;
     }

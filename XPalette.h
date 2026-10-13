@@ -50,5 +50,5 @@ namespace NXBasics
         std::uint32_t* mTrueColorTable;           // +0x408; owned conversion cache.
     };
 
-    static_assert(sizeof(CPalette) == 0x40C, "CPalette requires the original x86 layout");
+    static_assert(sizeof(CPalette) == 1036, "CPalette requires the original x86 layout");
 }

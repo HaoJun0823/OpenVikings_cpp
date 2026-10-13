@@ -1,3 +1,5 @@
+#include "ReadableValues.h"
+#include "SwitchIdentifiers.h"
 #include "C2HumanMerchantAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanIterator.h"
@@ -140,7 +142,7 @@ namespace NC2Logic
         if (MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)) || Read<std::uint32_t>(merchant, 0x14) >= 2) return false;
         const auto player = Read<std::int32_t>(human, 0x10), owner = Read<std::int32_t>(house, 0x0C);
         if (player == owner) return true;
-        if (HumanMerchantArray_GetNextTradeAgreementId(gHumanMerchantArray, house, 0xFFFFFFFFu) == 0xFFFFFFFFu) return false;
+        if (HumanMerchantArray_GetNextTradeAgreementId(gHumanMerchantArray, house, ReadableValues::IntegerRange::UInt32Maximum) == ReadableValues::IntegerRange::UInt32Maximum) return false;
         if (GameControl_Diplomacy_GetState(gGameControl, player, owner) != 1 || GameControl_Diplomacy_GetState(gGameControl, owner, player) != 1) return false;
         return Read<std::uint32_t>(merchant, 8) == 0;
     }
@@ -156,7 +158,7 @@ namespace NC2Logic
     {
         const auto slot = House_GetHouseTypeDataPtr(House(Read<std::int32_t>(data, 0)))->stockIndices[good];
         if (slot == -1 || Read<std::uint8_t>(data, 0x10u + slot) == static_cast<std::uint8_t>(enabled)) return;
-        Write(data, 0x0C, Read<std::uint32_t>(data, 0x0C) + (enabled ? 1u : 0xFFFFFFFFu));
+        Write(data, 0x0C, Read<std::uint32_t>(data, 0x0C) + (enabled ? 1u : ReadableValues::IntegerRange::UInt32Maximum));
         Write<std::uint8_t>(data, 0x10u + slot, enabled);
     }
     // Original function: FUN_0041c9fd.
@@ -179,7 +181,7 @@ namespace NC2Logic
         {
             const void* house = House(id);
             const auto owner = Read<std::int32_t>(house, 0x0C);
-            if (owner < 20 && Read<std::uint32_t>(gGameControl, owner * 0x4A80u + 4) == 1) continue;
+            if (owner < 20 && Read<std::uint32_t>(gGameControl, owner * ReadableValues::RecordSize::GameControlPlayer + 4) == 1) continue;
             const auto count = Read<std::uint32_t>(manager, 0x34);
             if (count == 60) return;
             void* agreement = static_cast<std::byte*>(manager) + 0x38u + count * 0x18u;
@@ -196,16 +198,16 @@ namespace NC2Logic
             const auto offset = 0x38u + id * 0x18u;
             if (Read<std::uint32_t>(manager, offset) == Read<std::uint32_t>(house, 4) && Read<std::uint32_t>(manager, offset + 4) == Read<std::uint32_t>(house, 8)) return id;
         }
-        return 0xFFFFFFFFu;
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
     // Original function: FUN_0041cb1e; complete token region 004F3898..004F38A7.
     void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void* manager, void*, NXBasics::CIniFileReader* reader)
     {
-        static const NXBasics::SToken tokens[] = {{"tradeagreement", 0x706E616D}, {nullptr, 0}};
+        static const NXBasics::SToken tokens[] = {{"tradeagreement", ReadableValues::HumanMerchantToken::TradeAgreement}, {nullptr, 0}};
         for (auto* group = reader->GetFirstGroup("misc_tradeagreement"); group != nullptr; group = reader->GetNextGroup("misc_tradeagreement"))
             while (reader->GetNextCommandLineInGroup() != nullptr)
             {
-                if (NXBasics::XB_Token_FindTokenInArray(tokens, reader->GetCurrentName()) != 0x706E616D) continue;
+                if (NXBasics::XB_Token_FindTokenInArray(tokens, reader->GetCurrentName()) != SwitchIds::ParticleEffectToken::Particelname) continue;
                 const auto missionCheck = reader->GetInt(), firstGood = reader->GetInt(), firstAmount = reader->GetInt(), secondGood = reader->GetInt(), secondAmount = reader->GetInt();
                 HumanMerchantArray_AddTradeAgreement(manager, missionCheck, firstGood, firstAmount, secondGood, secondAmount);
             }
@@ -252,7 +254,7 @@ namespace NC2Logic
     {
         if (!Human_IsJobTrader(human)) return 1;
         void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
-        if (!MerchantData_AddHouse(merchant, id, revision, Read<std::uint32_t>(House(id), 0x0C) != Read<std::uint32_t>(human, 0x10))) return 1;
+        if (!MerchantData_AddHouse(merchant, id, revision, Read<std::uint32_t>(House(id), 0x0C) != Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId))) return 1;
         Human_l_Trader_ResetImportFlags(human); return 2;
     }
     // Original function: FUN_0043d021; reset imports even when no entry matched.

@@ -12,10 +12,10 @@ namespace
 {
     // Complete Windows token array 004F4780..004F47A7, including its terminator.
     const NXBasics::SToken gAnimalSoundTokens[] = {
-        { "logictribetype", 0x6C747274u },
-        { "mincount", 0x6D696E63u },
-        { "probability", 0x70726F62u },
-        { "enginesoundgroup", 0x656E6773u },
+        { "logictribetype", SwitchIds::AnimalSoundToken::LogicTribeType },
+        { "mincount", SwitchIds::AnimalSoundToken::MinCount },
+        { "probability", SwitchIds::AnimalSoundToken::Probability },
+        { "enginesoundgroup", SwitchIds::AnimalSoundToken::EngineSoundGroup },
         { nullptr, 0 }
     };
     // Complete lazy token state 00568568..0056856F; both fields start in PE BSS.

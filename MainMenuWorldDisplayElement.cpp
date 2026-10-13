@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuWorldDisplayElement.h"
 #include "MainMenuGuiManager.h"
@@ -59,7 +60,7 @@ namespace NC2MainMenuGuiWorldElement
                 for (std::uint32_t column = 0; column < width; ++column)
                 {
                     const std::uint32_t pixel = pixels[column];
-                    const std::uint32_t blue = pixel & 0xFFu, green = (pixel >> 8) & 0xFFu, red = (pixel >> 16) & 0xFFu;
+                    const std::uint32_t blue = pixel & ReadableValues::IntegerRange::UInt8Maximum, green = (pixel >> 8) & ReadableValues::IntegerRange::UInt8Maximum, red = (pixel >> 16) & ReadableValues::IntegerRange::UInt8Maximum;
                     const std::uint32_t maximum = red > green ? red : green;
                     pixels[column] = table[maximum > blue ? maximum : blue];
                 }
@@ -209,7 +210,7 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
         case SwitchIds::WorldDisplayCommand::AssignDisplayDefinition: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, 0x30), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
         case SwitchIds::WorldDisplayCommand::ToggleDrawFlags: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, 0x30), param1); break;
         case SwitchIds::WorldDisplayCommand::ScrollByPixelDelta:
-            if ((Read<std::uint32_t>(element, 0x18) & 0x200u) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
+            if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
             break;
         case SwitchIds::WorldDisplayCommand::ToggleZoom:
             if (Read<std::uint8_t>(Read<void*>(element, 0x30), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, 0x30), false);
@@ -231,7 +232,7 @@ void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void* eleme
     auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\menu_remap.pcx");
     Write(element, 0x34, palette);
     if (Read<std::int32_t>(Read<void*>(element, 0x2C), 4) != 1) return;
-    auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(0x20000, 1));
+    auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(131072, 1));
     Write(element, 0x38, table);
     const auto* paletteTable = NXBasics::Palette_GetHighColorTablePtr(palette);
     const void* converter = NXBasics::g16BitPixelConverter;

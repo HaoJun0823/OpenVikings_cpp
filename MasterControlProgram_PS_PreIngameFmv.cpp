@@ -18,8 +18,8 @@ namespace
     // Complete 0050F638..0050F63F region: cleared byte, padding, manager pointer.
     struct SPreIngameFmvStaticVars { std::uint8_t state; std::byte padding[3]; void* manager; };
     static SPreIngameFmvStaticVars gPreIngameFmv{};
-    static const GUID gLegacyDrawInterface = {0x6C14DB80, 0xA733, 0x11CE, {0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
-    static const GUID gLegacySurfaceInterface = {0x6C14DB81, 0xA733, 0x11CE, {0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
+    static const GUID gLegacyDrawInterface = {0x6C14DB80, 0xA733, 0x11CE, {0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
+    static const GUID gLegacySurfaceInterface = {0x6C14DB81, 0xA733, 0x11CE, {0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
 
     // Verified application +4C, window +8, display +18/+20 COM ownership chain.
     static IUnknown* PreIngameFmv_DisplayInterface(std::uint32_t offset)
@@ -31,7 +31,7 @@ namespace
     // Original function: FUN_00403406.
     static void PreIngameFmv_GfxData_Load(void* manager)
     {
-        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         NXBasics::CBitmap* bitmap = nullptr;
         if (memory != nullptr)
         {
@@ -56,13 +56,13 @@ namespace
     static bool PreIngameFmv_StartVideo(void* manager)
     {
         if (Read<std::uint8_t>(manager, 0) == 0) return false;
-        char pattern[0x104], fileName[0x104];
+        char pattern[260], fileName[260];
         NXBasics::Runtime_PrintString(pattern, "data\\\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
         if (!NC2Logic::LanguageTool_GetFilename(pattern, fileName, false)) return false;
         Read<NXBasics::CBitmap*>(manager, 0xCC)->Fill(NXBasics::SColorRGB(0, 0, 0));
         if (NWindowsVideo::CVideoPlayer::sTheObjectPtr == nullptr)
         {
-            if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x2C, 1)) new (memory) NWindowsVideo::CVideoPlayer();
+            if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(44, 1)) new (memory) NWindowsVideo::CVideoPlayer();
         }
         IDirectDraw* directDraw = nullptr;
         PreIngameFmv_DisplayInterface(0x18)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
@@ -131,7 +131,7 @@ namespace
     static void* PreIngameFmv_Construct(void* manager)
     {
         gPreIngameFmv.manager = manager;
-        std::memset(manager, 0, 0xD0);
+        std::memset(manager, 0, 208);
         gPreIngameFmv.state = 0;
         Write<std::uint8_t>(manager, 0, 0);
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("start_pre_ingame_fmv"))
@@ -191,7 +191,7 @@ namespace NMasterControlProgram
     bool CMasterControlProgram::System_ProgramState_PreIngameFmv_StartUp()
     {
         mProgramState = 14;
-        if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0xD0, 1)) PreIngameFmv_Construct(memory);
+        if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(208, 1)) PreIngameFmv_Construct(memory);
         mProgramState = static_cast<std::int32_t>(TProgramState::PreIngameFmv);
         return true;
     }

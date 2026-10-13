@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "ApplicationGlobals.h"
@@ -291,7 +292,7 @@ namespace NC2InGameGuiGroups
     bool __cdecl CObjectGroupManager::ls_Callback_Logic(std::uint32_t type, std::uint32_t, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
     {
         if (type == 1) static_cast<CObjectGroupManager*>(gObjectGroupManager)->Group_VerifyAllObjects();
-        else if (type == 0x16 && param1 != 0) std::memset(static_cast<CObjectGroupManager*>(gObjectGroupManager)->mStorage + 4, 0, 0x2F08);
+        else if (type == 0x16 && param1 != 0) std::memset(static_cast<CObjectGroupManager*>(gObjectGroupManager)->mStorage + 4, 0, 12040);
         else if (param2 == 0)
         {
             auto* manager = static_cast<CObjectGroupManager*>(gObjectGroupManager);
@@ -342,7 +343,7 @@ namespace NC2InGameGuiGroups
     CObjectGroupManager::CObjectGroupManager()
     {
         gObjectGroupManager = this;
-        std::memset(this, 0, 0x2F0C);
+        std::memset(this, 0, 12044);
         RegisterCallbacks(ls_Callback_Logic, {1, 0x16, 4, 8, 0xA}, 10);
     }
 
@@ -372,7 +373,7 @@ namespace NC2InGameGuiDeadHumanDataManager
         std::memset(this, 0, 8);
         std::memset(mStorage + 8, 0, 4);
         RegisterCallbacks(ls_Callback_Logic, {4, 3}, 10);
-        auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0xBB8, 1));
+        auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(3000, 1));
         if (records != nullptr)
         {
             for (std::uint32_t index = 0; index < 50; ++index)
@@ -382,7 +383,7 @@ namespace NC2InGameGuiDeadHumanDataManager
             }
         }
         Write(this, 8, records);
-        std::memset(records, 0, 0xBB8);
+        std::memset(records, 0, 3000);
     }
 
     // Original function: FUN_004b37e0.
@@ -397,13 +398,13 @@ namespace NC2InGameGuiDeadHumanDataManager
     void CDeadHumanDataManager::DeadHuman_Add(std::uint32_t humanId)
     {
         void* human = NC2Logic::CHumanArray::mStaticVars + humanId * 0xC58u;
-        if (Read<std::uint32_t>(human, 0x10) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return;
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return;
         void* entry = static_cast<std::byte*>(Read<void*>(this, 8)) + Read<std::uint32_t>(this, 4) * 0x3Cu;
-        std::memset(entry, 0, 0x3C);
+        std::memset(entry, 0, 60);
         Write<std::uint32_t>(entry, 0, Read<std::uint32_t>(human, 8));
         std::strncpy(static_cast<char*>(entry) + 4, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + humanId * 0x8C8u + 0x85Cu), 40);
         Write<std::uint32_t>(entry, 0x30, NC2Logic::gGameTime.tick);
-        Write<std::uint32_t>(entry, 0x34, Read<std::uint32_t>(human, 0x18));
+        Write<std::uint32_t>(entry, 0x34, Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType));
         Write<std::uint32_t>(entry, 0x38, Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(human), 0));
         const auto count = Read<std::uint32_t>(this, 0);
         if (count != 50) Write<std::uint32_t>(this, 0, count + 1u);
@@ -428,21 +429,21 @@ namespace NC2InGameGuiMessages
     CMessageManager::CMessageManager()
     {
         gMessageManager = this;
-        std::memset(this, 0, 0xC);
-        std::memset(mStorage + 0xC, 0, 0xC);
+        std::memset(this, 0, 12);
+        std::memset(mStorage + 0xC, 0, 12);
         RegisterCallbacks(ls_Callback_Logic, {1, 0x16, 4, 3, 0x2E}, 10);
         Write<std::uint32_t>(this, 4, 1);
         Write<std::uint32_t>(this, 8, 0);
-        auto* active = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x26480, 1));
+        auto* active = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(156800, 1));
         if (active != nullptr)
             for (std::uint32_t index = 0; index < 200; ++index) NC2Logic::ToUserMessage_Construct(active + 8u + index * 0x310u);
         Write(this, 0x10, active);
-        std::memset(active, 0, 0x26480);
-        auto* pending = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x26160, 1));
+        std::memset(active, 0, 156800);
+        auto* pending = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(156000, 1));
         if (pending != nullptr)
             for (std::uint32_t index = 0; index < 200; ++index) NC2Logic::ToUserMessage_Construct(pending + 8u + index * 0x30Cu);
         Write(this, 0x14, pending);
-        std::memset(pending, 0, 0x26160);
+        std::memset(pending, 0, 156000);
     }
 
     // Original function: FUN_004b3abd.
@@ -462,7 +463,7 @@ namespace NC2InGameGuiInputManager
     {
         ConstructInputMembers(this);
         gInputManager = this;
-        std::memset(this, 0, 0xF7C);
+        std::memset(this, 0, 3964);
         gInputManagerStaticVars = 0;
         RegisterCallbacks(InputManager_ls_Callback_Logic, {1, 4, 6, 8, 0xA, 0xC, 0x16}, 20);
         Write<std::uint32_t>(this, 0xAB0, 1);

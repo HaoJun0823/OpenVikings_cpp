@@ -60,5 +60,5 @@ namespace NXBasics
     };
 
     static_assert(sizeof(void*) == 4, "CStringArray requires an x86 build");
-    static_assert(sizeof(CStringArray) == 0x20, "CStringArray must be 32 bytes");
+    static_assert(sizeof(CStringArray) == 32, "CStringArray must be 32 bytes");
 }

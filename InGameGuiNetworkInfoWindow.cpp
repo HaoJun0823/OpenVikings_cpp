@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiNetworkInfoWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -46,7 +47,7 @@ namespace NC2InGameGuiMiscWindows
     void* NetworkInfoWindow_Construct(void* window)
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &area); new (static_cast<std::byte*>(window) + 0x74) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x2EE8); Write(window, 0, gNetworkInfoWindowVirtualTable.data()); NetworkInfoWindow_l_GuiButtons_Add(window); return window;
+        BaseToolWindow_Construct(window, &area); new (static_cast<std::byte*>(window) + 0x74) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12008); Write(window, 0, gNetworkInfoWindowVirtualTable.data()); NetworkInfoWindow_l_GuiButtons_Add(window); return window;
     }
     // Original function: FUN_004c52aa.
     static void NetworkInfoWindow_Destruct(void* window) { Write(window, 0, gNetworkInfoWindowVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); }
@@ -68,13 +69,13 @@ namespace NC2InGameGuiMiscWindows
     }
     static void AddTextButton(void* window, const NXBasics::SRectangle& area, const char* caption, std::uint32_t command, bool toggle = false, bool selected = false)
     {
-        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); void* button = memory == nullptr ? nullptr : toggle ? BaseToolTextButton_ConstructToggle(memory, nullptr, &area, caption, command, window, selected) : BaseToolTextButton_Construct(memory, nullptr, &area, caption, command, window); NXBaseGui::BaseWindow_Element_Add(window, button);
+        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); void* button = memory == nullptr ? nullptr : toggle ? BaseToolTextButton_ConstructToggle(memory, nullptr, &area, caption, command, window, selected) : BaseToolTextButton_Construct(memory, nullptr, &area, caption, command, window); NXBaseGui::BaseWindow_Element_Add(window, button);
     }
     // Original function: FUN_004c5fd5.
     void NetworkInfoWindow_l_GuiButtons_Add(void* window)
     {
-        NXBasics::SRectangle area(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowMoverButton_Construct(memory, &area, Text(100)));
-        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &area));
+        NXBasics::SRectangle area(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowMoverButton_Construct(memory, &area, Text(100)));
+        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &area));
         const auto page = Read<std::uint32_t>(window, 0x70); area = NXBasics::SRectangle(4, 22, 121, 22); for (std::uint32_t index = 0; index < 4; ++index) { AddTextButton(window, area, Text(101 + index), 10000 + index, true, page == index); area.x += area.width + 2; }
         if (page == 2) { NNetwork::Network_IsInSession(); return; } if (page != 3 || !NNetwork::Network_IsInSession() || !NNetwork::Network_IsHost()) return;
         area = NXBasics::SRectangle(4, 120, 492, 20); AddTextButton(window, area, Text(105), 14010); area.y += 34; constexpr std::uint32_t frequencies[6] = {1,2,3,4,6,12};
@@ -93,14 +94,14 @@ namespace NC2InGameGuiMiscWindows
             if (type == 1 || type == 4 || type == 5) { bitmap->Text_Print(font, White(), 4, y, Text(type == 1 ? 124 : type == 4 ? 128 : 129)); y += 20; }
             else if (type == 2)
             {
-                bitmap->Text_PrintV(font, White(), 4, y, "%s: ", Text(125)); y += 14; std::byte goods[0x88]{}; Tool_PlayerStatistics_CountGoods(LocalPlayer(), goods);
+                bitmap->Text_PrintV(font, White(), 4, y, "%s: ", Text(125)); y += 14; std::byte goods[136]{}; Tool_PlayerStatistics_CountGoods(LocalPlayer(), goods);
                 for (std::int32_t good = 0; good < Read<std::int32_t>(goal, 4); ++good) { const auto id = Read<std::uint32_t>(goal, 8 + static_cast<std::uint32_t>(good) * 8u), amount = Read<std::uint32_t>(goal, 0xC + static_cast<std::uint32_t>(good) * 8u); char text[200]; NXBasics::Runtime_PrintString(text, "%d %s (%d)", amount, StringAccess_GetGoodNamePtr(id, amount), Read<std::uint16_t>(goods, 4 + id * 2u)); bitmap->Text_Print(font, White(), 34, y, text); y += 14; } y += 6;
             }
             else if (type == 3) { std::uint16_t humans[10]{}; Tool_PlayerStatistics_CountHumans(LocalPlayer(), humans); const bool soldiers = Read<std::uint8_t>(goal, 8) != 0; bitmap->Text_PrintV(font, White(), 4, y, "%s: %d (%d)", Text(soldiers ? 126 : 127), Read<std::uint32_t>(goal, 4), humans[soldiers ? 9 : 0]); y += 20; }
         }
         y += 30; bitmap->Text_PrintV(large, White(), 4, y, "%s:", Text(130)); y += 25;
         struct SRank { std::uint32_t player; std::int32_t key; }; SRank ranking[20]; std::uint32_t count = 0;
-        for (std::uint32_t player = 0; player < 20; ++player) { const auto* record = static_cast<const std::byte*>(manager) + player * 20u; if (Read<std::uint8_t>(record, 4) != 0 || Read<std::uint8_t>(record, 0xC) != 0) { const auto key = Read<std::uint8_t>(record, 4) != 0 ? Read<std::uint32_t>(record, 8) + 1000u : 2000u - (Read<std::uint8_t>(record, 0xC) != 0 ? Read<std::uint32_t>(record, 0x10) : 0xFFFFFFFFu); ranking[count++] = {player, static_cast<std::int32_t>(key)}; } }
+        for (std::uint32_t player = 0; player < 20; ++player) { const auto* record = static_cast<const std::byte*>(manager) + player * 20u; if (Read<std::uint8_t>(record, 4) != 0 || Read<std::uint8_t>(record, 0xC) != 0) { const auto key = Read<std::uint8_t>(record, 4) != 0 ? Read<std::uint32_t>(record, 8) + 1000u : 2000u - (Read<std::uint8_t>(record, 0xC) != 0 ? Read<std::uint32_t>(record, 0x10) : ReadableValues::IntegerRange::UInt32Maximum); ranking[count++] = {player, static_cast<std::int32_t>(key)}; } }
         if (count > 1) for (std::uint32_t pass = 0; pass < count - 1; ++pass) for (std::uint32_t index = 0; index < count - 1; ++index) if (ranking[index].key > ranking[index + 1].key) { const auto saved = ranking[index]; ranking[index] = ranking[index + 1]; ranking[index + 1] = saved; }
         for (std::uint32_t index = 0; index < count; ++index)
         {
@@ -123,7 +124,7 @@ namespace NC2InGameGuiMiscWindows
             constexpr std::uint32_t icons[6] = {85,162,85,162,80,71}; constexpr std::int32_t x[6] = {210,260,330,380,430,480}; constexpr std::int32_t tooltipX[6] = {200,250,312,362,412,462};
             for (std::uint32_t index = 0; index < 6; ++index) { DrawTool_DrawIcon(icons[index], bitmap, x[index], 100); tips->Add(NXBasics::SRectangle(tooltipX[index], 90, 20, index < 2 ? 16 : 30), Text(142 + index)); }
             std::int32_t y = 120;
-            for (std::uint32_t player = 0; player < 20; ++player) { const auto* control = static_cast<const std::byte*>(gGameControl) + player * 0x4A80u; if (Read<std::uint8_t>(control, 0) == 0 || Read<std::uint32_t>(control, 4) != 1) continue; char name[200]; GameControl_Misc_GetPlayerName(gGameControl, player, true, name); bitmap->Text_PrintV(large, White(), 4, y, name); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, 0x4A18) - Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 340, y, "%d", Read<std::uint32_t>(control, 0x4614)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 390, y, "%d", Read<std::uint32_t>(control, 0x4618)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 440, y, "%d", Read<std::uint32_t>(control, 0x4620)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 490, y, "%d", Read<std::uint32_t>(control, 0x461C)); y += 20; }
+            for (std::uint32_t player = 0; player < 20; ++player) { const auto* control = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) == 0 || Read<std::uint32_t>(control, 4) != 1) continue; char name[200]; GameControl_Misc_GetPlayerName(gGameControl, player, true, name); bitmap->Text_PrintV(large, White(), 4, y, name); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, 0x4A18) - Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 340, y, "%d", Read<std::uint32_t>(control, 0x4614)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 390, y, "%d", Read<std::uint32_t>(control, 0x4618)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 440, y, "%d", Read<std::uint32_t>(control, 0x4620)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 490, y, "%d", Read<std::uint32_t>(control, 0x461C)); y += 20; }
             return;
         }
         if (page != 2 && page != 3) return; if (!NNetwork::Network_IsInSession()) { bitmap->Text_PrintV(large, White(), 4, 60, Text(122)); return; }
@@ -136,7 +137,7 @@ namespace NC2InGameGuiMiscWindows
         for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)
         {
             const auto& player = players[index]; char caption[200], converted[200]; NXBasics::Runtime_PrintString(caption, Text(107), index); NNetwork::ConvertNetworkWideToAnsi(converted, player.playerName, -1); std::strcat(caption, " "); std::strcat(caption, converted); std::int32_t gamePlayer = -1;
-            for (std::int32_t candidate = 0; candidate < 20; ++candidate) { const auto* control = static_cast<const std::byte*>(gGameControl) + static_cast<std::uint32_t>(candidate) * 0x4A80u; if (Read<std::uint8_t>(control, 0) != 0 && Read<std::uint32_t>(control, 0x14) == player.playerId) { gamePlayer = candidate; break; } }
+            for (std::int32_t candidate = 0; candidate < 20; ++candidate) { const auto* control = static_cast<const std::byte*>(gGameControl) + static_cast<std::uint32_t>(candidate) * ReadableValues::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) != 0 && Read<std::uint32_t>(control, 0x14) == player.playerId) { gamePlayer = candidate; break; } }
             if (gamePlayer != -1) { std::strcat(caption, " - "); NXBasics::Runtime_PrintString(converted, Text(108), gamePlayer); std::strcat(caption, converted); } else { std::strcpy(caption, " - "); std::strcat(caption, Text(109)); } // The Windows fallback overwrites the previously formatted name.
             bitmap->Text_Print(font, White(), 4, y, caption); y += 12; NXBasics::Runtime_PrintString(caption, "%s: %8.8x", Text(110), player.playerId);
             if (player.isHost) { std::strcat(caption, " - "); std::strcat(caption, Text(111)); } if (player.isLocal) { std::strcat(caption, " - "); std::strcat(caption, Text(112)); } bitmap->Text_PrintV(font, White(), 4, y, caption); y += 12;
@@ -149,7 +150,7 @@ namespace NC2InGameGuiMiscWindows
 namespace NInGameGuiManager
 {
     // Original function: FUN_004a23b1.
-    void CInGameGuiManager::MiscWindows_NetworkInfoWindow_Open() { l_Selection_RemoveAllGuiElements(); if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7EC, 0, 0, 0) != nullptr) return; MiscWindows_CloseAllLargeOnes(true); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x2F58, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiMiscWindows::NetworkInfoWindow_Construct(memory)), false); }
+    void CInGameGuiManager::MiscWindows_NetworkInfoWindow_Open() { l_Selection_RemoveAllGuiElements(); if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7EC, 0, 0, 0) != nullptr) return; MiscWindows_CloseAllLargeOnes(true); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(12120, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiMiscWindows::NetworkInfoWindow_Construct(memory)), false); }
     // Original function: FUN_004a2402.
     void CInGameGuiManager::MiscWindows_NetworkInfoWindow_Toggle() { auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr; auto* window = desktop->Message_SendToAllWindows(0x7EC, 0, 0, 0); if (window != nullptr) desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window)); else MiscWindows_NetworkInfoWindow_Open(); }
 }

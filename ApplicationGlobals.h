@@ -25,7 +25,7 @@ namespace NC2Logic
         std::int16_t modifiedAreaMaximum[2];
     };
     inline SGuideManagerStaticVars gGuideManagerStaticVars{};
-    static_assert(sizeof(SGuideManagerStaticVars) == 0x0C);
+    static_assert(sizeof(SGuideManagerStaticVars) == 12);
     static_assert(offsetof(SGuideManagerStaticVars, scanGuideId) == 0);
     static_assert(offsetof(SGuideManagerStaticVars, modifiedAreaMinimum) == 4);
     static_assert(offsetof(SGuideManagerStaticVars, modifiedAreaMaximum) == 8);
@@ -41,7 +41,7 @@ inline void* gDirectMusicManager = nullptr;
 // Original data: DAT_00511570; the next global begins at 0051257c.
 // Game-map dimensions, rectangles, owned map buffers, continent records and static tail.
 // The region owner is established; its remaining field layout stays explicit raw storage.
-alignas(4) inline std::byte gGameMapStaticStorage[0x100C]{};
+alignas(4) inline std::byte gGameMapStaticStorage[4108]{};
 
 // Complete static-display dirty bounds 00554D98..00554D9F: min X/Y, max X/Y.
 alignas(4) inline std::byte gStaticMapModifiedBounds[8]{};
@@ -60,7 +60,7 @@ namespace NC2E2
 
 // Complete engine-map region 00568358..00568373: macro/micro owners, two
 // dirty bounds at +0x08/+0x10, missing-resource flag at +0x18 and padding.
-alignas(4) inline std::byte gEngineMapStaticStorage[0x1C]{};
+alignas(4) inline std::byte gEngineMapStaticStorage[28]{};
 
 
 // Original data: DAT_00569078.

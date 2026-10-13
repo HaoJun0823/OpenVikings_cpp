@@ -49,7 +49,7 @@ namespace NXSys2DApp
         TWindowMessageCallback windowMessageCallback;              // +0x44
     };
 
-    static_assert(sizeof(SApplicationControl) == 0x48);
+    static_assert(sizeof(SApplicationControl) == 72);
 
     struct SDisplayMode
     {
@@ -58,7 +58,7 @@ namespace NXSys2DApp
         std::uint32_t depth;
     };
 
-    static_assert(sizeof(SDisplayMode) == 0x0C);
+    static_assert(sizeof(SDisplayMode) == 12);
 
     struct SDisplayModeData
     {
@@ -69,7 +69,7 @@ namespace NXSys2DApp
         SDisplayMode fullscreenDisplayModes[80];
     };
 
-    static_assert(sizeof(SDisplayModeData) == 0x3D0);
+    static_assert(sizeof(SDisplayModeData) == 976);
 
     class CWindow;
 
@@ -166,5 +166,5 @@ namespace NXSys2DApp
         SDisplayModeData mDisplayModeData;   // +0x5C
     };
 
-    static_assert(sizeof(CApplication) == 0x42C);
+    static_assert(sizeof(CApplication) == 1068);
 }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiDiplomacyWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiWindowState.h"
@@ -57,7 +58,7 @@ namespace NC2InGameGuiMiscWindows
     static void Add(void* window, void* element) { NXBaseGui::BaseWindow_Element_Add(window, element); }
     static void* TextButton(void* window, NXBasics::SRectangle rectangle, const char* caption, std::uint32_t command, bool toggle, bool selected = false)
     {
-        void* memory = NXBasics::Runtime_Allocate(0x60);
+        void* memory = NXBasics::Runtime_Allocate(96);
         void* button = memory == nullptr ? nullptr : toggle ? NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(memory, nullptr, &rectangle, caption, command, window, selected) : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &rectangle, caption, command, window);
         return button;
     }
@@ -69,7 +70,7 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x88);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 136);
         Write(window, 0, gDiplomacyWindowVirtualTable.data());
         Write<std::uint32_t>(gDiplomacyWindowStatics, 0, 0);
         Write(window, 0xE0, NC2Logic::StringIO_GetMissionStringArrayPtr());
@@ -101,7 +102,7 @@ namespace NC2InGameGuiMiscWindows
         std::byte packet[20]{}; Write<std::uint8_t>(packet, 1, static_cast<std::uint8_t>(Player()));
         if (command >= 10100 && command < 10200)
         {
-            Write<std::uint8_t>(packet, 0, 0x7F); Write(packet, 4, Player()); Write(packet, 8, OtherPlayer(window)); Write<std::uint32_t>(packet, 12, command == 10100 ? 3 : command == 10102 ? 1 : 2);
+            Write<std::uint8_t>(packet, 0, ReadableValues::IntegerRange::Int8MaximumSigned); Write(packet, 4, Player()); Write(packet, 8, OtherPlayer(window)); Write<std::uint32_t>(packet, 12, command == 10100 ? 3 : command == 10102 ? 1 : 2);
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
             DiplomacyWindow_l_GuiButtons_Update(window);
         }
@@ -127,13 +128,13 @@ namespace NC2InGameGuiMiscWindows
     void DiplomacyWindow_l_GuiButtons_Add(void* window)
     {
         const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0x0C) - 22, 14), closer(Read<std::int32_t>(window, 0x0C) - 18, 2, 16, 14);
-        void* memory = NXBasics::Runtime_Allocate(0xF8); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(memory, &title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(350)));
-        memory = NXBasics::Runtime_Allocate(0x54); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowCloserButton_Construct(memory, nullptr, &closer));
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x6C);
-        const auto player = Player(), playerBase = player * 0x4A80u;
+        void* memory = NXBasics::Runtime_Allocate(248); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(memory, &title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(350)));
+        memory = NXBasics::Runtime_Allocate(84); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowCloserButton_Construct(memory, nullptr, &closer));
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 108);
+        const auto player = Player(), playerBase = player * ReadableValues::RecordSize::GameControlPlayer;
         for (std::uint32_t other = 0; other < 20; ++other)
         {
-            if (Read<std::uint8_t>(NC2Logic::gGameControl, other * 0x4A80u) == 0 || (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x45F8u + other) == 0 && player != other) || Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x496Cu + other) != 0) continue;
+            if (Read<std::uint8_t>(NC2Logic::gGameControl, other * ReadableValues::RecordSize::GameControlPlayer) == 0 || (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x45F8u + other) == 0 && player != other) || Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x496Cu + other) != 0) continue;
             const auto count = Read<std::uint32_t>(window, 0x70);
             const auto hidden = Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x4980u + other);
             Write(window, 0x74u + count * 4u, other); Write(window, 0xC4u + count, hidden); Write(window, 0x70, count + 1);
@@ -151,13 +152,13 @@ namespace NC2InGameGuiMiscWindows
                 if (Read<std::uint8_t>(window, 0xC4u + i) != 0 || other == player) continue;
                 char name[260]; NC2Logic::GameControl_Misc_GetPlayerName(NC2Logic::gGameControl, other, true, name);
                 auto* button = TextButton(window, tab, name, 10001 + i, true, SelectedPage() == i + 1);
-                NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(button, NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * 0x4A80u + 0x10u) : 9)); Write<std::uint8_t>(button, 0x58, 1); Add(window, button); tab.x += tab.width + 2;
+                NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(button, NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * ReadableValues::RecordSize::GameControlPlayer + 0x10u) : 9)); Write<std::uint8_t>(button, 0x58, 1); Add(window, button); tab.x += tab.width + 2;
             }
         }
         if (SelectedPage() == 0)
         {
             NXBasics::SRectangle area(4, tab.y + tab.height + 8, Read<std::int32_t>(window, 0x0C) - 8, Read<std::int32_t>(window, 0x10) - tab.y - tab.height - 12); area.Inflate(-2, -2); Write(window, 0xE4, area);
-            memory = NXBasics::Runtime_Allocate(0x816C); auto* overview = memory == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewElement_Construct(memory, &area, 2);
+            memory = NXBasics::Runtime_Allocate(33132); auto* overview = memory == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewElement_Construct(memory, &area, 2);
             Write(window, 0xF4, overview); Add(window, overview);
             Write<std::uint8_t>(overview, 0x806C, 1); Write<std::uint8_t>(overview, 0x806D, 1); Write<std::uint8_t>(overview, 0x806E, 0); Write<std::uint8_t>(overview, 0x806F, 1); Write<std::uint8_t>(overview, 0x8070, 1); Write<std::uint8_t>(overview, 0x8072, 0); Write<std::uint8_t>(overview, 0x8074, 1); Write<std::uint8_t>(overview, 0x8044, 1); Write<std::uint8_t>(overview, 0x8075, 0); Write<std::uint8_t>(overview, 0x8044, 1); Write<std::uint8_t>(overview, 0x807B, 0);
         }
@@ -196,16 +197,16 @@ namespace NC2InGameGuiMiscWindows
             if (NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, other) == 1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(other, player) == 1)
             {
                 NXBasics::SRectangle listArea(4, 320, 468, 82), row(0, 0, 468, 18);
-                memory = NXBasics::Runtime_Allocate(0x74); auto* list = memory == nullptr ? nullptr : ToolListBoxElement_Construct(memory, nullptr, &listArea);
+                memory = NXBasics::Runtime_Allocate(116); auto* list = memory == nullptr ? nullptr : ToolListBoxElement_Construct(memory, nullptr, &listArea);
                 row.width = Read<std::int32_t>(list, 0x0C);
                 NC2Logic::CHouseIterator houses;
                 for (auto id = houses.GetFirstHouseId(other); id != -1; id = houses.GetNextHouseId())
                 {
                     const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
-                    const auto type = Read<std::uint32_t>(house, 0x14); if (type != 7 && type != 8 && type != 9 && type != 1) continue;
-                    if (NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, Read<std::int32_t>(house, 0x0C), player) != 1) continue;
+                    const auto type = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType); if (type != 7 && type != 8 && type != 9 && type != 1) continue;
+                    if (NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, Read<std::int32_t>(house, ReadableValues::HouseOffset::PlayerId), player) != 1) continue;
                     if (player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(house + 0x1C), 8) & (1u << player)) == 0) continue;
-                    for (auto offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, 0xFFFFFFFFu); offer != 0xFFFFFFFFu; offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, offer))
+                    for (auto offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, ReadableValues::IntegerRange::UInt32Maximum); offer != ReadableValues::IntegerRange::UInt32Maximum; offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, offer))
                     {
                         const auto* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + offer * 24u;
                         const auto firstGood = Read<std::uint32_t>(agreement, 8), firstAmount = Read<std::uint32_t>(agreement, 12), secondGood = Read<std::uint32_t>(agreement, 16), secondAmount = Read<std::uint32_t>(agreement, 20);
@@ -214,7 +215,7 @@ namespace NC2InGameGuiMiscWindows
                     }
                 }
                 Add(window, list); const NXBasics::SRectangle scroll(476, 320, 20, 82);
-                memory = NXBasics::Runtime_Allocate(0x3C); Add(window, memory == nullptr ? nullptr : ToolListBoxControllerElement_Construct(memory, nullptr, &scroll, list, false, true));
+                memory = NXBasics::Runtime_Allocate(60); Add(window, memory == nullptr ? nullptr : ToolListBoxControllerElement_Construct(memory, nullptr, &scroll, list, false, true));
             }
         }
         Write(window, 0xDC, timeGetTime());
@@ -235,10 +236,10 @@ namespace NC2InGameGuiMiscWindows
         char name[200]; NC2Logic::GameControl_Misc_GetPlayerName(NC2Logic::gGameControl, other, false, name);
         bitmap->Text_Print(resources.font10, color, 4, 50, name);
         std::int32_t y = 74;
-        if (other < 20 && Read<std::uint8_t>(NC2Logic::gGameControl, other * 0x4A80u + 8u) != 0) { bitmap->Text_Print(resources.font08, color, 4, y, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(357)); y = 92; }
+        if (other < 20 && Read<std::uint8_t>(NC2Logic::gGameControl, other * ReadableValues::RecordSize::GameControlPlayer + 8u) != 0) { bitmap->Text_Print(resources.font08, color, 4, y, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(357)); y = 92; }
         bitmap->Text_PrintV(resources.font08, color, 4, y, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(358), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(theirState));
         bitmap->Text_PrintV(resources.font08, color, 4, y + 18, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(359), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(ourState));
-        if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * 0x4A80u + other * 4u + 0x4A30u));
+        if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + other * 4u + 0x4A30u));
     }
     // Original function: FUN_004afcea; player names and diplomacy labels overlay the overview.
     static void __fastcall DiplomacyWindow_DrawOverlays(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)
@@ -260,7 +261,7 @@ namespace NC2InGameGuiMiscWindows
             {
                 const auto width = NXBasics::Font_GetPixelWidth(resources.font08, text), height = NXBasics::Font_GetPixelHeight(resources.font08, text);
                 NXBasics::SRectangle frame(x - width / 2 - 2, top, width + 6, height + 3); frame.PlaceInside(area);
-                if (fill) bitmap->Draw_Box(frame, *NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * 0x4A80u + 0x10u) : 9));
+                if (fill) bitmap->Draw_Box(frame, *NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * ReadableValues::RecordSize::GameControlPlayer + 0x10u) : 9));
                 bitmap->Tool_Darken(frame); NXBasics::CBitmap sub(bitmap, frame); NC2GuiToolsBase::DrawTool_DrawFrame(nullptr, &sub, &frame, 2);
                 bitmap->Text_Print(resources.font08, color, frame.x + 3, frame.y + (fill ? 2 : 1), text);
                 return frame.height;
@@ -283,7 +284,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_DiplomacyWindow_Open()
     {
         l_Selection_RemoveAllGuiElements(); if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E3, 0, 0, 0) != nullptr) return;
-        MiscWindows_CloseAllLargeOnes(true); void* allocation = NXBasics::Runtime_Allocate(0xF8); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::DiplomacyWindow_Construct(allocation);
+        MiscWindows_CloseAllLargeOnes(true); void* allocation = NXBasics::Runtime_Allocate(248); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::DiplomacyWindow_Construct(allocation);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
 }

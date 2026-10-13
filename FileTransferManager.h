@@ -14,7 +14,7 @@ namespace NNetwork
 {
     struct SFileTransferNode
     {
-        std::byte transferId[0x10];               // +0x00
+        std::byte transferId[16];               // +0x00
         std::uint32_t state;                      // +0x10
         std::uint32_t replyCode;                  // +0x14
         std::uint32_t peerId;                     // +0x18
@@ -61,7 +61,7 @@ namespace NNetwork
         NXBasics::RuntimeFormatStream* stream;       // +0x18
     };
 
-    static_assert(sizeof(SFileTransferInfo) == 0x1C);
+    static_assert(sizeof(SFileTransferInfo) == 28);
     static_assert(offsetof(SFileTransferInfo, checksum) == 0x08);
     static_assert(offsetof(SFileTransferInfo, transferredBytes) == 0x10);
     static_assert(offsetof(SFileTransferInfo, stream) == 0x18);
@@ -112,14 +112,14 @@ namespace NNetwork
         SFileTransferList transfers;             // +0x24
     };
 
-    static_assert(sizeof(SFileTransferNode) == 0x40);
+    static_assert(sizeof(SFileTransferNode) == 64);
     static_assert(offsetof(SFileTransferNode, state) == 0x10);
     static_assert(offsetof(SFileTransferNode, checksum) == 0x28);
     static_assert(offsetof(SFileTransferNode, transferredBytes) == 0x30);
     static_assert(offsetof(SFileTransferNode, stream) == 0x38);
 
     static_assert(sizeof(SFileTransferList) == 4);
-    static_assert(sizeof(CFileTransferManager) == 0x28);
+    static_assert(sizeof(CFileTransferManager) == 40);
     static_assert(offsetof(CFileTransferManager, serviceThread) == 0x04);
     static_assert(offsetof(CFileTransferManager, serviceState) == 0x08);
     static_assert(offsetof(CFileTransferManager, critical) == 0x0C);

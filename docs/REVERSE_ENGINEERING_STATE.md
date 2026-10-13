@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Readable hex values - 2026-10-13
+
+Replaced **6858 occurrences in 364 source/header files**: **5298 named uses** and **1560 decimal sizes/counts/zero-one values**. Added **430 typed constants in 59 domains** in `ReadableValues.h`; reused existing switch/result identifiers. See [HEX_VALUES.md](HEX_VALUES.md) and [HEX_VALUE_NAME_MAP.csv](HEX_VALUE_NAME_MAP.csv) for scope, retained values and evidence confidence.
+
+Exact source reversal against `37474b0` passes. All **307 production C++ units** pass Win32 syntax-only checks, with `/arch:IA32` for the CRT math module; **1206 distinct literal/replacement pairs** pass compiler value/type assertions. Five existing byte/bool comparison warnings remain unchanged. Project/filter parity: **307 CPP / 284 headers**. Windows ASM/Game.exe checks cover **120 instruction byte sequences**, six complete field getters and **274/459 static token pairs**; remaining names are distinguished as existing-call-site/layout inference. No build, tests or game run occurred.
+
+This does not claim that every raw offset has been identified: **16380 baseline hex positions** remain, including existing named/SDK definitions, GUID/numeric tables and unresolved layouts. The next substantive naming block is Windows xref analysis of the remaining object layouts; do not assign speculative field or flag effects. The following checkpoints are historical.
+
 ## Numeric case labels replaced - 2026-10-12
 
 All **2764/2764 numeric case labels** in **234 switches / 110 registered source files** now use scoped semantic constants. There are **2365 constants in 144 domains**, in `SwitchIdentifiers.h` and `XResultIdentifiers.h`. See [CASE_IDENTIFIERS.md](CASE_IDENTIFIERS.md) and [CASE_IDENTIFIER_MAP.csv](CASE_IDENTIFIER_MAP.csv).

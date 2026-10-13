@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AIVillageAccess.h"
 #include "C2AIProduction.h"
 #include "C2AIResourceAccess.h"
@@ -101,7 +102,7 @@ namespace NC2Logic
     {
         auto candidate = Read<std::uint32_t>(point, 0);
         const auto player = Read<std::int32_t>(villages, 20);
-        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80 + 12) : 1u;
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1u;
         std::uint32_t stage;
         const auto engine = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, 7, &stage);
         if (engine == -1) return false;
@@ -179,7 +180,7 @@ namespace NC2Logic
         std::uint32_t VillageTribe(const void* village)
         {
             const auto player = Read<std::int32_t>(village, 8);
-            return player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80 + 12) : 1u;
+            return player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1u;
         }
         void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
     }
@@ -297,7 +298,7 @@ namespace NC2Logic
         {
             if (AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(single, id)) continue;
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsJobSoldier(human) || Human_IsSexFemale(human) || !Human_IsAgeAdult(human) || (Human_IsJobBuilder(human) && Human_IsAttachedToBuildSite(human))) continue;
+            if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsJobSoldier(human) || Human_IsSexFemale(human) || !Human_IsAgeAdult(human) || (Human_IsJobBuilder(human) && Human_IsAttachedToBuildSite(human))) continue;
             const auto* position = Human_GetMapPositionRef(human);
             const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
             if (candidate >= distance) continue;
@@ -313,7 +314,7 @@ namespace NC2Logic
         Write(village, 0xCE4, type); Write(village, 0xCE8, good); Write(village, 12, Read<std::uint32_t>(point, 0));
         Write<std::int32_t>(village, 20, -1); Write(village, 16, radius); Write(village, 4, id); Write(village, 8, player);
         AIHouseManager_Init(static_cast<std::byte*>(village) + 28);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * 0x4A80 + 12) : 1u;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1u;
         AIGoodManager_Init(static_cast<std::byte*>(village) + 0x274, tribe);
         Write<std::uint8_t>(village, 0xCC4, 0); Write<std::uint8_t>(village, 0xCD0, 0); Write<std::int32_t>(village, 0xCE0, -1); Write<std::uint8_t>(village, 0, 1);
     }
@@ -408,14 +409,14 @@ namespace NC2Logic
                         for (auto humanId = humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(AIVillageManager_GetCenterPoint(village), 0), radius, false); humanId != -1; humanId = humans.GetNextSectorHumanId())
                         {
                             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
-                            if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || (Read<std::uint32_t>(human, 0xB84) & 32) == 0 || !Human_IsAttachedToWorkHouse(human)) continue;
-                            const auto* workPoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, 0xB34))) + 36;
+                            if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 32) == 0 || !Human_IsAttachedToWorkHouse(human)) continue;
+                            const auto* workPoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId))) + 36;
                             if (!AIVillage_IsPointInside(village, workPoint)) continue;
                             const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(house, 36), Read<std::uint16_t>(house, 38)));
                             if (Human_IsAttachedToHomeHouse(human))
                             {
-                                if (Read<std::uint32_t>(human, 0xB28) == Read<std::uint32_t>(house, 4)) continue;
-                                const auto* homePoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, 0xB28))) + 36;
+                                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId) == Read<std::uint32_t>(house, 4)) continue;
+                                const auto* homePoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, ReadableValues::HumanOffset::HomeHouseId))) + 36;
                                 const auto oldDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(homePoint, 0), Read<std::uint16_t>(homePoint, 2)));
                                 if (candidate >= oldDistance) continue;
                             }
@@ -428,9 +429,9 @@ namespace NC2Logic
                     if ((flags & 1) != 0)
                     {
                         auto* human = House_Inhabitants_GetAttachedHumanPtr(house, slot);
-                        if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && (Read<std::uint32_t>(human, 0xB84) & 32) != 0)
+                        if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 32) != 0)
                         {
-                            const auto inVillage = Human_IsAttachedToWorkHouse(human) ? AIVillage_IsPointInside(village, static_cast<const std::byte*>(House(Read<std::int32_t>(human, 0xB34))) + 36) : Human_IsMarried(human);
+                            const auto inVillage = Human_IsAttachedToWorkHouse(human) ? AIVillage_IsPointInside(village, static_cast<const std::byte*>(House(Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId))) + 36) : Human_IsMarried(human);
                             if (!inVillage) { Human_DoAddNewUserCommand(human, 27, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0); sent = true; }
                         }
                     }

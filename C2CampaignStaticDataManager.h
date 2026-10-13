@@ -33,8 +33,8 @@ namespace NC2Logic
         bool l_IO_Load();
         void l_IO_Save() const;
 
-        char mDataDirectory[0x104];
-        char mFileName[0x104];
+        char mDataDirectory[260];
+        char mFileName[260];
         std::uint32_t mSubMissionCount;
         SCampaignSubMission* mSubMissions;
         std::uint32_t mVariableCount;
@@ -43,5 +43,5 @@ namespace NC2Logic
 
     static_assert(sizeof(SCampaignSubMission) == 8);
     static_assert(sizeof(SCampaignVariable) == 12);
-    static_assert(sizeof(CCampaignStaticDataManager) == 0x218);
+    static_assert(sizeof(CCampaignStaticDataManager) == 536);
 }

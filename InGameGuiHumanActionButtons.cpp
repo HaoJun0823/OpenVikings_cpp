@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiHumanActionButtons.h"
 #include "InGameGuiManager.h"
@@ -68,7 +69,7 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
             if (selection == 5) { const auto members = Selection_GetSelectedMultipleVehiclesNumber(Input()); for (std::uint32_t index = 1; index < members; ++index) { NC2Logic::SUserCommandsForVehicleHandler other; if (!NC2Logic::Logic_UserControl_GetVehicleCommands(Selection_GetSelectedMultipleVehicleId(Input(), index), &other, true)) return; for (std::int32_t command = 0; command < vehicle.count; ++command) { if (other.IsCommandAllowed(vehicle.commands[command])) continue; for (auto next = command; next < vehicle.count - 1; ++next) vehicle.commands[next] = vehicle.commands[next + 1]; --vehicle.count; --command; } } if (vehicle.count == 0) return; } count = vehicle.count; commands = vehicle.commands;
         }
         NXBasics::SRectangle area(Read<std::int32_t>(manager, 0xD0) - 260, Read<std::int32_t>(manager, 0xD4) - count * 22 / 2, 240, count * 22); NXBasics::SRectangle bounds(0, 0, 0, 0); std::memcpy(&bounds, NXBaseGui::CDesktop::sTheObjectPtr, sizeof(bounds)); area.PlaceInside(bounds); area.height = 22;
-        for (std::int32_t index = 0; index < count; ++index) { const auto action = commands[index]; const auto* caption = selection == 6 ? NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHouseTypeNamePtr(action) : NC2GuiToolsBase::StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(action); void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &area, caption, (selection == 6 ? 3300u : 3600u) + action, static_cast<std::byte*>(manager) + 0x1A8); NC2InGameGuiBase::BaseToolDesktop_AddOverlayElement(static_cast<NXBaseGui::CBaseElement*>(element)); reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0xB8)->InsertAtEnd(element); area.y += 22; }
+        for (std::int32_t index = 0; index < count; ++index) { const auto action = commands[index]; const auto* caption = selection == 6 ? NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHouseTypeNamePtr(action) : NC2GuiToolsBase::StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(action); void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &area, caption, (selection == 6 ? 3300u : 3600u) + action, static_cast<std::byte*>(manager) + 0x1A8); NC2InGameGuiBase::BaseToolDesktop_AddOverlayElement(static_cast<NXBaseGui::CBaseElement*>(element)); reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0xB8)->InsertAtEnd(element); area.y += 22; }
         Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
     }
     if (selection != 1 && selection != 2) { Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return; }
@@ -134,7 +135,7 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
             const auto graphic = action >= 2 && action <= 45 ? graphics[action - 2] : 107u;
             NXBasics::SRectangle rectangle(x - 16, y - 16, 32, 32);
             if (ordinal == 0 || ordinal == groups[group] - 1) { rectangle.x += bendX; rectangle.y += bendY; }
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(memory, nullptr, &rectangle, graphic, tooltip, 3000 + action, static_cast<std::byte*>(manager) + 0x1A8);
             Write<std::uint8_t>(element, 0x34, 1); Write<std::uint8_t>(element, 0x44, 1);
             NC2InGameGuiBase::ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.contextPalette);
@@ -197,7 +198,7 @@ namespace NC2InGameGuiManager
             case SwitchIds::HumanGuiAction::ChangeEquippedGoods: manager->MiscWindows_HumanChangeEquippedGoodsWindow_Open(6, -1); break;
             case SwitchIds::HumanGuiAction::LearnJob: manager->MiscWindows_HumanLearnJobWindow_Open(); break;
             case SwitchIds::HumanGuiAction::SetWorkCenter: mode = 2; break; case SwitchIds::HumanGuiAction::SetWorkArea: mode = 3; break; case SwitchIds::HumanGuiAction::ExploreArea: mode = 13; break;
-            case SwitchIds::HumanGuiAction::ExploreAreaAndReset: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, 0xFFFFFFFFu, 1); break;
+            case SwitchIds::HumanGuiAction::ExploreAreaAndReset: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, ReadableValues::IntegerRange::UInt32Maximum, 1); break;
             default: remove = ls_Tool_SendSimpleHumanNetworkCommand(action, id, first, 0); break;
             }
             if (mode != -1) InputMode_Set(Input(), mode);

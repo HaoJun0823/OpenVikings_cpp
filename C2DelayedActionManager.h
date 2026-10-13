@@ -15,9 +15,9 @@ namespace NC2Logic
         std::uint32_t count;
         struct Entry { std::uint32_t type, id; } entries[100];
     };
-    static_assert(sizeof(SDelayedAction) == 0x30);
+    static_assert(sizeof(SDelayedAction) == 48);
     static_assert(offsetof(SDelayedAction, targetPosition) == 0x1C);
-    static_assert(sizeof(SDelayedHitObjectArray) == 0x324);
+    static_assert(sizeof(SDelayedHitObjectArray) == 804);
     void __fastcall DelayedActionManager_System_DoOneGameTick(void* manager, void* unusedEdx);
     bool DelayedActionManager_DelayedAction_AddWeaponHit(void* manager, std::uint32_t delay, std::uint32_t attackerType, std::uint32_t attackerId, const void* point, std::uint32_t weapon);
     void DelayedActionManager_l_DelayedAction_Execute(void* manager, const SDelayedAction* action);

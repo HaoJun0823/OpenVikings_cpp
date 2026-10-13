@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiTechTreeWindow.h"
 #include "InGameGuiTechTreeData.h"
 #include "InGameGuiWindowState.h"
@@ -49,12 +50,12 @@ namespace NC2InGameGuiMiscWindows
     static std::uint32_t LocalTribe()
     {
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        return player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0xC);
+        return player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC);
     }
     static const std::byte* PlayerFlags(std::uint32_t stride, std::uint32_t type)
     {
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        return static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * 0x4A80u + LocalTribe() * stride + type;
+        return static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + LocalTribe() * stride + type;
     }
     // Original functions: FUN_004a6d66, FUN_004a6db3, FUN_004a6e00.
     bool TechTreeWindow_IsHouseTypeFree(std::uint32_t type) { const auto* flags = PlayerFlags(55, type); return Read<std::uint8_t>(flags, 0x2820) != 0 && Read<std::uint8_t>(flags, 0x3126) != 0; }
@@ -103,7 +104,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeHouseTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = DrawTool_GetFont10Ptr(); const auto* palette = CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(palette, 0x400);
@@ -128,7 +129,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeGoodTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
@@ -158,7 +159,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeJobTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources; auto* font = resources.font08;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
@@ -195,7 +196,7 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         BaseToolWindow_Construct(window, &rectangle);
         auto* buttons = new (static_cast<std::byte*>(window) + 0x70) CDynamicSubButtonsHandler();
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0xAF4); Write(window, 0, gTechTreeWindowVirtualTable.data()); Write<std::uint32_t>(window, 0x6C, 1); buttons->SetWindow(window);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2804); Write(window, 0, gTechTreeWindowVirtualTable.data()); Write<std::uint32_t>(window, 0x6C, 1); buttons->SetWindow(window);
         TechTreeWindow_l_GuiButtons_Add(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Stop_LargeWindowOpened(); return window;
     }
     // Original function: FUN_004a5fc0.
@@ -345,15 +346,15 @@ namespace NC2InGameGuiMiscWindows
     void TechTreeWindow_l_GuiButtons_Add(void* window)
     {
         const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
-        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, StringTool_GetGameGuiMiscWindowStringPtr(380)));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
         const auto page = Read<std::uint32_t>(gTechTreeWindowStatics, 0);
         for (std::uint32_t index = 0; index < 10; ++index)
         {
             const NXBasics::SRectangle rectangle(4 + index * 49, 22, 47, 30);
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, gTechTreeTabs[index].graphic, StringTool_GetGameGuiMiscWindowStringPtr(gTechTreeTabs[index].tooltip), 10000 + index, window);
             Write<std::uint8_t>(element, 0x36, index == page); Write<std::uint8_t>(element, 0x35, 1); Write<std::uint8_t>(element, 0x44, 1); NXBaseGui::BaseWindow_Element_Add(window, element);
         }
@@ -364,7 +365,7 @@ namespace NC2InGameGuiMiscWindows
             if (node->type >= 1 && node->type <= 3)
             {
                 const NXBasics::SRectangle rectangle(node->x, node->y, node->width, node->height);
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x68, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(104, 1);
                 if (allocation != nullptr)
                 {
                     if (node->type == 1) element = TechTreeHouseTypeElement_Construct(allocation, &rectangle, node->id, window);
@@ -374,7 +375,7 @@ namespace NC2InGameGuiMiscWindows
             }
             else if (node->type == 4)
             {
-                const NXBasics::SPoint first{node->x, node->y}, second{node->width, node->height}; allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+                const NXBasics::SPoint first{node->x, node->y}, second{node->width, node->height}; allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
                 if (allocation != nullptr) element = TechTreeLineElement_Construct(allocation, &first, &second);
             }
             else continue;
@@ -395,7 +396,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_TechTreeWindow_Open()
     {
         l_Selection_RemoveAllGuiElements(); if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E7, 0, 0, 0) != nullptr) return; MiscWindows_CloseAllLargeOnes(true);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xB64, 1); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::TechTreeWindow_Construct(allocation);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2916, 1); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::TechTreeWindow_Construct(allocation);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
 }

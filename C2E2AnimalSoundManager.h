@@ -20,6 +20,6 @@ namespace NC2E2
         std::uint32_t animalCounts[34];
     };
 
-    static_assert(sizeof(CE2AnimalSoundManager) == 0x8C);
+    static_assert(sizeof(CE2AnimalSoundManager) == 140);
     static_assert(offsetof(CE2AnimalSoundManager, animalCounts) == 4);
 }

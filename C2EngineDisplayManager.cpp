@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "C2GameMapAccess.h"
@@ -90,7 +91,7 @@ namespace NC2E2
             std::uint32_t player;
             std::memcpy(&player, static_cast<const std::byte*>(display) + 0x7C, sizeof(player));
             const auto* visible = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
-            if ((playerId == 0xFFFFFFFFu || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[0x978] = std::byte{1};
+            if ((playerId == ReadableValues::IntegerRange::UInt32Maximum || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[2424] = std::byte{1};
         }
     }
 
@@ -101,7 +102,7 @@ namespace NC2E2
 
         for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
         {
-            static_cast<std::byte*>(display)[0x978] = std::byte{ 1 };
+            static_cast<std::byte*>(display)[2424] = std::byte{ 1 };
         }
     }
 
@@ -137,7 +138,7 @@ namespace NC2E2
             std::memcpy(&target, static_cast<const std::byte*>(display) + 0xA8, sizeof(target));
             if (enabled != 0 && target != nullptr)
             {
-                std::memset(target, 0, 0x18C);
+                std::memset(target, 0, 396);
                 DisplayObjectReference_Reset(target);
             }
             const std::uint32_t zero = 0;

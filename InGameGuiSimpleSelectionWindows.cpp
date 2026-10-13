@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiSimpleSelectionWindows.h"
 #include "InGameGuiSelectionWindowAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -48,9 +49,9 @@ namespace NC2InGameGuiSelection
     void* SelectionGuideWindow_Construct(void* window)
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 170, state.displayHeight - 250, 170, 250); BaseToolWindow_Construct(window, &area);
-        new (static_cast<std::byte*>(window) + 0x70) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x2EE4); Write(window, 0, gSelectionGuideVirtualTable.data());
-        const SRectangle camera(4, 18, 80, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", Text(271), 10100, window));
-        const SRectangle remove(86, 18, 80, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &remove, Text(272), Text(273), 10101, window)); return window;
+        new (static_cast<std::byte*>(window) + 0x70) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12004); Write(window, 0, gSelectionGuideVirtualTable.data());
+        const SRectangle camera(4, 18, 80, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", Text(271), 10100, window));
+        const SRectangle remove(86, 18, 80, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &remove, Text(272), Text(273), 10101, window)); return window;
     }
     // Original function: FUN_004be754.
     static void* __fastcall SelectionGuideWindow_Delete(void* window, void*, std::uint32_t flags) { Write(window, 0, gSelectionGuideVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
@@ -80,6 +81,6 @@ namespace NC2InGameGuiSelection
     static void __fastcall SelectionSingleAnimalWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
         BaseToolWindow_Draw(window, nullptr, bitmap, rectangle); const SRectangle title(0, 0, 140, 16); SelectionTool_FillRectangle(bitmap, title, 5); SelectionTool_PrintCenteredString(bitmap, title, true, Text(530)); const auto id = Selection_GetSelectedSingleAnimalId(gInputManager); if (id == -1) return; const auto* animal = NC2Logic::CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CAnimalArray::ElementSize; if (Read<std::uint8_t>(animal, 0) == 0) return;
-        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(animal, 0xC), bitmap, 70, 110, nullptr, true, Read<std::int32_t>(animal, 0x10)); bitmap->Text_Print(CGuiBaseDataManager::mStaticVars.resources.font08, White(), 4, 16, NC2Logic::StringAccess_GetTribeNamePtr(Read<std::uint32_t>(animal, 0x14), 1));
+        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::MapMoveableId), bitmap, 70, 110, nullptr, true, Read<std::int32_t>(animal, ReadableValues::AnimalOffset::PlayerId)); bitmap->Text_Print(CGuiBaseDataManager::mStaticVars.resources.font08, White(), 4, 16, NC2Logic::StringAccess_GetTribeNamePtr(Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType), 1));
     }
 }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "GuiTextToolElementAccess.h"
 #include "GuiClockToolElementAccess.h"
 #include "C2LifetimeAccess.h"
@@ -71,7 +72,7 @@ namespace NC2InGameGuiBase
         BaseElement_Construct(element, rectangle, 0, 0);
         Write<std::uint8_t>(element, 0x2C, 0);
         Write(element, 0, gTextElementVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0xCE);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 206);
         std::strncpy(static_cast<char*>(element) + 0x30, caption, 0xC7);
         Write<std::uint8_t>(element, 0xF9, fillBackground);
         Write<std::uint8_t>(element, 0xFC, wrapText);
@@ -113,7 +114,7 @@ namespace NC2InGameGuiBase
         BaseElement_Construct(element, rectangle, 2, 0x140);
         Write<std::uint8_t>(element, 0x2C, 0);
         new (static_cast<std::byte*>(element) + 0x5C) NXBasics::SColorRGB();
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x30);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 48);
         Write(element, 0, gTextButtonVirtualTable + 0);
         BaseToolTextButton_SetCaptionString(element, caption);
     }
@@ -193,7 +194,7 @@ namespace NC2InGameGuiBase
     static void __fastcall TextButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const bool disabled = Read<std::uint8_t>(element, 0x56) != 0;
-        const auto mode = ((Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
+        const auto mode = ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
         if (Read<std::uint8_t>(element, 0x59) != 0) bitmap->Fill(Read<NXBasics::SColorRGB>(element, 0x5C));
         else NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
@@ -235,7 +236,7 @@ namespace NC2InGameGuiBase
         {
             NXBasics::SRectangle area = bitmap->GetRectangle();
             area.Inflate(-1, -1);
-            bitmap->Tool_Darken(area, 0x7F, 0x7F, 0x7F);
+            bitmap->Tool_Darken(area, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned);
         }
     }
 

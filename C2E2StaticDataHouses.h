@@ -21,7 +21,7 @@ namespace NC2E2
         void* owner;
     };
     inline SStaticHouseStorage gStaticHouseStorage{};
-    static_assert(sizeof(SStaticHouseStorage) == 0x18);
+    static_assert(sizeof(SStaticHouseStorage) == 24);
     static_assert(offsetof(SStaticHouseStorage, count) == 8);
     static_assert(offsetof(SStaticHouseStorage, entries) == 0x0C);
     static_assert(offsetof(SStaticHouseStorage, tokenFlags) == 0x10);

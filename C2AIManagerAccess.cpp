@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2AIManagerAccess.h"
 #include "C2AIConditions.h"
@@ -20,37 +21,37 @@ namespace NC2Logic
     {
         // Windows token table 004F3430..004F353F, including commands ignored by this parser.
         const NXBasics::SToken kAIScriptTokens[] = {
-            {"AI_MainTask_Defend", 0x61696465}, {"AI_MainTask_Attack", 0x61696174},
-            {"AI_MainTask_BuildHouse", 0x61696268}, {"AI_MainTask_ChangeDiplomacy", 0x61696379},
-            {"AI_MainTask_CreateCreatures", 0x61696378}, {"AI_MainTask_SelfDestroyPlayer", 0x61696470},
-            {"AI_MainTask_ClearTributes", 0x6169636C}, {"AI_MainTask_BuildMilestone", 0x6169626D},
-            {"AI_SetCondition_True", 0x6169636F}, {"AI_SetCondition_OnTime", 0x61696374},
-            {"AI_SetCondition_OnConditions", 0x61696363}, {"AI_SetCondition_OnConditionChangeDelayed", 0x6169637A},
-            {"AI_SetCondition_OnDiplomacyChange", 0x61696364}, {"AI_SetCondition_OnCreatureInRange", 0x61696372},
-            {"AI_SetCondition_OnHouseInRange", 0x61696368}, {"AI_SetCondition_OnPlayerSeen", 0x61696373},
-            {"AI_SetCondition_OnPlayerDead", 0x61696370}, {"AI_SetCondition_OnNumberOfSoldiers", 0x61696E73},
-            {"AI_SetCondition_OnExternal", 0x61696365}, {"AI_SetCondition_OnTimer", 0x61736374},
-            {"AI_AddTribute", 0x61697472}, {"AI_SetTributeHireling", 0x61697468},
-            {"AI_UnitLimit", 0x6169756C}, {"AI_MaxUnitLimit", 0x61696D75},
-            {"AI_SoldiersDefaultPosition", 0x61697364}, {"AI_Disable", 0x61696473},
-            {"HAI_Disable", 0x68616964}, {"HAI_DisableHouseBuild", 0x68646862},
-            {"HAI_DisableHouseUpgrade", 0x68646875}, {"HAI_DisableGuideBuild", 0x68646762},
-            {"HAI_DisableRoadBuild", 0x68647262}, {"HAI_DisableMilitary", 0x68646D69},
-            {"HAI_DisableHomeExpansion", 0x68646865}, {"HAI_DisableCollectResources", 0x68646372}, {nullptr, 0}
+            {"AI_MainTask_Defend", SwitchIds::AIToken::AIMainTaskDefend}, {"AI_MainTask_Attack", SwitchIds::AIToken::AIMainTaskAttack},
+            {"AI_MainTask_BuildHouse", SwitchIds::AIToken::AIMainTaskBuildHouse}, {"AI_MainTask_ChangeDiplomacy", SwitchIds::AIToken::AIMainTaskChangeDiplomacy},
+            {"AI_MainTask_CreateCreatures", SwitchIds::AIToken::AIMainTaskCreateCreatures}, {"AI_MainTask_SelfDestroyPlayer", SwitchIds::AIToken::AIMainTaskSelfDestroyPlayer},
+            {"AI_MainTask_ClearTributes", ReadableValues::AIManagerToken::AIMainTaskClearTributes}, {"AI_MainTask_BuildMilestone", ReadableValues::AIManagerToken::AIMainTaskBuildMilestone},
+            {"AI_SetCondition_True", SwitchIds::AIToken::AISetConditionTrue}, {"AI_SetCondition_OnTime", SwitchIds::AIToken::AISetConditionOnTime},
+            {"AI_SetCondition_OnConditions", SwitchIds::AIToken::AISetConditionOnConditions}, {"AI_SetCondition_OnConditionChangeDelayed", SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed},
+            {"AI_SetCondition_OnDiplomacyChange", SwitchIds::AIToken::AISetConditionOnDiplomacyChange}, {"AI_SetCondition_OnCreatureInRange", SwitchIds::AIToken::AISetConditionOnCreatureInRange},
+            {"AI_SetCondition_OnHouseInRange", SwitchIds::AIToken::AISetConditionOnHouseInRange}, {"AI_SetCondition_OnPlayerSeen", SwitchIds::AIToken::AISetConditionOnPlayerSeen},
+            {"AI_SetCondition_OnPlayerDead", SwitchIds::AIToken::AISetConditionOnPlayerDead}, {"AI_SetCondition_OnNumberOfSoldiers", SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers},
+            {"AI_SetCondition_OnExternal", SwitchIds::AIToken::AISetConditionOnExternal}, {"AI_SetCondition_OnTimer", SwitchIds::AIToken::AISetConditionOnTimer},
+            {"AI_AddTribute", ReadableValues::AIManagerToken::AIAddTribute}, {"AI_SetTributeHireling", ReadableValues::AIManagerToken::AISetTributeHireling},
+            {"AI_UnitLimit", SwitchIds::AIToken::AIUnitLimit}, {"AI_MaxUnitLimit", SwitchIds::AIToken::AIMaxUnitLimit},
+            {"AI_SoldiersDefaultPosition", SwitchIds::AIToken::AISoldiersDefaultPosition}, {"AI_Disable", SwitchIds::AIToken::AIDisable},
+            {"HAI_Disable", SwitchIds::AIToken::HAIDisable}, {"HAI_DisableHouseBuild", SwitchIds::AIToken::HAIDisableHouseBuild},
+            {"HAI_DisableHouseUpgrade", SwitchIds::AIToken::HAIDisableHouseUpgrade}, {"HAI_DisableGuideBuild", SwitchIds::AIToken::HAIDisableGuideBuild},
+            {"HAI_DisableRoadBuild", SwitchIds::AIToken::HAIDisableRoadBuild}, {"HAI_DisableMilitary", SwitchIds::AIToken::HAIDisableMilitary},
+            {"HAI_DisableHomeExpansion", SwitchIds::AIToken::HAIDisableHomeExpansion}, {"HAI_DisableCollectResources", SwitchIds::AIToken::HAIDisableCollectResources}, {nullptr, 0}
         };
 
         bool IsScriptPlayerActive(std::int32_t player)
         {
             // The original signed comparison relies on valid nonnegative script player indices.
-            return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) != 0;
+            return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) != 0;
         }
     }
 
     // Original function: FUN_0040822e.
     bool __fastcall AIManager_IO_InitFromScript(void* manager, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)
     {
-        std::byte task[0x44]{};
-        std::byte condition[0x48];
+        std::byte task[68]{};
+        std::byte condition[72];
         if (reader->GetFirstGroup("AIData") == nullptr) return true;
         do
         {
@@ -64,9 +65,9 @@ namespace NC2Logic
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
-                    const auto priority = token == 0x61696470 ? 1 : reader->GetInt();
+                    const auto priority = token == SwitchIds::AIToken::AIMainTaskSelfDestroyPlayer ? 1 : reader->GetInt();
                     const auto conditionId = reader->GetInt();
-                    const std::uint32_t type = token == 0x61696174 ? 2u : token == 0x61696268 ? 3u : token == 0x61696378 ? 5u : token == 0x61696379 ? 4u : token == 0x61696465 ? 1u : 6u;
+                    const std::uint32_t type = token == SwitchIds::AIToken::AIMainTaskAttack ? 2u : token == SwitchIds::AIToken::AIMainTaskBuildHouse ? 3u : token == SwitchIds::AIToken::AIMainTaskCreateCreatures ? 5u : token == SwitchIds::AIToken::AIMainTaskChangeDiplomacy ? 4u : token == SwitchIds::AIToken::AIMainTaskDefend ? 1u : 6u;
                     AIMainTask_Init(task, type, priority, conditionId);
                     const auto integer = [&](std::uint32_t offset) { Write(task, offset, static_cast<std::uint32_t>(reader->GetInt())); };
                     const auto coordinate = [&](std::uint32_t offset) { Write(task, offset, static_cast<std::int16_t>(reader->GetInt())); };
@@ -100,7 +101,7 @@ namespace NC2Logic
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
-                    const std::uint32_t type = token == 0x6169636F ? 1u : token == 0x61696374 ? 2u : token == 0x61696363 ? 3u : token == 0x6169637A ? 4u : token == 0x61696364 ? 5u : token == 0x61696372 ? 6u : token == 0x61696368 ? 7u : token == 0x61696373 ? 8u : token == 0x61696370 ? 9u : token == 0x61696E73 ? 10u : token == 0x61696365 ? 11u : 12u;
+                    const std::uint32_t type = token == SwitchIds::AIToken::AISetConditionTrue ? 1u : token == SwitchIds::AIToken::AISetConditionOnTime ? 2u : token == SwitchIds::AIToken::AISetConditionOnConditions ? 3u : token == SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed ? 4u : token == SwitchIds::AIToken::AISetConditionOnDiplomacyChange ? 5u : token == SwitchIds::AIToken::AISetConditionOnCreatureInRange ? 6u : token == SwitchIds::AIToken::AISetConditionOnHouseInRange ? 7u : token == SwitchIds::AIToken::AISetConditionOnPlayerSeen ? 8u : token == SwitchIds::AIToken::AISetConditionOnPlayerDead ? 9u : token == SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers ? 10u : token == SwitchIds::AIToken::AISetConditionOnExternal ? 11u : 12u;
                     if (type == 1 || type == 2) AICondition_Init(condition, type, 1);
                     const auto index = reader->GetInt();
                     const auto flag = type == 1 || type == 2 || type == 9 ? 1 : type == 11 || type == 12 ? 0 : reader->GetInt() != 0;
@@ -144,9 +145,9 @@ namespace NC2Logic
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
-                    if (token == 0x6169756C) AIManager_EntryPoint_SetUnitLimit(manager, player, reader->GetInt());
-                    else if (token == 0x61696D75) AIManager_EntryPoint_SetMaxUnitLimit(manager, player, reader->GetInt());
-                    else if (token == 0x61697364)
+                    if (token == SwitchIds::AIToken::AIUnitLimit) AIManager_EntryPoint_SetUnitLimit(manager, player, reader->GetInt());
+                    else if (token == SwitchIds::AIToken::AIMaxUnitLimit) AIManager_EntryPoint_SetMaxUnitLimit(manager, player, reader->GetInt());
+                    else if (token == SwitchIds::AIToken::AISoldiersDefaultPosition)
                     {
                         const auto x = static_cast<std::int16_t>(reader->GetInt());
                         const auto y = static_cast<std::int16_t>(reader->GetInt());
@@ -155,16 +156,16 @@ namespace NC2Logic
                         MapMigPoint_SetPosition(&point, x, y, false);
                         AIManager_EntryPoint_SingleSoldier_SetDefaultPosition(manager, player, &point, radius);
                     }
-                    else if (token == 0x61696473) AIManager_DisableAI(manager, player);
+                    else if (token == SwitchIds::AIToken::AIDisable) AIManager_DisableAI(manager, player);
                     else
                     {
                         void* high = Read<void*>(manager, 0x50u + static_cast<std::uint32_t>(player) * 4u);
-                        std::uint32_t offset = token == 0x68616964 ? 4u : token == 0x68646372 ? 0x19u : token == 0x68646762 ? 0x17u : token == 0x68646865 ? 0x16u : token == 0x68646D69 ? 5u : 0x18u;
-                        if (token == 0x68646862 || token == 0x68646875)
+                        std::uint32_t offset = token == SwitchIds::AIToken::HAIDisable ? 4u : token == SwitchIds::AIToken::HAIDisableCollectResources ? 0x19u : token == SwitchIds::AIToken::HAIDisableGuideBuild ? 0x17u : token == SwitchIds::AIToken::HAIDisableHomeExpansion ? 0x16u : token == SwitchIds::AIToken::HAIDisableMilitary ? 5u : 0x18u;
+                        if (token == SwitchIds::AIToken::HAIDisableHouseBuild || token == SwitchIds::AIToken::HAIDisableHouseUpgrade)
                         {
                             const auto village = reader->GetInt();
                             if (village >= 8) break;
-                            offset = (token == 0x68646862 ? 6u : 14u) + static_cast<std::uint32_t>(village);
+                            offset = (token == SwitchIds::AIToken::HAIDisableHouseBuild ? 6u : 14u) + static_cast<std::uint32_t>(village);
                         }
                         Write<std::uint8_t>(high, offset, 0);
                     }

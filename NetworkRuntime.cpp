@@ -1,3 +1,5 @@
+#include "ReadableValues.h"
+#include "XResultIdentifiers.h"
 #include "SwitchIdentifiers.h"
 #include <winsock2.h>
 #include <Windows.h>
@@ -29,7 +31,7 @@ namespace NNetwork
         std::memcpy(bytes + 4, &zero, 4);
         bytes[8] = 0;
         bytes[0] = 5;
-        std::memset(bytes + 9, 0, 0xC8);
+        std::memset(bytes + 9, 0, 200);
         return packet;
     }
 
@@ -39,7 +41,7 @@ namespace NNetwork
         auto* bytes = static_cast<std::uint8_t*>(packet);
         bytes[1] = 0;
         bytes[0] = 3;
-        std::memset(bytes + 2, 0, 0x100);
+        std::memset(bytes + 2, 0, 256);
         return packet;
     }
 
@@ -51,7 +53,7 @@ namespace NNetwork
         std::memcpy(bytes + 4, &zero, 4);
         std::memcpy(bytes + 8, &zero, 4);
         bytes[0] = 4;
-        std::memset(bytes + 0x0C, 0, 0x400);
+        std::memset(bytes + 0x0C, 0, 1024);
         return packet;
     }
 
@@ -67,7 +69,7 @@ namespace NNetwork
         bytes[0] = 11;
         const GUID transferId{};
         std::memcpy(bytes + 4, &transferId, sizeof(transferId));
-        std::memset(bytes + 0x18, 0, 0x100);
+        std::memset(bytes + 0x18, 0, 256);
         return packet;
     }
 }
@@ -102,8 +104,8 @@ namespace
 {
 
     // Original storage: 0056965c and 0056976c.
-    char gNetworkWindowsVersion[0x110] = {};
-    char gNetworkDirectXVersion[0x40] = {};
+    char gNetworkWindowsVersion[272] = {};
+    char gNetworkDirectXVersion[64] = {};
 
     void ReportNetworkSystemError(const char* sourceFile, std::int32_t line, const char* additionalInformation);
     NNetwork::SNetLog* InitializeNetworkLog(NNetwork::SNetLog* object);
@@ -139,8 +141,8 @@ namespace
     // Original function: FUN_004de237
     void ReportNetworkSystemError(const char* sourceFile, std::int32_t line, const char* additionalInformation)
     {
-        char message[0x200] = {};
-        char shortenedFile[0x100] = "...";
+        char message[512] = {};
+        char shortenedFile[256] = "...";
         char* systemMessage = nullptr;
 
         if (std::strlen(sourceFile) > 0x100u)
@@ -231,9 +233,9 @@ namespace
                         std::strcat(gNetworkWindowsVersion, majorVersion);
                     }
 
-                    char details[0x40] = {};
+                    char details[64] = {};
 
-                    NXBasics::Runtime_PrintString(details, "Version %d.%d %s (Build %d)", static_cast<int>(version.dwMajorVersion), static_cast<int>(version.dwMinorVersion), version.szCSDVersion, static_cast<int>(version.dwBuildNumber & 0xFFFFu));
+                    NXBasics::Runtime_PrintString(details, "Version %d.%d %s (Build %d)", static_cast<int>(version.dwMajorVersion), static_cast<int>(version.dwMinorVersion), version.szCSDVersion, static_cast<int>(version.dwBuildNumber & ReadableValues::IntegerRange::UInt16Maximum));
                     std::strcat(gNetworkWindowsVersion, details);
                     break;
                 }
@@ -258,7 +260,7 @@ namespace NNetwork
         DWORD bytes = 0;
         const DWORD options = allProviders ? 1u : 0u;
         HRESULT result = peer->EnumServiceProviders(nullptr, nullptr, *providers, &bytes, count, options);
-        if (result != static_cast<HRESULT>(0x80158100u))
+        if (result != static_cast<HRESULT>(SwitchIds::DirectXResult::Code_DPNERR_BUFFERTOOSMALL))
         {
             ReportDirectPlayError("CDPNet::GetServiceProviders(): IDirectPlay8Peer::EnumServiceProviders 1", result);
             return false;
@@ -306,7 +308,7 @@ namespace NNetwork
         }
         *summaries = array;
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x109, array != nullptr, "Memory allocation failed.");
-        std::memset(array, 0, list->count * 0x14u);
+        std::memset(array, 0, list->count * 20u);
         std::uint32_t index = 0;
         SSessionNode* node = list->first;
         do
@@ -339,9 +341,9 @@ namespace NNetwork
         data->networkTick = 0; data->allocation10 = nullptr; data->allocation28 = nullptr;
         data->receivedRecordCount = 0; data->pendingDataMessageCount = 0; data->allocation30 = nullptr;
         data->waitStartTick = 0; data->unknown7C = 0;
-        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300, 1);
+        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(66304, 1);
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x8D, data->allocation30 != nullptr, "Memory allocation failed.");
-        std::memset(data->allocation30, 0, 0x10300);
+        std::memset(data->allocation30, 0, 66304);
         UpdateDynamicNetwork(data, true);
     }
 
@@ -387,7 +389,7 @@ namespace NNetwork
         {
             std::memset(destination, 0, capacity);
 
-            char hostName[0x10] = {};
+            char hostName[16] = {};
 
             if (::gethostname(hostName, sizeof(hostName)) != SOCKET_ERROR)
             {
@@ -425,16 +427,16 @@ namespace
         if (condition != 0)
             return;
 
-        char output[0x200] = {};
-        char sourcePath[0x104] = {};
+        char output[512] = {};
+        char sourcePath[260] = {};
         char drive[3] = {};
-        char directory[0x100] = {};
-        char baseName[0x100] = {};
-        char extension[0x100] = {};
+        char directory[256] = {};
+        char baseName[256] = {};
+        char extension[256] = {};
 
         if (sourceFile != nullptr)
         {
-            char lineText[0x10] = {};
+            char lineText[16] = {};
 
             // The original does not force termination after this bounded copy.
             std::strncpy(sourcePath, sourceFile, 0x104);
@@ -518,12 +520,12 @@ namespace NNetwork
         {
             std::uint8_t type;
             std::byte reserved01[3];
-            std::byte transferId[0x10];
+            std::byte transferId[16];
             std::uint32_t checksum;
             std::uint32_t fileSize;
         };
 
-        static_assert(sizeof(SFileTransferMetadataPacket) == 0x1C);
+        static_assert(sizeof(SFileTransferMetadataPacket) == 28);
         static_assert(offsetof(SFileTransferMetadataPacket, checksum) == 0x14);
         static_assert(offsetof(SFileTransferMetadataPacket, fileSize) == 0x18);
 
@@ -617,7 +619,7 @@ namespace NNetwork
             }
 
             ++list->count;
-            list->flags |= 0x01u;
+            list->flags |= 1u;
         }
 
         // Original function: FUN_004de0e4
@@ -642,7 +644,7 @@ namespace NNetwork
             while (*source != '\0')
             {
                 const auto value = static_cast<unsigned char>(*source++);
-                *destination++ = static_cast<char>(value ^ 0xEFu);
+                *destination++ = static_cast<char>(value ^ ReadableValues::BitMask::ByteExceptBit4);
             }
 
             *destination = '\0';
@@ -871,7 +873,7 @@ namespace NNetwork
     void CDPNet::SetApplicationGuid(const GUID* applicationGuid)
     {
         // The original writes shared storage, not a member of this object.
-        std::memcpy(&gNetworkApplicationGuid, applicationGuid, 0x10);
+        std::memcpy(&gNetworkApplicationGuid, applicationGuid, 16);
     }
 
     // Original function: FUN_004dc45f
@@ -882,9 +884,9 @@ namespace NNetwork
 
         // Original data: 004fb8c8, 004fb8b8, 004fb8e8 and 004fb8d8.
         static constexpr GUID peerClassId = { 0x286F484Du, 0x375Eu, 0x4458u, { 0xA2, 0x72, 0xB1, 0x38, 0xE2, 0xF8, 0x0A, 0x6A } };
-        static constexpr GUID peerInterfaceId = { 0x5102DACFu, 0x241Bu, 0x11D3u, { 0xAE, 0xA7, 0x00, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
+        static constexpr GUID peerInterfaceId = { 0x5102DACFu, 0x241Bu, 0x11D3u, { 0xAE, 0xA7, 0, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
         static constexpr GUID addressClassId = { 0x934A9523u, 0xA3CAu, 0x4BC5u, { 0xAD, 0xA0, 0xD6, 0xD9, 0x5D, 0x97, 0x94, 0x21 } };
-        static constexpr GUID addressInterfaceId = { 0x83783300u, 0x4063u, 0x4C8Au, { 0x9D, 0xB3, 0x82, 0x83, 0x0A, 0x7F, 0xEB, 0x31 } };
+        static constexpr GUID addressInterfaceId = { 0x83783300u, 0x4063u, 0x4C8Au, { 0x9D, 0xB3, 0x82, 0x83, 0x0A, ReadableValues::IntegerRange::Int8MaximumSigned, 0xEB, 0x31 } };
 
         HRESULT result = ::CoInitialize(nullptr);
 
@@ -963,13 +965,13 @@ namespace NNetwork
             return false;
         }
 
-        auto* messages = static_cast<SReceivedMessage*>(NXBasics::Runtime_AllocateWithNewHandler(0x400u, 1));
+        auto* messages = static_cast<SReceivedMessage*>(NXBasics::Runtime_AllocateWithNewHandler(1024u, 1));
 
         if (messages != nullptr)
         {
             // Original construction of 64 entries, each occupying 0x10 bytes.
             for (std::uint32_t index = 0; index < 0x40u; ++index)
-                std::memset(&messages[index], 0, 0x10);
+                std::memset(&messages[index], 0, 16);
         }
 
         receivedMessages = messages;
@@ -977,18 +979,18 @@ namespace NNetwork
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x272, receivedMessages != nullptr, "Memory allocation failed.");
 
         // The original clears the complete allocation again after the diagnostic.
-        std::memset(receivedMessages, 0, 0x400);
+        std::memset(receivedMessages, 0, 1024);
 
         ::InitializeCriticalSection(&criticalEC);
 
         ::InitializeCriticalSection(&critical74);
         ::EnterCriticalSection(&critical74);
-        std::memset(data48, 0, 0x10);
+        std::memset(data48, 0, 16);
         ::LeaveCriticalSection(&critical74);
 
         ::InitializeCriticalSection(&critical8C);
         ::EnterCriticalSection(&critical8C);
-        std::memset(data58, 0, 0x10);
+        std::memset(data58, 0, 16);
         ::LeaveCriticalSection(&critical8C);
 
         ::InitializeCriticalSection(&criticalA4);
@@ -1004,7 +1006,7 @@ namespace NNetwork
         ClearEventQueue(&events28);
         ::LeaveCriticalSection(&criticalBC);
 
-        flags |= 0x01u;
+        flags |= 1u;
         return true;
     }
 
@@ -1019,9 +1021,9 @@ namespace NNetwork
             const DWORD initializeFlags = option ? 0u : 1u;
             const HRESULT result = peer->Initialize(callbackContext, &CDPNet::MessageProc, initializeFlags);
 
-            if (SUCCEEDED(result) || result == static_cast<HRESULT>(0x80158080u))
+            if (SUCCEEDED(result) || result == static_cast<HRESULT>(SwitchIds::DirectXResult::Code_DPNERR_ALREADYINITIALIZED))
             {
-                flags |= 0x01u;
+                flags |= 1u;
                 return true;
             }
 
@@ -1040,7 +1042,7 @@ namespace NNetwork
     // Original function: FUN_004dc9cc
     DPNID CDPNet::GetLocalPlayerId()
     {
-        if ((flags & 0x02u) == 0 && (flags & 0x08u) == 0)
+        if ((flags & ReadableValues::BitMask::Bit1) == 0 && (flags & ReadableValues::BitMask::Bit3) == 0)
         {
             return 0;
         }
@@ -1070,7 +1072,7 @@ namespace NNetwork
     // Original function: FUN_004dca43
     DPNID CDPNet::GetHostPlayerId()
     {
-        if ((flags & 0x02u) == 0 && (flags & 0x08u) == 0)
+        if ((flags & ReadableValues::BitMask::Bit1) == 0 && (flags & ReadableValues::BitMask::Bit3) == 0)
         {
             return 0;
         }
@@ -1358,7 +1360,7 @@ namespace NNetwork
         buffer.pBufferData = const_cast<std::uint8_t*>(bytes);
 
         DWORD sendFlags = 0;
-        std::uint8_t convertedPacket[0xD4];
+        std::uint8_t convertedPacket[212];
 
         switch (bytes[0])
         {
@@ -1469,7 +1471,7 @@ namespace NNetwork
     // Original function: FUN_004dd948
     void CDPNet::GetReceivedMessages(SReceivedMessage** messages, std::uint32_t* count)
     {
-        static_assert(sizeof(SReceivedMessage) == 0x10);
+        static_assert(sizeof(SReceivedMessage) == 16);
 
         // Preserve the original check outside the critical section.
         if (receivedMessageCount == 0)
@@ -1486,16 +1488,16 @@ namespace NNetwork
 
         receivedMessageCount = 0;
 
-        auto* replacement = static_cast<SReceivedMessage*>(NXBasics::Runtime_AllocateWithNewHandler(0x400u, 1));
+        auto* replacement = static_cast<SReceivedMessage*>(NXBasics::Runtime_AllocateWithNewHandler(1024u, 1));
 
         if (replacement != nullptr)
-            std::memset(replacement, 0, 0x400u);
+            std::memset(replacement, 0, 1024u);
 
         receivedMessages = replacement;
 
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x7F8, receivedMessages != nullptr, "Memory allocation failed.");
 
-        std::memset(receivedMessages, 0, 0x400u);
+        std::memset(receivedMessages, 0, 1024u);
 
         LeaveCriticalSection(&criticalEC);
     }
@@ -1581,7 +1583,7 @@ namespace NNetwork
                     if (current->responseTime != response->dwRoundTripLatencyMS)
                     {
                         current->responseTime = response->dwRoundTripLatencyMS;
-                        list->flags |= 0x02u;
+                        list->flags |= ReadableValues::BitMask::Bit1;
                     }
 
                     current->lastResponseTime = timeGetTime();
@@ -1708,7 +1710,7 @@ namespace NNetwork
 
         static_assert(sizeof(wchar_t) == 2);
         static_assert(offsetof(SChatPacket, text) == 0x02);
-        static_assert(sizeof(SChatPacket) == 0x104);
+        static_assert(sizeof(SChatPacket) == 260);
 
         SChatPacket packet;
 
@@ -1752,10 +1754,10 @@ namespace NNetwork
             std::byte padding01[3];        // +0x01
             std::uint32_t payloadSize;     // +0x04
             std::uint32_t checksum;        // +0x08
-            std::uint8_t payload[0x400];   // +0x0C
+            std::uint8_t payload[1024];   // +0x0C
         };
 
-        static_assert(sizeof(SPayloadPacket) == 0x40C);
+        static_assert(sizeof(SPayloadPacket) == 1036);
         static_assert(offsetof(SPayloadPacket, payloadSize) == 0x04);
         static_assert(offsetof(SPayloadPacket, checksum) == 0x08);
         static_assert(offsetof(SPayloadPacket, payload) == 0x0C);
@@ -1779,7 +1781,7 @@ namespace NNetwork
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16C, byteCount != 0, "Invalid message size (<= 0).");
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16D, byteCount <= 200u, "Maximum message size exceeded.");
         if (byteCount > 200u) return false;
-        std::byte packet[0xD4];
+        std::byte packet[212];
         CommandPacket_Construct(packet);
         std::memcpy(packet + 4, &data->networkTick, 4);
         packet[8] = static_cast<std::byte>(byteCount);
@@ -1803,7 +1805,7 @@ namespace NNetwork
         *count = buffer.count;
         *slots = static_cast<SDynamicSlot*>(NXBasics::Runtime_Allocate(*count * 0xD0u));
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x248, *slots != nullptr, "Memory allocation failed.");
-        std::memcpy(*slots, data->arrays[data->commandBufferIndices[0]].slots, *count * 0xD0u);
+        std::memcpy(*slots, data->arrays[data->commandBufferIndices[0]].slots, *count * 208u);
         return true;
     }
 
@@ -1819,11 +1821,11 @@ namespace NNetwork
         *messages = static_cast<SDynamicDataMessage*>(data->allocation30);
         *count = data->pendingDataMessageCount;
 
-        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300u, 1);
+        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(66304u, 1);
 
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x153, data->allocation30 != nullptr, "Memory allocation failed.");
 
-        std::memset(data->allocation30, 0, 0x10300u);
+        std::memset(data->allocation30, 0, 66304u);
 
         data->pendingDataMessageCount = 0;
     }
@@ -2175,7 +2177,7 @@ namespace NNetwork
                 ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x340, replacement != nullptr, "Memory allocation failed.");
 
                 std::memset(replacement, 0, allocationBytes);
-                std::memcpy(replacement, data->allocation28, data->receivedRecordCount * 0x104u);
+                std::memcpy(replacement, data->allocation28, data->receivedRecordCount * 260u);
 
                 NXBasics::Runtime_Free(data->allocation28);
                 data->allocation28 = replacement;
@@ -2300,7 +2302,7 @@ namespace NNetwork
                             };
 
                             static_assert(offsetof(SCommandReply, payload) == 9);
-                            static_assert(sizeof(SCommandReply) == 0xD4);
+                            static_assert(sizeof(SCommandReply) == 212);
 
                             SCommandReply reply;
 
@@ -2543,7 +2545,7 @@ namespace NNetwork
                 DPNID requester;
             };
 
-            static_assert(sizeof(SCommandRequest) == 0x10);
+            static_assert(sizeof(SCommandRequest) == 16);
 
             SCommandRequest request;
 
@@ -2623,7 +2625,7 @@ namespace NNetwork
 
         static_assert(sizeof(wchar_t) == 2);
         static_assert(offsetof(SSpecialChatPacket, text) == 0x02);
-        static_assert(sizeof(SSpecialChatPacket) == 0x104);
+        static_assert(sizeof(SSpecialChatPacket) == 260);
 
         SSpecialChatPacket packet;
 
@@ -2826,7 +2828,7 @@ namespace NNetwork
         if (node != nullptr)
         {
             // Original function: FUN_004dffa4
-            std::memset(reinterpret_cast<std::byte*>(node) + 0x20, 0, 0x1C);
+            std::memset(reinterpret_cast<std::byte*>(node) + 0x20, 0, 28);
         }
 
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\FileTransferManager.cpp", 0x149, node != nullptr, "Memory allocation failed.");
@@ -2908,7 +2910,7 @@ namespace NNetwork
                 case SwitchIds::FileTransferState::Announce:
                     {
                         CDPNet* network = GetNetworkInstance();
-                        std::uint8_t packet[0x118];
+                        std::uint8_t packet[280];
 
                         FileTransferAnnouncementPacket_Construct(packet);
                         std::memcpy(packet + 4, node->transferId, sizeof(node->transferId));
@@ -2960,7 +2962,7 @@ namespace NNetwork
                         NXBasics::Runtime_CloseStream(source);
 
                         CDPNet* network = GetNetworkInstance();
-                        std::uint8_t packet[0x18];
+                        std::uint8_t packet[24];
 
                         packet[0] = 12;
                         std::memcpy(packet + 4, node->transferId, sizeof(node->transferId));
@@ -2977,7 +2979,7 @@ namespace NNetwork
                 case SwitchIds::FileTransferState::RequestHeader:
                     {
                         CDPNet* network = GetNetworkInstance();
-                        std::uint8_t packet[0x14];
+                        std::uint8_t packet[20];
 
                         packet[0] = 13;
                         std::memcpy(packet + 4, node->transferId, sizeof(node->transferId));
@@ -2999,13 +3001,13 @@ namespace NNetwork
 
                 case SwitchIds::FileTransferState::SendingBlocks:
                     {
-                        std::uint8_t data[0x800] = {};
+                        std::uint8_t data[2048] = {};
                         const std::uint32_t byteCount = NXBasics::Runtime_ReadStream(data, 1u, sizeof(data), node->stream);
 
                         node->transferredBytes += byteCount;
 
                         CDPNet* network = GetNetworkInstance();
-                        std::uint8_t packet[0x818];
+                        std::uint8_t packet[2072];
 
                         packet[0] = 15;
                         std::memcpy(packet + 4, node->transferId, sizeof(node->transferId));
@@ -3022,7 +3024,7 @@ namespace NNetwork
                         }
 
                         // Preserve the original fall-through after a failed send.
-                        if ((node->stream->flags & 0x10u) != 0)
+                        if ((node->stream->flags & ReadableValues::BitMask::Bit4) != 0)
                         {
                             NXBasics::Runtime_CloseStream(node->stream);
                             node->state = 1;
@@ -3054,13 +3056,13 @@ namespace NNetwork
                     if (node != nullptr)
                     {
                         // Original subobject constructor: FUN_004dffa4.
-                        std::memset(&node->fileName, 0, 0x1C);
+                        std::memset(&node->fileName, 0, 28);
                     }
 
                     ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\FileTransferManager.cpp", 0x24E, node != nullptr, "Memory allocation failed.");
 
                     std::memset(node, 0, sizeof(SFileTransferNode));
-                    std::memcpy(node->transferId, packet + 4, 0x10);
+                    std::memcpy(node->transferId, packet + 4, 16);
 
                     node->state = 6;
                     std::memcpy(&node->peerId, packet + 0x14, sizeof(node->peerId));
@@ -3112,7 +3114,7 @@ namespace NNetwork
                         }
                         else
                         {
-                            std::uint32_t checksum = 0xFFFFFFFFu;
+                            std::uint32_t checksum = ReadableValues::IntegerRange::UInt32Maximum;
                             std::uint32_t fileSize = 0;
                             std::int32_t character = NXBasics::Runtime_ReadStreamCharacter(node->stream);
 
@@ -3131,7 +3133,7 @@ namespace NNetwork
 
                             SFileTransferMetadataPacket response{};
                             response.type = 14;
-                            std::memcpy(response.transferId, node->transferId, 0x10);
+                            std::memcpy(response.transferId, node->transferId, 16);
                             response.checksum = node->checksum;
                             response.fileSize = node->fileSize;
 
@@ -3160,11 +3162,11 @@ namespace NNetwork
 
                     if (node != nullptr)
                     {
-                        node->checksum = 0xFFFFFFFFu;
+                        node->checksum = ReadableValues::IntegerRange::UInt32Maximum;
                         std::memcpy(&node->expectedChecksum, packet + 0x14, sizeof(node->expectedChecksum));
                         std::memcpy(&node->fileSize, packet + 0x18, sizeof(node->fileSize));
 
-                        char temporaryFileName[0x80] = {};
+                        char temporaryFileName[128] = {};
                         std::strcpy(temporaryFileName, node->fileName);
                         std::strcat(temporaryFileName, ".tmp");
 
@@ -3222,7 +3224,7 @@ namespace NNetwork
                                 NXBasics::Runtime_RemoveFile(node->fileName);
                             }
 
-                            char temporaryFileName[0x80] = {};
+                            char temporaryFileName[128] = {};
                             std::strcpy(temporaryFileName, node->fileName);
                             std::strcat(temporaryFileName, ".tmp");
 
@@ -3245,7 +3247,7 @@ namespace NNetwork
     // Original function: FUN_004e0a5d
     void CFileTransferManager::GetTransferList(SFileTransferNode* output, std::uint32_t* count)
     {
-        static_assert(sizeof(SFileTransferNode) == 0x40);
+        static_assert(sizeof(SFileTransferNode) == 64);
 
         const std::uint32_t clearBytes = *count * 0x40u;
         std::memset(output, 0, clearBytes);
@@ -3325,7 +3327,7 @@ namespace NNetwork
 
             if (!playerStillPresent)
             {
-                slot.playerId = 0xFFFFFFFFu;
+                slot.playerId = ReadableValues::IntegerRange::UInt32Maximum;
                 slot.used = 0;
 
                 std::memset(slot.data, 0, sizeof(slot.data));
@@ -3343,7 +3345,7 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.used == 0 && slot.playerId != 0xFFFFFFFFu)
+            if (slot.used == 0 && slot.playerId != ReadableValues::IntegerRange::UInt32Maximum)
                 return false;
         }
 
@@ -3354,7 +3356,7 @@ namespace NNetwork
     std::uint32_t FindCommandBufferPlayerIndex(const SDynamicSlotArray* buffer, DPNID playerId)
     {
         if (buffer->slots == nullptr)
-            return 0xFFFFFFFFu;
+            return ReadableValues::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t index = 0; index < buffer->count; ++index)
         {
@@ -3362,7 +3364,7 @@ namespace NNetwork
                 return index;
         }
 
-        return 0xFFFFFFFFu;
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004e12a6
@@ -3375,7 +3377,7 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.playerId != 0xFFFFFFFFu && slot.used == 0)
+            if (slot.playerId != ReadableValues::IntegerRange::UInt32Maximum && slot.used == 0)
                 return slot.playerId;
         }
 
@@ -3390,7 +3392,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == 0xFFFFFFFFu)
+        if (index == ReadableValues::IntegerRange::UInt32Maximum)
             return false;
 
         buffer->slots[index].used = length;
@@ -3407,7 +3409,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == 0xFFFFFFFFu)
+        if (index == ReadableValues::IntegerRange::UInt32Maximum)
             return false;
 
         // Original function 004e71f0 supports overlapping memory regions.
@@ -3423,7 +3425,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == 0xFFFFFFFFu)
+        if (index == ReadableValues::IntegerRange::UInt32Maximum)
             return 0;
 
         return buffer->slots[index].used;
@@ -3440,7 +3442,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == 0xFFFFFFFFu)
+        if (index == ReadableValues::IntegerRange::UInt32Maximum)
             return false;
 
         const SDynamicSlot& slot = buffer->slots[index];
@@ -3500,7 +3502,7 @@ NNetwork::SNetLog* GetNetworkLog()
 // Original function: FUN_004db8ea
 NNetwork::SNetLog* OpenNetworkLog(NNetwork::SNetLog* object, const char* fileName, std::int32_t level, std::uint32_t entryLimit)
 {
-    char temporaryFileName[0x100] = {};
+    char temporaryFileName[256] = {};
 
     object->level = level;
     object->entryLimit = entryLimit;
@@ -3559,15 +3561,15 @@ NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object)
     if (gNetworkLogEnabled == 0)
         return object;
 
-    char userName[0x101] = {};
-    char computerName[0x10] = {};
+    char userName[257] = {};
+    char computerName[16] = {};
     DWORD userNameCapacity = 0x101;
     DWORD computerNameCapacity = 0x10;
 
     if (object->stream == nullptr)
         return object;
 
-    char message[0x12C] = {};
+    char message[300] = {};
     const std::uint32_t savedFormatFlags = object->formatFlags;
 
     NXBasics::Runtime_FlushStream(static_cast<NXBasics::RuntimeFormatStream*>(object->stream));
@@ -3608,7 +3610,7 @@ NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object)
     NXBasics::Runtime_PrintString(message, "Host:  %s\n", computerName);
     WriteNetworkLog(object, message, 0);
 
-    char address[0x40] = {};
+    char address[64] = {};
     std::uint32_t addressIndex = 0;
 
     while (NNetwork::GetNetworkIPAddress(addressIndex, address, 0x40u))
@@ -3653,7 +3655,7 @@ void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t 
         return object;
     }
 
-    if ((object->formatFlags & 0x02u) != 0)
+    if ((object->formatFlags & ReadableValues::BitMask::Bit1) != 0)
     {
         const int result = NXBasics::Runtime_PrintStream(static_cast<NXBasics::RuntimeFormatStream*>(object->stream), "\n%010lu: ", static_cast<unsigned long>(object->sequenceNumber));
 
@@ -3667,7 +3669,7 @@ void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t 
         ++object->sequenceNumber;
     }
 
-    if ((object->formatFlags & 0x01u) != 0)
+    if ((object->formatFlags & 1u) != 0)
     {
         char timeBuffer[9] = {};
 
@@ -3737,7 +3739,7 @@ namespace NNetwork
         if (peer == nullptr || (flags & 1u) != 1u) return false;
         DPN_PLAYER_INFO player{};
         player.dwSize = sizeof(player); player.dwInfoFlags = callsign != nullptr; player.pwszName = const_cast<wchar_t*>(callsign); player.dwPlayerFlags = 6;
-        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, 0x80000000u);
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
         if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
         if (interface70 == nullptr) return false;
         auto* hostAddress = reinterpret_cast<IDirectPlay8Address*>(interface70);
@@ -3764,12 +3766,12 @@ namespace NNetwork
         if ((flags & 4u) != 4u) return false;
         DPN_PLAYER_INFO player{};
         player.dwSize = sizeof(player); player.dwInfoFlags = 1; player.pwszName = const_cast<wchar_t*>(callsign);
-        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, 0x80000000u);
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
         if (FAILED(result)) { ReportDirectPlayError("CDPNet::JoinSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
         if (session == nullptr) { ReportDirectPlayError("CDPNet::JoinSession(): Session information lost (pSession == null)", 0); return false; }
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x680, session->address0C != nullptr, "Could not create DirectPlay address.");
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x681, session->address10 != nullptr, "Could not create DirectPlay address.");
-        result = peer->Connect(session->description, session->address0C, session->address10, nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr, 0x80000000u);
+        result = peer->Connect(session->description, session->address0C, session->address10, nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
         if (FAILED(result))
         {
             StopSearchingSessions();
@@ -3791,13 +3793,13 @@ namespace NNetwork
             source = source->next;
             if (source == list->first) return nullptr;
         }
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x20, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(32, 1);
         SSessionNode* copy = allocation == nullptr ? nullptr : ConstructSessionNode(static_cast<SSessionNode*>(allocation));
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x171, copy != nullptr, "Memory allocation failed.");
         copy->invalid = source->invalid; copy->lastResponseTime = source->lastResponseTime; copy->responseTime = source->responseTime;
-        copy->description = static_cast<DPN_APPLICATION_DESC*>(NXBasics::Runtime_AllocateWithNewHandler(0x48, 1));
+        copy->description = static_cast<DPN_APPLICATION_DESC*>(NXBasics::Runtime_AllocateWithNewHandler(72, 1));
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x179, copy->description != nullptr, "Memory allocation failed.");
-        std::memcpy(copy->description, source->description, 0x48);
+        std::memcpy(copy->description, source->description, 72);
         copy->description->pwszSessionName = NXBasics::Runtime_DuplicateWideString(source->description->pwszSessionName);
         HRESULT result = source->address10->Duplicate(&copy->address10);
         if (SUCCEEDED(result)) result = source->address0C->Duplicate(&copy->address0C);
@@ -3851,7 +3853,7 @@ namespace NNetwork
     }
 
     struct STimerThreadArguments { DWORD interval; void(__cdecl* callback)(); STimerPrefix* timer; };
-    static_assert(sizeof(STimerThreadArguments) == 0x0C);
+    static_assert(sizeof(STimerThreadArguments) == 12);
 
     // Original function: FUN_004de7d1; preserves the original unslept timer loop.
     static DWORD WINAPI Timer_ThreadProc(void* argument)
@@ -3874,7 +3876,7 @@ namespace NNetwork
     static STimerPrefix* Timer_Construct(STimerPrefix* timer, DWORD interval, void(__cdecl* callback)())
     {
         timer->stopRequested = 0;
-        auto* arguments = static_cast<STimerThreadArguments*>(NXBasics::Runtime_AllocateWithNewHandler(0x0C, 1));
+        auto* arguments = static_cast<STimerThreadArguments*>(NXBasics::Runtime_AllocateWithNewHandler(12, 1));
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dptimer.cpp", 0x5B, arguments != nullptr, "Memory allocation failed.");
         arguments->interval = interval; arguments->callback = callback; arguments->timer = timer;
         DWORD threadId = 0;
@@ -3896,7 +3898,7 @@ namespace NNetwork
         HRESULT result = 0;
         if (flags != 1) return result;
         InitializeCriticalSection(&criticalD4);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x0C, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(12, 1);
         sessions = allocation == nullptr ? nullptr : ConstructSessionList(static_cast<SSessionList*>(allocation));
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x4E8, sessions != nullptr, "Memory allocation failed.");
         allocation = NXBasics::Runtime_AllocateWithNewHandler(8, 1);
@@ -3925,7 +3927,7 @@ namespace NNetwork
                     }
                     if (error == nullptr)
                     {
-                        result = peer->EnumHosts(&description, reinterpret_cast<IDirectPlay8Address*>(interface6C), reinterpret_cast<IDirectPlay8Address*>(interface70), nullptr, 0, 0xFFFFFFFFu, 0, 0xFFFFFFFFu, nullptr, &searchOperation, 0);
+                        result = peer->EnumHosts(&description, reinterpret_cast<IDirectPlay8Address*>(interface6C), reinterpret_cast<IDirectPlay8Address*>(interface70), nullptr, 0, ReadableValues::IntegerRange::UInt32Maximum, 0, ReadableValues::IntegerRange::UInt32Maximum, nullptr, &searchOperation, 0);
                         if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Peer::EnumHosts";
                         else { flags |= 4u; return result; }
                     }

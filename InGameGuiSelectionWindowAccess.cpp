@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiSelectionWindowAccess.h"
 #include "InGameGuiTraderConfigWindow.h"
 #include "InGameGuiBaseAccess.h"
@@ -98,7 +99,7 @@ namespace NC2InGameGuiBase
         else entry = l_GetFreeButtonDataPtr();
         if (entry == nullptr) return;
         const NXBasics::SRectangle rectangle(x, y, 18, 16);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         entry->graphic = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, graphic, tooltip, command, mWindow);
         NXBaseGui::BaseWindow_Element_Add(mWindow, entry->graphic);
         entry->x = x; entry->y = y; entry->command = command; entry->id = id;
@@ -117,7 +118,7 @@ namespace NC2InGameGuiBase
         else entry = l_GetFreeButtonDataPtr();
         if (entry == nullptr) return;
         const NXBasics::SRectangle rectangle(x, y, width, height);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         entry->text = allocation == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &rectangle, text, tooltip, command, mWindow);
         NC2Lifetime::Write<std::uint8_t>(entry->text, 0x54, centered);
         NXBaseGui::BaseWindow_Element_Add(mWindow, entry->text);
@@ -182,7 +183,7 @@ namespace NC2InGameGuiSelection
         // Complete Windows descriptor region 004F6770..004F67CF. The final field is zero.
         struct SSubTabDescriptor { std::int32_t width, height; std::uint32_t title, field0C; };
         constexpr SSubTabDescriptor gSubTabs[6] = {{200,136,1,0}, {240,100,2,0}, {260,100,3,0}, {260,80,5,0}, {260,80,4,0}, {200,84,6,0}};
-        static_assert(sizeof(gSubTabs) == 0x60);
+        static_assert(sizeof(gSubTabs) == 96);
         // Complete Windows experience-button/job-page region 004F67D0..004F6A8F.
         struct SExperiencePageButton { std::uint32_t graphic, tooltip; };
         constexpr SExperiencePageButton gExperiencePageButtons[11] = {{151,130},{149,131},{146,132},{155,133},{147,134},{153,135},{152,136},{148,137},{154,138},{150,139},{156,140}};
@@ -191,7 +192,7 @@ namespace NC2InGameGuiSelection
             {4,21,22,23,24}, {5,25,26,27}, {6,7,28,29,30,31,32,33,34,35,36}, {8,54,55,56,57,58,59,60,61},
             {62,63}, {70,69,71,72,73,74,75,76}, {1,67,68,77}
         };
-        static_assert(sizeof(gExperiencePageButtons) + sizeof(gExperiencePages) == 0x2C0);
+        static_assert(sizeof(gExperiencePageButtons) + sizeof(gExperiencePages) == 704);
         struct SSelectionSingleHumanWindowMostExperiencesData { std::uint32_t count; struct SEntry { std::uint32_t job, amount; } entries[78]; };
         const char* HumanString(std::uint32_t id) { return NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr(id); }
         NC2InGameGuiBase::CStaticToolTipHandler& Tooltips(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CStaticToolTipHandler*>(static_cast<std::byte*>(window) + 0x39C)); }
@@ -323,7 +324,7 @@ namespace NC2InGameGuiSelection
                 const void* houseData = NC2Logic::MerchantData_GetHouseDataPtr(merchant, index);
                 if (!NC2Logic::MerchantHouseData_IsValid(houseData)) continue;
                 const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(houseData, 0) * NC2Logic::CHouseArray::ElementSize;
-                NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, 0x118u + row * 16u), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, 0x14), 1));
+                NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, 0x118u + row * 16u), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType), 1));
                 for (auto offset : {0x10Cu, 0x114u})
                 {
                     void* element = Read<void*>(window, offset + row * 16u);
@@ -337,7 +338,7 @@ namespace NC2InGameGuiSelection
         }
         void* AddGraphicButton(void* window, const SRectangle& rectangle, std::uint32_t graphic, std::uint32_t tooltip, std::uint32_t command)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, graphic, HumanString(tooltip), command, window);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             return element;
@@ -375,7 +376,7 @@ namespace NC2InGameGuiSelection
             const SRectangle rectangle(NC2InGameGuiBase::GetDisplayWidth() - width, NC2InGameGuiBase::GetDisplayHeight() - height, width, height);
             NC2InGameGuiBase::GetDesktopPtr()->Window_ChangeAreaRectangle(static_cast<NXBaseGui::CBaseWindow*>(window), rectangle);
             NXBaseGui::BaseWindow_Element_DeleteAll(window);
-            std::memset(static_cast<std::byte*>(window) + 0x104, 0, 0x2C);
+            std::memset(static_cast<std::byte*>(window) + 0x104, 0, 44);
             Buttons(window).AllButtonsHaveBeenRemoved();
             for (std::uint32_t index = 0; index < 6; ++index)
             {
@@ -391,7 +392,7 @@ namespace NC2InGameGuiSelection
             if (!collapsed && human != nullptr)
             {
                 const SRectangle previewRect(basic.x + 4, basic.y + 20, 60, 80);
-                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x244, 1);
+                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
                 void* preview = allocation == nullptr ? nullptr : NC2InGameGuiWorldElement::WorldDisplayElement_Construct(allocation, &previewRect, false, false);
                 Write(window, 0x104, preview);
                 if (preview != nullptr)
@@ -409,9 +410,9 @@ namespace NC2InGameGuiSelection
                 const auto id = Read<std::uint32_t>(human, 4);
                 const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C;
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 void* nameElement = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &nameRect, name, HumanString(103), 10006, window);
-                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, 0x56, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, 0xB84) & 0x80u) != 0);
+                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, 0x56, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, 0xB84) & ReadableValues::BitMask::Bit7) != 0);
                 Write(window, 0x108, nameElement);
                 NXBaseGui::BaseWindow_Element_Add(window, nameElement);
             }
@@ -436,13 +437,13 @@ namespace NC2InGameGuiSelection
                     Write(window, 0x10Cu + row * 16u, AddGraphicButton(window, SRectangle(trader.x, y, 20, 18), 18, 117, 10007));
                     Write(window, 0x110u + row * 16u, AddGraphicButton(window, SRectangle(trader.x, y, 20, 30), 30, 118, 10008));
                     Write(window, 0x114u + row * 16u, AddGraphicButton(window, SRectangle(trader.x + 20, y, 20, 30), 29, 119, 10009));
-                    allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+                    allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
                     const SRectangle textRect(trader.x + 38, y, 154, 20);
                     void* label = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &textRect, "", false, false);
                     Write(window, 0x118u + row * 16u, label); Write<std::uint8_t>(label, 0xFB, 1);
                     NXBaseGui::BaseWindow_Element_Add(window, label);
                 }
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 const SRectangle config(trader.x + 8, trader.y + 76, 184, 20);
                 void* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &config, HumanString(110), 10010, window);
                 Write(window, 0x12C, button); NXBaseGui::BaseWindow_Element_Add(window, button);
@@ -592,10 +593,10 @@ namespace NC2InGameGuiSelection
             const auto removeCounterButtons = [&](std::uint32_t good)
             {
                 Buttons(window).RemoveButton(10039, good);
-                Buttons(window).RemoveButton(10040, good | 0x10000u);
-                Buttons(window).RemoveButton(10040, good | 0x20000u);
-                Buttons(window).RemoveButton(10040, good | 0x30000u);
-                Buttons(window).RemoveButton(10040, good | 0x40000u);
+                Buttons(window).RemoveButton(10040, good | ReadableValues::BitMask::Bit16);
+                Buttons(window).RemoveButton(10040, good | ReadableValues::BitMask::Bit17);
+                Buttons(window).RemoveButton(10040, good | ReadableValues::BitMask::Bits16Through17);
+                Buttons(window).RemoveButton(10040, good | ReadableValues::BitMask::Bit18);
                 Buttons(window).RemoveButton(10041, good);
             };
             if (Read<std::uint8_t>(window, 0x72) == 0 || Read<std::uint8_t>(window, 0x78) != 0)
@@ -610,7 +611,7 @@ namespace NC2InGameGuiSelection
             NC2GuiToolsBase::DrawTool_DrawIcon(40, bitmap, section.x + 10, y + 6);
             auto textX = section.x + 24;
             const auto house = Read<std::uint32_t>(human, 0xB34);
-            if (house != 0xFFFFFFFFu)
+            if (house != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 Buttons(window).UpdateGfxButton(10017, 0, textX, y, 18, HumanString(30));
                 textX += 20;
@@ -627,7 +628,7 @@ namespace NC2InGameGuiSelection
                 }
                 else Buttons(window).RemoveButton(command, 0);
             }
-            if (house != 0xFFFFFFFFu)
+            if (house != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 const auto type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
                 if (type != 0) bitmap->Text_Print(resources.font08, color, textX, y, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
@@ -656,7 +657,7 @@ namespace NC2InGameGuiSelection
                 char text[160];
                 if (counter == 14)
                 {
-                    NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s [%s]", name, HumanString(house != 0xFFFFFFFFu ? 40 : 41));
+                    NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s [%s]", name, HumanString(house != ReadableValues::IntegerRange::UInt32Maximum ? 40 : 41));
                     text[sizeof(text) - 1] = '\0';
                     bitmap->Text_Print(resources.font08, color, section.x + 11, y, text);
                     y += 12; removeCounterButtons(good); continue;
@@ -680,12 +681,12 @@ namespace NC2InGameGuiSelection
                 Buttons(window).SetButtonMiscCommandData(10039, good, good, 0);
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s %s", HumanString(52), name);
                 text[sizeof(text) - 1] = '\0';
-                Buttons(window).UpdateGfxButton(10040, good | 0x20000u, section.x + 206, buttonY, 27, text);
-                Buttons(window).SetButtonMiscCommandData(10040, good | 0x20000u, good, 0xFFFFFFFFu);
+                Buttons(window).UpdateGfxButton(10040, good | ReadableValues::BitMask::Bit17, section.x + 206, buttonY, 27, text);
+                Buttons(window).SetButtonMiscCommandData(10040, good | ReadableValues::BitMask::Bit17, good, ReadableValues::IntegerRange::UInt32Maximum);
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s %s", HumanString(53), name);
                 text[sizeof(text) - 1] = '\0';
-                Buttons(window).UpdateGfxButton(10040, good | 0x30000u, section.x + 223, buttonY, 26, text);
-                Buttons(window).SetButtonMiscCommandData(10040, good | 0x30000u, good, 1);
+                Buttons(window).UpdateGfxButton(10040, good | ReadableValues::BitMask::Bits16Through17, section.x + 223, buttonY, 26, text);
+                Buttons(window).SetButtonMiscCommandData(10040, good | ReadableValues::BitMask::Bits16Through17, good, 1);
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s %s", HumanString(55), name);
                 text[sizeof(text) - 1] = '\0';
                 Buttons(window).UpdateGfxButton(10041, good, section.x + 241, buttonY, 143, text);
@@ -694,7 +695,7 @@ namespace NC2InGameGuiSelection
             }
             const auto tribe = Read<std::uint32_t>(human, 0x14);
             const auto& enables = NC2Logic::gStaticTribeTypeData[tribe].jobEnables[Read<std::uint32_t>(human, 0x18)];
-            const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+            const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + Read<std::uint32_t>(human, 0x10) * ReadableValues::RecordSize::GameControlPlayer;
             bool firstLocked = true;
             for (std::uint32_t index = 0; index < enables.goodCount; ++index)
             {
@@ -780,7 +781,7 @@ namespace NC2InGameGuiSelection
                 const auto relative = [&](std::size_t field, std::uint32_t command, std::uint32_t label, std::uint32_t icon)
                 {
                     const auto id = Read<std::uint32_t>(human, field);
-                    if (id == 0xFFFFFFFFu) { Buttons(window).RemoveButton(command, 0); return; }
+                    if (id == ReadableValues::IntegerRange::UInt32Maximum) { Buttons(window).RemoveButton(command, 0); return; }
                     NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, basic.x + 10, rowY + 6);
                     bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C);
                     Buttons(window).UpdateGfxButton(command, 0, basic.x + 24, rowY, 18, HumanString(label));
@@ -813,7 +814,7 @@ namespace NC2InGameGuiSelection
                     auto x = basic.x + 24;
                     const auto house = Read<std::uint32_t>(human, 0xB28);
                     std::uint32_t type = 0;
-                    if (house != 0xFFFFFFFFu)
+                    if (house != ReadableValues::IntegerRange::UInt32Maximum)
                     {
                         Buttons(window).UpdateGfxButton(10011, 0, x, rowY, 18, HumanString(27)); x += 20;
                         type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
@@ -897,7 +898,7 @@ namespace NC2InGameGuiSelection
                 {
                     const std::size_t fields[4] = {0xB20, 0xB18, 0xB14, 0xB24};
                     const auto id = Read<std::uint32_t>(human, fields[command - 10022]);
-                    if (id != 0xFFFFFFFFu) NC2InGameGuiInputManager::Selection_SelectSingleHuman(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
+                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2InGameGuiInputManager::Selection_SelectSingleHuman(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
                 }
             }
             else if (command == 10017 || command == 10011)
@@ -905,7 +906,7 @@ namespace NC2InGameGuiSelection
                 if (const void* human = selectedHuman)
                 {
                     const auto id = Read<std::uint32_t>(human, command == 10017 ? 0xB34 : 0xB28);
-                    if (id != 0xFFFFFFFFu) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
+                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
                 }
             }
             else if (command == 10012 || command == 10018 || command == 10020)
@@ -958,7 +959,7 @@ namespace NC2InGameGuiSelection
             {
                 if (Read<void*>(window, 0x3D74) == nullptr)
                 {
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x2B4, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(692, 1);
                     void* popup = allocation == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedTraderConfigWindow_Construct(allocation, window, 10043);
                     Write(window, 0x3D74, popup);
                     NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(popup), false);
@@ -1118,7 +1119,7 @@ namespace NC2InGameGuiSelection
             reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
             reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
         };
-        static_assert(sizeof(gSingleHumanWindowVirtualTable) == 0x4C);
+        static_assert(sizeof(gSingleHumanWindowVirtualTable) == 76);
     }
 
     // Original function: FUN_004ab9a5; the receiver is the embedded SVars at window +0x70.
@@ -1131,7 +1132,7 @@ namespace NC2InGameGuiSelection
         SelectionSingleHumanWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x70);
         ::new(static_cast<std::byte*>(window) + 0x3280) NC2InGameGuiBase::CDynamicSubButtonsHandler;
         Write(window, 0, gSingleHumanWindowVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x3D08);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 15624);
         Buttons(window).SetWindow(window);
         Write<std::uint8_t>(window, 0x70, 1);
         if (const void* human = l_Misc_GetSelectedHumanPtr())

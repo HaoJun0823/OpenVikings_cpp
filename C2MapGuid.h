@@ -11,5 +11,5 @@ namespace NC2Logic
         bool IsEqualTo(const SCleanMapGuid& other) const;
     };
 
-    static_assert(sizeof(SCleanMapGuid) == 0x10);
+    static_assert(sizeof(SCleanMapGuid) == 16);
 }

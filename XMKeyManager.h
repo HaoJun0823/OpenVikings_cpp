@@ -21,11 +21,11 @@ namespace NXSysKeyManager
         std::byte padding09[3];       // +0x09
     };
 
-    static_assert(sizeof(SKeyMessage) == 0x0C);
+    static_assert(sizeof(SKeyMessage) == 12);
     static_assert(offsetof(SKeyMessage, modifierFlags) == 0x04);
     static_assert(offsetof(SKeyMessage, state) == 0x08);
 
-    static_assert(sizeof(SKeyEntryNode) == 0x08);
+    static_assert(sizeof(SKeyEntryNode) == 8);
 
     class CKeyEntryListBase
     {
@@ -47,7 +47,7 @@ namespace NXSysKeyManager
             std::uint8_t mStarted;     // +0x08
         };
 
-        static_assert(sizeof(Iterator) == 0x0C, "List iterator must be 12 bytes");
+        static_assert(sizeof(Iterator) == 12, "List iterator must be 12 bytes");
 
         // Original function: FUN_00439bed
         explicit CKeyEntryListBase(std::uint8_t destroyValues);
@@ -97,7 +97,7 @@ namespace NXSysKeyManager
         std::byte mPadding11[3];       // +0x11
     };
 
-    static_assert(sizeof(CKeyEntryListBase) == 0x14);
+    static_assert(sizeof(CKeyEntryListBase) == 20);
 
     class CKeyEntryList final : public CKeyEntryListBase
     {
@@ -113,7 +113,7 @@ namespace NXSysKeyManager
         void DestroyValue(void* value) override;
     };
 
-    static_assert(sizeof(CKeyEntryList) == 0x14);
+    static_assert(sizeof(CKeyEntryList) == 20);
 
     class CKeyManager
     {
@@ -147,5 +147,5 @@ namespace NXSysKeyManager
         CKeyEntryList mEntries;        // +0x08
     };
 
-    static_assert(sizeof(CKeyManager) == 0x1C);
+    static_assert(sizeof(CKeyManager) == 28);
 }

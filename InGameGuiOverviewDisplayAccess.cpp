@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiOverviewDisplayAccess.h"
 #include "InGameGuiOverviewHandler.h"
@@ -94,7 +95,7 @@ namespace NC2InGameGuiOverviewDisplay
         NXBasics::SColorRGB cGreyColor{ 0, 0, 0 }; // 005694A0.
     };
     static SOverviewColors gOverviewColors;
-    static_assert(sizeof(SOverviewColors) == 0x1C);
+    static_assert(sizeof(SOverviewColors) == 28);
     static_assert(offsetof(SOverviewColors, cBlackColor) == 8);
     static_assert(offsetof(SOverviewColors, cGreyColor) == 0x18);
 
@@ -195,8 +196,8 @@ namespace NC2InGameGuiOverviewDisplay
 
     static NXBasics::SColorRGB OverviewDisplay_GetPulseColor()
     {
-        const std::uint32_t phase = timeGetTime() & 0x1FFu;
-        const auto intensity = static_cast<std::uint8_t>((phase & 0x100u) != 0 ? 0x1FEu - phase : phase & 0xFFu);
+        const std::uint32_t phase = timeGetTime() & ReadableValues::BitMask::Low9Bits;
+        const auto intensity = static_cast<std::uint8_t>((phase & ReadableValues::BitMask::Bit8) != 0 ? 0x1FEu - phase : phase & ReadableValues::IntegerRange::UInt8Maximum);
         // At phase 511, the original subtraction narrows -1 to 255.
         return NXBasics::SColorRGB(intensity, intensity, intensity);
     }
@@ -250,7 +251,7 @@ namespace NC2InGameGuiOverviewDisplay
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce)
     };
-    static_assert(sizeof(gWorldOverviewElementVirtualTable) == 0x3C);
+    static_assert(sizeof(gWorldOverviewElementVirtualTable) == 60);
 
     // Original function: FUN_004ce5cc; STextureElement constructor.
     static void WorldOverviewTextureElement_Construct(void* texture)
@@ -291,10 +292,10 @@ namespace NC2InGameGuiOverviewDisplay
         void* state = static_cast<std::byte*>(element) + 0x30;
         WorldOverviewElement_ConstructState(state);
         OverviewDisplay_Write(element, 0, gWorldOverviewElementVirtualTable + 0);
-        std::memset(state, 0, 0x813C);
+        std::memset(state, 0, 33084);
         auto* bitmap = OverviewDisplay_Read<NXBasics::CBitmap*>(element, 0x2C);
         bitmap->Fill(static_cast<std::uint8_t>(0));
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         NXBasics::CBitmap* background = nullptr;
         if (allocation != nullptr)
         {
@@ -889,7 +890,7 @@ namespace NC2InGameGuiOverviewDisplay
             }
             if (selection == 4)
             {
-                std::byte command[0x14]{};
+                std::byte command[20]{};
                 command[0] = std::byte{ 0x65 };
                 const std::int32_t id = NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(NC2InGameGuiInputManager::gInputManager);
                 const std::uint32_t position = NC2Logic::MapMigPoint_GetLong(mapPoint);
@@ -903,7 +904,7 @@ namespace NC2InGameGuiOverviewDisplay
                 if (NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(input) == 0) return true;
                 do
                 {
-                    std::byte command[0x14]{};
+                    std::byte command[20]{};
                     command[0] = std::byte{ 0x65 };
                     const std::int32_t id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(NC2InGameGuiInputManager::gInputManager, index);
                     const std::uint32_t position = NC2Logic::MapMigPoint_GetLong(mapPoint);

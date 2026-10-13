@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanMilitaryJobs.h"
 #include "C2HumanCommandAccess.h"
@@ -39,11 +40,11 @@ namespace NC2Logic
     // Original function: FUN_0046b384.
     bool Human_l_CheckForEnemyTarget(void* human, const void* point, std::uint32_t minimumDistance, std::uint32_t maximumDistance, void* target)
     {
-        const auto* weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]) + Read<std::uint32_t>(human, 0xAE4);
+        const auto* weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)]) + Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon);
         std::uint32_t candidate[3]{};
-        const auto task = Read<std::uint32_t>(human, 0x368);
+        const auto task = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask);
         const bool allowLandscape = !HasValidMilitaryTarget(human) && task != 15 && task != 4;
-        if (!CGameMapSectorAttachmentManager::sTheObjectPtr->CheckForEnemyTarget_Human(Read<std::uint32_t>(human, 0x10), point, minimumDistance, maximumDistance, candidate, ((Read<std::uint32_t>(human, 0xB84) >> 13) & 1u) != 0, allowLandscape)) return false;
+        if (!CGameMapSectorAttachmentManager::sTheObjectPtr->CheckForEnemyTarget_Human(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), point, minimumDistance, maximumDistance, candidate, ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) >> 13) & 1u) != 0, allowLandscape)) return false;
         if (TargetData_GetTargetType(candidate) == 6)
         {
             std::memcpy(static_cast<std::byte*>(human) + 0xB64, candidate, 12);
@@ -69,32 +70,32 @@ namespace NC2Logic
     // Original function: FUN_0046f41a; Windows dispatches jobs 31..47 to this same body.
     void Human_l_StartTask_ExecuteJob_Soldier(void* human)
     {
-        const auto* weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]) + Read<std::uint32_t>(human, 0xAE4);
+        const auto* weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)]) + Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon);
         std::uint32_t target[3]{};
         const auto* position = Human_GetMapPositionRef(human);
         auto* primary = static_cast<std::byte*>(human) + 0xB64;
         auto* secondary = static_cast<std::byte*>(human) + 0xB70;
-        auto* workCenter = static_cast<std::byte*>(human) + 0xB30;
+        auto* workCenter = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter;
         if (Human_IsAttachedToWorkHouse(human))
         {
-            auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(house, 0x0C) != Read<std::uint32_t>(human, 0x10)) House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 2);
+            auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+            if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) != Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)) House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 2);
             const auto weaponType = NXBasics::Runtime_TimeSigned32(Human_Equipment_GetWeaponType(human));
             if (weaponType >= 16 && weaponType <= 17)
             {
                 if (Human_l_IsAtomicInterruptable(human) && !TargetData_IsValid(primary) && Human_l_CheckForEnemyTarget(human, position, 0, static_cast<std::uint32_t>(weapon->maximumRange) + 5u, target))
                 {
                     std::memcpy(secondary, target, 12);
-                    Write<std::uint32_t>(human, 0x36C, 0);
-                    Write<std::uint32_t>(human, 0x368, 14);
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
                     return;
                 }
             }
             else if (!TargetData_IsValid(primary) && Human_l_CheckForEnemyTarget(human, workCenter, 0, 18, target))
             {
                 std::memcpy(secondary, target, 12);
-                Write<std::uint32_t>(human, 0x36C, 0);
-                Write<std::uint32_t>(human, 0x368, 14);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
                 return;
             }
         }
@@ -102,8 +103,8 @@ namespace NC2Logic
         {
             if (Human_IsAttachedToVehicle(human))
             {
-                Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
-                Write<std::uint32_t>(human, 0x36C, 0);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
                 return;
             }
             std::uint32_t searchPosition = 0, minimumDistance = 0, maximumDistance = 0, landscapeDistance = 5;
@@ -119,7 +120,7 @@ namespace NC2Logic
                 if (TargetData_GetTargetType(primary) == 6 && Human_GetPlayerType(human) != 2)
                 {
                     std::uint32_t landscape = 0;
-                    if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, 0x10), Human_GetMapPositionRef(human), static_cast<std::uint32_t>(weapon->minimumRange), landscapeDistance, true, 1, 0, &landscape))
+                    if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), Human_GetMapPositionRef(human), static_cast<std::uint32_t>(weapon->minimumRange), landscapeDistance, true, 1, 0, &landscape))
                     {
                         Write(primary, 4, MapMigPoint_GetLong(&landscape));
                         Write<std::uint32_t>(primary, 0, 6);
@@ -131,15 +132,15 @@ namespace NC2Logic
         }
         if (TargetData_IsValid(primary) || TargetData_IsValid(secondary))
         {
-            Write<std::uint32_t>(human, 0x368, 14);
-            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 14);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
             return;
         }
         std::uint32_t returnDistance = 18;
         if (Human_IsAttachedToWorkHouse(human))
         {
-            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
-            Write(workCenter, 0, Read<std::uint32_t>(house, 0x24));
+            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+            Write(workCenter, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
             returnDistance = 0;
@@ -155,7 +156,7 @@ namespace NC2Logic
             Human_WorkCenterMarker_Update(human);
             if (Human_l_StartAtomicWalk(human, workCenter, workCenter)) return;
         }
-        Write<std::uint32_t>(human, 0x368, 1);
-        Write<std::uint32_t>(human, 0x36C, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
     }
 }

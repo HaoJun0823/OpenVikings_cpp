@@ -257,9 +257,9 @@ namespace NCDAudioManager
     // Original function: FUN_004042c7; Windows-only mixer helper.
     bool CCDAudioManager::l_InitializeMixer()
     {
-        static_assert(sizeof(MIXERLINEA) == 0xA8);
-        static_assert(sizeof(MIXERCONTROLA) == 0x94);
-        static_assert(sizeof(MIXERLINECONTROLSA) == 0x18);
+        static_assert(sizeof(MIXERLINEA) == 168);
+        static_assert(sizeof(MIXERCONTROLA) == 148);
+        static_assert(sizeof(MIXERLINECONTROLSA) == 24);
         bool found = false;
         if (::mixerGetNumDevs() != 0)
         {

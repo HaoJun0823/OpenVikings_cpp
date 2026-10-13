@@ -56,7 +56,7 @@ namespace NMasterControlProgram
         // The embedded startup record is constructed before entering this body.
         sTheObjectPtr = this;
 
-        std::memset(this, 0, 0x168);
+        std::memset(this, 0, 360);
 
         mProgramState = 3;
         mWantedProgramState = 0;
@@ -91,7 +91,7 @@ namespace NMasterControlProgram
                 continue;
             }
 
-            void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(0x14u, 1);
+            void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(20u, 1);
 
             if (fileLibrary != nullptr)
             {
@@ -113,7 +113,7 @@ namespace NMasterControlProgram
                     continue;
                 }
 
-                void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(0x14u, 1);
+                void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(20u, 1);
 
                 if (fileLibrary != nullptr)
                 {
@@ -436,7 +436,7 @@ namespace NMasterControlProgram
 
         const char* fileNamePattern = useTitleScreen ? "data\\gui\\lang\\%s\\pictures\\titlescreen.bmp" : "data\\gui\\lang\\%s\\pictures\\loadscreen.bmp";
 
-        char fileName[0x104];
+        char fileName[260];
         NC2Logic::LanguageTool_GetFilename(fileNamePattern, fileName, false);
 
         // Explicit lifetimes preserve destruction before ProgressBar_PrintToScreen().
@@ -458,7 +458,7 @@ namespace NMasterControlProgram
         sourceBitmap = picture->GetBitmap();
         sourceBitmap->CopyIntoBitmap(temporaryBitmap, 0, 0);
 
-        void* progressBarMemory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* progressBarMemory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         void* progressBar = nullptr;
 
         if (progressBarMemory != nullptr)

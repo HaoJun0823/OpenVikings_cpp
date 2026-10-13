@@ -60,12 +60,12 @@ namespace NC2Logic
         SCleanMapInfoData* l_CleanMapList_GetPtrByGuid(const SCleanMapGuid& guid);
     };
 
-    static_assert(sizeof(SCleanMapInfoData) == 0x48C);
+    static_assert(sizeof(SCleanMapInfoData) == 1164);
     static_assert(offsetof(SCleanMapInfoData, guid) == 0x110);
     static_assert(offsetof(SCleanMapInfoData, mapName) == 0x12C);
     static_assert(offsetof(SCleanMapInfoData, description) == 0x1F4);
     static_assert(offsetof(SCleanMapInfoData, archiveFilename) == 0x386);
     static_assert(offsetof(SCleanMapInfoData, multiplayerOnly) == 0x48A);
-    static_assert(sizeof(CCleanMapsManager) == 0x30);
+    static_assert(sizeof(CCleanMapsManager) == 48);
     static_assert(offsetof(CCleanMapsManager, mMaps) == 0x1C);
 }

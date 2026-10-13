@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MissionOnscreenInfoAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -25,16 +26,16 @@ namespace NC2Logic
             const std::uint32_t values[10] = {type, string, a, b, c, d, e, f, g, h};
             for (std::uint32_t field = 0; field < 10; ++field) Write(entry, field * 4u, values[field]);
         };
-        if (player == 0xFFFFFFFFu || player == 20)
+        if (player == ReadableValues::IntegerRange::UInt32Maximum || player == 20)
         {
-            for (std::uint32_t owner = 0; owner < 20; ++owner) if (Read<std::uint8_t>(gGameControl, owner * 0x4A80u) != 0) set(owner);
+            for (std::uint32_t owner = 0; owner < 20; ++owner) if (Read<std::uint8_t>(gGameControl, owner * ReadableValues::RecordSize::GameControlPlayer) != 0) set(owner);
         }
-        else if (NXBasics::Runtime_TimeSigned32(player) >= 0 && player < 20 && Read<std::uint8_t>(gGameControl, player * 0x4A80u) != 0) set(player);
+        else if (NXBasics::Runtime_TimeSigned32(player) >= 0 && player < 20 && Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) != 0) set(player);
     }
     // Original function: FUN_00417323.
     const void* MissionOnscreenInfoManager_Info_GetPtr(const void* manager, std::int32_t player, std::int32_t index)
     {
-        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0 || index < 0 || index >= 5) return nullptr;
+        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0 || index < 0 || index >= 5) return nullptr;
         const auto* info = static_cast<const std::byte*>(manager) + (static_cast<std::uint32_t>(player) * 5u + static_cast<std::uint32_t>(index)) * 40u; return Read<std::uint32_t>(info, 0) == 0 ? nullptr : info;
     }
     // Original function: FUN_0043b42b.
@@ -56,14 +57,14 @@ namespace NC2Logic
     std::uint32_t Tool_CountGoodsInHouses(std::uint32_t player, std::uint32_t good, std::uint32_t point, std::uint32_t radius)
     {
         std::uint32_t count = 0; CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; if (Read<std::uint32_t>(house, 0x2C) == 3 && Distance(house, point) <= radius && House_Stock_CanStoreGoodType(house, good, true)) count += House_Stock_GetAmountOfGoods(house, good, true); }
+        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3 && Distance(house, point) <= radius && House_Stock_CanStoreGoodType(house, good, true)) count += House_Stock_GetAmountOfGoods(house, good, true); }
         return count;
     }
     // Original function: FUN_0043b55c.
     std::uint32_t Tool_CountHousesOnMap(std::uint32_t player, std::uint32_t type, std::uint32_t point, std::uint32_t radius)
     {
         std::uint32_t count = 0; CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; if (Read<std::uint32_t>(house, 0x2C) == 3 && Read<std::uint32_t>(house, 0x14) == type && Distance(house, point) <= radius) ++count; }
+        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) == type && Distance(house, point) <= radius) ++count; }
         return count;
     }
     // Original function: FUN_0041736d.

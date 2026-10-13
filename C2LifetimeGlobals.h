@@ -235,7 +235,7 @@ namespace NC2E2
     struct SStaticParticelStorage { std::int32_t munitionIds[4]; std::int32_t count; void* entries; };
     inline SStaticParticelStorage gStaticParticelStorage{};
     inline void*& gStaticParticelData = gStaticParticelStorage.entries;
-    static_assert(sizeof(SStaticParticelStorage) == 0x18);
+    static_assert(sizeof(SStaticParticelStorage) == 24);
     static_assert(offsetof(SStaticParticelStorage, count) == 0x10);
     // Original global: 00568A34.
     inline void*& gStaticPatternEntries = gStaticPatternStorage.entries;
@@ -246,12 +246,12 @@ namespace NC2E2
     // Complete regions cleared by their Windows destructors. Unidentified fields
     // retain explicit offsets rather than speculative member names.
     // 00568590..00568957; color records occupy +0x58..+0x3C7.
-    alignas(4) inline std::byte gStaticHumanMiscData[0x3C8]{};
+    alignas(4) inline std::byte gStaticHumanMiscData[968]{};
     inline std::byte* const gStaticHumanColors = gStaticHumanMiscData + 0x58;
     // 00568998..005689BB; counts, record arrays and auxiliary allocations.
-    alignas(4) inline std::byte gStaticMapMoveableData[0x24]{};
+    alignas(4) inline std::byte gStaticMapMoveableData[36]{};
     // 005689F0..00568A0F; transition counts and tables.
-    inline std::byte (&gStaticTransitionData)[0x20] = *reinterpret_cast<std::byte (*)[0x20]>(&gStaticTransitionStorage);
+    inline std::byte (&gStaticTransitionData)[32] = *reinterpret_cast<std::byte (*)[32]>(&gStaticTransitionStorage);
     inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550
     inline std::int32_t& gStaticHouseCount = gStaticHouseStorage.count; // 00568A60
     inline std::int32_t& gStaticLandscapeCount = gStaticLandscapeStorage.count; // 00568A78
@@ -270,7 +270,7 @@ namespace NC2E2
         std::uint32_t musicType;
     };
     inline SWorldMusicState gWorldMusicState{};
-    static_assert(sizeof(SWorldMusicState) == 0x68);
+    static_assert(sizeof(SWorldMusicState) == 104);
     static_assert(offsetof(SWorldMusicState, changePending) == 4);
     static_assert(offsetof(SWorldMusicState, visiblePlayerCounts) == 0x14);
     static_assert(offsetof(SWorldMusicState, musicType) == 0x64);

@@ -219,8 +219,8 @@ namespace
         directDraw->Release();
 
         // CLSID_DirectMusic and IID_IDirectMusic from the legacy DirectMusic API.
-        constexpr GUID directMusicClassId = { 0x636B9F10, 0x0C7D, 0x11D1, { 0x95, 0xB2, 0x00, 0x20, 0xAF, 0xDC, 0x74, 0x21 } };
-        constexpr GUID directMusicInterfaceId = { 0x6536115A, 0x7B2D, 0x11D2, { 0xBA, 0x18, 0x00, 0x00, 0xF8, 0x75, 0xAC, 0x12 } };
+        constexpr GUID directMusicClassId = { 0x636B9F10, 0x0C7D, 0x11D1, { 0x95, 0xB2, 0, 0x20, 0xAF, 0xDC, 0x74, 0x21 } };
+        constexpr GUID directMusicInterfaceId = { 0x6536115A, 0x7B2D, 0x11D2, { 0xBA, 0x18, 0, 0, 0xF8, 0x75, 0xAC, 0x12 } };
 
         const HRESULT initializeResult = CoInitialize(nullptr);
         IUnknown* directMusic = nullptr;
@@ -847,9 +847,9 @@ namespace NXSys2DApp
     // Original function: FUN_00479c09; Windows-only tool name inferred from its callers.
     char FindCDDrive(const char* volumeName, const char* markerFileName)
     {
-        static_assert(sizeof(WIN32_FIND_DATAA) == 0x140);
-        char path[0x104];
-        char actualVolumeName[0x104];
+        static_assert(sizeof(WIN32_FIND_DATAA) == 320);
+        char path[260];
+        char actualVolumeName[260];
         WIN32_FIND_DATAA foundFile;
 
         for (char drive = 'c'; drive <= 'z'; ++drive)

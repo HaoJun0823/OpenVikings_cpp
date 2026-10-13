@@ -43,7 +43,7 @@ namespace NC2Logic
         std::uint32_t total;
         std::uint32_t values[2];
     };
-    static_assert(sizeof(SHouseConstructionGoods) == 0xD8);
+    static_assert(sizeof(SHouseConstructionGoods) == 216);
     void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods);
     void House_Inhabitants_UpdateAllWorkers(void* house);
     bool __fastcall House_Construction_UpgradeStart(void* house, void* unusedEdx);

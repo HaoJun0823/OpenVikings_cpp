@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "ApplicationGlobals.h"
 #include "C2CallbackManager.h"
 #include "C2EngineLandscapeAccess.h"
@@ -98,7 +99,7 @@ namespace NC2Logic
         auto* micro = GameMap_GetMapMicroPointPtr(position);
         std::uint32_t size = 0;
         const auto continent = Read<std::uint8_t>(micro, 6);
-        if ((Read<std::uint8_t>(micro, 12) & 0x80u) == 0 && continent != 0)
+        if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) == 0 && continent != 0)
         {
             size = 1;
             auto neighbor = Read<std::uint32_t>(position, 0);
@@ -117,7 +118,7 @@ namespace NC2Logic
                 size = candidate;
             }
         }
-        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & 0xF8u) | (size & 7u));
+        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::ByteExceptBits0Through2) | (size & 7u));
     }
 
     // Original function: FUN_00450E08; the continent-type load has no effect on the predicate in Windows.
@@ -132,7 +133,7 @@ namespace NC2Logic
             {
                 if (!MapMigPoint_IsInsideMap(&point)) return false;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if ((Read<std::uint8_t>(micro, 7) & (1u << direction)) == 0 || (Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::uint8_t>(micro, 6) != continent) return false;
+                if ((Read<std::uint8_t>(micro, 7) & (1u << direction)) == 0 || (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent) return false;
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
             }
         return true;
@@ -231,14 +232,14 @@ namespace NC2Logic
         const auto continent = Read<std::uint8_t>(micro, 6);
         if (continent != 0 && (Read<std::uint8_t>(micro, 13) & 2u) != 0)
         {
-            Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & 0x8Fu) | 8u);
+            Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::ByteExceptBits4Through6) | 8u);
             return;
         }
         const auto continentType = continent == 0 ? 0u : ContinentTypeUnchecked(continent);
         const void* patterns[6];
         if (continent == 0 || !GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns))
         {
-            Write<std::uint8_t>(micro, 12, Read<std::uint8_t>(micro, 12) & 0x87u);
+            Write<std::uint8_t>(micro, 12, Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::ByteExceptBits3Through6);
             return;
         }
         const bool land = continentType == 1;
@@ -250,7 +251,7 @@ namespace NC2Logic
             Write<std::uint32_t>(gGameMapStaticStorage, 0x40u + continent * 16u, 0);
             return;
         }
-        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & 0x87u) | (((sum / count) & 15u) << 3));
+        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::ByteExceptBits3Through6) | (((sum / count) & 15u) << 3));
     }
 
     // Original function: FUN_004513C1.

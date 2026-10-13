@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2VehicleLifecycle.h"
 #include "C2VehicleAccess.h"
 #include "C2EngineLandscapeAccess.h"
@@ -49,12 +50,12 @@ namespace NC2Logic
         CMapMoveableIterator iterator;
         for (auto id = iterator.GetFirstMapMoveableId(searchPoint); id != -1; id = iterator.GetNextMapMoveableId())
         {
-            const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
             if (Read<std::uint32_t>(moveable, 8) != 3) continue;
-            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CVehicleArray::ElementSize;
+            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId) * CVehicleArray::ElementSize;
             if (Read<std::uint32_t>(vehicle, 0x4FC) == 1) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, 0x12), Read<std::int16_t>(moveable, 0x14)));
-            if (gStaticVehicleTypeStorage.records[Read<std::uint32_t>(vehicle, 0x1E8)].logicSize >= distance) return true;
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, 0x14)));
+            if (gStaticVehicleTypeStorage.records[Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType)].logicSize >= distance) return true;
         }
         return false;
     }
@@ -62,7 +63,7 @@ namespace NC2Logic
     namespace
     {
         void* Vehicle(std::int32_t id) { return CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; }
-        void* Moveable(const void* vehicle) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(Read<std::int32_t>(vehicle, 0x1DC)) * 0x58; }
+        void* Moveable(const void* vehicle) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(Read<std::int32_t>(vehicle, 0x1DC)) * ReadableValues::RecordSize::MapMoveableSigned; }
         const void* Slot(const void* vehicle, std::uint32_t offset, std::uint32_t index) { return static_cast<const std::byte*>(vehicle) + offset + index * 12u; }
         std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
 
@@ -90,7 +91,7 @@ namespace NC2Logic
                 initialPoint = Read<std::uint32_t>(to, 0);
             }
         };
-        static_assert(sizeof(SVehiclePointSearch) == 0x1C);
+        static_assert(sizeof(SVehiclePointSearch) == 28);
 
         // Original function: FUN_0043b12b. False means continue searching, including on success.
         bool __cdecl slTool_CheckForVehiclePoint(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
@@ -98,7 +99,7 @@ namespace NC2Logic
             if (callback->distance == 0) return false;
             auto& data = *static_cast<SVehiclePointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint16_t>(micro, 10) != 0xFFFFu || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
+            if (Read<std::uint16_t>(micro, 10) != ReadableValues::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
             const auto distance = Distance(point, &data.initialPoint);
             const auto fromSource = Distance(data.source, point);
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
@@ -115,7 +116,7 @@ namespace NC2Logic
             if (callback->distance == 0) return false;
             auto& data = *static_cast<SVehiclePointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint16_t>(micro, 10) != 0xFFFFu || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
+            if (Read<std::uint16_t>(micro, 10) != ReadableValues::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
             const auto distance = Distance(point, &data.initialPoint);
             const auto fromSource = Distance(data.source, point);
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
@@ -178,12 +179,12 @@ namespace NC2Logic
         Write<std::uint8_t>(vehicle, 0, 1);
         Write(vehicle, 4, id);
         Write(vehicle, 8, Game_UniqueId_Generate());
-        Write(vehicle, 0x1E0, player);
-        Write(vehicle, 0x1E4, tribe);
-        Write(vehicle, 0x1E8, type);
-        Write(vehicle, 0x1EC, type >= 1 && type <= 6 ? type + 49u : 0u);
+        Write(vehicle, ReadableValues::VehicleOffset::PlayerId, player);
+        Write(vehicle, ReadableValues::VehicleOffset::TribeType, tribe);
+        Write(vehicle, ReadableValues::VehicleOffset::LogicType, type);
+        Write(vehicle, ReadableValues::VehicleOffset::JobType, type >= 1 && type <= 6 ? type + 49u : 0u);
         const auto moveableId = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 3, id);
-        Write(vehicle, 0x1DC, moveableId);
+        Write(vehicle, ReadableValues::VehicleOffset::MapMoveableId, moveableId);
         if (moveableId == -1) return false;
         auto* moveable = Moveable(vehicle);
         MapMoveable_Attachment_AttachToMap(moveable, point);
@@ -200,19 +201,19 @@ namespace NC2Logic
         Write<std::uint32_t>(vehicle, 12, type == 3 || type == 4 ? 5000u : type == 5 ? 3000u : 1000u);
         Vehicle_ResetUserCommandArray(vehicle);
         Vehicle_l_Passengers_ResetContents(vehicle);
-        Write<std::uint32_t>(vehicle, 0x518, type == 4 ? 25u : type == 3 || type == 5 ? 20u : 15u);
+        Write<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::ExplorationRadius, type == 4 ? 25u : type == 3 || type == 5 ? 20u : 15u);
         Write<std::int32_t>(vehicle, 0x2F4, -1);
         Write(vehicle, 0x51C, missionCheck);
         if (type == 3 || type == 4)
         {
             const auto continent = Vehicle_l_GetLandContinentIdFromBorder(vehicle, Read<std::uint32_t>(point, 0));
-            if (continent == -1) Write<std::uint32_t>(vehicle, 0x1CC, 0xFFFFFFFFu);
+            if (continent == -1) Write<std::uint32_t>(vehicle, 0x1CC, ReadableValues::IntegerRange::UInt32Maximum);
             else { Write<std::uint8_t>(vehicle, 0x1D0, 1); Vehicle_l_GetDoorPoint(vehicle, static_cast<std::uint32_t>(continent), Read<std::uint32_t>(point, 0)); }
         }
         Write(vehicle, 0x1D6, Read<std::uint32_t>(point, 0));
         Write<std::uint32_t>(vehicle, 0x53C, 3);
-        GameMap_Exploration_DoExplore(player, point, Read<std::uint32_t>(vehicle, 0x518));
-        Write<std::int32_t>(vehicle, 0x540, -1);
+        GameMap_Exploration_DoExplore(player, point, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::ExplorationRadius));
+        Write<std::int32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleId, -1);
         Vehicle_l_StartAtomicIdle(vehicle);
         return true;
     }
@@ -241,7 +242,7 @@ namespace NC2Logic
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
                 const auto continent = Read<std::uint8_t>(micro, 6);
-                if (GameMap_Continent_GetContinentTyp(continent) == 1 && (Read<std::uint8_t>(micro, 12) & 0x80u) == 0) return continent;
+                if (GameMap_Continent_GetContinentTyp(continent) == 1 && (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) == 0) return continent;
             }
         return -1;
     }
@@ -249,7 +250,7 @@ namespace NC2Logic
     // Original function: FUN_00436E8D; landscape editing is reconstructed and connected.
     void Vehicle_Exit(void* vehicle)
     {
-        if (Read<std::int32_t>(vehicle, 0x1DC) != -1 && Vehicle_Door_IsEntryPointOnLand(vehicle, 0)) Vehicle_Passengers_MoveAllOut(vehicle, true);
+        if (Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId) != -1 && Vehicle_Door_IsEntryPointOnLand(vehicle, 0)) Vehicle_Passengers_MoveAllOut(vehicle, true);
         auto count = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
         for (std::uint32_t index = 0; index < count; ++index)
         {
@@ -267,7 +268,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(Moveable(vehicle), 0x10) != 0)
         {
             Logic_EntryPoint_Edit_Start();
-            const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+            const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
             if (Read<std::uint8_t>(&gGameStaticVars, 0x1B1) == 0 && type != 3 && type != 4)
             {
                 auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
@@ -275,7 +276,7 @@ namespace NC2Logic
                 {
                     const auto chance = Game_Random_GetNumber() % 100u;
                     if (chance > 50u || (checkInside && !MapMigPoint_IsInsideMap(&point))) return;
-                    const auto engine = NC2LogicExternals::External_Misc_GetEngineDepotLandscapeId(Read<std::uint32_t>(vehicle, 0x1E4), 46);
+                    const auto engine = NC2LogicExternals::External_Misc_GetEngineDepotLandscapeId(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::TribeType), 46);
                     if (engine != -1) Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 1, 1, engine, 0, -1);
                 };
                 wreck(false);
@@ -286,7 +287,7 @@ namespace NC2Logic
                         for (std::uint32_t step = 0; step < ring; ++step) { MapMigPoint_MoveCursorUnwrapped(point, direction); wreck(true); }
                 }
             }
-            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && Read<std::uint32_t>(vehicle, 0x1E8) != 4 && Read<std::uint32_t>(vehicle, 0x1E8) != 3)
+            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType) != 4 && Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType) != 3)
                 for (std::uint32_t good = 0; good < 66; ++good)
                 {
                     if (!Vehicle_Stock_CanStoreGoodType(vehicle, good)) continue;
@@ -295,7 +296,7 @@ namespace NC2Logic
                 }
             Logic_EntryPoint_Edit_Stop();
         }
-        const auto moveableId = Read<std::int32_t>(vehicle, 0x1DC);
+        const auto moveableId = Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId);
         if (moveableId != -1) MapMoveableArray_FreeMapMoveable(gMapMoveableArrayStorage.manager, moveableId);
         Write<std::uint8_t>(vehicle, 0, 0);
     }
@@ -326,14 +327,14 @@ namespace NC2Logic
         CMapMoveableIterator iterator;
         for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
         {
-            if (id == Read<std::int32_t>(vehicle, 0x1DC)) continue;
-            const auto* moveable = gMapMoveableArrayStorage.entries + id * 0x58;
+            if (id == Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId)) continue;
+            const auto* moveable = gMapMoveableArrayStorage.entries + id * ReadableValues::RecordSize::MapMoveableSigned;
             if (Read<std::uint32_t>(moveable, 8) != 1) continue;
-            auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize;
-            if (Human_IsWalking(human) || Human_IsProducingVehicle(human) || Human_IsAttachedToVehicle(human) || Read<std::uint32_t>(human, 0xB48) == Read<std::uint32_t>(vehicle, 4)) continue;
+            auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize;
+            if (Human_IsWalking(human) || Human_IsProducingVehicle(human) || Human_IsAttachedToVehicle(human) || Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) == Read<std::uint32_t>(vehicle, 4)) continue;
             std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 5);
-            Write(command, 1, Read<std::uint8_t>(human, 0x10));
+            Write(command, 1, Read<std::uint8_t>(human, ReadableValues::HumanOffset::PlayerId));
             Write(command, 12, MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle)));
             Write(command, 16, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
             Human_DoAddNewUserCommand(human, command);
@@ -364,12 +365,12 @@ namespace NC2Logic
         CMapMoveableIterator iterator;
         for (auto id = iterator.GetFirstMapMoveableId(searchPoint); id != -1; id = iterator.GetNextMapMoveableId())
         {
-            if (id == Read<std::int32_t>(vehicle, 0x1DC)) continue;
-            const auto* moveable = gMapMoveableArrayStorage.entries + id * 0x58;
+            if (id == Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId)) continue;
+            const auto* moveable = gMapMoveableArrayStorage.entries + id * ReadableValues::RecordSize::MapMoveableSigned;
             if (Read<std::uint32_t>(moveable, 8) != 3) continue;
-            const auto* other = Vehicle(Read<std::int32_t>(moveable, 0x54));
+            const auto* other = Vehicle(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
             if (Read<std::uint32_t>(other, 0x4FC) == 1) continue;
-            const auto distance = Distance(static_cast<const std::byte*>(moveable) + 0x12, point);
+            const auto distance = Distance(static_cast<const std::byte*>(moveable) + ReadableValues::MapMoveableOffset::MapPosition, point);
             if (static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(other)->logicSize) + static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize) >= distance) return true;
         }
         return false;
@@ -379,7 +380,7 @@ namespace NC2Logic
     bool Vehicle_l_GoAway_GetVehicleFreePos(void* vehicle, void* point)
     {
         SVehicleFreePositionSearch data{vehicle, point};
-        return CMapPathfinderElement::SearchOverMap(Vehicle_GetMapPositionRef(vehicle), 10, true, slVehicle_SearchVehicleFreePos, &data, true, Read<std::int32_t>(vehicle, 0x1E0));
+        return CMapPathfinderElement::SearchOverMap(Vehicle_GetMapPositionRef(vehicle), 10, true, slVehicle_SearchVehicleFreePos, &data, true, Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId));
     }
 
     // Original function: FUN_004417fc.
@@ -429,7 +430,7 @@ namespace NC2Logic
     // Original function: FUN_0044c6c4; the inclusive bound also checks the commander slot.
     bool Vehicle_Passengers_AllPassengersInside(const void* vehicle)
     {
-        const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+        const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
         if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return true;
         const auto count = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
         for (std::uint32_t index = 0; index <= count; ++index)
@@ -487,10 +488,10 @@ namespace NC2Logic
     // Original function: FUN_0044da95; clear the carrier only when its revision matches.
     void Vehicle_Attachment_DetachFromVehicle(void* vehicle)
     {
-        auto* carrier = Vehicle(Read<std::int32_t>(vehicle, 0x540));
-        if (Read<std::uint32_t>(carrier, 8) != Read<std::uint32_t>(vehicle, 0x544)) return;
+        auto* carrier = Vehicle(Read<std::int32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleId));
+        if (Read<std::uint32_t>(carrier, 8) != Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleRevision)) return;
         Vehicle_Passengers_DetachVehicle(carrier, Read<std::uint32_t>(vehicle, 4));
-        Write<std::int32_t>(vehicle, 0x540, -1);
+        Write<std::int32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleId, -1);
     }
 
     // Original function: FUN_0044db85; start idle before reattaching, as in Windows.
@@ -498,7 +499,7 @@ namespace NC2Logic
     {
         Vehicle_l_StartAtomicIdle(vehicle);
         MapMoveable_Attachment_AttachToMap(Moveable(vehicle), point);
-        Write<std::uint8_t>(vehicle, 0x548, 0);
+        Write<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::InsideVehicleFlag, 0);
         Vehicle_SetTargetWorkPosition(vehicle, point);
     }
 
@@ -506,14 +507,14 @@ namespace NC2Logic
     bool Vehicle_l_StartAtomicAnimation(void* vehicle, std::uint32_t action, std::int32_t direction)
     {
         if (action == 1 || !Vehicle_l_IsAtomicInterruptable(vehicle)) return false;
-        auto job = Read<std::uint32_t>(vehicle, 0x1EC);
+        auto job = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::JobType);
         std::uint32_t animation;
         for (;;)
         {
-            const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * 0x88u;
+            const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * ReadableValues::RecordSize::JobType;
             if (Read<std::uint8_t>(data, 0x24u + action) == 0) return false;
-            animation = gStaticTribeTypeData[Read<std::uint32_t>(vehicle, 0x1E4)].atomicIds[job][action];
-            if (animation != 0xFFFFFFFFu) break;
+            animation = gStaticTribeTypeData[Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::TribeType)].atomicIds[job][action];
+            if (animation != ReadableValues::IntegerRange::UInt32Maximum) break;
             job = Read<std::uint32_t>(data, 0x20);
             if (job == 0) return false;
         }
@@ -561,11 +562,11 @@ namespace NC2Logic
         if (!Vehicle_Attachment_IsInsideVehicle(vehicle))
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Vehicle_GetMapPositionRef(vehicle));
-            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize))
+            if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize))
             {
                 auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
                 std::uint32_t output = 0;
-                const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+                const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
                 if ((type == 3 || type == 4) && !Vehicle_Passengers_IsCommanderInVehicle(vehicle))
                 {
                     SVehiclePointSearch data(Vehicle_GetVehicleTypeDataPtr(vehicle), &point, &output);
@@ -589,7 +590,7 @@ namespace NC2Logic
     bool Tool_Vehicle_GetNextMovePointNearPosition(std::uint32_t type, const void* source, void* point, std::uint32_t radius, std::uint32_t minimumDistance)
     {
         SVehiclePointSearch data(gStaticVehicleTypeStorage.records + type, source, point);
-        if (minimumDistance > data.bestDistance) data.bestDistance = 0xFFFFFFFFu;
+        if (minimumDistance > data.bestDistance) data.bestDistance = ReadableValues::IntegerRange::UInt32Maximum;
         data.minimumDistance = minimumDistance;
         data.sourceDistance = 0;
         CMapPathfinderElement::SearchOverMap(source, radius, true, slTool_CheckForVehiclePoint, &data, true, -1);

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AIBuildingAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineTerrainData.h"
@@ -23,7 +24,7 @@ namespace NC2Logic
     {
         // Stack descriptor 00471F5B: all offsets and widths come from Windows stores.
         struct SBuildSearch { void* village; std::int32_t engineType; std::uint32_t stage; std::uint8_t checkTerrain; std::byte padding[3]; void* output; std::uint32_t userData; };
-        static_assert(sizeof(SBuildSearch) == 0x18);
+        static_assert(sizeof(SBuildSearch) == 24);
         void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
         std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
     }
@@ -59,7 +60,7 @@ namespace NC2Logic
     {
         if (Read<std::uint8_t>(village, 0x25u + logicType) == 0) return 0;
         const auto player = Read<std::int32_t>(village, 8);
-        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0xC) : 1u;
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC) : 1u;
         std::uint32_t stage;
         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, logicType, &stage);
         if (engineType == -1) return 0;

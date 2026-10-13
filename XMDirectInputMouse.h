@@ -44,5 +44,5 @@ namespace NXSysMouseManager
         char* mLastError;                  // +0x0C
     };
 
-    static_assert(sizeof(CDirectInputMouse) == 0x10);
+    static_assert(sizeof(CDirectInputMouse) == 16);
 }

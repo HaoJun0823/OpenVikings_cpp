@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2MissionScriptData.h"
 #include "C2LifetimeAccess.h"
@@ -14,7 +15,7 @@ namespace NC2Logic_MissionTool
     namespace
     {
         struct SMissionParameters { std::int32_t count; std::uint32_t types[10]; };
-        static_assert(sizeof(SMissionParameters) == 0x2C);
+        static_assert(sizeof(SMissionParameters) == 44);
         // Complete Windows goal name region: 0050125C..00501357.
         constexpr const char* goalStringPtr[63] =
         {
@@ -447,7 +448,7 @@ namespace NC2Logic
     {
         for (std::uint32_t index = 0; index < 56; ++index)
         {
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticJobTypeData) + index * 0x88u, name) == 0) return index;
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticJobTypeData) + index * ReadableValues::RecordSize::JobType, name) == 0) return index;
         }
         return 0;
     }
@@ -508,8 +509,8 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         // Complete Windows token region: 004F38B8..004F38F7, including the terminator.
-        static constexpr NXBasics::SToken sMissionTokenArray[] = {{"description", 0x64657363}, {"active", 0x61637469}, {"successfullif", 0x73756363}, {"goal", 0x676F616C}, {"result", 0x72657375}, {"visible", 0x76697369}, {"debuginfo", 0x64656275}, {nullptr, 0}};
-        std::memset(manager, 0, 0x81CAC);
+        static constexpr NXBasics::SToken sMissionTokenArray[] = {{"description", SwitchIds::MissionScriptToken::Description}, {"active", SwitchIds::MissionScriptToken::Active}, {"successfullif", SwitchIds::MissionScriptToken::Successfullif}, {"goal", SwitchIds::MissionScriptToken::Goal}, {"result", SwitchIds::MissionScriptToken::Result}, {"visible", SwitchIds::MissionScriptToken::Visible}, {"debuginfo", SwitchIds::MissionScriptToken::DebugInfo}, {nullptr, 0}};
+        std::memset(manager, 0, 531628);
         for (auto* group = reader->GetFirstGroup("MissionData"); group != nullptr; group = reader->GetNextGroup("MissionData"))
         {
             const auto index = Read<std::uint32_t>(manager, 0x18);
@@ -533,7 +534,7 @@ namespace NC2Logic
                     SMissionGoal goal{};
                     NC2Logic_MissionTool::Mission_Tool_ReadGoalData(*reader, goal);
                     const auto count = Read<std::uint32_t>(mission, 0x38);
-                    std::memcpy(mission + 0x3C + count * 0x28u, &goal, 0x28);
+                    std::memcpy(mission + 0x3C + count * 0x28u, &goal, 40);
                     Write<std::uint32_t>(mission, 0x38, count + 1u);
                     break;
                 }
@@ -542,7 +543,7 @@ namespace NC2Logic
                     SResult result{};
                     NC2Logic_MissionTool::Mission_Tool_ReadResultData(*reader, result);
                     const auto count = Read<std::uint32_t>(mission, 0x4EC);
-                    std::memcpy(mission + 0x4F0 + count * 0x4Cu, &result, 0x4C);
+                    std::memcpy(mission + 0x4F0 + count * 0x4Cu, &result, 76);
                     Write<std::uint32_t>(mission, 0x4EC, count + 1u);
                     break;
                 }

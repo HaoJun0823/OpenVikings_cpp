@@ -13,9 +13,9 @@ namespace NC2InGameGuiInputManager
         CInputManager();
         ~CInputManager();
     private:
-        alignas(4) std::byte mStorage[0xF7C];
+        alignas(4) std::byte mStorage[3964];
     };
-    static_assert(sizeof(CInputManager) == 0xF7C);
+    static_assert(sizeof(CInputManager) == 3964);
 }
 
 namespace NC2InGameGuiMessages
@@ -48,9 +48,9 @@ namespace NC2InGameGuiMessages
         void l_MessageHistory_Add(const void* message);
         bool l_MessageHistory_IsSameInList(const void* message) const;
         bool l_MessageHistory_IsSimmilarInList(const void* message) const;
-        alignas(4) std::byte mStorage[0x18];
+        alignas(4) std::byte mStorage[24];
     };
-    static_assert(sizeof(CMessageManager) == 0x18);
+    static_assert(sizeof(CMessageManager) == 24);
     std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record);
     bool SingleMessageDisplayed_GetMapPosition(const void* record, std::uint32_t* point);
     void* MessageMiniButton_Construct(void* button, std::uint32_t uniqueId, std::int32_t x);
@@ -87,9 +87,9 @@ namespace NC2InGameGuiGroups
         void l_Group_RemoveHuman(void* group, std::uint32_t id);
         void l_Group_RemoveVehicle(void* group, std::uint32_t id);
         void l_Group_RemoveHouse(void* group, std::uint32_t id);
-        alignas(4) std::byte mStorage[0x2F0C];
+        alignas(4) std::byte mStorage[12044];
     };
-    static_assert(sizeof(CObjectGroupManager) == 0x2F0C);
+    static_assert(sizeof(CObjectGroupManager) == 12044);
 }
 
 namespace NC2InGameGuiDeadHumanDataManager
@@ -107,7 +107,7 @@ namespace NC2InGameGuiDeadHumanDataManager
         void IO_Savegame_Load(NC2Logic::CIoHelper* io);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
-        alignas(4) std::byte mStorage[0x0C];
+        alignas(4) std::byte mStorage[12];
     };
-    static_assert(sizeof(CDeadHumanDataManager) == 0x0C);
+    static_assert(sizeof(CDeadHumanDataManager) == 12);
 }

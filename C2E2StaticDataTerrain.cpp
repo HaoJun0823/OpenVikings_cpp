@@ -19,22 +19,22 @@ namespace
 {
     // Complete Windows arrays 004F4A58..004F4A8F and 004F4A98..004F4B3F.
     const NXBasics::SToken gPatternTokens[] = {
-        { "editname", 0x65646E61u }, { "editgroups", 0x65646772u },
-        { "logictype", 0x6C6F7479u }, { "gfxtexture", 0x67667874u },
-        { "gfxcoordsa", 0x67667861u }, { "gfxcoordsb", 0x67667862u },
+        { "editname", SwitchIds::LandscapeToken::EditName }, { "editgroups", SwitchIds::LandscapeToken::EditGroups },
+        { "logictype", SwitchIds::LandscapeToken::Logictype }, { "gfxtexture", SwitchIds::PatternToken::GfxTexture },
+        { "gfxcoordsa", SwitchIds::PatternToken::GfxCoordsA }, { "gfxcoordsb", SwitchIds::PatternToken::GfxCoordsB },
         { nullptr, 0 }
     };
     const NXBasics::SToken gLandscapeTokens[] = {
-        { "editname", 0x65646E61u }, { "editgroups", 0x65646772u },
-        { "logictype", 0x6C6F7479u }, { "logicmaximumvalency", 0x6C6F7661u },
-        { "logicisworkable", 0x6C6F776Fu }, { "logicispileableonmap", 0x6C6F7075u },
-        { "logicwalkblockarea", 0x6C6F7762u }, { "logicbuildblockarea", 0x6C6F6262u },
-        { "logicworkarea", 0x6C6F7761u }, { "logicadditionalattachpointarea", 0x6C6F6161u },
-        { "gfxboblibs", 0x67667862u }, { "gfxframes", 0x67667866u },
-        { "gfxpalette", 0x67667870u }, { "gfxstatic", 0x67667873u },
-        { "gfxloopanimation", 0x67667861u }, { "gfxshadingfactor", 0x67667875u },
-        { "gfxtransition", 0x67667874u }, { "gfxuserfxmatrix", 0x67667878u },
-        { "gfxdynamicbackground", 0x67667864u }, { "gfxdrawvoidever", 0x67667876u },
+        { "editname", SwitchIds::LandscapeToken::EditName }, { "editgroups", SwitchIds::LandscapeToken::EditGroups },
+        { "logictype", SwitchIds::LandscapeToken::Logictype }, { "logicmaximumvalency", SwitchIds::LandscapeToken::LogicMaximumValency },
+        { "logicisworkable", SwitchIds::LandscapeToken::LogicIsWorkable }, { "logicispileableonmap", SwitchIds::LandscapeToken::LogicIsPileableOnMap },
+        { "logicwalkblockarea", SwitchIds::LandscapeToken::LogicWalkBlockArea }, { "logicbuildblockarea", SwitchIds::LandscapeToken::LogicBuildBlockArea },
+        { "logicworkarea", SwitchIds::LandscapeToken::Logicworkarea }, { "logicadditionalattachpointarea", SwitchIds::LandscapeToken::LogicAdditionalAttachPointArea },
+        { "gfxboblibs", SwitchIds::LandscapeToken::Gfxboblibs }, { "gfxframes", SwitchIds::LandscapeToken::GfxFrames },
+        { "gfxpalette", SwitchIds::LandscapeToken::GfxPalette }, { "gfxstatic", SwitchIds::LandscapeToken::GfxStatic },
+        { "gfxloopanimation", SwitchIds::LandscapeToken::GfxLoopAnimation }, { "gfxshadingfactor", SwitchIds::LandscapeToken::GfxShadingFactor },
+        { "gfxtransition", SwitchIds::LandscapeToken::GfxTransition }, { "gfxuserfxmatrix", SwitchIds::LandscapeToken::GfxUserFxMatrix },
+        { "gfxdynamicbackground", SwitchIds::LandscapeToken::GfxDynamicBackground }, { "gfxdrawvoidever", SwitchIds::LandscapeToken::GfxDrawVoidEver },
         { nullptr, 0 }
     };
     struct SPatternTokenState
@@ -72,13 +72,13 @@ namespace
         std::uint32_t count;
         SLandscapeTransitionWorkEntry entries[4];
     };
-    static_assert(sizeof(gPatternTokens) == 0x38);
-    static_assert(sizeof(gLandscapeTokens) == 0xA8);
+    static_assert(sizeof(gPatternTokens) == 56);
+    static_assert(sizeof(gLandscapeTokens) == 168);
     static_assert(sizeof(SPatternTokenState) == 8);
-    static_assert(sizeof(SLandscapeFrameWork) == 0x25C);
-    static_assert(sizeof(SLandscapeAreaWork) == 0x284);
-    static_assert(sizeof(SLandscapeTransitionWorkEntry) == 0x30);
-    static_assert(sizeof(SLandscapeTransitionWork) == 0xC4);
+    static_assert(sizeof(SLandscapeFrameWork) == 604);
+    static_assert(sizeof(SLandscapeAreaWork) == 644);
+    static_assert(sizeof(SLandscapeTransitionWorkEntry) == 48);
+    static_assert(sizeof(SLandscapeTransitionWork) == 196);
 
     // Source-level helper for the original word stores from CIniFileReader::GetInt.
     std::int16_t ReadAreaCoordinate(NXBasics::CIniFileReader& reader)
@@ -96,7 +96,7 @@ namespace NC2E2
     void* __fastcall E2StaticDataPatternManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2StaticDataPatternManager = manager;
-        std::memset(manager, 0, 0xFA4);
+        std::memset(manager, 0, 4004);
         std::memset(&gStaticPatternStorage, 0, sizeof(gStaticPatternStorage));
         NXBasics::CIniFileReader reader("data\\engine2d\\inis\\patterns\\pattern.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
@@ -167,7 +167,7 @@ namespace NC2E2
     void* __fastcall E2StaticDataLandscapesManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2StaticDataLandscapesManager = manager;
-        std::memset(manager, 0, 0xFA4);
+        std::memset(manager, 0, 4004);
         std::memset(&gStaticLandscapeStorage, 0, sizeof(gStaticLandscapeStorage));
         NXBasics::CIniFileReader reader("data\\engine2d\\inis\\landscapes\\landscapes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
@@ -231,7 +231,7 @@ namespace NC2E2
                     case SwitchIds::LandscapeToken::Logicworkarea:
                     case SwitchIds::LandscapeToken::LogicAdditionalAttachPointArea:
                     {
-                        const std::uint32_t areaGroup = command == 0x6C6F7762u ? 0u : command == 0x6C6F6262u ? 1u : command == 0x6C6F7761u ? 2u : 3u;
+                        const std::uint32_t areaGroup = command == SwitchIds::LandscapeToken::LogicWalkBlockArea ? 0u : command == SwitchIds::LandscapeToken::LogicBuildBlockArea ? 1u : command == SwitchIds::LandscapeToken::Logicworkarea ? 2u : 3u;
                         const std::uint32_t valency = areaGroup == 3 ? 0u : static_cast<std::uint32_t>(reader.GetInt());
                         if (valency >= 12) break;
                         SLandscapeAreaWork& area = areaWork[areaGroup][valency];
@@ -331,7 +331,7 @@ namespace NC2E2
                     const SLandscapeAreaWork& area = areaWork[areaGroup][valency];
                     if (area.count == 0) continue;
                     destination->valency = valency;
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
                     destination->area = allocation != nullptr ? ::new (allocation) NC2Logic::CMapArea(area.count) : nullptr;
                     // The original continues unchecked if either allocation failed.
                     std::memcpy(destination->area->rows, area.rows, area.count * 8u);
@@ -403,8 +403,8 @@ namespace NC2E2
         for (auto* entry = static_cast<SE2StaticDataTextureData*>(existing.First()); entry != nullptr; entry = static_cast<SE2StaticDataTextureData*>(existing.Next()), ++index)
             if (NXBasics::Runtime_CompareStringsIgnoreCase(entry->name, fileName) == 0) return static_cast<std::int32_t>(index);
         if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true)) return -1;
-        auto* entry = static_cast<SE2StaticDataTextureData*>(NXBasics::Runtime_AllocateWithNewHandler(0x80, 1));
-        std::memset(entry, 0, 0x80);
+        auto* entry = static_cast<SE2StaticDataTextureData*>(NXBasics::Runtime_AllocateWithNewHandler(128, 1));
+        std::memset(entry, 0, 128);
         std::strncpy(entry->name, fileName, 0x77);
         {
             NXBasics::CPicture picture(fileName);

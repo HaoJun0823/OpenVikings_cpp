@@ -20,7 +20,7 @@ namespace NXBasics
         char name[100];
         char replacement[200];
     };
-    static_assert(sizeof(SIniFileReaderDefine) == 0x12C);
+    static_assert(sizeof(SIniFileReaderDefine) == 300);
     static_assert(offsetof(SIniFileReaderDefine, replacement) == 0x64);
 
     template<typename T> class CList;
@@ -34,7 +34,7 @@ namespace NXBasics
         // Original shared callback: LAB_00479e17; definitions have no payload destructor.
         void l_DeleteData(void* value) override { Runtime_Free(value); }
     };
-    static_assert(sizeof(CList<SIniFileReaderDefine>) == 0x14);
+    static_assert(sizeof(CList<SIniFileReaderDefine>) == 20);
 
     // Original function: FUN_004259d6; the definition list has its own native vtable and destructor.
     CList<SIniFileReaderDefine>::~CList()
@@ -70,8 +70,8 @@ namespace NXBasics
     CIniFileReader::CIniFileReader(const char* fileName, const char* preliminaryFileName, bool createCompiledFile, const char* compiledExtension, ErrorCallback errorCallback)
     {
         static_assert(std::is_standard_layout_v<CIniFileReader>);
-        static_assert(offsetof(CIniFileReader, mLoaded) == 0x000);
-        static_assert(offsetof(CIniFileReader, mFileName) == 0x001);
+        static_assert(offsetof(CIniFileReader, mLoaded) == 0);
+        static_assert(offsetof(CIniFileReader, mFileName) == 1);
         static_assert(offsetof(CIniFileReader, mLines) == 0x108);
         static_assert(offsetof(CIniFileReader, mCurrentLine) == 0x10C);
         static_assert(offsetof(CIniFileReader, mCurrentLineType) == 0x110);

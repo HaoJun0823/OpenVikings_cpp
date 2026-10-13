@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HouseAccess.h"
 #include "C2AnimalAccess.h"
 #include "C2DelayedActionManager.h"
@@ -57,20 +58,20 @@ namespace NC2Logic
         }
         if (House_GetHouseMainType(house) == 6)
         {
-            if (Read<std::uint32_t>(house, 0x2C) == 3)
+            if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3)
             {
                 // Windows frees the site first and reads its retained fields for vehicle allocation.
                 CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4));
-                Logic_EntryPoint_Add_Vehicle(Read<std::uint32_t>(house, 0xC), Read<std::uint32_t>(house, 0x18), gStaticHouseTypeStorage.records[Read<std::uint32_t>(house, 0x14)].vehicleType, static_cast<const std::byte*>(house) + 0x1C, 0);
+                Logic_EntryPoint_Add_Vehicle(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), Read<std::uint32_t>(house, 0x18), gStaticHouseTypeStorage.records[Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType)].vehicleType, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, 0);
                 return;
             }
         }
-        else if (Read<std::uint32_t>(house, 0x2C) == 3) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(house, 0xC), static_cast<const std::byte*>(house) + 0x1C);
-        if (Read<std::uint8_t>(house, 0x7D8) == 0 || Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return;
+        else if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition);
+        if (Read<std::uint8_t>(house, 0x7D8) == 0 || Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return;
         CHumanIterator iterator;
         std::uint32_t defenders = 0;
-        const auto* door = static_cast<const std::byte*>(house) + 0x24;
-        const auto player = Read<std::uint32_t>(house, 0xC);
+        const auto* door = static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::DoorEntryPoint;
+        const auto player = Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId);
         for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(door, 0), 0, false); id != -1; id = iterator.GetNextSectorHumanId()) ++defenders;
         auto remaining = defenders / 24u;
         if (defenders % 24u > gGameTime.tick % 24u) ++remaining;
@@ -100,8 +101,8 @@ namespace NC2Logic
     void House_l_Military_StartArrow(const void* house, std::uint32_t point)
     {
         const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, 0x18)])[20];
-        const auto source = Read<std::uint32_t>(house, 0x1C);
-        const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const auto source = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+        const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         std::uint32_t height = 0, offsetX = 20, offsetY = 20;
         const auto launchPoints = Read<std::uint32_t>(graphics, 0x1B0);
         if (launchPoints != 0)
@@ -140,11 +141,11 @@ namespace NC2Logic
     void House_Religion_Send(const void* house)
     {
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(house, 0x0C), static_cast<const std::byte*>(house) + 0x1C, 50); id != -1; id = iterator.GetNextHumanId())
+        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, 50); id != -1; id = iterator.GetNextHumanId())
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::int32_t>(human, 0xAB4) <= 8000) Write(human, 0xAB4, Read<std::uint32_t>(human, 0xAB4) + 250u);
-            Write(human, 0xAA0, Read<std::uint32_t>(human, 0xAA0) + 50u);
+            if (Read<std::int32_t>(human, ReadableValues::HumanOffset::Religion) <= 8000) Write(human, ReadableValues::HumanOffset::Religion, Read<std::uint32_t>(human, ReadableValues::HumanOffset::Religion) + 250u);
+            Write(human, ReadableValues::HumanOffset::Hitpoints, Read<std::uint32_t>(human, ReadableValues::HumanOffset::Hitpoints) + 50u);
         }
     }
 
@@ -152,7 +153,7 @@ namespace NC2Logic
     void House_DoOneGameSecond(void* house)
     {
         if (Read<std::uint8_t>(house, 0x7D0) != 0) return;
-        if (House_GetHouseMainType(house) != 6 && (Read<std::uint32_t>(house, 0x2C) != 3 || !House_Repair_IsFinished(house)))
+        if (House_GetHouseMainType(house) != 6 && (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3 || !House_Repair_IsFinished(house)))
         {
             const auto builders = House_Inhabitants_GetNumberOfAttachedHumans(house, 4);
             const auto maximum = House_Construction_GetTotalNumberOfBuildersAllowed(house);
@@ -165,14 +166,14 @@ namespace NC2Logic
                 {
                     Write<std::uint32_t>(house, 0x114, 5);
                     CHumanIterator iterator;
-                    auto* base = static_cast<std::byte*>(house) + 0x1C;
+                    auto* base = static_cast<std::byte*>(house) + ReadableValues::HouseOffset::MapPosition;
                     const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(base), 6);
                     void* selected = nullptr;
                     std::uint32_t bestDistance = 20000;
-                    for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, 0x0C), Read<std::uint32_t>(house, 0x24), 10000, false); id != -1; id = iterator.GetNextSectorHumanId())
+                    for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint), 10000, false); id != -1; id = iterator.GetNextSectorHumanId())
                     {
                         void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                        if (Read<std::uint32_t>(human, 0x18) != 7 || Human_UserControl_GetNextJobType(human) != 7 || Read<std::uint32_t>(human, 0xACC) != 0 || Human_IsAttachedToBuildSite(human) || Human_IsAttachedToVehicle(human)) continue;
+                        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) != 7 || Human_UserControl_GetNextJobType(human) != 7 || Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 0 || Human_IsAttachedToBuildSite(human) || Human_IsAttachedToVehicle(human)) continue;
                         const void* position = Human_GetMapPositionRef(human);
                         if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent) continue;
                         const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(base, 0), Read<std::int16_t>(base, 2)));
@@ -185,7 +186,7 @@ namespace NC2Logic
                     {
                         Human_l_AssignWorkHouse(selected, Read<std::uint32_t>(house, 4));
                         Write<std::uint32_t>(selected, 0x38C, 0);
-                        Write(selected, 0xB30, Read<std::uint32_t>(house, 0x24));
+                        Write(selected, 0xB30, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
                         Human_WorkCenterMarker_Update(selected);
                     }
                 }
@@ -193,7 +194,7 @@ namespace NC2Logic
         }
         else
         {
-            const auto type = Read<std::uint32_t>(house, 0x14);
+            const auto type = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType);
             if (type == 37) House_Religion_Send(house);
             else if (type == 11)
             {
@@ -203,7 +204,7 @@ namespace NC2Logic
             {
                 if (!House_Stock_IsFull(house, 1)) House_Stock_ModifyAmount(house, 1, 1, 0, false);
             }
-            if (Read<std::uint32_t>(house, 0x14) != 1 && Read<std::uint32_t>(house, 0x14) != 37) House_HomeQualityEnhancer_ModifyValue(house, 2, -1);
+            if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) != 1 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) != 37) House_HomeQualityEnhancer_ModifyValue(house, 2, -1);
         }
         for (std::uint32_t index = 0; index < 66; ++index)
         {
@@ -220,23 +221,23 @@ namespace NC2Logic
         House_l_ActionOverlay_Update(house);
         if (Read<std::uint8_t>(house, 0x7D8) == 0) return;
         CHumanIterator iterator;
-        const auto type = Read<std::uint32_t>(house, 0x14);
+        const auto type = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType);
         const std::uint32_t maximum = type == 1 ? 30u : type == 41 ? 20u : 10u;
         std::uint32_t count = 0;
-        const auto* door = static_cast<const std::byte*>(house) + 0x24;
-        auto outside = Read<std::uint32_t>(house, 0x24);
+        const auto* door = static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::DoorEntryPoint;
+        auto outside = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
         Tool_Map_GetNotBlockedPosition(&outside, true);
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, 0x0C), Read<std::uint32_t>(house, 0x24), 0, false); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint), 0, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             if (count != maximum) { ++count; continue; }
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, 0x0C)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(&outside), 0);
+            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(&outside), 0);
         }
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, 0x0C), Read<std::uint32_t>(house, 0x24), 40, false); id != -1 && count < maximum; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint), 40, false); id != -1 && count < maximum; id = iterator.GetNextSectorHumanId())
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             const void* position = Human_GetMapPositionRef(human);
-            if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, 0) || Read<std::uint32_t>(human, 0xAD4) != 0) continue;
+            if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, 0) || Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) continue;
             if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4))) { ++count; continue; }
             if (Human_IsDefendingHouse(human, -1))
             {
@@ -247,7 +248,7 @@ namespace NC2Logic
                 if (distance >= previousDistance) continue;
             }
             else if (Human_UserControl_IsExecutingUserCommand(human)) continue;
-            Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, 0x0C)), Read<std::uint32_t>(human, 4), 0, MapMigPoint_GetLong(door), 1);
+            Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), 0, MapMigPoint_GetLong(door), 1);
             ++count;
         }
     }

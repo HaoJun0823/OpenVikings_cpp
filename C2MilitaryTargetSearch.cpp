@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MilitaryTargetSearch.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
@@ -24,7 +25,7 @@ namespace NC2Logic
         std::uint32_t enemyCount = 0;
         for (std::uint32_t enemy = 0; enemy < 20; ++enemy)
         {
-            if (Read<std::uint8_t>(gGameControl, enemy * 0x4A80u) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) enemies[enemyCount++] = enemy;
+            if (Read<std::uint8_t>(gGameControl, enemy * ReadableValues::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) enemies[enemyCount++] = enemy;
         }
         if (enemyCount == 0) return 0;
         std::uint32_t count = 0;
@@ -124,7 +125,7 @@ namespace NC2Logic
         for (std::uint32_t enemy = 0; enemy <= 20; ++enemy)
         {
             if (enemy == player) continue;
-            if (enemy != 20 && Read<std::uint8_t>(gGameControl, enemy * 0x4A80u) == 0) continue;
+            if (enemy != 20 && Read<std::uint8_t>(gGameControl, enemy * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
             if (player != 20 && enemy != 20 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) continue;
             enemies[enemyCount++] = enemy;
         }
@@ -206,7 +207,7 @@ namespace NC2Logic
         std::uint32_t enemyCount = 0;
         for (std::uint32_t enemy = 0; enemy < 20; ++enemy)
         {
-            if (Read<std::uint8_t>(gGameControl, enemy * 0x4A80u) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) enemies[enemyCount++] = enemy;
+            if (Read<std::uint8_t>(gGameControl, enemy * ReadableValues::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) enemies[enemyCount++] = enemy;
         }
         if (enemyCount == 0) return 0;
         std::uint32_t count = 0;
@@ -254,7 +255,7 @@ namespace NC2Logic
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 if (Read<std::uint8_t>(house, 0x7D0) != 0) continue;
-                const void* position = static_cast<const std::byte*>(house) + 0x1C;
+                const void* position = static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
                 if (distance > maximumDistance || distance < minimumDistance || distance >= cutoff) continue;
                 insert(id, distance);

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -53,8 +54,8 @@ namespace NC2E2
     void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void* manager, void*)
     {
         using namespace NC2Lifetime;
-        static constexpr NXBasics::SToken landscapeTokens[] = {{"logictribetype", 0x6C747274}, {"logiclandscapetype", 0x6C6C7479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
-        static constexpr NXBasics::SToken groupTokens[] = {{"logictribetype", 0x6C747274}, {"logichousetype", 0x6C687479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
+        static constexpr NXBasics::SToken landscapeTokens[] = {{"logictribetype", SwitchIds::MiscHouseLandscapeToken::LogicTribeType}, {"logiclandscapetype", SwitchIds::MiscLandscapeToken::LogicLandscapeType}, {"landscapename", SwitchIds::MiscHouseLandscapeToken::LandscapeName}, {nullptr, 0}};
+        static constexpr NXBasics::SToken groupTokens[] = {{"logictribetype", SwitchIds::MiscHouseLandscapeToken::LogicTribeType}, {"logichousetype", SwitchIds::MiscHouseLandscapeToken::LogicHouseType}, {"landscapename", SwitchIds::MiscHouseLandscapeToken::LandscapeName}, {nullptr, 0}};
         gStaticMiscLandscapeEntryCount = 0;
         gStaticMiscLandscapeEntries = nullptr;
         gStaticMiscLandscapeGroupCount = 0;
@@ -195,9 +196,9 @@ namespace NC2LogicExternals
     {
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
         const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
-        if (id == 0xFFFFu) return;
+        if (id == ReadableValues::IntegerRange::UInt16Maximum) return;
         const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * 0x8Cu + 0x79u);
-        NC2Lifetime::Write<std::uint16_t>(micro, 0, 0xFFFFu);
+        NC2Lifetime::Write<std::uint16_t>(micro, 0, ReadableValues::IntegerRange::UInt16Maximum);
         NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, parameter);
     }
 
@@ -237,7 +238,7 @@ namespace NC2LogicExternals
         const auto* micro = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
         if (micro == nullptr) return -1;
         const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
-        return id == 0xFFFFu ? -1 : static_cast<std::int32_t>(id);
+        return id == ReadableValues::IntegerRange::UInt16Maximum ? -1 : static_cast<std::int32_t>(id);
     }
 
     // Original function: FUN_004807c8.

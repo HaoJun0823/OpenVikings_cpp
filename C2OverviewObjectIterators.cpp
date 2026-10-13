@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
@@ -135,7 +136,7 @@ namespace NC2Logic
             if (id != -1)
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, 0x1C), Read<std::int16_t>(house, 0x1E), center[0], center[1])) <= radius) return id;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPosition), Read<std::int16_t>(house, 0x1E), center[0], center[1])) <= radius) return id;
             }
             else
             {

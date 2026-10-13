@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2DelayedActionManager.h"
 #include "C2EngineDisplayAccess.h"
@@ -134,8 +135,8 @@ namespace NC2Logic
         CMapMoveableIterator iterator;
         for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
         {
-            const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
-            const auto object = Read<std::uint32_t>(moveable, 0x54);
+            const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
+            const auto object = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
             switch (Read<std::uint32_t>(moveable, 8))
             {
             case SwitchIds::MapMoveableType::Human:
@@ -174,7 +175,7 @@ namespace NC2Logic
             if (Tool_IsEnemyLandscapeOnPoint(weapon.hitSelf != 0 ? -1 : static_cast<std::int32_t>(action->player), point)) Add(targets, 5, MapMigPoint_GetLong(point));
             return;
         }
-        if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0)
+        if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0)
         {
             for (std::uint32_t radius = 1; radius < 5; ++radius)
             {
@@ -198,7 +199,7 @@ namespace NC2Logic
         CVehicleIterator vehicles;
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            if (Read<std::uint8_t>(gGameControl, player * 0x4A80u) == 0 || player == action->player) continue;
+            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0 || player == action->player) continue;
             for (std::uint32_t group = 0; group < 2; ++group)
                 for (auto id = vehicles.GetFirstSectorVehicleId(player, MapMigPoint_GetLong(point), 5, group == 0); id != -1; id = vehicles.GetNextSectorVehicleId())
                 {
@@ -244,14 +245,14 @@ namespace NC2Logic
     // Original function: FUN_00434b86; row endpoints use an inclusive native comparison.
     bool House_IsPositionInHouse(const void* house, const void* point)
     {
-        const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, 0x2C) == 2 ? 1u : 0u);
-        const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
+        const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(data, 0x20u + stage * 4u);
         if (area == nullptr) return false;
         for (std::uint32_t index = 0; index < area->rowCount; ++index)
         {
             std::uint32_t position;
-            MapMigPoint_ConstructOffset(&position, static_cast<const std::byte*>(house) + 0x1C, area->rows[index].x, area->rows[index].y, false);
+            MapMigPoint_ConstructOffset(&position, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, area->rows[index].x, area->rows[index].y, false);
             const auto x = Read<std::int16_t>(&position, 0), targetX = Read<std::int16_t>(point, 0);
             if (Read<std::int16_t>(&position, 2) == Read<std::int16_t>(point, 2) && x <= targetX && NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(x) + area->rows[index].width) >= targetX) return true;
         }

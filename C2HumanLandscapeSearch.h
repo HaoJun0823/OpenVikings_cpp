@@ -28,9 +28,9 @@ namespace NC2Logic
         std::uint32_t selectedCount;
         SHumanSearchLandscapeEntry entries[50];
     };
-    static_assert(sizeof(SHumanSearchLandscapeEntry) == 0x38);
+    static_assert(sizeof(SHumanSearchLandscapeEntry) == 56);
     static_assert(offsetof(SHumanSearchLandscapeEntry, points) == 0x10);
-    static_assert(sizeof(SHumanSearchLandscapesData) == 0xB04);
+    static_assert(sizeof(SHumanSearchLandscapesData) == 2820);
     static_assert(offsetof(SHumanSearchLandscapesData, entries) == 0x14);
     bool Human_FindLandscapesNearPos_Sorted(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source);
     bool Human_FindLandscapesNearPos_Random(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source);

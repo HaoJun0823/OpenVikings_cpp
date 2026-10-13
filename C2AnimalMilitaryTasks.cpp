@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AnimalMilitaryTasks.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalTasks.h"
@@ -51,7 +52,7 @@ namespace NC2Logic
         auto* target = static_cast<std::byte*>(animal) + 0x44;
         std::uint32_t targetDistance = 10000, bestDistance = 10000;
         if (TargetData_IsValid(target)) { std::uint32_t point = 0; TargetData_GetMapPosition(target, &point); targetDistance = Distance(&point, center); }
-        const auto owner = Read<std::uint32_t>(animal, 0x10);
+        const auto owner = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId);
         auto consider = [&](const void* object, std::uint32_t kind, const void* position)
         {
             const auto id = Read<std::uint32_t>(object, 4), revision = Read<std::uint32_t>(object, 8);
@@ -65,7 +66,7 @@ namespace NC2Logic
             const bool humans = (pass & 1u) == 0;
             for (std::uint32_t player = 0; player < (humans ? 20u : 21u); ++player)
             {
-                if (player == owner || (player < 20 && Read<std::uint8_t>(gGameControl, player * 0x4A80u) == 0)) continue;
+                if (player == owner || (player < 20 && Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0)) continue;
                 if (owner != 20 && player != 20 && GameControl_Diplomacy_GetState(gGameControl, owner, player) != 3) continue;
                 if (humans)
                 {
@@ -73,7 +74,7 @@ namespace NC2Logic
                     for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(center, 0), 20, pass == 0); id != -1; id = iterator.GetNextSectorHumanId())
                     {
                         const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                        if (Human_Misc_IsHidden(human) || (Read<std::uint32_t>(human, 0xB84) & ((1u << 3) | (1u << 13))) != 0 || (pass == 2 && !Human_IsAgeAdult(human))) continue;
+                        if (Human_Misc_IsHidden(human) || (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & ((1u << 3) | (1u << 13))) != 0 || (pass == 2 && !Human_IsAgeAdult(human))) continue;
                         consider(human, 1, Human_GetMapPositionRef(human));
                     }
                 }
@@ -127,7 +128,7 @@ namespace NC2Logic
         SAttackPointSearch data;
         data.owner = animal; data.minimumRange = Weapon(animal)->minimumRange; data.maximumRange = Weapon(animal)->maximumRange;
         data.target = Read<std::uint32_t>(point, 0); data.source = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0);
-        if (!CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slAnimalSearchNextFreeMilitaryMapPointFunction, &data, false, Read<std::int32_t>(animal, 0x10))) return false;
+        if (!CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slAnimalSearchNextFreeMilitaryMapPointFunction, &data, false, Read<std::int32_t>(animal, ReadableValues::AnimalOffset::PlayerId))) return false;
         Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
         return true;
     }
@@ -139,10 +140,10 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
         {
             if (id == Read<std::int32_t>(animal, 12)) continue;
-            const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
             if (Read<std::uint32_t>(moveable, 8) != 2) continue;
-            const auto* other = Animal(Read<std::uint32_t>(moveable, 0x54));
-            if (Read<std::uint32_t>(other, 0x10) == Read<std::uint32_t>(animal, 0x10) && Read<std::uint32_t>(other, 0x18) == 49 && Read<std::uint8_t>(other, 0x5C) != 0 && Read<std::uint32_t>(other, 0x70) == 81) return true;
+            const auto* other = Animal(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
+            if (Read<std::uint32_t>(other, 0x10) == Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) && Read<std::uint32_t>(other, 0x18) == 49 && Read<std::uint8_t>(other, 0x5C) != 0 && Read<std::uint32_t>(other, 0x70) == 81) return true;
         }
         return false;
     }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HouseAccess.h"
 #include "C2CallbackManager.h"
 #include "C2EngineDisplayAccess.h"
@@ -27,7 +28,7 @@ namespace NC2Logic
         const auto value = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, 0x7C8) + static_cast<std::uint32_t>(delta));
         Write(house, 0x7C8, value);
         if (value < 0) Write<std::uint32_t>(house, 0x7C8, 0);
-        else if (Read<std::uint32_t>(house, 0x2C) != 1 && House_Repair_IsFinished(house)) House_HitPoints_Reset(house);
+        else if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 1 && House_Repair_IsFinished(house)) House_HitPoints_Reset(house);
     }
 
     // Original function: FUN_0043222f; multiple role bits retain independent update calls.
@@ -59,7 +60,7 @@ namespace NC2Logic
     // Original function: FUN_00432df3.
     bool House_Construction_CanUseOneGoodNow(const void* house)
     {
-        if (Read<std::uint32_t>(house, 0x2C) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110)) return false;
+        if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110)) return false;
         for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
         {
             const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
@@ -71,7 +72,7 @@ namespace NC2Logic
     // Original function: FUN_00432e2d; consume the first available material in descriptor order.
     bool House_Construction_DoUseOneGood(void* house)
     {
-        if (Read<std::uint32_t>(house, 0x2C) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110)) return false;
+        if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110)) return false;
         for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
         {
             const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
@@ -86,7 +87,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00432e8b.
-    bool House_Construction_IsUseGoodRunning(const void* house) { return Read<std::uint32_t>(house, 0x2C) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110); }
+    bool House_Construction_IsUseGoodRunning(const void* house) { return Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3 && Read<std::uint32_t>(house, 0x30) != Read<std::uint32_t>(house, 0x110); }
 
     // Original function: FUN_00432ea5; repairs and construction deliberately share this Windows entry.
     bool House_Construction_DoOneStep(void* house)
@@ -97,7 +98,7 @@ namespace NC2Logic
             House_HitPoints_ModifyValue(house, 100);
             return true;
         }
-        const auto state = Read<std::uint32_t>(house, 0x2C);
+        const auto state = Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState);
         if (state == 1 && Read<std::int32_t>(house, 0x30) < Read<std::int32_t>(house, 0x110))
         {
             const auto before = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, 0x30) * 100u) / Read<std::int32_t>(house, 0x34);
@@ -105,14 +106,14 @@ namespace NC2Logic
             Write(house, 0x30, step);
             if (NXBasics::Runtime_TimeSigned32(step) >= Read<std::int32_t>(house, 0x34))
             {
-                Write<std::uint32_t>(house, 0x2C, 3);
+                Write<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState, 3);
                 House_l_Exploration_Do(house);
                 House_UserMessage_SendToUserMessage(house, 47);
-                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(house, 0xC), 5, 0);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), 5, 0);
                 House_Inhabitants_UpdateAllWorkers(house);
             }
-            const auto after = Read<std::uint32_t>(house, 0x2C) == 3 ? 100 : NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, 0x30) * 100u) / Read<std::int32_t>(house, 0x34);
-            const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+            const auto after = Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3 ? 100 : NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, 0x30) * 100u) / Read<std::int32_t>(house, 0x34);
+            const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
             const auto gain = Read<std::uint32_t>(definition, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u) * static_cast<std::uint32_t>(after - before) / 100u;
             House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(gain));
             return true;
@@ -121,17 +122,17 @@ namespace NC2Logic
         const auto step = Read<std::uint32_t>(house, 0x30) + 1u;
         Write(house, 0x30, step);
         if (NXBasics::Runtime_TimeSigned32(step) < Read<std::int32_t>(house, 0x34)) return true;
-        Write<std::uint32_t>(house, 0x2C, 3);
+        Write<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState, 3);
         GameMapModifyManager_StartGameMapModify();
-        void* door = static_cast<std::byte*>(house) + 0x24;
+        void* door = static_cast<std::byte*>(house) + ReadableValues::HouseOffset::DoorEntryPoint;
         void* micro = GameMap_GetMapMicroPointPtr(door);
         if (Read<std::uint8_t>(micro, 0) == 2) Write<std::uint8_t>(micro, 0, 0);
         Write(house, 0x20, Read<std::uint32_t>(house, 0x20) + 1u);
-        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
-        Write(house, 0x14, Read<std::uint32_t>(definition, Read<std::uint32_t>(house, 0x20) * 4u));
-        definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
+        Write(house, ReadableValues::HouseOffset::LogicType, Read<std::uint32_t>(definition, Read<std::uint32_t>(house, 0x20) * 4u));
+        definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         const auto health = Read<std::uint32_t>(definition, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u);
-        const bool temple = Read<std::uint32_t>(house, 0x14) == 1;
+        const bool temple = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) == 1;
         Write(house, 0x7C8, health);
         if (temple) Write<std::uint32_t>(house, 0x794, 1);
         House_l_DoorPoint_Calculate(house);
@@ -140,7 +141,7 @@ namespace NC2Logic
         // Original outlined function 00431DC6; preserve the lower flag bit and other micro-point data.
         if (Read<std::uint8_t>(micro, 0) == 0)
         {
-            Write<std::uint8_t>(micro, 2, (Read<std::uint8_t>(micro, 2) & 0xFEu) | 2u);
+            Write<std::uint8_t>(micro, 2, (Read<std::uint8_t>(micro, 2) & ReadableValues::BitMask::ByteExceptBit0) | 2u);
             Write<std::uint8_t>(micro, 0, 2);
             Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(Read<std::uint32_t>(house, 4)));
         }
@@ -149,22 +150,22 @@ namespace NC2Logic
         GameMapModifyManager_StopGameMapModify();
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1E, true, Read<std::uint32_t>(house, 4), 0, 0);
         House_UserMessage_SendToUserMessage(house, 48);
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(house, 0xC), 5, 0);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), 5, 0);
         House_Inhabitants_UpdateAllWorkers(house);
         return true;
     }
 
     // Original function: FUN_004333c7.
-    void House_l_Exploration_Do(const void* house) { GameMap_Exploration_DoExplore(Read<std::uint32_t>(house, 0xC), static_cast<const std::byte*>(house) + 0x1C, Read<std::uint32_t>(house, 0x14) == 1 ? 30u : 15u); }
+    void House_l_Exploration_Do(const void* house) { GameMap_Exploration_DoExplore(Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId), static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) == 1 ? 30u : 15u); }
 
     // Original function: FUN_00433645.
     void House_UserMessage_SendToUserMessage(const void* house, std::uint32_t type)
     {
-        std::byte message[0x304];
+        std::byte message[772];
         ToUserMessage_Construct(message);
         Write(message, 0, type);
         Write(message, 0x18, Read<std::uint32_t>(house, 4));
-        Write(message, 8, Read<std::uint32_t>(house, 0xC));
+        Write(message, 8, Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -172,23 +173,23 @@ namespace NC2Logic
     // Original function: FUN_00434101; raw offset arithmetic is the outlined 0042AD91 operation.
     void House_l_DoorPoint_Calculate(void* house)
     {
-        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         const auto offset = 0x188u + Read<std::uint32_t>(house, 0x20) * 4u;
         std::uint32_t door;
-        MapMigPoint_ConstructOffset(&door, static_cast<const std::byte*>(house) + 0x1C, Read<std::int16_t>(definition, offset), Read<std::int16_t>(definition, offset + 2), false);
-        Write(house, 0x24, door);
+        MapMigPoint_ConstructOffset(&door, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, Read<std::int16_t>(definition, offset), Read<std::int16_t>(definition, offset + 2), false);
+        Write(house, ReadableValues::HouseOffset::DoorEntryPoint, door);
         House_Inhabitants_UpdateAllHumans(house);
     }
 
     // Original function: FUN_0043435a; Windows-only entry, no separate Mac name established.
     void House_Misc_ClearLandscapesAndGuides(const void* house)
     {
-        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(definition, 0x20u + Read<std::uint32_t>(house, 0x20) * 4u);
         for (std::uint32_t row = 0; row < area->rowCount; ++row)
         {
             std::uint32_t point;
-            MapMigPoint_ConstructOffset(&point, static_cast<const std::byte*>(house) + 0x1C, area->rows[row].x, area->rows[row].y, false);
+            MapMigPoint_ConstructOffset(&point, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, area->rows[row].x, area->rows[row].y, false);
             for (std::uint32_t column = 0; column < area->rows[row].width; ++column)
             {
                 if (MapMigPoint_IsInsideMap(&point))
@@ -206,7 +207,7 @@ namespace NC2Logic
     // Original function: FUN_00434763.
     void House_HitPoints_Reset(void* house)
     {
-        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         Write(house, 0x7C8, Read<std::uint32_t>(definition, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u));
     }
 }

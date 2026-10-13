@@ -89,7 +89,7 @@ namespace NC2InGameGuiBase
         Write(element, 0, gBaseToolElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 1);
         Write(element, 0, gClockVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x1F);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 31);
         return element;
     }
     // Original empty exit callbacks are distinct entries.
@@ -112,7 +112,7 @@ namespace NC2InGameGuiBase
         std::byte padding[3]{};
     };
     static SClockColourState gClockColours;
-    static_assert(sizeof(SClockColourState) == 0x14);
+    static_assert(sizeof(SClockColourState) == 20);
     static void ClockColours_Initialize()
     {
         if ((gClockColours.flags & 1u) == 0)

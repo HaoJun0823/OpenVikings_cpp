@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HumanLandscapeSearch.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -61,7 +62,7 @@ namespace NC2Logic
             std::uint32_t count;
             std::uint32_t points[10];
         };
-        static_assert(sizeof(SHumanSearchBioLandscapeData) == 0x34);
+        static_assert(sizeof(SHumanSearchBioLandscapeData) == 52);
 
         // Original function: FUN_0045e586.
         bool __cdecl slHumanSearchLandscapeFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
@@ -81,7 +82,7 @@ namespace NC2Logic
             std::uint32_t count;
             std::uint32_t points[5];
         };
-        static_assert(sizeof(SHumanSearchGrowPatternData) == 0x18);
+        static_assert(sizeof(SHumanSearchGrowPatternData) == 24);
 
         // Original function: FUN_0045edd4.
         bool __cdecl slHumanSearchGrowPatternFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
@@ -99,7 +100,7 @@ namespace NC2Logic
             std::uint32_t landscape, limit, count, matureCount, immatureCount, minimumValency;
             std::uint32_t mature[25], immature[25];
         };
-        static_assert(sizeof(SHumanSearchGrowLandscapeData) == 0xE0);
+        static_assert(sizeof(SHumanSearchGrowLandscapeData) == 224);
         static_assert(offsetof(SHumanSearchGrowLandscapeData, immature) == 0x7C);
 
         struct SHumanSearchShorePointData
@@ -108,23 +109,23 @@ namespace NC2Logic
             SHumanSearchShorePointData() { for (auto& point : work) point = 0; for (auto& point : real) point = 0; }
             std::uint32_t count, work[8], real[8];
         };
-        static_assert(sizeof(SHumanSearchShorePointData) == 0x44);
+        static_assert(sizeof(SHumanSearchShorePointData) == 68);
 
         // Original function: FUN_0045f053.
         bool __cdecl slHumanSearchShorePointFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0) return false;
+            if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0) return false;
             auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro, 10));
             while (id != -1)
             {
-                const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+                const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
                 const auto type = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
                 if (type == 0 || type == 3) return false;
                 id = Read<std::int32_t>(moveable, 0x24);
             }
             const auto ways = Read<std::uint8_t>(micro, 7);
-            if ((ways & 0x3Fu) == 0x3Fu) return false;
+            if ((ways & ReadableValues::BitMask::Low6Bits) == 0x3Fu) return false;
             auto& data = *static_cast<SHumanSearchShorePointData*>(callback->userData);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
@@ -182,7 +183,7 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SHumanSearchPilePointData*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 0xC) & 0x80u) != 0) return false;
+            if ((Read<std::uint8_t>(micro, 0xC) & ReadableValues::BitMask::Bit7) != 0) return false;
             const auto kind = Read<std::uint8_t>(micro, 0);
             if (kind == 2 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::uint8_t>(micro, 2) != 1)) return false;
             data.point = Read<std::uint32_t>(point, 0);
@@ -196,7 +197,7 @@ namespace NC2Logic
         SHumanSearchPilePointData data;
         data.engineId = engineId;
         data.count = 0;
-        CMapPathfinderElement::SearchOverMap(source, 40, true, FindPilePointCallback, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(source, 40, true, FindPilePointCallback, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         const auto index = Game_Random_GetNumber() % data.count;
         Write(point, 0, Read<std::uint32_t>(&data, 8u + index * 4u));
@@ -208,7 +209,7 @@ namespace NC2Logic
     {
         if (data.scanned == 0)
         {
-            CMapPathfinderElement::SearchOverMap(source, Radius(human), false, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+            CMapPathfinderElement::SearchOverMap(source, Radius(human), false, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
             data.scanned = 1;
             if (data.selectedCount == 0) return false;
         }
@@ -226,7 +227,7 @@ namespace NC2Logic
     {
         if (data.scanned == 0)
         {
-            CMapPathfinderElement::SearchOverMap(source, Radius(human), true, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+            CMapPathfinderElement::SearchOverMap(source, Radius(human), true, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
             data.scanned = 1;
             if (data.selectedCount == 0) return false;
         }
@@ -244,7 +245,7 @@ namespace NC2Logic
     {
         if (data.scanned == 0)
         {
-            CMapPathfinderElement::SearchOverMap(source, Radius(human), false, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+            CMapPathfinderElement::SearchOverMap(source, Radius(human), false, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
             if (data.selectedCount == 0) return false;
         }
         if (data.candidateCount == 0 || data.typeCount == 0) return false;
@@ -280,7 +281,7 @@ namespace NC2Logic
         SHumanSearchBioLandscapeData data;
         data.landscape = landscape;
         data.count = 0;
-        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, Radius(human), false, slHumanSearchBioLandscapeFunction, &data, true, -1);
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, Radius(human), false, slHumanSearchBioLandscapeFunction, &data, true, -1);
         return data.count != 0 && TryCandidatePoints(data.count, data.points, real, work);
     }
 
@@ -290,7 +291,7 @@ namespace NC2Logic
         SHumanSearchBioLandscapeData data;
         data.landscape = landscape;
         data.count = 0;
-        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, Radius(human), false, slHumanSearchLandscapeFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, Radius(human), false, slHumanSearchLandscapeFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         for (std::uint32_t retry = 0; retry < data.count * 2u; ++retry)
         {
             Write(real, 0, data.points[Game_Random_GetNumber() % data.count]);
@@ -304,7 +305,7 @@ namespace NC2Logic
     {
         SHumanSearchGrowPatternData data;
         data.count = 0;
-        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, 10, true, slHumanSearchGrowPatternFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, 10, true, slHumanSearchGrowPatternFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         Write(real, 0, data.points[Game_Random_GetNumber() % data.count]);
         Write(work, 0, Read<std::uint32_t>(real, 0));
@@ -342,7 +343,7 @@ namespace NC2Logic
         data.limit = 25;
         data.count = data.matureCount = data.immatureCount = 0;
         data.minimumValency = 255;
-        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, 10, true, slHumanSearchGrowLandscapeFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, 10, true, slHumanSearchGrowLandscapeFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         if (data.count < data.limit && Human_FindGrowPatternNearWorkCenter(human, real, work)) return true;
         if (data.matureCount != 0)
         {
@@ -361,7 +362,7 @@ namespace NC2Logic
     {
         SHumanSearchShorePointData data;
         data.count = 0;
-        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, Radius(human), true, slHumanSearchShorePointFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, Radius(human), true, slHumanSearchShorePointFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         const auto index = Game_Random_GetNumber() % data.count;
         Write(real, 0, data.real[index]);

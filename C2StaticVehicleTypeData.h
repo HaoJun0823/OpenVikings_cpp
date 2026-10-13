@@ -53,7 +53,7 @@ namespace NC2Logic
     };
     extern SStaticVehicleTypeStorage gStaticVehicleTypeStorage;
 
-    static_assert(sizeof(SStaticVehicleTypeData) == 0x1DC);
+    static_assert(sizeof(SStaticVehicleTypeData) == 476);
     static_assert(offsetof(SStaticVehicleTypeData, logicSize) == 0x20);
     static_assert(offsetof(SStaticVehicleTypeData, stockSlots) == 0x24);
     static_assert(offsetof(SStaticVehicleTypeData, goodTypeCount) == 0x28);
@@ -72,7 +72,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticVehicleTypeData, debugColor) == 0x1D4);
     static_assert(offsetof(SStaticVehicleTypeData, debugRadius) == 0x1D8);
     static_assert(sizeof(CStaticVehicleTypeDataManager) == 1);
-    static_assert(sizeof(SStaticVehicleTypeStorage) == 0x90);
+    static_assert(sizeof(SStaticVehicleTypeStorage) == 144);
     static_assert(offsetof(SStaticVehicleTypeStorage, tokenList) == 4);
     static_assert(offsetof(SStaticVehicleTypeStorage, records) == 8);
     static_assert(offsetof(SStaticVehicleTypeStorage, owner) == 0x0C);

@@ -15,7 +15,7 @@ namespace NC2E2
         void DestroyValue(void* value) override;
     };
 
-    static_assert(sizeof(CDisplayObjectList) == 0x14);
+    static_assert(sizeof(CDisplayObjectList) == 20);
 
     class C2DEngineDisplayManager : public CDisplayObjectList
     {
@@ -40,5 +40,5 @@ namespace NC2E2
         void* mActiveDisplay;
     };
 
-    static_assert(sizeof(C2DEngineDisplayManager) == 0x18);
+    static_assert(sizeof(C2DEngineDisplayManager) == 24);
 }

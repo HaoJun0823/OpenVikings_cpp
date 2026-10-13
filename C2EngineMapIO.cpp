@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineMapIO.h"
 #include "C2EngineMacroMaps.h"
@@ -26,7 +27,7 @@ namespace NC2E2
 
     namespace
     {
-        std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, 0x38); }
+        std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::PackingScratchBuffer); }
         std::uint32_t MacroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 8); }
         std::uint32_t MicroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 12); }
         std::byte* EngineMacro() { return Read<std::byte*>(gEngineMapStaticStorage, 0); }
@@ -44,7 +45,7 @@ namespace NC2E2
                 if (words) Write<std::uint16_t>(scratch, i * 2u, Read<std::uint16_t>(entries, i * stride + offset));
                 else scratch[i] = entries[i * stride + offset];
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, count * (words ? 2u : 1u), words ? 0x726C6536 : 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, count * (words ? 2u : 1u), words ? ReadableValues::PackingType::Rle16 : ReadableValues::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -96,8 +97,8 @@ namespace NC2E2
             for (std::uint32_t i = 0; i < MacroCount(); ++i)
             {
                 const auto stored = Read<std::uint8_t>(scratch, i);
-                std::uint8_t encoded = 0xFF;
-                if (stored != 0xFF && stored / 6u < mapping.count && mapping.ids[stored / 6u] != -1) encoded = static_cast<std::uint8_t>(mapping.ids[stored / 6u] * 6u + stored % 6u);
+                std::uint8_t encoded = ReadableValues::IntegerRange::UInt8MaximumSigned;
+                if (stored != ReadableValues::IntegerRange::UInt8MaximumSigned && stored / 6u < mapping.count && mapping.ids[stored / 6u] != -1) encoded = static_cast<std::uint8_t>(mapping.ids[stored / 6u] * 6u + stored % 6u);
                 Write(EngineMacro(), i * 12u + offset, encoded);
             }
         }
@@ -109,14 +110,14 @@ namespace NC2E2
             for (std::uint32_t i = 0; i < MicroCount(); ++i)
             {
                 const auto stored = Read<std::uint16_t>(scratch, i * 2u);
-                std::uint16_t id = 0xFFFF;
-                const bool missing = stored != 0xFFFF && (stored >= mapping.count || mapping.ids[stored] == -1);
-                if (stored != 0xFFFF && !missing) id = static_cast<std::uint16_t>(mapping.ids[stored]);
+                std::uint16_t id = ReadableValues::IntegerRange::UInt16MaximumSigned;
+                const bool missing = stored != ReadableValues::IntegerRange::UInt16MaximumSigned && (stored >= mapping.count || mapping.ids[stored] == -1);
+                if (stored != ReadableValues::IntegerRange::UInt16MaximumSigned && !missing) id = static_cast<std::uint16_t>(mapping.ids[stored]);
                 Write(EngineMicro(), i * 4u, id);
                 if (missing)
                 {
                     Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 1);
-                    auto* logic = Read<std::byte*>(gGameMapStaticStorage, 0x34) + i * 14u;
+                    auto* logic = Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage) + i * 14u;
                     if (Read<std::uint8_t>(logic, 0) <= 1) Write<std::uint8_t>(logic, 0, 0);
                 }
             }
@@ -126,25 +127,25 @@ namespace NC2E2
     // Original function: FUN_004832fa.
     void EngineMap_IO_Cleanmap_Save(CIoHelper* io)
     {
-        io->IO_File_Chunk_WriteMarkerAndVersion(0x656D6D6D, 0, 0);
-        WritePlane(io, 0x656D6272, false, 4, false);
-        WritePlane(io, 0x656D7663, false, 5, false);
-        WritePlane(io, 0x656D6D31, false, 6, false);
-        WritePlane(io, 0x656D6D69, true, 2, false);
-        WriteNames(io, 0x65617064, gStaticPatternStorage.count, gStaticPatternStorage.entries, 0x70);
-        WritePlane(io, 0x656D7061, false, 0, true);
-        WritePlane(io, 0x656D7062, false, 2, true);
-        WriteNames(io, 0x65617464, static_cast<std::uint32_t>(gStaticTransitionStorage.count), gStaticTransitionStorage.entries, 0x154);
-        for (std::uint32_t i = 0; i != 4; ++i) WritePlane(io, 0x656D7431 + i, false, 7 + i, false);
-        WriteNames(io, 0x65616C64, static_cast<std::uint32_t>(gStaticLandscapeStorage.count), gStaticLandscapeStorage.entries, 0x8C);
-        WritePlane(io, 0x656D6C61, true, 0, true);
+        io->IO_File_Chunk_WriteMarkerAndVersion(ReadableValues::EngineMapChunk::MapHeader, 0, 0);
+        WritePlane(io, SwitchIds::EngineMapChunk::MacroBrightness, false, 4, false);
+        WritePlane(io, SwitchIds::EngineMapChunk::MacroVertexColor, false, 5, false);
+        WritePlane(io, SwitchIds::EngineMapChunk::MacroFlags, false, 6, false);
+        WritePlane(io, SwitchIds::EngineMapChunk::MicroFlags, true, 2, false);
+        WriteNames(io, SwitchIds::EngineMapChunk::PatternNames, gStaticPatternStorage.count, gStaticPatternStorage.entries, 0x70);
+        WritePlane(io, SwitchIds::EngineMapChunk::PatternA, false, 0, true);
+        WritePlane(io, SwitchIds::EngineMapChunk::PatternB, false, 2, true);
+        WriteNames(io, SwitchIds::EngineMapChunk::TransitionNames, static_cast<std::uint32_t>(gStaticTransitionStorage.count), gStaticTransitionStorage.entries, 0x154);
+        for (std::uint32_t i = 0; i != 4; ++i) WritePlane(io, SwitchIds::EngineMapChunk::TransitionFirst + i, false, 7 + i, false);
+        WriteNames(io, SwitchIds::EngineMapChunk::LandscapeNames, static_cast<std::uint32_t>(gStaticLandscapeStorage.count), gStaticLandscapeStorage.entries, 0x8C);
+        WritePlane(io, SwitchIds::EngineMapChunk::Landscapes, true, 0, true);
         io->IO_Tool_Chunk_WriteEndChunk();
     }
 
     // Original function: FUN_00483800.
     void EngineMap_IO_Cleanmap_Load(CIoHelper* io)
     {
-        if (!io->IO_File_Chunk_CheckMarkerAndVersion(0x656D6D6D, 0)) return;
+        if (!io->IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::EngineMapChunk::MapHeader, 0)) return;
         Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 0);
         const auto borderId = gStaticPatternStorage.borderIds[1];
         SNameMap patterns, transitions, landscapes;
@@ -184,7 +185,7 @@ namespace NC2E2
     // Original function: FUN_00483e30.
     void EngineMap_IO_Savegame_Save(CIoHelper* io)
     {
-        io->IO_File_Chunk_WriteMarkerAndVersion(0x58456D61, 1, 0);
+        io->IO_File_Chunk_WriteMarkerAndVersion(SwitchIds::EngineSavegameChunk::EngineMap, 1, 0);
         EngineMap_IO_Cleanmap_Save(io);
     }
     // Original function: FUN_00483e4d.
@@ -214,9 +215,9 @@ namespace NC2E2
     // Original function: FUN_00490d0b; SDisplayAtomInformation::IO_Savegame_Load.
     static void DisplayAtomInformation_IO_Savegame_Load(void* atom, CIoHelper* io)
     {
-        std::memset(atom, 0, 0x3C);
-        Write<std::uint32_t>(atom, 0, 0xFFFFFFFF);
-        Write<std::uint32_t>(atom, 4, 0xFFFFFFFF);
+        std::memset(atom, 0, 60);
+        Write<std::uint32_t>(atom, 0, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(atom, 4, ReadableValues::IntegerRange::UInt32Maximum);
         for (std::uint32_t offset = 0x28; offset <= 0x30; offset += 4)
         {
             const char* filename = io->IO_File_ReadString();
@@ -260,19 +261,19 @@ namespace NC2E2
     }
 
     // Original function: FUN_0048029c.
-    static void DynamicDataHumanManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHumanArray>(io, 0x4444686D, gDynamicDataHumans, 0x8C8, 0x888, true, true); }
+    static void DynamicDataHumanManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHumanArray>(io, SwitchIds::EngineSavegameChunk::DynamicHumans, gDynamicDataHumans, 0x8C8, 0x888, true, true); }
     // Original function: FUN_00480348.
     static void DynamicDataHumanManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHumanArray>(io, gDynamicDataHumans, 0x8C8, 0x888, true); }
     // Original function: FUN_00490798.
-    static void DynamicDataHouseManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHouseArray>(io, 0x4444686F, gDynamicDataHouses, 0xD0, 0xCC, false, false); }
+    static void DynamicDataHouseManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHouseArray>(io, SwitchIds::EngineSavegameChunk::DynamicHouses, gDynamicDataHouses, 0xD0, 0xCC, false, false); }
     // Original function: FUN_00490817.
     static void DynamicDataHouseManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHouseArray>(io, gDynamicDataHouses, 0xD0, 0xCC, false); }
     // Original function: FUN_00490918.
-    static void DynamicDataVehicleManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CVehicleArray>(io, 0x44447665, gDynamicDataVehicles, 0x44, 4, true, false); }
+    static void DynamicDataVehicleManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CVehicleArray>(io, SwitchIds::EngineSavegameChunk::DynamicVehicles, gDynamicDataVehicles, 0x44, 4, true, false); }
     // Original function: FUN_004909a8.
     static void DynamicDataVehicleManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CVehicleArray>(io, gDynamicDataVehicles, 0x44, 4, true); }
     // Original function: FUN_00490b09.
-    static void DynamicDataAnimalManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CAnimalArray>(io, 0x4444616E, gDynamicDataAnimals, 0x44, 4, true, false); }
+    static void DynamicDataAnimalManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CAnimalArray>(io, SwitchIds::EngineSavegameChunk::DynamicAnimals, gDynamicDataAnimals, 0x44, 4, true, false); }
     // Original function: FUN_00490b99.
     static void DynamicDataAnimalManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CAnimalArray>(io, gDynamicDataAnimals, 0x44, 4, true); }
 
@@ -291,7 +292,7 @@ namespace NC2E2
     // Original function: FUN_00484d34.
     static void E2MapWeatherManagerSectorManager_IO_Savegame_Save(void* manager, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x57684D61, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::Weather, 1);
         io->IO_Memory_WriteBinary(manager, 8);
         io->IO_Memory_WriteBinary(Read<void*>(manager, 8), Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -305,15 +306,15 @@ namespace NC2E2
     // Original function: FUN_00485fb3.
     static void WorldMusic_IO_Savegame_Save(CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x4D754D61, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::WorldMusic, 1);
         io->IO_Memory_WriteBinary(&gWorldMusicState, 0x68);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
     // Original function: FUN_00486ed9.
     static void E2ParticelManager_IO_Savegame_Save(void* manager, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x50614D61, 1);
-        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + 0x2F0278, 0x7D04);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::Particles, 1);
+        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators, 0x7D04);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
     // Original function: FUN_00486f0e.
@@ -321,13 +322,13 @@ namespace NC2E2
     {
         E2ParticelManager_Initialize(manager);
         if (io->mReadHeader.version != 1) io->IO_File_Chunk_Skip();
-        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + 0x2F0278, 0x7D04);
+        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators, 0x7D04);
     }
 
     // Original function: FUN_0047f272; the Windows-only music chunk precedes weather.
     static void E2Manager_l_IO_Savegame_Save(CIoHelper* io)
     {
-        io->IO_File_Chunk_WriteMarkerAndVersion(0x58453244, 0, 0);
+        io->IO_File_Chunk_WriteMarkerAndVersion(ReadableValues::EngineSavegameChunk::EngineHeader, 0, 0);
         EngineMap_IO_Savegame_Save(io);
         DynamicDataHumanManager_IO_Savegame_Save(io);
         DynamicDataVehicleManager_IO_Savegame_Save(io);
@@ -342,7 +343,7 @@ namespace NC2E2
     static void E2Manager_l_IO_Savegame_Load(CIoHelper* io)
     {
         std::uint32_t version = 0;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(0x58453244, &version, nullptr)) return;
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::EngineSavegameChunk::EngineHeader, &version, nullptr)) return;
         io->IO_File_Chunk_Skip();
         while (io->IO_File_Chunk_ReadHeader())
         {

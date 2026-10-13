@@ -72,13 +72,13 @@ namespace NC2Logic
 
     // Complete CSavegamesManager::mStaticVars region at 005113A8..005114AB.
     inline char gCurrentPlayerSavegameDirectory[260]{};
-    static_assert(sizeof(SSavegamePlayerInfoData) == 0x34);
+    static_assert(sizeof(SSavegamePlayerInfoData) == 52);
     static_assert(offsetof(SSavegamePlayerInfoData, colorId) == 0x30);
-    static_assert(sizeof(SSavegameInfoHeaderData) == 0x5DC);
+    static_assert(sizeof(SSavegameInfoHeaderData) == 1500);
     static_assert(offsetof(SSavegameInfoHeaderData, slotId) == 0x198);
     static_assert(offsetof(SSavegameInfoHeaderData, creationTimeFields) == 0x19C);
     static_assert(offsetof(SSavegameInfoHeaderData, players) == 0x1CC);
-    static_assert(sizeof(SSavegameInfoData) == 0x644);
-    static_assert(sizeof(CSavegamesManager) == 0x20);
+    static_assert(sizeof(SSavegameInfoData) == 1604);
+    static_assert(sizeof(CSavegamesManager) == 32);
     static_assert(offsetof(CSavegamesManager, mSavegames) == 0x0C);
 }

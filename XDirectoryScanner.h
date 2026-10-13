@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReadableValues.h"
+
 #include "SwitchIdentifiers.h"
 
 #include "XFile.h"
@@ -16,14 +18,14 @@ namespace NXBasics
     struct SDirectoryScannerState
     {
         std::uint32_t mode;                  // +0x000
-        char path[0x104];                    // +0x004
-        char extension[0x100];               // +0x108
+        char path[260];                    // +0x004
+        char extension[256];               // +0x108
         std::uint8_t directoriesOnly;        // +0x208
         std::uint8_t padding[3];             // +0x209
         std::uint32_t libraryIndex;          // +0x20C
         std::uint32_t entryIndex;            // +0x210
-        std::uint8_t nativeSearchState[0x11C]; // +0x214
-        char currentName[0x104];             // +0x330
+        std::uint8_t nativeSearchState[284]; // +0x214
+        char currentName[260];             // +0x330
     };
 
     static_assert(offsetof(SDirectoryScannerState, path) == 0x004, "Unexpected scanner path offset");
@@ -33,7 +35,7 @@ namespace NXBasics
     static_assert(offsetof(SDirectoryScannerState, entryIndex) == 0x210, "Unexpected scanner entry index offset");
     static_assert(offsetof(SDirectoryScannerState, nativeSearchState) == 0x214, "Unexpected native search state offset");
     static_assert(offsetof(SDirectoryScannerState, currentName) == 0x330, "Unexpected scanner result offset");
-    static_assert(sizeof(SDirectoryScannerState) == 0x434, "Unexpected scanner state size");
+    static_assert(sizeof(SDirectoryScannerState) == 1076, "Unexpected scanner state size");
 
     inline bool DirectoryScanner_GetFirstMatchingFile(void* scanner, const char* path, const char* extension, bool directoriesOnly);
     inline bool DirectoryScanner_GetNextMatchingFile(void* scanner);
@@ -108,7 +110,7 @@ namespace NXBasics
             {
                 case SwitchIds::DirectoryScanMode::FileSystemFirst:
                     {
-                        char searchPattern[0x104];
+                        char searchPattern[260];
 
                         std::strcpy(searchPattern, state->path);
                         std::strcat(searchPattern, "*");
@@ -267,16 +269,16 @@ namespace NXBasics
             return false;
         }
 
-        char directory[0x100];
-        char baseName[0x100];
-        char extension[0x100];
+        char directory[256];
+        char baseName[256];
+        char extension[256];
 
         Runtime_SplitPath(DirectoryScanner_GetCurrentNamePtr(scanner), nullptr, directory, baseName, extension);
 
         std::uint32_t attributes;
         std::memcpy(&attributes, state->nativeSearchState + 0x04, sizeof(attributes));
 
-        if ((attributes & 0x10u) != 0 && extension[0] == '.')
+        if ((attributes & ReadableValues::BitMask::Bit4) != 0 && extension[0] == '.')
         {
             return false;
         }
@@ -310,7 +312,7 @@ namespace NXBasics
                 {
                     if (state->entryIndex < archive->directoryEntryCount)
                     {
-                        char parentPath[0x100];
+                        char parentPath[256];
                         std::strcpy(parentPath, archive->directoryEntries[state->entryIndex].name);
 
                         const std::uint32_t positionBits = static_cast<std::uint32_t>(std::strlen(parentPath)) - 2u;
@@ -338,9 +340,9 @@ namespace NXBasics
                 }
                 else if (state->entryIndex < archive->entryCount)
                 {
-                    char directory[0x100];
-                    char baseName[0x100];
-                    char extension[0x100];
+                    char directory[256];
+                    char baseName[256];
+                    char extension[256];
 
                     // Open dependency: original path splitting routine.
                     Runtime_SplitPath(archive->entries[state->entryIndex].name, nullptr, directory, baseName, extension);

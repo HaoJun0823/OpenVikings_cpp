@@ -71,10 +71,10 @@ namespace NC2Logic
 
     static_assert(sizeof(SStaticHouseWorker) == 8);
     static_assert(offsetof(SStaticHouseWorker, unknown04) == 4);
-    static_assert(sizeof(SStaticHouseStock) == 0x0C);
+    static_assert(sizeof(SStaticHouseStock) == 12);
     static_assert(offsetof(SStaticHouseStock, maximumAmount) == 4);
     static_assert(offsetof(SStaticHouseStock, unknown08) == 8);
-    static_assert(sizeof(SStaticHouseTypeData) == 0x624);
+    static_assert(sizeof(SStaticHouseTypeData) == 1572);
     static_assert(offsetof(SStaticHouseTypeData, homeSize) == 4);
     static_assert(offsetof(SStaticHouseTypeData, schoolSize) == 8);
     static_assert(offsetof(SStaticHouseTypeData, workerCount) == 0x0C);
@@ -92,7 +92,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticHouseTypeData, debugName) == 0x5EC);
     static_assert(offsetof(SStaticHouseTypeData, debugColor) == 0x620);
     static_assert(sizeof(CStaticHouseTypeDataManager) == 1);
-    static_assert(sizeof(SStaticHouseTypeStorage) == 0x80);
+    static_assert(sizeof(SStaticHouseTypeStorage) == 128);
     static_assert(offsetof(SStaticHouseTypeStorage, tokenList) == 4);
     static_assert(offsetof(SStaticHouseTypeStorage, records) == 8);
     static_assert(offsetof(SStaticHouseTypeStorage, owner) == 0x0C);

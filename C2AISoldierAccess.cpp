@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AISoldierAccess.h"
 #include "C2AIMovementMessages.h"
 #include "C2AIHumanRequests.h"
@@ -55,7 +56,7 @@ namespace NC2Logic
     {
         auto* human = Human(Read<std::uint32_t>(soldier, 0));
         Write<std::uint32_t>(soldier, 20, 0); Write<std::uint32_t>(soldier, 52, 1);
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * 0x58;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * ReadableValues::RecordSize::MapMoveableSigned;
         std::uint32_t point = 0;
         MapMoveable_Attachment_GetNextMapPosition(moveable, &point);
         Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, 16), 0, 0, point, 0);
@@ -165,7 +166,7 @@ namespace NC2Logic
         {
             auto* entry = entries + i * 28;
             const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 8) == Read<std::uint32_t>(entry, 4) && Read<std::uint32_t>(vehicle, 0x1E0) == Read<std::uint32_t>(handler, 0)) { ++i; continue; }
+            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 8) == Read<std::uint32_t>(entry, 4) && Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId) == Read<std::uint32_t>(handler, 0)) { ++i; continue; }
             const auto remaining = Read<std::uint32_t>(handler, 0x5CB4) - i - 1;
             if (remaining != 0) NXBasics::Runtime_MoveMemory(entry, entry + 28, remaining * 28);
             Write(handler, 0x5CB4, Read<std::uint32_t>(handler, 0x5CB4) - 1);
@@ -179,7 +180,7 @@ namespace NC2Logic
             if (i != count) continue;
             auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
             std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 111); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, 0x1E0)); Write(command, 4, id); Write(command, 8, Read<std::uint32_t>(vehicle, 8)); Write<std::uint32_t>(command, 12, 3);
+            Write<std::uint8_t>(command, 0, 111); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)); Write(command, 4, id); Write(command, 8, Read<std::uint32_t>(vehicle, 8)); Write<std::uint32_t>(command, 12, 3);
             Vehicle_DoAddNewUserCommand(vehicle, command);
             auto* entry = entries + count * 28;
             Write(entry, 0, id); Write(entry, 4, Read<std::uint32_t>(vehicle, 8)); Write<std::int32_t>(entry, 8, -1); Write<std::uint32_t>(entry, 12, 0);
@@ -228,7 +229,7 @@ namespace NC2Logic
             const auto id = Tool_GetOneOfNextEnemyHousesInRange(player, point, 0, radius, true, restrictCandidates ? 1u : 3u, restrictCandidates ? 0u : 5u);
             if (id != -1 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, id, defence)) return true;
         }
-        if ((Read<std::uint32_t>(human, 0xB84) & 0x2000) == 0)
+        if ((Read<std::uint32_t>(human, 0xB84) & ReadableValues::BitMask::Bit13Signed) == 0)
         {
             const auto id = Tool_Animals_GetOneOfNextEnemyInRange(player, point, 0, radius, true, false, limit, distance);
             if (id != -1 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, id, defence)) return true;

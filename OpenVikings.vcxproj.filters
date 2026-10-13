@@ -1591,4 +1591,7 @@
     <ClInclude Include="SwitchIdentifiers.h"><Filter>Core\Types</Filter></ClInclude>
     <ClInclude Include="XResultIdentifiers.h"><Filter>Diagnostics</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ReadableValues.h"><Filter>Core\Types</Filter></ClInclude>
+  </ItemGroup>
 </Project>

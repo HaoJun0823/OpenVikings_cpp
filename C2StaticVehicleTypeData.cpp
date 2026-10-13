@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticVehicleTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -26,21 +27,21 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[15] = {nullptr, 0};
-                storage.tokens[0] = {"type", 0x74797065};
-                storage.tokens[1] = {"name", 0x6E616D65};
-                storage.tokens[2] = {"logicsize", 0x6C73697A};
-                storage.tokens[3] = {"debugcolor", 0x64626763};
-                storage.tokens[4] = {"debugradius", 0x64726164};
-                storage.tokens[5] = {"stockslots", 0x7374736C};
-                storage.tokens[6] = {"logicgood", 0x6C67676F};
-                storage.tokens[7] = {"stockvector", 0x73746F76};
-                storage.tokens[8] = {"passengerslots", 0x70736C74};
-                storage.tokens[9] = {"logicpassenger", 0x6C677073};
-                storage.tokens[10] = {"logiccommander", 0x6C67636D};
-                storage.tokens[11] = {"passengervector", 0x70617376};
-                storage.tokens[12] = {"logicdragginganimaltribe", 0x6C646174};
-                storage.tokens[13] = {"logictransformvehicleType", 0x6C747674};
-                storage.tokens[14] = {"vehicleslots", 0x76736C74};
+                storage.tokens[0] = {"type", ReadableValues::VehicleToken::Type};
+                storage.tokens[1] = {"name", SwitchIds::VehicleTypeToken::Name};
+                storage.tokens[2] = {"logicsize", ReadableValues::LogicMapChunk::MapSize};
+                storage.tokens[3] = {"debugcolor", SwitchIds::VehicleTypeToken::DebugColor};
+                storage.tokens[4] = {"debugradius", SwitchIds::VehicleTypeToken::DebugRadius};
+                storage.tokens[5] = {"stockslots", SwitchIds::VehicleTypeToken::StockSlots};
+                storage.tokens[6] = {"logicgood", SwitchIds::VehicleTypeToken::LogicGood};
+                storage.tokens[7] = {"stockvector", SwitchIds::VehicleTypeToken::StockVector};
+                storage.tokens[8] = {"passengerslots", SwitchIds::VehicleTypeToken::PassengerSlots};
+                storage.tokens[9] = {"logicpassenger", SwitchIds::VehicleTypeToken::LogicPassenger};
+                storage.tokens[10] = {"logiccommander", SwitchIds::VehicleTypeToken::LogicCommander};
+                storage.tokens[11] = {"passengervector", SwitchIds::VehicleTypeToken::PassengerVector};
+                storage.tokens[12] = {"logicdragginganimaltribe", SwitchIds::VehicleTypeToken::LogicDraggingAnimalTribe};
+                storage.tokens[13] = {"logictransformvehicleType", ReadableValues::VehicleToken::LogicTransformVehicleType};
+                storage.tokens[14] = {"vehicleslots", SwitchIds::VehicleTypeToken::VehicleSlots};
             }
             if ((storage.tokenInitFlags & 2) == 0)
             {
@@ -58,12 +59,12 @@ namespace NC2Logic
         gStaticVehicleTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticVehicleTypeData = nullptr;
-        auto* records = static_cast<SStaticVehicleTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0xD04, 1));
+        auto* records = static_cast<SStaticVehicleTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(3332, 1));
         if (records != nullptr)
             for (std::uint32_t index = 0; index < 7; ++index) ::new (records + index) SStaticVehicleTypeData;
         gStaticVehicleTypeData = records;
         // Windows continues unconditionally after the conditional color construction.
-        std::memset(records, 0, 0xD04);
+        std::memset(records, 0, 3332);
         std::strcpy(records[0].name, "none");
         records[0].debugColor.SetColors(100, 100, 100);
         records[0].debugRadius = 10;
@@ -75,7 +76,7 @@ namespace NC2Logic
             const auto type = static_cast<std::uint32_t>(reader.GetInt());
             if (type == 0 || type >= 7) continue;
             auto& record = gStaticVehicleTypeData[type];
-            std::memset(record.goodTypeIndices, 0xFF, sizeof(record.goodTypeIndices));
+            std::memset(record.goodTypeIndices, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.goodTypeIndices));
             reader.SetCurrentLineToGroupStart();
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {

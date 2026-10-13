@@ -34,8 +34,8 @@ namespace NC2Logic
         std::int32_t l_GetNextSectorAnimalId(std::int32_t previousAnimalId);
     };
 
-    static_assert(sizeof(CAnimalIterator) == 0x2C);
-    static_assert(offsetof(CAnimalIterator, flags) == 0x00);
+    static_assert(sizeof(CAnimalIterator) == 44);
+    static_assert(offsetof(CAnimalIterator, flags) == 0);
     static_assert(offsetof(CAnimalIterator, selection) == 0x04);
     static_assert(offsetof(CAnimalIterator, packedCenter) == 0x08);
     static_assert(offsetof(CAnimalIterator, radius) == 0x0C);

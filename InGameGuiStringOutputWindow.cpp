@@ -73,7 +73,7 @@ namespace NC2InGameGuiMiscWindows
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         Write(window, 0, gStringOutputWindowVirtualTable + 0);
         Write<std::uint32_t>(window, 0x70, 0);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         void* closer = nullptr;
         if (allocation != nullptr)
         {
@@ -81,7 +81,7 @@ namespace NC2InGameGuiMiscWindows
             closer = NC2InGameGuiBase::WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, closer);
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x50, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(80, 1);
         void* clock = nullptr;
         if (allocation != nullptr)
         {
@@ -176,7 +176,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c733e.
     static void StringOutputWindow_String_Init(void* window)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x20, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(32, 1);
         auto* strings = allocation == nullptr ? nullptr : new (allocation) NXBasics::CStringArray(1);
         Write(window, 0x70, strings);
     }

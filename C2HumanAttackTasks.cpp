@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2HumanAttackTasks.h"
 #include "C2HumanAtomicEvents.h"
 #include "C2HumanCommandAccess.h"
@@ -36,7 +37,7 @@ namespace NC2Logic
         const SStaticWeaponTypeData& Weapon(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)]; }
         std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
         void* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
-        const void* Moveable(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(id) * 0x58; }
+        const void* Moveable(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(id) * ReadableValues::RecordSize::MapMoveableSigned; }
         bool HasAttackingHuman(const void* human, const void* point, bool soldiersOnly, bool includeHeroes)
         {
             CMapMoveableIterator iterator;
@@ -67,8 +68,8 @@ namespace NC2Logic
     bool House_Military_GetNextFreeAttackPoint(const void* house, const void* source, void* point, const void* human, bool outside)
     {
         auto stage = Read<std::uint32_t>(house, 0x20);
-        if (Read<std::uint32_t>(house, 0x2C) == 2) ++stage;
-        const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 2) ++stage;
+        const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
         const auto* area = Read<const std::byte*>(graphics, 0x20u + stage * 4u);
         if (area == nullptr) return false;
         std::uint32_t best = 1000000;
@@ -76,7 +77,7 @@ namespace NC2Logic
         for (std::uint32_t span = 0; span < Read<std::uint32_t>(area, 0); ++span)
         {
             std::uint32_t cursor = 0;
-            MapMigPoint_ConstructOffset(&cursor, static_cast<const std::byte*>(house) + 0x1C, Read<std::int16_t>(spans, span * 8u), Read<std::int16_t>(spans, span * 8u + 2), false);
+            MapMigPoint_ConstructOffset(&cursor, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, Read<std::int16_t>(spans, span * 8u), Read<std::int16_t>(spans, span * 8u + 2), false);
             for (std::uint32_t step = 0; step < Read<std::uint32_t>(spans, span * 8u + 4); ++step)
             {
                 const auto distance = Distance(source, &cursor);
@@ -87,7 +88,7 @@ namespace NC2Logic
                     for (std::uint32_t direction = 0; direction < 6; ++direction)
                     {
                         MapMigPoint_MoveCursorUnwrapped(edge, direction);
-                        if (!MapMigPoint_IsInsideMap(&edge) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & 0x80u) != 0) continue;
+                        if (!MapMigPoint_IsInsideMap(&edge) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & ReadableValues::BitMask::Bit7) != 0) continue;
                         if (outside && HasAttackingHuman(human, &edge, true, false)) continue;
                         Write(point, 0, outside ? edge : cursor);
                         best = distance;
@@ -116,14 +117,14 @@ namespace NC2Logic
             {
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                 const auto distance = Distance(&cursor, source);
-                if (distance >= best || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 12) & 0x80u) != 0) continue;
+                if (distance >= best || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 12) & ReadableValues::BitMask::Bit7) != 0) continue;
                 if (!outside) { best = distance; Write(point, 0, cursor); continue; }
                 auto edge = cursor;
                 MapMigPoint_MoveCursorUnwrapped(edge, 4);
                 for (std::uint32_t neighbor = 0; neighbor < 6; ++neighbor)
                 {
                     MapMigPoint_MoveCursorUnwrapped(edge, neighbor);
-                    if (Distance(&edge, center) <= radius || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & 0x80u) != 0 || HasAttackingHuman(human, &edge, true, true)) continue;
+                    if (Distance(&edge, center) <= radius || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & ReadableValues::BitMask::Bit7) != 0 || HasAttackingHuman(human, &edge, true, true)) continue;
                     best = distance;
                     Write(point, 0, edge);
                 }
@@ -154,7 +155,7 @@ namespace NC2Logic
             if (MapMigPoint_IsInsideMap(&point))
             {
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & 0x80u) == 0) return true;
+                if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) == 0) return true;
             }
             attempts = static_cast<std::int16_t>(static_cast<std::uint16_t>(attempts) + 1u);
             Write(target, 10, attempts);
@@ -183,7 +184,7 @@ namespace NC2Logic
         data.minimumRange = static_cast<std::uint32_t>(weapon.minimumRange);
         data.maximumRange = static_cast<std::uint32_t>(weapon.maximumRange);
         data.owner = human;
-        CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slHumanSearchNextFreeMilitaryMapPointFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slHumanSearchNextFreeMilitaryMapPointFunction, &data, true, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
         return true;
@@ -202,7 +203,7 @@ namespace NC2Logic
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                 if (MapMigPoint_IsBorderPoint(&cursor)) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&cursor);
-                if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::uint8_t>(micro, 6) != continent) continue;
+                if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent) continue;
                 const auto distance = Distance(source, &cursor);
                 if (distance >= best) continue;
                 best = distance;
@@ -217,13 +218,13 @@ namespace NC2Logic
         const auto& weapon = Weapon(human);
         const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), false);
         Human_l_StartAtomicAnimation(human, static_cast<std::uint32_t>(weapon.atomicActionType), static_cast<std::int32_t>(direction));
-        Write<std::uint32_t>(human, 0x36C, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
     }
 
     // Original function: FUN_0046a806; both target records are visited in native order.
     void Human_l_StartTask_Attack(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         const auto& weapon = Weapon(human);
         std::uint32_t point = 0;
         for (std::uint32_t index = 0; index < 2; ++index)
@@ -232,22 +233,22 @@ namespace NC2Logic
             if (TargetData_GetTargetType(target) == 0) continue;
             if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); continue; }
             const auto player = TargetData_GetPlayerId(target);
-            const auto relation = player == 20 || player == -1 ? 3 : GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(human, 0x10), player);
+            const auto relation = player == 20 || player == -1 ? 3 : GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId), player);
             if (relation == 1 || relation == 2) { Write<std::uint32_t>(target, 0, 0); continue; }
             if (Human_IsAttachedToWorkHouse(human) && Human_IsJobSoldier(human))
             {
                 std::uint32_t enemy = 0;
                 TargetData_GetMapPosition(target, &enemy);
                 const auto distance = Distance(&enemy, Position(human));
-                const auto limit = weapon.hasMunition != 0 ? static_cast<std::uint32_t>(weapon.maximumRange) + 5u : Read<std::uint32_t>(human, 0x18) == 18 || Read<std::uint32_t>(human, 0x18) == 29 ? 10u : 20u;
+                const auto limit = weapon.hasMunition != 0 ? static_cast<std::uint32_t>(weapon.maximumRange) + 5u : Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 18 || Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 29 ? 10u : 20u;
                 if (NXBasics::Runtime_TimeSigned32(distance) > NXBasics::Runtime_TimeSigned32(limit)) { Write<std::uint32_t>(target, 0, 0); continue; }
                 if (weapon.hasMunition != 0)
                 {
                     if (Human_IsInWorkHouse(human)) Human_l_AttackTarget(human, &enemy);
                     else
                     {
-                        const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
-                        if (!Human_l_StartAtomicWalk(human, static_cast<const std::byte*>(house) + 0x1C, static_cast<const std::byte*>(house) + 0x24)) Write<std::uint32_t>(human, 0x36C, 3);
+                        const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+                        if (!Human_l_StartAtomicWalk(human, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::DoorEntryPoint)) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
                     }
                     return;
                 }
@@ -256,10 +257,10 @@ namespace NC2Logic
             {
                 TargetData_GetMapPosition(target, &point);
                 const auto mode = Read<std::uint32_t>(human, 0xB5C);
-                const auto distance = Distance(static_cast<const std::byte*>(human) + 0xB30, &point);
+                const auto distance = Distance(static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, &point);
                 if ((mode == 3 && (distance > 18u || distance < static_cast<std::uint32_t>(weapon.minimumRange))) || (mode == 2 && distance > 40u))
                 {
-                    auto* center = static_cast<std::byte*>(human) + 0xB30;
+                    auto* center = static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter;
                     Write<std::uint32_t>(target, 0, 0);
                     if (Human_l_StartAtomicWalk(human, center, center)) return;
                     auto replacement = Read<std::uint32_t>(center, 0);
@@ -293,7 +294,7 @@ namespace NC2Logic
                 if (!Vehicle_Military_GetAttackPoint(object, source, &point, nullptr, false))
                 {
                     Vehicle_Military_GetAttackPoint(object, source, &point, human, true);
-                    if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                    if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 15); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1); return; }
                 }
             }
             else if (type == 3 || type == 1)
@@ -306,7 +307,7 @@ namespace NC2Logic
             if (distance < static_cast<std::uint32_t>(weapon.minimumRange))
             {
                 if (!Human_l_GetNextPointToStartAttack(human, &point)) { Write<std::uint32_t>(target, 0, 0); continue; }
-                if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 15); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1); return; }
             }
             if (distance > static_cast<std::uint32_t>(weapon.maximumRange))
             {
@@ -318,7 +319,7 @@ namespace NC2Logic
                         if (type == 4 || static_cast<std::uint32_t>(weapon.maximumRange) > 1u)
                         {
                             auto candidate = point;
-                            if (!Human_l_GetDistancePointFromTarget(human, source, &point, &candidate, range)) { Write<std::uint32_t>(human, 0x36C, 0); Write<std::uint32_t>(human, 0x368, 1); return; }
+                            if (!Human_l_GetDistancePointFromTarget(human, source, &point, &candidate, range)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1); return; }
                             walk = Human_l_StartAtomicWalk(human, &candidate, &candidate);
                         }
                         else
@@ -340,14 +341,14 @@ namespace NC2Logic
                     if (!Human_l_GetNextPointToStartAttack(human, &point)) { Write<std::uint32_t>(target, 0, 0); continue; }
                     walk = Human_l_StartAtomicWalk(human, &point, &point);
                 }
-                if (walk) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                if (walk) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 15); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1); return; }
             }
             if (type == 6 && distance > static_cast<std::uint32_t>(weapon.maximumRange)) { Write<std::uint32_t>(target, 0, 0); continue; }
             if (Human_l_IsOtherAttackingHumanOnPoint(human, source))
             {
                 if ((type == 4 || type == 2) && static_cast<std::uint32_t>(weapon.maximumRange) > 1u)
                 {
-                    if (Human_l_GetNextPointToStartAttack(human, &point) && Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                    if (Human_l_GetNextPointToStartAttack(human, &point) && Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 15); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1); return; }
                     Human_l_AttackTarget(human, &point);
                     return;
                 }
@@ -356,21 +357,21 @@ namespace NC2Logic
                 if (type == 4 && static_cast<std::uint32_t>(weapon.maximumRange) <= 1u) found = House_Military_GetNextFreeAttackPoint(object, source, &candidate, human, true);
                 else if (type == 2 && static_cast<std::uint32_t>(weapon.maximumRange) <= 1u) found = Vehicle_Military_GetAttackPoint(object, source, &candidate, human, true);
                 else found = Human_l_GetNextPointToStartAttack(human, &candidate);
-                if (found && candidate != Read<std::uint32_t>(source, 0) && Human_l_StartAtomicWalk(human, &candidate, &candidate)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                if (found && candidate != Read<std::uint32_t>(source, 0) && Human_l_StartAtomicWalk(human, &candidate, &candidate)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 15); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1); return; }
             }
             Human_l_AttackTarget(human, &point);
             return;
         }
-        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_0046b29a; Windows thresholds at 004F3B48/4C are 8000.
     void Human_l_FinishTask_Attack(void* human)
     {
         if (Read<std::uint32_t>(human, 0xB5C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
-        const auto next = Human_UserControl_IsPriorityCommandInQueue(human) ? 1u : Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobHunter(human) ? 8u : Read<std::int32_t>(human, 0xAA8) > 8000 && Read<std::int32_t>(human, 0xAAC) > 8000 ? 14u : 1u;
-        Write(human, 0x368, next);
-        Write<std::uint32_t>(human, 0x36C, 0);
+        const auto next = Human_UserControl_IsPriorityCommandInQueue(human) ? 1u : Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobHunter(human) ? 8u : Read<std::int32_t>(human, ReadableValues::HumanOffset::Food) > 8000 && Read<std::int32_t>(human, ReadableValues::HumanOffset::Stamina) > 8000 ? 14u : 1u;
+        Write(human, ReadableValues::HumanOffset::CurrentTask, next);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
     }
 
     // Original function: FUN_00445e3a; discard the secondary target first in military mode 3.

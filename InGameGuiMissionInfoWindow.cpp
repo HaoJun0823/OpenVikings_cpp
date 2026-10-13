@@ -1,3 +1,5 @@
+#include "ReadableValues.h"
+#include "SwitchIdentifiers.h"
 #include "InGameGuiMissionInfoWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiWindowState.h"
@@ -75,7 +77,7 @@ namespace NC2InGameGuiMiscWindows
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
         reinterpret_cast<std::uintptr_t>(&MissionInfoWindow_XGui_BW_DrawOverlays)
     };
-    static_assert(sizeof(gMissionInfoWindowVirtualTable) == 0x4C);
+    static_assert(sizeof(gMissionInfoWindowVirtualTable) == 76);
 
     // Original function: FUN_004a491d; window allocation is 0x3B8 bytes.
     void* MissionInfoWindow_Construct(void* window, std::uint32_t briefingId, bool goalsPage)
@@ -84,7 +86,7 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         Write(window, 0, gMissionInfoWindowVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x348);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 840);
         Write<std::uint32_t>(window, 0x6C, 1);
         Write<std::uint32_t>(window, 0x70, goalsPage ? 1u : 0u);
         Write<std::int32_t>(window, 0x180, -1);
@@ -92,17 +94,17 @@ namespace NC2InGameGuiMiscWindows
         const auto depth = NXBasics::ConvertBitsToTDepth(state.displayDepth);
         if (lsUserCallbackHumanDisplayBitmapPtr == nullptr)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             lsUserCallbackHumanDisplayBitmapPtr = allocation == nullptr ? nullptr : ::new(allocation) NXBasics::CBitmap(50, 80, depth);
         }
         if (lsUserCallbackMapDisplayBitmapPtr == nullptr)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             lsUserCallbackMapDisplayBitmapPtr = allocation == nullptr ? nullptr : ::new(allocation) NXBasics::CBitmap(280, 220, depth);
         }
         if (lsUserCallbackMapDisplayEnginePtr == nullptr)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x994, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
             lsUserCallbackMapDisplayEnginePtr = allocation == nullptr ? nullptr : NC2E2::Display_Construct(allocation, lsUserCallbackMapDisplayBitmapPtr, 0, nullptr);
             NC2E2::DE_ToDraw_SetState(lsUserCallbackMapDisplayEnginePtr, 4, false);
         }
@@ -153,7 +155,7 @@ namespace NC2InGameGuiMiscWindows
         Write(window, 0, gMissionInfoWindowVirtualTable + 0);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
         MissionInfoWindow_l_Briefing_FreeData(window);
-        if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(0x65655656);
+        if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice);
         if (lsUserCallbackMapDisplayEnginePtr != nullptr)
         {
             NC2E2::Display_Destruct(lsUserCallbackMapDisplayEnginePtr);
@@ -181,7 +183,7 @@ namespace NC2InGameGuiMiscWindows
     {
         if (message == 0x1000) return command == 0x7E6;
         if (message != 0x800) return false;
-        const auto stopSample = []() { if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(0x65655656); };
+        const auto stopSample = []() { if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice); };
         if (command >= 10000u && command < 10100u)
         {
             Write(window, 0x70, command - 10000u);
@@ -255,7 +257,7 @@ namespace NC2InGameGuiMiscWindows
         {
             const auto* mission = static_cast<const std::byte*>(NC2Logic::gMissionManager) + 0x1C + static_cast<std::uint32_t>(index) * 0xDD8u;
             const auto description = Read<std::uint32_t>(mission, 0x30);
-            if (description == 0xFFFFFFFFu || Read<std::uint8_t>(mission, 0x24) == 0) continue;
+            if (description == ReadableValues::IntegerRange::UInt32Maximum || Read<std::uint8_t>(mission, 0x24) == 0) continue;
             const char* text = MissionInfoWindow_l_Goals_GetStringPtr(window, description);
             NXBasics::SColorRGB color = *dark;
             if (*text == '@') { ++text; color = NXBasics::SColorRGB(0, 0, 0); }
@@ -278,22 +280,22 @@ namespace NC2InGameGuiMiscWindows
         using namespace NC2InGameGuiBase;
         const auto add = [window](void* element) { NXBaseGui::BaseWindow_Element_Add(window, element); };
         Write<void*>(window, 0x3B4, nullptr);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         const NXBasics::SRectangle mover(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 22u), 14);
         add(allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &mover, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x3C)));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         const NXBasics::SRectangle closer(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 18u), 2, 16, 14);
         add(allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closer));
         NXBasics::SRectangle tab(4, 22, 164, 22);
         for (std::uint32_t index = 0; index < 3; ++index)
         {
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             add(allocation == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(allocation, nullptr, &tab, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x3D + index), 10000u + index, window, Read<std::uint32_t>(window, 0x70) == index));
             tab.x += tab.width + 2;
         }
         const auto gfx = [&](std::int32_t x, std::uint32_t graphic, std::uint32_t caption, std::uint32_t command)
         {
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             const NXBasics::SRectangle rectangle(x, 358, 42, 58);
             void* button = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, graphic, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(caption), command, window);
             ToolGraphics_SetPalettePtr(button, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
@@ -308,7 +310,7 @@ namespace NC2InGameGuiMiscWindows
             if (currentId != -1 && Read<std::int32_t>(window, 0x180) == -1) MissionInfoWindow_l_Briefing_SetId(window, currentId, true);
             if (Read<std::uint8_t>(window, 0x17C) != 0)
             {
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x48, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
                 auto* storage = static_cast<char*>(window);
                 void* element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &content, 3, 0x100, storage + 0x184, storage + 0x288, storage + 0x38C, reinterpret_cast<void*>(&ls_GetUserBitmapCallback));
                 Write<std::uint8_t>(window, 0x38C, 0);
@@ -323,7 +325,7 @@ namespace NC2InGameGuiMiscWindows
             else
             {
                 content.height = 22;
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
                 add(allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &content, "NO BRIEFING DEFINED OR BRIEFING PATH/FILE NOT FOUND!", false, false));
             }
             if (historyButtons) { gfx(8, 0x8C, 0x40, 0x2774); gfx(450, 0x8D, 0x41, 0x2775); }
@@ -334,7 +336,7 @@ namespace NC2InGameGuiMiscWindows
             content.Inflate(-5, -5);
             char directory[260];
             NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\history", directory, "index.hlt");
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x48, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
             void* element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &content, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
             Write(window, 0x3B4, element);
             Write<std::uint8_t>(element, 0x3A, 0);
@@ -361,7 +363,7 @@ namespace NC2InGameGuiMiscWindows
         if ((type != 1 && type != 2) || lsUserCallbackMapDisplayBitmapPtr == nullptr || lsUserCallbackMapDisplayEnginePtr == nullptr) return nullptr;
         if (type == 1)
         {
-            const std::uint32_t point = (param1 & 0xFFFFu) | (param2 << 16);
+            const std::uint32_t point = (param1 & ReadableValues::IntegerRange::UInt16Maximum) | (param2 << 16);
             NC2E2::DE_SetWantedPositionToMapPoint(lsUserCallbackMapDisplayEnginePtr, &point);
         }
         else
@@ -387,19 +389,19 @@ namespace NC2InGameGuiMiscWindows
         const auto argument = Read<std::uint32_t>(window, 0x394);
         if (command == 2000 && NDSManager::CManager::sTheObjectPtr != nullptr)
         {
-            NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(0x65655656);
+            NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice);
             if (NDSManager::CManager::sTheObjectPtr != nullptr)
             {
                 char pattern[272], filename[260];
                 NXBasics::Runtime_PrintString(pattern, "%s\\SFX\\%%s\\%4.4d.wav", static_cast<char*>(window) + 0x75, argument);
                 NC2Logic::LanguageTool_GetFilename(pattern, filename, false);
-                NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay(filename, 100, 0x65655656, 1, false, false, 100);
+                NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay(filename, 100, ReadableValues::SoundTag::MissionBriefingVoice, 1, false, false, 100);
             }
         }
         else if (command >= 1000 && command <= 1003 && Read<std::uint8_t>(window, 0x179) == 0)
         {
             std::uint32_t point = 0;
-            if (command == 1000) point = (argument & 0xFFFFu) | (Read<std::uint32_t>(window, 0x398) << 16);
+            if (command == 1000) point = (argument & ReadableValues::IntegerRange::UInt16Maximum) | (Read<std::uint32_t>(window, 0x398) << 16);
             else
             {
                 std::uint16_t sums[2]{};
@@ -446,7 +448,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004a5a16.
     void MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x586D6268, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::MissionBriefingHistory, 1);
         io->IO_Memory_WriteBinary(&gMissionBriefingHistory, 0xCC);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -454,7 +456,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004a5a43.
     void MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == 0x586D6268 && io->mReadHeader.version == 1) io->IO_File_ReadBinary(&gMissionBriefingHistory, 0xCC);
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::MissionBriefingHistory && io->mReadHeader.version == 1) io->IO_File_ReadBinary(&gMissionBriefingHistory, 0xCC);
         else { io->IO_File_Chunk_Skip(); MissionInfoWindow_MissionBriefingHistory_Init(); }
     }
 }

@@ -853,4 +853,7 @@
     <ClInclude Include="SwitchIdentifiers.h" />
     <ClInclude Include="XResultIdentifiers.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ReadableValues.h"></ClInclude>
+  </ItemGroup>
 </Project>

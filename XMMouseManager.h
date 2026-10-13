@@ -9,8 +9,8 @@ namespace NXSysMouseManager
 {
     enum class EMouseMessageFlags : std::uint32_t
     {
-        None = 0x000,
-        PositionChanged = 0x001,
+        None = 0,
+        PositionChanged = 1,
         WheelChanged = 0x002,
         LeftButtonPressed = 0x004,
         LeftButtonReleased = 0x008,
@@ -31,7 +31,7 @@ namespace NXSysMouseManager
         std::int32_t wheelDelta; // +0x14
     };
 
-    static_assert(sizeof(SMouseMessage) == 0x18);
+    static_assert(sizeof(SMouseMessage) == 24);
 
     class CMouseManager
     {
@@ -135,5 +135,5 @@ namespace NXSysMouseManager
         std::byte mPadding51[3];                           // +0x51
     };
 
-    static_assert(sizeof(CMouseManager) == 0x54);
+    static_assert(sizeof(CMouseManager) == 84);
 }

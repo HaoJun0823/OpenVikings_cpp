@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2LifetimeGlobals.h"
@@ -18,12 +19,12 @@ namespace
 {
     // Complete Windows token array 004F4A20..004F4A57, including its terminator.
     const NXBasics::SToken gSoundFxTokens[] = {
-        { "Name", 0x6E616D65u },
-        { "SFX", 0x73667864u },
-        { "PatternGroup", 0x70677270u },
-        { "LandscapeGroup", 0x6C6E6467u },
-        { "LogicSoundType", 0x6C737479u },
-        { "MusicType", 0x6D747970u },
+        { "Name", SwitchIds::AmbientSoundToken::Name },
+        { "SFX", SwitchIds::AmbientSoundToken::SFX },
+        { "PatternGroup", SwitchIds::AmbientSoundToken::PatternGroup },
+        { "LandscapeGroup", SwitchIds::AmbientSoundToken::LandscapeGroup },
+        { "LogicSoundType", SwitchIds::SoundFxToken::LogicSoundType },
+        { "MusicType", SwitchIds::HumanMiscSoundToken::MusicType },
         { nullptr, 0 }
     };
     // Complete lazy token state 00568A20..00568A27; both fields start in PE BSS.
@@ -50,13 +51,13 @@ namespace NC2E2
         std::memset(this, 0, sizeof(*this));
 
         for (std::uint32_t& value : patternGroupAmbientIds)
-            value = 0xFFFFFFFFu;
+            value = ReadableValues::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t& value : landscapeGroupAmbientIds)
-            value = 0xFFFFFFFFu;
+            value = ReadableValues::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t& value : staticSoundIdsByType)
-            value = 0xFFFFFFFFu;
+            value = ReadableValues::IntegerRange::UInt32Maximum;
 
         if (NDSManager::CManager::sTheObjectPtr != nullptr)
         {
@@ -229,7 +230,7 @@ namespace NC2E2
             ambientSounds = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
             std::memset(ambientSounds, 0, allocationBytes);
 
-            alignas(4) std::byte soundData[0x88];
+            alignas(4) std::byte soundData[136];
 
             for (char* group = reader.GetFirstGroup("SoundFXAmbient"); group != nullptr; group = reader.GetNextGroup("SoundFXAmbient"))
             {

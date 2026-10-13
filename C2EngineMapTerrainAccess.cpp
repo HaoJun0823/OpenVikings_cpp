@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "ApplicationGlobals.h"
@@ -117,7 +118,7 @@ namespace NC2Logic
         if (micro == nullptr || MapMigPoint_IsBorderPoint(point)) return false;
         const auto flags = Read<std::uint8_t>(micro, 13);
         if (((flags >> 1) & 1u) == static_cast<std::uint8_t>(enabled)) return false;
-        Write<std::uint8_t>(micro, 13, (flags & 0xFDu) | (static_cast<std::uint8_t>(enabled) << 1));
+        Write<std::uint8_t>(micro, 13, (flags & ReadableValues::BitMask::ByteExceptBit1) | (static_cast<std::uint8_t>(enabled) << 1));
         GameMapModifyManager_GameMapModified(12, point, static_cast<std::uint32_t>(enabled));
         return true;
     }
@@ -172,7 +173,7 @@ namespace NC2E2
         {
             void* data = Read<void*>(gEngineMapStaticStorage, 4);
             const auto offset = static_cast<std::uint32_t>(index) * 4u + 2u;
-            Write<std::uint8_t>(data, offset, Read<std::uint8_t>(data, offset) & 0xFCu);
+            Write<std::uint8_t>(data, offset, Read<std::uint8_t>(data, offset) & ReadableValues::BitMask::ByteExceptBits0Through1);
             --index;
         }
     }
@@ -225,10 +226,10 @@ namespace NC2E2
         auto* micro = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(microCount * 4u, 1));
         Write(gEngineMapStaticStorage, 4, micro);
         std::memset(micro, 0, microCount * 4u);
-        for (std::uint32_t i = 0; i < microCount; ++i) Write<std::uint16_t>(micro, i * 4u, 0xFFFF);
+        for (std::uint32_t i = 0; i < microCount; ++i) Write<std::uint16_t>(micro, i * 4u, ReadableValues::IntegerRange::UInt16MaximumSigned);
         Point point{};
         for (point[1] = 0; point[1] < static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight()); ++point[1]) for (point[0] = 0; point[0] < static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth()); ++point[0]) EngineMap_l_HeightChanged_CalculateBrightness(point);
-        for (std::uint32_t i = 0; i < macroCount; ++i) for (std::uint32_t layer = 0; layer < 2; ++layer) { Write<std::uint8_t>(macro, i * 12u + 7 + layer * 2, 0xFF); Write<std::uint8_t>(macro, i * 12u + 8 + layer * 2, 0xFF); }
+        for (std::uint32_t i = 0; i < macroCount; ++i) for (std::uint32_t layer = 0; layer < 2; ++layer) { Write<std::uint8_t>(macro, i * 12u + 7 + layer * 2, ReadableValues::IntegerRange::UInt8MaximumSigned); Write<std::uint8_t>(macro, i * 12u + 8 + layer * 2, ReadableValues::IntegerRange::UInt8MaximumSigned); }
         for (std::uint32_t type = 0x31; type <= 0x33; ++type) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, EngineMap_l_HeightChanged_Callback, 0, 10);
         for (std::uint32_t type = 0x31; type <= 0x33; ++type) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, EngineMap_l_Transitions_Callback, 0, 10);
         return manager;
@@ -329,7 +330,7 @@ namespace NC2E2
     {
         auto* macro = const_cast<void*>(EngineMap_GetConstMapMacroPointPtr(point));
         if (macro == nullptr || layer >= 2) return;
-        std::uint8_t encoded = 0xFF;
+        std::uint8_t encoded = ReadableValues::IntegerRange::UInt8MaximumSigned;
         if (transitionId != -1 && transitionId < gStaticTransitionStorage.count)
         {
             const auto& type = gStaticTransitionStorage.pointTypes[gStaticTransitionStorage.entries[transitionId].pointTypeId];
@@ -382,9 +383,9 @@ namespace NC2E2
         for (std::uint32_t layer = 0; layer < 2; ++layer)
         {
             const auto a = Read<std::uint8_t>(macro, 7 + layer * 2);
-            if (a != 0xFF) EngineMap_Transition_Set(point, a / 6, layer, true);
+            if (a != ReadableValues::IntegerRange::UInt8MaximumSigned) EngineMap_Transition_Set(point, a / 6, layer, true);
             const auto b = Read<std::uint8_t>(macro, 8 + layer * 2);
-            if (b != 0xFF) EngineMap_Transition_Set(point, b / 6, layer, false);
+            if (b != ReadableValues::IntegerRange::UInt8MaximumSigned) EngineMap_Transition_Set(point, b / 6, layer, false);
         }
     }
 
@@ -392,7 +393,7 @@ namespace NC2E2
     void EngineMap_OverlayPattern_RoadChanged(const void* micro, bool enabled)
     {
         auto* entry = const_cast<void*>(EngineMap_GetConstMapMicroPointPtr(micro));
-        Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) & 0xF3);
+        Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) & ReadableValues::BitMask::ByteExceptBits2Through3);
         if (enabled) Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) | ((NC2Logic::Logic_EntryPoint_Random_GetNumber() & 1u) != 0 ? 4u : 8u));
         EngineMap_l_OverlayPattern_RecalculateMacroGridData(micro);
     }
@@ -400,7 +401,7 @@ namespace NC2E2
     void EngineMap_OverlayPattern_HouseAreaChanged(const void* micro, bool enabled)
     {
         auto* entry = const_cast<void*>(EngineMap_GetConstMapMicroPointPtr(micro));
-        Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) & 0xCFu);
+        Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) & ReadableValues::BitMask::ByteExceptBits4Through5);
         if (enabled) Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) | ((NC2Logic::Logic_EntryPoint_Random_GetNumber() & 1u) != 0 ? 0x10u : 0x20u));
         EngineMap_l_OverlayPattern_RecalculateMacroGridData(micro);
     }
@@ -419,16 +420,16 @@ namespace NC2E2
             for (macro[0] = rectangle[0]; macro[0] <= lastX; ++macro[0])
             {
                 auto* entry = const_cast<void*>(EngineMap_GetConstMapMacroPointPtr(macro));
-                Write<std::uint8_t>(entry, 6, Read<std::uint8_t>(entry, 6) & 0xFC);
+                Write<std::uint8_t>(entry, 6, Read<std::uint8_t>(entry, 6) & ReadableValues::BitMask::ByteExceptBits0Through1Signed);
                 for (unsigned triangle = 0; triangle != 2; ++triangle)
                 {
                     Point cursor;
                     MapMigPoint_ConstructFromMag(cursor, macro, false);
-                    bool present = (Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2) & 0x3C) != 0;
+                    bool present = (Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2) & ReadableValues::BitMask::Bits2Through5) != 0;
                     for (auto direction : directions[triangle])
                     {
                         MapMigPoint_MoveCursorWrapped(cursor, direction);
-                        present |= (Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2) & 0x3C) != 0;
+                        present |= (Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2) & ReadableValues::BitMask::Bits2Through5) != 0;
                     }
                     if (present) Write<std::uint8_t>(entry, 6, Read<std::uint8_t>(entry, 6) | (1u << triangle));
                 }
@@ -466,7 +467,7 @@ namespace NC2E2
             rectangle[2] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 4) - Read<std::int16_t>(gStaticMapModifiedBounds, 0) + 4);
             rectangle[3] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 6) - Read<std::int16_t>(gStaticMapModifiedBounds, 2) + 4);
             NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
-            C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, 0xFFFFFFFFu);
+            C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, ReadableValues::IntegerRange::UInt32Maximum);
         }
         else if (type == 13)
         {

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2AnimalAccess.h"
 #include "C2GameControlNetwork.h"
 #include "C2LogicObjectArrays.h"
@@ -31,7 +32,7 @@ namespace NC2Logic
     namespace
     {
         void* Animal(std::int32_t id) { return CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * CAnimalArray::ElementSize; }
-        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * 0x58u; }
+        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * ReadableValues::RecordSize::MapMoveable; }
         const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u]; }
     }
 
@@ -39,7 +40,7 @@ namespace NC2Logic
     bool Animal_Misc_CanBeAttackedByHuman(const void* animal, std::int32_t humanId, bool allowOwnAnimals)
     {
         if (Type(animal).cannotBeAttacked != 0) return false;
-        const auto player = Read<std::int32_t>(animal, 0x10);
+        const auto player = Read<std::int32_t>(animal, ReadableValues::AnimalOffset::PlayerId);
         if (player == 20) return true;
         const auto humanPlayer = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize, 0x10);
         if (player == humanPlayer && allowOwnAnimals) return true;
@@ -86,9 +87,9 @@ namespace NC2Logic
         Write(animal, 4, id);
         Write(animal, 8, Game_UniqueId_Generate());
         Write<std::int32_t>(animal, 0x34, -1);
-        Write(animal, 0x10, player);
-        Write(animal, 0x14, tribe);
-        Write(animal, 0x18, job);
+        Write(animal, ReadableValues::AnimalOffset::PlayerId, player);
+        Write(animal, ReadableValues::AnimalOffset::TribeType, tribe);
+        Write(animal, ReadableValues::AnimalOffset::AnimalType, job);
         const auto moveableId = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 2, id);
         Write(animal, 12, moveableId);
         if (moveableId == -1) return false;
@@ -132,11 +133,11 @@ namespace NC2Logic
             const auto* point = Animal_GetMapPositionRef(animal);
             if (Read<std::uint32_t>(animal, 0x40) == 0xFFFE7960u)
             {
-                const auto engine = NC2LogicExternals::External_Misc_GetEngineCadaverLandscapeId(Read<std::uint32_t>(animal, 0x14), 79);
+                const auto engine = NC2LogicExternals::External_Misc_GetEngineCadaverLandscapeId(Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType), 79);
                 if (engine != -1)
                 {
                     Logic_EntryPoint_Edit_Start();
-                    if (Read<std::uint32_t>(animal, 0x18) == 48) size >>= 1;
+                    if (Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 48) size >>= 1;
                     Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, 79, size, engine, 0, -1);
                     Logic_EntryPoint_Edit_Stop();
                 }
@@ -146,7 +147,7 @@ namespace NC2Logic
                 size /= 3u;
                 if (size == 0) size = 1;
                 Logic_EntryPoint_Edit_Start();
-                if (Read<std::uint32_t>(animal, 0x18) == 48) size >>= 1;
+                if (Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 48) size >>= 1;
                 const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(44, true);
                 Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, 44, size, engine, 0, -1);
                 Logic_EntryPoint_Edit_Stop();
@@ -160,14 +161,14 @@ namespace NC2Logic
     bool Animal_l_StartAtomicAnimation(void* animal, std::uint32_t action, std::int32_t direction)
     {
         if (action == 1 || !Animal_l_IsAtomicInterruptable(animal)) return false;
-        auto job = Read<std::uint32_t>(animal, 0x18);
+        auto job = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType);
         std::uint32_t animation;
         for (;;)
         {
-            const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * 0x88u;
+            const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * ReadableValues::RecordSize::JobType;
             if (Read<std::uint8_t>(data, 0x24u + action) == 0) return false;
-            animation = gStaticTribeTypeData[Read<std::uint32_t>(animal, 0x14)].atomicIds[job][action];
-            if (animation != 0xFFFFFFFFu) break;
+            animation = gStaticTribeTypeData[Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType)].atomicIds[job][action];
+            if (animation != ReadableValues::IntegerRange::UInt32Maximum) break;
             job = Read<std::uint32_t>(data, 0x20);
             if (job == 0) return false;
         }
@@ -195,7 +196,7 @@ namespace NC2Logic
         const auto id = Read<std::int32_t>(animal, 0x34);
         if (id == -1) return false;
         const auto* leader = Animal(id);
-        if (Read<std::uint8_t>(leader, 0) == 0 || Read<std::uint32_t>(leader, 8) != Read<std::uint32_t>(animal, 0x38) || Read<std::uint32_t>(leader, 0x10) != Read<std::uint32_t>(animal, 0x10) || Animal_IsAttachedToVehicle(leader)) return false;
+        if (Read<std::uint8_t>(leader, 0) == 0 || Read<std::uint32_t>(leader, 8) != Read<std::uint32_t>(animal, 0x38) || Read<std::uint32_t>(leader, 0x10) != Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) || Animal_IsAttachedToVehicle(leader)) return false;
         if (!Animal_IsAttachedToHouse(animal)) return !Animal_IsAttachedToHouse(leader);
         return Animal_IsAttachedToHouse(leader) && TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + 0x50) == TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50);
     }
@@ -244,7 +245,7 @@ namespace NC2Logic
             Write(animal, 0x24, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x24));
             return;
         }
-        const auto player = Read<std::uint32_t>(animal, 0x10);
+        const auto player = Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId);
         if (player != 20)
         {
             const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 6);
@@ -252,7 +253,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6) != continent) continue;
+                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::MapPosition), 6) != continent) continue;
                 Write(animal, 0x54, id);
                 Write(animal, 0x58, Read<std::uint32_t>(house, 8));
                 Write<std::uint32_t>(animal, 0x50, 4);
@@ -269,7 +270,7 @@ namespace NC2Logic
             std::uint32_t total = 0;
             for (std::uint32_t other = 0; other < 20; ++other)
             {
-                if (other == player || Read<std::uint8_t>(gGameControl, other * 0x4A80u) == 0) continue;
+                if (other == player || Read<std::uint8_t>(gGameControl, other * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
                 const auto first = Read<std::uint32_t>(sector, other * 0x40u + 0x14), second = Read<std::uint32_t>(sector, other * 0x40u + 0x2C);
                 if (stopAtFirst && (first != 0 || second != 0)) return 1;
                 total += first + second;
@@ -306,7 +307,7 @@ namespace NC2Logic
     // Original function: FUN_004471ca; aggression changes sector-list membership.
     void Animal_l_Aggressive_Check(void* animal)
     {
-        if (Type(animal).aggressive != 0 && Read<std::uint32_t>(animal, 0x18) == 49)
+        if (Type(animal).aggressive != 0 && Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 49)
         {
             if (Read<std::uint8_t>(animal, 0x5C) == 0)
             {
@@ -332,7 +333,7 @@ namespace NC2Logic
     // Original function: FUN_0042f6aa; animal type IDs index the native biased table.
     std::uint32_t Animal_HitPoints_GetMaximum(const void* animal)
     {
-        const auto offset = NC2Lifetime::Read<std::uint32_t>(animal, 0x14) * 0x40u - (NC2Lifetime::Read<std::uint32_t>(animal, 0x18) == 48 ? 0x1CCu : 0x1C8u);
+        const auto offset = NC2Lifetime::Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType) * 0x40u - (NC2Lifetime::Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType) == 48 ? 0x1CCu : 0x1C8u);
         return NC2Lifetime::Read<std::uint32_t>(gStaticAnimalTypeData, offset);
     }
     // Original function: FUN_0042e9fc; the native helper copies the position without allocation or attachment checks.
@@ -352,7 +353,7 @@ namespace NC2Logic
     const void* Animal_GetMapPositionRef(const void* animal)
     {
         std::uint32_t index;
-        std::memcpy(&index, static_cast<const std::byte*>(animal) + 0x0C, sizeof(index));
+        std::memcpy(&index, static_cast<const std::byte*>(animal) + ReadableValues::AnimalOffset::MapMoveableId, sizeof(index));
 
         const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gMapMoveableArrayStorage.entries));
         const std::uint32_t positionAddress = baseAddress + index * 0x58u + 0x12u;

@@ -54,12 +54,12 @@ namespace NC2E2
     const SE2StaticDataMapMoveableWalkData* StaticMapMoveables_GetWalkDataPtr(void* manager, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, std::uint32_t walkSpeed);
 
     static_assert(sizeof(SMapMoveableFrameList) == 8);
-    static_assert(sizeof(SE2StaticDataMapMoveableAnimationPart) == 0x1C);
-    static_assert(sizeof(SE2StaticDataMapMoveableAnimationData) == 0x64);
+    static_assert(sizeof(SE2StaticDataMapMoveableAnimationPart) == 28);
+    static_assert(sizeof(SE2StaticDataMapMoveableAnimationData) == 100);
     static_assert(offsetof(SE2StaticDataMapMoveableAnimationData, animationMode) == 0x10);
     static_assert(offsetof(SE2StaticDataMapMoveableAnimationData, frames) == 0x1C);
     static_assert(offsetof(SE2StaticDataMapMoveableAnimationData, directionFrames) == 0x24);
-    static_assert(sizeof(SE2StaticDataMapMoveableWalkData) == 0x98);
+    static_assert(sizeof(SE2StaticDataMapMoveableWalkData) == 152);
     static_assert(offsetof(SE2StaticDataMapMoveableWalkData, walkFrames) == 0x18);
     static_assert(offsetof(SE2StaticDataMapMoveableWalkData, turnFrames) == 0x58);
 }

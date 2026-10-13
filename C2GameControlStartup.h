@@ -20,7 +20,7 @@ namespace NC2Logic
         std::uint32_t pathfinderLimitOverride;
     };
     inline SGameControlRuntimeStorage gGameControlRuntimeStorage{};
-    static_assert(sizeof(SGameControlRuntimeStorage) == 0x20);
+    static_assert(sizeof(SGameControlRuntimeStorage) == 32);
     static_assert(offsetof(SGameControlRuntimeStorage, owner) == 0x14);
     static_assert(offsetof(SGameControlRuntimeStorage, pathfinderLimitOverridePending) == 0x18);
     static_assert(offsetof(SGameControlRuntimeStorage, pathfinderLimitOverride) == 0x1C);

@@ -13,7 +13,7 @@ namespace NC2InGameGuiKeyAssignmentManager
         bool CheckDirectKeyVirtualOnly(std::int32_t assignment) const;
         inline static CKeyAssignmentManager* sTheObjectPtr = nullptr;
     private:
-        alignas(4) std::byte mStorage[0xA08];
+        alignas(4) std::byte mStorage[2568];
     };
-    static_assert(sizeof(CKeyAssignmentManager) == 0xA08);
+    static_assert(sizeof(CKeyAssignmentManager) == 2568);
 }

@@ -54,12 +54,12 @@ namespace NC2Logic
     };
     extern SStaticLandscapeTypeStorage gStaticLandscapeTypeStorage;
 
-    static_assert(sizeof(SStaticLandscapeTransition) == 0x14);
+    static_assert(sizeof(SStaticLandscapeTransition) == 20);
     static_assert(offsetof(SStaticLandscapeTransition, targetLandscapeType) == 4);
     static_assert(offsetof(SStaticLandscapeTransition, valencyOperation) == 8);
     static_assert(offsetof(SStaticLandscapeTransition, valencyValue) == 0x0C);
     static_assert(offsetof(SStaticLandscapeTransition, unknown10) == 0x10);
-    static_assert(sizeof(SStaticLandscapeTypeData) == 0x9C);
+    static_assert(sizeof(SStaticLandscapeTypeData) == 156);
     static_assert(offsetof(SStaticLandscapeTypeData, allowedOnLand) == 0x1E);
     static_assert(offsetof(SStaticLandscapeTypeData, allowedOnWater) == 0x1F);
     static_assert(offsetof(SStaticLandscapeTypeData, allowedOnEverything) == 0x20);
@@ -70,7 +70,7 @@ namespace NC2Logic
     static_assert(offsetof(SStaticLandscapeTypeData, transitions) == 0x34);
     static_assert(offsetof(SStaticLandscapeTypeData, debugColor) == 0x98);
     static_assert(sizeof(CStaticLandscapeTypeDataManager) == 1);
-    static_assert(sizeof(SStaticLandscapeTypeStorage) == 0x60);
+    static_assert(sizeof(SStaticLandscapeTypeStorage) == 96);
     static_assert(offsetof(SStaticLandscapeTypeStorage, tokenInitFlags) == 4);
     static_assert(offsetof(SStaticLandscapeTypeStorage, tokenList) == 8);
     static_assert(offsetof(SStaticLandscapeTypeStorage, owner) == 0x0C);

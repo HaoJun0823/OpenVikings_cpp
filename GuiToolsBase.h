@@ -83,10 +83,10 @@ namespace NC2GuiToolsBase
     };
 
     static_assert(sizeof(void*) == 4, "CGuiBaseStringsManager requires an x86 build");
-    static_assert(sizeof(CGuiBaseStringsManager) == 0x01, "CGuiBaseStringsManager must be one byte");
-    static_assert(offsetof(SGuiBaseStringsStaticVars, stringArrays) == 0x00, "Unexpected string-array offset");
+    static_assert(sizeof(CGuiBaseStringsManager) == 1, "CGuiBaseStringsManager must be one byte");
+    static_assert(offsetof(SGuiBaseStringsStaticVars, stringArrays) == 0, "Unexpected string-array offset");
     static_assert(offsetof(SGuiBaseStringsStaticVars, undefinedString) == 0x34, "Unexpected fallback-buffer offset");
-    static_assert(sizeof(SGuiBaseStringsStaticVars) == 0x98, "Unexpected GUI string-state size");
+    static_assert(sizeof(SGuiBaseStringsStaticVars) == 152, "Unexpected GUI string-state size");
 
     class CGuiBaseDataManager
     {
@@ -109,9 +109,9 @@ namespace NC2GuiToolsBase
 
     static_assert(sizeof(void*) == 4, "GUI resources require the original x86 pointer layout");
     static_assert(sizeof(CGuiBaseDataManager) == 1);
-    static_assert(sizeof(SGuiBaseResources) == 0x44);
-    static_assert(sizeof(SGuiDynamicResources) == 0x18);
-    static_assert(sizeof(SGuiBaseStaticVars) == 0x5C);
+    static_assert(sizeof(SGuiBaseResources) == 68);
+    static_assert(sizeof(SGuiDynamicResources) == 24);
+    static_assert(sizeof(SGuiBaseStaticVars) == 92);
     static_assert(offsetof(SGuiBaseStaticVars, dynamic) == 0x44);
     static_assert(offsetof(SGuiBaseResources, fontWhitePalette) == 0x10);
     static_assert(offsetof(SGuiBaseResources, windowBobManager) == 0x20);

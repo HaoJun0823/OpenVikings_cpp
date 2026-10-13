@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2AIMovementMessages.h"
 #include "C2GameControlNetwork.h"
@@ -36,7 +37,7 @@ namespace NC2Logic
         if ((type != 40 && type != 41) || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 44) != 3) return false;
         const auto* definition = House_GetHouseTypeDataPtr(house);
         // Windows initializes the sixteen job flags 27..42 used by the tower definitions.
-        std::byte local[0x44];
+        std::byte local[68];
         NXBasics::Runtime_FillMemory(local + 0x2C, 0, 16);
         auto* flags = local + 0x11;
         for (std::int32_t i = 0; i < definition->workerCount; ++i)
@@ -62,7 +63,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(House_Door_GetEntryPointRef(house), 0), 20, true); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || !Human_IsJobSoldier(human)) continue;
+            if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || !Human_IsJobSoldier(human)) continue;
             const auto job = Read<std::uint32_t>(human, 24);
             if (flags[job] == std::byte{0}) continue;
             Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, 4), Read<std::uint32_t>(house, 8));
@@ -97,7 +98,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(point, 0), radius, true); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
+            if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
             const auto* position = Human_GetMapPositionRef(human);
             const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
             if (candidate < distance) { distance = candidate; best = human; }
@@ -154,7 +155,7 @@ namespace NC2Logic
             return Distance(position, static_cast<const std::byte*>(handler) + 0xA32E) <= range;
         }
         const auto attachment = Read<std::uint32_t>(soldier, 0x38);
-        if (attachment == 0xFFFFFFFFu) return true;
+        if (attachment == ReadableValues::IntegerRange::UInt32Maximum) return true;
         const auto* task = static_cast<const std::byte*>(handler) + 0x2A50u + attachment * 0x58u;
         const auto* main = static_cast<const std::byte*>(handler) + 0x1C30u + Read<std::uint32_t>(task, 0x14) * 0x44u;
         const auto type = Read<std::uint32_t>(main, 8);
@@ -395,7 +396,7 @@ namespace NC2Logic
     // Original function: FUN_004622D6; notifications apply only to human moveables.
     void AIManager_Message_NoWayFound(void* manager, std::uint32_t moveable, const void* target)
     {
-        const auto* entry = gMapMoveableArrayStorage.entries + moveable * 0x58u;
+        const auto* entry = gMapMoveableArrayStorage.entries + moveable * ReadableValues::RecordSize::MapMoveable;
         if (Read<std::uint32_t>(entry, 8) != 1) return;
         const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0x54)));
         if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, 0x10) * 4u)) AISinglePlayerHandler_Messages_NoWayFound(handler, Human_GetMapPositionRef(human), target);
@@ -404,7 +405,7 @@ namespace NC2Logic
     // Original function: FUN_00462361.
     void AIManager_Message_NoWayFoundToEnemy(void* manager, std::uint32_t moveable, const void* target)
     {
-        const auto* entry = gMapMoveableArrayStorage.entries + moveable * 0x58u;
+        const auto* entry = gMapMoveableArrayStorage.entries + moveable * ReadableValues::RecordSize::MapMoveable;
         if (Read<std::uint32_t>(entry, 8) != 1) return;
         auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0x54))));
         if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, 0x10) * 4u)) AISinglePlayerHandler_Messages_Human_NoWayFoundToEnemy(handler, human, target);
@@ -425,7 +426,7 @@ namespace NC2Logic
         GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 16), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 104);
-        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)));
         Write(command, 4, Read<std::uint32_t>(vehicle, 4));
         Write(command, 8, Read<std::uint32_t>(vehicle, 8));
         Write(command, 12, target);
@@ -448,7 +449,7 @@ namespace NC2Logic
         GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 480), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 46);
-        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)));
         Write(command, 4, Read<std::uint32_t>(vehicle, 4));
         Write(command, 8, Read<std::uint32_t>(vehicle, 8));
         Write(command, 12, target);
@@ -470,7 +471,7 @@ namespace NC2Logic
         GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 12), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 44);
-        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)));
         Write(command, 4, Read<std::uint32_t>(vehicle, 4));
         Write(command, 8, Read<std::uint32_t>(vehicle, 8));
         Write(command, 12, target);
@@ -520,7 +521,7 @@ namespace NC2Logic
             const auto* entry = static_cast<const std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
             const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
             const auto* point = Vehicle_GetMapPositionRef(vehicle);
-            if (Read<std::uint32_t>(entry, 8) == 0xFFFFFFFFu && !AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(handler, slot)) AISinglePlayerHandler_l_Vehicles_CheckForEnemys(handler, slot, point, 30, true, false, true, true);
+            if (Read<std::uint32_t>(entry, 8) == ReadableValues::IntegerRange::UInt32Maximum && !AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(handler, slot)) AISinglePlayerHandler_l_Vehicles_CheckForEnemys(handler, slot, point, 30, true, false, true, true);
         }
     }
 

@@ -38,11 +38,11 @@ namespace NXBasics
     private:
         void l_InitObject();
 
-        std::byte mSerializedData[0x08];           // +0x04; field semantics unresolved.
+        std::byte mSerializedData[8];           // +0x04; field semantics unresolved.
         std::int32_t mCharacterSpacing;           // +0x0C
         CBobManager* mBobManager;                 // +0x10; owned.
         CPalette* mPalette;                       // +0x14; borrowed.
     };
 
-    static_assert(sizeof(CFont) == 0x18, "CFont requires the original x86 layout");
+    static_assert(sizeof(CFont) == 24, "CFont requires the original x86 layout");
 }

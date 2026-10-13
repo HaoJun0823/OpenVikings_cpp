@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2HumanIterator.h"
 #include "C2OverviewObjectIterators.h"
@@ -66,22 +67,22 @@ namespace NC2Logic
     void* __fastcall PlayerStatisticManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gPlayerStatisticManager = manager;
-        std::memset(manager, 0, 0xA8);
+        std::memset(manager, 0, 168);
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * 0x4A80u;
+            const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
             if (Read<std::uint8_t>(playerData, 0) == 0) continue;
             if (Read<std::uint32_t>(playerData, 4) == 1)
             {
-                void* history = NXBasics::Runtime_AllocateWithNewHandler(0x2DB40, 1);
+                void* history = NXBasics::Runtime_AllocateWithNewHandler(187200, 1);
                 Write<void*>(manager, 8u + player * 4u, history);
-                std::memset(history, 0, 0x2DB40);
+                std::memset(history, 0, 187200);
             }
             else
             {
-                void* sample = NXBasics::Runtime_AllocateWithNewHandler(0x138, 1);
+                void* sample = NXBasics::Runtime_AllocateWithNewHandler(312, 1);
                 Write<void*>(manager, 0x58u + player * 4u, sample);
-                std::memset(sample, 0, 0x138);
+                std::memset(sample, 0, 312);
             }
         }
         PlayerStatisticManager_CreateStatistics(manager);
@@ -90,7 +91,7 @@ namespace NC2Logic
     // Original function: FUN_004408ee.
     void Tool_PlayerStatistics_CountHumans(std::uint32_t player, std::uint16_t* counts)
     {
-        std::memset(counts, 0, 0x14);
+        std::memset(counts, 0, 20);
         CHumanIterator iterator;
         for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
         {
@@ -121,7 +122,7 @@ namespace NC2Logic
     // Original function: FUN_004409c1.
     void Tool_PlayerStatistics_CountHouses(std::uint32_t player, std::uint16_t* counts)
     {
-        std::memset(counts, 0, 0x78);
+        std::memset(counts, 0, 120);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
@@ -136,7 +137,7 @@ namespace NC2Logic
     // Original function: FUN_00440a53.
     void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts)
     {
-        std::memset(counts, 0, 0x88);
+        std::memset(counts, 0, 136);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
@@ -148,7 +149,7 @@ namespace NC2Logic
                 const auto amount = House_Stock_GetAmountOfGoods(house, good, false);
                 Write<std::uint32_t>(counts, 0, Read<std::uint32_t>(counts, 0) + amount);
                 auto value = static_cast<std::uint32_t>(Read<std::uint16_t>(counts, 4u + good * 2u)) + amount;
-                if (value > 0xFFFFu) value = 0xFFFFu;
+                if (value > ReadableValues::IntegerRange::UInt16Maximum) value = ReadableValues::IntegerRange::UInt16Maximum;
                 Write<std::uint16_t>(counts, 4u + good * 2u, static_cast<std::uint16_t>(value));
             }
         }
@@ -156,11 +157,11 @@ namespace NC2Logic
     // Original function: FUN_0041adaf.
     void PlayerStatisticManager_CreateStatisticSamples(std::uint32_t player, SPlayerStatisticSampleData* sample)
     {
-        std::memset(sample, 0, 0x138);
+        std::memset(sample, 0, 312);
         Tool_PlayerStatistics_CountHumans(player, sample->humans);
         Tool_PlayerStatistics_CountHouses(player, sample->houses);
         Tool_PlayerStatistics_CountGoods(player, &sample->goodTotal);
-        const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * 0x4A80u;
+        const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
         sample->values114[0] = Read<std::uint32_t>(playerData, 0x4A14);
         sample->values114[1] = Read<std::uint32_t>(playerData, 0x4A18);
         sample->values114[2] = Read<std::uint32_t>(playerData, 0x4A1C);

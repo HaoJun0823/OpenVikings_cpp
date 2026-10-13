@@ -58,7 +58,7 @@ namespace NC2Logic
     };
 
     static_assert(sizeof(void*) == 4, "Logic object arrays require an x86 build");
-    static_assert(sizeof(CArrayHandler) == 0x30);
+    static_assert(sizeof(CArrayHandler) == 48);
     static_assert(offsetof(CArrayHandler, mCapacity) == 0x04);
     static_assert(offsetof(CArrayHandler, mAllocatedCount) == 0x10);
     static_assert(offsetof(CArrayHandler, mEntries) == 0x1C);
@@ -175,11 +175,11 @@ namespace NC2Logic
         void FreeGuide(std::int32_t id);
     };
 
-    static_assert(sizeof(CHouseArray) == 0x30);
-    static_assert(sizeof(CHumanArray) == 0x30);
-    static_assert(sizeof(CVehicleArray) == 0x30);
-    static_assert(sizeof(CAnimalArray) == 0x30);
-    static_assert(sizeof(CGuideArray) == 0x30);
+    static_assert(sizeof(CHouseArray) == 48);
+    static_assert(sizeof(CHumanArray) == 48);
+    static_assert(sizeof(CVehicleArray) == 48);
+    static_assert(sizeof(CAnimalArray) == 48);
+    static_assert(sizeof(CGuideArray) == 48);
 
     const void* GetHumanPtr(std::int32_t id);
     void* GetHousePtr(std::int32_t id);

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "XCrtFileAccess.h"
 #include "OriginalStrings.h"
@@ -40,10 +41,10 @@ namespace NXBasics
     {
         std::uint64_t bits;
         std::memcpy(&bits, &value, sizeof(bits));
-        const std::int32_t exponent = static_cast<std::int32_t>((bits >> 52) & 0x7FFu) - 1023;
+        const std::int32_t exponent = static_cast<std::int32_t>((bits >> 52) & ReadableValues::Binary64::ExponentMaximum) - 1023;
         if (exponent < 0) return 0;
         if (exponent >= 63) return INT64_MIN;
-        const std::uint64_t significand = (bits & UINT64_C(0x000FFFFFFFFFFFFF)) | UINT64_C(0x0010000000000000);
+        const std::uint64_t significand = (bits & ReadableValues::Binary64::FractionMask) | ReadableValues::Binary64::ImplicitLeadingBit;
         const std::uint64_t magnitude = exponent < 52 ? significand >> (52 - exponent) : significand << (exponent - 52);
         const std::uint64_t integerBits = (bits >> 63) != 0 ? 0u - magnitude : magnitude;
         std::int64_t result;
@@ -176,7 +177,7 @@ namespace NXBasics
 
     // Original data: 0050c400 through 0050c601; element zero represents EOF.
     std::uint16_t gRuntimeCharacterTypeStorage[257] = {
-        0x0000u,
+        0u,
         0x0020u,
         0x0020u,
         0x0020u,
@@ -248,26 +249,26 @@ namespace NXBasics
         0x0081u,
         0x0081u,
         0x0081u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
-        0x0001u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
+        1u,
         0x0010u,
         0x0010u,
         0x0010u,
@@ -305,148 +306,148 @@ namespace NXBasics
         0x0010u,
         0x0010u,
         0x0020u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
-        0x0000u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
+        0u,
     };
 
     // Original data: 0050c3f8; original target: 0050c402.
     std::uint16_t* gRuntimeCharacterTypes = gRuntimeCharacterTypeStorage + 1;
 
     // Original data: 0050c604.
-    std::int32_t gRuntimeMaxMultibyteLength = 0x00000001u;
+    std::int32_t gRuntimeMaxMultibyteLength = 1u;
 
     // Original data: 0050c608.
     char gRuntimeDecimalSeparator = '.';
 
     // Original data: 0050c610 through 0050c633.
     RuntimeDescriptorRecord gRuntimeInvalidDescriptorRecord = {
-        0xFFFFFFFFu, 0x00u, 0x0Au, {}, 0u, {} };
+        ReadableValues::IntegerRange::UInt32Maximum, 0u, 0x0Au, {}, 0u, {} };
 
     // Original data: 0050c634.
     std::int32_t gRuntimeTimeZoneBiasSeconds = 28800;
@@ -485,7 +486,7 @@ namespace NXBasics
     std::int32_t gRuntimeDaylightEndMilliseconds = 0;
 
     // Original data: 0050c6e4.
-    DWORD gRuntimeThreadDataTlsIndex = 0xFFFFFFFFu;
+    DWORD gRuntimeThreadDataTlsIndex = ReadableValues::IntegerRange::UInt32Maximum;
 
     // Float dispatch slots initially point to the missing-float-support handler.
     // Original data: 0050c780.
@@ -508,7 +509,7 @@ namespace NXBasics
 
     // Original data: 0050c968 through 0050c9df.
     RuntimeExceptionAction gRuntimeDefaultExceptionActions[10] = {
-        {0xC0000005u, 11, 0u}, {0xC000001Du, 4, 0u}, {0xC0000096u, 4, 0u}, {0xC000008Du, 8, 0u}, {0xC000008Eu, 8, 0u}, {0xC000008Fu, 8, 0u}, {0xC0000090u, 8, 0u}, {0xC0000091u, 8, 0u}, {0xC0000092u, 8, 0u}, {0xC0000093u, 8, 0u} };
+        {0xC0000005u, 11, 0u}, {0xC000001Du, 4, 0u}, {0xC0000096u, 4, 0u}, {SwitchIds::WindowsException::FloatingPointDenormalOperand, 8, 0u}, {SwitchIds::WindowsException::FloatingPointDivideByZero, 8, 0u}, {SwitchIds::WindowsException::FloatingPointInexactResult, 8, 0u}, {SwitchIds::WindowsException::FloatingPointInvalidOperation, 8, 0u}, {SwitchIds::WindowsException::FloatingPointOverflow, 8, 0u}, {SwitchIds::WindowsException::FloatingPointStackCheck, 8, 0u}, {SwitchIds::WindowsException::FloatingPointUnderflow, 8, 0u} };
 
     // Original data: 0050c9e0.
     std::int32_t gRuntimeFloatingPointActionBegin = 3;
@@ -600,8 +601,8 @@ namespace NXBasics
         &gRuntimeSmallBlockInitialRegionMode2,
         &gRuntimeSmallBlockInitialRegionMode2.pages[0],
         &gRuntimeSmallBlockInitialRegionMode2.pages[0],
-        reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
-        reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
+        reinterpret_cast<void*>(static_cast<std::uintptr_t>(ReadableValues::IntegerRange::UInt32Maximum)),
+        reinterpret_cast<void*>(static_cast<std::uintptr_t>(ReadableValues::IntegerRange::UInt32Maximum)),
         {{0xF0u, 0xF1u}},
         {} };
 
@@ -628,7 +629,7 @@ namespace NXBasics
 
     // Original storage starts at 005699a0.
     // The next known global starts at 005699cc; this span holds every table string.
-    char gRuntimeFallbackErrorText[0x2C] = {};
+    char gRuntimeFallbackErrorText[44] = {};
 
     // Original data: 005699c8.
     RuntimeNewHandler gRuntimeNewHandler = nullptr;
@@ -646,7 +647,7 @@ namespace NXBasics
     std::uint32_t gRuntimeTerminateSignalAction = 0;
 
     // Original data: 00569a00.
-    std::uint32_t gRuntimeFileCreationMask = 0x00000000u;
+    std::uint32_t gRuntimeFileCreationMask = 0u;
 
     // Original address: 00569a20.
     char** gRuntimeEnvironment = nullptr;
@@ -680,7 +681,7 @@ namespace NXBasics
     std::uint32_t gRuntimeTimeZoneInitialized = 0;
 
     // Original data: 00569b2c.
-    std::int32_t gRuntimeDefaultFileMode = 0x00000000u;
+    std::int32_t gRuntimeDefaultFileMode = 0u;
 
     // Original data: 00569b30 through 00569b8f.
     CRITICAL_SECTION gRuntimeStaticLocks[4] = {};
@@ -694,10 +695,10 @@ namespace NXBasics
         nullptr, &gRuntimeStaticLocks[1] };
 
     // Original data: 00569b98.
-    LCID gRuntimeCTypeLocale = 0x00000000u;
+    LCID gRuntimeCTypeLocale = 0u;
 
     // Original data: 00569ba8.
-    UINT gRuntimeCodePage = 0x00000000u;
+    UINT gRuntimeCodePage = 0u;
 
     // Original address: 00569cc0.
     // 0 = undetected, 1 = Unicode API, 2 = ANSI API.
@@ -707,10 +708,10 @@ namespace NXBasics
     RuntimeVoidCallback gRuntimeErrorBannerCallback = nullptr;
 
     // Original data: 00569cc8.
-    std::uint32_t gRuntimeMapStringBackend = 0x00000000u;
+    std::uint32_t gRuntimeMapStringBackend = 0u;
 
     // Original data: 00569ccc.
-    std::int32_t gRuntimeNewHandlerMode = 0x00000000u;
+    std::int32_t gRuntimeNewHandlerMode = 0u;
 
     // Original data: 00569cd0.
     int gRuntimeSystemCodePageRequested = 0;
@@ -719,7 +720,7 @@ namespace NXBasics
     std::uint32_t gRuntimeSmallBlockEmptyPageCountMode2 = 0;
 
     // Original data: 00569cd8.
-    std::uint32_t gRuntimeStreamBufferRequestCount = 0x00000000u;
+    std::uint32_t gRuntimeStreamBufferRequestCount = 0u;
 
     // Original data: 00569cdc and 00569ce0.
     char* gRuntimeTemporaryStreamBuffers[2] = {};
@@ -728,7 +729,7 @@ namespace NXBasics
     std::uint32_t gRuntimeDefaultStreamFlags = 0;
 
     // Original data: 00569cec.
-    std::uint32_t gRuntimeGetStringTypeBackend = 0x00000000u;
+    std::uint32_t gRuntimeGetStringTypeBackend = 0u;
 
     // Original data: 00569d54.
     RuntimeMessageBoxCallback gRuntimeMessageBox = nullptr;
@@ -747,7 +748,7 @@ namespace NXBasics
     RuntimeFormatStream** gRuntimeStreamTable = nullptr;
 
     // Original data: 0056a3a0 through 0056b39f.
-    char gRuntimeStdinBuffer[0x1000] = {};
+    char gRuntimeStdinBuffer[4096] = {};
 
     // Original data: 0050ecc8 through 0050ef47.
     RuntimeFormatStream gRuntimeStaticStreams[20] = {
@@ -817,10 +818,10 @@ namespace NXBasics
     std::uint32_t gRuntimeHeapMode = 0;
 
     // Original data: 0056b5f0.
-    LONG gRuntimeLocaleChangeState = 0x00000000u;
+    LONG gRuntimeLocaleChangeState = 0u;
 
     // Original data: 0056b5f4.
-    LONG gRuntimeLocaleReaderCount = 0x00000000u;
+    LONG gRuntimeLocaleReaderCount = 0u;
 
     // Original data: 0056b600 through 0056b6ff.
     // Each allocated block contains 32 descriptor records.
@@ -1093,7 +1094,7 @@ namespace NXBasics
 
         // The existing formatter implements the same string-stream setup
         // and terminating write as the original unbounded wrapper.
-        const std::int32_t result = Runtime_FormatString(destination, 0x7FFFFFFF, format, arguments);
+        const std::int32_t result = Runtime_FormatString(destination, ReadableValues::IntegerRange::Int32MaximumSigned, format, arguments);
 
         va_end(arguments);
         return result;
@@ -1152,7 +1153,7 @@ namespace NXBasics
     // Original function: FUN_004e6052
     void Runtime_InitializeOnExitTable()
     {
-        gRuntimeOnExitBegin = static_cast<RuntimeOnExitCallback*>(Runtime_Allocate(0x80u));
+        gRuntimeOnExitBegin = static_cast<RuntimeOnExitCallback*>(Runtime_Allocate(128u));
 
         if (gRuntimeOnExitBegin == nullptr)
             Runtime_FatalExit(0x18);
@@ -1170,7 +1171,7 @@ namespace NXBasics
             const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
             const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
 
-            if ((block[entryOffset + 4u] & 0x01u) != 0)
+            if ((block[entryOffset + 4u] & 1u) != 0)
             {
                 Runtime_LockDescriptor(descriptor);
 
@@ -1194,7 +1195,7 @@ namespace NXBasics
 
         const auto initialHandle = Runtime_GetOsHandle(descriptor);
 
-        if (static_cast<std::uint32_t>(initialHandle) != 0xFFFFFFFFu)
+        if (static_cast<std::uint32_t>(initialHandle) != ReadableValues::IntegerRange::UInt32Maximum)
         {
             bool closeHandle = true;
 
@@ -1246,7 +1247,7 @@ namespace NXBasics
             const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
             const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
 
-            if ((block[entryOffset + 4u] & 0x01u) != 0)
+            if ((block[entryOffset + 4u] & 1u) != 0)
             {
                 Runtime_LockDescriptor(descriptor);
 
@@ -1286,7 +1287,7 @@ namespace NXBasics
             return handle;
         };
 
-        if ((getEntry()[4] & 0x20u) != 0)
+        if ((getEntry()[4] & ReadableValues::BitMask::Bit5) != 0)
         {
             // The original ignores the result of seeking to the end.
             Runtime_SeekNoLock(descriptor, 0, 2);
@@ -1297,9 +1298,9 @@ namespace NXBasics
         std::uint32_t insertedCarriageReturns = 0;
         DWORD writeError = 0;
 
-        if ((getEntry()[4] & 0x80u) != 0)
+        if ((getEntry()[4] & ReadableValues::BitMask::Bit7) != 0)
         {
-            std::uint8_t buffer[0x401];
+            std::uint8_t buffer[1025];
             std::uint32_t consumed = 0;
 
             while (consumed < byteCount)
@@ -1384,7 +1385,7 @@ namespace NXBasics
             return -1;
         }
 
-        if ((getEntry()[4] & 0x40u) != 0 && input[0] == 0x1A)
+        if ((getEntry()[4] & ReadableValues::BitMask::Bit6) != 0 && input[0] == 0x1A)
         {
             return 0;
         }
@@ -1406,15 +1407,15 @@ namespace NXBasics
         SECURITY_ATTRIBUTES security{};
         security.nLength = sizeof(security);
         security.lpSecurityDescriptor = nullptr;
-        security.bInheritHandle = (flags & 0x80u) == 0;
+        security.bInheritHandle = (flags & ReadableValues::BitMask::Bit7) == 0;
 
-        std::uint8_t descriptorFlags = (flags & 0x80u) != 0 ? 0x10u : 0u;
+        std::uint8_t descriptorFlags = (flags & ReadableValues::BitMask::Bit7) != 0 ? 0x10u : 0u;
 
-        if ((flags & 0x8000u) == 0)
+        if ((flags & ReadableValues::BitMask::Bit15) == 0)
         {
-            if ((flags & 0x4000u) != 0 || gRuntimeDefaultFileMode != 0x8000)
+            if ((flags & ReadableValues::BitMask::Bit14) != 0 || gRuntimeDefaultFileMode != 0x8000)
             {
-                descriptorFlags |= 0x80u;
+                descriptorFlags |= ReadableValues::BitMask::Bit7;
             }
         }
 
@@ -1471,7 +1472,7 @@ namespace NXBasics
 
         DWORD creationDisposition;
 
-        switch (flags & 0x700u)
+        switch (flags & ReadableValues::BitMask::Bits8Through10)
         {
             case SwitchIds::FileCreationFlags::Existing:
             case SwitchIds::FileCreationFlags::ExclusiveWithoutCreate:
@@ -1502,39 +1503,39 @@ namespace NXBasics
 
         DWORD attributes = FILE_ATTRIBUTE_NORMAL;
 
-        if ((flags & 0x100u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit8) != 0)
         {
             const std::uint32_t effectivePermissions = permissions & ~static_cast<std::uint32_t>(gRuntimeFileCreationMask);
 
-            if ((effectivePermissions & 0x80u) == 0)
+            if ((effectivePermissions & ReadableValues::BitMask::Bit7) == 0)
             {
                 attributes = FILE_ATTRIBUTE_READONLY;
             }
         }
 
-        if ((flags & 0x40u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit6) != 0)
         {
             attributes |= FILE_FLAG_DELETE_ON_CLOSE;
             desiredAccess |= DELETE;
         }
 
-        if ((flags & 0x1000u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit12) != 0)
         {
             attributes |= FILE_ATTRIBUTE_TEMPORARY;
         }
 
-        if ((flags & 0x20u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit5) != 0)
         {
             attributes |= FILE_FLAG_SEQUENTIAL_SCAN;
         }
-        else if ((flags & 0x10u) != 0)
+        else if ((flags & ReadableValues::BitMask::Bit4) != 0)
         {
             attributes |= FILE_FLAG_RANDOM_ACCESS;
         }
 
         const std::uint32_t descriptorBits = Runtime_AllocateDescriptor();
 
-        if (descriptorBits == 0xFFFFFFFFu)
+        if (descriptorBits == ReadableValues::IntegerRange::UInt32Maximum)
         {
             return failWithError(24);
         }
@@ -1568,11 +1569,11 @@ namespace NXBasics
 
         if (fileType == FILE_TYPE_CHAR)
         {
-            descriptorFlags |= 0x40u;
+            descriptorFlags |= ReadableValues::BitMask::Bit6;
         }
         else if (fileType == FILE_TYPE_PIPE)
         {
-            descriptorFlags |= 0x08u;
+            descriptorFlags |= ReadableValues::BitMask::Bit3;
         }
 
         Runtime_SetOsHandle(descriptor, handle);
@@ -1585,10 +1586,10 @@ namespace NXBasics
             return reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]) + entryOffset;
         };
 
-        descriptorFlags |= 0x01u;
+        descriptorFlags |= 1u;
         getEntry()[4] = descriptorFlags;
 
-        const bool isDeviceOrPipe = (descriptorFlags & 0x48u) != 0;
+        const bool isDeviceOrPipe = (descriptorFlags & ReadableValues::BitMask::Bit3AndBit6) != 0;
 
         const auto closeAndFail = [descriptor] () -> std::int32_t
         {
@@ -1597,11 +1598,11 @@ namespace NXBasics
             return -1;
         };
 
-        if (!isDeviceOrPipe && (descriptorFlags & 0x80u) != 0 && (flags & 2u) != 0)
+        if (!isDeviceOrPipe && (descriptorFlags & ReadableValues::BitMask::Bit7) != 0 && (flags & 2u) != 0)
         {
             const std::uint32_t endPosition = Runtime_SeekNoLock(descriptor, -1, 2);
 
-            if (endPosition == 0xFFFFFFFFu)
+            if (endPosition == ReadableValues::IntegerRange::UInt32Maximum)
             {
                 if (*Runtime_GetDosErrnoPointer() != 0x83u)
                 {
@@ -1626,16 +1627,16 @@ namespace NXBasics
 
                 const std::uint32_t resetPosition = Runtime_SeekNoLock(descriptor, 0, 0);
 
-                if (resetPosition == 0xFFFFFFFFu)
+                if (resetPosition == ReadableValues::IntegerRange::UInt32Maximum)
                 {
                     return closeAndFail();
                 }
             }
         }
 
-        if (!isDeviceOrPipe && (flags & 0x08u) != 0)
+        if (!isDeviceOrPipe && (flags & ReadableValues::BitMask::Bit3) != 0)
         {
-            getEntry()[4] |= 0x20u;
+            getEntry()[4] |= ReadableValues::BitMask::Bit5;
         }
 
         Runtime_UnlockDescriptor(descriptor);
@@ -1652,9 +1653,9 @@ namespace NXBasics
             const std::uint8_t* block;
             std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
 
-            const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+            const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
 
-            if ((block[entryOffset + 0x04] & 0x01) != 0)
+            if ((block[entryOffset + 0x04] & 1) != 0)
             {
                 Runtime_LockDescriptor(descriptor);
 
@@ -1682,7 +1683,7 @@ namespace NXBasics
 
         const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
         const std::uint32_t blockOffset = (descriptor >> 5) * 4u;
-        const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+        const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
 
         const auto getEntry = [descriptorBlocks, blockOffset, entryOffset] () -> std::uint8_t*
         {
@@ -1701,9 +1702,9 @@ namespace NXBasics
         };
 
         std::uint8_t* entry = getEntry();
-        const std::uint8_t initialFlags = entry[0x04];
+        const std::uint8_t initialFlags = entry[4];
 
-        if ((initialFlags & 0x02) != 0)
+        if ((initialFlags & ReadableValues::BitMask::Bit1Signed) != 0)
         {
             return 0;
         }
@@ -1712,9 +1713,9 @@ namespace NXBasics
         std::uint8_t* readDestination = buffer;
         std::uint32_t totalBytes = 0;
 
-        if ((initialFlags & 0x48) != 0)
+        if ((initialFlags & ReadableValues::BitMask::Bit3AndBit6Signed) != 0)
         {
-            const std::uint8_t bufferedCharacter = entry[0x05];
+            const std::uint8_t bufferedCharacter = entry[5];
 
             if (bufferedCharacter != '\n')
             {
@@ -1752,9 +1753,9 @@ namespace NXBasics
         totalBytes += bytesRead;
 
         entry = getEntry();
-        std::uint8_t flags = entry[0x04];
+        std::uint8_t flags = entry[4];
 
-        if ((flags & 0x80) == 0)
+        if ((flags & ReadableValues::BitMask::Bit7Signed) == 0)
         {
             std::int32_t result;
             std::memcpy(&result, &totalBytes, sizeof(result));
@@ -1763,11 +1764,11 @@ namespace NXBasics
 
         if (bytesRead != 0 && buffer[0] == '\n')
         {
-            flags |= 0x04;
+            flags |= ReadableValues::BitMask::Bit2Signed;
         }
         else
         {
-            flags &= 0xFB;
+            flags &= ReadableValues::BitMask::ByteExceptBit2;
         }
 
         entry[0x04] = flags;
@@ -1789,9 +1790,9 @@ namespace NXBasics
             {
                 entry = getEntry();
 
-                if ((entry[0x04] & 0x40) == 0)
+                if ((entry[0x04] & ReadableValues::BitMask::Bit6Signed) == 0)
                 {
-                    entry[0x04] |= 0x02;
+                    entry[0x04] |= ReadableValues::BitMask::Bit1Signed;
                 }
 
                 break;
@@ -1844,7 +1845,7 @@ namespace NXBasics
 
             entry = getEntry();
 
-            if ((entry[0x04] & 0x48) != 0)
+            if ((entry[0x04] & ReadableValues::BitMask::Bit3AndBit6Signed) != 0)
             {
                 if (lookAhead == '\n')
                 {
@@ -1891,9 +1892,9 @@ namespace NXBasics
             const std::uint8_t* block;
             std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
 
-            const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+            const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
 
-            if ((block[entryOffset + 0x04] & 0x01) != 0)
+            if ((block[entryOffset + 0x04] & 1) != 0)
             {
                 Runtime_LockDescriptor(descriptor);
 
@@ -1908,7 +1909,7 @@ namespace NXBasics
         *Runtime_GetErrnoPointer() = 9;
         *Runtime_GetDosErrnoPointer() = 0;
 
-        return UINT32_C(0xFFFFFFFF);
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004e6d27
@@ -1916,10 +1917,10 @@ namespace NXBasics
     {
         const std::uint32_t handleValue = Runtime_GetOsHandle(descriptor);
 
-        if (handleValue == UINT32_C(0xFFFFFFFF))
+        if (handleValue == ReadableValues::IntegerRange::UInt32Maximum)
         {
             *Runtime_GetErrnoPointer() = 9;
-            return UINT32_C(0xFFFFFFFF);
+            return ReadableValues::IntegerRange::UInt32Maximum;
         }
 
         HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
@@ -1935,7 +1936,7 @@ namespace NXBasics
         if (error != 0)
         {
             Runtime_MapOsError(error);
-            return UINT32_C(0xFFFFFFFF);
+            return ReadableValues::IntegerRange::UInt32Maximum;
         }
 
         const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
@@ -1943,8 +1944,8 @@ namespace NXBasics
         std::uint8_t* block;
         std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
 
-        const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
-        block[entryOffset + 0x04] &= 0xFD;
+        const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
+        block[entryOffset + 0x04] &= ReadableValues::BitMask::ByteExceptBit1Signed;
 
         return position;
     }
@@ -1959,16 +1960,16 @@ namespace NXBasics
             const std::uint8_t* block;
             std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
 
-            const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+            const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
 
-            if ((block[entryOffset + 0x04] & 0x01) != 0)
+            if ((block[entryOffset + 0x04] & 1) != 0)
             {
                 Runtime_LockDescriptor(descriptor);
 
                 const std::uint32_t originalPosition = Runtime_SeekNoLock(descriptor, 0, 1);
-                std::uint32_t size = UINT32_C(0xFFFFFFFF);
+                std::uint32_t size = ReadableValues::IntegerRange::UInt32Maximum;
 
-                if (originalPosition != UINT32_C(0xFFFFFFFF))
+                if (originalPosition != ReadableValues::IntegerRange::UInt32Maximum)
                 {
                     size = Runtime_SeekNoLock(descriptor, 0, 2);
 
@@ -1990,7 +1991,7 @@ namespace NXBasics
         *Runtime_GetErrnoPointer() = 9;
         *Runtime_GetDosErrnoPointer() = 0;
 
-        return UINT32_C(0xFFFFFFFF);
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004e6efc
@@ -2089,8 +2090,8 @@ namespace NXBasics
         do
         {
             // MOV AL / MOV BL preserve the upper register bytes.
-            leftValue = (leftValue & 0xFFFFFF00u) | *left;
-            rightValue = (rightValue & 0xFFFFFF00u) | *right;
+            leftValue = (leftValue & ReadableValues::BitMask::DwordExceptBits0Through7) | *left;
+            rightValue = (rightValue & ReadableValues::BitMask::DwordExceptBits0Through7) | *right;
 
             // The original tests the full register values.
             if (leftValue == 0 || rightValue == 0)
@@ -2159,7 +2160,7 @@ namespace NXBasics
 
         if (buffer == nullptr)
         {
-            buffer = static_cast<char*>(Runtime_Allocate(0x86u));
+            buffer = static_cast<char*>(Runtime_Allocate(134u));
 
             // Preserve the null slot after allocation failure.
             // A later call will attempt allocation again.
@@ -2241,7 +2242,7 @@ namespace NXBasics
         // Preserve the 32-bit decrement and subsequent sign-bit test.
         stream.remainingBytes -= std::uint32_t{ 1 };
 
-        if ((stream.remainingBytes & UINT32_C(0x80000000)) == 0)
+        if ((stream.remainingBytes & ReadableValues::IntegerRange::Bit31) == 0)
         {
             *stream.position = '\0';
         }
@@ -2470,7 +2471,7 @@ namespace NXBasics
                 const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 
                 // Preserve signed indexing, including the original EOF case.
-                isUpper = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 0x01u) != 0;
+                isUpper = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 1u) != 0;
             }
 
             if (!isUpper)
@@ -2480,22 +2481,22 @@ namespace NXBasics
         }
 
         const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
-        const std::uint32_t highByte = (character >> 8) & 0xFFu;
+        const std::uint32_t highByte = (character >> 8) & ReadableValues::IntegerRange::UInt8Maximum;
 
         char source[3];
         int sourceLength;
 
-        if ((characterTypes[highByte * 2u + 1u] & 0x80u) != 0)
+        if ((characterTypes[highByte * 2u + 1u] & ReadableValues::BitMask::Bit7) != 0)
         {
             // Emit the lead byte before the low byte.
             source[0] = static_cast<char>(highByte);
-            source[1] = static_cast<char>(character & 0xFFu);
+            source[1] = static_cast<char>(character & ReadableValues::IntegerRange::UInt8Maximum);
             source[2] = '\0';
             sourceLength = 2;
         }
         else
         {
-            source[0] = static_cast<char>(character & 0xFFu);
+            source[0] = static_cast<char>(character & ReadableValues::IntegerRange::UInt8Maximum);
             source[1] = '\0';
             sourceLength = 1;
         }
@@ -2597,7 +2598,7 @@ namespace NXBasics
         {
             const std::uint8_t character = static_cast<std::uint8_t>(*cursor);
 
-            if ((gRuntimeMultibyteTypes[character + 1u] & 0x04u) != 0)
+            if ((gRuntimeMultibyteTypes[character + 1u] & ReadableValues::BitMask::Bit2) != 0)
             {
                 // Preserve the original unconditional skip of the trailing byte.
                 ++cursor;
@@ -2622,9 +2623,9 @@ namespace NXBasics
             {
                 std::uint32_t count = static_cast<std::uint32_t>(fileStart - pathStart);
 
-                if (count >= 0xFFu)
+                if (count >= ReadableValues::IntegerRange::UInt8Maximum)
                 {
-                    count = 0xFFu;
+                    count = ReadableValues::IntegerRange::UInt8Maximum;
                 }
 
                 Runtime_CopyMultibyteBytes(directory, pathStart, count);
@@ -2644,9 +2645,9 @@ namespace NXBasics
             {
                 std::uint32_t count = static_cast<std::uint32_t>(lastDot - pathStart);
 
-                if (count >= 0xFFu)
+                if (count >= ReadableValues::IntegerRange::UInt8Maximum)
                 {
-                    count = 0xFFu;
+                    count = ReadableValues::IntegerRange::UInt8Maximum;
                 }
 
                 Runtime_CopyMultibyteBytes(baseName, pathStart, count);
@@ -2657,9 +2658,9 @@ namespace NXBasics
             {
                 std::uint32_t count = static_cast<std::uint32_t>(pathEnd - lastDot);
 
-                if (count >= 0xFFu)
+                if (count >= ReadableValues::IntegerRange::UInt8Maximum)
                 {
-                    count = 0xFFu;
+                    count = ReadableValues::IntegerRange::UInt8Maximum;
                 }
 
                 Runtime_CopyMultibyteBytes(extension, lastDot, count);
@@ -2672,9 +2673,9 @@ namespace NXBasics
             {
                 std::uint32_t count = static_cast<std::uint32_t>(pathEnd - pathStart);
 
-                if (count >= 0xFFu)
+                if (count >= ReadableValues::IntegerRange::UInt8Maximum)
                 {
-                    count = 0xFFu;
+                    count = ReadableValues::IntegerRange::UInt8Maximum;
                 }
 
                 Runtime_CopyMultibyteBytes(baseName, pathStart, count);
@@ -2701,7 +2702,7 @@ namespace NXBasics
         std::uint16_t flags;
         std::memcpy(&flags, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(flags));
 
-        return flags & 0x107u;
+        return flags & ReadableValues::BitMask::Bits0Through2AndBit8;
     }
 
     // Original function: FUN_004e7d70
@@ -2757,15 +2758,15 @@ namespace NXBasics
         }
 
         // Preserve the register values across byte loads and conversion calls.
-        std::uint32_t rightValue = 0xFFu;
+        std::uint32_t rightValue = ReadableValues::IntegerRange::UInt8Maximum;
         std::uint32_t leftValue = 0;
 
-        while ((rightValue & 0xFFu) != 0)
+        while ((rightValue & ReadableValues::IntegerRange::UInt8Maximum) != 0)
         {
-            rightValue = (rightValue & 0xFFFFFF00u) | *right++;
-            leftValue = (leftValue & 0xFFFFFF00u) | *left++;
+            rightValue = (rightValue & ReadableValues::BitMask::DwordExceptBits0Through7) | *right++;
+            leftValue = (leftValue & ReadableValues::BitMask::DwordExceptBits0Through7) | *left++;
 
-            if ((rightValue & 0xFFu) == (leftValue & 0xFFu))
+            if ((rightValue & ReadableValues::IntegerRange::UInt8Maximum) == (leftValue & ReadableValues::IntegerRange::UInt8Maximum))
             {
                 continue;
             }
@@ -2774,12 +2775,12 @@ namespace NXBasics
             leftValue = Runtime_ToLowerNoLock(leftValue);
             rightValue = Runtime_ToLowerNoLock(rightValue);
 
-            const std::uint32_t leftByte = leftValue & 0xFFu;
-            const std::uint32_t rightByte = rightValue & 0xFFu;
+            const std::uint32_t leftByte = leftValue & ReadableValues::IntegerRange::UInt8Maximum;
+            const std::uint32_t rightByte = rightValue & ReadableValues::IntegerRange::UInt8Maximum;
 
             if (leftByte != rightByte)
             {
-                rightValue = leftByte < rightByte ? 0xFFFFFFFFu : 1u;
+                rightValue = leftByte < rightByte ? ReadableValues::IntegerRange::UInt32Maximum : 1u;
                 break;
             }
         }
@@ -3153,12 +3154,12 @@ namespace NXBasics
     // DWORD multiplication is split into 16-bit products to avoid compiler 64-bit helpers.
     static RuntimeUInt64Words Runtime_MultiplyWords(std::uint32_t first, std::uint32_t second)
     {
-        const auto firstLow = first & 0xFFFFu, firstHigh = first >> 16;
-        const auto secondLow = second & 0xFFFFu, secondHigh = second >> 16;
+        const auto firstLow = first & ReadableValues::IntegerRange::UInt16Maximum, firstHigh = first >> 16;
+        const auto secondLow = second & ReadableValues::IntegerRange::UInt16Maximum, secondHigh = second >> 16;
         const auto lowProduct = firstLow * secondLow;
         const auto firstMiddle = firstHigh * secondLow + (lowProduct >> 16);
-        const auto secondMiddle = firstLow * secondHigh + (firstMiddle & 0xFFFFu);
-        return { (secondMiddle << 16) | (lowProduct & 0xFFFFu), firstHigh * secondHigh + (firstMiddle >> 16) + (secondMiddle >> 16) };
+        const auto secondMiddle = firstLow * secondHigh + (firstMiddle & ReadableValues::IntegerRange::UInt16Maximum);
+        return { (secondMiddle << 16) | (lowProduct & ReadableValues::IntegerRange::UInt16Maximum), firstHigh * secondHigh + (firstMiddle >> 16) + (secondMiddle >> 16) };
     }
 
     // Native DIV receives a high DWORD smaller than the nonzero divisor.
@@ -3215,7 +3216,7 @@ namespace NXBasics
         auto quotient = Runtime_DivideWordsByWord(scaledDividend.high, scaledDividend.low, scaledDivisor.low, &remainder);
         auto product = Runtime_MultiplyWords(quotient, divisor.low);
         const auto upperProduct = quotient * divisor.high;
-        const auto overflow = product.high > 0xFFFFFFFFu - upperProduct;
+        const auto overflow = product.high > ReadableValues::IntegerRange::UInt32Maximum - upperProduct;
         product.high += upperProduct;
         if (overflow || product.high > dividend.high || (product.high == dividend.high && product.low > dividend.low))
             --quotient;
@@ -3246,7 +3247,7 @@ namespace NXBasics
         const auto quotient = Runtime_DivideWordsByWord(scaledDividend.high, scaledDividend.low, scaledDivisor.low, &remainder);
         auto product = Runtime_MultiplyWords(quotient, divisor.low);
         const auto upperProduct = quotient * divisor.high;
-        const auto overflow = product.high > 0xFFFFFFFFu - upperProduct;
+        const auto overflow = product.high > ReadableValues::IntegerRange::UInt32Maximum - upperProduct;
         product.high += upperProduct;
         if (overflow || product.high > dividend.high || (product.high == dividend.high && product.low > dividend.low))
         {
@@ -3277,11 +3278,11 @@ namespace NXBasics
     {
         RuntimeUInt64Words words;
         std::memcpy(&words, &value, sizeof(words));
-        if (words.high == 0x7FF00000u && words.low == 0) return 1;
-        if (words.high == 0xFFF00000u && words.low == 0) return 2;
-        const auto upper = (words.high >> 16) & 0x7FF8u;
+        if (words.high == ReadableValues::Binary64::ExponentHighWordMask && words.low == 0) return 1;
+        if (words.high == ReadableValues::Binary64::NegativeInfinityHighWord && words.low == 0) return 2;
+        const auto upper = (words.high >> 16) & ReadableValues::BitMask::Bits3Through14;
         if (upper == 0x7FF8u) return 3;
-        if (upper == 0x7FF0u && ((words.high & 0x7FFFFu) != 0 || words.low != 0)) return 4;
+        if (upper == 0x7FF0u && ((words.high & ReadableValues::BitMask::Low19Bits) != 0 || words.low != 0)) return 4;
         return 0;
     }
 
@@ -3362,28 +3363,28 @@ namespace NXBasics
             std::uint32_t word;
             std::memcpy(&word, source, sizeof(word));
             source += 4;
-            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            const auto possibleZero = ((word + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~word) & ReadableValues::ZeroByteDetection::CandidateMask;
             if (possibleZero != 0)
             {
-                if ((word & 0xFFu) == 0)
+                if ((word & ReadableValues::IntegerRange::UInt8Maximum) == 0)
                 {
                     *destination = '\0';
                     return;
                 }
-                if ((word & 0xFF00u) == 0)
+                if ((word & ReadableValues::BitMask::WordExceptBits0Through7) == 0)
                 {
                     const auto lowWord = static_cast<std::uint16_t>(word);
                     std::memcpy(destination, &lowWord, sizeof(lowWord));
                     return;
                 }
-                if ((word & 0xFF0000u) == 0)
+                if ((word & ReadableValues::BitMask::Bits16Through23) == 0)
                 {
                     const auto lowWord = static_cast<std::uint16_t>(word);
                     std::memcpy(destination, &lowWord, sizeof(lowWord));
                     destination[2] = '\0';
                     return;
                 }
-                if ((word & 0xFF000000u) == 0)
+                if ((word & ReadableValues::BitMask::DwordExceptBits0Through23) == 0)
                 {
                     std::memcpy(destination, &word, sizeof(word));
                     return;
@@ -3419,12 +3420,12 @@ namespace NXBasics
         {
             std::uint32_t word;
             std::memcpy(&word, cursor, sizeof(word));
-            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            const auto possibleZero = ((word + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~word) & ReadableValues::ZeroByteDetection::CandidateMask;
             if (possibleZero != 0)
             {
                 for (std::uint32_t byte = 0; byte < 4; ++byte)
                 {
-                    if (((word >> (byte * 8u)) & 0xFFu) == 0)
+                    if (((word >> (byte * 8u)) & ReadableValues::IntegerRange::UInt8Maximum) == 0)
                     {
                         Runtime_CopyStringTail(cursor + byte, source);
                         return destination;
@@ -3449,12 +3450,12 @@ namespace NXBasics
         {
             std::uint32_t word;
             std::memcpy(&word, cursor, sizeof(word));
-            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            const auto possibleZero = ((word + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~word) & ReadableValues::ZeroByteDetection::CandidateMask;
             if (possibleZero != 0)
             {
                 for (std::uint32_t byte = 0; byte < 4; ++byte)
                 {
-                    if (((word >> (byte * 8u)) & 0xFFu) == 0)
+                    if (((word >> (byte * 8u)) & ReadableValues::IntegerRange::UInt8Maximum) == 0)
                         return static_cast<std::uint32_t>(cursor - text) + byte;
                 }
             }
@@ -3511,8 +3512,8 @@ namespace NXBasics
             std::uint32_t word;
             std::memcpy(&word, cursor, sizeof(word));
             const auto difference = word ^ repeated;
-            const auto possibleMatch = ((difference + 0x7EFEFEFFu) ^ ~difference) & 0x81010100u;
-            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            const auto possibleMatch = ((difference + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~difference) & ReadableValues::ZeroByteDetection::CandidateMask;
+            const auto possibleZero = ((word + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~word) & ReadableValues::ZeroByteDetection::CandidateMask;
             if (possibleMatch != 0 || possibleZero != 0)
             {
                 for (std::uint32_t offset = 0; offset < 4; ++offset)
@@ -3598,13 +3599,13 @@ namespace NXBasics
             std::uint32_t word;
             std::memcpy(&word, source, sizeof(word));
             source += 4;
-            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            const auto possibleZero = ((word + ReadableValues::ZeroByteDetection::AdditionBias) ^ ~word) & ReadableValues::ZeroByteDetection::CandidateMask;
             bool terminated = false;
             if (possibleZero != 0)
             {
                 for (std::uint32_t offset = 0; offset < 4; ++offset)
                 {
-                    if (((word >> (offset * 8u)) & 0xFFu) == 0)
+                    if (((word >> (offset * 8u)) & ReadableValues::IntegerRange::UInt8Maximum) == 0)
                     {
                         word &= offset == 0 ? 0u : (1u << (offset * 8u)) - 1u;
                         terminated = true;
@@ -3693,7 +3694,7 @@ namespace NXBasics
         const wchar_t* cursor = text;
         while (*cursor != L'\0') ++cursor;
         const auto span = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(cursor) - reinterpret_cast<std::uintptr_t>(text) + 2u);
-        return ((span >> 1) | (span & 0x80000000u)) - 1u;
+        return ((span >> 1) | (span & ReadableValues::IntegerRange::Bit31)) - 1u;
     }
 
     // Original function: FUN_004E7A70; scan the first string up to the bound before comparing.
@@ -3766,7 +3767,7 @@ namespace NXBasics
         const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
         std::uint16_t classification;
         std::memcpy(&classification, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(classification));
-        return classification & 0x103u;
+        return classification & ReadableValues::BitMask::Bits0Through1AndBit8;
     }
 
     // Original function: FUN_004E7CEA; the single-byte table path reads only its low flags byte.
@@ -3942,7 +3943,7 @@ namespace NXBasics
         }
         else if (gRuntimeHeapMode == 2)
         {
-            requestedBytes = requestedBytes == 0 ? 16u : (requestedBytes + 15u) & 0xFFFFFFF0u;
+            requestedBytes = requestedBytes == 0 ? 16u : (requestedBytes + 15u) & ReadableValues::BitMask::DwordExceptBits0Through3;
             if (requestedBytes <= gRuntimeSmallBlockThresholdMode2)
             {
                 Runtime_Lock(0x09);
@@ -3959,7 +3960,7 @@ namespace NXBasics
             }
             return HeapAlloc(gRuntimeHeap, 0, requestedBytes);
         }
-        const std::uint32_t allocationBytes = ((requestedBytes == 0 ? 1u : requestedBytes) + 15u) & 0xFFFFFFF0u;
+        const std::uint32_t allocationBytes = ((requestedBytes == 0 ? 1u : requestedBytes) + 15u) & ReadableValues::BitMask::DwordExceptBits0Through3;
         return HeapAlloc(gRuntimeHeap, 0, allocationBytes);
     }
 
@@ -3974,7 +3975,7 @@ namespace NXBasics
         state = state * 0x343FDu + 0x269EC3u;
         std::memcpy(threadBytes + 0x14, &state, sizeof(state));
 
-        return static_cast<std::int32_t>((state >> 16) & 0x7FFFu);
+        return static_cast<std::int32_t>((state >> 16) & ReadableValues::IntegerRange::Int16Maximum);
     }
 
     // Original function: FUN_004e89e4
@@ -3994,7 +3995,7 @@ namespace NXBasics
     // Original function: FUN_004e8c4a
     std::int32_t Runtime_CloseStream(RuntimeFormatStream* stream)
     {
-        if ((stream->flags & 0x40u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit6) != 0)
         {
             stream->flags = 0;
             return -1;
@@ -4012,7 +4013,7 @@ namespace NXBasics
     {
         std::int32_t result = -1;
 
-        if ((stream->flags & 0x83u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0)
         {
             result = Runtime_FlushStreamBuffer(stream);
             Runtime_FreeStreamBuffer(stream);
@@ -4051,7 +4052,7 @@ namespace NXBasics
         if (Runtime_FlushStreamBuffer(stream) != 0)
             return -1;
 
-        if ((stream->flags & 0x4000u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit14) != 0)
             return Runtime_CommitDescriptor(stream->descriptor) != 0 ? -1 : 0;
 
         return 0;
@@ -4062,7 +4063,7 @@ namespace NXBasics
     {
         std::int32_t result = 0;
 
-        if ((stream->flags & 3u) == 2u && (stream->flags & 0x108u) != 0)
+        if ((stream->flags & 3u) == 2u && (stream->flags & ReadableValues::BitMask::Bit3AndBit8) != 0)
         {
             const std::uint32_t position = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position));
             const std::uint32_t buffer = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->buffer));
@@ -4072,12 +4073,12 @@ namespace NXBasics
             {
                 if (Runtime_Write(stream->descriptor, stream->buffer, static_cast<std::uint32_t>(byteCount)) == byteCount)
                 {
-                    if ((stream->flags & 0x80u) != 0)
+                    if ((stream->flags & ReadableValues::BitMask::Bit7) != 0)
                         stream->flags &= ~0x02u;
                 }
                 else
                 {
-                    stream->flags |= 0x20u;
+                    stream->flags |= ReadableValues::BitMask::Bit5;
                     result = -1;
                 }
             }
@@ -4106,21 +4107,21 @@ namespace NXBasics
         {
             RuntimeFormatStream* stream = gRuntimeStreamTable[index];
 
-            if (stream == nullptr || (stream->flags & 0x83u) == 0)
+            if (stream == nullptr || (stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) == 0)
                 continue;
 
             Runtime_LockStreamIndex(index, stream);
 
             stream = gRuntimeStreamTable[index];
 
-            if ((stream->flags & 0x83u) != 0)
+            if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0)
             {
                 if (mode == 1)
                 {
                     if (Runtime_FlushStreamNoLock(stream) != -1)
                         ++flushedCount;
                 }
-                else if (mode == 0 && (stream->flags & 0x02u) != 0)
+                else if (mode == 0 && (stream->flags & ReadableValues::BitMask::Bit1) != 0)
                 {
                     if (Runtime_FlushStreamNoLock(stream) == -1)
                         result = -1;
@@ -4375,11 +4376,11 @@ namespace NXBasics
 
         auto* output = static_cast<unsigned char*>(destination);
         std::uint32_t remaining = totalBytes;
-        std::uint32_t blockSize = (stream->flags & 0x10Cu) != 0 ? stream->bufferSize : 0x1000u;
+        std::uint32_t blockSize = (stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) != 0 ? stream->bufferSize : 0x1000u;
 
         while (remaining != 0)
         {
-            if ((stream->flags & 0x10Cu) != 0 && stream->remainingBytes != 0)
+            if ((stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) != 0 && stream->remainingBytes != 0)
             {
                 const std::uint32_t copiedBytes = remaining < stream->remainingBytes ? remaining : stream->remainingBytes;
 
@@ -4397,13 +4398,13 @@ namespace NXBasics
 
                 if (readResult == 0)
                 {
-                    stream->flags |= 0x10u;
+                    stream->flags |= ReadableValues::BitMask::Bit4;
                     return (totalBytes - remaining) / elementSize;
                 }
 
                 if (readResult == -1)
                 {
-                    stream->flags |= 0x20u;
+                    stream->flags |= ReadableValues::BitMask::Bit5;
                     return (totalBytes - remaining) / elementSize;
                 }
 
@@ -4445,7 +4446,7 @@ namespace NXBasics
     // Original function: FUN_004e9240
     std::int32_t Runtime_SeekStreamNoLock(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin)
     {
-        if ((stream->flags & 0x83u) == 0 || origin > 2u)
+        if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) == 0 || origin > 2u)
         {
             *Runtime_GetErrnoPointer() = 22;
             return -1;
@@ -4465,16 +4466,16 @@ namespace NXBasics
         // The original implementation ignores the flush result.
         Runtime_FlushStreamBuffer(stream);
 
-        if ((stream->flags & 0x80u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit7) != 0)
         {
             stream->flags &= ~3u;
         }
-        else if ((stream->flags & 1u) != 0 && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+        else if ((stream->flags & 1u) != 0 && (stream->flags & 8u) != 0 && (stream->flags & ReadableValues::BitMask::Bit10) == 0)
         {
             stream->bufferSize = 0x200u;
         }
 
-        return Runtime_Seek(stream->descriptor, offset, origin) == 0xFFFFFFFFu ? -1 : 0;
+        return Runtime_Seek(stream->descriptor, offset, origin) == ReadableValues::IntegerRange::UInt32Maximum ? -1 : 0;
     }
 
     // Original function: FUN_004e92cd
@@ -4522,11 +4523,11 @@ namespace NXBasics
 
         const auto* source = static_cast<const unsigned char*>(data);
         std::uint32_t remaining = totalBytes;
-        std::uint32_t blockSize = (stream->flags & 0x10Cu) != 0 ? stream->bufferSize : 0x1000u;
+        std::uint32_t blockSize = (stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) != 0 ? stream->bufferSize : 0x1000u;
 
         while (remaining != 0)
         {
-            const bool hasBuffer = (stream->flags & 0x108u) != 0;
+            const bool hasBuffer = (stream->flags & ReadableValues::BitMask::Bit3AndBit8) != 0;
 
             if (hasBuffer && stream->remainingBytes != 0)
             {
@@ -4549,7 +4550,7 @@ namespace NXBasics
 
                 if (writeResult == -1)
                 {
-                    stream->flags |= 0x20u;
+                    stream->flags |= ReadableValues::BitMask::Bit5;
                     return (totalBytes - remaining) / elementSize;
                 }
 
@@ -4560,7 +4561,7 @@ namespace NXBasics
 
                 if (writtenBytes < requestedBytes)
                 {
-                    stream->flags |= 0x20u;
+                    stream->flags |= ReadableValues::BitMask::Bit5;
                     return (totalBytes - remaining) / elementSize;
                 }
             }
@@ -4569,7 +4570,7 @@ namespace NXBasics
                 // The original call sign-extends the source byte.
                 const std::int32_t character = *source < 0x80u ? static_cast<std::int32_t>(*source) : static_cast<std::int32_t>(*source) - 0x100;
 
-                if (Runtime_FlushAndWriteCharacter(static_cast<std::uint32_t>(character), stream) == 0xFFFFFFFFu)
+                if (Runtime_FlushAndWriteCharacter(static_cast<std::uint32_t>(character), stream) == ReadableValues::IntegerRange::UInt32Maximum)
                     return (totalBytes - remaining) / elementSize;
 
                 ++source;
@@ -4635,7 +4636,7 @@ namespace NXBasics
         if (Runtime_TimeSigned32(filePosition) < 0)
             return -1;
 
-        if ((stream->flags & 0x108u) == 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit3AndBit8) == 0)
             return Runtime_TimeSigned32(filePosition - stream->remainingBytes);
 
         const std::uint32_t bufferOffset = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position) - reinterpret_cast<std::uintptr_t>(stream->buffer));
@@ -4644,9 +4645,9 @@ namespace NXBasics
         if ((stream->flags & 3u) != 0)
         {
             const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
-            const RuntimeDescriptorRecord& record = block[descriptor & 0x1Fu];
+            const RuntimeDescriptorRecord& record = block[descriptor & ReadableValues::BitMask::Low5Bits];
 
-            if ((record.flags & 0x80u) != 0)
+            if ((record.flags & ReadableValues::BitMask::Bit7) != 0)
             {
                 for (const char* current = stream->buffer; current < stream->position; ++current)
                 {
@@ -4655,7 +4656,7 @@ namespace NXBasics
                 }
             }
         }
-        else if ((stream->flags & 0x80u) == 0)
+        else if ((stream->flags & ReadableValues::BitMask::Bit7) == 0)
         {
             *Runtime_GetErrnoPointer() = 22;
             return -1;
@@ -4674,9 +4675,9 @@ namespace NXBasics
             {
                 std::uint32_t bufferedBytes = bufferOffset + stream->remainingBytes;
                 const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
-                const RuntimeDescriptorRecord& record = block[descriptor & 0x1Fu];
+                const RuntimeDescriptorRecord& record = block[descriptor & ReadableValues::BitMask::Low5Bits];
 
-                if ((record.flags & 0x80u) != 0)
+                if ((record.flags & ReadableValues::BitMask::Bit7) != 0)
                 {
                     const std::uint32_t endPosition = Runtime_Seek(descriptor, 0, 2);
 
@@ -4690,21 +4691,21 @@ namespace NXBasics
                                 ++bufferedBytes;
                         }
 
-                        if ((stream->flags & 0x2000u) != 0)
+                        if ((stream->flags & ReadableValues::BitMask::Bit13) != 0)
                             ++bufferedBytes;
                     }
                     else
                     {
                         Runtime_Seek(descriptor, Runtime_TimeSigned32(filePosition), 0);
 
-                        if (bufferedBytes <= 0x200u && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+                        if (bufferedBytes <= 0x200u && (stream->flags & 8u) != 0 && (stream->flags & ReadableValues::BitMask::Bit10) == 0)
                             bufferedBytes = 0x200u;
                         else
                             bufferedBytes = stream->bufferSize;
 
                         const auto* currentBlock = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
 
-                        if ((currentBlock[descriptor & 0x1Fu].flags & 4u) != 0)
+                        if ((currentBlock[descriptor & ReadableValues::BitMask::Low5Bits].flags & 4u) != 0)
                             ++bufferedBytes;
                     }
                 }
@@ -4778,7 +4779,7 @@ namespace NXBasics
         stream->remainingBytes = 0;
         stream->position = nullptr;
         stream->buffer = nullptr;
-        stream->flags = gRuntimeDefaultStreamFlags | 0x80u;
+        stream->flags = gRuntimeDefaultStreamFlags | ReadableValues::BitMask::Bit7;
         stream->descriptor = static_cast<std::uint32_t>(descriptor);
 
         Runtime_UnlockStream(stream);
@@ -4817,7 +4818,7 @@ namespace NXBasics
 
         const std::uint32_t nextValue = Runtime_StringToUnsignedLong(suffix, nullptr, 32) + 1u;
 
-        if (nextValue >= 0x7FFFu)
+        if (nextValue >= ReadableValues::IntegerRange::Int16Maximum)
         {
             return -1;
         }
@@ -4835,36 +4836,36 @@ namespace NXBasics
     {
         const std::uint32_t initialFlags = stream->flags;
 
-        if ((initialFlags & 0x82u) == 0 || (initialFlags & 0x40u) != 0)
+        if ((initialFlags & ReadableValues::BitMask::Bit1AndBit7) == 0 || (initialFlags & ReadableValues::BitMask::Bit6) != 0)
         {
-            stream->flags = initialFlags | 0x20u;
-            return UINT32_C(0xFFFFFFFF);
+            stream->flags = initialFlags | ReadableValues::BitMask::Bit5;
+            return ReadableValues::IntegerRange::UInt32Maximum;
         }
 
         // Read only after rejecting string streams, whose descriptor
         // is not initialized by Runtime_FormatString.
         const std::uint32_t descriptor = stream->descriptor;
 
-        if ((initialFlags & 0x01u) != 0)
+        if ((initialFlags & 1u) != 0)
         {
             stream->remainingBytes = 0;
 
-            if ((initialFlags & 0x10u) == 0)
+            if ((initialFlags & ReadableValues::BitMask::Bit4) == 0)
             {
-                stream->flags = initialFlags | 0x20u;
-                return UINT32_C(0xFFFFFFFF);
+                stream->flags = initialFlags | ReadableValues::BitMask::Bit5;
+                return ReadableValues::IntegerRange::UInt32Maximum;
             }
 
             stream->position = stream->buffer;
-            stream->flags = initialFlags & ~UINT32_C(0x01);
+            stream->flags = initialFlags & ~1u;
         }
 
         stream->remainingBytes = 0;
         std::uint32_t writtenBytes = 0;
 
-        stream->flags = (stream->flags & ~UINT32_C(0x10)) | 0x02u;
+        stream->flags = (stream->flags & ~UINT32_C(0x10)) | ReadableValues::BitMask::Bit1;
 
-        if ((stream->flags & 0x10Cu) == 0)
+        if ((stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) == 0)
         {
             bool allocateBuffer = true;
 
@@ -4884,7 +4885,7 @@ namespace NXBasics
 
         std::uint32_t expectedBytes;
 
-        if ((stream->flags & 0x108u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit3AndBit8) != 0)
         {
             char* buffer = stream->buffer;
 
@@ -4895,7 +4896,7 @@ namespace NXBasics
             stream->remainingBytes = stream->bufferSize - std::uint32_t{ 1 };
 
             // Preserve the signed comparison performed by TEST/JLE.
-            if (bufferedBytes != 0 && (bufferedBytes & UINT32_C(0x80000000)) == 0)
+            if (bufferedBytes != 0 && (bufferedBytes & ReadableValues::IntegerRange::Bit31) == 0)
             {
                 writtenBytes = static_cast<std::uint32_t>(Runtime_Write(descriptor, buffer, bufferedBytes));
             }
@@ -4903,7 +4904,7 @@ namespace NXBasics
             {
                 const std::uint8_t* descriptorRecord;
 
-                if (descriptor == UINT32_C(0xFFFFFFFF))
+                if (descriptor == ReadableValues::IntegerRange::UInt32Maximum)
                 {
                     descriptorRecord = reinterpret_cast<const std::uint8_t*>(&gRuntimeInvalidDescriptorRecord);
                 }
@@ -4919,10 +4920,10 @@ namespace NXBasics
                     const std::uint8_t* block;
                     std::memcpy(&block, descriptorBlocks + blockIndex * 4, sizeof(block));
 
-                    descriptorRecord = block + (descriptor & 0x1Fu) * 0x24u;
+                    descriptorRecord = block + (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
                 }
 
-                if ((descriptorRecord[0x04] & 0x20u) != 0)
+                if ((descriptorRecord[0x04] & ReadableValues::BitMask::Bit5) != 0)
                 {
                     Runtime_Seek(descriptor, 0, 2);
                 }
@@ -4939,11 +4940,11 @@ namespace NXBasics
 
         if (writtenBytes != expectedBytes)
         {
-            stream->flags |= 0x20u;
-            return UINT32_C(0xFFFFFFFF);
+            stream->flags |= ReadableValues::BitMask::Bit5;
+            return ReadableValues::IntegerRange::UInt32Maximum;
         }
 
-        return character & 0xFFu;
+        return character & ReadableValues::IntegerRange::UInt8Maximum;
     }
 
     // Original function: FUN_004e988a
@@ -4970,7 +4971,7 @@ namespace NXBasics
 
         std::uint32_t flags = 0;
         std::uint32_t width = 0;
-        std::uint32_t precision = UINT32_C(0xFFFFFFFF);
+        std::uint32_t precision = ReadableValues::IntegerRange::UInt32Maximum;
         std::uint32_t prefixLength = 0;
         std::uint32_t textLength = 0;
 
@@ -4992,7 +4993,7 @@ namespace NXBasics
 
             const auto* classification = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 
-            if ((classification[static_cast<std::uint32_t>(character) * 2u + 1u] & 0x80u) != 0)
+            if ((classification[static_cast<std::uint32_t>(character) * 2u + 1u] & ReadableValues::BitMask::Bit7) != 0)
             {
                 Runtime_FormatWriteCharacter(static_cast<std::uint32_t>(signedCharacter(character)), stream, &writtenCharacters);
                 character = static_cast<std::uint8_t>(*formatPosition++);
@@ -5012,7 +5013,7 @@ namespace NXBasics
 
             if (character >= 0x20 && character <= 0x78)
             {
-                characterClass = gRuntimeFormatTable[character - 0x20] & 0x0Fu;
+                characterClass = gRuntimeFormatTable[character - 0x20] & ReadableValues::BitMask::Low4Bits;
             }
 
             state = gRuntimeFormatTable[characterClass * 8u + state] >> 4;
@@ -5024,7 +5025,7 @@ namespace NXBasics
                     break;
 
                 case SwitchIds::PrintFormatState::BeginConversion:
-                    precision = UINT32_C(0xFFFFFFFF);
+                    precision = ReadableValues::IntegerRange::UInt32Maximum;
                     uppercaseFloat = 0;
                     suppressOutput = false;
                     width = 0;
@@ -5037,23 +5038,23 @@ namespace NXBasics
                     switch (character)
                     {
                         case ' ':
-                            flags |= 0x02u;
+                            flags |= ReadableValues::BitMask::Bit1;
                             break;
 
                         case '#':
-                            flags |= 0x80u;
+                            flags |= ReadableValues::BitMask::Bit7;
                             break;
 
                         case '+':
-                            flags |= 0x01u;
+                            flags |= 1u;
                             break;
 
                         case '-':
-                            flags |= 0x04u;
+                            flags |= ReadableValues::BitMask::Bit2;
                             break;
 
                         case '0':
-                            flags |= 0x08u;
+                            flags |= ReadableValues::BitMask::Bit3;
                             break;
                     }
                     break;
@@ -5065,7 +5066,7 @@ namespace NXBasics
 
                         if (asSigned(width) < 0)
                         {
-                            flags |= 0x04u;
+                            flags |= ReadableValues::BitMask::Bit2;
                             width = std::uint32_t{ 0 } - width;
                         }
                     }
@@ -5086,7 +5087,7 @@ namespace NXBasics
 
                         if (asSigned(precision) < 0)
                         {
-                            precision = UINT32_C(0xFFFFFFFF);
+                            precision = ReadableValues::IntegerRange::UInt32Maximum;
                         }
                     }
                     else
@@ -5099,22 +5100,22 @@ namespace NXBasics
                     switch (character)
                     {
                         case 'h':
-                            flags |= 0x20u;
+                            flags |= ReadableValues::BitMask::Bit5;
                             break;
 
                         case 'l':
-                            flags |= 0x10u;
+                            flags |= ReadableValues::BitMask::Bit4;
                             break;
 
                         case 'w':
-                            flags |= 0x800u;
+                            flags |= ReadableValues::BitMask::Bit11;
                             break;
 
                         case 'I':
                             if (formatPosition[0] == '6' && formatPosition[1] == '4')
                             {
                                 formatPosition += 2;
-                                flags |= 0x8000u;
+                                flags |= ReadableValues::BitMask::Bit15;
                             }
                             else
                             {
@@ -5132,22 +5133,22 @@ namespace NXBasics
                             case 'S':
                             case 's':
                                 {
-                                    if (character == 'S' && (flags & 0x830u) == 0)
+                                    if (character == 'S' && (flags & ReadableValues::BitMask::Bits4Through5AndBit11) == 0)
                                     {
-                                        flags |= 0x800u;
+                                        flags |= ReadableValues::BitMask::Bit11;
                                     }
 
                                     std::uint32_t limit = precision;
 
-                                    if (limit == UINT32_C(0xFFFFFFFF))
+                                    if (limit == ReadableValues::IntegerRange::UInt32Maximum)
                                     {
-                                        limit = 0x7FFFFFFFu;
+                                        limit = ReadableValues::IntegerRange::Int32Maximum;
                                     }
 
                                     const std::uint32_t pointerBits = Runtime_FormatReadArgument32(&argumentCursor);
                                     text = reinterpret_cast<const char*>(static_cast<std::uintptr_t>(pointerBits));
 
-                                    if ((flags & 0x810u) != 0)
+                                    if ((flags & ReadableValues::BitMask::Bit4AndBit11) != 0)
                                     {
                                         if (text == nullptr)
                                         {
@@ -5203,12 +5204,12 @@ namespace NXBasics
                             case 'C':
                             case 'c':
                                 {
-                                    if (character == 'C' && (flags & 0x830u) == 0)
+                                    if (character == 'C' && (flags & ReadableValues::BitMask::Bits4Through5AndBit11) == 0)
                                     {
-                                        flags |= 0x800u;
+                                        flags |= ReadableValues::BitMask::Bit11;
                                     }
 
-                                    if ((flags & 0x810u) != 0)
+                                    if ((flags & ReadableValues::BitMask::Bit4AndBit11) != 0)
                                     {
                                         const std::uint32_t value = Runtime_FormatReadArgument16(&argumentCursor);
                                         const std::int32_t convertedLength = Runtime_WideCharacterToMultibyte(scratch, value);
@@ -5259,7 +5260,7 @@ namespace NXBasics
 
                                         text = stringBuffer;
 
-                                        if ((flags & 0x800u) != 0)
+                                        if ((flags & ReadableValues::BitMask::Bit11) != 0)
                                         {
                                             textLength = lengthBits >> 1;
                                             wideText = true;
@@ -5285,7 +5286,7 @@ namespace NXBasics
                                         character += 0x20;
                                     }
 
-                                    flags |= 0x40u;
+                                    flags |= ReadableValues::BitMask::Bit6;
                                     text = scratch;
 
                                     if (asSigned(precision) < 0)
@@ -5309,7 +5310,7 @@ namespace NXBasics
 
                                     convertFloat(&value, scratch, signedCharacter(character), asSigned(precision), uppercaseFloat);
 
-                                    if ((flags & 0x80u) != 0 && precision == 0)
+                                    if ((flags & ReadableValues::BitMask::Bit7) != 0 && precision == 0)
                                     {
                                         FloatAdjustment adjustDecimalPoint;
                                         std::memcpy(&adjustDecimalPoint, &gRuntimeFloatInsertDecimalPointCallback, sizeof(adjustDecimalPoint));
@@ -5317,7 +5318,7 @@ namespace NXBasics
                                         adjustDecimalPoint(scratch);
                                     }
 
-                                    if (character == 'g' && (flags & 0x80u) == 0)
+                                    if (character == 'g' && (flags & ReadableValues::BitMask::Bit7) == 0)
                                     {
                                         FloatAdjustment adjustGeneralFormat;
                                         std::memcpy(&adjustGeneralFormat, &gRuntimeFloatTrimTrailingZerosCallback, sizeof(adjustGeneralFormat));
@@ -5327,7 +5328,7 @@ namespace NXBasics
 
                                     if (scratch[0] == '-')
                                     {
-                                        flags |= 0x100u;
+                                        flags |= ReadableValues::BitMask::Bit8;
                                         text = scratch + 1;
                                     }
 
@@ -5340,7 +5341,7 @@ namespace NXBasics
                                     const std::uint32_t pointerBits = Runtime_FormatReadArgument32(&argumentCursor);
                                     void* destination = reinterpret_cast<void*>(static_cast<std::uintptr_t>(pointerBits));
 
-                                    if ((flags & 0x20u) != 0)
+                                    if ((flags & ReadableValues::BitMask::Bit5) != 0)
                                     {
                                         const std::uint16_t count = static_cast<std::uint16_t>(writtenCharacters);
                                         std::memcpy(destination, &count, sizeof(count));
@@ -5367,15 +5368,15 @@ namespace NXBasics
 
                                     if (character == 'd' || character == 'i')
                                     {
-                                        flags |= 0x40u;
+                                        flags |= ReadableValues::BitMask::Bit6;
                                     }
                                     else if (character == 'o')
                                     {
                                         radix = 8;
 
-                                        if ((flags & 0x80u) != 0)
+                                        if ((flags & ReadableValues::BitMask::Bit7) != 0)
                                         {
-                                            flags |= 0x200u;
+                                            flags |= ReadableValues::BitMask::Bit9Unsigned;
                                         }
                                     }
                                     else if (character == 'p' || character == 'x' || character == 'X')
@@ -5388,7 +5389,7 @@ namespace NXBasics
                                         radix = 16;
                                         digitOffset = character == 'x' ? 0x27u : 0x07u;
 
-                                        if ((flags & 0x80u) != 0)
+                                        if ((flags & ReadableValues::BitMask::Bit7) != 0)
                                         {
                                             prefix[0] = '0';
                                             prefix[1] = static_cast<char>(digitOffset + 0x51u);
@@ -5398,7 +5399,7 @@ namespace NXBasics
 
                                     std::uint64_t value;
 
-                                    if ((flags & 0x8000u) != 0)
+                                    if ((flags & ReadableValues::BitMask::Bit15) != 0)
                                     {
                                         value = Runtime_FormatReadArgument64(&argumentCursor);
                                     }
@@ -5406,11 +5407,11 @@ namespace NXBasics
                                     {
                                         const std::uint32_t argumentBits = Runtime_FormatReadArgument32(&argumentCursor);
 
-                                        if ((flags & 0x20u) != 0)
+                                        if ((flags & ReadableValues::BitMask::Bit5) != 0)
                                         {
                                             const std::uint16_t lowWord = static_cast<std::uint16_t>(argumentBits);
 
-                                            if ((flags & 0x40u) != 0)
+                                            if ((flags & ReadableValues::BitMask::Bit6) != 0)
                                             {
                                                 std::int16_t signedWord;
                                                 std::memcpy(&signedWord, &lowWord, sizeof(signedWord));
@@ -5422,7 +5423,7 @@ namespace NXBasics
                                                 value = lowWord;
                                             }
                                         }
-                                        else if ((flags & 0x40u) != 0)
+                                        else if ((flags & ReadableValues::BitMask::Bit6) != 0)
                                         {
                                             value = static_cast<std::uint64_t>(static_cast<std::int64_t>(asSigned(argumentBits)));
                                         }
@@ -5432,15 +5433,15 @@ namespace NXBasics
                                         }
                                     }
 
-                                    if ((flags & 0x40u) != 0 && (value & UINT64_C(0x8000000000000000)) != 0)
+                                    if ((flags & ReadableValues::BitMask::Bit6) != 0 && (value & ReadableValues::BitMask::Bit63) != 0)
                                     {
                                         value = std::uint64_t{ 0 } - value;
-                                        flags |= 0x100u;
+                                        flags |= ReadableValues::BitMask::Bit8;
                                     }
 
-                                    if ((flags & 0x8000u) == 0)
+                                    if ((flags & ReadableValues::BitMask::Bit15) == 0)
                                     {
-                                        value &= UINT64_C(0xFFFFFFFF);
+                                        value &= ReadableValues::IntegerRange::UInt32MaximumUnsignedLongLong;
                                     }
 
                                     if (asSigned(precision) < 0)
@@ -5483,7 +5484,7 @@ namespace NXBasics
                                     textLength = static_cast<std::uint32_t>((scratch + sizeof(scratch) - 1) - digitPosition);
                                     text = digitPosition + 1;
 
-                                    if ((flags & 0x200u) != 0 && (textLength == 0 || *text != '0'))
+                                    if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0 && (textLength == 0 || *text != '0'))
                                     {
                                         *digitPosition = '0';
                                         text = digitPosition;
@@ -5503,19 +5504,19 @@ namespace NXBasics
                             break;
                         }
 
-                        if ((flags & 0x40u) != 0)
+                        if ((flags & ReadableValues::BitMask::Bit6) != 0)
                         {
-                            if ((flags & 0x100u) != 0)
+                            if ((flags & ReadableValues::BitMask::Bit8) != 0)
                             {
                                 prefix[0] = '-';
                                 prefixLength = 1;
                             }
-                            else if ((flags & 0x01u) != 0)
+                            else if ((flags & 1u) != 0)
                             {
                                 prefix[0] = '+';
                                 prefixLength = 1;
                             }
-                            else if ((flags & 0x02u) != 0)
+                            else if ((flags & ReadableValues::BitMask::Bit1) != 0)
                             {
                                 prefix[0] = ' ';
                                 prefixLength = 1;
@@ -5525,14 +5526,14 @@ namespace NXBasics
                         const std::uint32_t paddingBits = width - prefixLength - textLength;
                         const std::int32_t padding = asSigned(paddingBits);
 
-                        if ((flags & 0x0Cu) == 0)
+                        if ((flags & ReadableValues::BitMask::Bits2Through3) == 0)
                         {
                             Runtime_FormatWriteRepeated(' ', padding, stream, &writtenCharacters);
                         }
 
                         Runtime_FormatWriteText(prefix, asSigned(prefixLength), stream, &writtenCharacters);
 
-                        if ((flags & 0x08u) != 0 && (flags & 0x04u) == 0)
+                        if ((flags & ReadableValues::BitMask::Bit3) != 0 && (flags & ReadableValues::BitMask::Bit2) == 0)
                         {
                             Runtime_FormatWriteRepeated('0', padding, stream, &writtenCharacters);
                         }
@@ -5565,7 +5566,7 @@ namespace NXBasics
                             Runtime_FormatWriteText(text, asSigned(textLength), stream, &writtenCharacters);
                         }
 
-                        if ((flags & 0x04u) != 0)
+                        if ((flags & ReadableValues::BitMask::Bit2) != 0)
                         {
                             Runtime_FormatWriteRepeated(' ', padding, stream, &writtenCharacters);
                         }
@@ -5587,7 +5588,7 @@ namespace NXBasics
 
         std::uint32_t result;
 
-        if ((stream->remainingBytes & UINT32_C(0x80000000)) == 0)
+        if ((stream->remainingBytes & ReadableValues::IntegerRange::Bit31) == 0)
         {
             const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
 
@@ -5601,7 +5602,7 @@ namespace NXBasics
             result = Runtime_FlushAndWriteCharacter(character, stream);
         }
 
-        if (result == UINT32_C(0xFFFFFFFF))
+        if (result == ReadableValues::IntegerRange::UInt32Maximum)
         {
             *writtenCharacters = -1;
             return;
@@ -5686,7 +5687,7 @@ namespace NXBasics
         std::memcpy(&value, *arguments - 4, sizeof(value));
 
         // MOV AX preserves the upper half of the advanced argument address.
-        return (advancedAddress & UINT32_C(0xFFFF0000)) | static_cast<std::uint32_t>(value);
+        return (advancedAddress & ReadableValues::BitMask::DwordExceptBits0Through15) | static_cast<std::uint32_t>(value);
     }
 
     // Original function: FUN_004ea094
@@ -5710,7 +5711,7 @@ namespace NXBasics
         char source[3];
         std::int32_t sourceLength;
 
-        if ((characterTypes[static_cast<std::uint32_t>(highByte) * 2u + 1u] & 0x80u) != 0)
+        if ((characterTypes[static_cast<std::uint32_t>(highByte) * 2u + 1u] & ReadableValues::BitMask::Bit7) != 0)
         {
             source[0] = static_cast<char>(highByte);
             source[1] = static_cast<char>(lowByte);
@@ -6098,7 +6099,7 @@ namespace NXBasics
         Runtime_Lock(0x12);
 
         auto* descriptorBlocks = reinterpret_cast<std::uint8_t*>(&gRuntimeDescriptorBlocks);
-        std::uint32_t result = 0xFFFFFFFFu;
+        std::uint32_t result = ReadableValues::IntegerRange::UInt32Maximum;
 
         const auto readBlock = [descriptorBlocks] (std::uint32_t index) -> std::uint8_t*
         {
@@ -6113,7 +6114,7 @@ namespace NXBasics
 
             if (block == nullptr)
             {
-                block = static_cast<std::uint8_t*>(Runtime_Allocate(0x480));
+                block = static_cast<std::uint8_t*>(Runtime_Allocate(1152));
 
                 if (block == nullptr)
                     break;
@@ -6125,7 +6126,7 @@ namespace NXBasics
 
                 std::memcpy(descriptorBlocks + blockIndex * 4u, &block, sizeof(block));
 
-                const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+                const std::uint32_t invalidHandle = ReadableValues::IntegerRange::UInt32Maximum;
                 const std::uint32_t uninitialized = 0;
 
                 for (std::uint32_t index = 0; index < 32u; ++index)
@@ -6147,7 +6148,7 @@ namespace NXBasics
 
             while (entry < readBlock(blockIndex) + 0x480u)
             {
-                if ((entry[0x04] & 0x01u) == 0)
+                if ((entry[0x04] & 1u) == 0)
                 {
                     auto* initialized = reinterpret_cast<volatile std::uint32_t*>(entry + 0x08);
                     auto* criticalSection = reinterpret_cast<CRITICAL_SECTION*>(entry + 0x0C);
@@ -6168,9 +6169,9 @@ namespace NXBasics
                     ::EnterCriticalSection(criticalSection);
 
                     // Another thread may have opened the descriptor before this lock was acquired.
-                    if ((entry[0x04] & 0x01u) == 0)
+                    if ((entry[0x04] & 1u) == 0)
                     {
-                        const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+                        const std::uint32_t invalidHandle = ReadableValues::IntegerRange::UInt32Maximum;
                         std::memcpy(entry, &invalidHandle, sizeof(invalidHandle));
 
                         const std::ptrdiff_t entryIndex = (entry - readBlock(blockIndex)) / 0x24;
@@ -6184,7 +6185,7 @@ namespace NXBasics
                 entry += 0x24;
             }
 
-            if (result != 0xFFFFFFFFu)
+            if (result != ReadableValues::IntegerRange::UInt32Maximum)
                 break;
         }
 
@@ -6203,7 +6204,7 @@ namespace NXBasics
 
             const std::int32_t blockIndex = signedDescriptor >> 5;
             const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
-            const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+            const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
 
             std::uint8_t* block;
             std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
@@ -6211,7 +6212,7 @@ namespace NXBasics
             std::uint32_t previousHandle;
             std::memcpy(&previousHandle, block + entryOffset, sizeof(previousHandle));
 
-            if (previousHandle == 0xFFFFFFFFu)
+            if (previousHandle == ReadableValues::IntegerRange::UInt32Maximum)
             {
                 if (gRuntimeApplicationType == 1)
                 {
@@ -6253,12 +6254,12 @@ namespace NXBasics
             const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
             auto* block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
 
-            if ((block[entryOffset + 4u] & 0x01u) != 0)
+            if ((block[entryOffset + 4u] & 1u) != 0)
             {
                 std::uint32_t handleValue;
                 std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
 
-                if (handleValue != 0xFFFFFFFFu)
+                if (handleValue != ReadableValues::IntegerRange::UInt32Maximum)
                 {
                     if (gRuntimeApplicationType == 1)
                     {
@@ -6282,7 +6283,7 @@ namespace NXBasics
                     // Reload the block pointer after the possible Windows call.
                     block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
 
-                    const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+                    const std::uint32_t invalidHandle = ReadableValues::IntegerRange::UInt32Maximum;
                     std::memcpy(block + entryOffset, &invalidHandle, sizeof(invalidHandle));
                     return 0;
                 }
@@ -6302,7 +6303,7 @@ namespace NXBasics
             const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
             const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
 
-            if ((block[entryOffset + 4u] & 0x01u) != 0)
+            if ((block[entryOffset + 4u] & 1u) != 0)
             {
                 std::uint32_t handleValue;
                 std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
@@ -6312,7 +6313,7 @@ namespace NXBasics
 
         *Runtime_GetErrnoPointer() = 9;
         *Runtime_GetDosErrnoPointer() = 0;
-        return 0xFFFFFFFFu;
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004ea8a6
@@ -6363,7 +6364,7 @@ namespace NXBasics
     // Original function: FUN_004ea927
     void Runtime_InitializeDescriptors()
     {
-        auto* firstBlock = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(0x480u));
+        auto* firstBlock = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(1152u));
 
         if (firstBlock == nullptr)
             Runtime_FatalExit(0x1B);
@@ -6373,7 +6374,7 @@ namespace NXBasics
 
         for (std::uint32_t index = 0; index < 32u; ++index)
         {
-            firstBlock[index].osHandle = 0xFFFFFFFFu;
+            firstBlock[index].osHandle = ReadableValues::IntegerRange::UInt32Maximum;
             firstBlock[index].flags = 0;
             firstBlock[index].lookaheadCharacter = '\n';
             firstBlock[index].lockInitialized = 0;
@@ -6400,7 +6401,7 @@ namespace NXBasics
 
             while (static_cast<std::int32_t>(gRuntimeDescriptorCapacity) < inheritedCount)
             {
-                auto* block = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(0x480u));
+                auto* block = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(1152u));
 
                 if (block == nullptr)
                 {
@@ -6413,7 +6414,7 @@ namespace NXBasics
 
                 for (std::uint32_t index = 0; index < 32u; ++index)
                 {
-                    block[index].osHandle = 0xFFFFFFFFu;
+                    block[index].osHandle = ReadableValues::IntegerRange::UInt32Maximum;
                     block[index].flags = 0;
                     block[index].lookaheadCharacter = '\n';
                     block[index].lockInitialized = 0;
@@ -6429,11 +6430,11 @@ namespace NXBasics
 
                 const std::uint8_t flags = inheritedFlags[descriptor];
 
-                if (handleBits == 0xFFFFFFFFu || (flags & 0x01u) == 0)
+                if (handleBits == ReadableValues::IntegerRange::UInt32Maximum || (flags & 1u) == 0)
                     continue;
 
                 // Inherited pipe handles bypass GetFileType in the original.
-                if ((flags & 0x08u) == 0)
+                if ((flags & ReadableValues::BitMask::Bit3) == 0)
                 {
                     HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleBits));
 
@@ -6455,10 +6456,10 @@ namespace NXBasics
             auto* block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[0]);
             RuntimeDescriptorRecord& entry = block[descriptor];
 
-            if (entry.osHandle != 0xFFFFFFFFu)
+            if (entry.osHandle != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 // Standard descriptors always use text mode after startup.
-                entry.flags |= 0x80u;
+                entry.flags |= ReadableValues::BitMask::Bit7;
                 continue;
             }
 
@@ -6477,7 +6478,7 @@ namespace NXBasics
 
             if (handle == INVALID_HANDLE_VALUE)
             {
-                entry.flags |= 0x40u;
+                entry.flags |= ReadableValues::BitMask::Bit6;
                 continue;
             }
 
@@ -6486,20 +6487,20 @@ namespace NXBasics
             if (fileType == FILE_TYPE_UNKNOWN)
             {
                 // Preserve the invalid stored handle and mark it as a device.
-                entry.flags |= 0x40u;
+                entry.flags |= ReadableValues::BitMask::Bit6;
                 continue;
             }
 
             entry.osHandle = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(handle));
 
-            switch (fileType & 0xFFu)
+            switch (fileType & ReadableValues::IntegerRange::UInt8Maximum)
             {
                 case FILE_TYPE_CHAR:
-                    entry.flags |= 0x40u;
+                    entry.flags |= ReadableValues::BitMask::Bit6;
                     break;
 
                 case FILE_TYPE_PIPE:
-                    entry.flags |= 0x08u;
+                    entry.flags |= ReadableValues::BitMask::Bit3;
                     break;
             }
         }
@@ -6814,7 +6815,7 @@ namespace NXBasics
             const std::uint32_t previousYear = yearBits - 1u;
 
             // Reproduce SAR by two without relying on signed right-shift behavior.
-            const std::uint32_t leapYears = (previousYear >> 2u) | ((previousYear & 0x80000000u) != 0u ? 0xC0000000u : 0u);
+            const std::uint32_t leapYears = (previousYear >> 2u) | ((previousYear & ReadableValues::IntegerRange::Bit31) != 0u ? 0xC0000000u : 0u);
             const std::uint32_t weekdayValue = yearBits * 365u + firstDay + leapYears - 0x63DBu;
             const std::int32_t firstWeekDay = Runtime_TimeSigned32(weekdayValue) % 7;
 
@@ -6964,7 +6965,7 @@ namespace NXBasics
         const DWORD threadId = ::GetCurrentThreadId();
         auto* threadBytes = reinterpret_cast<std::uint8_t*>(threadData);
 
-        const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+        const std::uint32_t invalidHandle = ReadableValues::IntegerRange::UInt32Maximum;
         std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
         std::memcpy(threadBytes, &threadId, sizeof(threadId));
 
@@ -7005,7 +7006,7 @@ namespace NXBasics
                 const DWORD threadId = ::GetCurrentThreadId();
                 auto* threadBytes = static_cast<std::uint8_t*>(threadData);
 
-                const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+                const std::uint32_t invalidHandle = ReadableValues::IntegerRange::UInt32Maximum;
                 std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
                 std::memcpy(threadBytes, &threadId, sizeof(threadId));
             }
@@ -7027,12 +7028,12 @@ namespace NXBasics
 
         const std::uint32_t originalPosition = Runtime_SeekNoLock(descriptor, 0, 1);
 
-        if (originalPosition == 0xFFFFFFFFu)
+        if (originalPosition == ReadableValues::IntegerRange::UInt32Maximum)
             return -1;
 
         const std::uint32_t currentSize = Runtime_SeekNoLock(descriptor, 0, 2);
 
-        if (currentSize == 0xFFFFFFFFu)
+        if (currentSize == ReadableValues::IntegerRange::UInt32Maximum)
             return -1;
 
         std::uint32_t remainingBits = newSize - currentSize;
@@ -7040,7 +7041,7 @@ namespace NXBasics
 
         if (asSigned(remainingBits) > 0)
         {
-            std::uint8_t zeros[0x1000];
+            std::uint8_t zeros[4096];
             std::memset(zeros, 0, sizeof(zeros));
 
             const std::int32_t previousMode = Runtime_SetModeNoLock(descriptor, 0x8000);
@@ -7399,7 +7400,7 @@ namespace NXBasics
         if (*slot == nullptr)
         {
             // Keep the original CRT allocation and deallocation pair.
-            auto* candidate = static_cast<CRITICAL_SECTION*>(Runtime_Allocate(0x18));
+            auto* candidate = static_cast<CRITICAL_SECTION*>(Runtime_Allocate(24));
 
             if (candidate == nullptr)
             {
@@ -7628,7 +7629,7 @@ namespace NXBasics
 
         // Preserve the original check: no additional PE signature validation.
         const auto* peHeader = module + peOffset;
-        *version = static_cast<std::uint32_t>(peHeader[0x1A]) | (static_cast<std::uint32_t>(peHeader[0x1B]) << 8);
+        *version = static_cast<std::uint32_t>(peHeader[26]) | (static_cast<std::uint32_t>(peHeader[27]) << 8);
     }
 
     // Original function: FUN_004ec496
@@ -7645,7 +7646,7 @@ namespace NXBasics
             }
         }
 
-        char selection[0x1090];
+        char selection[4240];
 
         if (GetEnvironmentVariableA("__MSVCRT_HEAP_SELECT", selection, sizeof(selection)) != 0)
         {
@@ -7674,7 +7675,7 @@ namespace NXBasics
             }
             else
             {
-                char executablePath[0x104];
+                char executablePath[260];
 
                 GetModuleFileNameA(nullptr, executablePath, sizeof(executablePath));
                 uppercaseAscii(executablePath);
@@ -7712,7 +7713,7 @@ namespace NXBasics
 
         std::uint32_t linkerVersion;
         Runtime_GetExecutableLinkerVersion(&linkerVersion);
-        return (linkerVersion & 0xFFu) >= 6u ? 3 : 2;
+        return (linkerVersion & ReadableValues::IntegerRange::UInt8Maximum) >= 6u ? 3 : 2;
     }
 
     // Original function: FUN_004ec5de
@@ -7869,7 +7870,7 @@ namespace NXBasics
         if (codePage == 0)
             codePage = static_cast<UINT>(gRuntimeCodePage);
 
-        const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 0x01u;
+        const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 1u;
         const int wideSourceLength = ::MultiByteToWideChar(codePage, queryFlags, source, sourceLength, nullptr, 0);
 
         if (wideSourceLength == 0)
@@ -7880,7 +7881,7 @@ namespace NXBasics
         __try
         {
             const std::uint32_t byteCount = static_cast<std::uint32_t>(wideSourceLength) * 2u;
-            const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+            const std::uint32_t allocationSize = (byteCount + 3u) & ReadableValues::BitMask::DwordExceptBits0Through1;
 
             wideSource = static_cast<WCHAR*>(_alloca(allocationSize));
         }
@@ -7893,7 +7894,7 @@ namespace NXBasics
             return 0;
 
         // The actual conversion always uses 0x01.
-        if (::MultiByteToWideChar(codePage, 0x01u, source, sourceLength, wideSource, wideSourceLength) == 0)
+        if (::MultiByteToWideChar(codePage, 1u, source, sourceLength, wideSource, wideSourceLength) == 0)
             return 0;
 
         // Preserve the queried source length rather than using the conversion result.
@@ -7902,7 +7903,7 @@ namespace NXBasics
         if (mappedLength == 0)
             return 0;
 
-        if ((mapFlags & 0x400u) != 0)
+        if ((mapFlags & ReadableValues::BitMask::Bit10) != 0)
         {
             // Sort keys are byte sequences written directly to the caller's buffer.
             if (destinationCapacity == 0)
@@ -7922,7 +7923,7 @@ namespace NXBasics
         __try
         {
             const std::uint32_t byteCount = static_cast<std::uint32_t>(mappedLength) * 2u;
-            const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+            const std::uint32_t allocationSize = (byteCount + 3u) & ReadableValues::BitMask::DwordExceptBits0Through1;
 
             wideDestination = static_cast<WCHAR*>(_alloca(allocationSize));
         }
@@ -8032,12 +8033,12 @@ namespace NXBasics
                         break;
 
                     for (unsigned character = information.LeadByte[pair]; character <= information.LeadByte[pair + 1]; ++character)
-                        gRuntimeMultibyteTypes[character + 1] |= 0x04u;
+                        gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit2;
                 }
 
                 // The original excludes byte values 0 and 255.
                 for (unsigned character = 1; character < 255; ++character)
-                    gRuntimeMultibyteTypes[character + 1] |= 0x08u;
+                    gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit3;
 
                 gRuntimeMultibyteLocale = Runtime_GetMultibyteLocale(codePage);
                 gRuntimeIsMultibyteCodePage = 1;
@@ -8135,14 +8136,14 @@ namespace NXBasics
 
             for (unsigned character = 0; character < 256; ++character)
             {
-                if ((characterTypes[character] & 0x01u) != 0)
+                if ((characterTypes[character] & 1u) != 0)
                 {
-                    gRuntimeMultibyteTypes[character + 1] |= 0x10u;
+                    gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit4;
                     gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(lowercase[character]);
                 }
-                else if ((characterTypes[character] & 0x02u) != 0)
+                else if ((characterTypes[character] & ReadableValues::BitMask::Bit1) != 0)
                 {
-                    gRuntimeMultibyteTypes[character + 1] |= 0x20u;
+                    gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit5;
                     gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(uppercase[character]);
                 }
                 else
@@ -8157,12 +8158,12 @@ namespace NXBasics
             {
                 if (character >= 'A' && character <= 'Z')
                 {
-                    gRuntimeMultibyteTypes[character + 1] |= 0x10u;
+                    gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit4;
                     gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(character + 0x20u);
                 }
                 else if (character >= 'a' && character <= 'z')
                 {
-                    gRuntimeMultibyteTypes[character + 1] |= 0x20u;
+                    gRuntimeMultibyteTypes[character + 1] |= ReadableValues::BitMask::Bit5;
                     gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(character - 0x20u);
                 }
                 else
@@ -8203,7 +8204,7 @@ namespace NXBasics
             --remaining;
             *output++ = static_cast<char>(character);
 
-            if ((gRuntimeMultibyteTypes[character + 1u] & 0x04u) != 0)
+            if ((gRuntimeMultibyteTypes[character + 1u] & ReadableValues::BitMask::Bit2) != 0)
             {
                 if (remaining == 0)
                 {
@@ -8389,7 +8390,7 @@ namespace NXBasics
         {
             if (read32(freeBlock + 0x04) == read32(freeBlock + 0x08))
             {
-                const std::uint32_t mask = ~(0x80000000u >> (index & 31u));
+                const std::uint32_t mask = ~(ReadableValues::IntegerRange::Bit31 >> (index & 31u));
                 const std::uintptr_t groupMap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
                 const std::uintptr_t regionMap = region + (index < 32u ? 0u : 4u);
                 const std::uintptr_t counter = metadata + 0x04 + index;
@@ -8449,7 +8450,7 @@ namespace NXBasics
             {
                 const std::uintptr_t counter = metadata + 0x04 + mergedClass;
                 const std::uint8_t previousCount = read8(counter);
-                const std::uint32_t mask = 0x80000000u >> (mergedClass & 31u);
+                const std::uint32_t mask = ReadableValues::IntegerRange::Bit31 >> (mergedClass & 31u);
                 const std::uintptr_t regionMap = region + (mergedClass < 32u ? 0u : 4u);
                 const std::uintptr_t groupMap = metadata + (mergedClass < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
 
@@ -8492,7 +8493,7 @@ namespace NXBasics
             pendingRegion = read32(pendingRegionAddress);
             pendingGroup = read32(pendingGroupAddress);
 
-            write32(pendingRegion + 0x08, read32(pendingRegion + 0x08) | (0x80000000u >> (pendingGroup & 31u)));
+            write32(pendingRegion + 0x08, read32(pendingRegion + 0x08) | (ReadableValues::IntegerRange::Bit31 >> (pendingGroup & 31u)));
 
             pendingRegion = read32(pendingRegionAddress);
             pendingGroup = read32(pendingGroupAddress);
@@ -8509,11 +8510,11 @@ namespace NXBasics
 
             if (read8(pendingMetadata + 0x43) == 0)
             {
-                write32(pendingRegion + 0x04, read32(pendingRegion + 0x04) & 0xFFFFFFFEu);
+                write32(pendingRegion + 0x04, read32(pendingRegion + 0x04) & ReadableValues::BitMask::DwordExceptBit0);
                 pendingRegion = read32(pendingRegionAddress);
             }
 
-            if (read32(pendingRegion + 0x08) == 0xFFFFFFFFu)
+            if (read32(pendingRegion + 0x08) == ReadableValues::IntegerRange::UInt32Maximum)
             {
                 VirtualFree(reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(pendingRegion + 0x0C))), 0, MEM_RELEASE);
 
@@ -8525,7 +8526,7 @@ namespace NXBasics
                 const std::uintptr_t removedRegion = read32(pendingRegionAddress);
                 const std::uint32_t bytesToMove = table + count * 0x14u - static_cast<std::uint32_t>(removedRegion) - 0x14u;
 
-                std::memmove(reinterpret_cast<void*>(removedRegion), reinterpret_cast<const void*>(removedRegion + 0x14), bytesToMove);
+                std::memmove(reinterpret_cast<void*>(removedRegion), reinterpret_cast<const void*>(removedRegion + 20), bytesToMove);
 
                 write32(regionCountAddress, read32(regionCountAddress) - 1u);
 
@@ -8583,7 +8584,7 @@ namespace NXBasics
         const std::uintptr_t searchStart = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegion));
 
         // Include the two size tags and round the block size to sixteen bytes.
-        const std::uint32_t blockSize = (requestedBytes + 0x17u) & 0xFFFFFFF0u;
+        const std::uint32_t blockSize = (requestedBytes + 0x17u) & ReadableValues::BitMask::DwordExceptBits0Through3;
         const std::int32_t requestedClass = (asSigned(blockSize) >> 4) - 1;
 
         std::uint32_t lowMask;
@@ -8591,13 +8592,13 @@ namespace NXBasics
 
         if (requestedClass < 32)
         {
-            lowMask = 0xFFFFFFFFu >> (static_cast<std::uint32_t>(requestedClass) & 31u);
-            highMask = 0xFFFFFFFFu;
+            lowMask = ReadableValues::IntegerRange::UInt32Maximum >> (static_cast<std::uint32_t>(requestedClass) & 31u);
+            highMask = ReadableValues::IntegerRange::UInt32Maximum;
         }
         else
         {
             lowMask = 0;
-            highMask = 0xFFFFFFFFu >> ((static_cast<std::uint32_t>(requestedClass) - 32u) & 31u);
+            highMask = ReadableValues::IntegerRange::UInt32Maximum >> ((static_cast<std::uint32_t>(requestedClass) - 32u) & 31u);
         }
 
         const auto hasSuitableBlock = [&] (std::uintptr_t region) -> bool
@@ -8644,7 +8645,7 @@ namespace NXBasics
                 // Reload the metadata pointer after creating the group.
                 write32(read32(region + 0x10), static_cast<std::uint32_t>(group));
 
-                if (read32(read32(region + 0x10)) == 0xFFFFFFFFu)
+                if (read32(read32(region + 0x10)) == ReadableValues::IntegerRange::UInt32Maximum)
                     return nullptr;
             }
         }
@@ -8659,7 +8660,7 @@ namespace NXBasics
             return ((read32(metadata + 0x44u + index * 4u) & lowMask) | (read32(metadata + 0xC4u + index * 4u) & highMask)) != 0;
         };
 
-        if (groupIndex == 0xFFFFFFFFu || !groupHasSuitableBlock(groupIndex))
+        if (groupIndex == ReadableValues::IntegerRange::UInt32Maximum || !groupHasSuitableBlock(groupIndex))
         {
             groupIndex = 0;
 
@@ -8679,7 +8680,7 @@ namespace NXBasics
         }
 
         // Size classes are ordered from the most significant bit downwards.
-        while ((availableBits & 0x80000000u) == 0)
+        while ((availableBits & ReadableValues::IntegerRange::Bit31) == 0)
         {
             availableBits <<= 1;
             ++sizeClass;
@@ -8698,7 +8699,7 @@ namespace NXBasics
             if (read32(block + 0x04) == read32(block + 0x08))
             {
                 // Removing the only block empties this group's size-class list.
-                const std::uint32_t bit = 0x80000000u >> (sizeClass & 31u);
+                const std::uint32_t bit = ReadableValues::IntegerRange::Bit31 >> (sizeClass & 31u);
                 const std::uintptr_t groupMask = metadata + (sizeClass < 32 ? 0x44u : 0xC4u) + groupIndex * 4u;
 
                 write32(groupMask, read32(groupMask) & ~bit);
@@ -8735,7 +8736,7 @@ namespace NXBasics
                     const std::uint8_t previousCount = read8(counterAddress);
                     write8(counterAddress, static_cast<std::uint8_t>(previousCount + 1u));
 
-                    const std::uint32_t bit = 0x80000000u >> (newClass & 31u);
+                    const std::uint32_t bit = ReadableValues::IntegerRange::Bit31 >> (newClass & 31u);
 
                     if (previousCount == 0)
                     {
@@ -8831,12 +8832,12 @@ namespace NXBasics
             return nullptr;
         }
 
-        write32(region + 0x08, 0xFFFFFFFFu);
+        write32(region + 0x08, ReadableValues::IntegerRange::UInt32Maximum);
         write32(region, 0);
         write32(region + 0x04, 0);
 
         write32(countAddress, read32(countAddress) + 1u);
-        write32(read32(region + 0x10), 0xFFFFFFFFu);
+        write32(read32(region + 0x10), ReadableValues::IntegerRange::UInt32Maximum);
 
         return reinterpret_cast<void*>(region);
     }
@@ -8863,7 +8864,7 @@ namespace NXBasics
         std::uint32_t groupIndex = 0;
 
         // The caller supplies a region with at least one available group.
-        while ((availableGroups & 0x80000000u) == 0)
+        while ((availableGroups & ReadableValues::IntegerRange::Bit31) == 0)
         {
             availableGroups <<= 1;
             ++groupIndex;
@@ -8891,8 +8892,8 @@ namespace NXBasics
             const std::uintptr_t page = groupMemory + pageIndex * 0x1000u;
             const std::uintptr_t block = page + 0x0C;
 
-            write32(page + 0x08, 0xFFFFFFFFu);
-            write32(page + 0xFFC, 0xFFFFFFFFu);
+            write32(page + 0x08, ReadableValues::IntegerRange::UInt32Maximum);
+            write32(page + 0xFFC, ReadableValues::IntegerRange::UInt32Maximum);
 
             write32(block, 0xFF0u);
             write32(block + 0x04, static_cast<std::uint32_t>(block + 0x1000u));
@@ -8924,7 +8925,7 @@ namespace NXBasics
         if (previousCount == 0)
             write32(region + 0x04, read32(region + 0x04) | 1u);
 
-        const std::uint32_t groupBit = 0x80000000u >> (groupIndex & 31u);
+        const std::uint32_t groupBit = ReadableValues::IntegerRange::Bit31 >> (groupIndex & 31u);
         write32(region + 0x08, read32(region + 0x08) & ~groupBit);
 
         return static_cast<std::int32_t>(groupIndex);
@@ -8961,7 +8962,7 @@ namespace NXBasics
 
             if (next == previous)
             {
-                const std::uint32_t mask = 0x80000000u >> (index & 31u);
+                const std::uint32_t mask = ReadableValues::IntegerRange::Bit31 >> (index & 31u);
                 const std::uint32_t bitmap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
 
                 word(bitmap) &= ~mask;
@@ -8996,7 +8997,7 @@ namespace NXBasics
 
             if (next == sentinel)
             {
-                const std::uint32_t mask = 0x80000000u >> (index & 31u);
+                const std::uint32_t mask = ReadableValues::IntegerRange::Bit31 >> (index & 31u);
                 const std::uint32_t bitmap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
 
                 auto& count = *reinterpret_cast<std::uint8_t*>(metadata + 4u + index);
@@ -9018,7 +9019,7 @@ namespace NXBasics
         };
 
         const std::uint32_t oldTotal = word(address - 4u) - 1u;
-        const std::uint32_t newTotal = (requestedBytes + 0x17u) & 0xFFFFFFF0u;
+        const std::uint32_t newTotal = (requestedBytes + 0x17u) & ReadableValues::BitMask::DwordExceptBits0Through3;
 
         if (newTotal == oldTotal)
             return 1;
@@ -9078,7 +9079,7 @@ namespace NXBasics
         const std::uintptr_t firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
         std::uintptr_t region = firstRegion;
 
-        if (read32(firstRegion + 0x10) != 0xFFFFFFFFu)
+        if (read32(firstRegion + 0x10) != ReadableValues::IntegerRange::UInt32Maximum)
         {
             void* metadata = HeapAlloc(gRuntimeHeap, 0, 0x2020);
 
@@ -9148,17 +9149,17 @@ namespace NXBasics
         {
             const std::uintptr_t entry = region + 0x18 + index * 8u;
 
-            write32(entry, index < 0x10 ? 0xF0u : 0xFFFFFFFFu);
+            write32(entry, index < 0x10 ? 0xF0u : ReadableValues::IntegerRange::UInt32Maximum);
             write32(entry + 0x04, 0xF1);
         }
 
-        std::memset(reserved, 0, 0x10000);
+        std::memset(reserved, 0, 65536);
 
         for (std::uint32_t index = 0; index < 0x10; ++index)
         {
             const std::uintptr_t page = base + (index << 12);
 
-            *reinterpret_cast<std::uint8_t*>(page + 0xF8) = 0xFF;
+            *reinterpret_cast<std::uint8_t*>(page + 0xF8) = ReadableValues::IntegerRange::UInt8MaximumSigned;
             write32(page, static_cast<std::uint32_t>(page + 0x08));
             write32(page + 0x04, 0xF0);
         }
@@ -9195,7 +9196,7 @@ namespace NXBasics
         if (region == firstRegion)
         {
             // The static region remains linked and only loses its reservation.
-            write32(firstRegion + 0x10, 0xFFFFFFFFu);
+            write32(firstRegion + 0x10, ReadableValues::IntegerRange::UInt32Maximum);
             return;
         }
 
@@ -9234,7 +9235,7 @@ namespace NXBasics
 
         for (;;)
         {
-            if (read32(region + 0x10) != 0xFFFFFFFFu)
+            if (read32(region + 0x10) != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 std::uint32_t releasedPages = 0;
 
@@ -9255,7 +9256,7 @@ namespace NXBasics
                         continue;
                     }
 
-                    write32(entry, 0xFFFFFFFFu);
+                    write32(entry, ReadableValues::IntegerRange::UInt32Maximum);
                     write32(emptyPageCountAddress, read32(emptyPageCountAddress) - 1u);
 
                     const std::uintptr_t firstUncommittedEntry = read32(region + 0x0C);
@@ -9281,7 +9282,7 @@ namespace NXBasics
                 {
                     std::uint32_t index = 0;
 
-                    while (index < 0x400u && read32(processedRegion + 0x18 + index * 8u) == 0xFFFFFFFFu)
+                    while (index < 0x400u && read32(processedRegion + 0x18 + index * 8u) == ReadableValues::IntegerRange::UInt32Maximum)
                     {
                         ++index;
                     }
@@ -9319,19 +9320,19 @@ namespace NXBasics
         {
             if (address > read32(region + 0x10) && address < read32(region + 0x14))
             {
-                if ((address & 0x0Fu) != 0)
+                if ((address & ReadableValues::BitMask::Low4Bits) != 0)
                 {
                     return 0;
                 }
 
-                const std::uint32_t pageOffset = address & 0xFFFu;
+                const std::uint32_t pageOffset = address & ReadableValues::BitMask::Low12BitsUnsigned;
 
                 if (pageOffset < 0x100u)
                 {
                     return 0;
                 }
 
-                const std::uint32_t page = address & 0xFFFFF000u;
+                const std::uint32_t page = address & ReadableValues::BitMask::DwordExceptBits0Through11;
 
                 *regionOutput = static_cast<std::uint32_t>(region);
                 *pageOutput = page;
@@ -9430,7 +9431,7 @@ namespace NXBasics
         {
             const std::uint32_t base = read32(region + 0x10);
 
-            if (base != 0xFFFFFFFFu)
+            if (base != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 std::uintptr_t entry = read32(region + 0x08);
                 const std::uintptr_t entriesEnd = region + 0x2018;
@@ -9493,7 +9494,7 @@ namespace NXBasics
 
         for (;;)
         {
-            if (read32(region + 0x10) != 0xFFFFFFFFu && read32(region + 0x0C) != 0)
+            if (read32(region + 0x10) != ReadableValues::IntegerRange::UInt32Maximum && read32(region + 0x0C) != 0)
             {
                 break;
             }
@@ -9533,7 +9534,7 @@ namespace NXBasics
         std::uint32_t pageCount = 0;
 
         // The original also reads the next entry after counting the sixteenth page.
-        while (read32(entry) == 0xFFFFFFFFu)
+        while (read32(entry) == ReadableValues::IntegerRange::UInt32Maximum)
         {
             if (pageCount >= 0x10u)
             {
@@ -9562,7 +9563,7 @@ namespace NXBasics
         {
             const std::uintptr_t page = firstPage + (index << 12);
 
-            write8(page + 0xF8, 0xFF);
+            write8(page + 0xF8, ReadableValues::IntegerRange::UInt8MaximumSigned);
             write32(page, static_cast<std::uint32_t>(page + 0x08));
             write32(page + 0x04, 0xF0);
             write32(entry, 0xF0);
@@ -9575,7 +9576,7 @@ namespace NXBasics
 
         const std::uintptr_t entriesEnd = region + 0x2018;
 
-        while (entry < entriesEnd && read32(entry) != 0xFFFFFFFFu)
+        while (entry < entriesEnd && read32(entry) != ReadableValues::IntegerRange::UInt32Maximum)
         {
             entry += 8;
         }
@@ -9848,8 +9849,8 @@ namespace NXBasics
         {
             const std::uint32_t handle = descriptors[index].osHandle;
 
-            if (handle == 0xFFFFFFFFu || handle == 0)
-                gRuntimeStaticStreams[index].descriptor = 0xFFFFFFFFu;
+            if (handle == ReadableValues::IntegerRange::UInt32Maximum || handle == 0)
+                gRuntimeStaticStreams[index].descriptor = ReadableValues::IntegerRange::UInt32Maximum;
         }
     }
 
@@ -9931,7 +9932,7 @@ namespace NXBasics
     // Original function: FUN_004ee7ce
     void Runtime_FreeStreamBuffer(RuntimeFormatStream* stream)
     {
-        if ((stream->flags & 0x83u) != 0 && (stream->flags & 0x08u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0 && (stream->flags & ReadableValues::BitMask::Bit3) != 0)
         {
             Runtime_Free(stream->buffer);
             stream->flags &= ~0x408u;
@@ -9953,7 +9954,7 @@ namespace NXBasics
         auto* block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
         const std::uint32_t index = descriptor & 31u;
 
-        if ((block[index].flags & 0x01u) == 0)
+        if ((block[index].flags & 1u) == 0)
         {
             *Runtime_GetErrnoPointer() = 9;
             return -1;
@@ -9964,7 +9965,7 @@ namespace NXBasics
         block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
         std::int32_t result = 0;
 
-        if ((block[index].flags & 0x01u) == 0)
+        if ((block[index].flags & 1u) == 0)
         {
             *Runtime_GetErrnoPointer() = 9;
             result = -1;
@@ -10000,17 +10001,17 @@ namespace NXBasics
         {
             case 'r':
                 openFlags = 0;
-                streamFlags |= 0x01u;
+                streamFlags |= 1u;
                 break;
 
             case 'w':
                 openFlags = 0x301u;
-                streamFlags |= 0x02u;
+                streamFlags |= ReadableValues::BitMask::Bit1;
                 break;
 
             case 'a':
                 openFlags = 0x109u;
-                streamFlags |= 0x02u;
+                streamFlags |= ReadableValues::BitMask::Bit1;
                 break;
 
             default:
@@ -10031,19 +10032,19 @@ namespace NXBasics
             switch (character)
             {
                 case '+':
-                    if ((openFlags & 0x02u) != 0)
+                    if ((openFlags & ReadableValues::BitMask::Bit1) != 0)
                     {
                         parsing = false;
                         break;
                     }
 
-                    openFlags = (openFlags & ~0x01u) | 0x02u;
-                    streamFlags = (streamFlags & ~0x03u) | 0x80u;
+                    openFlags = (openFlags & ~1u) | ReadableValues::BitMask::Bit1;
+                    streamFlags = (streamFlags & ~0x03u) | ReadableValues::BitMask::Bit7;
                     break;
 
                 case 'b':
                 case 't':
-                    if ((openFlags & 0xC000u) != 0)
+                    if ((openFlags & ReadableValues::BitMask::WordExceptBits0Through13) != 0)
                     {
                         parsing = false;
                         break;
@@ -10063,7 +10064,7 @@ namespace NXBasics
                     commitModeSeen = true;
 
                     if (character == 'c')
-                        streamFlags |= 0x4000u;
+                        streamFlags |= ReadableValues::BitMask::Bit14;
                     else
                         streamFlags &= ~0x4000u;
 
@@ -10082,23 +10083,23 @@ namespace NXBasics
                     break;
 
                 case 'D':
-                    if ((openFlags & 0x40u) != 0)
+                    if ((openFlags & ReadableValues::BitMask::Bit6) != 0)
                     {
                         parsing = false;
                         break;
                     }
 
-                    openFlags |= 0x40u;
+                    openFlags |= ReadableValues::BitMask::Bit6;
                     break;
 
                 case 'T':
-                    if ((openFlags & 0x1000u) != 0)
+                    if ((openFlags & ReadableValues::BitMask::Bit12) != 0)
                     {
                         parsing = false;
                         break;
                     }
 
-                    openFlags |= 0x1000u;
+                    openFlags |= ReadableValues::BitMask::Bit12;
                     break;
 
                 default:
@@ -10138,7 +10139,7 @@ namespace NXBasics
             if (stream == nullptr)
             {
                 // A dynamic stream includes its critical section at offset 0x20.
-                stream = static_cast<RuntimeFormatStream*>(Runtime_Allocate(0x38u));
+                stream = static_cast<RuntimeFormatStream*>(Runtime_Allocate(56u));
                 gRuntimeStreamTable[index] = stream;
 
                 // The original stops at the first allocation failure.
@@ -10153,7 +10154,7 @@ namespace NXBasics
                 break;
             }
 
-            if ((stream->flags & 0x83u) != 0)
+            if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0)
                 continue;
 
             Runtime_LockStreamIndex(index, stream);
@@ -10161,7 +10162,7 @@ namespace NXBasics
             // Recheck after obtaining the stream lock.
             stream = gRuntimeStreamTable[index];
 
-            if ((stream->flags & 0x83u) == 0)
+            if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) == 0)
             {
                 result = stream;
                 break;
@@ -10172,7 +10173,7 @@ namespace NXBasics
 
         if (result != nullptr)
         {
-            result->descriptor = 0xFFFFFFFFu;
+            result->descriptor = ReadableValues::IntegerRange::UInt32Maximum;
             result->remainingBytes = 0;
             result->flags = 0;
             result->buffer = nullptr;
@@ -10198,7 +10199,7 @@ namespace NXBasics
 
         if (result == 0)
         {
-            return 0x7FFFFFFF;
+            return ReadableValues::IntegerRange::Int32MaximumSigned;
         }
 
         return result - 2;
@@ -10257,13 +10258,13 @@ namespace NXBasics
         // The original increments this counter before testing existing buffers.
         ++gRuntimeStreamBufferRequestCount;
 
-        if ((stream->flags & 0x10Cu) != 0)
+        if ((stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) != 0)
             return 0;
 
         char*& cachedBuffer = gRuntimeTemporaryStreamBuffers[index];
 
         if (cachedBuffer == nullptr)
-            cachedBuffer = static_cast<char*>(Runtime_Allocate(0x1000u));
+            cachedBuffer = static_cast<char*>(Runtime_Allocate(4096u));
 
         if (cachedBuffer == nullptr)
         {
@@ -10280,7 +10281,7 @@ namespace NXBasics
             stream->remainingBytes = 0x1000u;
         }
 
-        stream->flags |= 0x1102u;
+        stream->flags |= ReadableValues::BitMask::Bit1AndBit8AndBit12;
         return 1;
     }
 
@@ -10290,7 +10291,7 @@ namespace NXBasics
         if (temporaryBufferInstalled == 0)
             return;
 
-        if ((stream->flags & 0x1000u) == 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit12) == 0)
             return;
 
         // The original ignores the flush result and retains the cached allocation.
@@ -10305,18 +10306,18 @@ namespace NXBasics
     // Original function: FUN_004eed15
     std::int32_t Runtime_FillStreamBufferAndReadCharacter(RuntimeFormatStream* stream)
     {
-        if ((stream->flags & 0x83u) == 0 || (stream->flags & 0x40u) != 0)
+        if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) == 0 || (stream->flags & ReadableValues::BitMask::Bit6) != 0)
             return -1;
 
         if ((stream->flags & 2u) != 0)
         {
-            stream->flags |= 0x20u;
+            stream->flags |= ReadableValues::BitMask::Bit5;
             return -1;
         }
 
         stream->flags |= 1u;
 
-        if ((stream->flags & 0x10Cu) == 0)
+        if ((stream->flags & ReadableValues::BitMask::Bits2Through3AndBit8) == 0)
             Runtime_AllocateStreamBuffer(stream);
         else
             stream->position = stream->buffer;
@@ -10331,25 +10332,25 @@ namespace NXBasics
             return -1;
         }
 
-        if ((stream->flags & 0x82u) == 0)
+        if ((stream->flags & ReadableValues::BitMask::Bit1AndBit7) == 0)
         {
             const RuntimeDescriptorRecord* record;
 
-            if (stream->descriptor == 0xFFFFFFFFu)
+            if (stream->descriptor == ReadableValues::IntegerRange::UInt32Maximum)
             {
                 record = &gRuntimeInvalidDescriptorRecord;
             }
             else
             {
                 const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[stream->descriptor >> 5]);
-                record = &block[stream->descriptor & 0x1Fu];
+                record = &block[stream->descriptor & ReadableValues::BitMask::Low5Bits];
             }
 
-            if ((record->flags & 0x82u) == 0x82u)
-                stream->flags |= 0x2000u;
+            if ((record->flags & ReadableValues::BitMask::Bit1AndBit7) == 0x82u)
+                stream->flags |= ReadableValues::BitMask::Bit13;
         }
 
-        if (stream->bufferSize == 0x200u && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+        if (stream->bufferSize == 0x200u && (stream->flags & 8u) != 0 && (stream->flags & ReadableValues::BitMask::Bit10) == 0)
             stream->bufferSize = 0x1000u;
 
         --stream->remainingBytes;
@@ -10413,7 +10414,7 @@ namespace NXBasics
 
         if (*cursor == '-')
         {
-            flags |= 0x02u;
+            flags |= ReadableValues::BitMask::Bit1;
             ++cursor;
         }
         else if (*cursor == '+')
@@ -10454,8 +10455,8 @@ namespace NXBasics
         }
 
         const auto radix = static_cast<std::uint32_t>(base);
-        const std::uint32_t cutoff = 0xFFFFFFFFu / radix;
-        const std::uint32_t remainder = 0xFFFFFFFFu % radix;
+        const std::uint32_t cutoff = ReadableValues::IntegerRange::UInt32Maximum / radix;
+        const std::uint32_t remainder = ReadableValues::IntegerRange::UInt32Maximum % radix;
 
         for (;;)
         {
@@ -10482,11 +10483,11 @@ namespace NXBasics
                 break;
             }
 
-            flags |= 0x08u;
+            flags |= ReadableValues::BitMask::Bit3;
 
             if (value > cutoff || (value == cutoff && digit > remainder))
             {
-                flags |= 0x04u;
+                flags |= ReadableValues::BitMask::Bit2;
             }
             else
             {
@@ -10497,21 +10498,21 @@ namespace NXBasics
             ++cursor;
         }
 
-        if ((flags & 0x08u) == 0)
+        if ((flags & ReadableValues::BitMask::Bit3) == 0)
         {
             cursor = text;
             value = 0;
         }
         else
         {
-            const bool unsignedConversion = (flags & 0x01u) != 0;
-            const bool negative = (flags & 0x02u) != 0;
-            const std::uint32_t signedLimit = negative ? 0x80000000u : 0x7FFFFFFFu;
+            const bool unsignedConversion = (flags & 1u) != 0;
+            const bool negative = (flags & ReadableValues::BitMask::Bit1) != 0;
+            const std::uint32_t signedLimit = negative ? ReadableValues::IntegerRange::Bit31 : ReadableValues::IntegerRange::Int32Maximum;
 
-            if ((flags & 0x04u) != 0 || (!unsignedConversion && value > signedLimit))
+            if ((flags & ReadableValues::BitMask::Bit2) != 0 || (!unsignedConversion && value > signedLimit))
             {
                 *Runtime_GetErrnoPointer() = 0x22u;
-                value = unsignedConversion ? 0xFFFFFFFFu : signedLimit;
+                value = unsignedConversion ? ReadableValues::IntegerRange::UInt32Maximum : signedLimit;
             }
         }
 
@@ -10520,7 +10521,7 @@ namespace NXBasics
             *endPointer = const_cast<char*>(cursor);
         }
 
-        if ((flags & 0x02u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit1) != 0)
         {
             value = 0u - value;
         }
@@ -10554,7 +10555,7 @@ namespace NXBasics
             std::uint8_t lastByte = firstByte;
             std::uint32_t value = firstByte;
 
-            if ((gRuntimeMultibyteTypes[static_cast<std::uint32_t>(firstByte) + 1u] & 0x04u) != 0)
+            if ((gRuntimeMultibyteTypes[static_cast<std::uint32_t>(firstByte) + 1u] & ReadableValues::BitMask::Bit2) != 0)
             {
                 ++current;
                 lastByte = static_cast<std::uint8_t>(*current);
@@ -10609,7 +10610,7 @@ namespace NXBasics
 
             stream = gRuntimeStreamTable[index];
 
-            if ((stream->flags & 0x83u) != 0 && stream->temporaryFileName != nullptr)
+            if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0 && stream->temporaryFileName != nullptr)
             {
                 Runtime_CloseStreamNoLock(stream);
                 ++count;
@@ -10631,16 +10632,16 @@ namespace NXBasics
         ++allocationCount;
         std::memcpy(&gRuntimeStreamBufferRequestCount, &allocationCount, sizeof(allocationCount));
 
-        stream->buffer = static_cast<char*>(Runtime_Allocate(0x1000));
+        stream->buffer = static_cast<char*>(Runtime_Allocate(4096));
 
         if (stream->buffer != nullptr)
         {
-            stream->flags |= 0x08u;
+            stream->flags |= ReadableValues::BitMask::Bit3;
             stream->bufferSize = 0x1000u;
         }
         else
         {
-            stream->flags |= 0x04u;
+            stream->flags |= ReadableValues::BitMask::Bit2;
             stream->buffer = reinterpret_cast<char*>(stream->fallbackBuffer);
             stream->bufferSize = 2;
         }
@@ -10664,8 +10665,8 @@ namespace NXBasics
         const std::uint8_t* block;
         std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
 
-        const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
-        return block[entryOffset + 0x04] & 0x40u;
+        const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
+        return block[entryOffset + 0x04] & ReadableValues::BitMask::Bit6;
     }
 
     // Original function: FUN_004ef1a1
@@ -10710,7 +10711,7 @@ namespace NXBasics
 
         if (gRuntimeCTypeLocale == 0)
         {
-            if (character > 0xFF)
+            if (character > ReadableValues::IntegerRange::UInt8MaximumSigned)
             {
                 *Runtime_GetErrnoPointer() = 0x2A;
                 return -1;
@@ -10773,7 +10774,7 @@ namespace NXBasics
         if (codePage == 0)
             codePage = static_cast<UINT>(gRuntimeCodePage);
 
-        const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 0x01u;
+        const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 1u;
         const int requiredCharacters = ::MultiByteToWideChar(codePage, queryFlags, source, sourceLength, nullptr, 0);
 
         if (requiredCharacters == 0)
@@ -10785,7 +10786,7 @@ namespace NXBasics
         {
             // Preserve the original 32-bit size calculation and four-byte alignment.
             const std::uint32_t byteCount = static_cast<std::uint32_t>(requiredCharacters) * 2u;
-            const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+            const std::uint32_t allocationSize = (byteCount + 3u) & ReadableValues::BitMask::DwordExceptBits0Through1;
 
             wideBuffer = static_cast<WCHAR*>(_alloca(allocationSize));
             std::memset(wideBuffer, 0, byteCount);
@@ -10799,7 +10800,7 @@ namespace NXBasics
             return FALSE;
 
         // The conversion call always uses 0x01, even when the size query used 0x09.
-        const int convertedCharacters = ::MultiByteToWideChar(codePage, 0x01u, source, sourceLength, wideBuffer, requiredCharacters);
+        const int convertedCharacters = ::MultiByteToWideChar(codePage, 1u, source, sourceLength, wideBuffer, requiredCharacters);
 
         if (convertedCharacters == 0)
             return FALSE;
@@ -10819,7 +10820,7 @@ namespace NXBasics
             if (allocationBytes == 0)
                 allocationBytes = 1;
 
-            allocationBytes = (allocationBytes + 15u) & 0xFFFFFFF0u;
+            allocationBytes = (allocationBytes + 15u) & ReadableValues::BitMask::DwordExceptBits0Through3;
         }
 
         for (;;)
@@ -10900,17 +10901,17 @@ namespace NXBasics
         std::uint8_t* block;
         std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
 
-        const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+        const std::uint32_t entryOffset = (descriptor & ReadableValues::BitMask::Low5Bits) * 0x24u;
         std::uint8_t* flags = block + entryOffset + 0x04;
         const std::uint8_t previousFlags = *flags;
 
         if (mode == 0x8000)
         {
-            *flags = static_cast<std::uint8_t>(previousFlags & 0x7Fu);
+            *flags = static_cast<std::uint8_t>(previousFlags & ReadableValues::IntegerRange::Int8Maximum);
         }
         else if (mode == 0x4000)
         {
-            *flags = static_cast<std::uint8_t>(previousFlags | 0x80u);
+            *flags = static_cast<std::uint8_t>(previousFlags | ReadableValues::BitMask::Bit7);
         }
         else
         {
@@ -10918,7 +10919,7 @@ namespace NXBasics
             return -1;
         }
 
-        return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
+        return (previousFlags & ReadableValues::BitMask::Bit7) != 0 ? 0x4000 : 0x8000;
     }
 
     // Original function: FUN_004eb7c8; integer-only tagging does not evaluate the floating-point argument.
@@ -10926,8 +10927,8 @@ namespace NXBasics
     {
         std::uint32_t high;
         std::memcpy(&high, reinterpret_cast<const std::byte*>(&value) + 4, sizeof(high));
-        const auto exponent = high & 0x7FF00000u;
-        return exponent == 0x7FF00000u ? high : exponent;
+        const auto exponent = high & ReadableValues::Binary64::ExponentHighWordMask;
+        return exponent == ReadableValues::Binary64::ExponentHighWordMask ? high : exponent;
     }
 
     // Original function: FUN_004eb729; the parent-frame byte and CL input are explicit.
@@ -10960,7 +10961,7 @@ namespace NXBasics
         {
             const auto conversionStatus = Runtime_Extended12ToDouble(extended, &value);
             if ((parseFlags & 2) != 0 || conversionStatus == 1) flags = 0x80;
-            if ((parseFlags & 1) != 0 || conversionStatus == 2) flags |= 0x100;
+            if ((parseFlags & 1) != 0 || conversionStatus == 2) flags |= ReadableValues::BitMask::Bit8Signed;
         }
         const auto consumed = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(end) - reinterpret_cast<std::uintptr_t>(text));
         destination->flags = flags;
@@ -11014,15 +11015,15 @@ namespace NXBasics
             {
                 const auto previousFlags = record.operand2.flags;
                 record.operand2.value = Runtime_LoadBinary64ToX87(&error->argument2);
-                record.operand2.flags = (previousFlags & 0xFFFFFFE3u) | 3u;
+                record.operand2.flags = (previousFlags & ReadableValues::BitMask::DwordExceptBits2Through4) | 3u;
             }
             else
             {
-                record.operand2.flags &= 0xFFFFFFFEu;
+                record.operand2.flags &= ReadableValues::BitMask::DwordExceptBit0;
             }
             Runtime_RaiseMathException(&record, &controlWord, flags, operation, &error->argument1, &error->result);
         }
-        static_cast<void>(Runtime_ControlX87Raw(controlWord, 0xFFFF));
+        static_cast<void>(Runtime_ControlX87Raw(controlWord, ReadableValues::IntegerRange::UInt16MaximumSigned));
         if (error->type != 8 && gRuntimeMathErrorArgumentsAndHookBypass == 0 && Runtime_DefaultMathError(error) != 0) return;
         Runtime_SetMathErrno(error->type);
     }
@@ -11032,7 +11033,7 @@ namespace NXBasics
 
     static std::uint16_t Runtime_CompareBinary64WithZero(const volatile double* value)
     {
-        return static_cast<std::uint16_t>(Runtime_CompareDoubleX87(value, &gRuntimeComparisonZero) & 0x4700u);
+        return static_cast<std::uint16_t>(Runtime_CompareDoubleX87(value, &gRuntimeComparisonZero) & ReadableValues::BitMask::Bits8Through10AndBit14);
     }
 
     // Original function: FUN_004f198a; comparisons execute on the x87 unit, including NaN exceptions.
@@ -11042,21 +11043,21 @@ namespace NXBasics
         const auto comparison = Runtime_CompareBinary64WithZero(&value);
         std::int32_t outputExponent = 0;
         double result = 0.0;
-        if ((comparison & 0x4000u) == 0)
+        if ((comparison & ReadableValues::BitMask::Bit14) == 0)
         {
             std::uint64_t bits;
             std::memcpy(&bits, &value, sizeof(bits));
-            if ((bits & UINT64_C(0x7FF0000000000000)) == 0 && (bits & UINT64_C(0x000FFFFFFFFFFFFF)) != 0)
+            if ((bits & ReadableValues::Binary64::ExponentMask) == 0 && (bits & ReadableValues::Binary64::FractionMask) != 0)
             {
-                const bool negative = (Runtime_CompareBinary64WithZero(&value) & 0x100u) != 0;
+                const bool negative = (Runtime_CompareBinary64WithZero(&value) & ReadableValues::BitMask::Bit8) != 0;
                 outputExponent = -1021;
-                while ((bits & UINT64_C(0x0010000000000000)) == 0)
+                while ((bits & ReadableValues::Binary64::ImplicitLeadingBit) == 0)
                 {
                     bits <<= 1;
                     --outputExponent;
                 }
-                bits &= ~UINT64_C(0x0010000000000000);
-                if (negative) bits |= UINT64_C(0x8000000000000000);
+                bits &= ~ReadableValues::Binary64::ImplicitLeadingBit;
+                if (negative) bits |= ReadableValues::Binary64::SignMask;
                 double normalized;
                 std::memcpy(&normalized, &bits, sizeof(normalized));
                 result = Runtime_SetDoubleExponentField(Runtime_LoadBinary64ToX87(&normalized), 0);
@@ -11064,7 +11065,7 @@ namespace NXBasics
             else
             {
                 result = Runtime_SetDoubleExponentField(Runtime_LoadBinary64ToX87(&value), 0);
-                outputExponent = static_cast<std::int32_t>((bits >> 52) & 0x7FFu) - 0x3FE;
+                outputExponent = static_cast<std::int32_t>((bits >> 52) & ReadableValues::Binary64::ExponentMaximum) - 0x3FE;
             }
         }
         volatile double stored = Runtime_LoadBinary64ToX87(&result);
@@ -11075,7 +11076,7 @@ namespace NXBasics
     // Original function: FUN_004f1da2; the ordered hardware exception child is connected.
     bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord)
     {
-        auto remaining = flags & 0x1Fu;
+        auto remaining = flags & ReadableValues::BitMask::Low5Bits;
         if ((flags & 8u) != 0 && (controlWord & 1u) != 0)
         {
             Runtime_RaiseX87Exceptions(1);
@@ -11090,20 +11091,20 @@ namespace NXBasics
         {
             Runtime_RaiseX87Exceptions(8);
             const bool positive = Runtime_CompareBinary64WithZero(result) == 0;
-            const auto rounding = controlWord & 0xC00u;
+            const auto rounding = controlWord & ReadableValues::BitMask::Bits10Through11;
             const bool infinity = rounding == 0 || (rounding == 0x400 && !positive) || (rounding == 0x800 && positive);
-            std::uint64_t bits = infinity ? UINT64_C(0x7FF0000000000000) : UINT64_C(0x7FEFFFFFFFFFFFFF);
-            if (!positive) bits |= UINT64_C(0x8000000000000000);
+            std::uint64_t bits = infinity ? ReadableValues::Binary64::ExponentMask : ReadableValues::Binary64::LargestFiniteBits;
+            if (!positive) bits |= ReadableValues::Binary64::SignMask;
             double replacement;
             std::memcpy(&replacement, &bits, sizeof(replacement));
             *result = Runtime_LoadBinary64ToX87(&replacement);
             remaining &= ~1u;
         }
-        else if ((flags & 2u) != 0 && (controlWord & 0x10u) != 0)
+        else if ((flags & 2u) != 0 && (controlWord & ReadableValues::BitMask::Bit4) != 0)
         {
-            bool inexact = (flags & 0x10u) != 0;
+            bool inexact = (flags & ReadableValues::BitMask::Bit4) != 0;
             double stored = Runtime_LoadBinary64ToX87(result);
-            if ((Runtime_CompareBinary64WithZero(&stored) & 0x4000u) != 0)
+            if ((Runtime_CompareBinary64WithZero(&stored) & ReadableValues::BitMask::Bit14) != 0)
             {
                 inexact = true;
             }
@@ -11119,16 +11120,16 @@ namespace NXBasics
                 }
                 else
                 {
-                    const bool negative = (Runtime_CompareBinary64WithZero(&mantissa) & 0x100u) != 0;
+                    const bool negative = (Runtime_CompareBinary64WithZero(&mantissa) & ReadableValues::BitMask::Bit8) != 0;
                     std::uint64_t bits;
                     std::memcpy(&bits, &mantissa, sizeof(bits));
-                    bits = (bits & UINT64_C(0x000FFFFFFFFFFFFF)) | UINT64_C(0x0010000000000000);
+                    bits = (bits & ReadableValues::Binary64::FractionMask) | ReadableValues::Binary64::ImplicitLeadingBit;
                     for (auto count = -1021 - exponent; count > 0; --count)
                     {
                         if ((bits & 1u) != 0) inexact = true;
                         bits >>= 1;
                     }
-                    if (negative) bits |= UINT64_C(0x8000000000000000);
+                    if (negative) bits |= ReadableValues::Binary64::SignMask;
                     std::memcpy(&mantissa, &bits, sizeof(mantissa));
                 }
                 *result = Runtime_LoadBinary64ToX87(&mantissa);
@@ -11136,7 +11137,7 @@ namespace NXBasics
             if (inexact) Runtime_RaiseX87Exceptions(0x10);
             remaining &= ~2u;
         }
-        if ((flags & 0x10u) != 0 && (controlWord & 0x20u) != 0)
+        if ((flags & ReadableValues::BitMask::Bit4) != 0 && (controlWord & ReadableValues::BitMask::Bit5) != 0)
         {
             Runtime_RaiseX87Exceptions(0x20);
             remaining &= ~0x10u;
@@ -11154,8 +11155,8 @@ namespace NXBasics
         std::uint64_t resultBits = 0;
         for (std::uint32_t index = 0; index < sizeof(storedValue); ++index)
             resultBits |= static_cast<std::uint64_t>(storedBytes[index]) << (index * 8);
-        const auto newHighWord = static_cast<std::uint16_t>(((static_cast<std::uint32_t>(exponent) + 0x3FEu) << 4) | (originalHighWord & 0x800Fu));
-        resultBits = (resultBits & UINT64_C(0x0000FFFFFFFFFFFF)) | (static_cast<std::uint64_t>(newHighWord) << 48);
+        const auto newHighWord = static_cast<std::uint16_t>(((static_cast<std::uint32_t>(exponent) + 0x3FEu) << 4) | (originalHighWord & ReadableValues::BitMask::WordExceptBits4Through14));
+        resultBits = (resultBits & ReadableValues::BitMask::Low48Bits) | (static_cast<std::uint64_t>(newHighWord) << 48);
         double result;
         std::memcpy(&result, &resultBits, sizeof(result));
         return Runtime_LoadBinary64ToX87(&result);
@@ -11166,8 +11167,8 @@ namespace NXBasics
     {
         std::uint64_t bits;
         std::memcpy(&bits, &value, sizeof(bits));
-        const auto exponent = bits & UINT64_C(0x7FF0000000000000);
-        if (exponent == UINT64_C(0x7FF0000000000000))
+        const auto exponent = bits & ReadableValues::Binary64::ExponentMask;
+        if (exponent == ReadableValues::Binary64::ExponentMask)
         {
             // The Win32 return/store quiets signaling NaNs before the integer-only child.
             volatile double stored = Runtime_LoadBinary64ToX87(&value);
@@ -11184,12 +11185,12 @@ namespace NXBasics
             }
         }
         const bool negative = (bits >> 63) != 0;
-        const bool zero = (bits & UINT64_C(0x7FFFFFFFFFFFFFFF)) == 0;
+        const bool zero = (bits & ReadableValues::IntegerRange::Int64Maximum) == 0;
         if (exponent == 0 && !zero) return negative ? 0x10 : 0x80;
 
         // Only finite normal values and signed zero reach the original memory-operand FCOMP.
         const auto comparison = Runtime_CompareBinary64WithZero(&value);
-        return (comparison & 0x4000u) != 0 ? (negative ? 0x20 : 0x40) : (negative ? 8 : 0x100);
+        return (comparison & ReadableValues::BitMask::Bit14) != 0 ? (negative ? 0x20 : 0x40) : (negative ? 8 : 0x100);
     }
 
     // Original function: FUN_004f1aef; preserve caller-supplied record bytes and handler updates.
@@ -11200,30 +11201,30 @@ namespace NXBasics
         record->status = 0;
         std::uint32_t exceptionCode = flags;
         const auto lowFlags = static_cast<std::uint8_t>(flags);
-        if ((lowFlags & 0x10u) != 0)
+        if ((lowFlags & ReadableValues::BitMask::Bit4) != 0)
         {
-            exceptionCode = 0xC000008Fu;
+            exceptionCode = SwitchIds::WindowsException::FloatingPointInexactResult;
             record->cause |= 1u;
         }
         if ((lowFlags & 2u) != 0)
         {
-            exceptionCode = 0xC0000093u;
+            exceptionCode = SwitchIds::WindowsException::FloatingPointUnderflow;
             record->cause |= 2u;
         }
         if ((lowFlags & 1u) != 0)
         {
-            exceptionCode = 0xC0000091u;
+            exceptionCode = SwitchIds::WindowsException::FloatingPointOverflow;
             record->cause |= 4u;
         }
         if ((lowFlags & 4u) != 0)
         {
-            exceptionCode = 0xC000008Eu;
+            exceptionCode = SwitchIds::WindowsException::FloatingPointDivideByZero;
             record->cause |= 8u;
         }
         if ((lowFlags & 8u) != 0)
         {
-            exceptionCode = 0xC0000090u;
-            record->cause |= 0x10u;
+            exceptionCode = SwitchIds::WindowsException::FloatingPointInvalidOperation;
+            record->cause |= ReadableValues::BitMask::Bit4;
         }
         record->enable = (record->enable & ~0x10u) | ((~*controlWord & 1u) << 4);
         record->enable = (record->enable & ~8u) | ((~*controlWord & 4u) << 1);
@@ -11231,52 +11232,52 @@ namespace NXBasics
         record->enable = (record->enable & ~2u) | ((~*controlWord >> 3) & 2u);
         record->enable = (record->enable & ~1u) | ((~*controlWord >> 5) & 1u);
         const auto status = static_cast<std::uint32_t>(Runtime_ReadX87StatusRaw());
-        if ((status & 1u) != 0) record->status |= 0x10u;
+        if ((status & 1u) != 0) record->status |= ReadableValues::BitMask::Bit4;
         if ((status & 4u) != 0) record->status |= 8u;
         if ((status & 8u) != 0) record->status |= 4u;
-        if ((status & 0x10u) != 0) record->status |= 2u;
-        if ((status & 0x20u) != 0) record->status |= 1u;
-        switch (*controlWord & 0xC00u)
+        if ((status & ReadableValues::BitMask::Bit4) != 0) record->status |= 2u;
+        if ((status & ReadableValues::BitMask::Bit5) != 0) record->status |= 1u;
+        switch (*controlWord & ReadableValues::BitMask::Bits10Through11)
         {
             case SwitchIds::X87RoundingControl::Nearest: record->controlAndOperation &= ~3u; break;
             case SwitchIds::X87RoundingControl::Down: record->controlAndOperation = (record->controlAndOperation & ~2u) | 1u; break;
             case SwitchIds::X87RoundingControl::Up: record->controlAndOperation = (record->controlAndOperation & ~1u) | 2u; break;
             case SwitchIds::X87RoundingControl::TowardZero: record->controlAndOperation |= 3u; break;
         }
-        switch (*controlWord & 0x300u)
+        switch (*controlWord & ReadableValues::BitMask::Bits8Through9)
         {
-            case SwitchIds::X87PrecisionControl::Single24: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFEBu) | 8u; break;
-            case SwitchIds::X87PrecisionControl::Double53: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFE7u) | 4u; break;
-            case SwitchIds::X87PrecisionControl::Extended64: record->controlAndOperation &= 0xFFFFFFE3u; break;
+            case SwitchIds::X87PrecisionControl::Single24: record->controlAndOperation = (record->controlAndOperation & ReadableValues::BitMask::Bits0Through1AndBit3AndBits5Through31) | 8u; break;
+            case SwitchIds::X87PrecisionControl::Double53: record->controlAndOperation = (record->controlAndOperation & ReadableValues::BitMask::DwordExceptBits3Through4) | 4u; break;
+            case SwitchIds::X87PrecisionControl::Extended64: record->controlAndOperation &= ReadableValues::BitMask::DwordExceptBits2Through4; break;
         }
-        record->controlAndOperation = (record->controlAndOperation & 0xFFFE001Fu) | ((operation & 0xFFFu) << 5);
+        record->controlAndOperation = (record->controlAndOperation & ReadableValues::BitMask::DwordExceptBits5Through16) | ((operation & ReadableValues::BitMask::Low12BitsUnsigned) << 5);
         record->operand1.flags |= 1u;
-        record->operand1.flags = (record->operand1.flags & 0xFFFFFFE3u) | 2u;
+        record->operand1.flags = (record->operand1.flags & ReadableValues::BitMask::DwordExceptBits2Through4) | 2u;
         record->operand1.value = Runtime_LoadBinary64ToX87(argument);
         record->result.flags |= 1u;
-        record->result.flags = (record->result.flags & 0xFFFFFFE3u) | 2u;
+        record->result.flags = (record->result.flags & ReadableValues::BitMask::DwordExceptBits2Through4) | 2u;
         record->result.value = Runtime_LoadBinary64ToX87(result);
         static_cast<void>(Runtime_ClearX87StatusRaw());
         const ULONG_PTR exceptionArgument = reinterpret_cast<ULONG_PTR>(record);
         RaiseException(exceptionCode, 0, 1, &exceptionArgument);
-        if ((record->enable & 0x10u) != 0) *controlWord &= 0xFFFFFFFEu;
-        if ((record->enable & 8u) != 0) *controlWord &= 0xFFFFFFFBu;
-        if ((record->enable & 4u) != 0) *controlWord &= 0xFFFFFFF7u;
-        if ((record->enable & 2u) != 0) *controlWord &= 0xFFFFFFEFu;
-        if ((record->enable & 1u) != 0) *controlWord &= 0xFFFFFFDFu;
+        if ((record->enable & ReadableValues::BitMask::Bit4) != 0) *controlWord &= ReadableValues::BitMask::DwordExceptBit0;
+        if ((record->enable & 8u) != 0) *controlWord &= ReadableValues::BitMask::DwordExceptBit2;
+        if ((record->enable & 4u) != 0) *controlWord &= ReadableValues::BitMask::DwordExceptBit3;
+        if ((record->enable & 2u) != 0) *controlWord &= ReadableValues::BitMask::DwordExceptBit4;
+        if ((record->enable & 1u) != 0) *controlWord &= ReadableValues::BitMask::DwordExceptBit5;
         switch (record->controlAndOperation & 3u)
         {
-            case SwitchIds::MathRecordRounding::Nearest: *controlWord &= 0xFFFFF3FFu; break;
-            case SwitchIds::MathRecordRounding::Down: *controlWord = (*controlWord & 0xFFFFF7FFu) | 0x400u; break;
-            case SwitchIds::MathRecordRounding::Up: *controlWord = (*controlWord & 0xFFFFFBFFu) | 0x800u; break;
-            case SwitchIds::MathRecordRounding::TowardZero: *controlWord |= 0xC00u; break;
+            case SwitchIds::MathRecordRounding::Nearest: *controlWord &= ReadableValues::BitMask::DwordExceptBits10Through11; break;
+            case SwitchIds::MathRecordRounding::Down: *controlWord = (*controlWord & ReadableValues::BitMask::DwordExceptBit11) | ReadableValues::BitMask::Bit10; break;
+            case SwitchIds::MathRecordRounding::Up: *controlWord = (*controlWord & ReadableValues::BitMask::DwordExceptBit10) | ReadableValues::BitMask::Bit11; break;
+            case SwitchIds::MathRecordRounding::TowardZero: *controlWord |= ReadableValues::BitMask::Bits10Through11; break;
         }
         // These original precision cases deliberately use the rounding mask, not a corrected PC mask.
         switch ((record->controlAndOperation >> 2) & 7u)
         {
-            case SwitchIds::MathRecordPrecision::Extended64: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x300u; break;
-            case SwitchIds::MathRecordPrecision::Double53: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x200u; break;
-            case SwitchIds::MathRecordPrecision::Single24: *controlWord &= 0xFFFFF3FFu; break;
+            case SwitchIds::MathRecordPrecision::Extended64: *controlWord = (*controlWord & ReadableValues::BitMask::DwordExceptBits10Through11) | ReadableValues::BitMask::Bits8Through9; break;
+            case SwitchIds::MathRecordPrecision::Double53: *controlWord = (*controlWord & ReadableValues::BitMask::DwordExceptBits10Through11) | ReadableValues::BitMask::Bit9Unsigned; break;
+            case SwitchIds::MathRecordPrecision::Single24: *controlWord &= ReadableValues::BitMask::DwordExceptBits10Through11; break;
         }
         *result = Runtime_LoadBinary64ToX87(&record->result.value);
     }
@@ -11351,37 +11352,37 @@ namespace NXBasics
     {
         std::uint32_t control = 0;
 
-        if ((controlWord & 0x0001u) != 0)
-            control |= 0x00000010u;
-        if ((controlWord & 0x0004u) != 0)
-            control |= 0x00000008u;
-        if ((controlWord & 0x0008u) != 0)
-            control |= 0x00000004u;
-        if ((controlWord & 0x0010u) != 0)
-            control |= 0x00000002u;
-        if ((controlWord & 0x0020u) != 0)
-            control |= 0x00000001u;
-        if ((controlWord & 0x0002u) != 0)
-            control |= 0x00080000u;
+        if ((controlWord & 1u) != 0)
+            control |= ReadableValues::BitMask::Bit4;
+        if ((controlWord & ReadableValues::BitMask::Bit2) != 0)
+            control |= ReadableValues::BitMask::Bit3;
+        if ((controlWord & ReadableValues::BitMask::Bit3) != 0)
+            control |= ReadableValues::BitMask::Bit2;
+        if ((controlWord & ReadableValues::BitMask::Bit4) != 0)
+            control |= ReadableValues::BitMask::Bit1;
+        if ((controlWord & ReadableValues::BitMask::Bit5) != 0)
+            control |= 1u;
+        if ((controlWord & ReadableValues::BitMask::Bit1) != 0)
+            control |= ReadableValues::BitMask::Bit19;
 
-        control |= static_cast<std::uint32_t>(controlWord & 0x0C00u) >> 2;
+        control |= static_cast<std::uint32_t>(controlWord & ReadableValues::BitMask::Bits10Through11) >> 2;
 
-        switch (controlWord & 0x0300u)
+        switch (controlWord & ReadableValues::BitMask::Bits8Through9)
         {
             case SwitchIds::X87PrecisionControl::Single24Unsigned:
-                control |= 0x00020000u;
+                control |= ReadableValues::BitMask::Bit17;
                 break;
 
             case SwitchIds::X87PrecisionControl::Double53Unsigned:
-                control |= 0x00010000u;
+                control |= ReadableValues::BitMask::Bit16;
                 break;
 
             default:
                 break;
         }
 
-        if ((controlWord & 0x1000u) != 0)
-            control |= 0x00040000u;
+        if ((controlWord & ReadableValues::BitMask::Bit12) != 0)
+            control |= ReadableValues::BitMask::Bit18;
 
         return control;
     }
@@ -11391,37 +11392,37 @@ namespace NXBasics
     {
         std::uint32_t controlWord = 0;
 
-        if ((control & 0x00000010u) != 0)
-            controlWord |= 0x0001u;
-        if ((control & 0x00000008u) != 0)
-            controlWord |= 0x0004u;
-        if ((control & 0x00000004u) != 0)
-            controlWord |= 0x0008u;
-        if ((control & 0x00000002u) != 0)
-            controlWord |= 0x0010u;
-        if ((control & 0x00000001u) != 0)
-            controlWord |= 0x0020u;
-        if ((control & 0x00080000u) != 0)
-            controlWord |= 0x0002u;
+        if ((control & ReadableValues::BitMask::Bit4) != 0)
+            controlWord |= 1u;
+        if ((control & ReadableValues::BitMask::Bit3) != 0)
+            controlWord |= ReadableValues::BitMask::Bit2;
+        if ((control & ReadableValues::BitMask::Bit2) != 0)
+            controlWord |= ReadableValues::BitMask::Bit3;
+        if ((control & ReadableValues::BitMask::Bit1) != 0)
+            controlWord |= ReadableValues::BitMask::Bit4;
+        if ((control & 1u) != 0)
+            controlWord |= ReadableValues::BitMask::Bit5;
+        if ((control & ReadableValues::BitMask::Bit19) != 0)
+            controlWord |= ReadableValues::BitMask::Bit1;
 
-        controlWord |= (control & 0x00000300u) << 2;
+        controlWord |= (control & ReadableValues::BitMask::Bits8Through9) << 2;
 
-        switch (control & 0x00030000u)
+        switch (control & ReadableValues::BitMask::Bits16Through17)
         {
             case SwitchIds::RuntimePrecisionControl::Extended64:
-                controlWord |= 0x0300u;
+                controlWord |= ReadableValues::BitMask::Bits8Through9;
                 break;
 
             case SwitchIds::RuntimePrecisionControl::Double53:
-                controlWord |= 0x0200u;
+                controlWord |= ReadableValues::BitMask::Bit9Unsigned;
                 break;
 
             default:
                 break;
         }
 
-        if ((control & 0x00040000u) != 0)
-            controlWord |= 0x1000u;
+        if ((control & ReadableValues::BitMask::Bit18) != 0)
+            controlWord |= ReadableValues::BitMask::Bit12;
 
         return static_cast<std::uint16_t>(controlWord);
     }
@@ -11431,7 +11432,7 @@ namespace NXBasics
     bool Runtime_MantissaTailIsZero(const std::uint32_t* value, int bitIndex)
     {
         const int word = bitIndex / 32;
-        if ((value[word] & ~(0xffffffffu << (31 - bitIndex % 32))) != 0)
+        if ((value[word] & ~(ReadableValues::IntegerRange::UInt32Maximum << (31 - bitIndex % 32))) != 0)
             return false;
         for (int i = word + 1; i < 3; ++i)
             if (value[i] != 0)
@@ -11465,7 +11466,7 @@ namespace NXBasics
         std::uint32_t carry = 0;
         if ((value[word] & (1u << shift)) != 0 && !Runtime_MantissaTailIsZero(value, precision + 1))
             carry = Runtime_IncrementMantissa(value, precision - 1);
-        value[word] &= 0xffffffffu << shift;
+        value[word] &= ReadableValues::IntegerRange::UInt32Maximum << shift;
         for (int i = word + 1; i < 3; ++i)
             value[i] = 0;
         return carry;
@@ -11498,7 +11499,7 @@ namespace NXBasics
         std::memcpy(&mantissa[1], bytes + 2, 4);
         std::memcpy(&low, bytes, 2);
         mantissa[2] = std::uint32_t(low) << 16;
-        int exponent = (signExponent & 0x7fff) - 0x3fff;
+        int exponent = (signExponent & ReadableValues::IntegerRange::Int16MaximumSigned) - 0x3fff;
         int field = 0;
         int status = 0;
         if (exponent == -0x3fff)
@@ -11529,19 +11530,19 @@ namespace NXBasics
             else if (exponent >= format.maximumExponent)
             {
                 Runtime_Zero96(mantissa);
-                mantissa[0] = 0x80000000u;
+                mantissa[0] = ReadableValues::IntegerRange::Bit31;
                 Runtime_ShiftMantissaRight(mantissa, format.exponentBits);
                 field = format.bias + format.maximumExponent;
                 status = 1;
             }
             else
             {
-                mantissa[0] &= 0x7fffffffu;
+                mantissa[0] &= ReadableValues::IntegerRange::Int32Maximum;
                 Runtime_ShiftMantissaRight(mantissa, format.exponentBits);
                 field = format.bias + exponent;
             }
         }
-        const std::uint32_t high = (std::uint32_t(field) << (31 - format.exponentBits)) | ((signExponent & 0x8000u) << 16) | mantissa[0];
+        const std::uint32_t high = (std::uint32_t(field) << (31 - format.exponentBits)) | ((signExponent & ReadableValues::BitMask::Bit15) << 16) | mantissa[0];
         if (format.totalBits == 64)
         {
             std::memcpy(destination, &mantissa[1], 4);
@@ -11686,18 +11687,18 @@ namespace NXBasics
         const std::uint32_t sourceLow = sourceWords[0];
         const std::uint32_t sourceHigh = sourceWords[1];
 
-        const std::uint32_t sign = (sourceHigh >> 16) & 0x8000u;
-        const std::uint32_t exponent = (sourceHigh >> 20) & 0x7FFu;
-        const std::uint32_t fractionHigh = sourceHigh & 0xFFFFFu;
+        const std::uint32_t sign = (sourceHigh >> 16) & ReadableValues::BitMask::Bit15;
+        const std::uint32_t exponent = (sourceHigh >> 20) & ReadableValues::Binary64::ExponentMaximum;
+        const std::uint32_t fractionHigh = sourceHigh & ReadableValues::BitMask::Low20Bits;
 
-        std::uint32_t explicitIntegerBit = 0x80000000u;
+        std::uint32_t explicitIntegerBit = ReadableValues::IntegerRange::Bit31;
         std::uint32_t extendedExponent;
 
         if (exponent != 0)
         {
-            if (exponent == 0x7FFu)
+            if (exponent == ReadableValues::Binary64::ExponentMaximum)
             {
-                extendedExponent = 0x7FFFu;
+                extendedExponent = ReadableValues::IntegerRange::Int16Maximum;
             }
             else
             {
@@ -11725,7 +11726,7 @@ namespace NXBasics
         destination->word1 = mantissaHigh;
         destination->word0 = mantissaLow;
 
-        while ((mantissaHigh & 0x80000000u) == 0)
+        while ((mantissaHigh & ReadableValues::IntegerRange::Bit31) == 0)
         {
             mantissaLow = destination->word0;
 
@@ -11736,7 +11737,7 @@ namespace NXBasics
             destination->word1 = mantissaHigh;
 
             // Preserve the original addition; only the low word is stored.
-            extendedExponent += 0xFFFFu;
+            extendedExponent += ReadableValues::IntegerRange::UInt16Maximum;
         }
 
         destination->word2 = static_cast<std::uint16_t>(sign | extendedExponent);
@@ -12034,10 +12035,10 @@ namespace NXBasics
             if (stream == nullptr)
                 continue;
 
-            if ((stream->flags & 0x83u) != 0)
+            if ((stream->flags & ReadableValues::BitMask::ByteExceptBits2Through6) != 0)
             {
                 // Original close wrapper: FUN_004e8c4a.
-                if ((stream->flags & 0x40u) != 0)
+                if ((stream->flags & ReadableValues::BitMask::Bit6) != 0)
                 {
                     stream->flags = 0;
                 }
@@ -12542,7 +12543,7 @@ namespace NXBasics
                 const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 
                 // Preserve signed indexing, including the original EOF case.
-                isLower = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 0x02u) != 0;
+                isLower = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & ReadableValues::BitMask::Bit1) != 0;
             }
 
             if (!isLower)
@@ -12552,22 +12553,22 @@ namespace NXBasics
         }
 
         const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
-        const std::uint32_t highByte = (character >> 8) & 0xFFu;
+        const std::uint32_t highByte = (character >> 8) & ReadableValues::IntegerRange::UInt8Maximum;
 
         char source[3];
         int sourceLength;
 
-        if ((characterTypes[highByte * 2u + 1u] & 0x80u) != 0)
+        if ((characterTypes[highByte * 2u + 1u] & ReadableValues::BitMask::Bit7) != 0)
         {
             // Emit the lead byte before the low byte.
             source[0] = static_cast<char>(highByte);
-            source[1] = static_cast<char>(character & 0xFFu);
+            source[1] = static_cast<char>(character & ReadableValues::IntegerRange::UInt8Maximum);
             source[2] = '\0';
             sourceLength = 2;
         }
         else
         {
-            source[0] = static_cast<char>(character & 0xFFu);
+            source[0] = static_cast<char>(character & ReadableValues::IntegerRange::UInt8Maximum);
             source[1] = '\0';
             sourceLength = 1;
         }
@@ -12654,12 +12655,12 @@ namespace NXBasics
             destination[0] <<= 16;
             exponent = static_cast<std::uint16_t>(exponent - 16);
         }
-        while ((destination[2] & 0x8000u) == 0)
+        while ((destination[2] & ReadableValues::BitMask::Bit15) == 0)
         {
             Runtime_ShiftLeft96(destination);
             --exponent;
         }
-        destination[2] = (destination[2] & 0xffffu) | (std::uint32_t(exponent) << 16);
+        destination[2] = (destination[2] & ReadableValues::IntegerRange::UInt16Maximum) | (std::uint32_t(exponent) << 16);
     }
 
     // Original function: FUN_004f221b
@@ -12683,8 +12684,8 @@ namespace NXBasics
             return 1;
         };
 
-        const std::uint32_t sign = value.word2 & 0x8000u;
-        const std::uint32_t exponent = value.word2 & 0x7FFFu;
+        const std::uint32_t sign = value.word2 & ReadableValues::BitMask::Bit15;
+        const std::uint32_t exponent = value.word2 & ReadableValues::IntegerRange::Int16Maximum;
         const std::uint32_t mantissaHigh = value.word1;
         const std::uint32_t mantissaLow = value.word0;
 
@@ -12695,13 +12696,13 @@ namespace NXBasics
             return writeZero();
         }
 
-        if (exponent == 0x7FFFu)
+        if (exponent == ReadableValues::IntegerRange::Int16Maximum)
         {
             result->decimalPosition = 1;
 
-            const bool isInfinity = mantissaHigh == 0x80000000u && mantissaLow == 0;
+            const bool isInfinity = mantissaHigh == ReadableValues::IntegerRange::Bit31 && mantissaLow == 0;
 
-            if (!isInfinity && (mantissaHigh & 0x40000000u) == 0)
+            if (!isInfinity && (mantissaHigh & ReadableValues::BitMask::Bit30) == 0)
             {
                 std::strcpy(result->digits, "1#SNAN");
                 result->digitCount = 6;
@@ -12755,7 +12756,7 @@ namespace NXBasics
 
         std::int32_t digitLimit = requestedDigits;
 
-        if ((options & 0x01u) != 0)
+        if ((options & 1u) != 0)
         {
             const std::uint32_t limitBits = static_cast<std::uint32_t>(requestedDigits) + static_cast<std::uint32_t>(static_cast<std::int32_t>(result->decimalPosition));
             digitLimit = asSigned(limitBits);
@@ -12773,7 +12774,7 @@ namespace NXBasics
 
         const std::int32_t binaryShift = static_cast<std::int32_t>(working[2] >> 16) - 0x3FFE;
 
-        working[2] &= 0x0000FFFFu;
+        working[2] &= ReadableValues::IntegerRange::UInt16Maximum;
 
         for (std::int32_t index = 0; index < 8; ++index)
         {
@@ -12782,7 +12783,7 @@ namespace NXBasics
 
         if (binaryShift < 0)
         {
-            std::uint32_t remainingShifts = static_cast<std::uint32_t>(-binaryShift) & 0xFFu;
+            std::uint32_t remainingShifts = static_cast<std::uint32_t>(-binaryShift) & ReadableValues::IntegerRange::UInt8Maximum;
 
             while (remainingShifts != 0)
             {
@@ -12808,7 +12809,7 @@ namespace NXBasics
             Runtime_ShiftLeft96(working);
 
             const std::uint8_t digit = static_cast<std::uint8_t>(working[2] >> 24);
-            working[2] &= 0x00FFFFFFu;
+            working[2] &= ReadableValues::BitMask::Low24Bits;
 
             resultBytes[outputOffset++] = static_cast<std::uint8_t>(digit + 0x30u);
             --remainingDigits;
@@ -12893,17 +12894,17 @@ namespace NXBasics
 
         const auto signedExponent = [] (std::uint32_t bits) -> std::int32_t
         {
-            const std::uint32_t low = bits & 0xFFFFu;
-            return (low & 0x8000u) != 0
+            const std::uint32_t low = bits & ReadableValues::IntegerRange::UInt16Maximum;
+            return (low & ReadableValues::BitMask::Bit15) != 0
                 ? static_cast<std::int32_t>(low) - 0x10000
                 : static_cast<std::int32_t>(low);
         };
 
         const std::uint16_t leftSignExponent = read16(destination, 10);
         const std::uint16_t rightSignExponent = read16(source, 10);
-        const std::uint32_t sign = (leftSignExponent ^ rightSignExponent) & 0x8000u;
-        const std::uint32_t leftExponent = leftSignExponent & 0x7FFFu;
-        const std::uint32_t rightExponent = rightSignExponent & 0x7FFFu;
+        const std::uint32_t sign = (leftSignExponent ^ rightSignExponent) & ReadableValues::BitMask::Bit15;
+        const std::uint32_t leftExponent = leftSignExponent & ReadableValues::IntegerRange::Int16Maximum;
+        const std::uint32_t rightExponent = rightSignExponent & ReadableValues::IntegerRange::Int16Maximum;
 
         std::uint32_t exponentBits = leftExponent + rightExponent;
         std::uint32_t product[3] = {};
@@ -12912,7 +12913,7 @@ namespace NXBasics
         {
             destination[1] = 0;
             destination[0] = 0;
-            destination[2] = 0x7FFF8000u + (sign != 0 ? 0x80000000u : 0u);
+            destination[2] = 0x7FFF8000u + (sign != 0 ? ReadableValues::IntegerRange::Bit31 : 0u);
         };
 
         const auto setZero = [&] ()
@@ -12922,13 +12923,13 @@ namespace NXBasics
             destination[0] = 0;
         };
 
-        if (leftExponent >= 0x7FFFu || rightExponent >= 0x7FFFu || (exponentBits & 0xFFFFu) > 0xBFFDu)
+        if (leftExponent >= ReadableValues::IntegerRange::Int16Maximum || rightExponent >= ReadableValues::IntegerRange::Int16Maximum || (exponentBits & ReadableValues::IntegerRange::UInt16Maximum) > 0xBFFDu)
         {
             setOverflow();
             return;
         }
 
-        if ((exponentBits & 0xFFFFu) <= 0x3FBFu)
+        if ((exponentBits & ReadableValues::IntegerRange::UInt16Maximum) <= 0x3FBFu)
         {
             setZero();
             return;
@@ -12938,7 +12939,7 @@ namespace NXBasics
         {
             ++exponentBits;
 
-            if ((destination[2] & 0x7FFFFFFFu) == 0 && destination[1] == 0 && destination[0] == 0)
+            if ((destination[2] & ReadableValues::IntegerRange::Int32Maximum) == 0 && destination[1] == 0 && destination[0] == 0)
             {
                 write16(destination, 10, 0);
                 return;
@@ -12949,7 +12950,7 @@ namespace NXBasics
         {
             ++exponentBits;
 
-            if ((source[2] & 0x7FFFFFFFu) == 0 && source[1] == 0 && source[0] == 0)
+            if ((source[2] & ReadableValues::IntegerRange::Int32Maximum) == 0 && source[1] == 0 && source[0] == 0)
             {
                 setZero();
                 return;
@@ -12983,10 +12984,10 @@ namespace NXBasics
 
         if (signedExponent(exponentBits) > 0)
         {
-            while ((product[2] & 0x80000000u) == 0)
+            while ((product[2] & ReadableValues::IntegerRange::Bit31) == 0)
             {
                 Runtime_ShiftLeft96(product);
-                exponentBits += 0xFFFFu;
+                exponentBits += ReadableValues::IntegerRange::UInt16Maximum;
 
                 if (signedExponent(exponentBits) <= 0)
                     break;
@@ -12995,7 +12996,7 @@ namespace NXBasics
 
         if (signedExponent(exponentBits) <= 0)
         {
-            exponentBits += 0xFFFFu;
+            exponentBits += ReadableValues::IntegerRange::UInt16Maximum;
 
             if (signedExponent(exponentBits) < 0)
             {
@@ -13018,11 +13019,11 @@ namespace NXBasics
         }
 
         // Round to nearest, choosing an even retained significand on a tie.
-        if ((product[0] & 0xFFFFu) > 0x8000u || (product[0] & 0x1FFFFu) == 0x18000u)
+        if ((product[0] & ReadableValues::IntegerRange::UInt16Maximum) > 0x8000u || (product[0] & ReadableValues::BitMask::Low17Bits) == 0x18000u)
         {
             const std::uint32_t low = read32(product, 2);
 
-            if (low != 0xFFFFFFFFu)
+            if (low != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 write32(product, 2, low + 1u);
             }
@@ -13032,7 +13033,7 @@ namespace NXBasics
 
                 const std::uint32_t middle = read32(product, 6);
 
-                if (middle != 0xFFFFFFFFu)
+                if (middle != ReadableValues::IntegerRange::UInt32Maximum)
                 {
                     write32(product, 6, middle + 1u);
                 }
@@ -13042,7 +13043,7 @@ namespace NXBasics
 
                     const std::uint16_t high = read16(product, 10);
 
-                    if (high != 0xFFFFu)
+                    if (high != ReadableValues::IntegerRange::UInt16Maximum)
                     {
                         write16(product, 10, static_cast<std::uint16_t>(high + 1u));
                     }
@@ -13055,7 +13056,7 @@ namespace NXBasics
             }
         }
 
-        if ((exponentBits & 0xFFFFu) >= 0x7FFFu)
+        if ((exponentBits & ReadableValues::IntegerRange::UInt16Maximum) >= ReadableValues::IntegerRange::Int16Maximum)
         {
             setOverflow();
             return;
@@ -13083,7 +13084,7 @@ namespace NXBasics
         }
 
         if (preserveLowWord == 0)
-            value[0] &= 0xFFFF0000u;
+            value[0] &= ReadableValues::BitMask::DwordExceptBits0Through15;
 
         std::size_t groupOffset = 0;
 
@@ -13092,14 +13093,14 @@ namespace NXBasics
             const std::uint32_t digit = remaining & 7u;
 
             // Preserve the original arithmetic right shift.
-            remaining = (remaining >> 3) | ((remaining & 0x80000000u) != 0 ? 0xE0000000u : 0u);
+            remaining = (remaining >> 3) | ((remaining & ReadableValues::IntegerRange::Bit31) != 0 ? 0xE0000000u : 0u);
 
             if (digit != 0)
             {
                 const std::uint32_t* factor = table[groupOffset + digit - 1u];
                 std::uint32_t adjusted[3];
 
-                if ((factor[0] & 0xFFFFu) >= 0x8000u)
+                if ((factor[0] & ReadableValues::IntegerRange::UInt16Maximum) >= 0x8000u)
                 {
                     std::memcpy(adjusted, factor, sizeof(adjusted));
 
@@ -13125,7 +13126,7 @@ namespace NXBasics
     {
         if (gRuntimeIsMultibyteCodePage == 0)
         {
-            return std::strchr(text, static_cast<int>(character & 0xFFu));
+            return std::strchr(text, static_cast<int>(character & ReadableValues::IntegerRange::UInt8Maximum));
         }
 
         Runtime_Lock(0x19);

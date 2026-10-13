@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "XBitmap.h"
 #include "C2LifetimeAccess.h"
@@ -85,15 +86,15 @@ namespace NC2InGameGuiBase
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify)
     };
-    static_assert(sizeof(gBaseBitmapToolElementVirtualTable) == 0x48);
+    static_assert(sizeof(gBaseBitmapToolElementVirtualTable) == 72);
 
     // Original function: FUN_004b8aa0; CBaseBitmapToolElement constructor.
     void* BaseBitmapToolElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId, std::int32_t depth)
     {
         NXBaseGui::BaseElement_Construct(element, rectangle, flags, elementId);
-        BitmapTool_Write(element, 0x00, gBaseBitmapToolElementVirtualTable + 0);
+        BitmapTool_Write(element, 0, gBaseBitmapToolElementVirtualTable + 0);
         BitmapTool_Write<void*>(element, 0x2C, nullptr);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         NXBasics::CBitmap* bitmap = allocation == nullptr ? nullptr : ::new (allocation) NXBasics::CBitmap(rectangle->width, rectangle->height, depth);
         BitmapTool_Write(element, 0x2C, bitmap);
         return element;
@@ -103,7 +104,7 @@ namespace NC2InGameGuiBase
     void BaseBitmapToolElement_Destruct(void* element)
     {
         auto* bitmap = BitmapTool_Read<NXBasics::CBitmap*>(element, 0x2C);
-        BitmapTool_Write(element, 0x00, gBaseBitmapToolElementVirtualTable + 0);
+        BitmapTool_Write(element, 0, gBaseBitmapToolElementVirtualTable + 0);
         if (bitmap != nullptr)
             delete bitmap;
         NXBaseGui::BaseElement_Destruct(element);
@@ -173,7 +174,7 @@ namespace NC2InGameGuiBase
     {
         BaseElement_Construct(element, rectangle, 0, 0);
         Write(element, 0, gGfxElementVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 0xC);
+        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 12);
         Write(element, 0x2C, graphicsId);
         Write<std::uint8_t>(element, 0x34, 1);
         return element;
@@ -211,7 +212,7 @@ namespace NC2InGameGuiBase
     {
         BaseElement_Construct(element, rectangle, 2, 0x140);
         Write(element, 0, gGfxButtonVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 0x28);
+        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 40);
         Write(element, 0x2C, graphicsId);
         Write(element, 0x38, command);
         Write(element, 0x3C, handler);
@@ -224,7 +225,7 @@ namespace NC2InGameGuiBase
     {
         BaseElement_Construct(element, rectangle, 2, 0x140);
         Write(element, 0, gGfxButtonVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 0x28);
+        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 40);
         Write(element, 0x2C, graphicsId);
         Write(element, 0x38, command);
         Write(element, 0x3C, handler);
@@ -279,7 +280,7 @@ namespace NC2InGameGuiBase
     // to the background/frame helpers, while the Bob coordinates remain local.
     static void __fastcall GfxButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        const bool highlighted = (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
+        const bool highlighted = (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
         if (Read<std::uint8_t>(element, 0x35) != 0)
         {
             const auto mode = highlighted ? 4 : (Read<std::uint8_t>(element, 0x36) != 0 ? 3 : 2);
@@ -383,7 +384,7 @@ namespace NC2InGameGuiBase
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify)
     };
-    static_assert(sizeof(gWindowMoverButtonVirtualTable) == 0x48);
+    static_assert(sizeof(gWindowMoverButtonVirtualTable) == 72);
 
     // Original function: FUN_004b9869; CWindowMoverButton constructor.
     void* WindowMoverButton_Construct(void* element, const NXBasics::SRectangle* rectangle, const char* caption)
@@ -402,7 +403,7 @@ namespace NC2InGameGuiBase
     static void __fastcall WindowMoverButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         using namespace NC2Lifetime;
-        const auto mode = (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 ? 4 : 2;
+        const auto mode = (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
         NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = NC2GuiToolsBase::DrawTool_GetFont10Ptr();

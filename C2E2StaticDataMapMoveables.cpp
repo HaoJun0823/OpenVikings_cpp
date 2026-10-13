@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2E2StaticDataPalettes.h"
@@ -46,18 +47,18 @@ namespace NC2E2
         using WalkList = NC2Lifetime::CRuntimeOwnedList<SStaticMoveableShadowListTag>;
 
         // Complete Windows token tables 004F4858..004F495F and 00506708..00506727.
-        constexpr NXBasics::SToken gSequenceTokens[] = {{"imagelib", 0x696C6962}, {"shadowlib", 0x736C6962}, {"seq", 0x736571}, {nullptr, 0}};
-        constexpr NXBasics::SToken gAnimationTokens[] = {{"logictribe", 0x6C6F7472}, {"logicjob", 0x6C6F6A6F}, {"logicatomicaction", 0x6C6F6174}, {"logicinhouseatomicsubid", 0x6C6F6973}, {"gfxanimmode", 0x6766786D}, {"gfxbobseqbody", 0x67667862}, {"gfxbobseqhead", 0x67667868}, {"gfxanimframelist", 0x67667866}, {"gfxanimframelistdir", 0x67667864}, {"gfxinhousewalk", 0x67666877}, {"gfxinhouseanim", 0x67666861}, {"gfxinhouseoverlaybob", 0x6766686F}, {"gfxinhouseoverlaylandscape", 0x6766686C}, {nullptr, 0}};
-        constexpr NXBasics::SToken gWalkTokens[] = {{"logictribe", 0x6C6F7472}, {"logicjob", 0x6C6F6A6F}, {"logicgoodtype", 0x6C6F676F}, {"logicwalkspeed", 0x6C6F7773}, {"gfxbobseqbody", 0x67667862}, {"gfxbobseqhead", 0x67667868}, {"gfxwalkframelist", 0x67667866}, {"gfxturnframelist", 0x67667874}, {nullptr, 0}};
-        constexpr NXBasics::SToken gAnimalJobTokens[] = {{"logictribe", 0x6C6F7472}, {"logicjob", 0x6C6F6A6F}, {"gfxbobmanagerbody", 0x67666262}, {"gfxpalettebody", 0x67667062}, {nullptr, 0}};
-        constexpr NXBasics::SToken gVehicleJobTokens[] = {{"logictribe", 0x6C6F7472}, {"logicvehicle", 0x6C6F7665}, {"gfxbobmanagerbody", 0x67666262}, {"gfxpalettebody", 0x67667062}, {nullptr, 0}};
-        static_assert(sizeof(gAnimationTokens) == 0x70);
-        static_assert(sizeof(gWalkTokens) == 0x48);
+        constexpr NXBasics::SToken gSequenceTokens[] = {{"imagelib", SwitchIds::AnimationSequenceToken::Imagelib}, {"shadowlib", SwitchIds::AnimationSequenceToken::Shadowlib}, {"seq", ReadableValues::MapMoveablesToken::Seq}, {nullptr, 0}};
+        constexpr NXBasics::SToken gAnimationTokens[] = {{"logictribe", SwitchIds::AnimalVehicleJobToken::LogicTribe}, {"logicjob", SwitchIds::AnimalVehicleJobToken::LogicJob}, {"logicatomicaction", SwitchIds::HumanAnimationToken::LogicAtomicAction}, {"logicinhouseatomicsubid", SwitchIds::HumanAnimationToken::LogicInHouseAtomicSubId}, {"gfxanimmode", SwitchIds::HumanAnimationToken::Gfxanimmode}, {"gfxbobseqbody", SwitchIds::HumanAnimationToken::Gfxbobseqbody}, {"gfxbobseqhead", SwitchIds::HumanAnimationToken::Gfxbobseqhead}, {"gfxanimframelist", ReadableValues::MapMoveablesToken::GraphicsAnimationFrameList}, {"gfxanimframelistdir", SwitchIds::HumanAnimationToken::Gfxanimframelistdir}, {"gfxinhousewalk", SwitchIds::HumanAnimationToken::GfxInHouseWalk}, {"gfxinhouseanim", SwitchIds::HumanAnimationToken::Gfxinhouseanim}, {"gfxinhouseoverlaybob", SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob}, {"gfxinhouseoverlaylandscape", SwitchIds::HumanAnimationToken::GfxInHouseOverlayLandscape}, {nullptr, 0}};
+        constexpr NXBasics::SToken gWalkTokens[] = {{"logictribe", SwitchIds::AnimalVehicleJobToken::LogicTribe}, {"logicjob", SwitchIds::AnimalVehicleJobToken::LogicJob}, {"logicgoodtype", SwitchIds::HumanWalkAnimationToken::LogicGoodType}, {"logicwalkspeed", SwitchIds::HumanWalkAnimationToken::LogicWalkSpeed}, {"gfxbobseqbody", SwitchIds::HumanAnimationToken::Gfxbobseqbody}, {"gfxbobseqhead", SwitchIds::HumanAnimationToken::Gfxbobseqhead}, {"gfxwalkframelist", ReadableValues::MapMoveablesToken::GraphicsWalkFrameList}, {"gfxturnframelist", SwitchIds::HumanWalkAnimationToken::Gfxturnframelist}, {nullptr, 0}};
+        constexpr NXBasics::SToken gAnimalJobTokens[] = {{"logictribe", SwitchIds::AnimalVehicleJobToken::LogicTribe}, {"logicjob", SwitchIds::AnimalVehicleJobToken::LogicJob}, {"gfxbobmanagerbody", SwitchIds::AnimalVehicleJobToken::Gfxbobmanagerbody}, {"gfxpalettebody", SwitchIds::AnimalVehicleJobToken::GfxPaletteBody}, {nullptr, 0}};
+        constexpr NXBasics::SToken gVehicleJobTokens[] = {{"logictribe", SwitchIds::AnimalVehicleJobToken::LogicTribe}, {"logicvehicle", SwitchIds::AnimalVehicleJobToken::LogicVehicle}, {"gfxbobmanagerbody", SwitchIds::AnimalVehicleJobToken::Gfxbobmanagerbody}, {"gfxpalettebody", SwitchIds::AnimalVehicleJobToken::GfxPaletteBody}, {nullptr, 0}};
+        static_assert(sizeof(gAnimationTokens) == 112);
+        static_assert(sizeof(gWalkTokens) == 72);
 
         struct SSequenceEntry { char name[100]; std::int32_t firstBob; };
         struct SSequenceLibrary { char imageLibrary[100]; char shadowLibrary[100]; std::uint32_t count; SSequenceEntry* sequences; };
-        static_assert(sizeof(SSequenceEntry) == 0x68);
-        static_assert(sizeof(SSequenceLibrary) == 0xD0);
+        static_assert(sizeof(SSequenceEntry) == 104);
+        static_assert(sizeof(SSequenceLibrary) == 208);
 
         // Original random object 00568988..0056898F; independent from game randomness.
         NC2Logic::SGameRandomState gAnimationSelectionRandom{};
@@ -184,8 +185,8 @@ namespace NC2E2
         FastAnimationDataAccess_Construct(static_cast<std::byte*>(manager) + 8);
         FastWalkDataAccess_Construct(static_cast<std::byte*>(manager) + 0xDD30);
         gE2StaticDataMapMoveablesManager = manager;
-        std::memset(manager, 0, 0x1BA58);
-        std::memset(gStaticMapMoveableData, 0, 0x20);
+        std::memset(manager, 0, 113240);
+        std::memset(gStaticMapMoveableData, 0, 32);
         {
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\mapmoveableanimations\\animations.ini", nullptr, false, nullptr, nullptr);
             if (reader.IsLoaded())
@@ -241,14 +242,14 @@ namespace NC2E2
                             case SwitchIds::HumanAnimationToken::LogicInHouseAtomicSubId: animation->inHouseSubId = static_cast<std::uint32_t>(reader.GetInt()); break;
                             case SwitchIds::HumanAnimationToken::Gfxanimmode:
                                 animation->animationMode = reader.GetInt();
-                                if (animation->animationMode >= 0 && animation->animationMode <= 1) { animation->bodySequenceOrPartCount = 0; animation->headSequenceOrPartAddress = 0xFFFFFFFFu; }
+                                if (animation->animationMode >= 0 && animation->animationMode <= 1) { animation->bodySequenceOrPartCount = 0; animation->headSequenceOrPartAddress = ReadableValues::IntegerRange::UInt32Maximum; }
                                 break;
                             case SwitchIds::HumanAnimationToken::Gfxbobseqbody:
                             case SwitchIds::HumanAnimationToken::Gfxbobseqhead:
                                 if (animation->animationMode == 0 || animation->animationMode == 1)
                                 {
                                     const auto sequence = static_cast<std::uint32_t>(SearchBobSequence(manager, reader.GetString()));
-                                    if (token == 0x67667862) animation->bodySequenceOrPartCount = sequence;
+                                    if (token == SwitchIds::HumanAnimationToken::Gfxbobseqbody) animation->bodySequenceOrPartCount = sequence;
                                     else animation->headSequenceOrPartAddress = sequence;
                                 }
                                 break;
@@ -274,7 +275,7 @@ namespace NC2E2
                                 if (animation->animationMode == 2 && partCount != 50)
                                 {
                                     auto& part = parts[partCount];
-                                    part.type = token == 0x67666877 ? 1u : token == 0x67666861 ? 2u : token == 0x6766686F ? 3u : 4u;
+                                    part.type = token == SwitchIds::HumanAnimationToken::GfxInHouseWalk ? 1u : token == SwitchIds::HumanAnimationToken::Gfxinhouseanim ? 2u : token == SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob ? 3u : 4u;
                                     if (part.type == 1)
                                     {
                                         part.dataId = reader.GetInt(); part.parameter10 = reader.GetInt(); part.parameter14 = reader.GetInt(); part.parameter18 = reader.GetInt();
@@ -300,7 +301,7 @@ namespace NC2E2
                         {
                             animation->bodySequenceOrPartCount = partCount;
                             auto* data = Allocate<SE2StaticDataMapMoveableAnimationPart>(partCount);
-                            std::memcpy(data, parts, partCount * 0x1Cu);
+                            std::memcpy(data, parts, partCount * 28u);
                             animation->headSequenceOrPartAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(data));
                         }
                         if (animation->inHouseSubId == 0) InsertSorted(manager, 8, animation, false);
@@ -333,8 +334,8 @@ namespace NC2E2
                             case SwitchIds::HumanWalkAnimationToken::Gfxturnframelist:
                             {
                                 const auto direction = static_cast<std::uint32_t>(reader.GetInt());
-                                auto& count = token == 0x67667866 ? walkCounts[direction] : turnCounts[direction];
-                                auto* output = token == 0x67667866 ? walkFrames[direction] : turnFrames[direction];
+                                auto& count = token == SwitchIds::HumanAnimationToken::GfxAnimFrameList ? walkCounts[direction] : turnCounts[direction];
+                                auto* output = token == SwitchIds::HumanAnimationToken::GfxAnimFrameList ? walkFrames[direction] : turnFrames[direction];
                                 while (reader.GetTypeOfNextParameter() == 3 && count != 200) output[count++] = static_cast<std::uint32_t>(reader.GetInt());
                                 break;
                             }
@@ -381,7 +382,7 @@ namespace NC2E2
         if (next == nullptr || next->action != action) return record;
         std::uint32_t count = 1;
         do { choices[count++] = next; if (count == 10) break; next = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next()); } while (next != nullptr && next->action == action);
-        if (!gAnimationSelectionRandomInitialized) { gAnimationSelectionRandomInitialized = true; gAnimationSelectionRandom.currentState = 0x5432ACE0u; gAnimationSelectionRandom.seed = 0x5432ACE0u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AnimationSelectionRandom_AtExit)); }
+        if (!gAnimationSelectionRandomInitialized) { gAnimationSelectionRandomInitialized = true; gAnimationSelectionRandom.currentState = ReadableValues::RandomSeed::DisplayEffects; gAnimationSelectionRandom.seed = ReadableValues::RandomSeed::DisplayEffects; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AnimationSelectionRandom_AtExit)); }
         return choices[NC2Logic::Random_Get(gAnimationSelectionRandom) % count];
     }
 

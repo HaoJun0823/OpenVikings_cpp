@@ -17,8 +17,8 @@ namespace NMasterPropertyManager
 		char* stringValue;            // +0x0C
 	};
 
-	static_assert(sizeof(SProperty) == 0x10, "SProperty must be 16 bytes");
-	static_assert(offsetof(SProperty, name) == 0x00);
+	static_assert(sizeof(SProperty) == 16, "SProperty must be 16 bytes");
+	static_assert(offsetof(SProperty, name) == 0);
 	static_assert(offsetof(SProperty, isInteger) == 0x04);
 	static_assert(offsetof(SProperty, integerValue) == 0x08);
 	static_assert(offsetof(SProperty, stringValue) == 0x0C);
@@ -82,7 +82,7 @@ namespace NMasterPropertyManager
 			void l_DeleteData(void* value) override;
 		};
 
-		static_assert(sizeof(SObjectVars) == 0x14, "Property list must be 20 bytes");
+		static_assert(sizeof(SObjectVars) == 20, "Property list must be 20 bytes");
 
 		// Original function: FUN_004e171d
 		SProperty* l_Property_GetPtr(const char* propertyName);
@@ -96,5 +96,5 @@ namespace NMasterPropertyManager
 	};
 
 	static_assert(sizeof(void*) == 4, "CPropertyManager requires an x86 build");
-	static_assert(sizeof(CPropertyManager) == 0x18, "CPropertyManager must be 24 bytes");
+	static_assert(sizeof(CPropertyManager) == 24, "CPropertyManager must be 24 bytes");
 }

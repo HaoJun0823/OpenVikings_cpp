@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
@@ -63,7 +64,7 @@ namespace
     void BaseElement_MouseLeftArea(NXBaseGui::CBaseElement* element)
     {
         auto* bytes = reinterpret_cast<unsigned char*>(element);
-        bytes[0x19] &= 0xFEu;
+        bytes[0x19] &= ReadableValues::BitMask::ByteExceptBit0;
 
         std::int32_t state;
         std::memcpy(&state, bytes + 0x14, sizeof(state));
@@ -82,7 +83,7 @@ namespace NXBaseGui
     CDesktop::CDesktop(std::int32_t width, std::int32_t height, std::int32_t bitmapDepth) : mRectangle(0, 0, 0, 0)
     {
         static_assert(std::is_standard_layout_v<CDesktop>);
-        static_assert(offsetof(CDesktop, mRectangle) == 0x000);
+        static_assert(offsetof(CDesktop, mRectangle) == 0);
         static_assert(offsetof(CDesktop, mDisplayBitmap) == 0x010);
         static_assert(offsetof(CDesktop, mActiveElement) == 0x104);
         static_assert(offsetof(CDesktop, mMouseOverElement) == 0x108);
@@ -96,7 +97,7 @@ namespace NXBaseGui
         std::memset(static_cast<void*>(this), 0, sizeof(*this));
         mRectangle.SetVariables(0, 0, width, height);
 
-        void* bitmapAllocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* bitmapAllocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         mDisplayBitmap = bitmapAllocation == nullptr ? nullptr : ::new (bitmapAllocation) NXBasics::CBitmap(width, height, bitmapDepth);
         mDisplayBitmap->Fill(std::uint8_t{ 0 });
 
@@ -214,7 +215,7 @@ namespace NXBaseGui
     void CDesktop::Window_BringToFront(CBaseWindow* window)
     {
         auto* bytes = reinterpret_cast<std::byte*>(this);
-        const bool foreground = (reinterpret_cast<const std::uint8_t*>(window)[0x68] & 1u) != 0;
+        const bool foreground = (reinterpret_cast<const std::uint8_t*>(window)[104] & 1u) != 0;
         const std::uint32_t firstOffset = foreground ? 0x64u : 0xB4u;
         auto listAt = [bytes](std::uint32_t offset) { return std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(bytes + offset)); };
         for (std::uint32_t index = 0; index < 4; ++index) listAt(firstOffset + index * 0x14)->l_Base_RemoveElement(window);
@@ -398,7 +399,7 @@ namespace NXBaseGui
         const auto* bytes = reinterpret_cast<const std::byte*>(rootElement);
         std::memcpy(&flags, bytes + 0x18, sizeof(flags));
 
-        mElement010C = (flags & 0x04u) != 0 ? rootElement : nullptr;
+        mElement010C = (flags & ReadableValues::BitMask::Bit2) != 0 ? rootElement : nullptr;
     }
 
     // Original function: FUN_004777a0
@@ -430,7 +431,7 @@ namespace NXBaseGui
     void CDesktop::Element_Remove(CBaseElement* element)
     {
         auto* elementBytes = reinterpret_cast<unsigned char*>(element);
-        elementBytes[0x19] &= 0xF7u;
+        elementBytes[0x19] &= ReadableValues::BitMask::ByteExceptBit3;
         Element_Deactivate(element);
         auto* objectBytes = reinterpret_cast<std::byte*>(this);
         constexpr std::size_t listOffsets[] = { 0x14, 0x28, 0x3C, 0x50 };
@@ -577,7 +578,7 @@ namespace NXBaseGui
         NXBasics::CListBase::Iterator iterator(list);
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
         {
-            if ((Read<std::uint32_t>(element, 0x18) & 0x200u) != 0) continue;
+            if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
             auto area = BaseElement_GetRectangle(element);
             if (!rectangle.IsTouching(area)) continue;
             area.CutInside(rectangle);
@@ -586,7 +587,7 @@ namespace NXBaseGui
             area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) - Read<std::uint32_t>(element, 8));
             using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const NXBasics::SRectangle*);
             Read<TDraw*>(element, 0)[3](element, &clipped, &area);
-            if ((Read<std::uint32_t>(element, 0x18) & 0x40u) != 0)
+            if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit6) != 0)
             {
                 BaseWindow_DrawAllChildElements(element, &clipped, area);
                 Read<TDraw*>(element, 0)[18](element, &clipped, &area);
@@ -614,7 +615,7 @@ namespace NXBaseGui
         {
             const auto flags = Read<std::uint32_t>(element, 0x18);
             if (!includeDisabled && !BaseElement_CanBeActivated(element)) continue;
-            if ((flags & 0x200u) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, 0x1C) & messageMask) == 0)) continue;
+            if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, 0x1C) & messageMask) == 0)) continue;
             if (!DesktopPointInside(point, element)) continue;
             std::int32_t localPoint[2] = {point[0], point[1]};
             using TConvert = void(__thiscall*)(void*, std::int32_t*);
@@ -638,7 +639,7 @@ namespace NXBaseGui
     {
         auto* element = l_Element_FindOnPosition(point, includeDisabled, 0);
         if (element == nullptr) return nullptr;
-        if ((Read<std::uint32_t>(element, 0x18) & 0x40u) != 0)
+        if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit6) != 0)
         {
             std::int32_t localPoint[2] = {point[0], point[1]};
             using TConvert = void(__thiscall*)(void*, std::int32_t*);
@@ -662,7 +663,7 @@ namespace NXBaseGui
     {
         if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x1C) & message) != 0)
             if (SendDesktopElementMessage(mPrimaryMessageHandler, message, param1, param2, param3, param4)) return;
-        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x18) & 0x40u) != 0)
+        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x18) & ReadableValues::BitMask::Bit6) != 0)
         {
             void* child = Read<void*>(mActiveElement, 0x64);
             if (child != nullptr && (Read<std::uint32_t>(child, 0x1C) & message) != 0)
@@ -718,19 +719,19 @@ namespace NXBaseGui
             return element;
         };
         const auto x = static_cast<std::uint32_t>(event.mouseX), y = static_cast<std::uint32_t>(event.mouseY);
-        if ((event.flags & 0x104u) != 0)
+        if ((event.flags & ReadableValues::BitMask::Bit2AndBit8) != 0)
         {
             mUnknown012C[0] = std::byte{1};
             if (mPrimaryMessageHandler != nullptr)
             {
                 if ((event.flags & 4u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 1u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 1, x, y, 0, 0);
-                if ((event.flags & 0x100u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 4u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 4, x, y, 0, 0);
+                if ((event.flags & ReadableValues::BitMask::Bit8) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 4u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 4, x, y, 0, 0);
             }
             bool pressed = false;
             if (activateAtPoint() != nullptr)
             {
                 const auto flags = Read<std::uint32_t>(mActiveElement, 0x18);
-                if ((flags & 0x400u) == 0 && (flags & 2u) != 0)
+                if ((flags & ReadableValues::BitMask::Bit10) == 0 && (flags & 2u) != 0)
                 {
                     using TPress = bool(__thiscall*)(void*, const std::int32_t*);
                     pressed = Read<TPress*>(mActiveElement, 0)[6](mActiveElement, point);
@@ -739,7 +740,7 @@ namespace NXBaseGui
             if (!pressed)
             {
                 if ((event.flags & 4u) != 0) l_Message_Send(1, x, y, 0, 0);
-                if ((event.flags & 0x100u) != 0) l_Message_Send(4, x, y, 0, 0);
+                if ((event.flags & ReadableValues::BitMask::Bit8) != 0) l_Message_Send(4, x, y, 0, 0);
             }
         }
         if ((event.flags & 8u) != 0)
@@ -748,18 +749,18 @@ namespace NXBaseGui
             using TRelease = bool(__thiscall*)(void*);
             if (mActiveElement == nullptr || !Read<TRelease*>(mActiveElement, 0)[7](mActiveElement)) l_Message_Send(2, x, y, 0, 0);
         }
-        if ((event.flags & 0x50u) != 0)
+        if ((event.flags & ReadableValues::BitMask::Bit4AndBit6) != 0)
         {
             activateAtPoint();
-            if ((event.flags & 0x40u) != 0) { mUnknown012C[1] = std::byte{1}; l_Message_Send(0x20, x, y, 0, 0); }
-            if ((event.flags & 0x10u) != 0) l_Message_Send(8, x, y, 0, 0);
+            if ((event.flags & ReadableValues::BitMask::Bit6) != 0) { mUnknown012C[1] = std::byte{1}; l_Message_Send(0x20, x, y, 0, 0); }
+            if ((event.flags & ReadableValues::BitMask::Bit4) != 0) l_Message_Send(8, x, y, 0, 0);
         }
-        if ((event.flags & 0x80u) != 0) { mUnknown012C[1] = std::byte{0}; l_Message_Send(0x40, x, y, 0, 0); }
-        if ((event.flags & 0x20u) != 0) l_Message_Send(0x10, x, y, 0, 0);
+        if ((event.flags & ReadableValues::BitMask::Bit7) != 0) { mUnknown012C[1] = std::byte{0}; l_Message_Send(0x40, x, y, 0, 0); }
+        if ((event.flags & ReadableValues::BitMask::Bit5) != 0) l_Message_Send(0x10, x, y, 0, 0);
         if ((event.flags & 1u) != 0)
         {
             void* active = l_Element_GetRealActivePtr();
-            if (active != nullptr && (Read<std::uint32_t>(active, 0x18) & 0x10u) != 0 && Read<std::uint32_t>(active, 0x14) == 2)
+            if (active != nullptr && (Read<std::uint32_t>(active, 0x18) & ReadableValues::BitMask::Bit4) != 0 && Read<std::uint32_t>(active, 0x14) == 2)
             {
                 void* parent = Read<void*>(active, 0x20);
                 auto* areaOwner = parent != nullptr ? parent : active;
@@ -775,7 +776,7 @@ namespace NXBaseGui
                 auto* hit = l_Element_FindOnPositionDeep(point, false);
                 if (hit != nullptr)
                 {
-                    if ((Read<std::uint32_t>(hit, 0x18) & 0x100u) == 0)
+                    if ((Read<std::uint32_t>(hit, 0x18) & ReadableValues::BitMask::Bit8) == 0)
                     {
                         if (mMouseOverElement != nullptr) BaseElement_MouseLeftArea(mMouseOverElement);
                         mMouseOverElement = hit;

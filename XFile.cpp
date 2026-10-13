@@ -288,7 +288,7 @@ namespace NXBasics
 
             for (;;)
             {
-                char partialPath[0x104];
+                char partialPath[260];
                 std::strcpy(partialPath, path);
 
                 char* separator = partialPath;

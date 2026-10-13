@@ -10,7 +10,7 @@ namespace NC2Logic
         void Init();
         void AddCommand(std::uint32_t command);
     };
-    static_assert(sizeof(SUserCommandsForHouseHandler) == 0x54);
+    static_assert(sizeof(SUserCommandsForHouseHandler) == 84);
     bool Logic_UserControl_GetHouseCommands(std::int32_t id, std::int32_t player, SUserCommandsForHouseHandler* commands);
     void House_UserControl_GetCommands(const void* house, std::int32_t player, SUserCommandsForHouseHandler* commands);
     bool House_Construction_CanBeUpgraded(const void* house);

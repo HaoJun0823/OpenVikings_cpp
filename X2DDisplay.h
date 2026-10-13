@@ -144,5 +144,5 @@ namespace NXSys2DApp
         float mGamma;                              // +0x50
     };
 
-    static_assert(sizeof(CDDDisplay) == 0x54);
+    static_assert(sizeof(CDDDisplay) == 84);
 }

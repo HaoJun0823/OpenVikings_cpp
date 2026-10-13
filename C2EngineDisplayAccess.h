@@ -20,7 +20,7 @@ namespace NC2E2
         std::uint32_t width;
         std::uint32_t height;
     };
-    static_assert(sizeof(S2DEngineDisplayRectangle) == 0x18);
+    static_assert(sizeof(S2DEngineDisplayRectangle) == 24);
 
     const void* EngineMap_GetConstMapMacroPointPtr(const void* point);
     const void* EngineMap_GetConstMapMicroPointPtr(const void* point);

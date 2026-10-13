@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -26,11 +27,11 @@ namespace NC2InGameGuiMessages
         bool SingleMessageDisplayed_GetMapPositionImpl(const void* record, std::uint32_t* point)
         {
             const auto human = Read<std::uint32_t>(record, 0x18);
-            if (human != 0xFFFFFFFFu) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
+            if (human != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
             const auto house = Read<std::uint32_t>(record, 0x20);
-            if (house != 0xFFFFFFFFu) { *point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true; }
+            if (house != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true; }
             const auto vehicle = Read<std::uint32_t>(record, 0x28);
-            if (vehicle != 0xFFFFFFFFu) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), 0); return true; }
+            if (vehicle != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), 0); return true; }
             if (Read<std::uint32_t>(record, 8) == 0x3B)
             {
                 const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(record, 0x1C));
@@ -44,7 +45,7 @@ namespace NC2InGameGuiMessages
         // Original function: FUN_004b465d.
         std::uint32_t SingleMessageHistory_GetValidHumanId(const void* record)
         {
-            if (Read<std::uint8_t>(record, 0) == 0 || Read<std::uint32_t>(record, 0x18) == 0xFFFFFFFFu || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return 0xFFFFFFFFu;
+            if (Read<std::uint8_t>(record, 0) == 0 || Read<std::uint32_t>(record, 0x18) == ReadableValues::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return ReadableValues::IntegerRange::UInt32Maximum;
             return Read<std::uint32_t>(record, 0x18);
         }
 
@@ -68,7 +69,7 @@ namespace NC2InGameGuiMessages
     // Original function: FUN_004b45a7.
     std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record)
     {
-        if (NC2Lifetime::Read<std::uint32_t>(record, 0x18) == 0xFFFFFFFFu || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return 0xFFFFFFFFu;
+        if (NC2Lifetime::Read<std::uint32_t>(record, 0x18) == ReadableValues::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return ReadableValues::IntegerRange::UInt32Maximum;
         return NC2Lifetime::Read<std::uint32_t>(record, 0x18);
     }
 
@@ -94,7 +95,7 @@ namespace NC2InGameGuiMessages
         while (index < Read<std::uint32_t>(this, 0))
         {
             std::uint32_t job = 0;
-            if (SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) != 0xFFFFFFFFu)
+            if (SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) != ReadableValues::IntegerRange::UInt32Maximum)
                 job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + 0x18);
             if (MessagePriority_Calculate(Read<std::uint32_t>(Displayed(this, index), 8), job) < Read<std::int32_t>(this, 8)) Message_Remove(Read<std::uint32_t>(Displayed(this, index), 4), false);
             else ++index;
@@ -126,28 +127,28 @@ namespace NC2InGameGuiMessages
         if (Read<std::uint32_t>(this, 0) == 200) return false;
         std::uint32_t job = 0;
         const auto human = Read<std::uint32_t>(message, 0x10);
-        if (human != 0xFFFFFFFFu && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x18);
+        if (human != ReadableValues::IntegerRange::UInt32Maximum && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x18);
         if (MessagePriority_Calculate(Read<std::uint32_t>(message, 0), job) < Read<std::int32_t>(this, 8) || NC2Logic::gGameTime.tick <= 1u) return true;
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0); ++index)
             if (NC2Logic::ToUserMessage_IsEqualTo(Displayed(this, index) + 8, message)) return true;
-        alignas(4) std::byte existing[0x304];
+        alignas(4) std::byte existing[772];
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0); ++index)
         {
             NC2Logic::ToUserMessage_CopyConstruct(existing, Displayed(this, index) + 8);
             if (NC2Logic::ToUserMessage_IsSimmilarTo(message, existing)) return true;
         }
         auto* record = Displayed(this, Read<std::uint32_t>(this, 0));
-        std::memset(record, 0, 0x310);
+        std::memset(record, 0, 784);
         Write(record, 0, NC2Logic::gGameTime.tick);
         Write(record, 4, Read<std::uint32_t>(this, 4));
         Write(this, 4, Read<std::uint32_t>(this, 4) + 1u);
-        std::memcpy(record + 8, message, 0x304);
+        std::memcpy(record + 8, message, 772);
         NC2Logic::ToUserMessage_FinishMessage(record + 8);
         Write(this, 0, Read<std::uint32_t>(this, 0) + 1u);
         std::uint32_t point = 0;
         if (SingleMessageDisplayed_GetMapPosition(record, &point)) NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->Marker_AddInfoMarker(Read<std::int32_t>(record, 0x10), &point);
         const auto validHuman = SingleMessageDisplayed_GetValidHumanId(record);
-        if (validHuman != 0xFFFFFFFFu) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, validHuman, 0x30, 0);
+        if (validHuman != ReadableValues::IntegerRange::UInt32Maximum) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, validHuman, 0x30, 0);
         l_GuiElements_UpdateMiniButtons();
         return true;
     }
@@ -166,7 +167,7 @@ namespace NC2InGameGuiMessages
         if (index == count) return;
         auto* record = active + index * 0x310u;
         const auto human = SingleMessageDisplayed_GetValidHumanId(record);
-        if (human != 0xFFFFFFFFu)
+        if (human != ReadableValues::IntegerRange::UInt32Maximum)
         {
             std::uint32_t other = 0;
             while (other < Read<std::uint32_t>(this, 0))
@@ -181,7 +182,7 @@ namespace NC2InGameGuiMessages
         if (window != nullptr && Read<std::uint32_t>(record, 4) == Read<std::uint32_t>(window, 0x70)) NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(window);
         if (addToHistory) l_MessageHistory_Add(record + 8);
         const auto remaining = Read<std::uint32_t>(this, 0) - index - 1u;
-        if (NXBasics::Runtime_TimeSigned32(remaining) > 0) std::memmove(record, record + 0x310, remaining * 0x310u);
+        if (NXBasics::Runtime_TimeSigned32(remaining) > 0) std::memmove(record, record + 0x310, remaining * 784u);
         Write(this, 0, Read<std::uint32_t>(this, 0) - 1u);
         l_GuiElements_UpdateMiniButtons();
     }
@@ -259,7 +260,7 @@ namespace NC2InGameGuiMessages
             auto* button = Read<void*>(record, 0x30C);
             if (button == nullptr)
             {
-                auto* storage = NXBasics::Runtime_AllocateWithNewHandler(0x41C, 1);
+                auto* storage = NXBasics::Runtime_AllocateWithNewHandler(1052, 1);
                 button = storage == nullptr ? nullptr : MessageMiniButton_Construct(storage, Read<std::uint32_t>(record, 4), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(x))));
                 Write(record, 0x30C, button);
                 NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(button));
@@ -274,7 +275,7 @@ namespace NC2InGameGuiMessages
     {
         using namespace NC2Lifetime;
         auto* history = Read<std::byte*>(this, 0x14);
-        std::uint32_t selected = 0xFFFFFFFFu, oldest = 0xFFFFFFFFu;
+        std::uint32_t selected = ReadableValues::IntegerRange::UInt32Maximum, oldest = ReadableValues::IntegerRange::UInt32Maximum;
         for (std::uint32_t index = 0; index < 200; ++index)
         {
             auto* record = history + index * 0x30Cu;
@@ -282,12 +283,12 @@ namespace NC2InGameGuiMessages
             const auto tick = Read<std::uint32_t>(record, 4);
             if (tick < oldest) { oldest = tick; selected = index; }
         }
-        if (selected == 0xFFFFFFFFu) return;
+        if (selected == ReadableValues::IntegerRange::UInt32Maximum) return;
         auto* record = history + selected * 0x30Cu;
-        std::memset(record, 0, 0x30C);
+        std::memset(record, 0, 780);
         Write<std::uint8_t>(record, 0, 1);
         Write(record, 4, NC2Logic::gGameTime.tick);
-        std::memcpy(record + 8, message, 0x304);
+        std::memcpy(record + 8, message, 772);
     }
 
     // Original function: FUN_004b43fd.
@@ -351,7 +352,7 @@ namespace NC2InGameGuiMessages
         else if (type == 0x2E)
         {
             while (NC2Lifetime::Read<std::uint32_t>(manager, 0) != 0) manager->Message_Remove(NC2Lifetime::Read<std::uint32_t>(Displayed(manager, 0), 4), false);
-            std::memset(NC2Lifetime::Read<void*>(gMessageManager, 0x14), 0, 0x26160);
+            std::memset(NC2Lifetime::Read<void*>(gMessageManager, 20), 0, 156000);
         }
         return true;
     }

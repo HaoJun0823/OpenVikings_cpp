@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataParticles.h"
 #include "C2E2StaticDataPalettes.h"
@@ -21,8 +22,8 @@ namespace NC2E2
         // The second extent is inferred from the next independently referenced global.
         SParticelFrames* gParticelFrameWork[40]{};
         std::uint32_t gParticelFrameIds[150]{};
-        constexpr NXBasics::SToken gParticleTokens[] = {{"name", 0x6E616D65}, {"palette", 0x70616C65}, {"bobmanager", 0x626F626D}, {"maxvalency", 0x6D617876}, {"gfxframes", 0x67667866}, {"animloop", 0x616E696D}, {"bobtype", 0x626F6274}, {"munitiontype", 0x776D7479}, {"valencyisdirection", 0x76696469}, {"specialtype", 0x73706563}, {"spawnparticelId", 0x73706964}, {nullptr, 0}};
-        constexpr NXBasics::SToken gEffectTokens[] = {{"logictype", 0x6C747970}, {"particelname", 0x706E616D}, {"lifetime", 0x6C696665}, {"movement", 0x6D6F7665}, {"particelspeed", 0x70737064}, {"usemapheights", 0x75736568}, {"usewind", 0x75736577}, {"deltaheight", 0x64686569}, {"pixeloffset", 0x7069786F}, {"drawbottom", 0x64626F74}, {"migPointoffset", 0x6D69676F}, {"startLifeTime", 0x736C6966}, {nullptr, 0}};
+        constexpr NXBasics::SToken gParticleTokens[] = {{"name", SwitchIds::ParticleToken::Name}, {"palette", SwitchIds::ParticleToken::Palette}, {"bobmanager", SwitchIds::ParticleToken::Bobmanager}, {"maxvalency", SwitchIds::ParticleToken::MaxValency}, {"gfxframes", SwitchIds::ParticleToken::GfxFrames}, {"animloop", SwitchIds::ParticleToken::Animloop}, {"bobtype", SwitchIds::ParticleToken::Bobtype}, {"munitiontype", SwitchIds::ParticleToken::MunitionType}, {"valencyisdirection", SwitchIds::ParticleToken::ValencyIsDirection}, {"specialtype", SwitchIds::ParticleToken::SpecialType}, {"spawnparticelId", SwitchIds::ParticleToken::SpawnparticelId}, {nullptr, 0}};
+        constexpr NXBasics::SToken gEffectTokens[] = {{"logictype", ReadableValues::ParticlesToken::LogicType}, {"particelname", SwitchIds::ParticleEffectToken::Particelname}, {"lifetime", SwitchIds::ParticleEffectToken::LifeTime}, {"movement", SwitchIds::ParticleEffectToken::Movement}, {"particelspeed", SwitchIds::ParticleEffectToken::Particelspeed}, {"usemapheights", SwitchIds::ParticleEffectToken::Usemapheights}, {"usewind", SwitchIds::ParticleEffectToken::Usewind}, {"deltaheight", SwitchIds::ParticleEffectToken::Deltaheight}, {"pixeloffset", SwitchIds::ParticleEffectToken::PixelOffset}, {"drawbottom", SwitchIds::ParticleEffectToken::Drawbottom}, {"migPointoffset", SwitchIds::ParticleEffectToken::MigPointoffset}, {"startLifeTime", SwitchIds::ParticleEffectToken::StartLifeTime}, {nullptr, 0}};
 
         // Original function: FUN_0048d589; SGFXValency owned frame allocation.
         void ParticelFrames_Allocate(SParticelFrames* entry)
@@ -74,7 +75,7 @@ namespace NC2E2
             for (auto* group = reader.GetFirstGroup("Particel"); group != nullptr; group = reader.GetNextGroup("Particel"))
             {
                 void* entry = static_cast<std::byte*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(gStaticParticelStorage.count++) * 0x48u;
-                std::memset(entry, 0, 0x48);
+                std::memset(entry, 0, 72);
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
                     switch (NXBasics::XB_Token_FindTokenInArray(gParticleTokens, reader.GetCurrentName()))
@@ -111,7 +112,7 @@ namespace NC2E2
     {
         gE2StaticDataParticelManager = manager;
         std::memset(&gStaticParticelStorage, 0, sizeof(gStaticParticelStorage));
-        auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x874, 1));
+        auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(2164, 1));
         if (allocation != nullptr)
         {
             Write<std::uint32_t>(allocation, 0, 30);
@@ -143,14 +144,14 @@ namespace NC2E2
     }
 
     // Original function: FUN_0048a49d.
-    static void ParticelEffect_Construct(void* effect) { Write<std::uint16_t>(effect, 0x2E, 0); Write<std::uint16_t>(effect, 0x30, 0); std::memset(effect, 0, 0x34); }
+    static void ParticelEffect_Construct(void* effect) { Write<std::uint16_t>(effect, 0x2E, 0); Write<std::uint16_t>(effect, 0x30, 0); std::memset(effect, 0, 52); }
 
     // Original function: FUN_0048a028.
     void* __fastcall E2StaticDataParticelEffectManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2StaticDataParticelEffectManager = manager;
         gStaticParticelEffects = nullptr;
-        auto* effects = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x16C, 1));
+        auto* effects = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(364, 1));
         if (effects != nullptr) for (std::uint32_t index = 0; index < 7; ++index) ParticelEffect_Construct(effects + index * 0x34u);
         gStaticParticelEffects = effects;
         NXBasics::CIniFileReader reader("Data\\Engine2D\\Inis\\Particel\\ParticelEffects.ini", nullptr, false, nullptr, nullptr);

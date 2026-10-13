@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2LifetimeGlobals.h"
@@ -17,16 +18,16 @@ namespace NC2Logic
     {
         // Original read-only token region: 004F3768..004F37A7.
         const NXBasics::SToken gAtomicAnimationTokens[8] = {
-            {"name", 0x6E616D65},
-            {"length", 0x6C656E67},
-            {"interruptable", 0x696E7465},
-            {"event", 0x6576656E},
-            {"eventx", 0x65766578},
-            {"startdirection", 0x73746164},
-            {"enddirection", 0x656E6464},
+            {"name", SwitchIds::AtomicAnimationToken::Name},
+            {"length", SwitchIds::AtomicAnimationToken::Length},
+            {"interruptable", SwitchIds::AtomicAnimationToken::Interruptable},
+            {"event", SwitchIds::AtomicAnimationToken::Event},
+            {"eventx", SwitchIds::AtomicAnimationToken::EventX},
+            {"startdirection", SwitchIds::AtomicAnimationToken::StartDirection},
+            {"enddirection", SwitchIds::AtomicAnimationToken::EndDirection},
             {nullptr, 0}
         };
-        static_assert(sizeof(gAtomicAnimationTokens) == 0x40);
+        static_assert(sizeof(gAtomicAnimationTokens) == 64);
 
         // Original function: FUN_00414408, an empty token-list exit callback.
         // The runtime callback interface requires an int; its return is ignored.
@@ -59,7 +60,7 @@ namespace NC2Logic
         const std::uint32_t bytes = gStaticAtomicAnimationStorage.count * 0x138u;
         gStaticAtomicAnimationData = static_cast<SStaticAtomicAnimationData*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
         // Windows clears the allocation unconditionally, retaining DWORD size wrap.
-        std::memset(gStaticAtomicAnimationData, 0, gStaticAtomicAnimationStorage.count * 0x138u);
+        std::memset(gStaticAtomicAnimationData, 0, gStaticAtomicAnimationStorage.count * 312u);
         auto* record = gStaticAtomicAnimationData;
         for (char* group = reader.GetFirstGroup("atomicanimation"); group != nullptr; ++record, group = reader.GetNextGroup("atomicanimation"))
         {
@@ -80,7 +81,7 @@ namespace NC2Logic
                 {
                     if (record->eventCount == 20) break;
                     std::int32_t time;
-                    if (token == 0x65766578)
+                    if (token == SwitchIds::AtomicAnimationToken::EventX)
                     {
                         if (record->length == 0) break;
                         const auto percentage = static_cast<std::uint32_t>(reader.GetInt());
@@ -112,6 +113,6 @@ namespace NC2Logic
     {
         for (std::int32_t index = 0; index < NXBasics::Runtime_TimeSigned32(gStaticAtomicAnimationStorage.count); ++index)
             if (NXBasics::Runtime_CompareStringsIgnoreCase(gStaticAtomicAnimationData[index].name, name) == 0) return static_cast<std::uint32_t>(index);
-        return 0xFFFFFFFFu;
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 }

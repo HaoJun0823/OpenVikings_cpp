@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiHumanJobWindows.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiInputAccess.h"
@@ -50,27 +51,27 @@ namespace NC2InGameGuiSelectedAction
         void Frame(void* window, std::uint32_t title)
         {
             const auto width = Read<std::int32_t>(window, 0x0C);
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
             const SRectangle mover(2, 2, width - 22, 14);
             NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(memory, &mover, Misc(title)));
-            memory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             const SRectangle closer(width - 18, 2, 16, 14);
             NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowCloserButton_Construct(memory, nullptr, &closer));
         }
         void* List(const SRectangle& rectangle)
         {
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             return memory == nullptr ? nullptr : ToolListBoxElement_Construct(memory, nullptr, &rectangle);
         }
         void AddList(void* window, void* list, const SRectangle& rectangle)
         {
             NXBaseGui::BaseWindow_Element_Add(window, list);
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
             NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : ToolListBoxControllerElement_Construct(memory, nullptr, &rectangle, list, false, true));
         }
         void Row(void* window, void* list, SRectangle& rectangle, const char* caption, std::uint32_t job, std::uint32_t good, bool pressed)
         {
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &rectangle, caption, 10000, window);
             if (element != nullptr) { Write(element, 0x4C, job); Write(element, 0x50, good); if (pressed) Write<std::uint8_t>(element, 0x55, 1); }
             BaseListBoxElement_Element_Add(list, nullptr, element);
@@ -144,11 +145,11 @@ namespace NC2InGameGuiSelectedAction
                 if (job != 8 || selection != 1) continue;
                 const void* human = Human(SelectedId());
                 const auto player = Read<std::int32_t>(human, 0x10);
-                const auto tribe = player < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, player * 0x4A80 + 0x0C) : 1u;
+                const auto tribe = player < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 0x0C) : 1u;
                 for (const auto& entry : farmerGoods)
                 {
                     if (entry[1] != 0 && !NC2Logic::Human_IsAbleToProduceGoodNow(human, entry[0])) continue;
-                    if (Read<std::uint8_t>(NC2Logic::gGameControl, player * 0x4A80 + 0x1278 + tribe * 66 + entry[0]) == 0) continue;
+                    if (Read<std::uint8_t>(NC2Logic::gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 0x1278 + tribe * 66 + entry[0]) == 0) continue;
                     char caption[200];
                     NXBasics::Runtime_PrintStringN(caption, sizeof(caption), "%s - %s", NC2Logic::StringAccess_GetJobNamePtr(8, 1), NC2Logic::StringAccess_GetGoodNamePtr(entry[0], 1));
                     Row(window, list, row, caption, 8, entry[0], false);
@@ -186,7 +187,7 @@ namespace NC2InGameGuiSelectedAction
                 if (selection == 1)
                 {
                     const auto id = SelectedId(); Queue(id, 21, job); if (good != 0) Queue(id, 22, good); Respond(id);
-                    if (Read<std::uint8_t>(NC2Logic::gStaticJobTypeData, job * 0x88u + 0x86u) != 0)
+                    if (Read<std::uint8_t>(NC2Logic::gStaticJobTypeData, job * ReadableValues::RecordSize::JobType + 0x86u) != 0)
                     {
                         NC2InGameGuiInputManager::InputMode_Set(Input(), 5);
                         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->l_Selection_RemoveAllGuiElements();
@@ -220,7 +221,7 @@ namespace NC2InGameGuiSelectedAction
         {
             Frame(window, 230); SelectedSingleHumanLearnJobWindow_l_System_Validate(window);
             if (Read<std::uint8_t>(window, 0x70) == 0) return;
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             const SRectangle rectangle(4, 76, 140, 20);
             NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(memory, nullptr, &rectangle, Misc(231), 10000, window, false));
         }
@@ -361,7 +362,7 @@ namespace NC2InGameGuiSelectedAction
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle rectangle((state.displayWidth - 300) / 2, (state.displayHeight - 320) / 2, 300, 320);
-        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x10); Write(window, 0, gJobWindowVirtualTable.data());
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 16); Write(window, 0, gJobWindowVirtualTable.data());
         SelectedSingleHumanChangeJobWindow_l_GuiButtons_Add(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window); return window;
     }
     // Original function: FUN_004c7a7d.
@@ -400,7 +401,7 @@ namespace NC2InGameGuiSelectedAction
             }
             if (Read<std::uint32_t>(human, 0x18) == 8)
             {
-                void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 NXBaseGui::CBaseElement* element = static_cast<NXBaseGui::CBaseElement*>(memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &row, NC2Logic::StringAccess_GetGoodNamePtr(65, 1), 10065, window));
                 BaseListBoxElement_Element_Add(list, nullptr, element);
             }
@@ -423,8 +424,8 @@ namespace NC2InGameGuiSelectedAction
             std::uint32_t jobs[56], count = 0;
             for (std::uint32_t job = 7; job <= 30; ++job)
             {
-                const auto offset = player * 0x4A80 + tribe * 56 + job;
-                if (Read<std::uint8_t>(NC2Logic::gStaticJobTypeData, job * 0x88u + 0x87u) != 0 && Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x18) != 0 && Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x948) != 0) jobs[count++] = job;
+                const auto offset = player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 56 + job;
+                if (Read<std::uint8_t>(NC2Logic::gStaticJobTypeData, job * ReadableValues::RecordSize::JobType + 0x87u) != 0 && Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x18) != 0 && Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x948) != 0) jobs[count++] = job;
             }
             if (count > 1) NXBasics::Runtime_QuickSort(jobs, count, 4, lsSortCompareFunction);
             SRectangle row(0, 0, Read<std::int32_t>(list, 0x0C), 22);
@@ -436,7 +437,7 @@ namespace NC2InGameGuiSelectedAction
                     for (std::uint32_t goodIndex = 0; goodIndex < enables.goodCount; ++goodIndex)
                     {
                         const auto good = enables.goods[goodIndex]; if (job == 8 && (good == 2 || good == 4 || good == 5 || good == 3)) continue;
-                        const auto offset = player * 0x4A80 + tribe * 66 + good;
+                        const auto offset = player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 66 + good;
                         if (Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x1278) == 0 || Read<std::uint8_t>(NC2Logic::gGameControl, offset + 0x1D4C) == 0) continue;
                         char caption[200]; NXBasics::Runtime_PrintStringN(caption, sizeof(caption), "%s (%s)", NC2Logic::StringAccess_GetJobNamePtr(job, 1), NC2Logic::StringAccess_GetGoodNamePtr(good, 1));
                         Row(window, list, row, caption, job, good, false);
@@ -455,7 +456,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_HumanChangeJobWindow_Open()
     {
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(2013, 0, 0, 0) != nullptr) return;
-        void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x80, 1);
+        void* memory = NXBasics::Runtime_AllocateWithNewHandler(128, 1);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedSingleHumanChangeJobWindow_Construct(memory)), false);
     }
     // Original function: FUN_004a26c2.
@@ -463,7 +464,7 @@ namespace NInGameGuiManager
     {
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
         if (desktop->Message_SendToAllWindows(2014, 0, 0, 0) != nullptr) return;
-        void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x94, 1);
+        void* memory = NXBasics::Runtime_AllocateWithNewHandler(148, 1);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedSingleHumanChangeNameWindow_Construct(memory)), false);
         if (auto* window = desktop->Message_SendToAllWindows(2014, 0, 0, 0)) desktop->Window_BringToFront(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
     }
@@ -479,14 +480,14 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_HumanChangeProducedGoodWindow_Open()
     {
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(2015, 0, 0, 0) != nullptr) return;
-        void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x78, 1);
+        void* memory = NXBasics::Runtime_AllocateWithNewHandler(120, 1);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedSingleHumanChangeProducedGoodWindow_Construct(memory)), false);
     }
     // Original function: FUN_004a27ea.
     void CInGameGuiManager::MiscWindows_HumanLearnJobWindow_Open()
     {
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(2017, 0, 0, 0) != nullptr) return;
-        void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x78, 1);
+        void* memory = NXBasics::Runtime_AllocateWithNewHandler(120, 1);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedSingleHumanLearnJobWindow_Construct(memory)), false);
     }
 }

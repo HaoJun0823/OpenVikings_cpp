@@ -32,7 +32,7 @@ namespace NC2Logic
         std::uint32_t guides[3];
         std::uint32_t guidePosition;
     };
-    static_assert(sizeof(SHumanSearchGoodsComplexData) == 0x29C);
+    static_assert(sizeof(SHumanSearchGoodsComplexData) == 668);
     static_assert(offsetof(SHumanSearchGoodsComplexData, player) == 0x214);
     static_assert(offsetof(SHumanSearchGoodsComplexData, landscapeCount) == 0x220);
     static_assert(offsetof(SHumanSearchGoodsComplexData, houses) == 0x278);

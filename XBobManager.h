@@ -45,10 +45,10 @@ namespace NXBasics
             std::uint32_t firstBobId;             // Object +0x04
             std::uint32_t bobCount;               // Object +0x08
             std::uint32_t packedLineDataSize;     // Object +0x0C
-            std::byte unresolved10[0x10];         // Object +0x10; semantics unresolved.
+            std::byte unresolved10[16];         // Object +0x10; semantics unresolved.
         };
 
-        static_assert(sizeof(SSerializedData) == 0x1C);
+        static_assert(sizeof(SSerializedData) == 28);
 
         // Original function: FUN_0043994d
         void l_System_InitObject();
@@ -69,5 +69,5 @@ namespace NXBasics
         CMemory* mLineControlMemory;              // +0x38; owned.
     };
 
-    static_assert(sizeof(CBobManager) == 0x3C, "CBobManager requires the original x86 layout");
+    static_assert(sizeof(CBobManager) == 60, "CBobManager requires the original x86 layout");
 }

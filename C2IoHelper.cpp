@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2IoHelper.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -30,8 +31,8 @@ namespace NC2Logic
         mFile = file;
         mStringBuffer = static_cast<char*>(NXBasics::Runtime_AllocateWithNewHandler(200u, 1));
 
-        mPayloadPosition = 0xFFFFFFFFu;
-        mReadHeader.signature = 0x78696F68u;
+        mPayloadPosition = ReadableValues::IntegerRange::UInt32Maximum;
+        mReadHeader.signature = ReadableValues::IoChunk::HeaderSignature;
         mReadHeader.marker = 0;
         mReadHeader.version = 0;
         mReadHeader.payloadSize = 0;
@@ -101,9 +102,9 @@ namespace NC2Logic
     {
         mFile->Read(&mReadHeader, sizeof(mReadHeader));
         mPayloadPosition = mFile->GetPosition();
-        if (mReadHeader.signature != 0x78696F68u)
+        if (mReadHeader.signature != ReadableValues::IoChunk::HeaderSignature)
         {
-            mPayloadPosition = 0xFFFFFFFFu;
+            mPayloadPosition = ReadableValues::IntegerRange::UInt32Maximum;
             return false;
         }
         return mReadHeader.marker == marker && mReadHeader.version == version;
@@ -115,9 +116,9 @@ namespace NC2Logic
         mFile->Read(&mReadHeader, sizeof(mReadHeader));
         mPayloadPosition = mFile->GetPosition();
 
-        if (mReadHeader.signature != 0x78696F68u)
+        if (mReadHeader.signature != ReadableValues::IoChunk::HeaderSignature)
         {
-            mPayloadPosition = 0xFFFFFFFFu;
+            mPayloadPosition = ReadableValues::IntegerRange::UInt32Maximum;
             return false;
         }
 
@@ -135,24 +136,24 @@ namespace NC2Logic
     {
         mFile->Read(&mReadHeader, sizeof(mReadHeader));
         mPayloadPosition = mFile->GetPosition();
-        if (mReadHeader.signature != 0x78696F68u)
+        if (mReadHeader.signature != ReadableValues::IoChunk::HeaderSignature)
         {
-            mPayloadPosition = 0xFFFFFFFFu;
+            mPayloadPosition = ReadableValues::IntegerRange::UInt32Maximum;
             return false;
         }
-        return mReadHeader.marker != 0x78656E64u;
+        return mReadHeader.marker != ReadableValues::IoChunk::End;
     }
 
     // Original function: FUN_0042a1ce
     void CIoHelper::IO_File_Chunk_Skip()
     {
-        if (mPayloadPosition == 0xFFFFFFFFu)
+        if (mPayloadPosition == ReadableValues::IntegerRange::UInt32Maximum)
             return;
 
         mFile->SeekToPosition(mPayloadPosition + mReadHeader.payloadSize);
 
         std::memset(&mReadHeader, 0, sizeof(mReadHeader));
-        mPayloadPosition = 0xFFFFFFFFu;
+        mPayloadPosition = ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_0042a1fc
@@ -194,7 +195,7 @@ namespace NC2Logic
         mChunkOffsets[mChunkDepth] = mMemory != nullptr ? mMemoryUsage : 0u;
 
         SIoChunkHeader header = {};
-        header.signature = 0x78696F68u;
+        header.signature = ReadableValues::IoChunk::HeaderSignature;
         header.marker = marker;
         header.version = version;
         header.payloadSize = 0;
@@ -238,7 +239,7 @@ namespace NC2Logic
     void CIoHelper::IO_File_Chunk_WriteMarkerAndVersion(std::uint32_t marker, std::uint32_t version, std::uint32_t payloadSize)
     {
         SIoChunkHeader header{};
-        header.signature = 0x78696F68;
+        header.signature = ReadableValues::IoChunk::HeaderSignatureSigned;
         header.marker = marker;
         header.version = version;
         header.payloadSize = payloadSize;
@@ -265,7 +266,7 @@ namespace NC2Logic
     // Original function: FUN_0042a32e.
     void CIoHelper::IO_Memory_PackAndWriteBinary(const void* data, std::uint32_t byteCount, std::uint32_t packingType)
     {
-        if (packingType != 0x6E6F6E65 && mPackingBuffer != nullptr)
+        if (packingType != ReadableValues::PackingType::None && mPackingBuffer != nullptr)
         {
             std::uint32_t packedBytes;
             while ((packedBytes = NXBasics::XB_Pack_Pack(packingType, data, byteCount, mPackingBuffer->mData, mPackingBuffer->mSize)) == 0)
@@ -286,8 +287,8 @@ namespace NC2Logic
     void CIoHelper::IO_Tool_Chunk_WriteEndChunk()
     {
         SIoChunkHeader header{};
-        header.signature = 0x78696F68;
-        header.marker = 0x78656E64;
+        header.signature = ReadableValues::IoChunk::HeaderSignatureSigned;
+        header.marker = ReadableValues::IoChunk::EndSigned;
         mFile->Write(&header, sizeof(header));
     }
 

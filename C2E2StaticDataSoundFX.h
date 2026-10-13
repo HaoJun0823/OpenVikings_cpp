@@ -12,7 +12,7 @@ namespace NC2E2
         std::uint32_t volume;
     };
 
-    static_assert(sizeof(SJingleSoundData) == 0x80);
+    static_assert(sizeof(SJingleSoundData) == 128);
     static_assert(offsetof(SJingleSoundData, fileName) == 0x04);
     static_assert(offsetof(SJingleSoundData, volume) == 0x7C);
 
@@ -44,7 +44,7 @@ namespace NC2E2
     };
 
     static_assert(sizeof(void*) == 4, "Static sound data requires an x86 build");
-    static_assert(sizeof(CE2StaticDataSoundFXManager) == 0x518);
+    static_assert(sizeof(CE2StaticDataSoundFXManager) == 1304);
     static_assert(offsetof(CE2StaticDataSoundFXManager, staticSounds) == 0x04);
     static_assert(offsetof(CE2StaticDataSoundFXManager, staticSoundIdsByType) == 0x08);
     static_assert(offsetof(CE2StaticDataSoundFXManager, jingleCount) == 0x1E8);

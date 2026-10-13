@@ -66,7 +66,7 @@ namespace NXBasics
         bool mUsesRgb555;                        // +0x3B
     };
 
-    static_assert(sizeof(C16BitPixelConverter) == 0x3C);
+    static_assert(sizeof(C16BitPixelConverter) == 60);
 
     class C32BitPixelConverter
     {
@@ -105,7 +105,7 @@ namespace NXBasics
         std::uint32_t mBlueLeftShift;     // +0x24
     };
 
-    static_assert(sizeof(C32BitPixelConverter) == 0x28);
+    static_assert(sizeof(C32BitPixelConverter) == 40);
 
     // Original globals: DAT_005106e0
     extern C16BitPixelConverter* g16BitPixelConverter;

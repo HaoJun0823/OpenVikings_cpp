@@ -113,11 +113,11 @@ namespace NC2E2
         std::int32_t houseOverlayIds[2];
     };
     inline SStaticTransitionStorage gStaticTransitionStorage{}; // 005689F0..00568A0F
-    static_assert(sizeof(STransitionPointType) == 0x40);
-    static_assert(sizeof(SE2StaticDataTransition) == 0x154);
+    static_assert(sizeof(STransitionPointType) == 64);
+    static_assert(sizeof(SE2StaticDataTransition) == 340);
     static_assert(offsetof(SE2StaticDataTransition, coordinatesA) == 0x34);
     static_assert(offsetof(SE2StaticDataTransition, coordinatesB) == 0xC4);
-    static_assert(sizeof(SStaticTransitionStorage) == 0x20);
+    static_assert(sizeof(SStaticTransitionStorage) == 32);
     void* __fastcall E2StaticDataTransitionsManager_Construct(void* manager, void* unusedEdx);
     std::int32_t E2StaticDataTransitionsManager_GetTransitionId(const char* name);
     std::int32_t E2StaticDataTransitionsManager_l_GetPointTypeId(const char* name);
@@ -141,7 +141,7 @@ namespace NC2E2
     std::int32_t E2StaticDataLandscapesManager_GetLandscapeId(const char* name);
     std::int32_t __fastcall E2StaticDataTexturesManager_GetTextureId(void* manager, void* unusedEdx, const char* fileName);
 
-    static_assert(sizeof(SE2StaticDataPatternData) == 0x70);
+    static_assert(sizeof(SE2StaticDataPatternData) == 112);
     static_assert(offsetof(SE2StaticDataPatternData, groupCount) == 0x28);
     static_assert(offsetof(SE2StaticDataPatternData, textureId) == 0x3C);
     static_assert(offsetof(SE2StaticDataPatternData, coordinatesA) == 0x40);
@@ -149,8 +149,8 @@ namespace NC2E2
     static_assert(sizeof(SStaticLandscapeArea) == 8);
     static_assert(sizeof(SStaticLandscapeAreaList) == 8);
     static_assert(sizeof(SStaticLandscapeTransition) == 8);
-    static_assert(sizeof(SStaticLandscapeFrames) == 0x0C);
-    static_assert(sizeof(SE2StaticDataLandscape) == 0x8C);
+    static_assert(sizeof(SStaticLandscapeFrames) == 12);
+    static_assert(sizeof(SE2StaticDataLandscape) == 140);
     static_assert(offsetof(SE2StaticDataLandscape, logicType) == 0x38);
     static_assert(offsetof(SE2StaticDataLandscape, areas) == 0x44);
     static_assert(offsetof(SE2StaticDataLandscape, transitions) == 0x68);
@@ -159,9 +159,9 @@ namespace NC2E2
     static_assert(offsetof(SE2StaticDataLandscape, unresolved78) == 0x78);
     static_assert(offsetof(SE2StaticDataLandscape, shadingFactor) == 0x80);
     static_assert(offsetof(SE2StaticDataLandscape, frameGroups) == 0x88);
-    static_assert(sizeof(SStaticPatternStorage) == 0x18);
+    static_assert(sizeof(SStaticPatternStorage) == 24);
     static_assert(offsetof(SStaticPatternStorage, borderIds) == 8);
-    static_assert(sizeof(SStaticLandscapeStorage) == 0x70);
+    static_assert(sizeof(SStaticLandscapeStorage) == 112);
     static_assert(offsetof(SStaticLandscapeStorage, wallIds) == 0x44);
     static_assert(offsetof(SStaticLandscapeStorage, gateIds) == 0x58);
 }

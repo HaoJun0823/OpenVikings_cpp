@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "X2DDisplay.h"
 
 #include "X2DApplication.h"
@@ -22,7 +23,7 @@ namespace
     // Original function: FUN_0047c309; four trailing allocation bytes remain untouched.
     LOGPALETTE* DDDisplay_AllocatePaletteData()
     {
-        auto* palette = static_cast<LOGPALETTE*>(NXBasics::Runtime_Allocate(0x408));
+        auto* palette = static_cast<LOGPALETTE*>(NXBasics::Runtime_Allocate(1032));
         palette->palVersion = 0x0300;
         palette->palNumEntries = 0x0100;
         return palette;
@@ -200,8 +201,8 @@ namespace NXSys2DApp
              * This removes popup/resizing flags and enables a caption
              * plus system menu.
              */
-            windowStyle &= 0x7F37FFFF;
-            windowStyle |= 0x00C80000;
+            windowStyle &= ReadableValues::BitMask::Bits0Through18AndBits20Through21AndBits24Through30;
+            windowStyle |= ReadableValues::BitMask::Bit19AndBits22Through23;
 
             SetWindowLongA(mWindowHandle, GWL_STYLE, windowStyle);
 
@@ -322,7 +323,7 @@ namespace NXSys2DApp
 
         char errorMessage[200]{};
 
-        wsprintfA(errorMessage, "NXSys2DApp::CDDDisplay::l_DoesInitializationHaveError\n DirectDraw error: 0x%03X\r\n", static_cast<unsigned int>(result) & 0x0FFF);
+        wsprintfA(errorMessage, "NXSys2DApp::CDDDisplay::l_DoesInitializationHaveError\n DirectDraw error: 0x%03X\r\n", static_cast<unsigned int>(result) & ReadableValues::BitMask::Low12Bits);
         OutputDebugStringA(errorMessage);
 
         ShutDown();
@@ -797,7 +798,7 @@ namespace NXSys2DApp
     {
         static_assert(offsetof(SBitmapSurface, surface) == 0x7C);
         static_assert(offsetof(SBitmapSurface, rectangle) == 0x80);
-        static_assert(sizeof(SBitmapSurface) == 0x90);
+        static_assert(sizeof(SBitmapSurface) == 144);
         if (CApplication::sTheObjectPtr->mWindow == nullptr) return false;
         if (fullscreen && !CApplication::sTheObjectPtr->IsWindowActive()) return false;
         target.surface = surface;
@@ -1085,7 +1086,7 @@ namespace NXSys2DApp
             format.dwSize = sizeof(format);
             // Requested fullscreen colour correction: use the surface's RGB
             // masks directly. GDI colour probes may fail on an exclusive surface.
-            if (surface->GetPixelFormat(&format) == DD_OK && (format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 16 && format.dwRBitMask != 0 && format.dwGBitMask != 0 && format.dwBBitMask != 0 && ((format.dwRBitMask | format.dwGBitMask | format.dwBBitMask) & 0xFFFF0000u) == 0 && (format.dwRBitMask & format.dwGBitMask) == 0 && (format.dwRBitMask & format.dwBBitMask) == 0 && (format.dwGBitMask & format.dwBBitMask) == 0)
+            if (surface->GetPixelFormat(&format) == DD_OK && (format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 16 && format.dwRBitMask != 0 && format.dwGBitMask != 0 && format.dwBBitMask != 0 && ((format.dwRBitMask | format.dwGBitMask | format.dwBBitMask) & ReadableValues::BitMask::DwordExceptBits0Through15) == 0 && (format.dwRBitMask & format.dwGBitMask) == 0 && (format.dwRBitMask & format.dwBBitMask) == 0 && (format.dwGBitMask & format.dwBBitMask) == 0)
             {
                 converter->SetColorMasks(static_cast<std::uint16_t>(format.dwRBitMask), static_cast<std::uint16_t>(format.dwGBitMask), static_cast<std::uint16_t>(format.dwBBitMask));
                 return;
@@ -1096,7 +1097,7 @@ namespace NXSys2DApp
             converter->SetColorMasks(red, green, blue);
             return;
         }
-        NXBasics::g16BitPixelConverter->SetColorMasks(0xF800, 0x07E0, 0x001F);
+        NXBasics::g16BitPixelConverter->SetColorMasks(ReadableValues::Rgb565::RedMask, ReadableValues::Rgb565::GreenMask, 0x001F);
     }
 
     // Original function: FUN_0047c5f1
@@ -1120,6 +1121,6 @@ namespace NXSys2DApp
             converter->SetColorMasks(red, green, blue);
             return;
         }
-        NXBasics::g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, 0x000000FF);
+        NXBasics::g32BitPixelConverter->SetColorMasks(ReadableValues::Rgb888::RedMask, ReadableValues::Rgb888::GreenMask, ReadableValues::IntegerRange::UInt8MaximumSigned);
     }
 }

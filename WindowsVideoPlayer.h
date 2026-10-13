@@ -34,5 +34,5 @@ namespace NWindowsVideo
         std::uint8_t mPlaying;
         std::byte mPadding[2];
     };
-    static_assert(sizeof(CVideoPlayer) == 0x2C);
+    static_assert(sizeof(CVideoPlayer) == 44);
 }

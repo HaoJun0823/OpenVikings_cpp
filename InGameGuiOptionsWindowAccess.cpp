@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiOptionsWindowAccess.h"
 #include "InGameGuiManager.h"
@@ -63,7 +64,7 @@ namespace NC2InGameGuiMiscWindows
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
-    static_assert(sizeof(gOptionsWindowVirtualTable) == 0x4C);
+    static_assert(sizeof(gOptionsWindowVirtualTable) == 76);
 
     // Original function: FUN_004bf96f; the original object allocation is 0x78 bytes.
     void* OptionsWindow_Construct(void* window, bool loadPage, bool savePage)
@@ -108,7 +109,7 @@ namespace NC2InGameGuiMiscWindows
         using namespace NC2InGameGuiBase;
         const auto addButton = [window](const NXBasics::SRectangle& rectangle, std::uint32_t stringId, std::uint32_t command, bool toggle, bool selected)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* button = nullptr;
             if (allocation != nullptr)
             {
@@ -118,7 +119,7 @@ namespace NC2InGameGuiMiscWindows
             NXBaseGui::BaseWindow_Element_Add(window, button);
         };
 
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         void* element = nullptr;
         if (allocation != nullptr)
         {
@@ -127,7 +128,7 @@ namespace NC2InGameGuiMiscWindows
             element = WindowMoverButton_Construct(allocation, &rectangle, title);
         }
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         element = nullptr;
         if (allocation != nullptr)
         {
@@ -135,7 +136,7 @@ namespace NC2InGameGuiMiscWindows
             element = WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        Write<std::uint32_t>(window, 0x74, 0xFFFFFFFFu);
+        Write<std::uint32_t>(window, 0x74, ReadableValues::IntegerRange::UInt32Maximum);
         NXBasics::SRectangle tabRectangle(4, 22, 492 / 6 - 2, 22);
         for (std::uint32_t tab = 0; tab < 6; ++tab)
         {
@@ -145,7 +146,7 @@ namespace NC2InGameGuiMiscWindows
 
         const auto makeButton = [window](const NXBasics::SRectangle& rectangle, std::uint32_t stringId, std::uint32_t command, bool toggle, bool selected, const char* caption = nullptr, const char* tooltip = nullptr, std::uint32_t tooltipId = 0) -> void*
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             if (allocation == nullptr) return nullptr;
             if (tooltipId != 0) tooltip = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(tooltipId);
             if (caption == nullptr) caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(stringId);
@@ -156,7 +157,7 @@ namespace NC2InGameGuiMiscWindows
         };
         const auto text = [window](const NXBasics::SRectangle& rectangle, std::uint32_t stringId, const char* caption = nullptr) -> void*
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption == nullptr ? NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(stringId) : caption, false, false);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             return element;
@@ -167,13 +168,13 @@ namespace NC2InGameGuiMiscWindows
         };
         const auto listbox = [](const NXBasics::SRectangle& rectangle) -> void*
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             return allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
         };
         const auto addList = [window](const NXBasics::SRectangle& rectangle, void* list)
         {
             NXBaseGui::BaseWindow_Element_Add(window, list);
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
             const NXBasics::SRectangle controller(476, rectangle.y, 20, rectangle.height);
             void* element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &controller, list, false, true);
             NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -185,18 +186,18 @@ namespace NC2InGameGuiMiscWindows
         case SwitchIds::OptionsPage::Game:
         {
             NXBasics::SRectangle rectangle(104, 150, 292, 60);
-            addButton(rectangle, 0x25, 0x32C8, false, false);
+            addButton(rectangle, 0x25, SwitchIds::OptionsWindowCommand::ConfirmQuit, false, false);
             rectangle.y += rectangle.height + 36;
-            if (!NNetwork::Network_IsInSession()) addButton(rectangle, 0x26, 0x32C9, false, false);
-            const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, 0x5D200);
+            if (!NNetwork::Network_IsInSession()) addButton(rectangle, 0x26, SwitchIds::OptionsWindowCommand::ConfirmRestart, false, false);
+            const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, ReadableValues::GameControlOffset::DifficultyLevel);
             if (difficulty < 3)
             {
                 const char* description = NC2GuiToolsBase::StringTool_GetOdin001StringPtr(0x1Bu + difficulty * 2u);
                 if (description != nullptr)
                 {
-                    char caption[0x200];
+                    char caption[512];
                     NXBasics::Runtime_PrintString(caption, "%s: %s", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(0x1A), description);
-                    allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+                    allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
                     element = nullptr;
                     if (allocation != nullptr)
                     {
@@ -214,14 +215,14 @@ namespace NC2InGameGuiMiscWindows
         {
             text({4, 70, 492, 14}, 0x28);
             const auto scroll = manager->Options_ScrollSpeed_Get();
-            for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 164, 86, 162, 18}, 0x29 + index, 0x27D8 + index, true, scroll == index);
+            for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 164, 86, 162, 18}, 0x29 + index, SwitchIds::OptionsWindowCommand::ScrollSlow + index, true, scroll == index);
             text({4, 140, 492, 14}, 0x2C);
-            button({4, 156, 244, 18}, 0x2D, 0x27EC, true, Read<std::uint8_t>(manager, 0xE2) != 0);
-            button({250, 156, 244, 18}, 0x2E, 0x27ED, true, Read<std::uint8_t>(manager, 0xE3) != 0);
+            button({4, 156, 244, 18}, 0x2D, SwitchIds::OptionsWindowCommand::ToggleThirdMouseButtonScroll, true, Read<std::uint8_t>(manager, 0xE2) != 0);
+            button({250, 156, 244, 18}, 0x2E, SwitchIds::OptionsWindowCommand::ToggleBorderScroll, true, Read<std::uint8_t>(manager, 0xE3) != 0);
             text({4, 210, 492, 14}, 0x35);
             const bool tooltipsOff = Read<std::uint8_t>(manager, 0xE1) != 0;
-            button({4, 226, 244, 18}, 0x36, 0x32D4, true, !tooltipsOff);
-            button({250, 226, 244, 18}, 0x37, 0x32D5, true, tooltipsOff);
+            button({4, 226, 244, 18}, 0x36, SwitchIds::OptionsWindowCommand::TooltipsOn, true, !tooltipsOff);
+            button({250, 226, 244, 18}, 0x37, SwitchIds::OptionsWindowCommand::TooltipsOff, true, tooltipsOff);
             break;
         }
         case SwitchIds::OptionsPage::Graphics:
@@ -243,11 +244,11 @@ namespace NC2InGameGuiMiscWindows
             }
             addList(rectangle, list);
             text({4, 272, 492, 14}, 0x39);
-            for (std::int32_t index = 0; index < 3; ++index) button({4 + index * 164, 288, 162, 18}, 0x3A + index, 0x2774 + index, true, NC2E2::CLevelOfDetailManager::sLevelOfDetail == index);
+            for (std::int32_t index = 0; index < 3; ++index) button({4 + index * 164, 288, 162, 18}, 0x3A + index, SwitchIds::OptionsWindowCommand::DetailLow + index, true, NC2E2::CLevelOfDetailManager::sLevelOfDetail == index);
             text({4, 332, 492, 14}, 0x3D);
             const bool softwareMouse = Read<std::uint8_t>(manager, 0xE4) != 0;
-            button({4, 348, 244, 18}, 0x3E, 0x277E, true, softwareMouse);
-            button({250, 348, 244, 18}, 0x3F, 0x277F, true, !softwareMouse);
+            button({4, 348, 244, 18}, 0x3E, SwitchIds::OptionsWindowCommand::SoftwareMouse, true, softwareMouse);
+            button({250, 348, 244, 18}, 0x3F, SwitchIds::OptionsWindowCommand::HardwareMouse, true, !softwareMouse);
             break;
         }
         case SwitchIds::OptionsPage::Sound:
@@ -259,34 +260,34 @@ namespace NC2InGameGuiMiscWindows
             {
                 text({4, y, 492, 14}, 0x41); y += 16;
                 const auto quality = Read<std::uint32_t>(sound, 0xC);
-                for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 70, y, 68, 18}, 0x42 + index, 0x2968 + index, true, quality == index);
-                button({284, y, 68, 18}, 0x50, 0x296B, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
+                for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 70, y, 68, 18}, 0x42 + index, SwitchIds::OptionsWindowCommand::SoundQualityLow + index, true, quality == index);
+                button({284, y, 68, 18}, 0x50, SwitchIds::OptionsWindowCommand::SoundVolumeDown, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
                 NXBasics::Runtime_PrintString(caption, "%d", Read<std::uint32_t>(sound, 0x10));
                 text({354, y, 68, 18}, 0, caption);
-                button({424, y, 68, 18}, 0x51, 0x296C, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
+                button({424, y, 68, 18}, 0x51, SwitchIds::OptionsWindowCommand::SoundVolumeUp, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
                 y += 34; text({4, y, 492, 14}, 0x45); y += 16;
                 const bool jinglesOff = properties->Property_GetIntegerValue("fx_jingles_off") != 0;
-                button({4, y, 244, 18}, 0x46, 0x296D, true, !jinglesOff);
-                button({250, y, 244, 18}, 0x47, 0x296E, true, jinglesOff);
+                button({4, y, 244, 18}, 0x46, SwitchIds::OptionsWindowCommand::JinglesOn, true, !jinglesOff);
+                button({250, y, 244, 18}, 0x47, SwitchIds::OptionsWindowCommand::JinglesOff, true, jinglesOff);
                 y += 34;
             }
             text({4, y, 492, 14}, 0x48); y += 16;
             const auto musicMode = properties->Property_GetIntegerValue("music_mode");
-            button({4, y, 162, 18}, 0x49, 0x2972, true, musicMode == 1);
-            element = makeButton({168, y, 162, 18}, 0x4A, 0x2973, true, musicMode == 2);
+            button({4, y, 162, 18}, 0x49, SwitchIds::OptionsWindowCommand::MusicOff, true, musicMode == 1);
+            element = makeButton({168, y, 162, 18}, 0x4A, SwitchIds::OptionsWindowCommand::DirectMusic, true, musicMode == 2);
             if (gDirectMusicManager == nullptr || !NC2E2::Tool_Sound_IsDMUsable()) Write<std::uint8_t>(element, 0x56, 1);
             NXBaseGui::BaseWindow_Element_Add(window, element);
-            element = makeButton({332, y, 162, 18}, 0x4B, 0x2974, true, musicMode == 3);
+            element = makeButton({332, y, 162, 18}, 0x4B, SwitchIds::OptionsWindowCommand::CdMusic, true, musicMode == 3);
             if (NCDAudioManager::CCDAudioManager::sTheObjectPtr == nullptr || !NC2E2::Tool_Sound_IsCDAUsable()) Write<std::uint8_t>(element, 0x56, 1);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             y += 34;
             if (gDirectMusicManager != nullptr && musicMode == 2)
             {
                 text({4, y, 492, 14}, 0x4C); y += 16;
-                button({4, y, 162, 18}, 0x50, 0x29E0, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
+                button({4, y, 162, 18}, 0x50, SwitchIds::OptionsWindowCommand::MusicVolumeDown, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
                 NXBasics::Runtime_PrintString(caption, "%d", NDMManager::MainVolume_Get(gDirectMusicManager));
                 text({168, y, 162, 18}, 0, caption);
-                button({332, y, 162, 18}, 0x51, 0x29E1, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
+                button({332, y, 162, 18}, 0x51, SwitchIds::OptionsWindowCommand::MusicVolumeUp, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
                 y += 34;
             }
             auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
@@ -305,17 +306,17 @@ namespace NC2InGameGuiMiscWindows
                 {
                     char name[100];
                     NXBasics::Runtime_PrintString(name, "#%d %s", track, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(track + 0x59));
-                    element = makeButton(entry, 0, 0x2A30, false, false, name);
+                    element = makeButton(entry, 0, SwitchIds::OptionsWindowCommand::StartCdTrack, false, false, name);
                     Write<std::uint32_t>(element, 0x50, 0); Write(element, 0x4C, track);
                     BaseListBoxElement_Element_Add(list, nullptr, element);
                     entry.y += entry.height + 2;
                 }
                 addList(rectangle, list); y += 126;
-                button({4, y, 96, 18}, 0x4E, 0x2A31, false, false);
-                button({200, y, 96, 18}, 0x50, 0x2A32, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
-                NXBasics::Runtime_PrintString(caption, "%d", cd->GetVolume() * 100u / 0xFFFFu);
+                button({4, y, 96, 18}, 0x4E, SwitchIds::OptionsWindowCommand::StopCdTrack, false, false);
+                button({200, y, 96, 18}, 0x50, SwitchIds::OptionsWindowCommand::CdVolumeDown, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
+                NXBasics::Runtime_PrintString(caption, "%d", cd->GetVolume() * 100u / ReadableValues::IntegerRange::UInt16Maximum);
                 text({298, y, 96, 18}, 0, caption);
-                button({396, y, 96, 18}, 0x51, 0x2A33, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
+                button({396, y, 96, 18}, 0x51, SwitchIds::OptionsWindowCommand::CdVolumeUp, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
             }
             break;
         }
@@ -324,10 +325,10 @@ namespace NC2InGameGuiMiscWindows
             if (NC2Logic::gGameStaticVars.networkGame != 0) break;
             text({4, 70, 492, 14}, 0x6E);
             const std::uint32_t sortTypes[3] = {2, 1, 3};
-            for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 164, 86, 162, 18}, 0x6F + index * 2, 0x2AF8 + index, true, NC2Logic::gSavegamesManager->mSortType == sortTypes[index], nullptr, nullptr, 0x70 + index * 2);
+            for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 164, 86, 162, 18}, 0x6F + index * 2, SwitchIds::OptionsWindowCommand::SortSavegamesByDate + index, true, NC2Logic::gSavegamesManager->mSortType == sortTypes[index], nullptr, nullptr, 0x70 + index * 2);
             const NXBasics::SRectangle rectangle(4, 120, 468, 260);
             void* list = listbox(rectangle);
-            Tool_Options_FillSavegameListboxForLoading(list, window, 0x2B02, false, 0, false);
+            Tool_Options_FillSavegameListboxForLoading(list, window, SwitchIds::OptionsWindowCommand::LoadSavegame, false, 0, false);
             addList(rectangle, list);
             break;
         }
@@ -345,7 +346,7 @@ namespace NC2InGameGuiMiscWindows
                 auto* info = NC2Logic::gSavegamesManager->GetSavegameInfoPtrByFilename(filename);
                 if (info != nullptr) { info->Tool_CreateSavegameButtonName(name); std::strcat(caption, name); }
                 else { std::strcat(caption, " ("); std::strcat(caption, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x77)); std::strcat(caption, ")"); }
-                element = makeButton(entry, 0, 0x2B03, false, false, caption);
+                element = makeButton(entry, 0, SwitchIds::OptionsWindowCommand::SaveGame, false, false, caption);
                 Write<std::uint32_t>(element, 0x50, 0); Write(element, 0x4C, slot); Write<std::uint8_t>(element, 0x57, 1);
                 BaseListBoxElement_Element_Add(list, nullptr, element);
                 entry.y += entry.height + 2;
@@ -364,7 +365,7 @@ namespace NC2InGameGuiMiscWindows
             break;
         }
         }
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x50, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(80, 1);
         element = nullptr;
         if (allocation != nullptr)
         {
@@ -386,7 +387,7 @@ namespace NC2InGameGuiMiscWindows
             return true;
         }
         if (message != 0x800) return false;
-        if (command >= 0x2710 && command < 0x2774)
+        if (command >= 0x2710 && command < SwitchIds::OptionsWindowCommand::DetailLow)
         {
             const auto& mode = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayModeData().fullscreenDisplayModes[command - 0x2710];
             NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDuringNextMainloop(static_cast<std::int32_t>(mode.width), static_cast<std::int32_t>(mode.height), mode.depth);
@@ -395,7 +396,7 @@ namespace NC2InGameGuiMiscWindows
         if (command >= 0x283C && command < 0x28A0)
         {
             const auto speed = NC2Logic::cSpeedOptionArray[command - 0x283C];
-            std::byte networkCommand[0x14]{};
+            std::byte networkCommand[20]{};
             networkCommand[0] = std::byte{0x87};
             Write(networkCommand, 4, speed);
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, networkCommand, false, true);
@@ -409,7 +410,7 @@ namespace NC2InGameGuiMiscWindows
             rebuild();
             return true;
         }
-        if (command >= 0x2904 && command < 0x2968)
+        if (command >= 0x2904 && command < SwitchIds::OptionsWindowCommand::SoundQualityLow)
         {
             Write(window, 0x70, command - 0x2904u);
             rebuild();
@@ -423,7 +424,7 @@ namespace NC2InGameGuiMiscWindows
         switch (command)
         {
         case SwitchIds::OptionsWindowCommand::UpdateGameSpeed:
-            update = Read<std::uint32_t>(window, 0x74) != 0xFFFFFFFFu && Read<std::uint32_t>(window, 0x74) != static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed));
+            update = Read<std::uint32_t>(window, 0x74) != ReadableValues::IntegerRange::UInt32Maximum && Read<std::uint32_t>(window, 0x74) != static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed));
             break;
         case SwitchIds::OptionsWindowCommand::DetailLow: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(0); break;
         case SwitchIds::OptionsWindowCommand::DetailMedium: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(1); break;
@@ -438,13 +439,13 @@ namespace NC2InGameGuiMiscWindows
         case SwitchIds::OptionsWindowCommand::SoundQualityLow:
         case SwitchIds::OptionsWindowCommand::SoundQualityMedium:
         case SwitchIds::OptionsWindowCommand::SoundQualityHigh:
-            if (sound != nullptr) { sound->Quality_Set(static_cast<std::int32_t>(command - 0x2968)); properties->Options_Save_InGame(); }
+            if (sound != nullptr) { sound->Quality_Set(static_cast<std::int32_t>(command - SwitchIds::OptionsWindowCommand::SoundQualityLow)); properties->Options_Save_InGame(); }
             break;
         case SwitchIds::OptionsWindowCommand::SoundVolumeDown:
         case SwitchIds::OptionsWindowCommand::SoundVolumeUp:
             if (sound != nullptr)
             {
-                const auto volume = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(sound, 0x10) + (command == 0x296B ? static_cast<std::uint32_t>(-10) : 10u));
+                const auto volume = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(sound, 0x10) + (command == SwitchIds::OptionsWindowCommand::SoundVolumeDown ? static_cast<std::uint32_t>(-10) : 10u));
                 sound->MainVolume_Set(volume);
                 properties->Options_Save_InGame();
                 Write<std::uint32_t>(NC2E2::gE2AmbientSoundManager, 0xC, 0);
@@ -453,7 +454,7 @@ namespace NC2InGameGuiMiscWindows
             break;
         case SwitchIds::OptionsWindowCommand::JinglesOn:
         case SwitchIds::OptionsWindowCommand::JinglesOff:
-            properties->Property_Add("fx_jingles_off", true, command == 0x296D ? 0 : 1, nullptr);
+            properties->Property_Add("fx_jingles_off", true, command == SwitchIds::OptionsWindowCommand::JinglesOn ? 0 : 1, nullptr);
             properties->Options_Save_InGame();
             break;
         case SwitchIds::OptionsWindowCommand::MusicOff:
@@ -467,7 +468,7 @@ namespace NC2InGameGuiMiscWindows
         case SwitchIds::OptionsWindowCommand::PreviewNeutralMusic:
         case SwitchIds::OptionsWindowCommand::PreviewPositiveMusic:
         case SwitchIds::OptionsWindowCommand::PreviewNegativeMusic:
-            if (gDirectMusicManager != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 10, command == 0x29CC ? 4 : command == 0x29CD ? 5 : 6, 2);
+            if (gDirectMusicManager != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 10, command == SwitchIds::OptionsWindowCommand::PreviewNeutralMusic ? 4 : command == SwitchIds::OptionsWindowCommand::PreviewPositiveMusic ? 5 : 6, 2);
             break;
         case SwitchIds::OptionsWindowCommand::PreviewBirthJingle: NDSManager::CManager::Jingle_Play(2); break;
         case SwitchIds::OptionsWindowCommand::PreviewMarriageJingle: NDSManager::CManager::Jingle_Play(1); break;
@@ -475,7 +476,7 @@ namespace NC2InGameGuiMiscWindows
         case SwitchIds::OptionsWindowCommand::MusicVolumeUp:
             if (gDirectMusicManager != nullptr)
             {
-                NDMManager::MainVolume_Set(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NDMManager::MainVolume_Get(gDirectMusicManager)) + (command == 0x29E0 ? static_cast<std::uint32_t>(-10) : 10u)));
+                NDMManager::MainVolume_Set(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NDMManager::MainVolume_Get(gDirectMusicManager)) + (command == SwitchIds::OptionsWindowCommand::MusicVolumeDown ? static_cast<std::uint32_t>(-10) : 10u)));
                 properties->Options_Save_InGame();
             }
             break;
@@ -492,10 +493,10 @@ namespace NC2InGameGuiMiscWindows
             if (cd == nullptr) update = false;
             else
             {
-                auto percent = NXBasics::Runtime_TimeSigned32(cd->GetVolume() * 100u / 0xFFFFu + (command == 0x2A32 ? static_cast<std::uint32_t>(-5) : 5u));
-                if (command == 0x2A32 && percent < 0) percent = 0;
-                if (command == 0x2A33 && percent > 100) percent = 100;
-                cd->SetVolume(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percent) * 0xFFFFu) / 100));
+                auto percent = NXBasics::Runtime_TimeSigned32(cd->GetVolume() * 100u / ReadableValues::IntegerRange::UInt16Maximum + (command == SwitchIds::OptionsWindowCommand::CdVolumeDown ? static_cast<std::uint32_t>(-5) : 5u));
+                if (command == SwitchIds::OptionsWindowCommand::CdVolumeDown && percent < 0) percent = 0;
+                if (command == SwitchIds::OptionsWindowCommand::CdVolumeUp && percent > 100) percent = 100;
+                cd->SetVolume(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percent) * ReadableValues::IntegerRange::UInt16Maximum) / 100));
             }
             break;
         case SwitchIds::OptionsWindowCommand::SortSavegamesByDate: NC2Logic::gSavegamesManager->SortType_Set(2); break;
@@ -565,7 +566,7 @@ namespace NC2InGameGuiMiscWindows
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
-    static_assert(sizeof(gGameSafetyBoxWindowVirtualTable) == 0x4C);
+    static_assert(sizeof(gGameSafetyBoxWindowVirtualTable) == 76);
 
     // Original function: FUN_004c94c4.
     static void GameSafetyBoxWindow_l_GuiButtons_Add(void* window)
@@ -582,11 +583,11 @@ namespace NC2InGameGuiMiscWindows
             if (Read<std::uint8_t>(NC2Logic::gMissionManager, 5) != 0) { std::strcat(title, " "); std::strcat(title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x52)); }
         }
         if (*title == 0) return;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         const NXBasics::SRectangle moverRectangle(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14);
         void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &moverRectangle, title);
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         const NXBasics::SRectangle closeRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -595,7 +596,7 @@ namespace NC2InGameGuiMiscWindows
         NXBasics::SRectangle rectangle(4, 20, 396 / count - 4, 116);
         for (std::int32_t index = 0; index < count; ++index)
         {
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             element = allocation == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(allocation, nullptr, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x54 + index), 0x2710 + index, window, false);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             rectangle.x += rectangle.width + 4;
@@ -650,7 +651,7 @@ namespace NC2InGameGuiMiscWindows
         }
         else if (mode > 0 && mode <= 2)
         {
-            std::byte networkCommand[0x14]{};
+            std::byte networkCommand[20]{};
             networkCommand[0] = std::byte{0x88};
             const auto player = Read<std::int32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0);
             Write(networkCommand, 4, player);
@@ -696,7 +697,7 @@ namespace NInGameGuiManager
         l_Selection_RemoveAllGuiElements();
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7D8, loadPage, savePage, 0) != nullptr) return;
         MiscWindows_CloseAllLargeOnes(true);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x78, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(120, 1);
         void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::OptionsWindow_Construct(allocation, loadPage, savePage);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
@@ -708,7 +709,7 @@ namespace NInGameGuiManager
         Write<double>(this, 0x1A0, NC2Logic::gGameTime.maximizeSpeed != 0 ? 12.0 : NC2Logic::gGameTime.speed);
         NC2Logic::GameTime_MaximizeGameSpeed_SetFlag(false);
         Write<std::uint8_t>(this, 0x198, 1);
-        std::byte command[0x14]{};
+        std::byte command[20]{};
         command[0] = std::byte{0x87};
         NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, true);
     }
@@ -718,7 +719,7 @@ namespace NInGameGuiManager
     {
         if (Read<std::uint8_t>(this, 0x198) != 0 && !(NC2Logic::gGameTime.speed >= 0.01))
         {
-            std::byte command[0x14]{};
+            std::byte command[20]{};
             command[0] = std::byte{0x87};
             const auto speed = static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(Read<double>(this, 0x1A0)));
             std::memcpy(command + 4, &speed, sizeof(speed));
@@ -734,7 +735,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_GameSafetyBoxWindow_Open(std::uint32_t mode)
     {
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7EB, mode, 0, 0) != nullptr) return;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
         void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::GameSafetyBoxWindow_Construct(allocation, mode);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2DefaultInteraction.h"
 #include "C2EngineDrawingAccess.h"
@@ -46,7 +47,7 @@ namespace NC2E2
             const auto offset = type == 1 ? 8u : type == 2 ? 0x10u : 0x18u;
             Write(output, offset, id); Write(output, offset + 4, Read<std::uint32_t>(object, 8));
             Write(output, 0x20, moveableId);
-            Write(output, 0x24, NC2Logic::MapMoveable_GetUniqueId(NC2Logic::gMapMoveableArrayStorage.entries + moveableId * 0x58u));
+            Write(output, 0x24, NC2Logic::MapMoveable_GetUniqueId(NC2Logic::gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable));
             Write(output, 0x40, Read<std::int32_t>(object, type == 3 ? 0x1E0 : 0x10));
             std::memcpy(static_cast<std::byte*>(output) + 0x48, &bobs, sizeof(bobs));
         }
@@ -55,14 +56,14 @@ namespace NC2E2
     // Original function: FUN_00484061; sprite hits precede the 20-pixel fallback.
     void DE_SearchObject_FindOnWorldPosition(const void* display, const std::int32_t* mouse, void* output)
     {
-        std::memset(output, 0, 0x18C);
+        std::memset(output, 0, 396);
         DisplayObjectReference_Reset(output);
         std::uint32_t first = 0, last = 0;
         const std::int32_t firstPixel[2]{mouse[0] - 200, mouse[1] - 200}, lastPixel[2]{mouse[0] + 200, mouse[1] + 300};
         DisplayDescription_WorldPixelToMapMigCoordinates(display, firstPixel, &first);
         DisplayDescription_WorldPixelToMapMigCoordinates(display, lastPixel, &last);
         std::uint32_t priority = 0, fallbackPriority = 0, bestDistance = 400;
-        alignas(4) std::byte fallback[0x18C]{};
+        alignas(4) std::byte fallback[396]{};
         const auto player = Read<std::uint32_t>(display, 0x7C);
         for (std::int32_t y = static_cast<std::int16_t>(first >> 16); y <= static_cast<std::int16_t>(last >> 16); ++y)
         {
@@ -77,7 +78,7 @@ namespace NC2E2
                 S2DEngineDisplaySearchObjectBobData bobs;
                 const auto type = Read<std::uint8_t>(micro, 0);
                 const auto phase = static_cast<std::uint32_t>(x + y * 2);
-                if (type == 1 && Read<std::uint8_t>(micro, 2) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != 0xFFFF && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
+                if (type == 1 && Read<std::uint8_t>(micro, 2) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != ReadableValues::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
                 {
                     DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, 0)), Read<std::uint8_t>(micro, 3), phase, &bobs);
                     if (IsHit(bobs, mouse, base))
@@ -130,9 +131,9 @@ namespace NC2E2
                 NC2Logic::CMapMoveableIterator iterator;
                 for (auto moveableId = iterator.GetFirstMapMoveableId(&point); moveableId != -1; moveableId = iterator.GetNextMapMoveableId())
                 {
-                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * 0x58u;
+                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable;
                     DrawAtom_MapMoveable_GetBobData(moveableId, display, &bobs, player);
-                    auto objectType = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, 0x54), objectPoint = point;
+                    auto objectType = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId), objectPoint = point;
                     const void* object = nullptr;
                     auto objectMoveable = static_cast<std::uint32_t>(moveableId);
                     const bool marker = objectType == 4;

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MapSectorAttachment.h"
 #include "C2MapSectorGridCursor.h"
 #include "C2IoHelper.h"
@@ -15,7 +16,7 @@ namespace NC2Logic
         // Original function: FUN_00470374.
         void InitializeSectorAttachmentData(std::byte* sector)
         {
-            std::memset(sector, 0, 0x540);
+            std::memset(sector, 0, 1344);
 
             const std::int32_t initialValue = -1;
 
@@ -79,8 +80,8 @@ namespace NC2Logic
     {
         std::int16_t macroWidth;
         std::int16_t macroHeight;
-        std::memcpy(&macroWidth, gGameMapStaticStorage + 0x04, sizeof(macroWidth));
-        std::memcpy(&macroHeight, gGameMapStaticStorage + 0x06, sizeof(macroHeight));
+        std::memcpy(&macroWidth, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, sizeof(macroWidth));
+        std::memcpy(&macroHeight, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, sizeof(macroHeight));
 
         mGridWidth = static_cast<std::int32_t>(macroWidth) / 10;
         mGridHeight = static_cast<std::int32_t>(macroHeight) / 10;
@@ -114,7 +115,7 @@ namespace NC2Logic
     // Original function: FUN_0044ecec.
     void CGameMapSectorAttachmentManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(0x7361616D, 1);
+        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::SectorAttachments, 1);
         io.IO_Memory_WriteBinary(this, 8);
         io.IO_Memory_WriteBinary(mSectorData, static_cast<std::uint32_t>(mGridWidth) * static_cast<std::uint32_t>(mGridHeight) * 0x540u);
         io.IO_Tool_Chunk_FinishAndWrite();

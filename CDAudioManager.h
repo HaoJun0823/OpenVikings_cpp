@@ -49,7 +49,7 @@ namespace NCDAudioManager
     };
 
     static_assert(sizeof(void*) == 4, "CD audio requires Win32");
-    static_assert(sizeof(MIXERCONTROLDETAILS) == 0x18);
+    static_assert(sizeof(MIXERCONTROLDETAILS) == 24);
     static_assert(sizeof(MIXERCONTROLDETAILS_UNSIGNED) == 4);
-    static_assert(sizeof(CCDAudioManager) == 0x1E0);
+    static_assert(sizeof(CCDAudioManager) == 480);
 }

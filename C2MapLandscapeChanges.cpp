@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GameMapAccess.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2EngineDisplayAccess.h"
@@ -114,7 +115,7 @@ namespace NC2Logic
             {
                 if (!preserveWalkingBlock && !walk->BuildBlock_Check(point)) return false;
             }
-            else if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0) return false;
+            else if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0) return false;
             if (build != nullptr && !build->Check_CanLandscapeBeSetOnPattern(point, type)) return false;
             const auto* extra = External_Landscape_GetAreaPtr(engineId, 0, 3);
             if (extra != nullptr && !extra->AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed(point)) return false;
@@ -133,7 +134,7 @@ namespace NC2Logic
             }
             External_Landscape_InternallySetData(point, engineId);
             const auto currentType = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
-            if ((gStaticLandscapeTypeStorage.records[currentType].transitionMask & 0x2000u) != 0) static_cast<CMapLandscapeAutoTransitionManager*>(gMapLandscapeAutoTransitionManager)->AutoTransition_Add(point);
+            if ((gStaticLandscapeTypeStorage.records[currentType].transitionMask & ReadableValues::BitMask::Bit13) != 0) static_cast<CMapLandscapeAutoTransitionManager*>(gMapLandscapeAutoTransitionManager)->AutoTransition_Add(point);
         }
         else GameMap_MapMicroPoint_Landscape_Clear(point);
         GameMapModifyManager_GameMapModified(10, point, 0);

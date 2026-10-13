@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MilitaryTargetSearch.h"
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
@@ -89,7 +90,7 @@ namespace NC2Logic
         std::uint32_t enemyCount = 0;
         for (std::uint32_t enemy = 0; enemy < 20; ++enemy)
         {
-            if (Read<std::uint8_t>(gGameControl, enemy * 0x4A80u) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) ++enemyCount;
+            if (Read<std::uint8_t>(gGameControl, enemy * ReadableValues::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) ++enemyCount;
         }
         if (enemyCount == 0) return false;
         if (minimumDistance == 0 && !Tool_FillArrayFromPoint(NXBasics::Runtime_TimeSigned32(player), point, point, list)) return false;

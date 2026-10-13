@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2EngineParticleSimulation.h"
 #include "C2EngineParticleDrawing.h"
 #include "C2E2StaticDataParticles.h"
@@ -239,8 +240,8 @@ namespace NC2E2
         std::uint32_t index = 0;
         while (index < 10000 && Read<std::uint8_t>(manager, 0x9F74u + index * 0x130u) != 0) ++index;
         if (index == 10000) return nullptr;
-        if (index > Read<std::uint32_t>(manager, 0x2F0270)) Write(manager, 0x2F0270, index);
-        return At(manager, 0x9F70u + index * 0x130u);
+        if (index > Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex)) Write(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex, index);
+        return At(manager, ReadableValues::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
     }
 
     // Original function: FUN_004864d1.
@@ -267,7 +268,7 @@ namespace NC2E2
         const auto id = Read<std::uint32_t>(source, 0x128), spawnId = Read<std::uint32_t>(StaticParticle(id), 0x24);
         if (id == spawnId)
         {
-            std::memcpy(particle, source, 0x130);
+            std::memcpy(particle, source, 304);
             Write<std::uint8_t>(particle, 0x18, 0); Write<std::uint32_t>(particle, 0x10, 4); Write<std::uint32_t>(particle, 0x14, 4);
             LogicParticelObject_CalculateValency(particle);
             Write(particle, 0x11C, Read<std::uint32_t>(source, 0x11C)); Write<std::uint32_t>(particle, 0x90, 0);
@@ -280,7 +281,7 @@ namespace NC2E2
             Write<std::uint32_t>(particle, 0x118, 0); Write<std::uint8_t>(particle, 0x20, 1);
             Write<std::uint32_t>(particle, 0x10, 4); Write<std::uint32_t>(particle, 0x14, 4); LogicParticelObject_CalculateValency(particle);
             ParticelObject_SetSpeed(particle, 50, 100, 50);
-            std::memcpy(At(particle, 0x20), At(source, 0x20), 0x70); Write<std::uint8_t>(particle, 4, 1);
+            std::memcpy(At(particle, 32), At(source, 32), 112); Write<std::uint8_t>(particle, 4, 1);
         }
     }
 
@@ -342,19 +343,19 @@ namespace NC2E2
         std::uint32_t index = 0;
         while (index < 1000 && Read<std::uint8_t>(manager, 0x2F0294u + index * 0x20u) != 0) ++index;
         if (index == 1000) return;
-        void* record = At(manager, 0x2F0278u + index * 0x20u);
+        void* record = At(manager, ReadableValues::ParticleManagerOffset::GeneratorsUnsigned + index * 0x20u);
         Write(record, 0xC, chance); Write(record, 4, Read<std::uint32_t>(pixelPoint, 0)); Write(record, 8, Read<std::uint32_t>(pixelPoint, 4));
         Write<std::uint8_t>(record, 0x14, 0); Write(record, 0x10, generatorId); Write(record, 0x18, identifier);
         Write(record, 0, Read<std::uint32_t>(mapPoint, 0)); Write<std::uint8_t>(record, 0x1C, 1);
-        if (index > Read<std::uint32_t>(manager, 0x2F7F78)) Write(manager, 0x2F7F78, index);
+        if (index > Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex)) Write(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex, index);
     }
 
     // Original function: FUN_00486c7c; native scan also visits inactive records.
     void E2ParticelManager_EnableGenerator(void* manager, std::uint32_t identifier)
     {
-        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, 0x2F7F78); ++index)
+        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex); ++index)
         {
-            void* record = At(manager, 0x2F0278u + index * 0x20u);
+            void* record = At(manager, ReadableValues::ParticleManagerOffset::GeneratorsUnsigned + index * 0x20u);
             if (Read<std::uint32_t>(record, 0x18) == identifier) Write<std::uint8_t>(record, 0x14, 1);
         }
     }
@@ -363,13 +364,13 @@ namespace NC2E2
     void E2ParticelManager_DestroyGenerator(void* manager, std::uint32_t identifier)
     {
         std::uint32_t previous = 0;
-        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, 0x2F7F78); ++index)
+        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex); ++index)
         {
-            void* record = At(manager, 0x2F0278u + index * 0x20u);
+            void* record = At(manager, ReadableValues::ParticleManagerOffset::GeneratorsUnsigned + index * 0x20u);
             if (Read<std::uint32_t>(record, 0x18) == identifier)
             {
-                Write<std::uint8_t>(record, 0x1C, 0); Write<std::uint32_t>(record, 0x18, 0xFFFFFFFFu);
-                if (index == Read<std::uint32_t>(manager, 0x2F7F78)) Write(manager, 0x2F7F78, previous);
+                Write<std::uint8_t>(record, 0x1C, 0); Write<std::uint32_t>(record, 0x18, ReadableValues::IntegerRange::UInt32Maximum);
+                if (index == Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex)) Write(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex, previous);
             }
             previous = index;
         }
@@ -378,9 +379,9 @@ namespace NC2E2
     // Original function: FUN_00486cdd.
     void E2ParticelManager_l_GeneratorTick(void* manager)
     {
-        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, 0x2F7F78); ++index)
+        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex); ++index)
         {
-            void* record = At(manager, 0x2F0278u + index * 0x20u);
+            void* record = At(manager, ReadableValues::ParticleManagerOffset::GeneratorsUnsigned + index * 0x20u);
             if (Read<std::uint8_t>(record, 0x1C) == 0 || Read<std::uint8_t>(record, 0x14) == 0) continue;
             auto point = Read<std::uint32_t>(record, 0);
             if (RandUnsigned() % 100u >= Read<std::uint32_t>(record, 0xC)) continue;
@@ -432,9 +433,9 @@ namespace NC2E2
         E2ParticelManager_l_GeneratorTick(manager);
         ParticelWind_Tick(Read<void*>(manager, 4));
         std::uint32_t previous = 0;
-        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, 0x2F0270); ++index)
+        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex); ++index)
         {
-            void* particle = At(manager, 0x9F70u + index * 0x130u);
+            void* particle = At(manager, ReadableValues::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
             if (Read<std::uint8_t>(particle, 4) == 0) continue;
             ParticelObject_TickLifetimeAndFrame(particle);
             if (Read<std::uint8_t>(particle, 4) == 0)
@@ -443,16 +444,16 @@ namespace NC2E2
                 {
                     // An expired projectile may have crossed the map boundary on its last movement tick.
                     const void* micro = NC2Logic::GameMap_GetMapMicroPointPtr(At(particle, 0x78));
-                    if (micro != nullptr && (Read<std::uint8_t>(micro, 0xC) & 0x80u) == 0 && Read<std::uint16_t>(micro, 0xA) == 0xFFFFu && !(Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::int8_t>(micro, 4) != -1))
+                    if (micro != nullptr && (Read<std::uint8_t>(micro, 0xC) & ReadableValues::BitMask::Bit7) == 0 && Read<std::uint16_t>(micro, 0xA) == ReadableValues::IntegerRange::UInt16Maximum && !(Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::int8_t>(micro, 4) != -1))
                     {
                         // The original clears only the low DWORD of the pixel-Y double.
                         Write<std::uint32_t>(particle, 0x48, 0); Write<std::uint8_t>(particle, 0x12D, 0);
                         Write<std::uint32_t>(particle, 0x118, 0); Write<std::uint8_t>(particle, 0x18, 0);
-                        Write<std::uint32_t>(particle, 0x128, 10); std::memcpy(At(particle, 0x28), At(particle, 0x50), 0x28);
+                        Write<std::uint32_t>(particle, 0x128, 10); std::memcpy(At(particle, 40), At(particle, 80), 40);
                         Write<std::uint8_t>(particle, 4, 1); Write<std::uint32_t>(particle, 0x10, 120); Write<std::uint32_t>(particle, 0x14, 119);
                     }
                 }
-                else if (index == Read<std::uint32_t>(manager, 0x2F0270)) Write(manager, 0x2F0270, previous);
+                else if (index == Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex)) Write(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex, previous);
             }
             else if (Read<std::uint32_t>(particle, 0x14) + 1u < Read<std::uint32_t>(particle, 0x10) && Read<std::uint32_t>(particle, 0x118) == 1 && Read<std::uint8_t>(StaticParticle(Read<std::uint32_t>(particle, 0x128)), 0x20) != 0 && Read<std::uint8_t>(particle, 0x12D) == 0) E2ParticelManager_CreateFallingSpawnParticel(manager, particle);
             previous = index;

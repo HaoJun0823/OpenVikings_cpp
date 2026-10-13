@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GuideRouting.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2MapGeometry.h"
@@ -39,7 +40,7 @@ namespace NC2Logic
             if ((directions & (1u << direction)) == 0) continue;
             Write(point, 0, position);
             MapMigPoint_MoveCursorUnwrapped(point, direction, 1);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0C) & 0x80u) == 0) break;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0C) & ReadableValues::BitMask::Bit7) == 0) break;
         }
     }
 
@@ -177,7 +178,7 @@ namespace NC2Logic
     // Original function: FUN_0041B90D.
     void GuideManager_l_InitializeScan(void* manager)
     {
-        std::memset(Read<void*>(manager, 0x1364), 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
+        std::memset(Read<void*>(manager, 4964), 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
         for (std::uint32_t bucket = 0; bucket < 40; ++bucket) Write<std::uint32_t>(manager, 4u + bucket * 0x7Cu, 0);
     }
 }

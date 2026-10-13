@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2GuideAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2GameEngineStartup.h"
@@ -45,7 +46,7 @@ namespace NC2Logic
             {
                 if (static_cast<std::uint32_t>(Distance(point, Position(guide))) >= 40u) return false;
                 auto* house = CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 0x0C) != Read<std::uint32_t>(guide, 4)) return false;
+                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
                 const auto* data = House_GetHouseTypeDataPtr(house);
                 for (std::uint32_t index = 0; index < data->stockCount; ++index) AddGood(guide, data->stock[index].goodType, House_Stock_RequestAmountOfGoods(house, data->stock[index].goodType, false));
             }
@@ -67,7 +68,7 @@ namespace NC2Logic
             else if (kind == 2)
             {
                 auto* house = CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 0x0C) != Read<std::uint32_t>(guide, 4)) return false;
+                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
                 const auto* data = House_GetHouseTypeDataPtr(house);
                 for (std::uint32_t index = 0; index < data->stockCount; ++index)
                 {
@@ -81,7 +82,7 @@ namespace NC2Logic
     // Original function: FUN_0041b061.
     bool __fastcall GuideManager_InsertGuideAtPosition(void* manager, void*, std::uint32_t player, const void* point, std::uint32_t flags)
     {
-        if (!Tool_Guide_IsAllowedToBeBuild(player, point, (flags & 0xFFu) != 0)) return false;
+        if (!Tool_Guide_IsAllowedToBeBuild(player, point, (flags & ReadableValues::IntegerRange::UInt8Maximum) != 0)) return false;
         const auto id = CGuideArray::sTheObjectPtr->AllocateGuide(player, point);
         if (id == -1) return false;
         GuideManager_RecalculateGuideConnections(manager, id);
@@ -194,7 +195,7 @@ namespace NC2Logic
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
         if (!MapMigPoint_IsInsideMap(point) || GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || Read<std::uint8_t>(micro, 7) == 0) return false;
         const auto kind = Read<std::uint8_t>(micro, 0);
-        if (kind == 2 || kind == 3 || (Read<std::uint8_t>(micro, 0x0C) & 0x80u) != 0 || (Read<std::uint8_t>(micro, 0x0D) & 1u) != 0) return false;
+        if (kind == 2 || kind == 3 || (Read<std::uint8_t>(micro, 0x0C) & ReadableValues::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 0x0D) & 1u) != 0) return false;
         if (!checkSpacing) return true;
         auto* array = CGuideArray::sTheObjectPtr;
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
@@ -332,7 +333,7 @@ namespace NC2Logic
     // Original function: FUN_004476c6.
     void Guide_ScanForGoods(void* guide)
     {
-        std::memset(static_cast<std::byte*>(guide) + 0x7C, 0, 0x108);
+        std::memset(static_cast<std::byte*>(guide) + 0x7C, 0, 264);
         CMapPathfinderElement::SearchOverMap(Position(guide), 40, true, slScanGoodsAround, guide, true, Read<std::int32_t>(guide, 4));
     }
 }

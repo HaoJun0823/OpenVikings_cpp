@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2TributeAccess.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2HouseAccess.h"
@@ -42,7 +43,7 @@ namespace NC2Logic
     void TributeData_Init(STributeData* tribute, std::uint32_t sourcePlayer, std::uint32_t targetPlayer)
     {
         tribute->goodCount = 0;
-        tribute->descriptionStringId = 0xFFFFFFFFu;
+        tribute->descriptionStringId = ReadableValues::IntegerRange::UInt32Maximum;
         tribute->sourcePlayer = sourcePlayer;
         tribute->paid = 1;
         tribute->targetPlayer = targetPlayer;
@@ -69,7 +70,7 @@ namespace NC2Logic
     // Original function: FUN_0043e5cc; the original demand is copied before aggregation.
     bool TributeData_Possible(const void* tribute)
     {
-        std::byte remaining[0x3C]; std::memcpy(remaining, tribute, sizeof(remaining));
+        std::byte remaining[60]; std::memcpy(remaining, tribute, sizeof(remaining));
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(tribute, 8)); id != -1; id = iterator.GetNextHouseId())
         {
@@ -113,13 +114,13 @@ namespace NC2Logic
     bool __fastcall TributeData_Pay(void* tribute, void*)
     {
         if (!TributeData_Possible(tribute)) return false;
-        std::byte remaining[0x3C]; std::memcpy(remaining, tribute, sizeof(remaining));
+        std::byte remaining[60]; std::memcpy(remaining, tribute, sizeof(remaining));
         const auto player = Read<std::uint32_t>(tribute, 8);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(house, 0x14) != 1) continue;
+            if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) != 1) continue;
             const bool paid = TributeData_GetTributeFromHouse(remaining, id);
             Write<std::uint8_t>(tribute, 1, paid); if (paid) return true;
             break;
@@ -143,7 +144,7 @@ namespace NC2Logic
         while (mIndex < 40)
         {
             mCurrent = static_cast<std::byte*>(gTributeManager) + mIndex * 0x3Cu;
-            if (Read<std::uint8_t>(mCurrent, 0) != 0 && (mSource == 0xFFFFFFFFu || (Read<std::uint32_t>(mCurrent, 8) == mSource && Read<std::uint32_t>(mCurrent, 12) == mTarget))) return;
+            if (Read<std::uint8_t>(mCurrent, 0) != 0 && (mSource == ReadableValues::IntegerRange::UInt32Maximum || (Read<std::uint32_t>(mCurrent, 8) == mSource && Read<std::uint32_t>(mCurrent, 12) == mTarget))) return;
             ++mIndex;
         }
         mCurrent = nullptr;

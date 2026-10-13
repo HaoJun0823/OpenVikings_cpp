@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "X2DApplication.h"
 #include "XMMouseManager.h"
 #include "XSystemMouseCursor.h"
@@ -65,7 +66,7 @@ namespace NXSysMouseManager
         std::memset(this, 0, sizeof(*this));
 
         gRawMouse = {};
-        const RAWINPUTDEVICE device{ 0x01, 0x02, 0, NXSys2DApp::CApplication::sTheObjectPtr->GetWindowHandle() };
+        const RAWINPUTDEVICE device{ 1, 0x02, 0, NXSys2DApp::CApplication::sTheObjectPtr->GetWindowHandle() };
         // Foreground delivery only; keep ordinary button and wheel messages enabled.
         gRawMouse.registered = RegisterRawInputDevices(&device, 1, sizeof(device)) != FALSE;
         if (!gRawMouse.registered) OutputDebugStringA("OpenVikings: raw mouse registration failed; using cursor-position fallback.\n");
@@ -79,7 +80,7 @@ namespace NXSysMouseManager
     {
         if (gRawMouse.registered)
         {
-            const RAWINPUTDEVICE device{ 0x01, 0x02, RIDEV_REMOVE, nullptr };
+            const RAWINPUTDEVICE device{ 1, 0x02, RIDEV_REMOVE, nullptr };
             RegisterRawInputDevices(&device, 1, sizeof(device));
         }
         gRawMouse = {};
@@ -220,9 +221,9 @@ namespace NXSysMouseManager
     // Original function: FUN_004794eb
     void CMouseManager::l_UpdateMouseButtonState()
     {
-        const bool leftButton = (GetKeyState(VK_LBUTTON) & 0x8000) != 0;
-        const bool middleButton = (GetKeyState(VK_MBUTTON) & 0x8000) != 0;
-        const bool rightButton = (GetKeyState(VK_RBUTTON) & 0x8000) != 0;
+        const bool leftButton = (GetKeyState(VK_LBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
+        const bool middleButton = (GetKeyState(VK_MBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
+        const bool rightButton = (GetKeyState(VK_RBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
 
         l_SetState_Total(leftButton, middleButton, rightButton, mMouseX, mMouseY, 0, 0, 0);
     }

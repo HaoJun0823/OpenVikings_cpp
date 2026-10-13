@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MapResourceTools.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -23,7 +24,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstVehicleId(player, &point, NXBasics::Runtime_TimeSigned32(radius)); id != -1; id = iterator.GetNextVehicleId())
         {
             const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            if (Read<std::uint32_t>(vehicle, 0x1E8) == vehicleType) total += Vehicle_Stock_GetAmountOfGoods(vehicle, good);
+            if (Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType) == vehicleType) total += Vehicle_Stock_GetAmountOfGoods(vehicle, good);
         }
         return total;
     }
@@ -38,9 +39,9 @@ namespace NC2Logic
             if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : 0xFFFFFFFFu;
+                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : ReadableValues::IntegerRange::UInt32Maximum;
                 auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-                if (Read<std::uint32_t>(house, 0x2C) == 3 && Read<std::uint32_t>(house, 0x0C) == player && (House_Stock_CanStoreGoodType(house, good, false) || House_Stock_CanStoreGoodType(house, good, true)))
+                if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) == player && (House_Stock_CanStoreGoodType(house, good, false) || House_Stock_CanStoreGoodType(house, good, true)))
                 {
                     do
                     {
@@ -88,9 +89,9 @@ namespace NC2Logic
             if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : 0xFFFFFFFFu;
+                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : ReadableValues::IntegerRange::UInt32Maximum;
                 auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-                if (Read<std::uint32_t>(house, 0x2C) == 3 && Read<std::uint32_t>(house, 0x0C) == player && House_Stock_CanStoreGoodType(house, good, true))
+                if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) == player && House_Stock_CanStoreGoodType(house, good, true))
                 {
                     do
                     {

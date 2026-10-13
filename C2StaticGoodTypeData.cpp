@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -30,23 +31,23 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"type", 0x74797065};
-                storage.tokens[1] = {"name", 0x6E616D65};
-                storage.tokens[2] = {"landscapetype", 0x6C616E64};
-                storage.tokens[3] = {"weaponType", 0x77656170};
-                storage.tokens[4] = {"armorType", 0x61726D6F};
-                storage.tokens[5] = {"isInputGoodFlag", 0x70696E70};
-                storage.tokens[6] = {"isProducedInHouseFlag", 0x70686F75};
-                storage.tokens[7] = {"isProducedOnMapFlag", 0x706D6170};
-                storage.tokens[8] = {"isBioLandscapeFlag", 0x62696F6C};
-                storage.tokens[9] = {"landscapeToHarvest", 0x6C686172};
-                storage.tokens[10] = {"landscapeToPickup", 0x6C706963};
-                storage.tokens[11] = {"landscapeToStore", 0x6C73746F};
-                storage.tokens[12] = {"atomicForHarvesting", 0x61686172};
-                storage.tokens[13] = {"atomicForCultivating", 0x6163756C};
-                storage.tokens[14] = {"atomicForPlanting", 0x61706C61};
-                storage.tokens[15] = {"atomicForProduction", 0x6170726F};
-                storage.tokens[16] = {"productionInputGoods", 0x696E676F};
+                storage.tokens[0] = {"type", ReadableValues::GoodToken::Type};
+                storage.tokens[1] = {"name", SwitchIds::GoodToken::Name};
+                storage.tokens[2] = {"landscapetype", SwitchIds::GoodToken::LandscapeType};
+                storage.tokens[3] = {"weaponType", SwitchIds::GoodToken::WeaponType};
+                storage.tokens[4] = {"armorType", SwitchIds::GoodToken::ArmorType};
+                storage.tokens[5] = {"isInputGoodFlag", SwitchIds::GoodToken::IsInputGoodFlag};
+                storage.tokens[6] = {"isProducedInHouseFlag", SwitchIds::GoodToken::IsProducedInHouseFlag};
+                storage.tokens[7] = {"isProducedOnMapFlag", SwitchIds::GoodToken::IsProducedOnMapFlag};
+                storage.tokens[8] = {"isBioLandscapeFlag", SwitchIds::GoodToken::IsBioLandscapeFlag};
+                storage.tokens[9] = {"landscapeToHarvest", SwitchIds::GoodToken::LandscapeToHarvest};
+                storage.tokens[10] = {"landscapeToPickup", SwitchIds::GoodToken::LandscapeToPickup};
+                storage.tokens[11] = {"landscapeToStore", SwitchIds::GoodToken::LandscapeToStore};
+                storage.tokens[12] = {"atomicForHarvesting", SwitchIds::GoodToken::AtomicForHarvesting};
+                storage.tokens[13] = {"atomicForCultivating", SwitchIds::GoodToken::AtomicForCultivating};
+                storage.tokens[14] = {"atomicForPlanting", SwitchIds::GoodToken::AtomicForPlanting};
+                storage.tokens[15] = {"atomicForProduction", SwitchIds::GoodToken::AtomicForProduction};
+                storage.tokens[16] = {"productionInputGoods", SwitchIds::GoodToken::ProductionInputGoods};
                 storage.tokens[17] = {nullptr, 0};
             }
             if ((storage.tokenInitFlags & 2) == 0)
@@ -65,8 +66,8 @@ namespace NC2Logic
         gStaticGoodTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticGoodTypeData = nullptr;
-        gStaticGoodTypeData = static_cast<SStaticGoodTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0x35A0, 1));
-        std::memset(gStaticGoodTypeData, 0, 0x35A0);
+        gStaticGoodTypeData = static_cast<SStaticGoodTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(13728, 1));
+        std::memset(gStaticGoodTypeData, 0, 13728);
         std::strcpy(gStaticGoodTypeData[0].name, "none");
         NXBasics::CIniFileReader reader("data\\logic\\goodtypes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return;

@@ -14,8 +14,8 @@ namespace NC2E2
     namespace
     {
         // Complete token tables, 004F49D0..004F4A1F, and lazy state 00568A10..00568A1B.
-        const NXBasics::SToken gPointTypeTokens[] = {{"name", 0x6E616D65}, {"patterngroup", 0x70617467}, {nullptr, 0}};
-        const NXBasics::SToken gTransitionTokens[] = {{"name", 0x6E616D65}, {"pointtype", 0x706F6974}, {"gfxtexture", 0x74657874}, {"gfxtexturealpha", 0x74657861}, {"gfxcoordsa", 0x636F6F61}, {"gfxcoordsb", 0x636F6F62}, {nullptr, 0}};
+        const NXBasics::SToken gPointTypeTokens[] = {{"name", SwitchIds::TransitionPointToken::Name}, {"patterngroup", SwitchIds::TransitionPointToken::Patterngroup}, {nullptr, 0}};
+        const NXBasics::SToken gTransitionTokens[] = {{"name", SwitchIds::TransitionPointToken::Name}, {"pointtype", SwitchIds::TransitionToken::PointType}, {"gfxtexture", SwitchIds::TransitionToken::GfxTexture}, {"gfxtexturealpha", SwitchIds::TransitionToken::Gfxtexturealpha}, {"gfxcoordsa", SwitchIds::TransitionToken::GfxCoordsA}, {"gfxcoordsb", SwitchIds::TransitionToken::GfxCoordsB}, {nullptr, 0}};
         const NXBasics::SToken* gTransitionTokenTable = nullptr;
         std::uint32_t gTransitionTokenInitFlags = 0;
         const NXBasics::SToken* gPointTypeTokenTable = nullptr;

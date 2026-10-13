@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ReadableValues.h"
+
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -33,7 +35,7 @@ namespace NXBasics
 
         const std::int32_t result = Runtime_Close(static_cast<std::uint32_t>(descriptor));
 
-        if (static_cast<std::uint32_t>(result) == 0xFFFFFFFFu)
+        if (static_cast<std::uint32_t>(result) == ReadableValues::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -96,7 +98,7 @@ namespace NXBasics
 
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (archiveIndex != UINT32_C(0xFFFFFFFF))
+        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -112,7 +114,7 @@ namespace NXBasics
 
         const std::uint32_t result = Runtime_Seek(static_cast<std::uint32_t>(descriptor), seekOffset, 0);
 
-        if (result == UINT32_C(0xFFFFFFFF))
+        if (result == ReadableValues::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -138,7 +140,7 @@ namespace NXBasics
         std::uint32_t position = Runtime_Seek(static_cast<std::uint32_t>(descriptor), 0, 1);
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (position == UINT32_C(0xFFFFFFFF))
+        if (position == ReadableValues::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -150,7 +152,7 @@ namespace NXBasics
         std::uint32_t archiveIndex;
         std::memcpy(&archiveIndex, fileBytes + 0x10C, sizeof(archiveIndex));
 
-        if (archiveIndex != UINT32_C(0xFFFFFFFF))
+        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -179,7 +181,7 @@ namespace NXBasics
 
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (archiveIndex != UINT32_C(0xFFFFFFFF))
+        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -188,7 +190,7 @@ namespace NXBasics
 
         const std::uint32_t size = Runtime_GetFileSize(static_cast<std::uint32_t>(descriptor));
 
-        if (size == UINT32_C(0xFFFFFFFF))
+        if (size == ReadableValues::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -207,7 +209,7 @@ namespace NXBasics
         auto* state = ::new (archive) SArchiveState;
         std::memset(state, 0, sizeof(*state));
 
-        void* fileStorage = Runtime_AllocateWithNewHandler(0x110u, 1);
+        void* fileStorage = Runtime_AllocateWithNewHandler(272u, 1);
         CFile* archiveFile = nullptr;
 
         if (fileStorage != nullptr)
@@ -319,7 +321,7 @@ namespace NXBasics
             return false;
         }
 
-        return Archive_FindFileIndex(archive, fileName) != UINT32_C(0xFFFFFFFF);
+        return Archive_FindFileIndex(archive, fileName) != ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_00406861
@@ -334,7 +336,7 @@ namespace NXBasics
 
         const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
 
-        if (entryIndex == UINT32_C(0xFFFFFFFF))
+        if (entryIndex == ReadableValues::IntegerRange::UInt32Maximum)
         {
             return 0;
         }
@@ -354,7 +356,7 @@ namespace NXBasics
 
         const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
 
-        if (entryIndex == UINT32_C(0xFFFFFFFF))
+        if (entryIndex == ReadableValues::IntegerRange::UInt32Maximum)
         {
             return 0;
         }
@@ -383,7 +385,7 @@ namespace NXBasics
             }
         }
 
-        return UINT32_C(0xFFFFFFFF);
+        return ReadableValues::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_00406903
@@ -541,7 +543,7 @@ namespace NXBasics
             return reinterpret_cast<const char*>(fileBytes + 0x08);
         };
 
-        char temporaryName[0x104];
+        char temporaryName[260];
 
         if (searchPaths)
         {
@@ -662,7 +664,7 @@ namespace NXBasics
     {
         auto* fileBytes = static_cast<std::uint8_t*>(file);
 
-        std::memset(fileBytes + 0x04, 0, 0x10C);
+        std::memset(fileBytes + 0x04, 0, 268);
 
         const std::int32_t invalidIndex = -1;
         std::memcpy(fileBytes + 0x04, &invalidIndex, sizeof(invalidIndex));

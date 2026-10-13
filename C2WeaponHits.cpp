@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MilitaryDamage.h"
 #include "C2AIMovementMessages.h"
 #include "C2AnimalAccess.h"
@@ -34,7 +35,7 @@ namespace NC2Logic
     {
         std::uint32_t HalfForDifficulty(std::uint32_t amount, std::uint32_t player)
         {
-            if (Read<std::uint32_t>(gGameControl, 0x5D200) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) return static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(amount) / 2);
+            if (Read<std::uint32_t>(gGameControl, ReadableValues::GameControlOffset::DifficultyLevel) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) return static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(amount) / 2);
             return amount;
         }
 
@@ -42,8 +43,8 @@ namespace NC2Logic
         {
             if (!TargetData_IsValid(attacker)) return;
             const auto player = TargetData_GetPlayerId(attacker);
-            if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0) return;
-            const auto field = static_cast<std::uint32_t>(player) * 0x4A80u + offset;
+            if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0) return;
+            const auto field = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + offset;
             Write(gGameControl, field, Read<std::uint32_t>(gGameControl, field) + 1u);
         }
 
@@ -78,8 +79,8 @@ namespace NC2Logic
         const auto player = Read<std::uint32_t>(house, 12);
         damage = HalfForDifficulty(damage, player);
         if (damage == 0) return false;
-        if (data.soundTypesHit[7] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[7], Read<std::uint32_t>(house, 0x1C), 0);
-        if (NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * 0x4A80u + 4u) == 2 && House_CanEnableDefenceMode(house)) AIManager_Message_Attacked(gAIManager, player, static_cast<const std::byte*>(house) + 0x24);
+        if (data.soundTypesHit[7] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[7], Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), 0);
+        if (NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + 4u) == 2 && House_CanEnableDefenceMode(house)) AIManager_Message_Attacked(gAIManager, player, static_cast<const std::byte*>(house) + ReadableValues::HouseOffset::DoorEntryPoint);
         const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(0u - damage));
@@ -88,14 +89,14 @@ namespace NC2Logic
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, 0x10), 0);
-        alignas(4) std::byte message[0x304];
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), 0);
+        alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 49);
         Write(message, 8, player);
         Write(message, 0x18, Read<std::uint32_t>(house, 4));
         Write(message, 0x1C, Read<std::uint32_t>(house, 8));
-        Write(message, 0x200, Read<std::uint32_t>(house, 0x14));
+        Write(message, 0x200, Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
         return true;
@@ -112,7 +113,7 @@ namespace NC2Logic
         else { attacker[1] = attackerId; attacker[2] = attackerRevision; }
         attacker[0] = attackerType;
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
-        const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
+        const auto player = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId);
         damage = HalfForDifficulty(damage, player);
         if (data.soundTypesHit[6] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[6], MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle)), 0);
         Write(vehicle, 12, Read<std::uint32_t>(vehicle, 12) - damage);
@@ -120,14 +121,14 @@ namespace NC2Logic
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, 0x10), 0);
-        alignas(4) std::byte message[0x304];
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), 0);
+        alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 52);
         Write(message, 8, player);
         Write(message, 0x20, Read<std::uint32_t>(vehicle, 4));
         Write(message, 0x24, Read<std::uint32_t>(vehicle, 8));
-        Write(message, 0x2E0, Read<std::uint32_t>(vehicle, 0x1E8));
+        Write(message, 0x2E0, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
         return true;
@@ -136,14 +137,14 @@ namespace NC2Logic
     // Original function: FUN_00443ee9; zero-damage notifications retain native propagation and RNG order.
     bool Human_Military_StartGettingHitByWeapon(void* human, const void* source, std::uint32_t tribe, std::uint32_t weapon, std::uint32_t attackerId, std::uint32_t attackerRevision, std::uint32_t attackerType, std::uint32_t power, bool propagate)
     {
-        const auto& armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, 0xAE8)];
+        const auto& armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedArmor)];
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         auto damage = static_cast<std::uint32_t>(data.damageValues[armor.materialType]) * 200u / (200u - (power > 100u ? 100u : power));
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * 0x58u;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * ReadableValues::RecordSize::MapMoveable;
         auto facing = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
         if (facing == 7) facing = 2;
         else if (facing == 6) facing = 5;
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, 0x12), Read<std::int16_t>(moveable, 0x14), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, 0x14), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
         auto difference = NXBasics::Runtime_TimeSigned32(direction - facing);
         if (difference < 0) difference = -difference;
         if (difference > 2) damage = damage * 150u / 100u;
@@ -152,14 +153,14 @@ namespace NC2Logic
         const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         if (Human_Item_IsAmuletEquipped_Defense(human)) damage = static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(damage) / 2);
-        const auto player = Read<std::uint32_t>(human, 0x10);
+        const auto player = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId);
         damage = HalfForDifficulty(damage, player);
         if (NXBasics::Runtime_TimeSigned32(damage) > 0)
         {
-            if (NXBasics::Runtime_TimeSigned32(0u - damage) > 0 || (Read<std::uint32_t>(human, 0xB84) & 8u) == 0) Write(human, 0xAA0, Read<std::uint32_t>(human, 0xAA0) - damage);
-            if (Read<std::int32_t>(human, 0xAA0) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? 0x4614u : 0x4618u);
+            if (NXBasics::Runtime_TimeSigned32(0u - damage) > 0 || (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 8u) == 0) Write(human, ReadableValues::HumanOffset::Hitpoints, Read<std::uint32_t>(human, ReadableValues::HumanOffset::Hitpoints) - damage);
+            if (Read<std::int32_t>(human, ReadableValues::HumanOffset::Hitpoints) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? 0x4614u : 0x4618u);
             // Windows 0041AE3E initializes the two positions only; other fields are assigned by this caller.
-            alignas(4) std::byte effect[0x1C];
+            alignas(4) std::byte effect[28];
             Write(effect, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)));
             Write(effect, 8, MapMigPoint_GetLong(source));
             Write(effect, 0x14, player);
@@ -178,10 +179,10 @@ namespace NC2Logic
         TargetData_GetMapPosition(attacker, &attackerPosition);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && TargetData_GetPlayerId(attacker) != NXBasics::Runtime_TimeSigned32(player))
         {
-            auto allowed = NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) > 0 && NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) <= 2 && (Read<std::uint32_t>(human, 0xB84) & 4u) == 0;
-            if (Read<std::uint32_t>(human, 0x368) == 4 && Read<std::uint32_t>(human, 0x384) < 10u) allowed = false;
+            auto allowed = NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) > 0 && NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) <= 2 && (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 4u) == 0;
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 4 && Read<std::uint32_t>(human, 0x384) < 10u) allowed = false;
             const auto enemy = TargetData_GetPlayerId(attacker);
-            if (enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * 0x4A80u) != 0 && GameControl_Diplomacy_GetState(gGameControl, enemy, player) != 3 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) allowed = false;
+            if (enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * ReadableValues::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, enemy, player) != 3 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) allowed = false;
             auto* secondary = static_cast<std::byte*>(human) + 0xB70;
             if (allowed && TargetData_IsValid(secondary))
             {
@@ -193,10 +194,10 @@ namespace NC2Logic
             if (allowed && !(Read<std::uint32_t>(human, 0xB6C) == attacker[2] && Read<std::uint32_t>(human, 0xB64) == attacker[0]))
             {
                 for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * 4u, attacker[index]);
-                if (Read<std::uint32_t>(human, 0x368) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             }
         }
-        else if ((Read<std::uint32_t>(human, 0xB84) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
+        else if ((Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
         {
             alignas(4) std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 4);
@@ -205,7 +206,7 @@ namespace NC2Logic
             Write<std::uint32_t>(command, 16, propagate ? 0u : 1u);
             Human_DoAddNewUserCommand(human, command);
         }
-        if (propagate && (Read<std::uint32_t>(human, 0xB84) & 0x8000u) == 0)
+        if (propagate && (Read<std::uint32_t>(human, ReadableValues::HumanOffset::MiscFlags) & ReadableValues::BitMask::Bit15) == 0)
         {
             CHumanIterator humans;
             for (std::uint32_t group = 0; group < 2; ++group)
@@ -221,6 +222,6 @@ namespace NC2Logic
     // Original function: FUN_00443108; the commander gains category-specific weapon experience.
     void Vehicle_Military_GainExperience(const void* vehicle)
     {
-        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) Human_GainExperienceForWeapon(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle), Read<std::uint32_t>(vehicle, 0x1E8) == 5 ? 21u : 0u, 1);
+        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) Human_GainExperienceForWeapon(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle), Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType) == 5 ? 21u : 0u, 1);
     }
 }

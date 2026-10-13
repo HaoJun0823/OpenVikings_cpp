@@ -9,8 +9,8 @@ namespace NC2Logic
 {
     struct SMissionGoal { std::uint32_t type; std::uint32_t parameters[9]; };
     struct SResult { std::uint32_t type; std::uint32_t parameters[10]; char text[32]; std::uint32_t GetParameter(std::uint32_t index) const; };
-    static_assert(sizeof(SMissionGoal) == 0x28);
-    static_assert(sizeof(SResult) == 0x4C);
+    static_assert(sizeof(SMissionGoal) == 40);
+    static_assert(sizeof(SResult) == 76);
     static_assert(offsetof(SResult, text) == 0x2C);
 
     std::uint32_t Logic_EntryPoint_GetTribeType(const char* name);

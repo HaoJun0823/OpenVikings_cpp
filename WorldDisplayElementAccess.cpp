@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "XGuiElementAccess.h"
 #include "C2GameState.h"
@@ -88,19 +89,19 @@ namespace NC2InGameGuiWorldElement
                 for (const auto offset : {0xB20u, 0xB18u, 0xB14u, 0xB24u})
                 {
                     const auto id = Read<std::uint32_t>(hoveredHuman, offset);
-                    if (id != 0xFFFFFFFFu) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, id);
+                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, id);
                 }
                 for (const auto offset : {0xB28u, 0xB34u})
                 {
                     const auto id = Read<std::uint32_t>(hoveredHuman, offset);
-                    if (id != 0xFFFFFFFFu) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHouse(display, 2, id);
+                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHouse(display, 2, id);
                 }
             }
         }
         else if (Read<std::uint32_t>(target, 0) == 4)
         {
             const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(target, 0x28) * NC2Logic::CHouseArray::ElementSize;
-            if (Read<std::int32_t>(house, 0xC) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
+            if (Read<std::int32_t>(house, ReadableValues::HouseOffset::PlayerId) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
                 for (std::uint32_t i = 0; i < 20; ++i)
                 {
                     const auto* slot = house + 0x640u + i * 0x10u;
@@ -108,12 +109,12 @@ namespace NC2InGameGuiWorldElement
                 }
         }
         Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
-        std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14);
+        std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 20); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 20);
         const auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
         auto* command = static_cast<std::byte*>(element) + 0x1CC;
         auto* secondary = static_cast<std::byte*>(element) + 0x1E0;
         const auto modifier = []() { return (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0; };
-        const auto clearGroup = [&](std::size_t offset) { Write<std::uint32_t>(element, offset, 0); std::memset(command, 0, 0x14); std::memset(secondary, 0, 0x14); };
+        const auto clearGroup = [&](std::size_t offset) { Write<std::uint32_t>(element, offset, 0); std::memset(command, 0, 20); std::memset(secondary, 0, 20); };
         using namespace NC2InGameGuiInputManager;
         switch (Read<std::uint32_t>(input, 4))
         {
@@ -194,7 +195,7 @@ namespace NC2InGameGuiWorldElement
             for (std::uint32_t i = 0; i < count; ++i)
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanId(input, i);
-                std::byte selectedCommand[0x14]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
+                std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
                 Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
@@ -212,7 +213,7 @@ namespace NC2InGameGuiWorldElement
             for (std::uint32_t i = 0; i < count; ++i)
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(input, i);
-                std::byte selectedCommand[0x14]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
+                std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
                 Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
             }
@@ -354,7 +355,7 @@ namespace NC2InGameGuiWorldElement
                 std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
                 NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
                 NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
-                Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, 0x18), (keys & 1u) != 0, (keys & 2u) != 0);
+                Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType), (keys & 1u) != 0, (keys & 2u) != 0);
             }
             Write<std::uint8_t>(element, 0x1F4, 0);
             return true;
@@ -402,9 +403,9 @@ namespace NC2InGameGuiWorldElement
             }
             else if (command == 2031)
             {
-                std::memset(target, 0, 0x18C);
+                std::memset(target, 0, 396);
                 NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
-                std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14); Write<std::uint8_t>(element, 0x1F4, 0);
+                std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 20); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 20); Write<std::uint8_t>(element, 0x1F4, 0);
             }
             else return false;
             return true;
@@ -433,11 +434,11 @@ namespace NC2InGameGuiWorldElement
         if (command == 2007) { NC2E2::DE_Zoom_ToggleLevel(display,false); return false; }
         if (command == 2005)
         {
-            if ((Read<std::uint32_t>(element,0x18) & 0x200u) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
+            if ((Read<std::uint32_t>(element,0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
             return false;
         }
         if (command != 2004) return false;
-        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & 0x200u) != 0) return false;
+        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) return false;
         std::int32_t point[2];
         NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
@@ -485,15 +486,15 @@ namespace NC2InGameGuiWorldElement
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce)
     };
-    static_assert(sizeof(gWorldDisplayElementVirtualTable) == 0x3C);
+    static_assert(sizeof(gWorldDisplayElementVirtualTable) == 60);
 
     // Original function: FUN_004ba140; initializes the state subobjects at +0x30.
     static void* WorldDisplayElement_ConstructState(void* state)
     {
         WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0E, 0);
         WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0C, 0);
-        std::memset(static_cast<std::byte*>(state) + 0x19C, 0, 0x14);
-        std::memset(static_cast<std::byte*>(state) + 0x1B0, 0, 0x14);
+        std::memset(static_cast<std::byte*>(state) + 0x19C, 0, 20);
+        std::memset(static_cast<std::byte*>(state) + 0x1B0, 0, 20);
         return state;
     }
 
@@ -511,9 +512,9 @@ namespace NC2InGameGuiWorldElement
         NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, rectangle, 1, 0x1A7, depth);
         auto* state = static_cast<std::byte*>(element) + 0x30;
         WorldDisplayElement_ConstructState(state);
-        WorldDisplayElement_WriteField(element, 0x00, gWorldDisplayElementVirtualTable + 0);
-        std::memset(state, 0, 0x214);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x994, 1);
+        WorldDisplayElement_WriteField(element, 0, gWorldDisplayElementVirtualTable + 0);
+        std::memset(state, 0, 532);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
         void* display = nullptr;
         if (allocation != nullptr)
         {
@@ -524,7 +525,7 @@ namespace NC2InGameGuiWorldElement
         WorldDisplayElement_WriteField(element, 0x30, display);
         WorldDisplayElement_WriteField<std::uint8_t>(element, 0x34, static_cast<std::uint8_t>(inputEnabled));
         auto* interactionTarget = static_cast<std::byte*>(element) + 0x38;
-        std::memset(interactionTarget, 0, 0x18C);
+        std::memset(interactionTarget, 0, 396);
         NC2E2::DisplayObjectReference_Reset(interactionTarget);
         if (active)
         {
@@ -545,7 +546,7 @@ namespace NC2InGameGuiWorldElement
     // Original function: FUN_004ba174.
     void WorldDisplayElement_Destruct(void* element)
     {
-        WorldDisplayElement_WriteField(element, 0x00, gWorldDisplayElementVirtualTable + 0);
+        WorldDisplayElement_WriteField(element, 0, gWorldDisplayElementVirtualTable + 0);
         WorldDisplayElement_DarkenBitmap_Exit(element);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(element);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_UnRegister(element);
@@ -562,7 +563,7 @@ namespace NC2InGameGuiWorldElement
     void WorldDisplayElement_FollowMode_FollowHuman(void* element, std::int32_t id)
     {
         using namespace NC2Lifetime;
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
         Write(element, 0x224, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x221, 1);
         Write(element, 0x228, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
         WorldDisplayElement_l_FollowMode_Update(element);
@@ -577,7 +578,7 @@ namespace NC2InGameGuiWorldElement
     void WorldDisplayElement_FollowMode_FollowVehicle(void* element, std::int32_t id)
     {
         using namespace NC2Lifetime;
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
         Write(element, 0x230, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x22C, 1);
         Write(element, 0x234, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
         WorldDisplayElement_l_FollowMode_Update(element);
@@ -591,7 +592,7 @@ namespace NC2InGameGuiWorldElement
     // Original function: FUN_004bb470; CWorldDisplayElement::FollowMode_End.
     void WorldDisplayElement_FollowMode_End(void* element)
     {
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
     }
 
     // Original function: FUN_004bb484; both modes share the 0x18-byte state.
@@ -640,7 +641,7 @@ namespace NC2InGameGuiWorldElement
         auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture(path);
         Write(element, 0x23C, palette);
         if (Read<std::uint32_t>(Read<void*>(element, 0x2C), 4) != 1) return;
-        auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(0x20000));
+        auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(131072));
         Write(element, 0x240, table);
         const auto* colours = NXBasics::Palette_GetHighColorTablePtr(palette);
         const auto* converter = NXBasics::g16BitPixelConverter;
@@ -860,8 +861,8 @@ namespace NC2InGameGuiWorldElement
         std::memcpy(data + 0x1C4, &zero, sizeof(zero));
         std::memcpy(data + 0x1C8, &zero, sizeof(zero));
 
-        std::memset(data + 0x1CC, 0, 0x14);
-        std::memset(data + 0x1E0, 0, 0x14);
+        std::memset(data + 0x1CC, 0, 20);
+        std::memset(data + 0x1E0, 0, 20);
     }
 
     // Original function: FUN_004bafc2
@@ -884,10 +885,10 @@ namespace NC2InGameGuiWorldElement
             std::memcpy(&last, data + lastOffset, sizeof(last));
 
             const std::uint32_t difference = first - last;
-            const std::uint32_t magnitude = (difference & 0x80000000u) != 0 ? 0u - difference : difference;
+            const std::uint32_t magnitude = (difference & ReadableValues::IntegerRange::Bit31) != 0 ? 0u - difference : difference;
 
             // Preserve wrapped subtraction and the signed comparison after NEG.
-            return magnitude >= 5u && magnitude <= 0x7FFFFFFFu;
+            return magnitude >= 5u && magnitude <= ReadableValues::IntegerRange::Int32Maximum;
         };
 
         if (!hasMinimumDistance(0x1F8, 0x200))

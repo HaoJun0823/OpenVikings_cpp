@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2MapPathfinderSectorSearch.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
@@ -20,7 +21,7 @@ namespace NC2Logic
     // Original function: FUN_004703AE.
     void CMapPathfinderSpecialSectorSearchElement::Init(void* pathfinder)
     {
-        std::memset(pathfinder, 0, 0x60);
+        std::memset(pathfinder, 0, 96);
         Write<std::uint32_t>(pathfinder, 4, 5);
     }
 
@@ -65,7 +66,7 @@ namespace NC2Logic
         MapMigPoint_MoveCursorUnwrapped(source, direction, 1);
         const auto blocked = Read<std::uint32_t>(pathfinder, 0x34);
         if (blocked != 0) Write(pathfinder, 0x34, blocked - 1u);
-        else if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C) & 0x80u) != 0)
+        else if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C) & ReadableValues::BitMask::Bit7) != 0)
         {
             MapMigPoint_MoveCursorUnwrapped(source, VE_HexagonDirection_OppositeDirection(direction), 1);
             return stop();
@@ -78,7 +79,7 @@ namespace NC2Logic
     bool CMapPathfinderSpecialSectorSearchElement::l_FindWayAndBuildVectorList(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C);
-        if ((flags & 0x80u) != 0) return false;
+        if ((flags & ReadableValues::BitMask::Bit7) != 0) return false;
         bool found;
         if (Read<std::uint32_t>(pathfinder, 8) != 0)
         {
@@ -92,11 +93,11 @@ namespace NC2Logic
         auto point = Read<std::uint32_t>(pathfinder, 0x20);
         std::uint32_t runs = 0;
         std::uint32_t previous = 1000;
-        bool blockedArea = (GameMap_CalculationMap_GetValue(&point) & 0x200) != 0;
+        bool blockedArea = (GameMap_CalculationMap_GetValue(&point) & ReadableValues::BitMask::Bit9) != 0;
         while (true)
         {
             const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&point));
-            if ((value & 0xFC00u) == 0) break;
+            if ((value & ReadableValues::BitMask::WordExceptBits0Through9) == 0) break;
             std::uint32_t direction = 1000;
             std::uint32_t first = 1000;
             for (std::uint32_t candidate = 0; candidate < 6; ++candidate)
@@ -111,12 +112,12 @@ namespace NC2Logic
                 auto next = point;
                 MapMigPoint_MoveCursorUnwrapped(next, direction);
                 const auto nextValue = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                if ((nextValue & 0xFC00u) != 0)
+                if ((nextValue & ReadableValues::BitMask::WordExceptBits0Through9) != 0)
                 {
-                    if (direction == 1u && (nextValue & 0x1000u) != 0) direction = 7;
-                    else if (direction == 2u && (nextValue & 0x800u) != 0) direction = 7;
-                    else if (direction == 4u && (nextValue & 0x8000u) != 0) direction = 6;
-                    else if (direction == 5u && (nextValue & 0x4000u) != 0) direction = 6;
+                    if (direction == 1u && (nextValue & ReadableValues::BitMask::Bit12) != 0) direction = 7;
+                    else if (direction == 2u && (nextValue & ReadableValues::BitMask::Bit11) != 0) direction = 7;
+                    else if (direction == 4u && (nextValue & ReadableValues::BitMask::Bit15) != 0) direction = 6;
+                    else if (direction == 5u && (nextValue & ReadableValues::BitMask::Bit14) != 0) direction = 6;
                 }
             }
             const auto countOffset = 0x39u + (runs - 1u) * 2u;
@@ -130,7 +131,7 @@ namespace NC2Logic
                 previous = direction;
             }
             MapMigPoint_MoveCursorUnwrapped(point, direction);
-            if (blockedArea && (GameMap_CalculationMap_GetValue(&point) & 0x200) != 0) Write(pathfinder, 0x34, Read<std::uint32_t>(pathfinder, 0x34) + 1u);
+            if (blockedArea && (GameMap_CalculationMap_GetValue(&point) & ReadableValues::BitMask::Bit9) != 0) Write(pathfinder, 0x34, Read<std::uint32_t>(pathfinder, 0x34) + 1u);
             else blockedArea = false;
         }
         if (runs < 20u) Write<std::uint8_t>(pathfinder, 0x39 + runs * 2u, 0);
@@ -159,9 +160,9 @@ namespace NC2Logic
                     if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
                     auto next = source.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
-                    if ((GameMap_CalculationMap_GetValue(&next) & 0x200) != 0) continue;
+                    if ((GameMap_CalculationMap_GetValue(&next) & ReadableValues::BitMask::Bit9) != 0) continue;
                     const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
-                    if ((flags & 0x80u) == 0) continue;
+                    if ((flags & ReadableValues::BitMask::Bit7) == 0) continue;
                     if (destination.count == 4000u) continue;
                     destination.points[destination.count++] = next;
                     GameMap_CalculationMap_SetValue(&next, 0x200);
@@ -203,7 +204,7 @@ namespace NC2Logic
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & 0x80u) != 0) l_UnblockArea(pathfinder, source);
+        if ((flags & ReadableValues::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
@@ -227,10 +228,10 @@ namespace NC2Logic
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if (((nextFlags & 0x80u) != 0) && (value & 0x200u) == 0) continue;
+                    if (((nextFlags & ReadableValues::BitMask::Bit7) != 0) && (value & ReadableValues::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = 0;
                     if (direction != Read<std::uint32_t>(pathfinder, 0x10) && direction != Read<std::uint32_t>(pathfinder, 0x14)) cost += 4u;
-                    const std::uint32_t oldCost = value & 0x1FFu;
+                    const std::uint32_t oldCost = value & ReadableValues::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
                     const auto reverseMask = 0x400u << ((direction + 3u) % 6u);
                     if (remaining - cost == oldCost)
@@ -242,7 +243,7 @@ namespace NC2Logic
                     if (target.count == 4000u) continue;
                     target.points[target.count++] = next;
                     ++queued;
-                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & 0x200u) | reverseMask | (remaining - cost)));
+                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & ReadableValues::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
                     if (next == Read<std::uint32_t>(source, 0)) return true;
                 }
             }
@@ -251,7 +252,7 @@ namespace NC2Logic
             current = (current + 1u) % 12u;
             budget = remaining;
         } while (budget > 13u);
-        return (GameMap_CalculationMap_GetValue(source) & 0x1FF) != 0;
+        return (GameMap_CalculationMap_GetValue(source) & ReadableValues::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_00470B42. Rectangle, queue costs and equal-cost direction masks follow Windows.
@@ -266,7 +267,7 @@ namespace NC2Logic
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & 0x80u) != 0) l_UnblockArea(pathfinder, source);
+        if ((flags & ReadableValues::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
@@ -289,11 +290,11 @@ namespace NC2Logic
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if ((nextFlags & 0x80u) != 0 && (value & 0x200u) == 0) continue;
+                    if ((nextFlags & ReadableValues::BitMask::Bit7) != 0 && (value & ReadableValues::BitMask::Bit9Unsigned) == 0) continue;
                     if ((nextFlags & 7u) < Read<std::uint32_t>(pathfinder, 8)) continue;
                     std::uint32_t cost = 0;
                     if (direction != Read<std::uint32_t>(pathfinder, 0x10) && direction != Read<std::uint32_t>(pathfinder, 0x14)) cost += 4u;
-                    const std::uint32_t oldCost = value & 0x1FFu;
+                    const std::uint32_t oldCost = value & ReadableValues::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
                     const auto reverseMask = 0x400u << ((direction + 3u) % 6u);
                     if (remaining - cost == oldCost)
@@ -305,7 +306,7 @@ namespace NC2Logic
                     if (target.count == 4000u) continue;
                     target.points[target.count++] = next;
                     ++queued;
-                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & 0x200u) | reverseMask | (remaining - cost)));
+                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & ReadableValues::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
                     if (next == Read<std::uint32_t>(source, 0)) return true;
                 }
             }
@@ -314,7 +315,7 @@ namespace NC2Logic
             current = (current + 1u) % 12u;
             budget = remaining;
         } while (budget > 13u);
-        return (GameMap_CalculationMap_GetValue(source) & 0x1FF) != 0;
+        return (GameMap_CalculationMap_GetValue(source) & ReadableValues::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_00470E3D. Rectangle, queue costs and equal-cost direction masks follow Windows.
@@ -328,7 +329,7 @@ namespace NC2Logic
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & 0x80u) != 0) l_UnblockArea(pathfinder, source);
+        if ((flags & ReadableValues::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
@@ -352,10 +353,10 @@ namespace NC2Logic
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if (((nextFlags & 0x80u) != 0) && (value & 0x200u) == 0) continue;
+                    if (((nextFlags & ReadableValues::BitMask::Bit7) != 0) && (value & ReadableValues::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = (nextFlags >> 3) & 15u;
                     if (direction != Read<std::uint32_t>(pathfinder, 0x10) && direction != Read<std::uint32_t>(pathfinder, 0x14)) cost += 4u;
-                    const std::uint32_t oldCost = value & 0x1FFu;
+                    const std::uint32_t oldCost = value & ReadableValues::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
                     const auto reverseMask = 0x400u << ((direction + 3u) % 6u);
                     if (remaining - cost == oldCost)
@@ -367,7 +368,7 @@ namespace NC2Logic
                     if (target.count == 4000u) continue;
                     target.points[target.count++] = next;
                     ++queued;
-                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & 0x200u) | reverseMask | (remaining - cost)));
+                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & ReadableValues::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
                     if (next == Read<std::uint32_t>(source, 0)) return true;
                 }
             }
@@ -376,7 +377,7 @@ namespace NC2Logic
             current = (current + 1u) % 16u;
             budget = remaining;
         } while (budget > 17u);
-        return (GameMap_CalculationMap_GetValue(source) & 0x1FF) != 0;
+        return (GameMap_CalculationMap_GetValue(source) & ReadableValues::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_0047111E. Rectangle, queue costs and equal-cost direction masks follow Windows.
@@ -391,7 +392,7 @@ namespace NC2Logic
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & 0x80u) != 0) l_UnblockArea(pathfinder, source);
+        if ((flags & ReadableValues::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
@@ -414,11 +415,11 @@ namespace NC2Logic
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if ((nextFlags & 0x80u) != 0 && (value & 0x200u) == 0) continue;
+                    if ((nextFlags & ReadableValues::BitMask::Bit7) != 0 && (value & ReadableValues::BitMask::Bit9Unsigned) == 0) continue;
                     if ((nextFlags & 7u) < Read<std::uint32_t>(pathfinder, 8)) continue;
                     std::uint32_t cost = (nextFlags >> 3) & 15u;
                     if (direction != Read<std::uint32_t>(pathfinder, 0x10) && direction != Read<std::uint32_t>(pathfinder, 0x14)) cost += 4u;
-                    const std::uint32_t oldCost = value & 0x1FFu;
+                    const std::uint32_t oldCost = value & ReadableValues::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
                     const auto reverseMask = 0x400u << ((direction + 3u) % 6u);
                     if (remaining - cost == oldCost)
@@ -430,7 +431,7 @@ namespace NC2Logic
                     if (target.count == 4000u) continue;
                     target.points[target.count++] = next;
                     ++queued;
-                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & 0x200u) | reverseMask | (remaining - cost)));
+                    GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & ReadableValues::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
                     if (next == Read<std::uint32_t>(source, 0)) return true;
                 }
             }
@@ -439,7 +440,7 @@ namespace NC2Logic
             current = (current + 1u) % 16u;
             budget = remaining;
         } while (budget > 17u);
-        return (GameMap_CalculationMap_GetValue(source) & 0x1FF) != 0;
+        return (GameMap_CalculationMap_GetValue(source) & ReadableValues::BitMask::Low9BitsSigned) != 0;
     }
 
 

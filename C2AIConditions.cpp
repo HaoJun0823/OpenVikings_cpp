@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2AIConditions.h"
 #include "C2AnimalAccess.h"
@@ -63,8 +64,8 @@ namespace NC2Logic
         NXBasics::Runtime_FillMemory(condition, 0, 0x48);
         Write(condition, 0x0C, type);
         Write(condition, 0x10, flag);
-        Write<std::uint32_t>(condition, 4, 0xFFFFFFFFu);
-        Write<std::uint32_t>(condition, 8, 0xFFFFFFFFu);
+        Write<std::uint32_t>(condition, 4, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(condition, 8, ReadableValues::IntegerRange::UInt32Maximum);
         Write(condition, 0x14, gGameTime.tick);
     }
 
@@ -89,7 +90,7 @@ namespace NC2Logic
     namespace
     {
         // Entire Windows DWORD region 00500F44..00500F7B, indexed by condition type.
-        constexpr std::uint32_t gAIConditionCheckIntervals[] = {0, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1, 1, 1, 0xFFFFFFFFu};
+        constexpr std::uint32_t gAIConditionCheckIntervals[] = {0, 1, 1, 1, 1, 1, 10, 10, 1, 1, 1, 1, 1, ReadableValues::IntegerRange::UInt32Maximum};
     }
 
     // Original function: FUN_00458df6; do at most ten passes, repeating while a condition changes.
@@ -153,7 +154,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(reference, 0x0C) != 0)
             {
                 const auto time = Read<std::uint32_t>(reference, Read<std::uint8_t>(condition, 0x1C) != 0 ? 4u : 8u);
-                if (time != 0xFFFFFFFFu) active = gGameTime.tick >= time + Read<std::uint32_t>(condition, 0x20);
+                if (time != ReadableValues::IntegerRange::UInt32Maximum) active = gGameTime.tick >= time + Read<std::uint32_t>(condition, 0x20);
             }
             break;
         }
@@ -165,20 +166,20 @@ namespace NC2Logic
             CMapMoveableIterator iterator;
             for (auto id = iterator.GetFirstMapMoveableId(); id != -1; id = iterator.GetNextMapMoveableId())
             {
-                const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+                const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
                 const auto moveableType = Read<std::uint32_t>(moveable, 8);
                 std::uint32_t player = 20, position = 0;
                 std::uint8_t military = 0;
                 if (moveableType == 1)
                 {
-                    const void* human = GetHumanPtr(Read<std::int32_t>(moveable, 0x54));
+                    const void* human = GetHumanPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
                     player = Read<std::uint32_t>(human, 0x10);
                     military = Human_IsJobSoldier(human);
                     position = Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
                 }
                 else if (moveableType == 2)
                 {
-                    const void* animal = GetAnimalPtr(Read<std::int32_t>(moveable, 0x54));
+                    const void* animal = GetAnimalPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
                     player = Read<std::uint32_t>(animal, 0x10);
                     if (player == 20) continue;
                     if (Read<std::uint32_t>(animal, 0x18) == 49) military = Read<std::uint8_t>(animal, 0x5C);
@@ -186,13 +187,13 @@ namespace NC2Logic
                 }
                 else if (moveableType == 3)
                 {
-                    const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CVehicleArray::ElementSize;
-                    player = Read<std::uint32_t>(vehicle, 0x1E0);
-                    military = Read<std::uint32_t>(vehicle, 0x1EC) == 54;
+                    const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId) * CVehicleArray::ElementSize;
+                    player = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId);
+                    military = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::JobType) == 54;
                     position = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
                 }
                 else if (moveableType == 4) continue;
-                if (player == 0xFFFFFFFFu) continue;
+                if (player == ReadableValues::IntegerRange::UInt32Maximum) continue;
                 const auto owner = Read<std::uint32_t>(handler, 0), requestedPlayer = Read<std::uint32_t>(condition, 0x20);
                 if (player == owner && requestedPlayer != owner) continue;
                 if (requestedPlayer != 20 && requestedPlayer != player) continue;
@@ -212,17 +213,17 @@ namespace NC2Logic
             for (; id != -1; id = iterator.GetNextHouseId())
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                const auto housePlayer = Read<std::uint32_t>(house, 0x0C);
+                const auto housePlayer = Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId);
                 if (player == 20 && housePlayer == Read<std::uint32_t>(handler, 0)) continue;
-                if (Read<std::uint8_t>(condition, 0x2C) != 0 && Read<std::uint32_t>(house, 0x2C) != 3) continue;
+                if (Read<std::uint8_t>(condition, 0x2C) != 0 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) != 3) continue;
                 const auto houseType = Read<std::uint32_t>(condition, 0x28);
-                if (houseType != 0 && Read<std::uint32_t>(house, 0x14) != houseType) continue;
+                if (houseType != 0 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) != houseType) continue;
                 if (Read<std::uint8_t>(condition, 0x24) != 0 && GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(handler, 0), housePlayer) != 3) continue;
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, 0x1C), Read<std::uint16_t>(house, 0x1E), static_cast<std::uint16_t>(center), static_cast<std::uint16_t>(center >> 16))) < Read<std::uint32_t>(condition, 0x1C)) { active = 1; break; }
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPosition), Read<std::uint16_t>(house, 0x1E), static_cast<std::uint16_t>(center), static_cast<std::uint16_t>(center >> 16))) < Read<std::uint32_t>(condition, 0x1C)) { active = 1; break; }
             }
             break;
         }
-        case SwitchIds::AICondition::ExternalFlag: active = Read<std::uint8_t>(gGameControl, Read<std::uint32_t>(condition, 0x18) * 0x4A80u + Read<std::uint32_t>(condition, 0x1C) + 0x45F8u); break;
+        case SwitchIds::AICondition::ExternalFlag: active = Read<std::uint8_t>(gGameControl, Read<std::uint32_t>(condition, 0x18) * ReadableValues::RecordSize::GameControlPlayer + Read<std::uint32_t>(condition, 0x1C) + 0x45F8u); break;
         case SwitchIds::AICondition::PlayerHasNoHumans:
             if (gGameTime.tick <= 720) return false;
             active = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(condition, 0x18)), 0) == 0;
@@ -231,7 +232,7 @@ namespace NC2Logic
         case SwitchIds::AICondition::ActivatedFlag: active = Read<std::uint8_t>(condition, 0x18); break;
         case SwitchIds::AICondition::Periodic:
             if (Read<std::uint8_t>(condition, 0) != 0) active = Read<std::uint32_t>(condition, 4) + Read<std::uint32_t>(condition, 0x1C) > gGameTime.tick;
-            else if (Read<std::uint32_t>(condition, 4) != 0xFFFFFFFFu) active = Read<std::uint32_t>(condition, 8) + Read<std::uint32_t>(condition, 0x20) < gGameTime.tick;
+            else if (Read<std::uint32_t>(condition, 4) != ReadableValues::IntegerRange::UInt32Maximum) active = Read<std::uint32_t>(condition, 8) + Read<std::uint32_t>(condition, 0x20) < gGameTime.tick;
             else active = Read<std::uint32_t>(condition, 0x14) + Read<std::uint32_t>(condition, 0x18) < gGameTime.tick;
             break;
         default: return false;
@@ -245,7 +246,7 @@ namespace NC2Logic
         if (index >= 100) return false;
         bool valid = true;
         const auto type = Read<std::uint32_t>(condition, 0x0C);
-        auto playerIsValid = [](std::uint32_t player) { return NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint8_t>(gGameControl, player * 0x4A80u) != 0; };
+        auto playerIsValid = [](std::uint32_t player) { return NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) != 0; };
         if (type == 3)
         {
             const auto count = Read<std::uint32_t>(condition, 0x1C);

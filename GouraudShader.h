@@ -46,8 +46,8 @@ namespace NToolGouraudShader
         void XShade_Alpha_MMX_32Bit();
     };
 
-    static_assert(sizeof(SVertex) == 0x20);
-    static_assert(sizeof(CGouraudShader) == 0x94);
+    static_assert(sizeof(SVertex) == 32);
+    static_assert(sizeof(CGouraudShader) == 148);
     static_assert(offsetof(CGouraudShader, vertices) == 0x10);
     static_assert(offsetof(CGouraudShader, palette) == 0x70);
     static_assert(offsetof(CGouraudShader, skipRows) == 0x80);

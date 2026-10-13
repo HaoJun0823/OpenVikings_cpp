@@ -66,7 +66,7 @@ namespace NC2InGameGuiMiscWindows
     {
         const auto& display = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &area); StatisticsWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x88); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x1FC); Write(window, 0, gStatisticsWindowVirtualTable.data());
+        BaseToolWindow_Construct(window, &area); StatisticsWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x88); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 508); Write(window, 0, gStatisticsWindowVirtualTable.data());
         const NXBasics::SColorRGB colors[12] = {{255,49,56}, {248,155,44}, {252,241,43}, {89,211,106}, {0,153,211}, {0,114,188}, {46,49,146}, {146,39,143}, {0,0,0}, {255,255,255}, {128,128,128}, {64,28,0}};
         std::memcpy(static_cast<std::byte*>(window) + 0xAC, colors, sizeof(colors)); StatisticsWindow_l_GuiButtons_Add(window);
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; manager->FrameCall_Register(window); manager->Misc_GameTime_Stop_LargeWindowOpened(); return window;
@@ -120,18 +120,18 @@ namespace NC2InGameGuiMiscWindows
     void StatisticsWindow_l_GuiButtons_Add(void* window)
     {
         const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
-        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, StringTool_GetGameGuiMiscWindowStringPtr(180)));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
+        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, StringTool_GetGameGuiMiscWindowStringPtr(180)));
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
         constexpr std::uint32_t graphics[7] = {162,158,161,160,164,163,159}; NXBasics::SRectangle area(4, 22, 68, 24);
         for (std::uint32_t index = 0; index < 7; ++index)
         {
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, graphics[index], StringTool_GetGameGuiMiscWindowStringPtr(181 + index), 10000 + index, window);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, graphics[index], StringTool_GetGameGuiMiscWindowStringPtr(181 + index), 10000 + index, window);
             Write<std::uint8_t>(element, 0x36, Page() == index); Write<std::uint8_t>(element, 0x35, 1); NXBaseGui::BaseWindow_Element_Add(window, element); area.x += area.width + 2;
         }
         auto* entities = StatisticsWindow_l_Misc_GetFirstStatisticsEntityPtr(); std::uint32_t index = 0;
         if (entities != nullptr) for (auto* entity = entities; entity->count != 0; ++entity, ++index)
         {
-            area = StatisticsWindow_l_Tool_GetEntityControllerButtonArea(index); allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            area = StatisticsWindow_l_Tool_GetEntityControllerButtonArea(index); allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, entity->GetNamePtr(), 10100, window);
             Write(element, 0x4C, entity); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x57, 1); Write(element, 0x55, entity->enabled);
             if (Page() == 4)
@@ -147,7 +147,7 @@ namespace NC2InGameGuiMiscWindows
             for (auto scale : gStatisticsTimeScales)
             {
                 char caption[32]; if (scale == 1) std::strcpy(caption, StringTool_GetGameGuiMiscWindowStringPtr(201)); else NXBasics::Runtime_PrintString(caption, StringTool_GetGameGuiMiscWindowStringPtr(202), scale);
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, caption, 10200, window);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1); void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, caption, 10200, window);
                 Write(element, 0x4C, scale); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x55, scale == Read<std::uint32_t>(gStatisticsWindowStatics, 8)); NXBaseGui::BaseWindow_Element_Add(window, element); area.x += area.width + 3;
             }
         }
@@ -156,16 +156,16 @@ namespace NC2InGameGuiMiscWindows
             constexpr std::uint32_t goodGraphics[5] = {73,72,75,76,71}; area = NXBasics::SRectangle(4, 50, 28, 20);
             for (std::uint32_t group = 0; group < 5; ++group)
             {
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, goodGraphics[group], CGuiBaseStringsManager::GetStringPtr(8, 31 + group), 10010 + group, window);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, goodGraphics[group], CGuiBaseStringsManager::GetStringPtr(8, 31 + group), 10010 + group, window);
                 Write<std::uint8_t>(element, 0x36, Read<std::uint32_t>(gStatisticsWindowStatics, 4) == group); Write<std::uint8_t>(element, 0x35, 1); Write<std::uint8_t>(element, 0x44, 1); NXBaseGui::BaseWindow_Element_Add(window, element); area.x += area.width + 2;
             }
         }
         if (Page() == 1 || Page() == 3 || Page() == 6)
         {
-            area = NXBasics::SRectangle(4, 54, 468, 360); allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1); void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &area);
+            area = NXBasics::SRectangle(4, 54, 468, 360); allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1); void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &area);
             Write(window, Page() == 1 ? 0x70 : Page() == 3 ? 0x74 : 0x78, list); NXBaseGui::BaseWindow_Element_Add(window, list);
             if (Page() == 1) StatisticsWindow_l_GuiButtons_UpdateJobsListBox(window); else if (Page() == 3) StatisticsWindow_l_GuiButtons_UpdateHousesListBox(window); else StatisticsWindow_l_GuiButtons_UpdateGraveyardListBox(window);
-            area.x = 476; area.width = 20; allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &area, list, false, true));
+            area.x = 476; area.width = 20; allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &area, list, false, true));
         }
     }
     // Original function: FUN_004b289e.
@@ -181,7 +181,7 @@ namespace NC2InGameGuiMiscWindows
         if (count != 0) NXBasics::Runtime_QuickSort(gStatisticsJobCounts, count, 8, StatisticsWindow_ls_SortJobs); NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 22);
         for (std::uint32_t index = 0; index < count; ++index)
         {
-            const auto& job = gStatisticsJobCounts[index]; char caption[200]; NXBasics::Runtime_PrintString(caption, "%d %s", job.count, StringAccess_GetJobNamePtr(job.job, job.count)); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            const auto& job = gStatisticsJobCounts[index]; char caption[200]; NXBasics::Runtime_PrintString(caption, "%d %s", job.count, StringAccess_GetJobNamePtr(job.job, job.count)); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &row, caption, 11000, window); Write(element, 0x4C, job.job); Write<std::uint32_t>(element, 0x50, 0); BaseListBoxElement_Element_Add(list, nullptr, element); row.y += row.height + 2;
         }
         NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_Set(list, 0, scroll); Write<std::uint32_t>(window, 0x7C, timeGetTime());
@@ -192,13 +192,13 @@ namespace NC2InGameGuiMiscWindows
     void StatisticsWindow_l_GuiButtons_UpdateHousesListBox(void* window)
     {
         auto* list = Read<void*>(window, 0x74); if (list == nullptr) return; const auto scroll = Read<std::int32_t>(list, 0x34); NC2InGameGuiBaseListBox::BaseListBoxElement_Element_DeleteAll(list);
-        auto* types = static_cast<std::uint32_t*>(NXBasics::Runtime_AllocateWithNewHandler(0xDC, 1)); for (std::uint32_t type = 0; type < 55; ++type) types[type] = type; NXBasics::Runtime_QuickSort(types, 55, 4, StatisticsWindow_ls_SortHouses);
+        auto* types = static_cast<std::uint32_t*>(NXBasics::Runtime_AllocateWithNewHandler(220, 1)); for (std::uint32_t type = 0; type < 55; ++type) types[type] = type; NXBasics::Runtime_QuickSort(types, 55, 4, StatisticsWindow_ls_SortHouses);
         NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 22);
         for (std::uint32_t index = 0; index < 55; ++index)
         {
             std::int32_t unfinished = 0; const auto total = Tool_PlayerStatistics_CountHousesOfLogicType(LocalPlayer(), types[index], &unfinished); if (total == 0 && unfinished == 0) continue;
             char caption[200]; if (unfinished != 0) NXBasics::Runtime_PrintString(caption, "%d+%d ", total - unfinished, unfinished); else NXBasics::Runtime_PrintString(caption, "%d ", total);
-            std::strcat(caption, StringAccess_GetHouseNamePtr(types[index], total + unfinished)); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+            std::strcat(caption, StringAccess_GetHouseNamePtr(types[index], total + unfinished)); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false); Write<std::uint8_t>(element, 0xF9, 0); BaseListBoxElement_Element_Add(list, nullptr, element); row.y += row.height + 2;
         }
         NXBasics::Runtime_Free(types); NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_Set(list, 0, scroll); Write<std::uint32_t>(window, 0x80, timeGetTime());
@@ -211,7 +211,7 @@ namespace NC2InGameGuiMiscWindows
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(dead, 0); ++index)
         {
             const auto* record = records + index * 0x3Cu; char caption[200]; NXBasics::Runtime_PrintString(caption, "%s - %s", reinterpret_cast<const char*>(record + 4), StringAccess_GetJobNamePtr(Read<std::uint32_t>(record, 0x34), 1));
-            auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1); void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false); Write<std::uint8_t>(element, 0xF9, 0); BaseListBoxElement_Element_Add(list, nullptr, element); row.y += row.height + 2;
+            auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1); void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false); Write<std::uint8_t>(element, 0xF9, 0); BaseListBoxElement_Element_Add(list, nullptr, element); row.y += row.height + 2;
         }
         NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_Set(list, 0, scroll); Write<std::uint32_t>(window, 0x84, timeGetTime());
     }
@@ -286,6 +286,6 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_StatisticsWindow_Open()
     {
         l_Selection_RemoveAllGuiElements(); if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E5, 0, 0, 0) != nullptr) return; MiscWindows_CloseAllLargeOnes(true);
-        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x26C, 1); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::StatisticsWindow_Construct(allocation); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(window), false);
+        auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(620, 1); void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::StatisticsWindow_Construct(allocation); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
 }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2SavegameStateAccess.h"
 #include "C2IoHelper.h"
 #include "C2LifetimeAccess.h"
@@ -16,8 +17,8 @@ namespace NC2Logic
     // Original function: FUN_0041cfb0; CMissionData member construction.
     static void* MissionData_ConstructMembers(void* record)
     {
-        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x18u + index * 0x28u, 0, 0x28);
-        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x4CCu + index * 0x4Cu, 0, 0x4C);
+        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x18u + index * 0x28u, 0, 40);
+        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x4CCu + index * 0x4Cu, 0, 76);
         return record;
     }
     // Original function: FUN_0041cf8d.
@@ -40,7 +41,7 @@ namespace NC2Logic
     // Original function: FUN_00409aba.
     void __fastcall GameControl_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x7867636F, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::GameControl, 1);
         io->IO_Memory_WriteBinary(manager, 0x5D204);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -49,11 +50,11 @@ namespace NC2Logic
     void* __fastcall GameControl_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gGameControl = manager;
-        std::memset(manager, 0, 0x5D204);
+        std::memset(manager, 0, 381444);
         if (io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(manager, 0x5D204);
-            CCallbackManager::sTheObjectPtr->RegisterCallback(0x28, GameControl_ls_LogicCallback, 0x0, 10);
+            CCallbackManager::sTheObjectPtr->RegisterCallback(0x28, GameControl_ls_LogicCallback, 0, 10);
         }
         else io->IO_File_Chunk_Skip();
         return manager;
@@ -62,7 +63,7 @@ namespace NC2Logic
     // Original function: FUN_0041d00c.
     void __fastcall MissionManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646D78, 2);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Missions, 2);
         io->IO_Memory_WriteBinary(manager, 0x81CAC);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -73,8 +74,8 @@ namespace NC2Logic
         // Windows constructs the mission records before clearing the entire object.
         MissionManager_ConstructMembers(manager);
         gMissionManager = manager;
-        std::memset(manager, 0, 0x81CAC);
-        CCallbackManager::sTheObjectPtr->RegisterCallback(0x1, MissionManager_l_Mission_Callback, 0xA, 1);
+        std::memset(manager, 0, 531628);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(1, MissionManager_l_Mission_Callback, 0xA, 1);
         if (io->mReadHeader.version == 2)
         {
             io->IO_File_ReadBinary(manager, 0x81CAC);
@@ -86,7 +87,7 @@ namespace NC2Logic
     // Original function: FUN_004171aa.
     void __fastcall MissionOnscreenInfoManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x786F6D69, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MissionOnscreenInfo, 1);
         io->IO_Memory_WriteBinary(manager, 0xFA0);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -95,7 +96,7 @@ namespace NC2Logic
     void* __fastcall MissionOnscreenInfoManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gMissionOnscreenInfoManager = manager;
-        std::memset(manager, 0, 0xFA0);
+        std::memset(manager, 0, 4000);
         if (io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(manager, 0xFA0);
@@ -107,7 +108,7 @@ namespace NC2Logic
     // Original function: FUN_0041768b.
     void __fastcall GameAssistantManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x7832616D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::GameAssistant, 1);
         io->IO_Memory_WriteBinary(manager, 0x460);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -116,11 +117,11 @@ namespace NC2Logic
     void* __fastcall GameAssistantManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gGameAssistantManager = manager;
-        std::memset(manager, 0, 0x460);
+        std::memset(manager, 0, 1120);
         if (io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(manager, 0x460);
-            CCallbackManager::sTheObjectPtr->RegisterCallback(0x1, GameAssistantManager_ls_LogicCallback, 0xC, 1);
+            CCallbackManager::sTheObjectPtr->RegisterCallback(1, GameAssistantManager_ls_LogicCallback, 0xC, 1);
         }
         else io->IO_File_Chunk_Skip();
         return manager;
@@ -129,7 +130,7 @@ namespace NC2Logic
     // Original function: FUN_00419081.
     void __fastcall MultiPlayerGoalManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x786D7367, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MultiplayerGoals, 1);
         io->IO_Memory_WriteBinary(manager, 0x740);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -138,11 +139,11 @@ namespace NC2Logic
     void* __fastcall MultiPlayerGoalManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gMultiPlayerGoalManager = manager;
-        std::memset(manager, 0, 0x740);
+        std::memset(manager, 0, 1856);
         if (io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(manager, 0x740);
-            CCallbackManager::sTheObjectPtr->RegisterCallback(0x1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 50);
+            CCallbackManager::sTheObjectPtr->RegisterCallback(1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 50);
         }
         else io->IO_File_Chunk_Skip();
         return manager;
@@ -151,7 +152,7 @@ namespace NC2Logic
     // Original function: FUN_004197db.
     void __fastcall HappinessManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646870, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Happiness, 1);
         io->IO_Memory_WriteBinary(manager, 0xAA0);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -160,11 +161,11 @@ namespace NC2Logic
     void* __fastcall HappinessManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gHappinessManager = manager;
-        std::memset(manager, 0, 0xAA0);
+        std::memset(manager, 0, 2720);
         if (io->mReadHeader.version == 1)
         {
             io->IO_File_ReadBinary(manager, 0xAA0);
-            CCallbackManager::sTheObjectPtr->RegisterCallback(0x1, HappinessManager_l_Happiness_Callback, 0xC, 1);
+            CCallbackManager::sTheObjectPtr->RegisterCallback(1, HappinessManager_l_Happiness_Callback, 0xC, 1);
             CCallbackManager::sTheObjectPtr->RegisterCallback(0x27, HappinessManager_l_Happiness_Callback, 0xC, 1);
             CCallbackManager::sTheObjectPtr->RegisterCallback(0x28, HappinessManager_l_Happiness_Callback, 0xC, 1);
         }
@@ -175,7 +176,7 @@ namespace NC2Logic
     // Original function: FUN_00419e0e.
     void __fastcall TributeManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78647478, 2);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Tributes, 2);
         io->IO_Memory_WriteBinary(manager, 0x960);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -185,7 +186,7 @@ namespace NC2Logic
     {
         for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * 0x3C, 0);
         gTributeManager = manager;
-        std::memset(manager, 0, 0x960);
+        std::memset(manager, 0, 2400);
         if (io->mReadHeader.version == 2)
         {
             io->IO_File_ReadBinary(manager, 0x960);
@@ -200,7 +201,7 @@ namespace NC2Logic
     {
         MissionManager_ConstructMembers(manager);
         gMissionManager = manager;
-        std::memset(manager, 0, 0x81CAC);
+        std::memset(manager, 0, 531628);
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, MissionManager_l_Mission_Callback, 10, 1);
         return manager;
     }
@@ -208,7 +209,7 @@ namespace NC2Logic
     // Original function: FUN_0040b9d5.
     void __fastcall MarkerArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646E61, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Markers, 1);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -219,7 +220,7 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMarkerArray = manager;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         const std::uint32_t capacity = io->IO_File_ReadLong();
         const std::uint32_t bytes = capacity * 0x18u;
@@ -233,7 +234,7 @@ namespace NC2Logic
     // Original function: FUN_0040bbe3.
     void __fastcall MapMoveableArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646D6D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MapMoveables, 1);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -244,7 +245,7 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMapMoveableArrayStorage.manager = array;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         const std::uint32_t capacity = io->IO_File_ReadLong();
         const std::uint32_t bytes = capacity * 0x58u;
@@ -267,7 +268,7 @@ namespace NC2Logic
     // Original function: FUN_0041ce07.
     void __fastcall MapPathfinderManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x7864706D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Pathfinders, 1);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -278,7 +279,7 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMapPathfinderManager = manager;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         const std::uint32_t capacity = io->IO_File_ReadLong();
         const std::uint32_t bytes = capacity * 0x84u;
@@ -298,7 +299,7 @@ namespace NC2Logic
     // Original function: FUN_00419fb6.
     void __fastcall DelayedActionManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x7864616D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::DelayedActions, 1);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -309,7 +310,7 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gDelayedActionManager = manager;
-        std::memset(manager, 0, 0x34);
+        std::memset(manager, 0, 52);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         const std::uint32_t capacity = io->IO_File_ReadLong();
         const std::uint32_t bytes = capacity * 0x30u;
@@ -323,7 +324,7 @@ namespace NC2Logic
     // Original function: FUN_0041c464.
     void __fastcall HumanMerchantArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646D61, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Merchants, 1);
         io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + 0x34, 0x5A4);
         io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
@@ -335,14 +336,14 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gHumanMerchantArray = manager;
-        std::memset(manager, 0, 0x34);
+        std::memset(manager, 0, 52);
         CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, HumanMerchantArray_l_LogicCallback, 0xDE, 50);
         if (io->mReadHeader.version != 1)
         {
-            auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x2FDA0, 1));
+            auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(196000, 1));
             Write(manager, 0x30, records);
-            std::memset(records, 0, 0x2FDA0);
-            std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 0x5A4);
+            std::memset(records, 0, 196000);
+            std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 1444);
             array->System_InitArray(1000, records, 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
             io->IO_File_Chunk_Skip();
             return manager;
@@ -360,7 +361,7 @@ namespace NC2Logic
     // Original function: FUN_0041ab24.
     void __fastcall PlayerStatisticManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x7870736D, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::PlayerStatistics, 1);
         io->IO_Memory_WriteBinary(manager, 8);
         for (std::uint32_t table = 0; table < 2; ++table)
             for (std::uint32_t index = 0; index < 20; ++index)
@@ -376,7 +377,7 @@ namespace NC2Logic
     void* __fastcall PlayerStatisticManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gPlayerStatisticManager = manager;
-        std::memset(manager, 0, 0xA8);
+        std::memset(manager, 0, 168);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         io->IO_File_ReadBinary(manager, 8);
         for (std::uint32_t table = 0; table < 2; ++table)
@@ -394,7 +395,7 @@ namespace NC2Logic
     // Original function: FUN_00419c00.
     void __fastcall EmbeddedSavegameManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646573, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::EmbeddedSavegame, 1);
         io->IO_Memory_WriteBinary(manager, 4);
         if (Read<std::uint32_t>(manager, 0) != 0) io->IO_Memory_WriteBinary(Read<void*>(manager, 4), Read<std::uint32_t>(manager, 0));
         io->IO_Tool_Chunk_FinishAndWrite();

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "DirectXErrorText.h"
 #include "OriginalStrings.h"
@@ -18,7 +19,7 @@
 NNetwork::SDynamicNetworkData gDynamicNetworkData{};
 
 // Original data: 0050f728..0050f74f.
-char gNetworkCallsign[0x28]{};
+char gNetworkCallsign[40]{};
 
 // Original data: 0050f750.
 std::uint8_t gNetworkCallsignInitialized = 0;
@@ -138,18 +139,18 @@ namespace NNetwork
 
         CDPNet* network = GetNetworkInstance();
 
-        if ((network->flags & 0x04u) != 0)
+        if ((network->flags & ReadableValues::BitMask::Bit2) != 0)
         {
             network->StopSearchingSessions();
         }
 
-        if ((network->flags & 0x08u) != 0)
+        if ((network->flags & ReadableValues::BitMask::Bit3) != 0)
         {
             network->LeaveSession();
         }
 
         // Read the flags again after LeaveSession().
-        if ((network->flags & 0x02u) != 0)
+        if ((network->flags & ReadableValues::BitMask::Bit1) != 0)
         {
             network->LeaveSession();
         }
@@ -168,7 +169,7 @@ namespace NNetwork
     // Original function: FUN_004059a1
     bool Network_IsHost()
     {
-        return (GetNetworkInstance()->flags & 0x02u) != 0;
+        return (GetNetworkInstance()->flags & ReadableValues::BitMask::Bit1) != 0;
     }
 
     // Original function: FUN_004059b3
@@ -179,7 +180,7 @@ namespace NNetwork
             return false;
         }
 
-        return (GetNetworkInstance()->flags & 0x0Au) != 0;
+        return (GetNetworkInstance()->flags & ReadableValues::BitMask::Bit1AndBit3) != 0;
     }
 
     // Original function: FUN_004059cb
@@ -422,7 +423,7 @@ namespace NNetwork
 
                         case SwitchIds::NetworkPacket::PlayerInfo:
                             {
-                                if ((GetNetworkInstance()->flags & 0x08u) == 0)
+                                if ((GetNetworkInstance()->flags & ReadableValues::BitMask::Bit3) == 0)
                                 {
                                     return S_OK;
                                 }
@@ -471,7 +472,7 @@ namespace NNetwork
 
             case DPN_MSGID_SEND_COMPLETE:
                 {
-                    if ((GetNetworkInstance()->flags & 0x40u) == 0)
+                    if ((GetNetworkInstance()->flags & ReadableValues::BitMask::Bit6) == 0)
                     {
                         return S_OK;
                     }
@@ -516,7 +517,7 @@ namespace NNetwork
                         {
                             WriteNetworkLogLevel(3, "Local peer is new host", 0);
 
-                            GetNetworkInstance()->flags |= 0x02u;
+                            GetNetworkInstance()->flags |= ReadableValues::BitMask::Bit1;
                             GetNetworkInstance()->flags &= ~0x08u;
                         }
                     }
@@ -661,7 +662,7 @@ namespace NNetwork
 
         CoUninitialize();
 
-        flags &= 0xFFFFFFFEu;
+        flags &= ReadableValues::BitMask::DwordExceptBit0;
         return true;
     }
 
@@ -681,7 +682,7 @@ namespace NNetwork
             return false;
         }
 
-        flags &= 0xFFFFFFF4u;
+        flags &= ReadableValues::BitMask::Bit2AndBits4Through31;
 
         return InitializePeer(callbackContext, false);
     }
@@ -730,7 +731,7 @@ namespace NNetwork
                 ReportDirectPlayError("CDPNet::SaveReceivedMessage(): IDirectPlay8Peer::ReturnBuffer", result);
             }
 
-            std::memmove(receivedMessages, receivedMessages + 1, 0x3F0);
+            std::memmove(receivedMessages, receivedMessages + 1, 1008);
             --receivedMessageCount;
         }
 
@@ -769,7 +770,7 @@ namespace NNetwork
 
         if (statistics != nullptr)
         {
-            std::memcpy(statistics, data58, 0x10);
+            std::memcpy(statistics, data58, 16);
         }
 
         LeaveCriticalSection(&critical8C);
@@ -782,7 +783,7 @@ namespace NNetwork
 
         if (statistics != nullptr)
         {
-            std::memcpy(data58, statistics, 0x10);
+            std::memcpy(data58, statistics, 16);
         }
 
         LeaveCriticalSection(&critical8C);
@@ -828,10 +829,10 @@ namespace NNetwork
         data->unknown7C = 0;
 
         // Original allocation: FUN_004e5ddd -> FUN_004e860e(size, 1).
-        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300u, 1);
+        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(66304u, 1);
 
         // Preserve the original unconditional initialization after allocation.
-        std::memset(data->allocation30, 0, 0x10300u);
+        std::memset(data->allocation30, 0, 66304u);
 
         return data;
     }

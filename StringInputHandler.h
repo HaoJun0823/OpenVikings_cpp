@@ -41,7 +41,7 @@ namespace NC2InGameGuiBaseTextInputElement
     };
 
     static_assert(sizeof(void*) == 4);
-    static_assert(sizeof(CStringInputHandler) == 0x1C);
+    static_assert(sizeof(CStringInputHandler) == 28);
     static_assert(offsetof(CStringInputHandler, mMaximumLength) == 0x04);
     static_assert(offsetof(CStringInputHandler, mContinuousEditing) == 0x08);
     static_assert(offsetof(CStringInputHandler, mActivationKey) == 0x0C);

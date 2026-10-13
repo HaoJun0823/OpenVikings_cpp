@@ -46,7 +46,7 @@ namespace NC2Logic
 
     static_assert(sizeof(SMapAreaRow) == 8);
     static_assert(offsetof(SMapAreaRow, width) == 4);
-    static_assert(sizeof(CMapArea) == 0x14);
+    static_assert(sizeof(CMapArea) == 20);
     static_assert(offsetof(CMapArea, rows) == 4);
     static_assert(offsetof(CMapArea, pointCount) == 8);
     static_assert(offsetof(CMapArea, minX) == 0x0C);

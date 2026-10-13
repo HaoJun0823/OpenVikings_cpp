@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineDisplayAccess.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -44,7 +45,7 @@ namespace NC2MainMenuGuiManager
 
     template<class T> static void* CreateText(const SRectangle& rectangle, T getText, bool headline)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
         void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, getText(), false, false);
         // The Windows title paths write this even when allocation failed.
         if (headline) Write<std::uint8_t>(element, 0xF8, 0);
@@ -53,14 +54,14 @@ namespace NC2MainMenuGuiManager
 
     template<class T> static void* CreateSimpleButton(const SRectangle& rectangle, T getText, std::uint32_t command, void* owner)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         return allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, getText(), command, owner);
     }
 
     using TStringGetter = char*(*)(std::uint32_t);
     static void* CreateButton(const SRectangle& rectangle, std::uint32_t caption, std::uint32_t tooltip, std::uint32_t command, void* owner, TStringGetter getString, bool toggle = false, bool selected = false)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         if (allocation == nullptr) return nullptr;
         const char* tooltipText = getString(tooltip);
         const char* captionText = getString(caption);
@@ -69,13 +70,13 @@ namespace NC2MainMenuGuiManager
 
     static void* CreateListBox(const SRectangle& rectangle)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
         return allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
     }
 
     static void* CreateListController(const SRectangle& rectangle, void* list)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
         return allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
     }
 
@@ -155,7 +156,7 @@ namespace NC2MainMenuGuiManager
                 {
                     char name[200]; map->Tool_GetMapName(name);
                     char tooltip[1] = {0};
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                     void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &row, name, tooltip, command, owner);
                     SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
                     BaseListBoxElement_Element_Add(list, nullptr, element);
@@ -203,7 +204,7 @@ namespace NC2MainMenuGuiManager
                     const auto x = AddCoordinate(position->x, AddCoordinate(mStaticVars.displayWidth, -800) / 2);
                     const auto y = AddCoordinate(position->y, AddCoordinate(mStaticVars.displayHeight, -600) / 2);
                     char name[400]; map->Tool_GetMapName(name);
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
                     void* element = nullptr;
                     if (allocation != nullptr)
                     {
@@ -268,7 +269,7 @@ namespace NC2MainMenuGuiManager
         {
             heading(title, 0x4A);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 100);
-            Write<std::uint32_t>(this, 0x51C, 0xFFFFFFFFu);
+            Write<std::uint32_t>(this, 0x51C, ReadableValues::IntegerRange::UInt32Maximum);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x68); ++index)
             {
                 auto* name = reinterpret_cast<const char*>(this) + 0x6C + index * 0x78u;
@@ -362,7 +363,7 @@ namespace NC2MainMenuGuiManager
                 rectangle = upperContent; rectangle.y = AddCoordinate(rectangle.y, 324);
                 for (std::uint32_t index = 0; index < 3; ++index)
                 {
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                     void* element = nullptr;
                     if (allocation != nullptr)
                     {
@@ -398,7 +399,7 @@ namespace NC2MainMenuGuiManager
                 players.y = AddCoordinate(players.y, 5);
                 void* element = CreateButton(players, 0x66, 0x67, 0x13B2, owner, StringTool_GetMainMenuStringPtr);
                 const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, 0xEE4));
-                if (index == 0xFFFFFFFFu || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
+                if (index == ReadableValues::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
                 add(element); AdvanceRow(players, 5);
             }
             auto slots = players;
@@ -408,7 +409,7 @@ namespace NC2MainMenuGuiManager
             {
                 const auto offset = 0xF28 + index * 0x10u;
                 const auto flags = Read<std::uint32_t>(this, offset + 8);
-                if (flags == 0 || (flags & 0x80000000u) != 0) continue;
+                if (flags == 0 || (flags & ReadableValues::IntegerRange::Bit31) != 0) continue;
                 const auto kind = Read<std::uint32_t>(this, offset + 4);
                 void* element;
                 if (kind == 1)
@@ -444,7 +445,7 @@ namespace NC2MainMenuGuiManager
                 auto selection = players; selection.width = AddCoordinate(selection.width / 2, -2);
                 auto choose = [&](std::uint32_t caption, std::uint32_t command)
                 {
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                     add(allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(allocation, nullptr, &selection, StringTool_GetMainMenuStringPtr(caption), command, owner, false));
                 };
                 choose(0x6E, 0x13A7); selection.x = AddCoordinate(AddCoordinate(selection.x, selection.width), 4); choose(0x6F, 0x13A8);
@@ -487,7 +488,7 @@ namespace NC2MainMenuGuiManager
             SRectangle rectangle{AddCoordinate(AddCoordinate(mStaticVars.displayWidth, -800) / 2, 168), AddCoordinate(AddCoordinate(mStaticVars.displayHeight, -600) / 2, 115), 444, 357};
             rectangle.Inflate(-3, -3);
             char directory[260]; NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\credits", directory, "index.hlt");
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x48, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
             void* element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
             Write<std::uint8_t>(element, 0x3A, 0); HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, 0x38, 0); add(element);
             button(back, 0x14, 0x15, 0x138A);
@@ -498,7 +499,7 @@ namespace NC2MainMenuGuiManager
             heading(title, 0xAF); auto rectangle = content; rectangle.y = AddCoordinate(rectangle.y, 100);
             for (std::uint32_t index = 0; index < 2; ++index)
             {
-                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 add(allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &rectangle, StringTool_GetMainMenuStringPtr(0xB0 + index), nullptr, 0x1390 + index, owner));
                 if (index == 0) AdvanceRow(rectangle, 30);
             }

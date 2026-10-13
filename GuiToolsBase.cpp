@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 
 #include "C2EngineDrawingAccess.h"
@@ -236,7 +237,7 @@ namespace NC2GuiToolsBase
 
     // Original scratch region 0056988C..005698F7: 100-byte word and terminator;
     // seven following padding bytes have no exported references.
-    static char gWrappingWordBuffer[0x6C]{};
+    static char gWrappingWordBuffer[108]{};
 
     // Original function: FUN_004e29d9.
     std::int32_t DrawTool_PrintStringWrapping(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* text)
@@ -409,7 +410,7 @@ namespace NC2GuiToolsBase
                             std::uint32_t graphicId;
                             std::memcpy(&graphicId, good + 0x24, sizeof(graphicId));
 
-                            if (graphicId != 0xFFFFFFFFu)
+                            if (graphicId != ReadableValues::IntegerRange::UInt32Maximum)
                             {
                                 const std::uint32_t frame = ::timeGetTime() / 83u;
                                 NC2E2::EngineGraphic_Draw(graphicId, static_cast<std::uint32_t>(variant), bitmap, signedValue(currentX + 12u), signedValue(currentY + 8u), frame, 256, -1, true);
@@ -490,14 +491,14 @@ namespace NC2GuiToolsBase
     void FXTool_ClickConfirm()
     {
         auto* manager = NDSManager::CManager::sTheObjectPtr;
-        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
     }
 
     // Original function: FUN_004e2bae; original failure feedback sound.
     void FXTool_Fail()
     {
         auto* manager = NDSManager::CManager::sTheObjectPtr;
-        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_fail.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_fail.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
     }
 
     // Original function: FUN_004e2bcf
@@ -507,7 +508,7 @@ namespace NC2GuiToolsBase
 
         if (manager != nullptr)
         {
-            manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\chat_incoming.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
+            manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\chat_incoming.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
         }
     }
 
@@ -536,7 +537,7 @@ namespace NC2GuiToolsBase
         mState = 0;
         mStaticVars = {};
 
-        char fileName[0x104];
+        char fileName[260];
 
         for (std::size_t index = 0; index < 13; ++index)
         {
@@ -718,7 +719,7 @@ namespace NC2GuiToolsBase
         NXBasics::Font_SetPalettePtr(resources.font12, resources.fontWhitePalette);
         NXBasics::Font_SetPalettePtr(resources.fontDebug, resources.fontWhitePalette);
 
-        char fileName[0x104];
+        char fileName[260];
         NC2Logic::LanguageTool_GetFilename("data\\gui\\lang\\%s\\bobs\\ls_gui_window.bmd", fileName, false);
 
         resources.windowBobManager = static_cast<NXBasics::CBobManager*>(NXBasics::XB_Storable_LoadObject(fileName));

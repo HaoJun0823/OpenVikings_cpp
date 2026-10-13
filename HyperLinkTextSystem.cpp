@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "HyperLinkTextSystem.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -24,15 +25,15 @@ namespace NHyperLinkTextSystem
     {
         // Complete token array 004F7D08..004F7D87 and token-list state 005694A4..005694AB.
         const SToken sTokenArray[] = {
-            { "font", 0x666F6E74 }, { "color", 0x636F6C6F }, { "picture", 0x70696374 },
-            { "userpicture", 0x75706963 }, { "icon", 0x69636F6E }, { "usericon", 0x7569636F },
-            { "block", 0x626C636B }, { "textxstart", 0x78737461 }, { "textxend", 0x78656E64 },
-            { "anchor", 0x616E6368 }, { "localjump", 0x6C6A6D70 }, { "globaljump", 0x676A6D70 },
-            { "include", 0x696E636C }, { "rem", 0x72656D }, { "onscreencallback", 0x6F736362 }, { nullptr, 0 }
+            { "font", SwitchIds::HyperlinkToken::Font }, { "color", SwitchIds::HyperlinkToken::Color }, { "picture", SwitchIds::HyperlinkToken::Picture },
+            { "userpicture", ReadableValues::HyperLinkTextSystemToken::UserPicture }, { "icon", SwitchIds::HyperlinkToken::Icon }, { "usericon", ReadableValues::HyperLinkTextSystemToken::UserIcon },
+            { "block", ReadableValues::HyperLinkTextSystemToken::Block }, { "textxstart", ReadableValues::HyperLinkTextSystemToken::TextXStart }, { "textxend", ReadableValues::HyperLinkTextSystemToken::TextXEnd },
+            { "anchor", SwitchIds::HyperlinkToken::Anchor }, { "localjump", ReadableValues::HyperLinkTextSystemToken::LocalJump }, { "globaljump", ReadableValues::HyperLinkTextSystemToken::GlobalJump },
+            { "include", SwitchIds::HyperlinkToken::Include }, { "rem", ReadableValues::HyperLinkTextSystemToken::Rem }, { "onscreencallback", ReadableValues::HyperLinkTextSystemToken::OnScreenCallback }, { nullptr, 0 }
         };
         struct STokenState { const SToken* tokens; std::uint32_t initialized; };
         STokenState sTokenList{};
-        static_assert(sizeof(sTokenArray) == 0x80);
+        static_assert(sizeof(sTokenArray) == 128);
         static_assert(sizeof(STokenState) == 8);
 
         // Source-level helpers retain the DWORD arithmetic of Windows layout stores.
@@ -68,10 +69,10 @@ namespace NHyperLinkTextSystem
         }
         SMicroEntity* Controller(std::uint32_t type, std::uint32_t a = 0, std::uint32_t b = 0, std::uint32_t c = 0)
         {
-            auto* entity = static_cast<SMicroEntity*>(Runtime_AllocateWithNewHandler(0x1C, 1));
+            auto* entity = static_cast<SMicroEntity*>(Runtime_AllocateWithNewHandler(28, 1));
             if (entity != nullptr)
             {
-                std::memset(entity, 0, 0x1C);
+                std::memset(entity, 0, 28);
                 entity->type = 1;
                 entity->content.controller = type;
                 entity->data.values[0] = a;
@@ -82,7 +83,7 @@ namespace NHyperLinkTextSystem
         }
         SMicroEntity* Image(CBitmap* bitmap, bool inlineBitmap, bool userBitmap, std::uint32_t a = 0, std::uint32_t b = 0, std::uint32_t c = 0, std::uint32_t d = 0)
         {
-            auto* entity = static_cast<SMicroEntity*>(Runtime_AllocateWithNewHandler(0x1C, 1));
+            auto* entity = static_cast<SMicroEntity*>(Runtime_AllocateWithNewHandler(28, 1));
             if (entity != nullptr)
             {
                 entity->type = 3;
@@ -242,13 +243,13 @@ namespace NHyperLinkTextSystem
                     if (auto* palette = resources->GetPalettePtr(argument)) { entity = Controller(2, reinterpret_cast<std::uint32_t>(palette)); append = true; }
                     break;
                 case SwitchIds::HyperlinkToken::Picture: case SwitchIds::HyperlinkToken::Icon:
-                    if (auto* bitmap = resources->GetBitmapPtr(argument)) { entity = Image(bitmap, token == 0x69636F6E, false); append = true; }
+                    if (auto* bitmap = resources->GetBitmapPtr(argument)) { entity = Image(bitmap, token == SwitchIds::HyperlinkToken::Icon, false); append = true; }
                     break;
                 case SwitchIds::HyperlinkToken::UserPicture: case SwitchIds::HyperlinkToken::UserIcon:
                 {
                     std::uint32_t values[4]{};
                     char* number = argument;
-                    const unsigned count = token == 0x75706963 ? 1 : 4;
+                    const unsigned count = token == SwitchIds::HyperlinkToken::UserPicture ? 1 : 4;
                     for (unsigned index = 0; index < count; ++index)
                     {
                         if (!Runtime_IsDigit(*number)) break;
@@ -257,13 +258,13 @@ namespace NHyperLinkTextSystem
                         if (*number != ',') break;
                         ++number;
                     }
-                    entity = Image(nullptr, token == 0x7569636F, true, values[0], values[1], values[2], values[3]);
+                    entity = Image(nullptr, token == SwitchIds::HyperlinkToken::UserIcon, true, values[0], values[1], values[2], values[3]);
                     append = true;
                     break;
                 }
                 case SwitchIds::HyperlinkToken::BlockAlignment: case SwitchIds::HyperlinkToken::XStart: case SwitchIds::HyperlinkToken::XEnd: case SwitchIds::HyperlinkToken::Anchor: case SwitchIds::HyperlinkToken::LocalJump:
                 {
-                    const std::uint32_t controller = token == 0x626C636B ? 3 : token == 0x78737461 ? 4 : token == 0x78656E64 ? 5 : token == 0x616E6368 ? 6 : 7;
+                    const std::uint32_t controller = token == SwitchIds::HyperlinkToken::BlockAlignment ? 3 : token == SwitchIds::HyperlinkToken::XStart ? 4 : token == SwitchIds::HyperlinkToken::XEnd ? 5 : token == SwitchIds::HyperlinkToken::Anchor ? 6 : 7;
                     entity = Controller(controller, Runtime_StringToInteger(argument));
                     append = true;
                     break;
@@ -378,7 +379,7 @@ namespace NHyperLinkTextSystem
     // Original function: FUN_004cb224; only the first 0x30 bytes are initially cleared.
     CDisplayManager::CDisplayManager(CEntityManager* entityManager, CDataContainer* data, std::int32_t displayWidth, std::int32_t displayHeight, SDisplayManagerCallbackData* callbackData, TUserBitmapCallback callback)
     {
-        std::memset(this, 0, 0x30);
+        std::memset(this, 0, 48);
         entities = entityManager; resources = data; width = displayWidth; height = displayHeight;
         callbacks = callbackData; bitmapCallback = callback;
         lines = AllocateOriginal<CRuntimeOwnedList<SLineListTag>>(false);
@@ -515,7 +516,7 @@ namespace NHyperLinkTextSystem
     {
         auto* entity = l_GetDisplayManagerLineEntityOnPosition(point);
         if (entity == nullptr || entity->jump == 0) return false;
-        if (entity->textFile == 0xFFFFFFFFu) JumpToAnchor(entity->anchor);
+        if (entity->textFile == ReadableValues::IntegerRange::UInt32Maximum) JumpToAnchor(entity->anchor);
         else
         {
             const char* filename = resources->GetTextFilePtr(entity->textFile);
@@ -574,13 +575,13 @@ namespace NHyperLinkTextSystem
                 case SwitchIds::HyperlinkController::XEnd: xEnd = entity->data.values[0] <= static_cast<std::uint32_t>(width) ? entity->data.values[0] : width; break;
                 case SwitchIds::HyperlinkController::Anchor: case SwitchIds::HyperlinkController::OnscreenCallback:
                 {
-                    auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(0x2C, 1));
+                    auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(44, 1));
                     currentLine->entities->InsertAtEnd(entry);
                     entry->visible = entity->content.controller == 9;
                     entry->entity = entity;
                     break;
                 }
-                case SwitchIds::HyperlinkController::LocalJump: jump = 1; textFile = 0xFFFFFFFFu; anchor = entity->data.values[0]; break;
+                case SwitchIds::HyperlinkController::LocalJump: jump = 1; textFile = ReadableValues::IntegerRange::UInt32Maximum; anchor = entity->data.values[0]; break;
                 case SwitchIds::HyperlinkController::GlobalJump: jump = 1; textFile = entity->data.values[1]; anchor = entity->data.values[0]; break;
                 default: break;
                 }
@@ -602,7 +603,7 @@ namespace NHyperLinkTextSystem
                 if (entity->data.image.inlineBitmap == 0)
                 {
                     if (currentLine->entities->GetCount() != 0) l_Create_NewLine();
-                    auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(0x2C, 1));
+                    auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(44, 1));
                     currentLine->entities->InsertAtEnd(entry);
                     entry->visible = 1;
                     entry->rectangle.SetVariables(Subtract(width, image->GetRectangle().width) / 2, y, entityWidth, entityHeight);
@@ -620,7 +621,7 @@ namespace NHyperLinkTextSystem
             }
             else continue;
             if (Runtime_TimeSigned32(xEnd) < Add(x, entityWidth)) l_Create_NewLine();
-            auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(0x2C, 1));
+            auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(44, 1));
             currentLine->entities->InsertAtEnd(entry);
             entry->visible = 1;
             entry->rectangle.SetVariables(x, y, entityWidth, entityHeight);
@@ -690,7 +691,7 @@ namespace
         using TBackground = void(__thiscall*)(void*, CBitmap*);
         Read<TBackground*>(element, 0)[18](element, bitmap);
         display->Draw(bitmap);
-        if ((Read<std::uint32_t>(element, 0x18) & 0x100) != 0)
+        if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8Signed) != 0)
         {
             std::int32_t point[2];
             std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
@@ -701,7 +702,7 @@ namespace
     // Original function: FUN_004cbef5.
     bool __fastcall HyperLinkTextGuiElementBase_XGui_BE_Message_Handle(void* element, void*, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
     {
-        if (Read<std::uint8_t>(element, 0x38) != 0 && (message & 0x100) != 0)
+        if (Read<std::uint8_t>(element, 0x38) != 0 && (message & ReadableValues::BitMask::Bit8Signed) != 0)
         {
             Write<float>(element, 0x3C, 0);
             Read<CDisplayManager*>(element, 0x34)->ScrollY(Runtime_TimeSigned32(param3) / -4);
@@ -737,7 +738,7 @@ void* __fastcall HyperLinkTextGuiElementBase_Construct(void* element, void*, con
 {
     NXBaseGui::BaseElement_Construct(element, rectangle, flags, messageMask);
     NC2Lifetime::Write(element, 0, gHypertextVirtualTable);
-    std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 0x1C);
+    std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 28);
     NXBasics::CFile::FileSystem_SystemPathName_Set("$local$", directory);
     auto* resources = NHyperLinkTextSystem::AllocateOriginal<NHyperLinkTextSystem::CDataContainer>();
     NC2Lifetime::Write(element, 0x2C, resources);

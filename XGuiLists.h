@@ -59,8 +59,8 @@ namespace NXBasics
     template<> CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::~CList();
     template<> void* CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::Delete(CList* list, std::uint32_t flags);
 
-    static_assert(sizeof(CList<NXBaseGui::CBaseElement>) == 0x14);
-    static_assert(sizeof(CList<NXBaseGui::CBaseWindow>) == 0x14);
-    static_assert(sizeof(CList<NC2InGameGuiWorldElement::CWorldDisplayElement>) == 0x14);
-    static_assert(sizeof(CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>) == 0x14);
+    static_assert(sizeof(CList<NXBaseGui::CBaseElement>) == 20);
+    static_assert(sizeof(CList<NXBaseGui::CBaseWindow>) == 20);
+    static_assert(sizeof(CList<NC2InGameGuiWorldElement::CWorldDisplayElement>) == 20);
+    static_assert(sizeof(CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>) == 20);
 }

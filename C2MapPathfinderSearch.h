@@ -10,12 +10,12 @@ namespace NC2Logic
         std::uint32_t count;
         std::uint32_t points[4000];
     };
-    static_assert(sizeof(SMapPathfinderPointQueue) == 0x3E84);
+    static_assert(sizeof(SMapPathfinderPointQueue) == 16004);
     static_assert(offsetof(SMapPathfinderPointQueue, points) == 4);
 
     // Complete shared Windows region 00512620..00550E5F; Mac: sMapPathfinderStaticVariables.
     inline SMapPathfinderPointQueue sMapPathfinderStaticVariables[16]{};
-    static_assert(sizeof(sMapPathfinderStaticVariables) == 0x3E840);
+    static_assert(sizeof(sMapPathfinderStaticVariables) == 256064);
 
     struct SMapPathfinderManagerSearchOverMapCallbackData
     {

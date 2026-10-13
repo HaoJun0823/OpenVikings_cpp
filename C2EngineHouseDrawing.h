@@ -8,7 +8,7 @@ namespace NC2E2
         std::uint32_t count;
         SSign signs[30];
     };
-    static_assert(sizeof(S2DEngineDrawAtomHouseSignData) == 0x1E4);
+    static_assert(sizeof(S2DEngineDrawAtomHouseSignData) == 484);
     void DrawAtom_House_GetBobData(std::uint32_t id, S2DEngineDisplaySearchObjectBobData* output);
     void DrawAtom_House_GetSignData(std::uint32_t id, S2DEngineDrawAtomHouseSignData* output);
     void DrawAtom_House_DoDraw(std::uint32_t id, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness, const void* display);

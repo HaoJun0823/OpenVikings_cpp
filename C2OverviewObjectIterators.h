@@ -56,7 +56,7 @@ namespace NC2Logic
         std::uint32_t flags;
         std::int32_t current;
     };
-    static_assert(sizeof(CGuideIterator) == 0x14);
-    static_assert(sizeof(CHouseIterator) == 0x30);
+    static_assert(sizeof(CGuideIterator) == 20);
+    static_assert(sizeof(CHouseIterator) == 48);
     static_assert(sizeof(CMapMoveableIterator) == 8);
 }

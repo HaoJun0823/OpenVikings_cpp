@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "GuiListBoxElementAccess.h"
 #include "C2LifetimeAccess.h"
@@ -88,7 +89,7 @@ namespace NC2InGameGuiBaseListBox
     static const auto gToolListTable = MakeListTable(true);
     static const auto gControllerTable = MakeControllerTable(false);
     static const auto gToolControllerTable = MakeControllerTable(true);
-    static_assert(sizeof(gListTable) == 0x48 && sizeof(TElementList) == 0x14);
+    static_assert(sizeof(gListTable) == 72 && sizeof(TElementList) == 20);
 
     // Original function: FUN_004cff94.
     static void* __fastcall List_GetRealActiveElementPtr(void* element) { return Read<void*>(element, 0x48); }
@@ -163,10 +164,10 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d00e6.
     void* BaseListBoxElement_Construct(void* element, const SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageTypes)
     {
-        NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, flags | 3u, messageTypes | 0x900u);
+        NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, flags | 3u, messageTypes | ReadableValues::BitMask::Bit8AndBit11);
         ObjectVars_Construct(static_cast<std::byte*>(element) + 0x4C);
         Write(element, 0, gListTable.data());
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x1C);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 28);
         l_BoundingElementBox_Calculate(element);
         return element;
     }
@@ -253,7 +254,7 @@ namespace NC2InGameGuiBaseListBox
         NXBasics::CListBase::Iterator iterator(ElementList(list, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & 0x200u) != 0) continue;
+            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
             char text[100];
             if (!Virtual<TMessage>(child, 2)(child, 0x800, 0x7F1, reinterpret_cast<std::uintptr_t>(text), 99, 0)) continue;
             if (NXBasics::Runtime_ToLower(static_cast<signed char>(text[0])) != NXBasics::Runtime_ToLower(static_cast<signed char>(letter))) continue;
@@ -271,7 +272,7 @@ namespace NC2InGameGuiBaseListBox
         SRectangle bounds(0, 0, Read<std::int32_t>(element, 0x0C), Read<std::int32_t>(element, 0x10));
         NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
-            if ((Read<std::uint32_t>(child, 0x18) & 0x200u) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
+            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
         Write(element, 0x38, bounds);
         l_ScrollOffset_Validate(element);
     }
@@ -281,7 +282,7 @@ namespace NC2InGameGuiBaseListBox
         NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & 0x200u) != 0) continue;
+            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
             auto position = BaseElement_GetRectangle(child);
             position.x = Add(position.x, Read<std::int32_t>(element, 0x30));
             position.y = Add(position.y, Read<std::int32_t>(element, 0x34));
@@ -380,7 +381,7 @@ namespace NC2InGameGuiBaseListBox
         {
             const auto flags = Read<std::uint32_t>(child, 0x18);
             if (!includeDisabled && !BaseElement_CanBeActivated(child)) continue;
-            if ((flags & 0x200u) != 0) continue;
+            if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
             const auto rectangle = BaseElement_GetRectangle(child);
             if (point[0] < rectangle.x || point[0] > Subtract(Add(rectangle.x, rectangle.width), 1) || point[1] < rectangle.y || point[1] > Subtract(Add(rectangle.y, rectangle.height), 1)) continue;
             using THit = bool(__thiscall*)(void*, const std::int32_t*);
@@ -406,7 +407,7 @@ namespace NC2InGameGuiBaseListBox
     {
         NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, 1, 0x81);
         Write(element, 0, gControllerTable.data());
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x0C);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 12);
         Write(element, 0x30, list);
         Write<std::uint8_t>(element, 0x34, horizontal);
         Write<std::uint8_t>(element, 0x35, vertical);
@@ -483,7 +484,7 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
             case SwitchIds::SavegameListType::DeveloperUndo: caption = "Develop: undo savegames"; break;
             case SwitchIds::SavegameListType::DeveloperTemporary: caption = "Develop: temp savegames"; break;
             }
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
             void* heading = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption, false, false);
             if (specialHeadings) Write<std::uint8_t>(heading, 0xFD, 1);
             BaseListBoxElement_Element_Add(list, nullptr, heading);
@@ -491,7 +492,7 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
         }
         char caption[200];
         savegame->Tool_CreateSavegameButtonName(caption);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         void* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, caption, command, handler);
         Write(button, 0x4C, savegame->uniqueId);
         Write<std::uint32_t>(button, 0x50, 0);

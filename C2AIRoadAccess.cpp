@@ -42,7 +42,7 @@ namespace NC2Logic
                 for (std::uint32_t stock = 0; stock < data.stockCount; ++stock)
                 {
                     if (otherType != 1 && otherType != 7 && otherType != 8 && otherType != 9 && (static_cast<std::uint32_t>(data.stock[stock].goodType) != good || data.stock[stock].unknown08 == 0)) continue;
-                    std::byte pathfinder[0x84];
+                    std::byte pathfinder[132];
                     // The original point-only constructor is followed by a complete initialization.
                     Write<std::uint16_t>(pathfinder, 0x42, 0); Write<std::uint16_t>(pathfinder, 0x40, 0); Write<std::uint16_t>(pathfinder, 0x46, 0); Write<std::uint16_t>(pathfinder, 0x44, 0);
                     MapPathfinderElement_Init(pathfinder);

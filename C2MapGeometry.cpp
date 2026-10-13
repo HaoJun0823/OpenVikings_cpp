@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2GameMapAccess.h"
 #include "C2MapGeometry.h"
@@ -427,7 +428,7 @@ namespace NC2Logic
         if (direction > 7u)
             return;
 
-        const bool oddRow = (packedMigPoint & 0x10000u) != 0;
+        const bool oddRow = (packedMigPoint & ReadableValues::BitMask::Bit16) != 0;
         static constexpr std::int32_t oddDeltaX[8] = { 1, 1, 0, -1, 0, 1, 0, 0 };
         static constexpr std::int32_t evenDeltaX[8] = { 1, 0, -1, -1, -1, 0, 0, 0 };
         static constexpr std::int32_t deltaY[8] = { 0, 1, 1, 0, -1, -1, -2, 2 };

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanChest.h"
 #include "C2EngineLandscapeAccess.h"
@@ -32,7 +33,7 @@ namespace NC2Logic
     // Original function: FUN_0043d34b.
     std::uint32_t Human_DoExecuteUserCommand_OpenChest(void* human, const void* point)
     {
-        if (!Human_l_IsAtomicInterruptable(human) || Read<std::uint32_t>(human, 0xAD4) != 0) return 0;
+        if (!Human_l_IsAtomicInterruptable(human) || Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) return 0;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
         if (Read<std::uint8_t>(micro, 0) != 1) return 1;
         const auto landscape = Read<std::uint8_t>(micro, 2);
@@ -41,21 +42,21 @@ namespace NC2Logic
         if (!GameMap_Misc_GetLandscapeWorkPosition(point, &work)) return 1;
         Human_Target_Reset(human);
         Human_Target_SetTargetPositions(human, point, &work);
-        Write<std::uint32_t>(human, 0x36C, 0);
-        Write<std::uint32_t>(human, 0xA68, 2);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget, 2);
         Write<std::uint32_t>(human, 0xA74, landscape);
-        Write<std::uint32_t>(human, 0xACC, 1);
-        Write<std::uint32_t>(human, 0x368, 18);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 1);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 18);
         return 2;
     }
 
     // Original function: FUN_0044613f; cargo is dropped before retrying opcode 18.
     void Human_l_StartTask_OpenChest(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAD4) != 0)
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0)
         {
-            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(RealTarget(human)), 0);
-            if (Read<std::uint32_t>(human, 0xACC) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, 0xAD0, 0); }
+            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(RealTarget(human)), 0);
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0); }
             Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human);
             return;
         }
@@ -63,20 +64,20 @@ namespace NC2Logic
         if (Human_IsAtTargetPoint(human))
         {
             Human_l_StartAtomicAnimation(human, 91, Human_Target_GetDirectionTo(human));
-            Write<std::uint32_t>(human, 0x36C, 1);
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
         const auto landscape = Read<std::uint32_t>(human, 0xA74);
-        Write<std::uint32_t>(human, 0xAD0, 64);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 64);
         if (!Human_l_StartAtomicWalkAndFetch(human, RealTarget(human), WorkTarget(human), true)) { Fail(human); return; }
-        Write<std::uint32_t>(human, 0xA68, 2);
+        Write<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget, 2);
         Write(human, 0xA74, landscape);
     }
 
     // Original function: FUN_0043b00c; enable the good and its Windows producer job.
     void Tool_TechTree_EnableGoodProduction(std::uint32_t player, std::uint32_t tribe, std::uint32_t good)
     {
-        auto* data = static_cast<std::byte*>(gGameControl) + player * 0x4A80u;
+        auto* data = static_cast<std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
         const auto job = gStaticTribeTypeData[tribe].goodProduction[good].job;
         Write<std::uint8_t>(data, 0x1D4Cu + tribe * 66u + good, 1);
         if (job != 0) Write<std::uint8_t>(data, 0x948u + tribe * 56u + static_cast<std::uint32_t>(job), 1);
@@ -88,10 +89,10 @@ namespace NC2Logic
         auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
         const bool large = Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 86;
-        if (large && Read<std::uint32_t>(human, 0x18) != 30 && !Human_IsJobHero(human)) return false;
+        if (large && Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) != 30 && !Human_IsJobHero(human)) return false;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, large ? 57 : 56, MapMigPoint_GetLong(point), 0);
         const auto reward = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
-        const auto player = Read<std::uint32_t>(human, 0x10);
+        const auto player = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId);
         const auto goods = [&](std::uint32_t good, std::uint32_t amount)
         {
             auto drop = Read<std::uint32_t>(point, 0);
@@ -160,14 +161,14 @@ namespace NC2Logic
     // Original function: FUN_0046a310; preserve reset and reservation-release order.
     void Human_l_PerformTaskEvent_OpenChest(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xACC) == 0) Human_Target_Reset(human);
+        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 0) Human_Target_Reset(human);
         if (!Human_Target_IsValid(human) || !Tool_MapChest_UseChest(Read<std::uint32_t>(human, 4), RealTarget(human))) Fail(human);
         else
         {
-            Write<std::uint32_t>(human, 0x36C, 2);
-            if (Human_IsJobHero(human) && Read<std::uint32_t>(human, 0xAD4) != 0)
+            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+            if (Human_IsJobHero(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0)
             {
-                Map_GoodTool_PutOnMap(Read<std::uint32_t>(human, 0xAD4), 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 5, false);
+                Map_GoodTool_PutOnMap(Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 5, false);
                 Human_ClearCarriedGood(human);
             }
         }
@@ -219,7 +220,7 @@ namespace NC2Logic
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
                 MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
-                if (!MapMigPoint_IsInsideMap(&neighbor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&neighbor), 0xC) & 0x80u) != 0) valid = false;
+                if (!MapMigPoint_IsInsideMap(&neighbor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&neighbor), 0xC) & ReadableValues::BitMask::Bit7) != 0) valid = false;
             }
             if (!valid) continue;
             Logic_EntryPoint_Edit_Start();

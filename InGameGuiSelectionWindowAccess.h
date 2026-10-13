@@ -20,7 +20,7 @@ namespace NC2InGameGuiBase
         std::uint32_t mCount;
         SEntry mEntries[100];
     };
-    static_assert(sizeof(CStaticToolTipHandler) == 0x2EE4);
+    static_assert(sizeof(CStaticToolTipHandler) == 12004);
 
     class CDynamicSubButtonsHandler
     {
@@ -39,7 +39,7 @@ namespace NC2InGameGuiBase
         void* mWindow;
         SEntry mEntries[100];
     };
-    static_assert(sizeof(CDynamicSubButtonsHandler) == 0xAF4);
+    static_assert(sizeof(CDynamicSubButtonsHandler) == 2804);
 }
 
 namespace NC2InGameGuiSelection

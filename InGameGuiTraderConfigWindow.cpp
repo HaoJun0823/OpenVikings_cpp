@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiTraderConfigWindow.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
@@ -105,19 +106,19 @@ namespace NC2InGameGuiSelectedAction
         void Add(void* window, void* element) { NXBaseGui::BaseWindow_Element_Add(window, element); }
         void* Graphic(void* window, const SRectangle& area, std::uint32_t gfx, std::uint32_t command)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
             return allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_Construct(allocation, nullptr, &area, gfx, command, window);
         }
         void* TextButton(void* window, const SRectangle& area, const char* text, std::uint32_t command, const char* tooltip = nullptr)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             return allocation == nullptr ? nullptr : (tooltip == nullptr ? NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &area, text, command, window) : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &area, text, tooltip, command, window));
         }
         void MakeView(void* window, std::uint32_t row)
         {
             const SRectangle area(row == 0 ? 8 : 492, 50, 160, 282);
             Write(window, row == 0 ? 0x28C : 0x2A0, area);
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x244, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
             void* element = allocation == nullptr ? nullptr : NC2InGameGuiWorldElement::WorldDisplayElement_Construct(allocation, &area, false, false);
             Write(window, row == 0 ? 0x29C : 0x2B0, element);
             void* display = Read<void*>(element, 0x30);
@@ -176,7 +177,7 @@ namespace NC2InGameGuiSelectedAction
                 if (right) AddImport(window, list, good, 1, y);
                 if (!left && !right) continue;
                 const SRectangle area(37, y, Read<std::int32_t>(list, 0x0C) - 74, 24);
-                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
                 void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &area, NC2Logic::StringAccess_GetGoodNamePtr(good, 2), false, false);
                 BaseListBoxElement_Element_Add(list, nullptr, element);
                 y += 26;
@@ -187,10 +188,10 @@ namespace NC2InGameGuiSelectedAction
             const void* house = l_Merchant_GetOpponentTradeHousePtr(window);
             if (house == nullptr) return;
             void* merchant = Merchant(l_Merchant_GetHumanPtr(window));
-            const auto selected = merchant == nullptr ? 0xFFFFFFFFu : Read<std::uint32_t>(merchant, 4);
-            std::uint32_t id = 0xFFFFFFFFu;
+            const auto selected = merchant == nullptr ? ReadableValues::IntegerRange::UInt32Maximum : Read<std::uint32_t>(merchant, 4);
+            std::uint32_t id = ReadableValues::IntegerRange::UInt32Maximum;
             std::int32_t y = 0;
-            while ((id = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, id)) != 0xFFFFFFFFu)
+            while ((id = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, id)) != ReadableValues::IntegerRange::UInt32Maximum)
             {
                 const void* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + id * 24u;
                 const auto good1 = Read<std::uint32_t>(agreement, 8), amount1 = Read<std::uint32_t>(agreement, 12), good2 = Read<std::uint32_t>(agreement, 16), amount2 = Read<std::uint32_t>(agreement, 20);
@@ -202,7 +203,7 @@ namespace NC2InGameGuiSelectedAction
                 BaseListBoxElement_Element_Add(list, nullptr, element); y += 34;
             }
             void* element = TextButton(window, SRectangle(0, y, Read<std::int32_t>(list, 0x0C), 30), HumanString(116), 10200);
-            Write<std::uint32_t>(element, 0x4C, 0xFFFFFFFFu); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x55, selected == 0xFFFFFFFFu);
+            Write<std::uint32_t>(element, 0x4C, ReadableValues::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x55, selected == ReadableValues::IntegerRange::UInt32Maximum);
             BaseListBoxElement_Element_Add(list, nullptr, element);
         }
         // Original function: FUN_004cd33c.
@@ -330,12 +331,12 @@ namespace NC2InGameGuiSelectedAction
         const auto& screen = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle area((screen.displayWidth - 660) / 2, (screen.displayHeight - 360) / 2, 660, 360);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &area);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x244);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 580);
         Write(window, 0, gTraderConfigVirtualTable.data()); Write(window, 0x70, owner); Write(window, 0x74, closeCommand);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         const SRectangle mover(2, 2, 638, 14);
         Add(window, allocation == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(allocation, &mover, HumanString(110)));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         const SRectangle closer(642, 2, 16, 14);
         Add(window, allocation == nullptr ? nullptr : NC2InGameGuiBase::WindowCloserButton_Construct(allocation, nullptr, &closer));
         void* clear = TextButton(window, SRectangle(412, 24, 240, 20), HumanString(111), 10000);
@@ -344,11 +345,11 @@ namespace NC2InGameGuiSelectedAction
         {
             MakeView(window, 0); MakeView(window, 1);
             const SRectangle listArea(172, 50, 292, 282);
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &listArea);
             if (l_Merchant_IsTradingWithOpponent(window)) MakeAgreements(window, list); else MakeImports(window, list);
             Add(window, list);
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
             const SRectangle controller(468, 50, 20, 282);
             Add(window, allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &controller, list, false, true));
             if (l_Merchant_GetHousePtr(window, 0, nullptr)) Add(window, Graphic(window, SRectangle(8, 338, 18, 16), 18, 10300));

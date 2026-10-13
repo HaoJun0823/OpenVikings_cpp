@@ -36,18 +36,18 @@ namespace NC2InGameGuiWorldWindow
     {
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 260u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 200u) / 2, 260, 200);
-        BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x1C); Write(window, 0, gObservationWindowVirtualTable.data());
-        area = NXBasics::SRectangle(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 28); Write(window, 0, gObservationWindowVirtualTable.data());
+        area = NXBasics::SRectangle(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(240)));
-        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &area));
-        area = NXBasics::SRectangle(4, 20, Read<std::int32_t>(window, 0xC) - 8, Read<std::int32_t>(window, 0x10) - 24); allocation = NXBasics::Runtime_AllocateWithNewHandler(0x244, 1);
+        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &area));
+        area = NXBasics::SRectangle(4, 20, Read<std::int32_t>(window, 0xC) - 8, Read<std::int32_t>(window, 0x10) - 24); allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
         void* element = allocation == nullptr ? nullptr : WorldDisplayElement_Construct(allocation, &area, false, true); Write(window, 0x70, element); NXBaseGui::BaseWindow_Element_Add(window, element); WorldDisplayElement_DrawFrame_SetMode(element, 2);
         std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(manager->GetDesktop(), 0x30), &point); NC2E2::DE_SetWantedPositionToMapPoint(Display(window), &point); NC2E2::DE_ControllingPlayer_SetId(Display(window), manager->GetLocalPlayerId());
         WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(element, window, 20000); WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(element, window, 20001);
         area = NXBasics::SRectangle(4, 20, 100, 14);
         for (std::uint32_t button = 0; button < 4; ++button)
         {
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(241 + button), 10001 + button, window)); area.x += area.width;
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(241 + button), 10001 + button, window)); area.x += area.width;
         }
         WorldObserveDisplayWindow_l_Follow_Start(window); manager->ObservationWindow_Register(window); manager->FrameCall_Register(window); return window;
     }
@@ -116,7 +116,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2997.
     void* CInGameGuiManager::MiscWindows_OverviewWindow_GetPtr() const { return NC2Lifetime::Read<void*>(this, 0x44); }
     // Original function: FUN_004a0bf2.
-    void CInGameGuiManager::ObservationWindow_CreateNewOne() { auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x8C, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(allocation == nullptr ? nullptr : NC2InGameGuiWorldWindow::WorldObserveDisplayWindow_Construct(allocation)), false); }
+    void CInGameGuiManager::ObservationWindow_CreateNewOne() { auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(140, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(allocation == nullptr ? nullptr : NC2InGameGuiWorldWindow::WorldObserveDisplayWindow_Construct(allocation)), false); }
     // Original function: FUN_004a0c17.
     void CInGameGuiManager::ObservationWindow_Register(void* window) { std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x74))->InsertAtEnd(window); }
     // Original function: FUN_004a0c26.

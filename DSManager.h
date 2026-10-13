@@ -35,7 +35,7 @@ namespace NDSManager
         void* sound;
     };
 
-    static_assert(sizeof(SPreloadWave) == 0x10);
+    static_assert(sizeof(SPreloadWave) == 16);
     static_assert(offsetof(SPreloadWave, fileName) == 0x04);
     static_assert(offsetof(SPreloadWave, waveData) == 0x08);
     static_assert(offsetof(SPreloadWave, sound) == 0x0C);
@@ -53,7 +53,7 @@ namespace NDSManager
     };
 
     static_assert(sizeof(void*) == 4, "DSManager requires an x86 build");
-    static_assert(sizeof(SFireAndForgetWave) == 0x14);
+    static_assert(sizeof(SFireAndForgetWave) == 20);
     static_assert(offsetof(SFireAndForgetWave, sequence) == 0x04);
     static_assert(offsetof(SFireAndForgetWave, identifier) == 0x08);
     static_assert(offsetof(SFireAndForgetWave, sound) == 0x0C);
@@ -70,7 +70,7 @@ namespace NDSManager
         std::byte padding1D[3];
     };
 
-    static_assert(sizeof(SVolumeTransition) == 0x20);
+    static_assert(sizeof(SVolumeTransition) == 32);
     static_assert(offsetof(SVolumeTransition, targetVolume) == 0x04);
     static_assert(offsetof(SVolumeTransition, currentVolume) == 0x08);
     static_assert(offsetof(SVolumeTransition, changePerMillisecond) == 0x10);
@@ -120,5 +120,5 @@ namespace NDSManager
         SVolumeTransition mVolumeTransitions[10];
     };
 
-    static_assert(sizeof(CManager) == 0x4300);
+    static_assert(sizeof(CManager) == 17152);
 }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleLifecycle.h"
@@ -16,7 +17,7 @@
 namespace NC2Logic
 {
     // Original function: FUN_0044da5d; recovered from Game.exe's aligned instruction bytes.
-    bool Vehicle_Attachment_IsInsideVehicle(const void* vehicle) { return NC2Lifetime::Read<std::uint8_t>(vehicle, 0x548) != 0; }
+    bool Vehicle_Attachment_IsInsideVehicle(const void* vehicle) { return NC2Lifetime::Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::InsideVehicleFlag) != 0; }
 
     // Original function: FUN_004413b3; the door lookup result is not tested.
     bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace)
@@ -41,17 +42,17 @@ namespace NC2Logic
     void Vehicle_ChangePlayerId(void* vehicle, std::uint32_t player)
     {
         using NC2Lifetime::Write;
-        void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u;
-        const auto point = Read<std::uint32_t>(moveable, 0x12);
+        void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
+        const auto point = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition);
         MapMoveable_Attachment_DetachFromMap(moveable);
-        Write(vehicle, 0x1E0, player);
-        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        Write(vehicle, ReadableValues::VehicleOffset::PlayerId, player);
+        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::PathfinderId));
         Write<std::int32_t>(pathfinder, 0x24, -1);
         Write<std::int32_t>(pathfinder, 0x1C, -1);
         Write(pathfinder, 0x2C, player);
         MapMoveable_Attachment_AttachToMap(moveable, &point);
-        const auto radius = Read<std::uint32_t>(vehicle, 0x518);
-        const auto owner = Read<std::uint32_t>(vehicle, 0x1E0);
+        const auto radius = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::ExplorationRadius);
+        const auto owner = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId);
         GameMap_Exploration_DoExplore(owner, Vehicle_GetMapPositionRef(vehicle), radius);
     }
 
@@ -60,7 +61,7 @@ namespace NC2Logic
     {
         const auto count = Vehicle_GetVehicleTypeDataPtr(vehicle)->goodTypeCount;
         std::uint32_t total = 0;
-        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, 0x338u + slot);
+        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::StockAmounts + slot);
         return total;
     }
 
@@ -68,7 +69,7 @@ namespace NC2Logic
     std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId)
     {
         if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return 0;
-        return Read<std::uint8_t>(vehicle, 0x37Au + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId)));
+        return Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::FutureStockAmounts + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId)));
     }
 
     // Original function: FUN_0044bb63.
@@ -76,7 +77,7 @@ namespace NC2Logic
     {
         const auto count = Vehicle_GetVehicleTypeDataPtr(vehicle)->goodTypeCount;
         std::uint32_t total = 0;
-        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, 0x37Au + slot);
+        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::FutureStockAmounts + slot);
         return total;
     }
 
@@ -139,9 +140,9 @@ namespace NC2Logic
             const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalAmount(vehicle));
             applied = static_cast<std::uint32_t>(delta > available ? available : delta);
         }
-        NC2Lifetime::Write(vehicle, 0x338u + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, 0x338u + slot) + applied));
-        if (!Vehicle_Passengers_IsCarrierAttached(vehicle)) Vehicle_Stock_SetWantedAmount(vehicle, goodId, Read<std::uint8_t>(vehicle, 0x338u + slot));
-        VehicleStock_RemoveHumanFromList(static_cast<std::byte*>(vehicle) + 0x338, humanRevision, delta);
+        NC2Lifetime::Write(vehicle, ReadableValues::VehicleOffset::StockAmounts + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::StockAmounts + slot) + applied));
+        if (!Vehicle_Passengers_IsCarrierAttached(vehicle)) Vehicle_Stock_SetWantedAmount(vehicle, goodId, Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::StockAmounts + slot));
+        VehicleStock_RemoveHumanFromList(static_cast<std::byte*>(vehicle) + ReadableValues::VehicleOffset::StockAmountsSigned, humanRevision, delta);
         return true;
     }
 
@@ -163,8 +164,8 @@ namespace NC2Logic
             const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalFutureAmount(vehicle));
             applied = static_cast<std::uint32_t>(delta > available ? available : delta);
         }
-        NC2Lifetime::Write(vehicle, 0x37Au + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, 0x37Au + slot) + applied));
-        VehicleStock_AddHumanToList(static_cast<std::byte*>(vehicle) + 0x338, humanRevision, delta);
+        NC2Lifetime::Write(vehicle, ReadableValues::VehicleOffset::FutureStockAmounts + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::FutureStockAmounts + slot) + applied));
+        VehicleStock_AddHumanToList(static_cast<std::byte*>(vehicle) + ReadableValues::VehicleOffset::StockAmountsSigned, humanRevision, delta);
         return true;
     }
 
@@ -176,7 +177,7 @@ namespace NC2Logic
     {
         const auto* cell = GameMap_GetConstMapMicroPointPtr(point);
         const auto continent = Read<std::uint8_t>(cell, 6);
-        if ((Read<std::uint8_t>(cell, 12) & 0x80u) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+        if ((Read<std::uint8_t>(cell, 12) & ReadableValues::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
         auto cursor = Read<std::uint32_t>(point, 0);
         MapMigPoint_MoveCursorUnwrapped(cursor, 4);
         NC2Lifetime::Write(point, 0, cursor);
@@ -186,7 +187,7 @@ namespace NC2Logic
             NC2Lifetime::Write(point, 0, cursor);
             if (!MapMigPoint_IsInsideMap(point)) continue;
             cell = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(cell, 6) == continent && (Read<std::uint8_t>(cell, 12) & 0x80u) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+            if (Read<std::uint8_t>(cell, 6) == continent && (Read<std::uint8_t>(cell, 12) & ReadableValues::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
         }
         return false;
     }
@@ -194,7 +195,7 @@ namespace NC2Logic
     // Original function: FUN_0043779d; retain the signed direction and distance calculations.
     bool Vehicle_Door_GetEntryPoint(const void* vehicle, void* point, std::uint32_t requiredSpace)
     {
-        const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+        const auto kind = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
         if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0)
         {
             NC2Lifetime::Write(point, 0, Read<std::uint32_t>(vehicle, 0x1CC));
@@ -202,7 +203,7 @@ namespace NC2Logic
         }
         const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
         Vehicle_GetMapPosition(vehicle, point);
-        const auto* moveable = AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
+        const auto* moveable = AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable);
         auto direction = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::int32_t>(moveable, 0x20) : 2;
         auto distance = Read<std::int32_t>(type, 0x1C4);
         const auto offset = Read<std::int32_t>(type, 0x1C0);
@@ -232,14 +233,14 @@ namespace NC2Logic
         if (Read<std::uint8_t>(command, 0) == 0 || Vehicle_l_UserCommands_TryToExecuteRightAway(vehicle, command)) return true;
         if (Read<std::uint8_t>(command, 0) == 0x66)
         {
-            const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+            const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
             if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0)
             {
                 for (std::uint32_t slot = 0; slot < 22; ++slot)
                 {
                     const auto offset = 0x10u + slot * 20u;
                     const auto opcode = Read<std::uint8_t>(vehicle, offset);
-                    if (opcode == 0x65 || opcode == 0x67) Write<std::uint8_t>(vehicle, offset, 0);
+                    if (opcode == SwitchIds::UserCommand::VehicleGotoAndWait || opcode == 0x67) Write<std::uint8_t>(vehicle, offset, 0);
                 }
             }
         }
@@ -274,11 +275,11 @@ namespace NC2Logic
             Vehicle_l_Passengers_StopAllIdleTasks(vehicle);
             if (!Vehicle_Passengers_IsCarrierAttached(vehicle))
             {
-                alignas(4) std::byte message[0x304];
+                alignas(4) std::byte message[772];
                 ToUserMessage_Construct(message);
-                Write(message, 8, Read<std::uint32_t>(vehicle, 0x1E0));
+                Write(message, 8, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId));
                 Write(message, 0x20, Read<std::uint32_t>(vehicle, 4));
-                Write(message, 0x2E0, Read<std::uint32_t>(vehicle, 0x1E8));
+                Write(message, 0x2E0, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType));
                 Write<std::uint32_t>(message, 0, 0x3A);
                 ToUserMessage_FinishMessage(message);
                 NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -348,7 +349,7 @@ namespace NC2Logic
     // Original function: FUN_00441377.
     void Vehicle_GetTargetWorkPosition(const void* vehicle, void* point)
     {
-        NC2Lifetime::Write(point, 0, Vehicle_Passengers_GetAttachedCommanderPtr(vehicle) != nullptr ? Read<std::uint32_t>(vehicle, 0x1D2) : 0xFFFFFFFFu);
+        NC2Lifetime::Write(point, 0, Vehicle_Passengers_GetAttachedCommanderPtr(vehicle) != nullptr ? Read<std::uint32_t>(vehicle, 0x1D2) : ReadableValues::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0044c095; moving outside retains the passenger reference.
@@ -391,13 +392,13 @@ namespace NC2Logic
         if (Read<std::uint8_t>(vehicle, 0x2EC) != 0)
         {
             auto* human = Vehicle_Passengers_GetAttachedCommanderPtr(vehicle);
-            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, 0x19, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::RestartJobExecution, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
         }
         for (std::uint32_t slot = 0; slot < count; ++slot)
         {
             if (!HumanReference_IsAllocated(AddressAt(vehicle, 0x1F0u + slot * 12u))) continue;
             auto* human = Vehicle_Passengers_GetAttachedHumanPtr(vehicle, slot);
-            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, 0x15, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0x18), 0);
+            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::ChangeJob, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0x18), 0);
         }
     }
 
@@ -412,7 +413,7 @@ namespace NC2Logic
             if (HumanReference_IsAllocated(reference))
             {
                 const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(reference, 0) * CHumanArray::ElementSize;
-                if (Read<std::uint32_t>(human, 0x18) == 24) return true;
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 24) return true;
             }
             ++slot;
         } while (slot <= static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots));
@@ -424,8 +425,8 @@ namespace NC2Logic
     {
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
-            const void* carrier = AddressAt(CVehicleArray::mStaticVars, Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize);
-            if (Read<std::uint8_t>(carrier, 0) != 0 && Read<std::uint32_t>(carrier, 8) == Read<std::uint32_t>(human, 0xB4C))
+            const void* carrier = AddressAt(CVehicleArray::mStaticVars, Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize);
+            if (Read<std::uint8_t>(carrier, 0) != 0 && Read<std::uint32_t>(carrier, 8) == Read<std::uint32_t>(human, ReadableValues::HumanOffset::AttachedVehicleRevision))
             {
                 const auto slot = static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedHumanSlot(carrier, Read<std::uint32_t>(human, 4)));
                 // The original has no missing-slot guard here.
@@ -437,16 +438,16 @@ namespace NC2Logic
                 }
             }
         }
-        return reinterpret_cast<const std::uint16_t*>(AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(human, 0x0C) * 0x58u + 0x12u));
+        return reinterpret_cast<const std::uint16_t*>(AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable + 0x12u));
     }
 
     // Original function: FUN_004375a6.
-    const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle) { return reinterpret_cast<const SStaticVehicleTypeData*>(AddressAt(gStaticVehicleTypeData, Read<std::uint32_t>(vehicle, 0x1E8) * 0x1DCu)); }
+    const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle) { return reinterpret_cast<const SStaticVehicleTypeData*>(AddressAt(gStaticVehicleTypeData, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType) * 0x1DCu)); }
 
     // Original function: FUN_0044ce87; include the commander slot, require job 25.
     std::int32_t Vehicle_Passengers_GetWorkTraderHumanId(const void* vehicle)
     {
-        const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+        const auto type = Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType);
         if (type == 3 || type == 4) return -1;
         Vehicle_GetVehicleTypeDataPtr(vehicle);
         for (std::uint32_t slot = 0; ; ++slot)
@@ -464,24 +465,24 @@ namespace NC2Logic
     const void* Vehicle_GetMapPositionRef(const void* vehicle)
     {
         // 0044da5d: MOV AL,[ECX+548]; RET, confirmed from the executable.
-        while (Read<std::uint8_t>(vehicle, 0x548) != 0)
+        while (Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::InsideVehicleFlag) != 0)
         {
-            const void* carrier = AddressAt(CVehicleArray::mStaticVars, Read<std::uint32_t>(vehicle, 0x540) * CVehicleArray::ElementSize);
-            if (Read<std::uint8_t>(carrier, 0) == 0 || Read<std::uint32_t>(carrier, 8) != Read<std::uint32_t>(vehicle, 0x544)) break;
+            const void* carrier = AddressAt(CVehicleArray::mStaticVars, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleId) * CVehicleArray::ElementSize);
+            if (Read<std::uint8_t>(carrier, 0) == 0 || Read<std::uint32_t>(carrier, 8) != Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::CarrierVehicleRevision)) break;
             const auto slot = static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedVehicleSlot(carrier, Read<std::uint32_t>(vehicle, 4)));
             if (Read<std::uint8_t>(carrier, 0x304u + slot * 12u) == 0) break;
             const auto state = Read<std::uint32_t>(carrier, 0x1E8);
             if ((state == 3 || state == 4) && Read<std::uint8_t>(carrier, 0x1D0) != 0) return Vehicle_GetConstMapMicroPointPtr(carrier);
             vehicle = carrier;
         }
-        return AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u + 0x12u);
+        return AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable + 0x12u);
     }
 
     // Original function: FUN_0044ba1b.
     std::uint32_t Vehicle_Stock_GetAmountOfGoods(const void* vehicle, std::uint32_t goodId)
     {
         if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return 0;
-        return Read<std::uint8_t>(vehicle, 0x338u + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId)));
+        return Read<std::uint8_t>(vehicle, ReadableValues::VehicleOffset::StockAmounts + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId)));
     }
 
     // Original function: FUN_0044bda9.
@@ -555,7 +556,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const void* human = GetHumanPtr(static_cast<std::int32_t>(humanId));
-        if (Read<std::uint32_t>(human, 0x10) != Read<std::uint32_t>(vehicle, 0x1E0)) return false;
+        if (Read<std::uint32_t>(human, 0x10) != Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)) return false;
         if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[Read<std::uint32_t>(human, 0x18)] == 0) return false;
         if (Read<std::uint8_t>(vehicle, 0x2EC) == 0 && Vehicle_Passengers_CanBeCommander(vehicle, human)) return true;
         const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
@@ -629,7 +630,7 @@ namespace NC2Logic
     bool Vehicle_Passengers_CanVehicleBeAttached(const void* vehicle, std::uint32_t vehicleId)
     {
         const auto* passenger = CVehicleArray::mStaticVars + vehicleId * CVehicleArray::ElementSize;
-        if (NC2Lifetime::Read<std::uint32_t>(passenger, 0x1E0) != NC2Lifetime::Read<std::uint32_t>(vehicle, 0x1E0)) return false;
+        if (NC2Lifetime::Read<std::uint32_t>(passenger, 0x1E0) != NC2Lifetime::Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId)) return false;
         const auto type = NC2Lifetime::Read<std::uint32_t>(passenger, 0x1EC);
         if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[type] == 0) return false;
         const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->vehicleSlots);

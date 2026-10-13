@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "XPixelFormatConverter.h"
 #include "XCrtFileAccess.h"
 
@@ -56,7 +57,7 @@ namespace NXBasics
     {
         if (mTrueColorConvertTable == nullptr)
         {
-            mTrueColorConvertTable = static_cast<std::uint32_t*>(Runtime_AllocateWithNewHandler(0x40000, 1));
+            mTrueColorConvertTable = static_cast<std::uint32_t*>(Runtime_AllocateWithNewHandler(262144, 1));
 
             if (mUsesRgb565 || mUsesRgb555)
             {
@@ -135,9 +136,9 @@ namespace NXBasics
     // Original function: FUN_0049b818
     std::uint16_t C16BitPixelConverter::ApplyShadowMode2(std::uint16_t pixel) const
     {
-        const std::uint32_t red = (ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) & 0x1FFFu) * 4u + 128u;
-        const std::uint32_t green = (ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) & 0x1FFFu) * 4u + 128u;
-        const std::uint32_t blue = (ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) & 0x1FFFu) * 4u + 128u;
+        const std::uint32_t red = (ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
+        const std::uint32_t green = (ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
+        const std::uint32_t blue = (ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
 
         // No additional saturation is performed before packing.
         return PackColor(static_cast<std::uint16_t>(red), static_cast<std::uint16_t>(green), static_cast<std::uint16_t>(blue));
@@ -215,9 +216,9 @@ namespace NXBasics
 
         mInitialized = true;
 
-        mMiddleGrayColor = PackColor(0x7F, 0x7F, 0x7F);
-        mUsesRgb565 = redMask == 0xF800 && greenMask == 0x07E0 && blueMask == 0x001F;
-        mUsesRgb555 = redMask == 0x7C00 && greenMask == 0x03E0 && blueMask == 0x001F;
+        mMiddleGrayColor = PackColor(ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned);
+        mUsesRgb565 = redMask == ReadableValues::Rgb565::RedMask && greenMask == ReadableValues::Rgb565::GreenMask && blueMask == 0x001F;
+        mUsesRgb555 = redMask == ReadableValues::Rgb555::RedMask && greenMask == ReadableValues::Rgb555::GreenMaskSigned && blueMask == 0x001F;
 
         if (mTrueColorConvertTable != nullptr)
         {
@@ -231,7 +232,7 @@ namespace NXBasics
             mDarkenedColorTable = nullptr;
         }
 
-        mDarkenedColorTable = static_cast<std::uint16_t*>(Runtime_AllocateWithNewHandler(0x20000, 1));
+        mDarkenedColorTable = static_cast<std::uint16_t*>(Runtime_AllocateWithNewHandler(131072, 1));
         // Windows fills the table without checking the allocation result.
         for (std::uint32_t color = 0; color < 0x10000; ++color)
         {

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2GuideAccess.h"
@@ -34,13 +35,13 @@ namespace NC2Logic
     // Original function: FUN_00418cc6; the manager itself does not participate in validation.
     bool GameAssistantManager_l_Assistant_IsPlayerIdOk(const void*, std::int32_t player)
     {
-        return player >= 0 && player < 20 && NC2Lifetime::Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) != 0;
+        return player >= 0 && player < 20 && NC2Lifetime::Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) != 0;
     }
     // Original function: FUN_00418ae1; additions wrap before signed clamping to 0..20.
     void GameAssistantManager_UserInput_Save(void* manager, std::int32_t player, std::int32_t command, std::int32_t value)
     {
         using namespace NC2Lifetime;
-        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0) return;
+        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0) return;
         const auto base = static_cast<std::uint32_t>(player) * 0x38u;
         std::uint32_t offset;
         switch (command)
@@ -137,10 +138,10 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMarkerArray = manager;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         gMarkerEntries = nullptr;
-        gMarkerEntries = NXBasics::Runtime_Allocate(0x5DC0);
-        std::memset(gMarkerEntries, 0, 0x5DC0);
+        gMarkerEntries = NXBasics::Runtime_Allocate(24000);
+        std::memset(gMarkerEntries, 0, 24000);
         array->System_InitArray(1000, static_cast<std::byte*>(gMarkerEntries), 0x18, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         return manager;
     }
@@ -149,7 +150,7 @@ namespace NC2Logic
     static void MapMoveable_ConstructMembers(void* moveable)
     {
         Write<std::uint16_t>(moveable, 0x14, 0);
-        Write<std::uint16_t>(moveable, 0x12, 0);
+        Write<std::uint16_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition, 0);
         Write<std::uint32_t>(moveable, 0x18, 0);
         Write<std::uint32_t>(moveable, 0x1C, 0);
     }
@@ -159,12 +160,12 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMapMoveableArrayStorage.manager = array;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         gMapMoveableArrayStorage.entries = nullptr;
-        auto* entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(0x2AF80));
+        auto* entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(176000));
         if (entries != nullptr) for (std::uint32_t index = 0; index < 2000; ++index) MapMoveable_ConstructMembers(entries + index * 0x58u);
         gMapMoveableArrayStorage.entries = entries;
-        std::memset(entries, 0, 0x2AF80);
+        std::memset(entries, 0, 176000);
         array->System_InitArray(2000, entries, 0x58, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         return manager;
     }
@@ -173,7 +174,7 @@ namespace NC2Logic
     void* __fastcall MissionOnscreenInfoManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gMissionOnscreenInfoManager = manager;
-        std::memset(manager, 0, 0xFA0);
+        std::memset(manager, 0, 4000);
         return manager;
     }
 
@@ -181,7 +182,7 @@ namespace NC2Logic
     void* __fastcall GameAssistantManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gGameAssistantManager = manager;
-        std::memset(manager, 0, 0x460);
+        std::memset(manager, 0, 1120);
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, GameAssistantManager_ls_LogicCallback, 0x0C, 1);
         return manager;
     }
@@ -190,7 +191,7 @@ namespace NC2Logic
     void* __fastcall MultiPlayerGoalManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gMultiPlayerGoalManager = manager;
-        std::memset(manager, 0, 0x740);
+        std::memset(manager, 0, 1856);
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 0x32);
         return manager;
     }
@@ -199,7 +200,7 @@ namespace NC2Logic
     void* __fastcall HappinessManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gHappinessManager = manager;
-        std::memset(manager, 0, 0xAA0);
+        std::memset(manager, 0, 2720);
         for (std::uint32_t type : {1u, 0x27u, 0x28u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, HappinessManager_l_Happiness_Callback, 0x0C, 1);
         return manager;
     }
@@ -217,7 +218,7 @@ namespace NC2Logic
     {
         for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * 0x3Cu, 0);
         gTributeManager = manager;
-        std::memset(manager, 0, 0x960);
+        std::memset(manager, 0, 2400);
         return manager;
     }
 
@@ -226,10 +227,10 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gDelayedActionManager = manager;
-        std::memset(manager, 0, 0x34);
-        void* entries = NXBasics::Runtime_Allocate(0x12C0);
+        std::memset(manager, 0, 52);
+        void* entries = NXBasics::Runtime_Allocate(4800);
         Write<void*>(manager, 0x30, entries);
-        std::memset(entries, 0, 0x12C0);
+        std::memset(entries, 0, 4800);
         array->System_InitArray(100, static_cast<std::byte*>(entries), 0x30, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         return manager;
     }
@@ -239,11 +240,11 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gHumanMerchantArray = manager;
-        std::memset(manager, 0, 0x34);
-        void* entries = NXBasics::Runtime_Allocate(0x2FDA0);
+        std::memset(manager, 0, 52);
+        void* entries = NXBasics::Runtime_Allocate(196000);
         Write<void*>(manager, 0x30, entries);
-        std::memset(entries, 0, 0x2FDA0);
-        std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 0x5A4);
+        std::memset(entries, 0, 196000);
+        std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 1444);
         array->System_InitArray(1000, static_cast<std::byte*>(entries), 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, HumanMerchantArray_l_LogicCallback, 0xDE, 0x32);
         return manager;
@@ -263,12 +264,12 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gMapPathfinderManager = manager;
-        std::memset(manager, 0, 0x30);
+        std::memset(manager, 0, 48);
         gMapPathfinderEntries = nullptr;
-        void* entries = NXBasics::Runtime_Allocate(0x40740);
+        void* entries = NXBasics::Runtime_Allocate(264000);
         if (entries != nullptr) for (std::uint32_t index = 0; index < 2000; ++index) MapPathfinderEntry_Construct(static_cast<std::byte*>(entries) + index * 0x84u);
         gMapPathfinderEntries = entries;
-        std::memset(entries, 0, 0x40740);
+        std::memset(entries, 0, 264000);
         array->System_InitArray(2000, static_cast<std::byte*>(entries), 0x84, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         return manager;
     }
@@ -281,7 +282,7 @@ namespace NC2Logic
             ::new (static_cast<std::byte*>(manager) + offset) CUserNetworkCommandList(false);
         }
         gUserNetworkCommandManager = manager;
-        std::memset(manager, 0, 0x964);
+        std::memset(manager, 0, 2404);
         return manager;
     }
 
@@ -302,7 +303,7 @@ namespace NC2Logic
         {
             DrainRuntimeList(static_cast<std::byte*>(manager) + offset);
         }
-        std::memset(manager, 0, 0x964);
+        std::memset(manager, 0, 2404);
     }
 
     // Original function: FUN_00410d71.
@@ -441,7 +442,7 @@ namespace NC2Logic
         gGuideManager = manager;
         Write<std::uint32_t>(manager, 0, 0);
         gGuideManagerStaticVars.scanGuideId = -1;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x30, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(48, 1);
         if (allocation != nullptr) ::new (allocation) CGuideArray();
         for (std::uint32_t type : {1u, 0x33u, 0x31u, 0x32u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, GuideManager_l_Guides_Callback, 0x64, 0);
         Write(manager, 0x1364, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
@@ -460,7 +461,7 @@ namespace NC2Logic
     // Original function: FUN_0041af52; NC2Logic::CGuideManager::IO_Savegame_DoSave.
     void __fastcall GuideManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(0x78646778, 1);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Guides, 1);
         CGuideArray::sTheObjectPtr->IO_Savegame_DoSave(io);
         io->IO_Memory_WriteBinary(manager, 4);
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -475,7 +476,7 @@ namespace NC2Logic
             io->IO_File_Chunk_Skip();
             return manager;
         }
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x30, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(48, 1);
         if (allocation != nullptr) ::new (allocation) CGuideArray(io);
         io->IO_File_ReadBinary(manager, 4);
         gGuideManagerStaticVars.scanGuideId = -1;

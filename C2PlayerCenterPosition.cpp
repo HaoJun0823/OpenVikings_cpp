@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2PlayerCenterPosition.h"
 #include "C2GameState.h"
 #include "C2GameMapAccess.h"
@@ -35,7 +36,7 @@ namespace NC2Logic
                 return true;
             }
         }
-        std::uint32_t sumX = 0, sumY = 0, count = 0, continent = 0xFFFFFFFFu;
+        std::uint32_t sumX = 0, sumY = 0, count = 0, continent = ReadableValues::IntegerRange::UInt32Maximum;
         bool firstHouse = true;
         CHouseIterator houses;
         for (auto id = houses.GetFirstHouseId(playerId); id != -1; id = houses.GetNextHouseId())
@@ -50,12 +51,12 @@ namespace NC2Logic
                 firstHouse = false;
             }
         }
-        bool firstHuman = continent == 0xFFFFFFFFu;
+        bool firstHuman = continent == ReadableValues::IntegerRange::UInt32Maximum;
         CHumanIterator humans;
         for (auto id = humans.GetFirstHumanId(playerId); id != -1; id = humans.GetNextHumanId())
         {
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            const auto* moveable = static_cast<const std::byte*>(gMapMoveableArrayStorage.entries) + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+            const auto* moveable = static_cast<const std::byte*>(gMapMoveableArrayStorage.entries) + Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
             if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
             const auto* position = moveable + 0x12;
             sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, 0));
@@ -73,7 +74,7 @@ namespace NC2Logic
         const auto acceptable = [&](const void* point)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            return (Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 && Read<std::uint8_t>(micro, 6) == continent;
+            return (Read<std::uint8_t>(micro, 0x0C) & ReadableValues::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro, 6) == continent;
         };
         if (acceptable(mapPoint)) return true;
         const auto limit = static_cast<std::uint32_t>(GameMap_GetWidth() > GameMap_GetHeight() ? GameMap_GetWidth() : GameMap_GetHeight());
@@ -123,7 +124,7 @@ namespace NC2InGameGuiEntryPoints
         };
         SPlayerCenterTokens gPlayerCenterTokens{};
         static_assert(sizeof(SPlayerCenterTokens) == 8);
-        const NXBasics::SToken gPlayerCenterTokenTable[] = {{"startposition", 0x73746170}, {nullptr, 0}};
+        const NXBasics::SToken gPlayerCenterTokenTable[] = {{"startposition", ReadableValues::PlayerCenterPositionToken::StartPosition}, {nullptr, 0}};
 
         // Original function: FUN_004a307b; empty exit callback, return ignored.
         int __cdecl PlayerCenterTokens_OnExit() { return 0; }
@@ -144,7 +145,7 @@ namespace NC2InGameGuiEntryPoints
                     NXBasics::Runtime_AtExit(PlayerCenterTokens_OnExit);
                 }
                 auto* tokens = reinterpret_cast<NXBasics::CTokenList*>(gPlayerCenterTokens.tokenList);
-                if (tokens->FindToken(reader->GetCurrentName()) != 0x73746170) continue;
+                if (tokens->FindToken(reader->GetCurrentName()) != ReadableValues::PlayerCenterPositionToken::StartPosition) continue;
                 const std::uint32_t entryPlayer = static_cast<std::uint32_t>(reader->GetInt());
                 const std::int32_t x = reader->GetInt();
                 const std::int32_t y = reader->GetInt();

@@ -1,4 +1,6 @@
 #pragma once
+
+#include "ReadableValues.h"
 #include <cstddef>
 #include <cstdint>
 
@@ -16,7 +18,7 @@ namespace NC2Logic
         std::uint32_t descriptionStringId;
         SGoodAmount goods[5];
     };
-    static_assert(sizeof(STributeData) == 0x3C);
+    static_assert(sizeof(STributeData) == 60);
     static_assert(offsetof(STributeData, goodCount) == 4);
     static_assert(offsetof(STributeData, sourcePlayer) == 8);
     static_assert(offsetof(STributeData, targetPlayer) == 0x0C);
@@ -33,7 +35,7 @@ namespace NC2Logic
     class CTributeIterator
     {
     public:
-        CTributeIterator(std::uint32_t source, std::uint32_t target) : mIndex(0xFFFFFFFFu), mSource(source), mTarget(target), mCurrent(nullptr) {}
+        CTributeIterator(std::uint32_t source, std::uint32_t target) : mIndex(ReadableValues::IntegerRange::UInt32Maximum), mSource(source), mTarget(target), mCurrent(nullptr) {}
         void operator++(int);
         void* GetCurrent() const { return mCurrent; }
         std::uint32_t GetIndex() const { return mIndex; }
@@ -41,5 +43,5 @@ namespace NC2Logic
         std::uint32_t mIndex, mSource, mTarget;
         void* mCurrent;
     };
-    static_assert(sizeof(CTributeIterator) == 0x10);
+    static_assert(sizeof(CTributeIterator) == 16);
 }

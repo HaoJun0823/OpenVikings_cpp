@@ -10,7 +10,7 @@ namespace NC2Logic
         void AddCommand(std::uint32_t command);
         bool IsCommandAllowed(std::int32_t command) const;
     };
-    static_assert(sizeof(SUserCommandsForVehicleHandler) == 0x2C);
+    static_assert(sizeof(SUserCommandsForVehicleHandler) == 44);
     bool StaticDependencies_Item_IsChest(std::int32_t landscape);
     bool StaticDependencies_Item_IsAbleToOpenChest(std::int32_t job, std::int32_t landscape);
     bool RoadBuildManager_IsRoadBuildFlagSetForPlayer(const void* manager, std::int32_t player, const void* point);

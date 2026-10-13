@@ -23,7 +23,7 @@ namespace NC2Logic
     CSavegamesManager::CSavegamesManager() : mSavegames(false)
     {
         gSavegamesManager = this;
-        std::memset(this, 0, 0x0C);
+        std::memset(this, 0, 12);
         std::memset(gCurrentPlayerSavegameDirectory, 0, sizeof(gCurrentPlayerSavegameDirectory));
         mNextUniqueId = 1;
         mSavegameType = 1;

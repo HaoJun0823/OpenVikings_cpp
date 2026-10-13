@@ -39,7 +39,7 @@ namespace NC2Logic
             SMapWalkSectorData* landSectors; // +0x0008
             SMapWalkSectorData* waterSectors; // +0x000C
             std::uint32_t* calculationMap;   // +0x0010: one DWORD per sector.
-            std::byte specialSectorSearchWorkspace[0x60]; // +0x0014: special sector pathfinder, reconstructed in C2MapPathfinderSectorSearch.
+            std::byte specialSectorSearchWorkspace[96]; // +0x0014: special sector pathfinder, reconstructed in C2MapPathfinderSectorSearch.
             SBasePointCandidate basePointCandidates[250]; // +0x0074
             std::uint32_t floodFillPoints[8][400];         // +0x0C2C
             std::int32_t floodFillPointCounts[8];          // +0x3E2C
@@ -93,16 +93,16 @@ namespace NC2Logic
 
     static_assert(sizeof(void*) == 4);
     static_assert(sizeof(CMapWalkSectorManager) == 1);
-    static_assert(sizeof(CMapWalkSectorManager::SStaticData) == 0x3E70);
+    static_assert(sizeof(CMapWalkSectorManager::SStaticData) == 15984);
     static_assert(offsetof(CMapWalkSectorManager::SStaticData, gridHeight) == 0x04);
-    static_assert(sizeof(SMapWalkSectorData) == 0x34);
-    static_assert(offsetof(SMapWalkSectorData, calculated) == 0x00);
-    static_assert(offsetof(SMapWalkSectorData, connectionFlags) == 0x01);
+    static_assert(sizeof(SMapWalkSectorData) == 52);
+    static_assert(offsetof(SMapWalkSectorData, calculated) == 0);
+    static_assert(offsetof(SMapWalkSectorData, connectionFlags) == 1);
     static_assert(offsetof(SMapWalkSectorData, continentId) == 0x02);
     static_assert(offsetof(SMapWalkSectorData, connectionValues) == 0x04);
     static_assert(offsetof(SMapWalkSectorData, basePoints) == 0x24);
     static_assert(offsetof(SMapWalkSectorData, basePointCount) == 0x30);
-    static_assert(sizeof(CMapWalkSectorManager::SBasePointCandidate) == 0x0C);
+    static_assert(sizeof(CMapWalkSectorManager::SBasePointCandidate) == 12);
     static_assert(offsetof(CMapWalkSectorManager::SBasePointCandidate, packedBasePoint) == 0x04);
     static_assert(offsetof(CMapWalkSectorManager::SBasePointCandidate, lowBitsValue) == 0x08);
     static_assert(offsetof(CMapWalkSectorManager::SStaticData, landSectors) == 0x08);

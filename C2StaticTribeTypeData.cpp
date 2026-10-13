@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticTribeTypeData.h"
 #include "C2StaticAtomicAnimationData.h"
@@ -29,34 +30,34 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"type", 0x74797065};
-                storage.tokens[1] = {"name", 0x6E616D65};
-                storage.tokens[2] = {"setatomic", 0x7361746F};
-                storage.tokens[3] = {"allowjob", 0x616C6A6F};
-                storage.tokens[4] = {"allowgood", 0x616C676F};
-                storage.tokens[5] = {"allowequip", 0x616C6571};
-                storage.tokens[6] = {"allowhouse", 0x616C686F};
-                storage.tokens[7] = {"allowvehicle", 0x616C7665};
-                storage.tokens[8] = {"needforjob", 0x6E666A6F};
-                storage.tokens[9] = {"needforgood", 0x6E66676F};
-                storage.tokens[10] = {"needforhouse", 0x6E66686F};
-                storage.tokens[11] = {"needforvehicle", 0x6E667665};
-                storage.tokens[12] = {"needforequipment", 0x6E666571};
-                storage.tokens[13] = {"needforarmor", 0x6E666172};
-                storage.tokens[14] = {"needforweapon", 0x6E667765};
-                storage.tokens[15] = {"trainforjob", 0x74726A6F};
-                storage.tokens[16] = {"trainforgood", 0x7472676F};
-                storage.tokens[17] = {"jobEnablesJob", 0x6A656A6F};
-                storage.tokens[18] = {"jobEnablesGood", 0x6A65676F};
-                storage.tokens[19] = {"jobEnablesHouse", 0x6A65686F};
-                storage.tokens[20] = {"jobEnablesVehicle", 0x6A657665};
-                storage.tokens[21] = {"jobEnablesEquipment", 0x6A656571};
-                storage.tokens[22] = {"jobDefaultGood", 0x6A64676F};
-                storage.tokens[23] = {"toBuildHouseNeedJob", 0x66686E6A};
-                storage.tokens[24] = {"toBuildHouseNeedGood", 0x66686E67};
-                storage.tokens[25] = {"toBuildVehicleNeedJob", 0x66766E6A};
-                storage.tokens[26] = {"toBuildVehicleNeedGood", 0x66766E67};
-                storage.tokens[27] = {"toProduceGoodNeedHouse", 0x66676E68};
+                storage.tokens[0] = {"type", ReadableValues::TribeToken::Type};
+                storage.tokens[1] = {"name", SwitchIds::TribeTypeToken::Name};
+                storage.tokens[2] = {"setatomic", SwitchIds::TribeTypeToken::SetAtomic};
+                storage.tokens[3] = {"allowjob", SwitchIds::TribeTypeToken::AllowJob};
+                storage.tokens[4] = {"allowgood", SwitchIds::TribeTypeToken::AllowGood};
+                storage.tokens[5] = {"allowequip", SwitchIds::TribeTypeToken::AllowEquip};
+                storage.tokens[6] = {"allowhouse", SwitchIds::TribeTypeToken::AllowHouse};
+                storage.tokens[7] = {"allowvehicle", SwitchIds::TribeTypeToken::AllowVehicle};
+                storage.tokens[8] = {"needforjob", SwitchIds::TribeTypeToken::NeedForJob};
+                storage.tokens[9] = {"needforgood", SwitchIds::TribeTypeToken::NeedForGood};
+                storage.tokens[10] = {"needforhouse", SwitchIds::TribeTypeToken::NeedForHouse};
+                storage.tokens[11] = {"needforvehicle", SwitchIds::TribeTypeToken::NeedForVehicle};
+                storage.tokens[12] = {"needforequipment", SwitchIds::TribeTypeToken::NeedForEquipment};
+                storage.tokens[13] = {"needforarmor", SwitchIds::TribeTypeToken::NeedForArmor};
+                storage.tokens[14] = {"needforweapon", SwitchIds::TribeTypeToken::NeedForWeapon};
+                storage.tokens[15] = {"trainforjob", SwitchIds::TribeTypeToken::TrainForJob};
+                storage.tokens[16] = {"trainforgood", SwitchIds::TribeTypeToken::TrainForGood};
+                storage.tokens[17] = {"jobEnablesJob", SwitchIds::TribeTypeToken::JobEnablesJob};
+                storage.tokens[18] = {"jobEnablesGood", SwitchIds::TribeTypeToken::JobEnablesGood};
+                storage.tokens[19] = {"jobEnablesHouse", SwitchIds::TribeTypeToken::JobEnablesHouse};
+                storage.tokens[20] = {"jobEnablesVehicle", SwitchIds::TribeTypeToken::JobEnablesVehicle};
+                storage.tokens[21] = {"jobEnablesEquipment", SwitchIds::TribeTypeToken::JobEnablesEquipment};
+                storage.tokens[22] = {"jobDefaultGood", SwitchIds::TribeTypeToken::JobDefaultGood};
+                storage.tokens[23] = {"toBuildHouseNeedJob", SwitchIds::TribeTypeToken::ToBuildHouseNeedJob};
+                storage.tokens[24] = {"toBuildHouseNeedGood", SwitchIds::TribeTypeToken::ToBuildHouseNeedGood};
+                storage.tokens[25] = {"toBuildVehicleNeedJob", SwitchIds::TribeTypeToken::ToBuildVehicleNeedJob};
+                storage.tokens[26] = {"toBuildVehicleNeedGood", SwitchIds::TribeTypeToken::ToBuildVehicleNeedGood};
+                storage.tokens[27] = {"toProduceGoodNeedHouse", SwitchIds::TribeTypeToken::ToProduceGoodNeedHouse};
                 storage.tokens[28] = {nullptr, 0};
             }
             if ((storage.tokenInitFlags & 2) == 0)
@@ -77,8 +78,8 @@ namespace NC2Logic
         gStaticTribeTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticTribeTypeData = nullptr;
-        gStaticTribeTypeData = static_cast<SStaticTribeTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0x468D50, 1));
-        std::memset(gStaticTribeTypeData, 0, 0x468D50);
+        gStaticTribeTypeData = static_cast<SStaticTribeTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(4623696, 1));
+        std::memset(gStaticTribeTypeData, 0, 4623696);
         std::strcpy(gStaticTribeTypeData[0].name, "none");
         NXBasics::CIniFileReader reader("data\\logic\\tribetypes\\tribetypes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return;
@@ -88,7 +89,7 @@ namespace NC2Logic
             const auto tribe = static_cast<std::uint32_t>(reader.GetInt());
             if (tribe == 0 || tribe >= 42 || !Tool_AllowedItems_IsTribeTypeAllowed(tribe)) continue;
             auto& record = gStaticTribeTypeData[tribe];
-            std::memset(record.atomicIds, 0xFF, sizeof(record.atomicIds));
+            std::memset(record.atomicIds, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.atomicIds));
             reader.SetCurrentLineToGroupStart();
 
             // These local helpers organize one original loader, retaining raw signed offsets.
@@ -196,9 +197,9 @@ namespace NC2Logic
                     const auto job = static_cast<std::uint32_t>(reader.GetInt());
                     const auto state = static_cast<std::uint32_t>(reader.GetInt());
                     const auto atomic = CStaticAtomicAnimationDataManager::GetAtomicId(reader.GetString());
-                    if (atomic == 0xFFFFFFFFu) break;
+                    if (atomic == ReadableValues::IntegerRange::UInt32Maximum) break;
                     const auto offset = 0x20u + (job * 92u + state) * 4u;
-                    if (Read<std::uint32_t>(&record, offset) == 0xFFFFFFFFu) Write<std::uint32_t>(&record, offset, atomic);
+                    if (Read<std::uint32_t>(&record, offset) == ReadableValues::IntegerRange::UInt32Maximum) Write<std::uint32_t>(&record, offset, atomic);
                     break;
                 }
                 }

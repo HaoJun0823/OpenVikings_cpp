@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -25,19 +26,19 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"logictype", 0x6C6F7479};
-                storage.tokens[1] = {"logicmaintype", 0x6C6F6D74};
-                storage.tokens[2] = {"logicworker", 0x6C776F72};
-                storage.tokens[3] = {"logicstock", 0x6C73746F};
-                storage.tokens[4] = {"logicproduction", 0x6C70726F};
-                storage.tokens[5] = {"logichomesize", 0x6C687369};
-                storage.tokens[6] = {"logicschoolsize", 0x6C737369};
-                storage.tokens[7] = {"logicignorecontinentsflag", 0x6C696366};
-                storage.tokens[8] = {"logicvehicletype", 0x6C767479};
-                storage.tokens[9] = {"logiccanenabledefencemode", 0x6C65646D};
-                storage.tokens[10] = {"logicbuildonbiopattern", 0x6C626970};
-                storage.tokens[11] = {"debugname", 0x6462676E};
-                storage.tokens[12] = {"debugcolor", 0x64626763};
+                storage.tokens[0] = {"logictype", ReadableValues::HouseToken::LogicType};
+                storage.tokens[1] = {"logicmaintype", SwitchIds::HouseTypeToken::Logicmaintype};
+                storage.tokens[2] = {"logicworker", SwitchIds::HouseTypeToken::LogicWorker};
+                storage.tokens[3] = {"logicstock", SwitchIds::HouseTypeToken::LogicStock};
+                storage.tokens[4] = {"logicproduction", SwitchIds::HouseTypeToken::LogicProduction};
+                storage.tokens[5] = {"logichomesize", SwitchIds::HouseTypeToken::LogicHomeSize};
+                storage.tokens[6] = {"logicschoolsize", SwitchIds::HouseTypeToken::LogicSchoolSize};
+                storage.tokens[7] = {"logicignorecontinentsflag", SwitchIds::HouseTypeToken::Logicignorecontinentsflag};
+                storage.tokens[8] = {"logicvehicletype", SwitchIds::HouseTypeToken::LogicVehicleType};
+                storage.tokens[9] = {"logiccanenabledefencemode", SwitchIds::HouseTypeToken::Logiccanenabledefencemode};
+                storage.tokens[10] = {"logicbuildonbiopattern", SwitchIds::HouseTypeToken::Logicbuildonbiopattern};
+                storage.tokens[11] = {"debugname", SwitchIds::HouseTypeToken::Debugname};
+                storage.tokens[12] = {"debugcolor", SwitchIds::HouseTypeToken::DebugColor};
                 storage.tokens[13] = {nullptr, 0};
             }
             if ((storage.tokenInitFlags & 2) == 0)
@@ -56,12 +57,12 @@ namespace NC2Logic
         gStaticHouseTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticHouseTypeData = nullptr;
-        auto* records = static_cast<SStaticHouseTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0x151BC, 1));
+        auto* records = static_cast<SStaticHouseTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(86460, 1));
         if (records != nullptr)
             for (std::uint32_t index = 0; index < 55; ++index) ::new (records + index) SStaticHouseTypeData;
         gStaticHouseTypeData = records;
         // Windows continues unconditionally after the conditional color construction.
-        std::memset(records, 0, 0x151BC);
+        std::memset(records, 0, 86460);
         std::strcpy(records[0].debugName, "none");
         records[0].debugColor.SetColors(100, 100, 100);
         NXBasics::CIniFileReader reader("data\\logic\\housetypes.ini", nullptr, false, nullptr, nullptr);
@@ -72,7 +73,7 @@ namespace NC2Logic
             const auto type = static_cast<std::uint32_t>(reader.GetInt());
             if (type == 0 || type >= 55) continue;
             auto& record = gStaticHouseTypeData[type];
-            std::memset(record.stockIndices, 0xFF, sizeof(record.stockIndices));
+            std::memset(record.stockIndices, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.stockIndices));
             reader.SetCurrentLineToGroupStart();
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {

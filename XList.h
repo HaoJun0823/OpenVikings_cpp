@@ -77,11 +77,11 @@ namespace NXBasics
         std::uint8_t mDeleteObjects; // +0x10
         std::byte mPadding11[3];    // +0x11
 
-        static_assert(sizeof(SNode) == 0x08);
+        static_assert(sizeof(SNode) == 8);
         static_assert(offsetof(SNode, data) == 0x04);
     };
 
     static_assert(sizeof(void*) == 4, "CListBase requires an x86 build");
-    static_assert(sizeof(CListBase) == 0x14, "Unexpected CListBase size");
-    static_assert(sizeof(CListBase::Iterator) == 0x0C);
+    static_assert(sizeof(CListBase) == 20, "Unexpected CListBase size");
+    static_assert(sizeof(CListBase::Iterator) == 12);
 }

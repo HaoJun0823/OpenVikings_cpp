@@ -15,7 +15,7 @@ namespace NC2InGameGuiMiscWindows
         std::int32_t GetNumber(const NC2Logic::SPlayerStatisticSampleData* sample) const;
         const char* GetNamePtr() const;
     };
-    static_assert(sizeof(SStatisticsEntityDescription) == 0x2C);
+    static_assert(sizeof(SStatisticsEntityDescription) == 44);
     // Complete writable Windows entity region 00507820..00508303, including sentinels.
     inline SStatisticsEntityDescription gStatisticsEntities0[] = {
         {1, {0, -1, -1, -1, -1, -1}, 1, {0, 0, 0}, 4, 188, 0},

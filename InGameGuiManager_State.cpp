@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
@@ -163,13 +164,13 @@ namespace NInGameGuiManager
     void CInGameGuiManager::System_StartGame()
     {
         using namespace NC2InGameGuiInputManager;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF7C, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(3964, 1);
         if (allocation != nullptr) new (allocation) CInputManager;
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x18, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(24, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiMessages::CMessageManager;
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x2F0C, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(12044, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiGroups::CObjectGroupManager;
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(0xC, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(12, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager;
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x19, IGG_DrawWorldGameCursor_LogicCallback, 0, 10);
         NC2InGameGuiMiscWindows::StatisticsWindow_Statics_Init();
@@ -232,10 +233,10 @@ namespace NInGameGuiManager
     // Original function: FUN_004a244e; complete table 004F4DA0..004F4DCF.
     void CInGameGuiManager::MiscWindows_CloseAllLargeOnes(bool resetInputMode)
     {
-        static constexpr std::uint32_t commands[] = {0x7D8, 0x7D9, 0x7E3, 0x7E4, 0x7E5, 0x7E6, 0x7E7, 0x7E8, 0x7E9, 0x7EC, 0x7DA, 0xFFFFFFFF};
+        static constexpr std::uint32_t commands[] = {0x7D8, 0x7D9, 0x7E3, 0x7E4, 0x7E5, 0x7E6, 0x7E7, 0x7E8, 0x7E9, 0x7EC, 0x7DA, ReadableValues::IntegerRange::UInt32Maximum};
         for (auto command : commands)
         {
-            if (command == 0xFFFFFFFFu) break;
+            if (command == ReadableValues::IntegerRange::UInt32Maximum) break;
             auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(command, 0, 0, 0);
             if (window != nullptr) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
         }
@@ -247,7 +248,7 @@ namespace NInGameGuiManager
     {
         if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7DC, 0, 0, 0) != nullptr) return;
         MiscWindows_CloseAllLargeOnes(false);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
         void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::StringOutputWindow_Construct(allocation);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }

@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiManager.h"
@@ -100,7 +101,7 @@ namespace NC2InGameGuiInputManager
         // Original function: FUN_004b7303.
         void l_Selection_Inform_Human(std::uint32_t id, std::uint32_t revision, bool selected)
         {
-            if (id == 0xFFFFFFFFu) return;
+            if (id == ReadableValues::IntegerRange::UInt32Maximum) return;
             const auto* object = Human(id);
             if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, id, selected ? 3u : 2u, 0);
@@ -110,7 +111,7 @@ namespace NC2InGameGuiInputManager
         // Original function: FUN_004b7361.
         void l_Selection_Inform_Animal(std::uint32_t id, std::uint32_t revision, bool selected)
         {
-            if (id == 0xFFFFFFFFu) return;
+            if (id == ReadableValues::IntegerRange::UInt32Maximum) return;
             const auto* object = Animal(id);
             if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xF, true, id, selected ? 3u : 2u, 0);
@@ -119,7 +120,7 @@ namespace NC2InGameGuiInputManager
         // Original function: FUN_004b73ac.
         void l_Selection_Inform_Vehicle(std::uint32_t id, std::uint32_t revision, bool selected)
         {
-            if (id == 0xFFFFFFFFu) return;
+            if (id == ReadableValues::IntegerRange::UInt32Maximum) return;
             const auto* object = Vehicle(id);
             if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, selected ? 3u : 2u, 0);
@@ -128,7 +129,7 @@ namespace NC2InGameGuiInputManager
         // Original function: FUN_004b73f7.
         void l_Selection_Inform_House(std::uint32_t id, std::uint32_t revision, bool selected)
         {
-            if (id == 0xFFFFFFFFu) return;
+            if (id == ReadableValues::IntegerRange::UInt32Maximum) return;
             const auto* object = House(id);
             if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x11, true, id, selected ? 3u : 2u, 0);
@@ -234,7 +235,7 @@ namespace NC2InGameGuiInputManager
                 {
                     const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
                     auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-                    Write<std::uint8_t>(micro, 2, Read<std::uint8_t>(micro, 2) & 0xFCu);
+                    Write<std::uint8_t>(micro, 2, Read<std::uint8_t>(micro, 2) & ReadableValues::BitMask::ByteExceptBits0Through1);
                 }
             auto* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
             auto* display = Read<void*>(world, 0x30);
@@ -309,7 +310,7 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b5eb1.
     std::uint32_t Action_NormalSelectPossible(void* manager, const void* object, std::uint32_t* first, std::uint32_t* second, std::uint32_t* third, std::uint32_t* fourth)
     {
-        *first = *second = *third = *fourth = 0xFFFFFFFFu;
+        *first = *second = *third = *fourth = ReadableValues::IntegerRange::UInt32Maximum;
         std::int32_t action = 0, id = -1;
         if (Read<std::uint32_t>(manager, 0) == 0 && object != nullptr)
         {
@@ -338,8 +339,8 @@ namespace NC2InGameGuiInputManager
             const auto moveableId = iterator.GetFirstMapMoveableId(point);
             if (moveableId != -1)
             {
-                const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * 0x58u;
-                id = Read<std::int32_t>(moveable, 0x54);
+                const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable;
+                id = Read<std::int32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
                 switch (Read<std::uint32_t>(moveable, 8))
                 {
                 case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
@@ -400,7 +401,7 @@ namespace NC2InGameGuiInputManager
         default: break;
         }
         Write<std::uint32_t>(manager, 4, 0);
-        for (auto offset : {8u, 0x974u, 0x97Cu, 0xA78u, 0xA80u, 0xA84u, 0xA90u, 0xA98u, 0xA9Cu}) Write<std::uint32_t>(manager, offset, 0xFFFFFFFFu);
+        for (auto offset : {8u, 0x974u, 0x97Cu, 0xA78u, 0xA80u, 0xA84u, 0xA90u, 0xA98u, 0xA9Cu}) Write<std::uint32_t>(manager, offset, ReadableValues::IntegerRange::UInt32Maximum);
         for (auto offset : {0xCu, 0x10u, 0x978u, 0x980u, 0xA7Cu, 0xA94u}) Write<std::uint32_t>(manager, offset, 0);
         Changed(manager);
     }
@@ -538,7 +539,7 @@ namespace NC2InGameGuiInputManager
                     auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
                     const auto wanted = mark(point), flags = Read<std::uint8_t>(micro, 2);
                     if ((flags & 3u) == wanted) continue;
-                    Write<std::uint8_t>(micro, 2, (flags & 0xFCu) | wanted);
+                    Write<std::uint8_t>(micro, 2, (flags & ReadableValues::BitMask::ByteExceptBits0Through1) | wanted);
                     changed = true;
                 }
             return changed;
@@ -558,7 +559,7 @@ namespace NC2InGameGuiInputManager
             const auto mark = [continent](const void* point) -> std::uint8_t
             {
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                return Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 ? 3 : 1;
+                return Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 0x0C) & ReadableValues::BitMask::Bit7) == 0 ? 3 : 1;
             };
             return UpdateHighlightArea(rectangle, mark);
         }
@@ -654,7 +655,7 @@ namespace NC2InGameGuiInputManager
             {
                 if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point)) return 1;
                 const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                if (NC2Logic::GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || (Read<std::uint8_t>(micro, 0xC) & 0x80u) != 0) return 1;
+                if (NC2Logic::GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || (Read<std::uint8_t>(micro, 0xC) & ReadableValues::BitMask::Bit7) != 0) return 1;
                 auto cursor = Read<std::uint32_t>(point, 0);
                 NC2Logic::MapMigPoint_MoveCursorUnwrapped(cursor, 4);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
@@ -840,7 +841,7 @@ namespace NC2InGameGuiInputManager
             case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10);
             case SwitchIds::SelectionType::MultipleHumans: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), 0x10);
             case SwitchIds::SelectionType::SingleVehicle: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0);
-            case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : 0xFFFFFFFFu), 0x1E0);
+            case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : ReadableValues::IntegerRange::UInt32Maximum), 0x1E0);
             default: return -1;
             }
         }
@@ -971,7 +972,7 @@ namespace NC2InGameGuiInputManager
             Write<std::uint8_t>(command, 0, 117); Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Player()));
             Write(command, 4, Read<std::uint32_t>(manager, 0xA80)); Write(command, 8, Read<std::uint32_t>(manager, 0xA84));
             Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + 0xABC));
-            Write(command, 0x10, (Read<std::uint32_t>(manager, 0xA88) << 16) | (Read<std::uint32_t>(manager, 0xA8C) & 0xFFFFu));
+            Write(command, 0x10, (Read<std::uint32_t>(manager, 0xA88) << 16) | (Read<std::uint32_t>(manager, 0xA8C) & ReadableValues::IntegerRange::UInt16Maximum));
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             InputMode_Cancel(manager); return true;
         }
@@ -1194,9 +1195,9 @@ namespace NC2InGameGuiInputManager
                 NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, 0), pixel, true);
                 for (auto id = iterator.GetFirstMapMoveableId(point); id != -1 && count != 300; id = iterator.GetNextMapMoveableId())
                 {
-                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
                     if (Read<std::uint32_t>(moveable, 8) != 1) continue;
-                    const auto humanId = Read<std::uint32_t>(moveable, 0x54);
+                    const auto humanId = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
                     const auto* human = Human(humanId);
                     const auto humanJob = Read<std::uint32_t>(human, 0x18);
                     if (Read<std::uint32_t>(human, 0x10) != Player() || NC2Logic::Human_Misc_IsHidden(human) || (job != 0 && humanJob != job) || (military && humanJob < 42) || humanJob > 47) continue;

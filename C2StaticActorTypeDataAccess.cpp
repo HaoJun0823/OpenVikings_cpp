@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -30,8 +31,8 @@ namespace NC2Logic
         gStaticAnimalTypeDataManager = manager;
         std::memset(manager, 0, 1);
         gStaticAnimalTypeData = nullptr;
-        gStaticAnimalTypeData = NXBasics::Runtime_Allocate(0x880);
-        std::memset(gStaticAnimalTypeData, 0, 0x880);
+        gStaticAnimalTypeData = NXBasics::Runtime_Allocate(2176);
+        std::memset(gStaticAnimalTypeData, 0, 2176);
         NXBasics::CIniFileReader reader("data\\logic\\animaltypes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
         for (char* group = reader.GetFirstGroup("animaltype"); group != nullptr; group = reader.GetNextGroup("animaltype"))
@@ -50,13 +51,13 @@ namespace NC2Logic
                 {
                     gAnimalTypeTokenFlags |= 1u;
                     static constexpr NXBasics::SToken tokens[19] = {
-                        {"tribetype", 0x74797065u}, {"aggressive", 0x61676772u}, {"warrantable", 0x77617272u},
-                        {"maximumleaderdistance", 0x6D786C64u}, {"searchforleader", 0x736C6561u},
-                        {"maximumdistancetostaypoint", 0x6D786473u}, {"maximumdistancetobirthpoint", 0x6D786462u},
-                        {"maximumgroupsize", 0x6D786773u}, {"maximumcadaversize", 0x6D786373u}, {"catchable", 0x63616266u},
-                        {"movespeed", 0x6D737064u}, {"hitpoints_baby", 0x68697462u}, {"hitpoints_adult", 0x68697461u},
-                        {"getangry", 0x67616E67u}, {"angryGameTime", 0x6174696Du}, {"runspeed", 0x72756E73u},
-                        {"ignorehouses", 0x6967686Fu}, {"cannotbeattacked", 0x636E6261u}, {nullptr, 0}
+                        {"tribetype", ReadableValues::AnimalTypeToken::TribeType}, {"aggressive", SwitchIds::AnimalTypeToken::Aggressive}, {"warrantable", SwitchIds::AnimalTypeToken::Warrantable},
+                        {"maximumleaderdistance", SwitchIds::AnimalTypeToken::MaximumLeaderDistance}, {"searchforleader", SwitchIds::AnimalTypeToken::SearchForLeader},
+                        {"maximumdistancetostaypoint", SwitchIds::AnimalTypeToken::MaximumDistanceToStayPoint}, {"maximumdistancetobirthpoint", SwitchIds::AnimalTypeToken::MaximumDistanceToBirthPoint},
+                        {"maximumgroupsize", SwitchIds::AnimalTypeToken::MaximumGroupSize}, {"maximumcadaversize", SwitchIds::AnimalTypeToken::Maximumcadaversize}, {"catchable", SwitchIds::AnimalTypeToken::Catchable},
+                        {"movespeed", SwitchIds::AnimalTypeToken::MoveSpeed}, {"hitpoints_baby", SwitchIds::AnimalTypeToken::HitpointsBABY}, {"hitpoints_adult", SwitchIds::AnimalTypeToken::HitpointsAdult},
+                        {"getangry", ReadableValues::AnimalTypeToken::GetAngry}, {"angryGameTime", SwitchIds::AnimalTypeToken::AngryGameTime}, {"runspeed", SwitchIds::AnimalTypeToken::Runspeed},
+                        {"ignorehouses", ReadableValues::AnimalTypeToken::IgnoreHouses}, {"cannotbeattacked", SwitchIds::AnimalTypeToken::Cannotbeattacked}, {nullptr, 0}
                     };
                     std::memcpy(gAnimalTypeTokens, tokens, sizeof(tokens));
                 }
@@ -91,8 +92,8 @@ namespace NC2Logic
         gStaticArmorTypeDataManager = manager;
         std::memset(manager, 0, 1);
         gStaticArmorTypeData = nullptr;
-        gStaticArmorTypeData = NXBasics::Runtime_Allocate(0x104);
-        std::memset(gStaticArmorTypeData, 0, 0x104);
+        gStaticArmorTypeData = NXBasics::Runtime_Allocate(260);
+        std::memset(gStaticArmorTypeData, 0, 260);
         std::strcpy(static_cast<char*>(gStaticArmorTypeData), "none");
         NXBasics::CIniFileReader reader("data\\logic\\armortypes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
@@ -108,7 +109,7 @@ namespace NC2Logic
                 if ((gArmorTypeTokenFlags & 1u) == 0)
                 {
                     gArmorTypeTokenFlags |= 1u;
-                    static constexpr NXBasics::SToken tokens[8] = {{"type", 0x74797065u}, {"name", 0x6E616D65u}, {"maintype", 0x6D61696Eu}, {"goodtype", 0x676F6F64u}, {"weight", 0x77656967u}, {"blockingValue", 0x626C766Cu}, {"materialType", 0x6D617479u}, {nullptr, 0}};
+                    static constexpr NXBasics::SToken tokens[8] = {{"type", ReadableValues::ArmorTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype}, {"goodtype", SwitchIds::ArmorTypeToken::GoodType}, {"weight", SwitchIds::ArmorTypeToken::Weight}, {"blockingValue", SwitchIds::ArmorTypeToken::BlockingValue}, {"materialType", SwitchIds::ArmorTypeToken::MaterialType}, {nullptr, 0}};
                     std::memcpy(gArmorTypeTokens, tokens, sizeof(tokens));
                 }
                 if ((gArmorTypeTokenFlags & 2u) == 0)
@@ -137,10 +138,10 @@ namespace NC2Logic
         gStaticHumanJobExperienceTypeDataManager = manager;
         gStaticHumanJobExperienceData = nullptr;
         gStaticHumanJobExperienceTable00510A3C = nullptr;
-        gStaticHumanJobExperienceData = NXBasics::Runtime_Allocate(0xFD8);
-        std::memset(gStaticHumanJobExperienceData, 0, 0xFD8);
-        gStaticHumanJobExperienceTable00510A3C = NXBasics::Runtime_Allocate(0x9A0);
-        std::memset(gStaticHumanJobExperienceTable00510A3C, 0, 0x9A0);
+        gStaticHumanJobExperienceData = NXBasics::Runtime_Allocate(4056);
+        std::memset(gStaticHumanJobExperienceData, 0, 4056);
+        gStaticHumanJobExperienceTable00510A3C = NXBasics::Runtime_Allocate(2464);
+        std::memset(gStaticHumanJobExperienceTable00510A3C, 0, 2464);
         std::strcpy(static_cast<char*>(gStaticHumanJobExperienceData), "none");
         NXBasics::CIniFileReader reader("data\\logic\\humanjobexperiencetypes.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
@@ -162,7 +163,7 @@ namespace NC2Logic
                 if ((gExperienceTypeTokenFlags & 1u) == 0)
                 {
                     gExperienceTypeTokenFlags |= 1u;
-                    static constexpr NXBasics::SToken tokens[7] = {{"type", 0x74797065u}, {"name", 0x6E616D65u}, {"job", 0x6A6F62u}, {"good", 0x676F6F64u}, {"experiencefactor", 0x65787066u}, {"baserepeatcounter", 0x6272636Eu}, {nullptr, 0}};
+                    static constexpr NXBasics::SToken tokens[7] = {{"type", ReadableValues::HumanJobExperienceTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"job", SwitchIds::JobExperienceToken::Job}, {"good", SwitchIds::JobExperienceToken::Good}, {"experiencefactor", SwitchIds::JobExperienceToken::ExperienceFactor}, {"baserepeatcounter", SwitchIds::JobExperienceToken::Baserepeatcounter}, {nullptr, 0}};
                     std::memcpy(gExperienceTypeTokens, tokens, sizeof(tokens));
                 }
                 if ((gExperienceTypeTokenFlags & 2u) == 0)
@@ -220,8 +221,8 @@ namespace NC2Logic
         std::memset(gStaticWeaponTypeArrays, 0, sizeof(gStaticWeaponTypeArrays));
         for (void*& table : gStaticWeaponTypeArrays)
         {
-            table = NXBasics::Runtime_Allocate(0x10D8);
-            std::memset(table, 0, 0x10D8);
+            table = NXBasics::Runtime_Allocate(4312);
+            std::memset(table, 0, 4312);
             std::strcpy(static_cast<char*>(table), "none");
         }
         NXBasics::CIniFileReader reader("data\\logic\\weapontypes.ini", nullptr, false, nullptr, nullptr);
@@ -243,11 +244,11 @@ namespace NC2Logic
                 {
                     gWeaponTypeTokenFlags |= 1u;
                     static constexpr NXBasics::SToken tokens[20] = {
-                        {"type", 0x74797065u}, {"tribetype", 0x74727479u}, {"name", 0x6E616D65u}, {"maintype", 0x6D61696Eu},
-                        {"goodtype", 0x676F6F64u}, {"weight", 0x77656967u}, {"minimumrange", 0x6D696E72u}, {"maximumrange", 0x6D617872u},
-                        {"munitiontype", 0x7072746Eu}, {"damagetype", 0x646D6774u}, {"damagevalue", 0x646D766Cu}, {"jobtype", 0x6A6F6274u},
-                        {"atomicactiontype", 0x61746174u}, {"speed", 0x73706564u}, {"soundtype_hit", 0x73686974u}, {"soundtype_nohit", 0x736E6874u},
-                        {"hitself", 0x68697473u}, {"createsmoke", 0x6372736Du}, {"smokelifetime", 0x736D6C66u}, {nullptr, 0}
+                        {"type", ReadableValues::WeaponTypeToken::Type}, {"tribetype", ReadableValues::WeaponTypeToken::TribeType}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype},
+                        {"goodtype", SwitchIds::ArmorTypeToken::GoodType}, {"weight", SwitchIds::ArmorTypeToken::Weight}, {"minimumrange", SwitchIds::WeaponTypeToken::MinimumRange}, {"maximumrange", SwitchIds::WeaponTypeToken::MaximumRange},
+                        {"munitiontype", SwitchIds::WeaponTypeToken::MunitionType}, {"damagetype", SwitchIds::WeaponTypeToken::DamageType}, {"damagevalue", SwitchIds::WeaponTypeToken::Damagevalue}, {"jobtype", SwitchIds::WeaponTypeToken::JobType},
+                        {"atomicactiontype", SwitchIds::WeaponTypeToken::AtomicActionType}, {"speed", SwitchIds::WeaponTypeToken::Speed}, {"soundtype_hit", SwitchIds::WeaponTypeToken::SoundtypeHit}, {"soundtype_nohit", SwitchIds::WeaponTypeToken::SoundtypeNohit},
+                        {"hitself", SwitchIds::WeaponTypeToken::Hitself}, {"createsmoke", SwitchIds::WeaponTypeToken::Createsmoke}, {"smokelifetime", SwitchIds::WeaponTypeToken::Smokelifetime}, {nullptr, 0}
                     };
                     std::memcpy(gWeaponTypeTokens, tokens, sizeof(tokens));
                 }
@@ -280,7 +281,7 @@ namespace NC2Logic
                 {
                     const auto index = static_cast<std::uint32_t>(reader.GetInt());
                     const auto value = reader.GetInt();
-                    const auto offset = (token == 0x646D766Cu ? 0x38u : token == 0x73686974u ? 0x64u : 0x84u) + index * 4u;
+                    const auto offset = (token == SwitchIds::WeaponTypeToken::Damagevalue ? 0x38u : token == SwitchIds::WeaponTypeToken::SoundtypeHit ? 0x64u : 0x84u) + index * 4u;
                     std::memcpy(reinterpret_cast<std::byte*>(record) + offset, &value, sizeof(value));
                     break;
                 }
@@ -296,8 +297,8 @@ namespace NC2Logic
         gStaticJobTypeDataManager = manager;
         std::memset(manager, 0, 1);
         gStaticJobTypeData = nullptr;
-        gStaticJobTypeData = NXBasics::Runtime_Allocate(0x1DC0);
-        std::memset(gStaticJobTypeData, 0, 0x1DC0);
+        gStaticJobTypeData = NXBasics::Runtime_Allocate(7616);
+        std::memset(gStaticJobTypeData, 0, 7616);
         std::strcpy(static_cast<char*>(gStaticJobTypeData), "none");
         {
             NXBasics::CIniFileReader reader("data\\logic\\jobtypes.ini", nullptr, false, nullptr, nullptr);
@@ -317,10 +318,10 @@ namespace NC2Logic
                     {
                         gJobTypeTokenFlags |= 1u;
                         static constexpr NXBasics::SToken tokens[14] = {
-                            {"type", 0x74797065u}, {"Name", 0x6E616D65u}, {"Allowatomic", 0x616C6C61u}, {"Forbidatomic", 0x666F6261u},
-                            {"Baseatomics", 0x62617361u}, {"needsReligionFlag", 0x6E72656Cu}, {"ignoresHomeHouseFlag", 0x6967686Fu},
-                            {"CanHaveWorkHouseFlag", 0x63687768u}, {"MustHaveWorkHouseFlag", 0x6D687768u}, {"MustHaveFinishedWorkHouseFlag", 0x6D686677u},
-                            {"UserCanChangeProductionFlag", 0x75636370u}, {"UserShouldAttachWorkPlaceAfterJobChangeFlag", 0x75636177u}, {"CanBeTrainedFlag", 0x63627472u}, {nullptr, 0}
+                            {"type", ReadableValues::JobTypeToken::Type}, {"Name", SwitchIds::ArmorTypeToken::Name}, {"Allowatomic", SwitchIds::JobTypeToken::Allowatomic}, {"Forbidatomic", SwitchIds::JobTypeToken::Forbidatomic},
+                            {"Baseatomics", SwitchIds::JobTypeToken::Baseatomics}, {"needsReligionFlag", SwitchIds::JobTypeToken::NeedsReligionFlag}, {"ignoresHomeHouseFlag", SwitchIds::JobTypeToken::IgnoresHomeHouseFlag},
+                            {"CanHaveWorkHouseFlag", SwitchIds::JobTypeToken::CanHaveWorkHouseFlag}, {"MustHaveWorkHouseFlag", SwitchIds::JobTypeToken::MustHaveWorkHouseFlag}, {"MustHaveFinishedWorkHouseFlag", SwitchIds::JobTypeToken::MustHaveFinishedWorkHouseFlag},
+                            {"UserCanChangeProductionFlag", SwitchIds::JobTypeToken::UserCanChangeProductionFlag}, {"UserShouldAttachWorkPlaceAfterJobChangeFlag", SwitchIds::JobTypeToken::UserShouldAttachWorkPlaceAfterJobChangeFlag}, {"CanBeTrainedFlag", SwitchIds::JobTypeToken::CanBeTrainedFlag}, {nullptr, 0}
                         };
                         std::memcpy(gJobTypeTokens, tokens, sizeof(tokens));
                     }
@@ -338,7 +339,7 @@ namespace NC2Logic
                     case SwitchIds::JobTypeToken::Forbidatomic:
                     {
                         const auto offset = 0x24u + static_cast<std::uint32_t>(reader.GetInt());
-                        reinterpret_cast<std::uint8_t*>(record)[offset] = token == 0x616C6C61u;
+                        reinterpret_cast<std::uint8_t*>(record)[offset] = token == SwitchIds::JobTypeToken::Allowatomic;
                         break;
                     }
                     case SwitchIds::JobTypeToken::Baseatomics:
@@ -348,7 +349,7 @@ namespace NC2Logic
                         {
                             record->baseAtomics = base;
                             const auto* source = static_cast<SStaticJobTypeData*>(gStaticJobTypeData) + base;
-                            std::memcpy(record->allowedAtomics, source->allowedAtomics, 0x5C);
+                            std::memcpy(record->allowedAtomics, source->allowedAtomics, 92);
                         }
                         break;
                     }

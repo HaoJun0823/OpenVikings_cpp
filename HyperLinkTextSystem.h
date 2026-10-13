@@ -165,12 +165,12 @@ namespace NHyperLinkTextSystem
         SDisplayManagerLineEntity* l_GetDisplayManagerLineEntityOnPosition(const std::int32_t* point);
     };
 
-    static_assert(sizeof(CDataContainer) == 0x50);
-    static_assert(sizeof(SMicroEntity) == 0x1C);
+    static_assert(sizeof(CDataContainer) == 80);
+    static_assert(sizeof(SMicroEntity) == 28);
     static_assert(sizeof(CEntityManager) == 8);
-    static_assert(sizeof(SDisplayManagerLineEntity) == 0x2C);
-    static_assert(sizeof(SDisplayManagerLineHandler) == 0x0C);
-    static_assert(sizeof(CDisplayManager) == 0x60);
+    static_assert(sizeof(SDisplayManagerLineEntity) == 44);
+    static_assert(sizeof(SDisplayManagerLineHandler) == 12);
+    static_assert(sizeof(CDisplayManager) == 96);
     static_assert(offsetof(CDisplayManager, preciseY) == 0x18);
     static_assert(offsetof(CDisplayManager, xEnd) == 0x5C);
 }

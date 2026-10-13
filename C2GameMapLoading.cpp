@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "C2GameMapIO.h"
@@ -67,9 +68,9 @@ namespace NC2Logic
         {
             const std::uint32_t marker = io->mReadHeader.marker;
             // Each chunk reacquires the current static pointers, as the original does.
-            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
-            auto* macroPoints = Read<std::byte*>(gGameMapStaticStorage, 0x30);
-            auto* microPoints = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::PackingScratchBuffer);
+            auto* macroPoints = Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MacroPointStorage);
+            auto* microPoints = Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage);
             const std::uint32_t macroCount = Read<std::uint32_t>(gGameMapStaticStorage, 8);
             const std::uint32_t microCount = Read<std::uint32_t>(gGameMapStaticStorage, 0x0C);
 
@@ -118,7 +119,7 @@ namespace NC2Logic
             case SwitchIds::LogicMapChunk::MicroMaximumMoveableSize: readMicroFlagPlane(0x0C, 0x07, 0); break;
             case SwitchIds::LogicMapChunk::MicroPathResistance: readMicroFlagPlane(0x0C, 0x78, 3); break;
             case SwitchIds::LogicMapChunk::MicroWalkingBlocked: readMicroFlagPlane(0x0C, 0x80, 7); break;
-            case SwitchIds::LogicMapChunk::MicroBuildingBlocked: readMicroFlagPlane(0x0D, 0x01, 0); break;
+            case SwitchIds::LogicMapChunk::MicroBuildingBlocked: readMicroFlagPlane(0x0D, 1, 0); break;
             case SwitchIds::LogicMapChunk::MicroRoad: readMicroFlagPlane(0x0D, 0x02, 1); break;
             case SwitchIds::LogicMapChunk::MicroSectorBasePoint: readMicroFlagPlane(0x0D, 0x10, 4); break;
             case SwitchIds::LogicMapChunk::MicroHouseBuildForbidden: readMicroFlagPlane(0x0D, 0x20, 5); break;
@@ -131,7 +132,7 @@ namespace NC2Logic
                 {
                     auto* record = microPoints + index * 14u;
                     if (Read<std::uint8_t>(record, 0) == 1)
-                        record[marker == 0x6C6D6C70u ? 4 : 3] = scratch[index];
+                        record[marker == SwitchIds::LogicMapChunk::LandscapePlayer ? 4 : 3] = scratch[index];
                 }
                 break;
             case SwitchIds::LogicMapChunk::LandscapeType:
@@ -144,7 +145,7 @@ namespace NC2Logic
                         record[0] = std::byte{1};
                         record[2] = scratch[index];
                         record[3] = std::byte{1};
-                        record[4] = std::byte{0xFF};
+                        record[4] = std::byte{ReadableValues::IntegerRange::UInt8MaximumSigned};
                     }
                 }
                 break;
@@ -156,7 +157,7 @@ namespace NC2Logic
                 {
                     auto* record = microPoints + index * 14u;
                     const auto value = Read<std::uint16_t>(scratch, index * 2u);
-                    if (marker == 0x6C6D616Fu)
+                    if (marker == SwitchIds::LogicMapChunk::AttachedObjects)
                     {
                         if (value != 0)
                         {
@@ -164,9 +165,9 @@ namespace NC2Logic
                             Write<std::uint16_t>(record, 2, value);
                         }
                     }
-                    else if (value != 0xFFFFu)
+                    else if (value != ReadableValues::IntegerRange::UInt16Maximum)
                     {
-                        if (marker == 0x736D6775u)
+                        if (marker == SwitchIds::LogicMapChunk::Guides)
                         {
                             record[0] = std::byte{3};
                             Write<std::uint16_t>(record, 2, value);
@@ -174,8 +175,8 @@ namespace NC2Logic
                         else
                         {
                             record[0] = std::byte{2};
-                            Write<std::uint16_t>(record, 4, value & 0x3FFFu);
-                            Write<std::uint8_t>(record, 2, (Read<std::uint8_t>(record, 2) & 0xFCu) | (value >> 15) | ((value >> 13) & 2u));
+                            Write<std::uint16_t>(record, 4, value & ReadableValues::BitMask::Low14Bits);
+                            Write<std::uint8_t>(record, 2, (Read<std::uint8_t>(record, 2) & ReadableValues::BitMask::ByteExceptBits0Through1) | (value >> 15) | ((value >> 13) & 2u));
                         }
                     }
                 }
@@ -198,7 +199,7 @@ namespace NC2Logic
     {
         gGameMap = map;
         std::uint32_t version;
-        if (io->IO_File_Chunk_CheckMarkerAndGetVersion(0x6C73697A, &version, nullptr))
+        if (io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::LogicMapChunk::MapSize, &version, nullptr))
         {
             const auto width = io->IO_File_ReadLong();
             const auto height = io->IO_File_ReadLong();

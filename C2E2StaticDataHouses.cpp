@@ -19,29 +19,29 @@ namespace
 
     // Complete Windows table 00506BE8..00506CBF, including the dynamically filled tail.
     const NXBasics::SToken gHouseTokens[] = {
-        {"editname", 0x65646E61u}, {"editgroups", 0x65646772u},
-        {"logicmaximumsize", 0x6C6F6D73u}, {"logictype", 0x6C6F7479u},
-        {"logicbuildblockarea", 0x6C6F6262u}, {"logicwalkblockarea", 0x6C6F7762u},
-        {"logicconstructionworkarea", 0x6C6F7761u}, {"logictribetype", 0x6C6F7474u},
-        {"logicconstructiongoods", 0x6C6F6367u}, {"logicdoorpoint", 0x6C6F6470u},
-        {"logichitpoints", 0x6C686974u}, {"logicadditionalattachpointarea", 0x6C6F6161u},
-        {"gfxboblibs", 0x67667862u}, {"gfxbobid", 0x67667866u},
-        {"gfxpalette", 0x67667870u}, {"gfxshadingfactor", 0x67667875u},
-        {"gfxbobconstructionlayer", 0x67667863u}, {"gfxdoorbobid", 0x67667864u},
-        {"GfxOverlay", 0x6766786Fu}, {"gfxoverlaylandscape", 0x6766786Cu},
-        {"gfxflagpoint", 0x6778666Cu}, {"gfxsoldierflagpoint", 0x67786673u},
-        {"GfxFirePoint", 0x67786669u}, {"GfxSmokePoint", 0x6778736Du},
-        {"GfxHolyFirePoint", 0x67786866u}, {"arrowSlotData", 0x61736461u},
+        {"editname", SwitchIds::HouseGraphicsToken::EditName}, {"editgroups", SwitchIds::HouseGraphicsToken::EditGroups},
+        {"logicmaximumsize", SwitchIds::HouseGraphicsToken::LogicMaximumSize}, {"logictype", SwitchIds::HouseGraphicsToken::Logictype},
+        {"logicbuildblockarea", SwitchIds::HouseGraphicsToken::LogicBuildBlockArea}, {"logicwalkblockarea", SwitchIds::HouseGraphicsToken::LogicWalkBlockArea},
+        {"logicconstructionworkarea", SwitchIds::HouseGraphicsToken::Logicconstructionworkarea}, {"logictribetype", SwitchIds::HouseGraphicsToken::LogicTribeType},
+        {"logicconstructiongoods", SwitchIds::HouseGraphicsToken::Logicconstructiongoods}, {"logicdoorpoint", SwitchIds::HouseGraphicsToken::Logicdoorpoint},
+        {"logichitpoints", SwitchIds::HouseGraphicsToken::LogicHitpoints}, {"logicadditionalattachpointarea", SwitchIds::HouseGraphicsToken::LogicAdditionalAttachPointArea},
+        {"gfxboblibs", SwitchIds::HouseGraphicsToken::Gfxboblibs}, {"gfxbobid", SwitchIds::HouseGraphicsToken::Gfxbobid},
+        {"gfxpalette", SwitchIds::HouseGraphicsToken::GfxPalette}, {"gfxshadingfactor", SwitchIds::HouseGraphicsToken::GfxShadingFactor},
+        {"gfxbobconstructionlayer", SwitchIds::HouseGraphicsToken::Gfxbobconstructionlayer}, {"gfxdoorbobid", SwitchIds::HouseGraphicsToken::Gfxdoorbobid},
+        {"GfxOverlay", SwitchIds::HouseGraphicsToken::GfxOverlay}, {"gfxoverlaylandscape", SwitchIds::HouseGraphicsToken::GfxOverlayLandscape},
+        {"gfxflagpoint", SwitchIds::HouseGraphicsToken::GfxFlagPoint}, {"gfxsoldierflagpoint", SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint},
+        {"GfxFirePoint", SwitchIds::HouseGraphicsToken::GfxFirePoint}, {"GfxSmokePoint", SwitchIds::HouseGraphicsToken::GfxSmokePoint},
+        {"GfxHolyFirePoint", SwitchIds::HouseGraphicsToken::GfxHolyFirePoint}, {"arrowSlotData", SwitchIds::HouseGraphicsToken::ArrowSlotData},
         {nullptr, 0}
     };
-    static_assert(sizeof(gHouseTokens) == 0xD8);
+    static_assert(sizeof(gHouseTokens) == 216);
 
     struct SHouseAreaScratch
     {
         std::uint32_t count;
         NC2Logic::SMapAreaRow rows[100];
     };
-    static_assert(sizeof(SHouseAreaScratch) == 0x324);
+    static_assert(sizeof(SHouseAreaScratch) == 804);
 
     // Original function: FUN_0048f57f; empty CTokenList exit callback.
     int __cdecl DestroyHouseTokenList() { return 0; }
@@ -69,7 +69,7 @@ namespace
     void StoreArea(void* entry, std::uint32_t offset, const SHouseAreaScratch& scratch)
     {
         if (scratch.count == 0) return;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
         auto* area = allocation == nullptr ? nullptr : new (allocation) NC2Logic::CMapArea(scratch.count);
         Write(entry, offset, area);
         // The original copies rows and updates bounds even after allocation failure.
@@ -144,7 +144,7 @@ namespace NC2E2
             {
                 void* overlays = NXBasics::Runtime_AllocateWithNewHandler(overlayCount * 0xE4u, 1);
                 Write(entry, 0x494, overlays);
-                std::memset(overlays, 0, overlayCount * 0xE4u);
+                std::memset(overlays, 0, overlayCount * 228u);
             }
 
             reader.SetCurrentLineToGroupStart();
@@ -208,7 +208,7 @@ namespace NC2E2
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = token == 0x6C6F7479u ? 0x3Cu : token == 0x6C686974u ? 0x1D8u : 0x238u;
+                        const auto offset = token == SwitchIds::HouseGraphicsToken::Logictype ? 0x3Cu : token == SwitchIds::HouseGraphicsToken::LogicHitpoints ? 0x1D8u : 0x238u;
                         Write(entry, offset + stage * 4, reader.GetInt());
                         break;
                     }
@@ -217,7 +217,7 @@ namespace NC2E2
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        ReadAreaRow(reader, token == 0x6C6F7762u ? walkAreas[stage] : workAreas[stage]);
+                        ReadAreaRow(reader, token == SwitchIds::HouseGraphicsToken::LogicWalkBlockArea ? walkAreas[stage] : workAreas[stage]);
                         break;
                     }
                     // This table entry has no matching Windows switch branch.
@@ -347,8 +347,8 @@ namespace NC2E2
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = (token == 0x6778666Cu ? 0x7D8u : 0x7E4u) + stage * 0x34u;
-                        if (token == 0x67786673u) Write<std::uint8_t>(entry, 0x7E0 + stage * 0x34, 1);
+                        const auto offset = (token == SwitchIds::HouseGraphicsToken::GfxFlagPoint ? 0x7D8u : 0x7E4u) + stage * 0x34u;
+                        if (token == SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint) Write<std::uint8_t>(entry, 0x7E0 + stage * 0x34, 1);
                         Write(entry, offset, reader.GetInt());
                         Write(entry, offset + 4, reader.GetInt());
                         break;
@@ -357,7 +357,7 @@ namespace NC2E2
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto kind = token == 0x67786669u ? 0u : 3u;
+                        const auto kind = token == SwitchIds::HouseGraphicsToken::GfxFirePoint ? 0u : 3u;
                         const auto offset = 0x7B8u + stage * 0x34u + kind * 8u;
                         auto& index = pointIndices[kind][stage];
                         if (index >= Read<std::uint32_t>(entry, offset)) break;

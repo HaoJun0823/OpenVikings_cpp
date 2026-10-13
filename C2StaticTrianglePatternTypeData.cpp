@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticTrianglePatternTypeData.h"
 #include "C2EngineTerrainData.h"
@@ -27,17 +28,17 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[11] = {nullptr, 0};
-                storage.tokens[0] = {"type", 0x74797065};
-                storage.tokens[1] = {"humancanwalkon", 0x68756D77};
-                storage.tokens[2] = {"housecanbebuildon", 0x68636262};
-                storage.tokens[3] = {"biocangrowon", 0x62696F63};
-                storage.tokens[4] = {"biocanplanton", 0x62696F70};
-                storage.tokens[5] = {"island", 0x69736C61};
-                storage.tokens[6] = {"iswater", 0x69737761};
-                storage.tokens[7] = {"isborder", 0x6973626F};
-                storage.tokens[8] = {"moveresistance", 0x72657369};
-                storage.tokens[9] = {"debugname", 0x6E616D65};
-                storage.tokens[10] = {"debugcolor", 0x64626763};
+                storage.tokens[0] = {"type", ReadableValues::TrianglePatternToken::Type};
+                storage.tokens[1] = {"humancanwalkon", SwitchIds::TrianglePatternToken::Humancanwalkon};
+                storage.tokens[2] = {"housecanbebuildon", SwitchIds::TrianglePatternToken::Housecanbebuildon};
+                storage.tokens[3] = {"biocangrowon", ReadableValues::TrianglePatternToken::BioCanGrowOn};
+                storage.tokens[4] = {"biocanplanton", SwitchIds::TrianglePatternToken::Biocanplanton};
+                storage.tokens[5] = {"island", SwitchIds::TrianglePatternToken::IsLand};
+                storage.tokens[6] = {"iswater", SwitchIds::TrianglePatternToken::IsWater};
+                storage.tokens[7] = {"isborder", SwitchIds::TrianglePatternToken::IsBorder};
+                storage.tokens[8] = {"moveresistance", SwitchIds::TrianglePatternToken::MoveResistance};
+                storage.tokens[9] = {"debugname", SwitchIds::TrianglePatternToken::Debugname};
+                storage.tokens[10] = {"debugcolor", SwitchIds::TrianglePatternToken::DebugColor};
             }
             if ((storage.tokenInitFlags & 2) == 0)
             {
@@ -55,12 +56,12 @@ namespace NC2Logic
         gStaticTrianglePatternTypeDataManager = this;
         std::memset(this, 0, 1);
         gStaticTrianglePatternTypes = nullptr;
-        auto* records = static_cast<SStaticTrianglePatternTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(0x210, 1));
+        auto* records = static_cast<SStaticTrianglePatternTypeData*>(NXBasics::Runtime_AllocateWithNewHandler(528, 1));
         if (records != nullptr)
             for (std::uint32_t index = 0; index < 11; ++index) ::new (records + index) SStaticTrianglePatternTypeData;
         gStaticTrianglePatternTypes = records;
         // Windows continues unconditionally after the conditional color construction.
-        std::memset(records, 0, 0x210);
+        std::memset(records, 0, 528);
         std::strcpy(records[0].debugName, "none");
         records[0].debugColor.SetColors(60, 60, 60);
         records[0].isBorder = 1;

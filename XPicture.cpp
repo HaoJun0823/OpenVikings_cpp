@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "XPicture.h"
 #include "XBitmap.h"
@@ -20,7 +21,7 @@ namespace NXBasics
         std::uint32_t format;                    // +0x08; 0 = PCX, 1 = BMP, 2 = terminator.
     };
 
-    static_assert(sizeof(SPictureFormatEntry) == 0x0C);
+    static_assert(sizeof(SPictureFormatEntry) == 12);
     static_assert(offsetof(SPictureFormatEntry, format) == 0x08);
 
     // Original data: 004f3668–004f368b.
@@ -31,12 +32,12 @@ namespace NXBasics
         { "", 2 }
     };
 
-    static_assert(sizeof(kPictureFormats) == 0x24);
+    static_assert(sizeof(kPictureFormats) == 36);
 
     // Original function: FUN_0040bd76
     CPicture::CPicture(const char* fileName) : mBitmap(nullptr), mPalette(nullptr), mOwnsResources(0), mReserved09{}
     {
-        char extension[0x100];
+        char extension[256];
         Runtime_SplitPath(fileName, nullptr, nullptr, nullptr, extension);
 
         for (char* character = extension; *character != '\0'; ++character)
@@ -117,13 +118,13 @@ namespace NXBasics
 
     static SPictureBmpRows Picture_GetBmpRows(std::uint32_t heightBits)
     {
-        if ((heightBits & 0x80000000u) != 0)
+        if ((heightBits & ReadableValues::IntegerRange::Bit31) != 0)
         {
             const std::uint32_t positiveHeightBits = 0u - heightBits;
             return { positiveHeightBits, 0u, positiveHeightBits, 1u };
         }
 
-        return { heightBits, heightBits - 1u, 0xFFFFFFFFu, 0xFFFFFFFFu };
+        return { heightBits, heightBits - 1u, ReadableValues::IntegerRange::UInt32Maximum, ReadableValues::IntegerRange::UInt32Maximum };
     }
 
     // Original function: FUN_0040beaa.
@@ -151,7 +152,7 @@ namespace NXBasics
     // Interpret the low 16 bits exactly as an x86 signed word.
     static std::int32_t Picture_SignedWord(std::uint32_t value)
     {
-        value &= 0xFFFFu;
+        value &= ReadableValues::IntegerRange::UInt16Maximum;
         return value < 0x8000u ? static_cast<std::int32_t>(value) : static_cast<std::int32_t>(value) - 0x10000;
     }
 
@@ -165,8 +166,8 @@ namespace NXBasics
             return static_cast<std::uint32_t>(source[offset]) | (static_cast<std::uint32_t>(source[offset + 1u]) << 8u);
         };
 
-        const std::uint32_t widthBits = ((readWord(0x08) - readWord(0x04)) & 0xFFFFu) + 1u;
-        const std::uint32_t heightBits = ((readWord(0x0A) - readWord(0x06)) & 0xFFFFu) + 1u;
+        const std::uint32_t widthBits = ((readWord(0x08) - readWord(0x04)) & ReadableValues::IntegerRange::UInt16Maximum) + 1u;
+        const std::uint32_t heightBits = ((readWord(0x0A) - readWord(0x06)) & ReadableValues::IntegerRange::UInt16Maximum) + 1u;
         const std::uint32_t paddedWidthBits = (widthBits + 1u) & ~1u;
 
         const std::int32_t width = Picture_SignedWord(widthBits);
@@ -198,7 +199,7 @@ namespace NXBasics
 
                 if (token > 0xBF)
                 {
-                    const std::uint32_t runLength = token & 0x3Fu;
+                    const std::uint32_t runLength = token & ReadableValues::BitMask::Low6Bits;
                     const std::uint8_t value = source[sourceOffset++];
 
                     std::memset(output, value, runLength);
@@ -239,7 +240,7 @@ namespace NXBasics
         const std::uint8_t* source = memory->mData;
 
         // Preserve the original 54-byte header layout for the decoder calls.
-        alignas(4) std::byte header[0x36]{};
+        alignas(4) std::byte header[54]{};
 
         const auto readWord = [source] (std::uint32_t offset) -> std::uint32_t
         {
@@ -362,9 +363,9 @@ namespace NXBasics
                 const std::uint32_t pixel = static_cast<std::uint32_t>(source[0]) | (static_cast<std::uint32_t>(source[1]) << 8u);
                 source += 2;
 
-                const std::uint32_t blue = (pixel & 0x1Fu) << 3u;
-                const std::uint32_t green = (pixel >> 2u) & 0xF8u;
-                const std::uint32_t red = (pixel >> 7u) & 0xF8u;
+                const std::uint32_t blue = (pixel & ReadableValues::BitMask::Low5Bits) << 3u;
+                const std::uint32_t green = (pixel >> 2u) & ReadableValues::BitMask::ByteExceptBits0Through2;
+                const std::uint32_t red = (pixel >> 7u) & ReadableValues::BitMask::ByteExceptBits0Through2;
 
                 output[row * widthBits + x] = g32BitPixelConverter->PackColor(red, green, blue);
             }

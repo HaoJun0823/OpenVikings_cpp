@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "C2EngineHouseDrawing.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineDisplayAccess.h"
@@ -125,7 +126,7 @@ namespace NC2E2
                     auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, 0xC), house + 0x24, 1);
                     while (human != -1 && NC2Logic::Human_Misc_IsHidden(Human(static_cast<std::uint32_t>(human)))) human = iterator.GetNextHumanId();
                     const auto bob = Read<std::uint32_t>(graphic, (human == -1 ? 0x254u : 0x250u) + stage * 12u);
-                    if (bob != 0xFFFFFFFFu) ls_DrawAtom_House_DoDraw_PrintImageBob(manager, bob, paletteId, brightness, bitmap, x, y, false);
+                    if (bob != ReadableValues::IntegerRange::UInt32Maximum) ls_DrawAtom_House_DoDraw_PrintImageBob(manager, bob, paletteId, brightness, bitmap, x, y, false);
                 }
             }
         }
@@ -145,7 +146,7 @@ namespace NC2E2
                     if (Read<std::uint8_t>(layer, 0) != static_cast<std::uint8_t>(upgrade) || percentage < first) continue;
                     EnginePalette_GetBrightnessPalette(colorData, brightness / 2);
                     const auto shadow = Read<std::uint32_t>(layer, 8);
-                    if (shadow != 0xFFFFFFFFu) NXBasics::BobManager_PrintBob_Shadow_TimeMask(manager, shadow, percentage > last ? 256u : ConstructionTime(percentage, first, last), bitmap, x, y);
+                    if (shadow != ReadableValues::IntegerRange::UInt32Maximum) NXBasics::BobManager_PrintBob_Shadow_TimeMask(manager, shadow, percentage > last ? 256u : ConstructionTime(percentage, first, last), bitmap, x, y);
                 }
             }
             if (upgrade)
@@ -281,7 +282,7 @@ namespace NC2E2
             for (std::uint32_t slot = 0; slot < 20; ++slot)
             {
                 const auto* attachment = static_cast<const std::byte*>(house) + 0x640u + slot * 16u;
-                if ((Read<std::uint8_t>(attachment, 0) & 1u) == 0 || families[slot] == 0xFFFFFFFFu || used[families[slot]]) continue;
+                if ((Read<std::uint8_t>(attachment, 0) & 1u) == 0 || families[slot] == ReadableValues::IntegerRange::UInt32Maximum || used[families[slot]]) continue;
                 used[families[slot]] = true;
                 const auto humanId = Read<std::int32_t>(attachment, 4);
                 const auto* human = Human(humanId);

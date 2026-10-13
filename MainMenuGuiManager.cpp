@@ -1,3 +1,4 @@
+#include "ReadableValues.h"
 #include "SwitchIdentifiers.h"
 #include "C2CallbackManager.h"
 #include "C2CleanMapsManager.h"
@@ -48,7 +49,7 @@
 static constexpr float cMenuGameSpeed = 12.0f;
 
 // Original constant: 004f7e48; matches CLSID_DP8SP_TCPIP.
-static constexpr GUID cTcpIpServiceProviderGuid = { 0xEBFE7BA0u, 0x628Du, 0x11D2u, { 0xAE, 0x0F, 0x00, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
+static constexpr GUID cTcpIpServiceProviderGuid = { 0xEBFE7BA0u, 0x628Du, 0x11D2u, { 0xAE, 0x0F, 0, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
 
 // Original data: DAT_005694e0.
 std::uint32_t gLastPlayerListUpdateTick = 0;
@@ -202,7 +203,7 @@ namespace NC2MainMenuGuiManager
 				{
 					if (readPointer(this, 0x30 + index * 4u) != nullptr)
 					{
-						char text[0xA8];
+						char text[168];
 
 						Network_FormatPlayerDescription(index, text);
 						NC2InGameGuiBase::BaseToolTextButton_SetCaptionString(readPointer(this, 0x30 + index * 4u), text);
@@ -219,7 +220,7 @@ namespace NC2MainMenuGuiManager
 			{
 				gLastHostMessage6Tick = currentTime;
 
-				std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+				std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 				message[0] = 6;
 
 				NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -236,7 +237,7 @@ namespace NC2MainMenuGuiManager
 
 		if (currentScreen == 1 && objectBytes[0x5C] == std::byte{ 0 })
 		{
-			char text[0x15C];
+			char text[348];
 
 			// Preserve the original localization lookup order.
 			const char* suffix = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0x1B);
@@ -270,19 +271,19 @@ namespace NC2MainMenuGuiManager
 		mStaticVars.displayDepth = depth;
 
 		const std::int32_t bitmapDepth = NXBasics::ConvertBitsToTDepth(NXBasics::Runtime_TimeSigned32(depth));
-		void* desktopAllocation = NXBasics::Runtime_AllocateWithNewHandler(0x13C, 1);
+		void* desktopAllocation = NXBasics::Runtime_AllocateWithNewHandler(316, 1);
 		if (desktopAllocation != nullptr) new (desktopAllocation) NXBaseGui::CDesktop(width, height, bitmapDepth);
 
 		NC2GuiToolsBase::CGuiBaseDataManager::DynamicData_Load();
 
-		void* primaryMessageHandler = NXBasics::Runtime_AllocateWithNewHandler(0x2C, 1);
+		void* primaryMessageHandler = NXBasics::Runtime_AllocateWithNewHandler(44, 1);
 
 		if (primaryMessageHandler != nullptr)
 			primaryMessageHandler = PrimaryMessageHandler_Construct(primaryMessageHandler);
 
 		NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryMessageHandler));
 
-		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
 
 		if (mousePointer != nullptr)
 			mousePointer = MousePointer_Construct(mousePointer);
@@ -293,7 +294,7 @@ namespace NC2MainMenuGuiManager
 
 		NC2E2::Inform_DesktopXTructed(width, height, depth);
 
-		void* worldElement = NXBasics::Runtime_AllocateWithNewHandler(0x58, 1);
+		void* worldElement = NXBasics::Runtime_AllocateWithNewHandler(88, 1);
 
 		if (worldElement != nullptr)
 		{
@@ -342,7 +343,7 @@ namespace NC2MainMenuGuiManager
 		}
 
 		// Clear only the original desktop-related instance range.
-		std::memset(unknown0004, 0, 0x54);
+		std::memset(unknown0004, 0, 84);
 
 		NC2E2::Inform_DesktopXTructed(0, 0, 0);
 
@@ -360,7 +361,7 @@ namespace NC2MainMenuGuiManager
 		if (allocation != nullptr) new (allocation) NC2GuiToolsBase::CGuiBaseDataManager();
 
 		auto& resources = mStaticVars.resources;
-		char fileName[0x104];
+		char fileName[260];
 
 		NC2Logic::LanguageTool_GetFilename("data\\gui\\lang\\%s\\bobs\\LS_menu_logos.bmd", fileName, false);
 		resources.menuLogos = reinterpret_cast<NXBasics::CBobManager*>(NXBasics::XB_Storable_LoadObject(fileName));
@@ -444,7 +445,7 @@ namespace NC2MainMenuGuiManager
 	// Original function: FUN_004d3308
 	void CGuiManager::Debug_ErrorString_Add(const char* text)
 	{
-		char message[0x12C];
+		char message[300];
 
 		NXBasics::Runtime_PrintString(message, "PROBLEM: <%s>!", text);
 		WriteNetworkLog(GetNetworkLog(), message, 0);
@@ -453,7 +454,7 @@ namespace NC2MainMenuGuiManager
 		{
 			const std::uint32_t movedCount = errorCount == 10u ? 9u : errorCount;
 
-			std::memmove(errorTexts[1], errorTexts[0], movedCount * 0xCAu);
+			std::memmove(errorTexts[1], errorTexts[0], movedCount * 202u);
 		}
 
 		std::strncpy(errorTexts[0], text, 0xC8);
@@ -589,7 +590,7 @@ namespace NC2MainMenuGuiManager
 
 					if (!NNetwork::Network_IsHost())
 					{
-						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 						message[0] = 2;
 
 						const DPNID hostPlayerId = NNetwork::GetDynamicNetworkHostPlayerId(&gDynamicNetworkData);
@@ -610,17 +611,17 @@ namespace NC2MainMenuGuiManager
 				}
 
 			case SwitchIds::MainMenuScreen::PlayerConfiguration:
-				std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 0x24);
+				std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 36);
 				break;
 
 			case SwitchIds::MainMenuScreen::FileUpload:
 			case SwitchIds::MainMenuScreen::FileDownload:
 				{
-					std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 0x24);
+					std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 36);
 
-					char sourceFileName[0x104];
-					char transferFileName[0x104];
-					char requestedFileName[0x104];
+					char sourceFileName[260];
+					char transferFileName[260];
+					char requestedFileName[260];
 
 					if (NNetwork::Network_IsHost())
 					{
@@ -780,7 +781,7 @@ namespace NC2MainMenuGuiManager
 		auto* objectBytes = static_cast<std::byte*>(guiManager);
 
 		// Original helper FUN_00410b46 forwards to memset with a zero value.
-		std::memset(objectBytes + 0x68, 0, 0x4B8);
+		std::memset(objectBytes + 0x68, 0, 1208);
 
 		if (!NNetwork::Network_StartUp())
 		{
@@ -823,11 +824,11 @@ namespace NC2MainMenuGuiManager
 		{
 			const std::uint32_t movedCount = count == 20u ? 19u : count;
 
-			std::memmove(chatHistoryStorage + 4 + 0x74, chatHistoryStorage + 4, movedCount * 0x74u);
+			std::memmove(chatHistoryStorage + 4 + 0x74, chatHistoryStorage + 4, movedCount * 116u);
 		}
 
 		// Each record contains a four-byte type followed by its text storage.
-		std::memset(chatHistoryStorage + 4, 0, 0x74);
+		std::memset(chatHistoryStorage + 4, 0, 116);
 		std::strncpy(reinterpret_cast<char*>(chatHistoryStorage + 8), text, 0x6D);
 
 		std::memcpy(chatHistoryStorage + 4, &type, sizeof(type));
@@ -886,7 +887,7 @@ namespace NC2MainMenuGuiManager
 
 					if (textType == 1)
 					{
-						char text[0x80] = {};
+						char text[128] = {};
 
 						NNetwork::ConvertNetworkWideToAnsi(text, reinterpret_cast<const wchar_t*>(record + 6), -1);
 						Chat_AddText(0, text);
@@ -906,7 +907,7 @@ namespace NC2MainMenuGuiManager
 				for (NNetwork::SEventNode* event = gDynamicNetworkData.events.first; event != nullptr; event = event->next)
 				{
 					char playerName[100] = {};
-					char text[0x12C];
+					char text[300];
 					text[0] = '\0';
 
 					const auto* name = reinterpret_cast<const wchar_t*>(reinterpret_cast<const std::byte*>(event) + 4);
@@ -934,7 +935,7 @@ namespace NC2MainMenuGuiManager
 					}
 					else
 					{
-						char description[0xC8] = {};
+						char description[200] = {};
 
 						NNetwork::FormatNetworkEvent(&gDynamicNetworkData.events, event, description, sizeof(description));
 						NXBasics::Runtime_PrintString(text, ">> NET: '%s'", description);
@@ -1122,7 +1123,7 @@ namespace NC2MainMenuGuiManager
 				{
 					sTheObjectPtr->Screen_ChangeTo(16, false);
 
-					std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+					std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 					message[0] = 4;
 
 					NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -1134,11 +1135,11 @@ namespace NC2MainMenuGuiManager
 					if (static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4))->IsValid())
 						mapInformation = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(*static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4)));
 
-					if (mapInformation != nullptr && (mapInformation->mapTypes & 0x40u) != 0 && mapInformation->userMap != 0)
+					if (mapInformation != nullptr && (mapInformation->mapTypes & ReadableValues::BitMask::Bit6) != 0 && mapInformation->userMap != 0)
 					{
 						sTheObjectPtr->Screen_ChangeTo(17, false);
 
-						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 						message[0] = 5;
 
 						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -1149,7 +1150,7 @@ namespace NC2MainMenuGuiManager
 
 						NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
-						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 						auto* messageBytes = reinterpret_cast<std::byte*>(message);
 
 						message[0] = 1;
@@ -1216,7 +1217,7 @@ namespace NC2MainMenuGuiManager
 							std::memcpy(startupData, &startupType, sizeof(startupType));
 
 							if (gameMode == 1u)
-								std::memcpy(startupData + 0x18, lobbyData + 4, 0x10);
+								std::memcpy(startupData + 0x18, lobbyData + 4, 16);
 
 							const std::uint32_t localPlayerId = NNetwork::Network_GetLocalPlayerId();
 							std::memcpy(startupData + 0x28, &localPlayerId, sizeof(localPlayerId));
@@ -1258,7 +1259,7 @@ namespace NC2MainMenuGuiManager
 
 				case SwitchIds::MenuNetworkMessage::RequestLobbyData:
 					{
-						std::uint32_t response[0x168 / sizeof(std::uint32_t)] = {};
+						std::uint32_t response[360 / sizeof(std::uint32_t)] = {};
 						auto* responseBytes = reinterpret_cast<std::byte*>(response);
 
 						response[0] = 1;
@@ -1388,7 +1389,7 @@ namespace NC2MainMenuGuiManager
 
 		fileTransferManager = nullptr;
 
-		char compressedFileName[0x104];
+		char compressedFileName[260];
 
 		NNetwork::CFileCompressor compressor;
 
@@ -1420,8 +1421,8 @@ namespace NC2MainMenuGuiManager
 		}
 		else
 		{
-			char archiveFileName[0x104];
-			char destinationFileName[0x104];
+			char archiveFileName[260];
+			char destinationFileName[260];
 
 			NXBasics::Runtime_PrintString(archiveFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 
@@ -1548,7 +1549,7 @@ namespace NC2MainMenuGuiManager
 
 		NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
-		std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+		std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
 		auto* messageBytes = reinterpret_cast<std::byte*>(message);
 
 		message[0] = 1;
@@ -1561,7 +1562,7 @@ namespace NC2MainMenuGuiManager
 
 		if (userMap)
 		{
-			char fileName[0x104];
+			char fileName[260];
 
 			NXBasics::Runtime_PrintString(fileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 			NXBasics::Runtime_RemoveFile(fileName);
