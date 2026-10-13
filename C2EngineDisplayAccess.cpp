@@ -260,7 +260,7 @@ namespace NC2E2
     // Original function: FUN_0048b442; existing complete human-misc storage.
     const void* StaticHumanMisc_ColorIds_GetColorRef(std::uint32_t playerColorId)
     {
-        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHumanMiscData) + 0x58u + playerColorId * 0x58u);
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHumanMiscData) + NC2Layout::StaticHumanMiscOffset::PlayerColorsUnsigned + playerColorId * NC2Layout::RecordSize::StaticHumanColorUnsigned);
     }
 
     // Original function: FUN_0048b441; the original destructor is an empty RET.

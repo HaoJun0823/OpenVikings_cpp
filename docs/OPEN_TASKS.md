@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Human appearance data - 2026-10-13
+
+Named base/change job graphics, weighted palette records, names, the complete 968-byte static region and color/good tables. Windows lookup differences, random/read/free order and arithmetic are retained. All 307 C++ units pass Win32 `/Zs`; final value/type checks cover 85 pairs. Native-byte provenance checks cover 1605 instructions. No build or runtime run occurred. See [HUMAN_APPEARANCE_DATA_REVIEW.md](HUMAN_APPEARANCE_DATA_REVIEW.md). Whole-source review continues with static animation/walk access structures and display/GUI/control/data layouts.
+
 ## Compound moveable animation records - 2026-10-13
 
 Replaced generic part parameters with type-specific signed members, named modes/part types and retained parser read order, 28-byte layout, capacities and overlay ordering. Both affected C++ units, 16 value/type pairs and layout/trivial-copy assertions pass Win32 `/Zs`; 2205 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [COMPOUND_MOVEABLE_ANIMATION_REVIEW.md](COMPOUND_MOVEABLE_ANIMATION_REVIEW.md). Whole-source review continues with static appearance/job-graphics data and remaining engine/GUI/control/data structures.

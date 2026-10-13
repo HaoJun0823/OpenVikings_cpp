@@ -108,8 +108,103 @@ namespace NC2Layout
         inline constexpr auto Font = 0x924;
     }
 
+    namespace PaletteOffset
+    {
+        inline constexpr auto Colors = 4;
+        inline constexpr auto PlayerColorSampleWithinRange = 0x2C;
+    }
+
+    namespace StaticHumanMiscOffset
+    {
+        inline constexpr auto RandomPaletteSetCount = 0;
+        inline constexpr auto RandomPaletteSets = 4;
+        inline constexpr auto JobBaseGraphicsCount = 8;
+        inline constexpr auto JobBaseGraphics = 12;
+        inline constexpr auto JobChangeGraphicsCount = 0x10;
+        inline constexpr auto JobChangeGraphics = 0x14;
+        inline constexpr auto TribeNameArrays = 0x18;
+        inline constexpr auto TribeNameArraysUnsigned = 0x18u;
+        inline constexpr auto PlayerColors = 0x58;
+        inline constexpr auto PlayerColorsUnsigned = 0x58u;
+    }
+
+    namespace HumanJobGraphicsOffset
+    {
+        inline constexpr auto Tribe = 0;
+        inline constexpr auto Job = 4;
+        inline constexpr auto BodyCount = 8;
+        inline constexpr auto BodyChoices = 12;
+        inline constexpr auto BodyChoicesHex = 0xC;
+        inline constexpr auto BodyBobManagers = 0x10;
+        inline constexpr auto ShadowBobManagers = 0x14;
+        inline constexpr auto HeadCount = 0x48;
+        inline constexpr auto HeadChoices = 0x4C;
+        inline constexpr auto HeadBobManagers = 0x50;
+    }
+
+    namespace HumanJobBaseGraphicsOffset
+    {
+        inline constexpr auto BodyPaletteCount = 0x74;
+        inline constexpr auto BodyPaletteCountUnsigned = 0x74u;
+        inline constexpr auto BodyPaletteIds = 0x78;
+        inline constexpr auto HeadPaletteCount = 0x8C;
+        inline constexpr auto HeadPaletteCountUnsigned = 0x8Cu;
+        inline constexpr auto HeadPaletteIds = 0x90;
+        inline constexpr auto RandomPatchCount = 0xA4;
+        inline constexpr auto RandomPatchCountUnsigned = 0xA4u;
+        inline constexpr auto RandomPatchIds = 0xA8;
+    }
+
+    namespace HumanJobChangeGraphicsOffset
+    {
+        inline constexpr auto RandomPatchId = 0x74;
+    }
+
+    namespace TribeHumanNameArraysOffset
+    {
+        inline constexpr auto Male = 0;
+        inline constexpr auto Female = 4;
+        inline constexpr auto MaleUnsigned = 0u;
+        inline constexpr auto FemaleUnsigned = 4u;
+    }
+
+    namespace HumanBodyGraphicsOffset
+    {
+        inline constexpr auto VariantId = 0;
+        inline constexpr auto BodyBobManager = 4;
+        inline constexpr auto ShadowBobManager = 8;
+    }
+
+    namespace RandomPaletteSetOffset
+    {
+        inline constexpr auto Name = 0;
+        inline constexpr auto PatchCount = 0x28;
+        inline constexpr auto Patches = 0x2C;
+        inline constexpr auto DestinationRangeCount = 0x30;
+        inline constexpr auto DestinationRanges = 0x34;
+    }
+
+    namespace RandomPalettePatchOffset
+    {
+        inline constexpr auto DestinationRange = 0;
+        inline constexpr auto Palette16Id = 4;
+        inline constexpr auto SourceRange = 8;
+        inline constexpr auto Weight = 12;
+    }
+
     namespace StaticHumanColorOffset
     {
+        inline constexpr auto Color = 0;
+        inline constexpr auto MaleRandomPatchId = 4;
+        inline constexpr auto MaleRandomPatchIdUnsigned = 4u;
+        inline constexpr auto FemaleRandomPatchId = 8;
+        inline constexpr auto FemaleRandomPatchIdUnsigned = 8u;
+        inline constexpr auto InhabitantSigns = 0xC;
+        inline constexpr auto SoldierSigns = 0x34;
+        inline constexpr auto SoldierSignsUnsigned = 0x34u;
+        inline constexpr auto PlayerPaletteId = 0x50;
+        inline constexpr auto PlayerPaletteIdUnsigned = 0x50u;
+        inline constexpr auto ShipPaletteId = 0x54;
         inline constexpr auto RoadBuildSignLandscapeId = 0x48;
         inline constexpr auto WallBuildSignLandscapeId = 0x4C;
     }
@@ -415,6 +510,24 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto StaticGoodGraphics = 264;
+        inline constexpr auto StaticGoodGraphicsHex = 0x108;
+        inline constexpr auto HumanJobBaseGraphics = 0xBC;
+        inline constexpr auto HumanJobBaseGraphicsUnsigned = 0xBCu;
+        inline constexpr auto HumanJobChangeGraphics = 0x78;
+        inline constexpr auto HumanJobChangeGraphicsUnsigned = 0x78u;
+        inline constexpr auto HumanBodyGraphicsUnsigned = 12u;
+        inline constexpr auto HumanHeadGraphicsUnsigned = 8u;
+        inline constexpr auto RandomPaletteSet = 0xB4;
+        inline constexpr auto RandomPaletteSetUnsigned = 0xB4u;
+        inline constexpr auto RandomPalettePatch = 16;
+        inline constexpr auto RandomPalettePatchUnsigned = 16u;
+        inline constexpr auto RandomPalettePatchHexUnsigned = 0x10u;
+        inline constexpr auto TribeHumanNameArrays = 8;
+        inline constexpr auto TribeHumanNameArraysUnsigned = 8u;
+        inline constexpr auto StaticHumanColor = 0x58;
+        inline constexpr auto StaticHumanColorUnsigned = 0x58u;
+
         inline constexpr auto MoveableAnimationPartUnsigned = 28u;
         inline constexpr auto DisplayAtomInformation = 60;
         inline constexpr auto DynamicAnimalVehicle = 0x44;

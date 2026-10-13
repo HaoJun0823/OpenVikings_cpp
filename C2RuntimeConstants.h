@@ -37,6 +37,25 @@ namespace NC2Runtime
         inline constexpr auto OverlaysPerLayer = 5;
     }
 
+    namespace HumanAppearanceLimits
+    {
+        inline constexpr auto Goods = 66;
+        inline constexpr auto GraphicsChoices = 5;
+        inline constexpr auto Tribes = 8;
+        inline constexpr auto PlayerColors = 10;
+        inline constexpr auto InhabitantSigns = 10;
+        inline constexpr auto SoldierSigns = 5;
+        inline constexpr auto DestinationRanges = 32;
+    }
+
+    namespace HumanPaletteRange
+    {
+        inline constexpr auto FirstHeadRange = 16;
+        inline constexpr auto LocalRangeMask = 15u;
+        inline constexpr auto Bytes = 64;
+        inline constexpr auto BytesUnsigned = 64u;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

@@ -32,7 +32,7 @@ namespace NC2E2
         if (Read<std::uint8_t>(player, 0) == 0) return nullptr;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
-        const auto paletteId = Read<std::uint32_t>(gStaticHumanColors + color * 0x58u, 0x54);
+        const auto paletteId = Read<std::uint32_t>(gStaticHumanColors + color * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::ShipPaletteId);
         return gStaticPalettes.palettes256[paletteId].palette;
     }
 
@@ -45,7 +45,7 @@ namespace NC2E2
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0xC + sign * 4u);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * 4u);
     }
 
     // Original function: FUN_0048b574.
@@ -59,7 +59,7 @@ namespace NC2E2
         if (color < 0 || color >= 10) color = 9;
         auto index = count - 1u;
         if (index >= 5) index = 4;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0x34u + index * 4u);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::SoldierSignsUnsigned + index * 4u);
     }
 
     // Original function: FUN_00486f3c
@@ -114,7 +114,7 @@ namespace NC2E2
         }
 
         std::uint32_t paletteId;
-        std::memcpy(&paletteId, gStaticHumanColors + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
+        std::memcpy(&paletteId, gStaticHumanColors + static_cast<std::uint32_t>(colorId) * NC2Layout::RecordSize::StaticHumanColorUnsigned + NC2Layout::StaticHumanColorOffset::PlayerPaletteIdUnsigned, sizeof(paletteId));
 
         std::uint32_t paletteAddress;
         std::memcpy(&paletteAddress, addressAt(gStaticPalettes.palettes256, paletteId * 0x30u + 32u), sizeof(paletteAddress));
@@ -444,7 +444,7 @@ namespace NC2E2
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
         // Windows 0048B5F4 reads 00568630, color record +0x48, not its RGB value.
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId);
     }
     // Original function: FUN_0048b5fb.
     std::int32_t StaticHumanMisc_WallBuildSign_GetLandscapeId(std::int32_t playerId)
@@ -455,6 +455,6 @@ namespace NC2E2
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
         // Windows 0048B62E reads 00568634, color record +0x4C, not its palette patch.
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId);
     }
 }

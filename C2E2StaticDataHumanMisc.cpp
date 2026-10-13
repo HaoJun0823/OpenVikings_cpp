@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
@@ -35,9 +36,9 @@ namespace NC2E2
         gE2StaticDataGoodManager = manager;
         std::memset(manager, 0, 1);
         gStaticGoodData = nullptr;
-        gStaticGoodData = NXBasics::Runtime_AllocateWithNewHandler(264, 1);
-        std::memset(gStaticGoodData, 0, 264);
-        for (std::uint32_t offset = 0; offset < 0x108; offset += 4) Write<std::int32_t>(gStaticGoodData, offset, -1);
+        gStaticGoodData = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::StaticGoodGraphics, 1);
+        std::memset(gStaticGoodData, 0, NC2Layout::RecordSize::StaticGoodGraphics);
+        for (std::uint32_t offset = 0; offset < NC2Layout::RecordSize::StaticGoodGraphicsHex; offset += 4) Write<std::int32_t>(gStaticGoodData, offset, -1);
         NXBasics::CIniFileReader reader("data\\engine2d\\inis\\goods\\goodgraphics.ini", nullptr, false, nullptr, nullptr);
         if (reader.IsLoaded() && reader.GetFirstGroup("goodgraphics") != nullptr)
         {
@@ -56,7 +57,7 @@ namespace NC2E2
                     if (token == NC2DataIds::HumanMiscToken::LogicGood)
                     {
                         good = reader.GetInt();
-                        if (good >= 66) good = -1;
+                        if (good >= NC2Runtime::HumanAppearanceLimits::Goods) good = -1;
                     }
                     else if (token == NC2DataIds::HumanMiscToken::GraphicsHumanRandomPalette && good != -1)
                     {
@@ -116,17 +117,17 @@ namespace NC2E2
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\humans\\randompalette.ini", nullptr, false, nullptr, nullptr);
             if (!reader.IsLoaded()) return;
             const auto count = reader.GetNumberOfGroups("randompalette");
-            Write(gStaticHumanMiscData, 0, count);
+            Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSetCount, count);
             if (count == 0) return;
-            auto* record = AllocateCleared(count * 0xB4u);
-            Write(gStaticHumanMiscData, 4, record);
-            for (char* group = reader.GetFirstGroup("randompalette"); group != nullptr; group = reader.GetNextGroup("randompalette"), record += 0xB4)
+            auto* record = AllocateCleared(count * NC2Layout::RecordSize::RandomPaletteSetUnsigned);
+            Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets, record);
+            for (char* group = reader.GetFirstGroup("randompalette"); group != nullptr; group = reader.GetNextGroup("randompalette"), record += NC2Layout::RecordSize::RandomPaletteSet)
             {
                 const auto patches = reader.GetNumberOfCommandsInGroup("patch");
-                Write(record, 0x28, patches);
+                Write(record, NC2Layout::RandomPaletteSetOffset::PatchCount, patches);
                 reader.SetCurrentLineToGroupStart();
-                auto* data = AllocateCleared(patches * 0x10u);
-                Write(record, 0x2C, data);
+                auto* data = AllocateCleared(patches * NC2Layout::RecordSize::RandomPalettePatchHexUnsigned);
+                Write(record, NC2Layout::RandomPaletteSetOffset::Patches, data);
                 std::uint32_t index = 0;
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
@@ -134,17 +135,22 @@ namespace NC2E2
                     if (token == SwitchIds::HumanNameToken::Name) std::strncpy(reinterpret_cast<char*>(record), reader.GetString(), 39);
                     else if (token == NC2DataIds::HumanMiscToken::Patch && index != patches)
                     {
-                        auto* patch = data + index * 0x10u;
-                        Write<std::int32_t>(patch, 4, -1); Write<std::int32_t>(patch, 8, -1);
-                        const auto type = static_cast<std::uint32_t>(reader.GetInt());
-                        Write(patch, 0, type);
-                        if (reader.GetTypeOfNextParameter() == 2) Write(patch, 4, E2StaticDataPalettesManager_GetPalette16Id(reader.GetString()));
-                        else Write(patch, 8, reader.GetInt());
-                        Write(patch, 12, reader.GetInt());
-                        const auto types = Read<std::uint32_t>(record, 0x30);
+                        auto* patch = data + index * NC2Layout::RecordSize::RandomPalettePatchHexUnsigned;
+                        Write<std::int32_t>(patch, NC2Layout::RandomPalettePatchOffset::Palette16Id, -1);
+                        Write<std::int32_t>(patch, NC2Layout::RandomPalettePatchOffset::SourceRange, -1);
+                        const auto destinationRange = static_cast<std::uint32_t>(reader.GetInt());
+                        Write(patch, NC2Layout::RandomPalettePatchOffset::DestinationRange, destinationRange);
+                        if (reader.GetTypeOfNextParameter() == 2) Write(patch, NC2Layout::RandomPalettePatchOffset::Palette16Id, E2StaticDataPalettesManager_GetPalette16Id(reader.GetString()));
+                        else Write(patch, NC2Layout::RandomPalettePatchOffset::SourceRange, reader.GetInt());
+                        Write(patch, NC2Layout::RandomPalettePatchOffset::Weight, reader.GetInt());
+                        const auto rangeCount = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount);
                         std::uint32_t found = 0;
-                        while (found < types && Read<std::uint32_t>(record, 0x34 + found * 4u) != type) ++found;
-                        if (found == types) { Write(record, 0x34 + types * 4u, type); Write(record, 0x30, types + 1u); }
+                        while (found < rangeCount && Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + found * 4u) != destinationRange) ++found;
+                        if (found == rangeCount)
+                        {
+                            Write(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + rangeCount * 4u, destinationRange);
+                            Write(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount, rangeCount + 1u);
+                        }
                         ++index;
                     }
                 }
@@ -157,46 +163,46 @@ namespace NC2E2
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\humans\\jobgraphics.ini", nullptr, false, nullptr, nullptr);
             if (!reader.IsLoaded()) return;
             const auto baseCount = reader.GetNumberOfGroups("jobbasegraphics");
-            Write(gStaticHumanMiscData, 8, baseCount);
+            Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphicsCount, baseCount);
             if (baseCount != 0)
             {
-                auto* record = AllocateCleared(baseCount * 0xBCu);
-                Write(gStaticHumanMiscData, 12, record);
-                for (char* group = reader.GetFirstGroup("jobbasegraphics"); group != nullptr; group = reader.GetNextGroup("jobbasegraphics"), record += 0xBC)
+                auto* record = AllocateCleared(baseCount * NC2Layout::RecordSize::HumanJobBaseGraphicsUnsigned);
+                Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphics, record);
+                for (char* group = reader.GetFirstGroup("jobbasegraphics"); group != nullptr; group = reader.GetNextGroup("jobbasegraphics"), record += NC2Layout::RecordSize::HumanJobBaseGraphics)
                     while (reader.GetNextCommandLineInGroup() != nullptr)
                     {
                         const auto token = GetLazyTokenList<JobBaseTokenList_AtExit>(gJobBaseTokens).FindToken(reader.GetCurrentName());
                         switch (token)
                         {
-                        case SwitchIds::HumanJobGraphicsToken::LogicTribe: Write(record, 0, reader.GetInt()); break;
-                        case SwitchIds::HumanJobGraphicsToken::LogicJob: Write(record, 4, reader.GetInt()); break;
+                        case SwitchIds::HumanJobGraphicsToken::LogicTribe: Write(record, NC2Layout::HumanJobGraphicsOffset::Tribe, reader.GetInt()); break;
+                        case SwitchIds::HumanJobGraphicsToken::LogicJob: Write(record, NC2Layout::HumanJobGraphicsOffset::Job, reader.GetInt()); break;
                         case SwitchIds::HumanJobGraphicsToken::Gfxbobmanagerbody:
                         {
-                            const auto count = Read<std::uint32_t>(record, 8);
-                            if (count == 5) break;
-                            const auto offset = 12 + count * 12u;
+                            const auto count = Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::BodyCount);
+                            if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
+                            const auto offset = NC2Layout::HumanJobGraphicsOffset::BodyChoices + count * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned;
                             Write(record, offset, reader.GetInt());
-                            Write(record, offset + 4, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                            Write(record, offset + 8, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                            Write(record, 8, count + 1u);
+                            Write(record, offset + NC2Layout::HumanBodyGraphicsOffset::BodyBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                            Write(record, offset + NC2Layout::HumanBodyGraphicsOffset::ShadowBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                            Write(record, NC2Layout::HumanJobGraphicsOffset::BodyCount, count + 1u);
                             break;
                         }
                         case SwitchIds::HumanJobGraphicsToken::Gfxbobmanagerhead:
                         {
-                            const auto count = Read<std::uint32_t>(record, 0x48);
-                            if (count == 5) break;
-                            Write(record, 0x4C + count * 8u, reader.GetInt());
-                            Write(record, 0x50 + count * 8u, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                            Write(record, 0x48, count + 1u);
+                            const auto count = Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::HeadCount);
+                            if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
+                            Write(record, NC2Layout::HumanJobGraphicsOffset::HeadChoices + count * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned, reader.GetInt());
+                            Write(record, NC2Layout::HumanJobGraphicsOffset::HeadBobManagers + count * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                            Write(record, NC2Layout::HumanJobGraphicsOffset::HeadCount, count + 1u);
                             break;
                         }
                         case SwitchIds::HumanJobGraphicsToken::Gfxpalettebasebody:
                         case SwitchIds::HumanJobGraphicsToken::Gfxpalettebasehead:
                         case SwitchIds::HumanJobGraphicsToken::GfxPaletteRandom:
                         {
-                            const auto countOffset = token == SwitchIds::HumanJobGraphicsToken::Gfxpalettebasebody ? 0x74u : token == SwitchIds::HumanJobGraphicsToken::Gfxpalettebasehead ? 0x8Cu : 0xA4u;
+                            const auto countOffset = token == SwitchIds::HumanJobGraphicsToken::Gfxpalettebasebody ? NC2Layout::HumanJobBaseGraphicsOffset::BodyPaletteCountUnsigned : token == SwitchIds::HumanJobGraphicsToken::Gfxpalettebasehead ? NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteCountUnsigned : NC2Layout::HumanJobBaseGraphicsOffset::RandomPatchCountUnsigned;
                             const auto count = Read<std::uint32_t>(record, countOffset);
-                            if (count == 5) break;
+                            if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
                             const char* name = reader.GetString();
                             const auto id = token == SwitchIds::HumanJobChangeToken::GfxPaletteRandom ? StaticHumanMisc_RandomPalette_GetPatchId(name) : E2StaticDataPalettesManager_GetPalette256Id(name);
                             Write(record, countOffset + 4 + count * 4u, id);
@@ -207,39 +213,39 @@ namespace NC2E2
                     }
             }
             const auto changeCount = reader.GetNumberOfGroups("jobchangegraphics");
-            Write(gStaticHumanMiscData, 0x10, changeCount);
+            Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobChangeGraphicsCount, changeCount);
             if (changeCount == 0) return;
-            auto* record = AllocateCleared(changeCount * 0x78u);
-            Write(gStaticHumanMiscData, 0x14, record);
-            for (char* group = reader.GetFirstGroup("jobchangegraphics"); group != nullptr; group = reader.GetNextGroup("jobchangegraphics"), record += 0x78)
+            auto* record = AllocateCleared(changeCount * NC2Layout::RecordSize::HumanJobChangeGraphicsUnsigned);
+            Write(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobChangeGraphics, record);
+            for (char* group = reader.GetFirstGroup("jobchangegraphics"); group != nullptr; group = reader.GetNextGroup("jobchangegraphics"), record += NC2Layout::RecordSize::HumanJobChangeGraphics)
             {
-                Write<std::int32_t>(record, 0x74, -1);
+                Write<std::int32_t>(record, NC2Layout::HumanJobChangeGraphicsOffset::RandomPatchId, -1);
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<JobChangeTokenList_AtExit>(gJobChangeTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case SwitchIds::HumanJobChangeToken::LogicTribe: Write(record, 0, reader.GetInt()); break;
-                    case SwitchIds::HumanJobChangeToken::LogicJob: Write(record, 4, reader.GetInt()); break;
+                    case SwitchIds::HumanJobChangeToken::LogicTribe: Write(record, NC2Layout::HumanJobGraphicsOffset::Tribe, reader.GetInt()); break;
+                    case SwitchIds::HumanJobChangeToken::LogicJob: Write(record, NC2Layout::HumanJobGraphicsOffset::Job, reader.GetInt()); break;
                     case SwitchIds::HumanJobChangeToken::Gfxbobmanagerbody:
                     {
-                        const auto count = Read<std::uint32_t>(record, 8);
-                        if (count == 5) break;
-                        const auto offset = 12 + count * 12u;
+                        const auto count = Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::BodyCount);
+                        if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
+                        const auto offset = NC2Layout::HumanJobGraphicsOffset::BodyChoices + count * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned;
                         Write(record, offset, reader.GetInt());
-                        Write(record, offset + 4, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                        Write(record, offset + 8, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                        Write(record, 8, count + 1u);
+                        Write(record, offset + NC2Layout::HumanBodyGraphicsOffset::BodyBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                        Write(record, offset + NC2Layout::HumanBodyGraphicsOffset::ShadowBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                        Write(record, NC2Layout::HumanJobGraphicsOffset::BodyCount, count + 1u);
                         break;
                     }
                     case SwitchIds::HumanJobChangeToken::Gfxbobmanagerhead:
                     {
-                        const auto count = Read<std::uint32_t>(record, 0x48);
-                        if (count == 5) break;
-                        Write(record, 0x4C + count * 8u, reader.GetInt());
-                        Write(record, 0x50 + count * 8u, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                        Write(record, 0x48, count + 1u);
+                        const auto count = Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::HeadCount);
+                        if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
+                        Write(record, NC2Layout::HumanJobGraphicsOffset::HeadChoices + count * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned, reader.GetInt());
+                        Write(record, NC2Layout::HumanJobGraphicsOffset::HeadBobManagers + count * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                        Write(record, NC2Layout::HumanJobGraphicsOffset::HeadCount, count + 1u);
                         break;
                     }
-                    case SwitchIds::HumanJobChangeToken::GfxPaletteRandom: Write(record, 0x74, StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString())); break;
+                    case SwitchIds::HumanJobChangeToken::GfxPaletteRandom: Write(record, NC2Layout::HumanJobChangeGraphicsOffset::RandomPatchId, StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString())); break;
                     }
             }
         }
@@ -262,7 +268,7 @@ namespace NC2E2
                         {
                             const bool female = reader.GetInt() != 0;
                             const char* name = reader.GetString();
-                            const auto offset = 0x18u + static_cast<std::uint32_t>(tribe) * 8u + (female ? 4u : 0u);
+                            const auto offset = NC2Layout::StaticHumanMiscOffset::TribeNameArraysUnsigned + static_cast<std::uint32_t>(tribe) * NC2Layout::RecordSize::TribeHumanNameArraysUnsigned + (female ? NC2Layout::TribeHumanNameArraysOffset::FemaleUnsigned : NC2Layout::TribeHumanNameArraysOffset::MaleUnsigned);
                             auto* names = Read<NXBasics::CStringArray*>(gStaticHumanMiscData, offset);
                             if (names == nullptr)
                             {
@@ -279,11 +285,11 @@ namespace NC2E2
         // Original function: FUN_0048bafd; l_JobGraphicsBase_GetDataPtr.
         const void* JobGraphicsBase_Find(std::uint32_t tribe, std::uint32_t job)
         {
-            const auto* entries = Read<std::byte*>(gStaticHumanMiscData, 12);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, 8); ++index)
+            const auto* entries = Read<std::byte*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphics);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphicsCount); ++index)
             {
-                const auto* record = entries + index * 0xBCu;
-                if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == job) return record;
+                const auto* record = entries + index * NC2Layout::RecordSize::HumanJobBaseGraphicsUnsigned;
+                if (Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::Tribe) == tribe && Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::Job) == job) return record;
             }
             return nullptr;
         }
@@ -291,11 +297,11 @@ namespace NC2E2
         // Original function: FUN_0048bb6a; l_JobGraphicsChange_GetDataPtr.
         const void* JobGraphicsChange_Find(std::uint32_t tribe, std::uint32_t job)
         {
-            const auto* entries = Read<std::byte*>(gStaticHumanMiscData, 0x14);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, 0x10); ++index)
+            const auto* entries = Read<std::byte*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobChangeGraphics);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobChangeGraphicsCount); ++index)
             {
-                const auto* record = entries + index * 0x78u;
-                if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == job) return record;
+                const auto* record = entries + index * NC2Layout::RecordSize::HumanJobChangeGraphicsUnsigned;
+                if (Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::Tribe) == tribe && Read<std::uint32_t>(record, NC2Layout::HumanJobGraphicsOffset::Job) == job) return record;
             }
             return nullptr;
         }
@@ -312,44 +318,44 @@ namespace NC2E2
         TribeHumanNames_Load();
         for (std::uint32_t color = 0; color < 10; ++color)
         {
-            auto* record = gStaticHumanColors + color * 0x58u;
+            auto* record = gStaticHumanColors + color * NC2Layout::RecordSize::StaticHumanColorUnsigned;
             char name[80];
             NXBasics::Runtime_PrintString(name, "player_%2.2d", static_cast<int>(color));
             const auto patchId = StaticHumanMisc_RandomPalette_GetPatchId(name);
-            Write(record, 4, patchId);
+            Write(record, NC2Layout::StaticHumanColorOffset::MaleRandomPatchId, patchId);
             if (patchId != -1)
             {
-                const auto* patchRecord = Read<std::byte*>(gStaticHumanMiscData, 4) + static_cast<std::uint32_t>(patchId) * 0xB4u;
-                const auto count = Read<std::uint32_t>(patchRecord, 0x28);
-                const auto* patches = Read<std::byte*>(patchRecord, 0x2C);
+                const auto* patchRecord = Read<std::byte*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets) + static_cast<std::uint32_t>(patchId) * NC2Layout::RecordSize::RandomPaletteSetUnsigned;
+                const auto count = Read<std::uint32_t>(patchRecord, NC2Layout::RandomPaletteSetOffset::PatchCount);
+                const auto* patches = Read<std::byte*>(patchRecord, NC2Layout::RandomPaletteSetOffset::Patches);
                 std::uint32_t index = 0;
-                while (index < count && Read<std::uint32_t>(patches, index * 16u) != 10) ++index;
+                while (index < count && Read<std::uint32_t>(patches, index * NC2Layout::RecordSize::RandomPalettePatchUnsigned) != 10) ++index;
                 if (index == count) continue;
-                const auto paletteId = Read<std::int32_t>(patches, index * 16u + 4);
+                const auto paletteId = Read<std::int32_t>(patches, index * NC2Layout::RecordSize::RandomPalettePatchUnsigned + NC2Layout::RandomPalettePatchOffset::Palette16Id);
                 const auto& palette16 = gStaticPalettes.palettes16[paletteId];
                 const auto* palette = gStaticPalettes.palettes256[palette16.palette256Id].palette;
-                Write(record, 0, Read<std::uint32_t>(palette, palette16.colorRange * 64u + 0x2C));
+                Write(record, NC2Layout::StaticHumanColorOffset::Color, Read<std::uint32_t>(palette, palette16.colorRange * NC2Runtime::HumanPaletteRange::BytesUnsigned + NC2Layout::PaletteOffset::PlayerColorSampleWithinRange));
             }
             NXBasics::Runtime_PrintString(name, "woman_%2.2d", static_cast<int>(color));
-            Write(record, 8, StaticHumanMisc_RandomPalette_GetPatchId(name));
+            Write(record, NC2Layout::StaticHumanColorOffset::FemaleRandomPatchId, StaticHumanMisc_RandomPalette_GetPatchId(name));
             for (std::uint32_t sign = 0; sign < 10; ++sign)
             {
                 NXBasics::Runtime_PrintString(name, gSignPatterns[sign], static_cast<int>(color + 1u));
-                Write(record, 0xC + sign * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
+                Write(record, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
             }
             for (std::uint32_t soldier = 0; soldier < 5; ++soldier)
             {
                 NXBasics::Runtime_PrintString(name, "player%2.2d soldier %2.2d", static_cast<int>(color + 1u), static_cast<int>(soldier + 1u));
-                Write(record, 0x34 + soldier * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
+                Write(record, NC2Layout::StaticHumanColorOffset::SoldierSigns + soldier * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
             }
             NXBasics::Runtime_PrintString(name, "player%2.2d marker road", static_cast<int>(color + 1u));
             Write(record, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(name));
             NXBasics::Runtime_PrintString(name, "player%2.2d marker wall", static_cast<int>(color + 1u));
             Write(record, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(name));
             NXBasics::Runtime_PrintString(name, "human_player%2.2d", static_cast<int>(color + 1u));
-            Write(record, 0x50, E2StaticDataPalettesManager_GetPalette256Id(name));
+            Write(record, NC2Layout::StaticHumanColorOffset::PlayerPaletteId, E2StaticDataPalettesManager_GetPalette256Id(name));
             NXBasics::Runtime_PrintString(name, "human_ship%2.2d", static_cast<int>(color + 1u));
-            Write(record, 0x54, E2StaticDataPalettesManager_GetPalette256Id(name));
+            Write(record, NC2Layout::StaticHumanColorOffset::ShipPaletteId, E2StaticDataPalettesManager_GetPalette256Id(name));
         }
         return manager;
     }
@@ -358,9 +364,9 @@ namespace NC2E2
     std::int32_t StaticHumanMisc_RandomPalette_GetPatchId(const char* name)
     {
         if (name == nullptr) return -1;
-        const auto* records = NC2Lifetime::Read<std::byte*>(gStaticHumanMiscData, 4);
-        for (std::uint32_t index = 0; index < NC2Lifetime::Read<std::uint32_t>(gStaticHumanMiscData, 0); ++index)
-            if (std::strcmp(reinterpret_cast<const char*>(records + index * 0xB4u), name) == 0) return static_cast<std::int32_t>(index);
+        const auto* records = NC2Lifetime::Read<std::byte*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets);
+        for (std::uint32_t index = 0; index < NC2Lifetime::Read<std::uint32_t>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSetCount); ++index)
+            if (std::strcmp(reinterpret_cast<const char*>(records + index * NC2Layout::RecordSize::RandomPaletteSetUnsigned), name) == 0) return static_cast<std::int32_t>(index);
         return -1;
     }
 
@@ -368,45 +374,48 @@ namespace NC2E2
     void StaticHumanMisc_RandomPalette_Execute(std::uint32_t patchId, NXBasics::CPalette* body, NXBasics::CPalette* head, bool deterministic)
     {
         using NC2Lifetime::Read;
-        if (patchId >= Read<std::uint32_t>(gStaticHumanMiscData, 0)) return;
-        const auto* record = Read<std::byte*>(gStaticHumanMiscData, 4) + patchId * 0xB4u;
-        const auto count = Read<std::uint32_t>(record, 0x28);
-        const auto* patches = Read<std::byte*>(record, 0x2C);
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x30); ++index)
+        if (patchId >= Read<std::uint32_t>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSetCount)) return;
+        const auto* record = Read<std::byte*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets) + patchId * NC2Layout::RecordSize::RandomPaletteSetUnsigned;
+        const auto count = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::PatchCount);
+        const auto* patches = Read<std::byte*>(record, NC2Layout::RandomPaletteSetOffset::Patches);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount); ++index)
         {
-            const auto type = Read<std::uint32_t>(record, 0x34 + index * 4u);
+            const auto destinationRange = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + index * 4u);
             std::uint32_t totalWeight = 0;
             for (std::uint32_t patch = 0; patch < count; ++patch)
-                if (Read<std::uint32_t>(patches, patch * 16u) == type) totalWeight += Read<std::uint32_t>(patches, patch * 16u + 12);
+            {
+                if (Read<std::uint32_t>(patches, patch * NC2Layout::RecordSize::RandomPalettePatchUnsigned) == destinationRange)
+                    totalWeight += Read<std::uint32_t>(patches, patch * NC2Layout::RecordSize::RandomPalettePatchUnsigned + NC2Layout::RandomPalettePatchOffset::Weight);
+            }
             if (totalWeight == 0) continue;
             const auto choice = deterministic ? 0u : NC2Logic::Logic_EntryPoint_Random_GetNumber() % totalWeight;
             std::uint32_t accumulatedWeight = 0;
             const auto* selected = patches;
-            for (std::uint32_t patch = 0; patch < count; ++patch, selected += 16)
+            for (std::uint32_t patch = 0; patch < count; ++patch, selected += NC2Layout::RecordSize::RandomPalettePatch)
             {
-                if (Read<std::uint32_t>(selected, 0) != type) continue;
-                accumulatedWeight += Read<std::uint32_t>(selected, 12);
+                if (Read<std::uint32_t>(selected, NC2Layout::RandomPalettePatchOffset::DestinationRange) != destinationRange) continue;
+                accumulatedWeight += Read<std::uint32_t>(selected, NC2Layout::RandomPalettePatchOffset::Weight);
                 if (NXBasics::Runtime_TimeSigned32(choice) < NXBasics::Runtime_TimeSigned32(accumulatedWeight)) break;
             }
-            const auto palette16Id = Read<std::int32_t>(selected, 4);
+            const auto palette16Id = Read<std::int32_t>(selected, NC2Layout::RandomPalettePatchOffset::Palette16Id);
             const std::byte* source;
             if (palette16Id != -1)
             {
                 const auto& palette16 = gStaticPalettes.palettes16[palette16Id];
-                source = reinterpret_cast<const std::byte*>(gStaticPalettes.palettes256[palette16.palette256Id].palette) + 4 + palette16.colorRange * 64u;
+                source = reinterpret_cast<const std::byte*>(gStaticPalettes.palettes256[palette16.palette256Id].palette) + NC2Layout::PaletteOffset::Colors + palette16.colorRange * NC2Runtime::HumanPaletteRange::BytesUnsigned;
             }
             else
             {
-                const auto sourceRange = Read<std::int32_t>(selected, 8);
+                const auto sourceRange = Read<std::int32_t>(selected, NC2Layout::RandomPalettePatchOffset::SourceRange);
                 if (sourceRange == -1) continue;
-                const auto* palette = sourceRange < 16 ? body : head;
+                const auto* palette = sourceRange < NC2Runtime::HumanPaletteRange::FirstHeadRange ? body : head;
                 if (palette == nullptr) continue;
-                source = reinterpret_cast<const std::byte*>(palette) + 4 + (static_cast<std::uint32_t>(sourceRange) & 15u) * 64u;
+                source = reinterpret_cast<const std::byte*>(palette) + NC2Layout::PaletteOffset::Colors + (static_cast<std::uint32_t>(sourceRange) & NC2Runtime::HumanPaletteRange::LocalRangeMask) * NC2Runtime::HumanPaletteRange::BytesUnsigned;
             }
             if (source == nullptr) continue;
-            auto* destination = type < 16 ? body : head;
+            auto* destination = destinationRange < NC2Runtime::HumanPaletteRange::FirstHeadRange ? body : head;
             if (destination == nullptr) continue;
-            std::memcpy(reinterpret_cast<std::byte*>(destination) + 4 + (type & 15u) * 64u, source, 64);
+            std::memcpy(reinterpret_cast<std::byte*>(destination) + NC2Layout::PaletteOffset::Colors + (destinationRange & NC2Runtime::HumanPaletteRange::LocalRangeMask) * NC2Runtime::HumanPaletteRange::BytesUnsigned, source, NC2Runtime::HumanPaletteRange::Bytes);
             NXBasics::Palette_PaletteChanged(destination);
         }
     }
@@ -420,7 +429,7 @@ namespace NC2E2
         if (Read<std::uint8_t>(NC2Logic::gGameControl, offset) == 0) return -1;
         auto color = Read<std::int32_t>(NC2Logic::gGameControl, offset + 0x10);
         if (color < 0 || color >= 10) color = 9;
-        return Read<std::int32_t>(gStaticHumanColors, static_cast<std::uint32_t>(color) * 0x58u + (female ? 8u : 4u));
+        return Read<std::int32_t>(gStaticHumanColors, static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned + (female ? NC2Layout::StaticHumanColorOffset::FemaleRandomPatchIdUnsigned : NC2Layout::StaticHumanColorOffset::MaleRandomPatchIdUnsigned));
     }
 
     // Original function: FUN_0048bace; parent-job fallback, then the first base record.
@@ -430,7 +439,7 @@ namespace NC2E2
         {
             if (const void* record = JobGraphicsBase_Find(tribe, job)) return record;
             job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
-            if (job == 0) return NC2Lifetime::Read<void*>(gStaticHumanMiscData, 12);
+            if (job == 0) return NC2Lifetime::Read<void*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphics);
         }
     }
 
@@ -450,7 +459,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (NXBasics::Runtime_TimeSigned32(tribe) >= 8) return "<noname>";
-        auto* names = Read<NXBasics::CStringArray*>(gStaticHumanMiscData, 0x18u + tribe * 8u + (female ? 4u : 0u));
+        auto* names = Read<NXBasics::CStringArray*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::TribeNameArraysUnsigned + tribe * NC2Layout::RecordSize::TribeHumanNameArraysUnsigned + (female ? NC2Layout::TribeHumanNameArraysOffset::FemaleUnsigned : NC2Layout::TribeHumanNameArraysOffset::MaleUnsigned));
         if (names == nullptr || names->GetNumberOfStrings() == 0) return "<noname>";
         return names->GetStringPtr(NC2Logic::Logic_EntryPoint_Random_GetNumber() % names->GetNumberOfStrings());
     }

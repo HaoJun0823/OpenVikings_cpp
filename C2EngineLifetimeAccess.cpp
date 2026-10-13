@@ -500,17 +500,17 @@ namespace NC2E2
     // Original function: FUN_0048af15.
     static void E2StaticDataHumanMiscManager_Destruct(void*)
     {
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, 0); ++index)
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSetCount); ++index)
         {
-            FreeField(Read<void*>(gStaticHumanMiscData, 4), index * 0xB4 + 0x2C);
+            FreeField(Read<void*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets), index * NC2Layout::RecordSize::RandomPaletteSet + NC2Layout::RandomPaletteSetOffset::Patches);
         }
-        FreeField(gStaticHumanMiscData, 4);
-        FreeField(gStaticHumanMiscData, 0x0C);
-        FreeField(gStaticHumanMiscData, 0x14);
-        for (std::uint32_t offset = 0x18; offset < 0x58; offset += 8)
+        FreeField(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::RandomPaletteSets);
+        FreeField(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphics);
+        FreeField(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobChangeGraphics);
+        for (std::uint32_t offset = NC2Layout::StaticHumanMiscOffset::TribeNameArrays; offset < NC2Layout::StaticHumanMiscOffset::PlayerColors; offset += NC2Layout::RecordSize::TribeHumanNameArrays)
         {
             DeleteStorable(Read<void*>(gStaticHumanMiscData, offset));
-            DeleteStorable(Read<void*>(gStaticHumanMiscData, offset + 4));
+            DeleteStorable(Read<void*>(gStaticHumanMiscData, offset + NC2Layout::TribeHumanNameArraysOffset::Female));
         }
         std::memset(gStaticHumanMiscData, 0, sizeof(gStaticHumanMiscData));
         gE2StaticDataHumanMiscManager = nullptr;

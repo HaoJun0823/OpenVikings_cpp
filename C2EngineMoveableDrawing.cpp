@@ -438,46 +438,46 @@ namespace NC2E2
         if (!fromSavegame) std::memset(dynamic, 0, NC2Layout::RecordSize::DynamicHuman);
         const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
         const auto* graphics = StaticHumanMisc_JobGraphicsBase_GetDataPtr(tribe, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType));
-        const auto bodyCount = Read<std::uint32_t>(graphics, 8);
+        const auto bodyCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyCount);
         if (bodyCount != 0)
         {
             const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % bodyCount;
-            Write(dynamic, NC2Layout::DynamicHumanOffset::BodyVariant, Read<std::uint32_t>(graphics, 0xC + index * 12u));
-            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<void*>(graphics, 0x10 + index * 12u));
-            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<void*>(graphics, 0x14 + index * 12u));
+            Write(dynamic, NC2Layout::DynamicHumanOffset::BodyVariant, Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyChoicesHex + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned));
+            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyBobManagers + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned));
+            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::ShadowBobManagers + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned));
         }
-        const auto headCount = Read<std::uint32_t>(graphics, 0x48);
+        const auto headCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadCount);
         if (headCount != 0)
         {
             const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % headCount;
-            Write(dynamic, NC2Layout::DynamicHumanOffset::HeadVariant, Read<std::uint32_t>(graphics, 0x4C + index * 8u));
-            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::HeadBobManager, Read<void*>(graphics, 0x50 + index * 8u));
+            Write(dynamic, NC2Layout::DynamicHumanOffset::HeadVariant, Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadChoices + index * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned));
+            Write(dynamic, NC2Layout::DisplayAtomInformationOffset::HeadBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadBobManagers + index * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned));
         }
         if (!fromSavegame)
         {
             auto* body = reinterpret_cast<NXBasics::CPalette*>(dynamic + NC2Layout::DynamicHumanOffset::BodyPalette);
             auto* head = reinterpret_cast<NXBasics::CPalette*>(dynamic + NC2Layout::DynamicHumanOffset::HeadPalette);
-            const auto bodyPaletteCount = Read<std::uint32_t>(graphics, 0x74);
+            const auto bodyPaletteCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::BodyPaletteCount);
             if (bodyPaletteCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % bodyPaletteCount;
-                const auto paletteId = Read<std::uint32_t>(graphics, 0x78 + index * 4u);
+                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::BodyPaletteIds + index * 4u);
                 *body = *gStaticPalettes.palettes256[paletteId].palette;
             }
-            const auto headPaletteCount = Read<std::uint32_t>(graphics, 0x8C);
+            const auto headPaletteCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteCount);
             if (headPaletteCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % headPaletteCount;
-                const auto paletteId = Read<std::uint32_t>(graphics, 0x90 + index * 4u);
+                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteIds + index * 4u);
                 *head = *gStaticPalettes.palettes256[paletteId].palette;
             }
             const auto playerPatch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), NC2Logic::Human_IsSexFemale(human));
             if (playerPatch != -1) StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(playerPatch), body, head, false);
-            const auto patchCount = Read<std::uint32_t>(graphics, 0xA4);
+            const auto patchCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::RandomPatchCount);
             if (patchCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % patchCount;
-                StaticHumanMisc_RandomPalette_Execute(Read<std::uint32_t>(graphics, 0xA8 + index * 4u), body, head, false);
+                StaticHumanMisc_RandomPalette_Execute(Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::RandomPatchIds + index * 4u), body, head, false);
             }
             const auto* name = StaticHumanMisc_TribeHumanNames_GetRandomNamePtr(tribe, NC2Logic::Human_IsSexFemale(human));
             std::strncpy(reinterpret_cast<char*>(dynamic + NC2Layout::DynamicHumanOffset::Name), name, 0x62);
@@ -494,24 +494,24 @@ namespace NC2E2
         auto* dynamic = gDynamicDataHumans.entries + humanId * NC2Layout::RecordSize::DynamicHumanUnsigned;
         if (const auto* graphics = StaticHumanMisc_JobGraphicsChange_GetDataPtr(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), newJob))
         {
-            const auto bodyCount = Read<std::uint32_t>(graphics, 8);
+            const auto bodyCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyCount);
             if (bodyCount != 0)
             {
                 std::uint32_t index = 0;
-                while (index < bodyCount && Read<std::uint32_t>(graphics, 0xC + index * 12u) != Read<std::uint32_t>(dynamic, NC2Layout::DynamicHumanOffset::BodyVariant)) ++index;
+                while (index < bodyCount && Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyChoicesHex + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned) != Read<std::uint32_t>(dynamic, NC2Layout::DynamicHumanOffset::BodyVariant)) ++index;
                 if (index == bodyCount) index = 0;
-                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<void*>(graphics, 0x10 + index * 12u));
-                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<void*>(graphics, 0x14 + index * 12u));
+                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::BodyBobManagers + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned));
+                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::ShadowBobManagers + index * NC2Layout::RecordSize::HumanBodyGraphicsUnsigned));
             }
-            const auto headCount = Read<std::uint32_t>(graphics, 0x48);
+            const auto headCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadCount);
             if (headCount != 0)
             {
                 std::uint32_t index = 0;
-                while (index < headCount && Read<std::uint32_t>(graphics, 0x4C + index * 8u) != Read<std::uint32_t>(dynamic, NC2Layout::DynamicHumanOffset::HeadVariant)) ++index;
+                while (index < headCount && Read<std::uint32_t>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadChoices + index * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned) != Read<std::uint32_t>(dynamic, NC2Layout::DynamicHumanOffset::HeadVariant)) ++index;
                 if (index == headCount) index = 0;
-                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::HeadBobManager, Read<void*>(graphics, 0x50 + index * 8u));
+                Write(dynamic, NC2Layout::DisplayAtomInformationOffset::HeadBobManager, Read<void*>(graphics, NC2Layout::HumanJobGraphicsOffset::HeadBobManagers + index * NC2Layout::RecordSize::HumanHeadGraphicsUnsigned));
             }
-            const auto patch = Read<std::uint32_t>(graphics, 0x74);
+            const auto patch = Read<std::uint32_t>(graphics, NC2Layout::HumanJobChangeGraphicsOffset::RandomPatchId);
             if (patch != NXBasics::IntegerRange::UInt32Maximum) StaticHumanMisc_RandomPalette_Execute(patch, HumanBody(dynamic), HumanHead(dynamic), false);
         }
         if (NC2Logic::Human_IsJobSoldier(human)) E2DynamicDataHumanManager_HumanArmorChanged(humanId, NC2Logic::Human_Equipment_GetArmorType(human));

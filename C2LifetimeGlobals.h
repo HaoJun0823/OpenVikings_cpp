@@ -1,5 +1,7 @@
 #pragma once
 
+#include "C2ObjectLayout.h"
+
 #include "C2E2StaticDataPalettes.h"
 #include "C2E2StaticDataHouses.h"
 
@@ -247,7 +249,7 @@ namespace NC2E2
     // retain explicit offsets rather than speculative member names.
     // 00568590..00568957; color records occupy +0x58..+0x3C7.
     alignas(4) inline std::byte gStaticHumanMiscData[968]{};
-    inline std::byte* const gStaticHumanColors = gStaticHumanMiscData + 0x58;
+    inline std::byte* const gStaticHumanColors = gStaticHumanMiscData + NC2Layout::StaticHumanMiscOffset::PlayerColors;
     // 00568998..005689BB; counts, record arrays and auxiliary allocations.
     alignas(4) inline std::byte gStaticMapMoveableData[36]{};
     // 005689F0..00568A0F; transition counts and tables.
