@@ -585,7 +585,7 @@ namespace NC2Logic
                 const auto target = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget);
                 if (target == 2)
                 {
-                    Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0xA78));
+                    Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetGoodType));
                     if (Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition, false)) { Human_IsJobTrader(human); return; }
                 }
                 else if (Human_l_StartAtomicWalk(human, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition)) { Write(human, NC2Layout::HumanOffset::InteractionTarget, target); return; }

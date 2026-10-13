@@ -87,15 +87,15 @@ namespace NC2Logic
     {
         Human_Target_Reset(human);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget) == 2 && (Read<std::uint32_t>(human, 0xA90) == 79 || Read<std::uint32_t>(human, 0xA90) == 80))
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget) == 2 && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetLandscapeType) == 79 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetLandscapeType) == 80))
         {
-            const void* real = static_cast<const std::byte*>(human) + 0xA88;
+            const void* real = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetPosition;
             const void* micro = GameMap_GetConstMapMicroPointPtr(real);
             const auto landscape = Read<std::uint8_t>(micro, 2);
             if (Read<std::uint8_t>(micro, 0) == 1 && (landscape == 79 || landscape == 80))
             {
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, landscape == 79 ? 9 : 21);
-                if (Human_l_StartAtomicWalkAndFetch(human, real, static_cast<const std::byte*>(human) + 0xA8C, false)) return;
+                if (Human_l_StartAtomicWalkAndFetch(human, real, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetWorkPosition, false)) return;
             }
         }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 0);
@@ -104,8 +104,8 @@ namespace NC2Logic
         {
             Write(human, NC2Layout::HumanOffset::RequestedGood, good);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
-            Write(human, 0xA88, real); Write(human, 0xA8C, work);
-            Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 2); Write<std::uint32_t>(human, 0xA90, good == 9 ? 79 : 80);
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetPosition, real); Write(human, NC2Layout::HumanOffset::SecondaryTargetWorkPosition, work);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 2); Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetLandscapeType, good == 9 ? 79 : 80);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
         }
         void* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget;

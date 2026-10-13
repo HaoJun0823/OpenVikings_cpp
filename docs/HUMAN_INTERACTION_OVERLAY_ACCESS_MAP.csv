@@ -1,0 +1,29 @@
+Source,StagedLine,Receiver,PreviousLiteral,Replacement,WindowsEvidence
+C2HumanCommandAccess.cpp,386,human,0xA94,NC2Layout::HumanOffset::SecondaryTargetGoodType,Windows 0044327F saves requested good; drop selection and restore read/write it
+C2HumanCommandAccess.cpp,394,human,0xA88,NC2Layout::HumanOffset::SecondaryTargetPosition,Windows 004432E1 saves point; hunting and equipment restoration read it
+C2HumanTaskAccess.cpp,588,human,0xA78,NC2Layout::HumanOffset::TargetGoodType,Windows 0046C57A consumes current target good; secondary copy/resume retains same field
+C2HumanNeeds.cpp,404,human,0xA98,NC2Layout::HumanOffset::SecondaryTargetObjectId,Windows needs save attached vehicle ID; restoration enqueues this ID
+C2HumanNeeds.cpp,405,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanNeeds.cpp,473,human,0xA98,NC2Layout::HumanOffset::SecondaryTargetObjectId,Windows needs save attached vehicle ID; restoration enqueues this ID
+C2HumanNeeds.cpp,474,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanGoods.cpp,1156,human,0xA90,NC2Layout::HumanOffset::SecondaryTargetLandscapeType,Windows 00444EDA stores good landscape type; hunting checks 79/80
+C2HumanGoods.cpp,1157,human,0xA94,NC2Layout::HumanOffset::SecondaryTargetGoodType,Windows 0044327F saves requested good; drop selection and restore read/write it
+C2HumanGoods.cpp,1280,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanGoods.cpp,1280,human,0xA98,NC2Layout::HumanOffset::SecondaryTargetObjectId,Windows needs save attached vehicle ID; restoration enqueues this ID
+C2HumanGoods.cpp,1280,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanGoods.cpp,1285,human,0xA94,NC2Layout::HumanOffset::SecondaryTargetGoodType,Windows 0044327F saves requested good; drop selection and restore read/write it
+C2HumanGoods.cpp,1287,human,0xA94,NC2Layout::HumanOffset::SecondaryTargetGoodType,Windows 0044327F saves requested good; drop selection and restore read/write it
+C2HumanGoods.cpp,1277,human,0xA88,NC2Layout::HumanOffset::SecondaryTargetPosition,Windows 004432E1 saves point; hunting and equipment restoration read it
+C2HumanEquipment.cpp,403,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanEquipment.cpp,403,human,0xA98,NC2Layout::HumanOffset::SecondaryTargetObjectId,Windows needs save attached vehicle ID; restoration enqueues this ID
+C2HumanEquipment.cpp,403,human,0xA9C,NC2Layout::HumanOffset::SecondaryTargetObjectRevision,Windows needs save attached vehicle unique ID; restoration verifies it
+C2HumanEquipment.cpp,409,human,0xA94,NC2Layout::HumanOffset::SecondaryTargetGoodType,Windows 0044327F saves requested good; drop selection and restore read/write it
+C2HumanEquipment.cpp,400,human,0xA88,NC2Layout::HumanOffset::SecondaryTargetPosition,Windows 004432E1 saves point; hunting and equipment restoration read it
+C2HumanMapCollection.cpp,132,human,0xA78,NC2Layout::HumanOffset::TargetGoodType,Windows 0046C57A consumes current target good; secondary copy/resume retains same field
+C2HumanHuntingJobs.cpp,90,human,0xA90,NC2Layout::HumanOffset::SecondaryTargetLandscapeType,Windows 00444EDA stores good landscape type; hunting checks 79/80
+C2HumanHuntingJobs.cpp,90,human,0xA90,NC2Layout::HumanOffset::SecondaryTargetLandscapeType,Windows 00444EDA stores good landscape type; hunting checks 79/80
+C2HumanHuntingJobs.cpp,107,human,0xA88,NC2Layout::HumanOffset::SecondaryTargetPosition,Windows 004432E1 saves point; hunting and equipment restoration read it
+C2HumanHuntingJobs.cpp,107,human,0xA8C,NC2Layout::HumanOffset::SecondaryTargetWorkPosition,Windows hunting 0046CA73 saves work point; fetch startup consumes it
+C2HumanHuntingJobs.cpp,108,human,0xA90,NC2Layout::HumanOffset::SecondaryTargetLandscapeType,Windows 00444EDA stores good landscape type; hunting checks 79/80
+C2HumanHuntingJobs.cpp,92,human,0xA88,NC2Layout::HumanOffset::SecondaryTargetPosition,Windows 004432E1 saves point; hunting and equipment restoration read it
+C2HumanHuntingJobs.cpp,98,human,0xA8C,NC2Layout::HumanOffset::SecondaryTargetWorkPosition,Windows hunting 0046CA73 saves work point; fetch startup consumes it

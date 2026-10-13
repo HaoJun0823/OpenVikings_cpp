@@ -211,9 +211,16 @@ namespace NC2Layout
         inline constexpr auto TargetWorkPositionX = 0xA70;
         inline constexpr auto TargetWorkPositionY = 0xA72;
         inline constexpr auto TargetLandscapeType = 0xA74;
+        inline constexpr auto TargetGoodType = 0xA78;
         inline constexpr auto TargetObjectId = 0xA7C;
         inline constexpr auto TargetObjectRevision = 0xA80;
         inline constexpr auto SecondaryInteractionTarget = 0xA84;
+        inline constexpr auto SecondaryTargetPosition = 0xA88;
+        inline constexpr auto SecondaryTargetWorkPosition = 0xA8C;
+        inline constexpr auto SecondaryTargetLandscapeType = 0xA90;
+        inline constexpr auto SecondaryTargetGoodType = 0xA94;
+        inline constexpr auto SecondaryTargetObjectId = 0xA98;
+        inline constexpr auto SecondaryTargetObjectRevision = 0xA9C;
         inline constexpr auto Hitpoints = 0xAA0;
         inline constexpr auto AgeCounter = 0xAA4;
         inline constexpr auto Food = 0xAA8;
@@ -362,6 +369,7 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto InteractionTargetData = 28;
         inline constexpr auto HumanAssistantData = 0xD0;
         inline constexpr auto HumanAssistantCommandHistory = 0x14u;
         inline constexpr auto HumanInventorySlot = 8u;
@@ -530,6 +538,26 @@ namespace NC2Layout
         inline constexpr auto DirectionRuns = 0x5C;
         inline constexpr auto DirectionRunCounts = 0x5D;
         inline constexpr auto DirectionRunCountsUnsigned = 0x5Du;
+    }
+
+    namespace TargetDataOffset
+    {
+        inline constexpr auto Type = 0;
+        inline constexpr auto ObjectIdOrMapPosition = 4;
+        inline constexpr auto MapPositionX = 4;
+        inline constexpr auto MapPositionY = 6;
+        inline constexpr auto ObjectRevision = 8;
+    }
+
+    namespace InteractionTargetDataOffset
+    {
+        inline constexpr auto Type = 0;
+        inline constexpr auto RealPosition = 4;
+        inline constexpr auto WorkPosition = 8;
+        inline constexpr auto LandscapeType = 12;
+        inline constexpr auto GoodType = 16;
+        inline constexpr auto ObjectId = 0x14;
+        inline constexpr auto ObjectRevision = 0x18;
     }
 
     namespace HumanAssistantDataOffset

@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Interaction and military target records - 2026-10-13
+
+Named 28 human interaction-overlay accesses and 29 relative target accesses with distinct 28-/12-byte formats. Original target validation, hidden/container redirection and interruption/resume order are retained. All eight affected C++ units, 32 value/type pairs and eight layout assertions pass Win32 `/Zs`; 1257 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [TARGET_RECORD_LAYOUT_REVIEW.md](TARGET_RECORD_LAYOUT_REVIEW.md). Whole-source review continues with remaining task-local storage and engine/GUI/control/data layouts.
+
 ## Human task counters and sector links - 2026-10-13
 
 Named 49 accesses to idle-start, task-failure and position-reached counters, urgent-needs state and human sector links. Shared iterator current-ID naming now covers animals, humans and vehicles. Original non-head link removal and unsigned recovery arithmetic are retained. All 13 affected C++ units, ten value/type pairs and iterator layout assertions pass Win32 `/Zs`; 2008 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [HUMAN_TASK_COUNTER_REVIEW.md](HUMAN_TASK_COUNTER_REVIEW.md). Whole-source review continues with remaining overlays and engine/GUI/control/data helpers.

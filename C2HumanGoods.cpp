@@ -1150,11 +1150,11 @@ namespace NC2Logic
     void Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(void* human)
     {
         Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human);
-        std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, 28);
+        std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, NC2Layout::RecordSize::InteractionTargetData);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 2);
         const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
-        Write(human, 0xA90, gStaticGoodTypeStorage.records[good].landscapeType);
-        Write(human, 0xA94, good);
+        Write(human, NC2Layout::HumanOffset::SecondaryTargetLandscapeType, gStaticGoodTypeStorage.records[good].landscapeType);
+        Write(human, NC2Layout::HumanOffset::SecondaryTargetGoodType, good);
     }
 
     // Original function: FUN_00468b91.
@@ -1274,18 +1274,18 @@ namespace NC2Logic
     void Human_Target_RestoreSecondaryTarget(void* human)
     {
         const auto type = Read<std::int32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget);
-        if (type == 7 || type == 8) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), MapMigPoint_GetLong(static_cast<std::byte*>(human) + 0xA88), 0);
+        if (type == 7 || type == 8) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), MapMigPoint_GetLong(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetPosition), 0);
         else if (type == 6)
         {
-            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, 0xA9C)) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(human, 0xA98), Read<std::uint32_t>(human, 0xA9C));
+            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision)) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision));
         }
         else if (type >= 1 && type <= 5)
         {
             const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode);
-            if (mode != 0 && !(TGoodTypes_IsFood(Read<std::uint32_t>(human, 0xA94)) && mode == 1))
+            if (mode != 0 && !(TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType)) && mode == 1))
             {
-                Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0xA94));
-                std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, 28);
+                Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType));
+                std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, NC2Layout::RecordSize::InteractionTargetData);
                 auto* real = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
                 auto* work = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
                 if (mode >= 1 && mode <= 4) Human_l_StartAtomicWalkAndFetch(human, real, work, mode == 1);

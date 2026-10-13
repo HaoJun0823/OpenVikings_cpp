@@ -1820,6 +1820,7 @@ namespace SwitchIds
 
     namespace TargetType
     {
+        inline constexpr auto MapPosition = 5;
         inline constexpr auto Human = 1;
         inline constexpr auto Vehicle = 2;
         inline constexpr auto Animal = 3;

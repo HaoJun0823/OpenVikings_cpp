@@ -401,8 +401,8 @@ namespace NC2Logic
             }
             Write(human, NC2Layout::HumanOffset::RequestedGood, good);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 6);
-            Write(human, 0xA98, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
-            Write(human, 0xA9C, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, true)) return;
             goto failed;
         }
@@ -470,8 +470,8 @@ namespace NC2Logic
                 return;
             }
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 6);
-            Write(human, 0xA98, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
-            Write(human, 0xA9C, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
             Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         }
         if (Human_IsAtTargetPoint(human) && Human_CanSleepAtTargetMapPosition(human))

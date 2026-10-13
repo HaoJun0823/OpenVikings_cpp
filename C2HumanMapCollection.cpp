@@ -129,7 +129,7 @@ namespace NC2Logic
     // Original function: FUN_0046d245.
     void Human_l_StartTask_ExecuteJob_Fisher_Collect(void* human)
     {
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 2 && Read<std::uint32_t>(human, 0xA78) != 0)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetGoodType) != 0)
         {
             if (Human_IsAtTargetPoint(human)) { Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human); return; }
             if (Human_l_StartAtomicWalkAndFetch(human, Real(human), Work(human), false)) return;

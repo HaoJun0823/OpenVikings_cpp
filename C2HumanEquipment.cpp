@@ -397,16 +397,16 @@ namespace NC2Logic
         auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget;
         if (!InteractionTargetData_IsValid(secondary)) return;
         const auto target = Read<std::uint32_t>(secondary, 0);
-        if (target == 7 || target == 8) Queue(human, 4, MapMigPoint_GetLong(static_cast<std::byte*>(human) + 0xA88), 0);
+        if (target == 7 || target == 8) Queue(human, 4, MapMigPoint_GetLong(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetPosition), 0);
         else if (target == 6)
         {
-            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, 0xA9C)) Queue(human, 40, Read<std::uint32_t>(human, 0xA98), static_cast<std::int32_t>(Read<std::uint32_t>(human, 0xA9C)));
+            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision)) Queue(human, 40, Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectId), static_cast<std::int32_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetObjectRevision)));
         }
         else if (target >= 1 && target <= 5 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode) != 0)
         {
             const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode);
-            std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, secondary, 28);
-            Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0xA94));
+            std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, secondary, NC2Layout::RecordSize::InteractionTargetData);
+            Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType));
             if (mode >= 1 && mode <= 4) Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition, mode == 1);
             else if (mode == 5)
             {

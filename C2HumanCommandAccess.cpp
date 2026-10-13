@@ -382,8 +382,8 @@ namespace NC2Logic
         {
         case SwitchIds::HumanTask::Goto:
         case SwitchIds::HumanTask::ExecuteJob:
-            std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, 28);
-            Write(human, 0xA94, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
+            std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, NC2Layout::RecordSize::InteractionTargetData);
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetGoodType, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
             Write(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode, Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode));
             break;
         case SwitchIds::HumanTask::GoHome:
@@ -391,7 +391,7 @@ namespace NC2Logic
             break;
         case SwitchIds::HumanTask::GotoAndWait:
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 1);
-            Write(human, 0xA88, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition));
+            Write(human, NC2Layout::HumanOffset::SecondaryTargetPosition, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition));
             break;
         case SwitchIds::HumanTask::Marry:
         {
