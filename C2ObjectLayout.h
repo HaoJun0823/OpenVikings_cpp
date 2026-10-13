@@ -513,6 +513,12 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto AvailableJobs = 0x948;
+
+        inline constexpr auto AvailableGoods = 0x1D4C;
+
+        inline constexpr auto AvailableHouses = 0x3126;
+
         inline constexpr auto TribeType = 0xC;
 
         inline constexpr auto AllowedHouses = 0x2820;
@@ -1454,6 +1460,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto ListBoxScrollAndActiveState = 28;
+
+        inline constexpr auto ListBoxControllerState = 12;
+
         inline constexpr auto EngineHouseTypeUnsigned = 0x8BCu;
 
         inline constexpr auto HelpWindowVars = 4064;
@@ -2428,6 +2438,79 @@ namespace NC2Layout
         inline constexpr auto DevelopmentStageCount = 0x54;
 
         inline constexpr auto TribeType = 0x50;
+    }
+
+    namespace ListBoxControllerOffset
+    {
+        inline constexpr auto VerticalEnabledFlag = 0x35;
+
+        inline constexpr auto HorizontalEnabledFlag = 0x34;
+
+        inline constexpr auto Inset = 0x38;
+
+        inline constexpr auto List = 0x30;
+    }
+
+    namespace ListBoxOffset
+    {
+        inline constexpr auto InputChildren = 0x60;
+
+        inline constexpr auto DrawChildren = 0x4C;
+
+        inline constexpr auto ScrollY = 0x34;
+
+        inline constexpr auto ChildBoundsY = 0x3C;
+
+        inline constexpr auto ChildBoundsHeight = 0x44;
+
+        inline constexpr auto ScrollX = 0x30;
+
+        inline constexpr auto ChildBounds = 0x38;
+
+        inline constexpr auto ChildBoundsWidth = 0x40;
+
+        inline constexpr auto ActiveChild = 0x48;
+    }
+
+    namespace ListBoxObjectVarsOffset
+    {
+        inline constexpr auto InputChildren = 0x14;
+    }
+
+    namespace TechTreeWindowStateOffset
+    {
+        inline constexpr auto SelectedHouseTypeUnsigned = 4u;
+
+        inline constexpr auto Page = 0;
+
+        inline constexpr auto SelectedJobType = 12;
+
+        inline constexpr auto SelectedGoodType = 8;
+
+        inline constexpr auto SelectedHouseType = 4;
+    }
+
+    namespace TechTreeWindowOffset
+    {
+        inline constexpr auto DynamicButtons = 0x70;
+    }
+
+    namespace TechTreeTypeElementOffset
+    {
+        inline constexpr auto Window = 0x64;
+
+        inline constexpr auto TypeId = 0x60;
+    }
+
+    namespace TechTreeLineElementOffset
+    {
+        inline constexpr auto SecondPointY = 0x38;
+
+        inline constexpr auto SecondPointX = 0x34;
+
+        inline constexpr auto FirstPointY = 0x30;
+
+        inline constexpr auto FirstPointX = 0x2C;
     }
 
 }

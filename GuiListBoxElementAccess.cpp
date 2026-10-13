@@ -24,11 +24,26 @@ namespace NC2InGameGuiBaseListBox
     using NXBasics::SRectangle;
     struct SElementListTag {};
     using TElementList = CRuntimeOwnedList<SElementListTag>;
-    static TElementList& ElementList(void* element, std::uint32_t offset) { return *reinterpret_cast<TElementList*>(static_cast<std::byte*>(element) + offset); }
-    static std::int32_t Add(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) + static_cast<std::uint32_t>(b)); }
-    static std::int32_t Subtract(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) - static_cast<std::uint32_t>(b)); }
-    static std::int32_t Multiply(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) * static_cast<std::uint32_t>(b)); }
-    template<class T> static T Virtual(void* element, std::uint32_t slot) { return Read<T*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[slot]; }
+    static TElementList& ElementList(void* element, std::uint32_t offset)
+    {
+        return *reinterpret_cast<TElementList*>(static_cast<std::byte*>(element) + offset);
+    }
+    static std::int32_t Add(std::int32_t a, std::int32_t b)
+    {
+        return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) + static_cast<std::uint32_t>(b));
+    }
+    static std::int32_t Subtract(std::int32_t a, std::int32_t b)
+    {
+        return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) - static_cast<std::uint32_t>(b));
+    }
+    static std::int32_t Multiply(std::int32_t a, std::int32_t b)
+    {
+        return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) * static_cast<std::uint32_t>(b));
+    }
+    template<class T> static T Virtual(void* element, std::uint32_t slot)
+    {
+        return Read<T*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[slot];
+    }
     using TDeactivate = void(__thiscall*)(void*);
     using TActivate = void(__thiscall*)(void*, const std::int32_t*);
     using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -93,12 +108,15 @@ namespace NC2InGameGuiBaseListBox
     static_assert(sizeof(gListTable) == 72 && sizeof(TElementList) == 20);
 
     // Original function: FUN_004cff94.
-    static void* __fastcall List_GetRealActiveElementPtr(void* element) { return Read<void*>(element, 0x48); }
+    static void* __fastcall List_GetRealActiveElementPtr(void* element)
+    {
+        return Read<void*>(element, NC2Layout::ListBoxOffset::ActiveChild);
+    }
 
     // Original function: FUN_004cff98.
     static void* __fastcall ToolList_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gToolListTable.data());
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gToolListTable.data());
         BaseListBoxElement_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -115,14 +133,14 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d0845.
     static void Controller_Destruct(void* element)
     {
-        Write(element, 0, gControllerTable.data());
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gControllerTable.data());
         BaseElement_Destruct(element);
     }
 
     // Original function: FUN_004d001b.
     static void* __fastcall ToolController_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gToolControllerTable.data());
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gToolControllerTable.data());
         Controller_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -131,27 +149,27 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d02c1.
     static std::int32_t ScrollOffset_GetXPercentage(void* element)
     {
-        const auto range = Subtract(Read<std::int32_t>(element, 0x40), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width));
-        return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, 0x38), Read<std::int32_t>(element, 0x30)), -100) / range;
+        const auto range = Subtract(Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ChildBoundsWidth), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width));
+        return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ChildBounds), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX)), -100) / range;
     }
     // Original function: FUN_004d02df.
     static std::int32_t ScrollOffset_GetYPercentage(void* element)
     {
-        const auto range = Subtract(Read<std::int32_t>(element, 0x44), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
-        return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, 0x3C), Read<std::int32_t>(element, 0x34)), -100) / range;
+        const auto range = Subtract(Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ChildBoundsHeight), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
+        return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ChildBoundsY), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY)), -100) / range;
     }
     // Original function: FUN_004d003d.
     static void __fastcall ToolController_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
         reinterpret_cast<TDraw>(NC2InGameGuiBase::gBaseToolElementVirtualTable[3])(element, bitmap, rectangle);
-        void* list = Read<void*>(element, 0x30);
-        const auto inset = Read<std::int32_t>(element, 0x38);
+        void* list = Read<void*>(element, NC2Layout::ListBoxControllerOffset::List);
+        const auto inset = Read<std::int32_t>(element, NC2Layout::ListBoxControllerOffset::Inset);
         const auto width = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width);
         const auto height = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height);
         const auto xPercentage = ScrollOffset_GetXPercentage(list);
         const auto yPercentage = ScrollOffset_GetYPercentage(list);
-        const auto x = Read<std::uint8_t>(element, 0x34) != 0 && xPercentage >= 0 ? Add(Multiply(Subtract(width, Add(inset, inset)), xPercentage) / 100, inset) : width / 2;
-        const auto y = Read<std::uint8_t>(element, 0x35) != 0 && yPercentage >= 0 ? Add(Multiply(Subtract(height, Add(inset, inset)), yPercentage) / 100, inset) : height / 2;
+        const auto x = Read<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::HorizontalEnabledFlag) != 0 && xPercentage >= 0 ? Add(Multiply(Subtract(width, Add(inset, inset)), xPercentage) / 100, inset) : width / 2;
+        const auto y = Read<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::VerticalEnabledFlag) != 0 && yPercentage >= 0 ? Add(Multiply(Subtract(height, Add(inset, inset)), yPercentage) / 100, inset) : height / 2;
         const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
         NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 0xB2, bitmap, x, y, resources.iconsLeftPalette, 0x80);
     }
@@ -160,15 +178,15 @@ namespace NC2InGameGuiBaseListBox
     static void ObjectVars_Construct(void* storage)
     {
         ::new (storage) TElementList(false);
-        ::new (static_cast<std::byte*>(storage) + 0x14) TElementList(false);
+        ::new (static_cast<std::byte*>(storage) + NC2Layout::ListBoxObjectVarsOffset::InputChildren) TElementList(false);
     }
     // Original function: FUN_004d00e6.
     void* BaseListBoxElement_Construct(void* element, const SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageTypes)
     {
         NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, flags | 3u, messageTypes | NXBasics::BitMask::Bit8AndBit11);
-        ObjectVars_Construct(static_cast<std::byte*>(element) + 0x4C);
-        Write(element, 0, gListTable.data());
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 28);
+        ObjectVars_Construct(static_cast<std::byte*>(element) + NC2Layout::ListBoxOffset::DrawChildren);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gListTable.data());
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::ListBoxOffset::ScrollX, 0, NC2Layout::RecordSize::ListBoxScrollAndActiveState);
         l_BoundingElementBox_Calculate(element);
         return element;
     }
@@ -182,11 +200,11 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d0172.
     void BaseListBoxElement_Destruct(void* element)
     {
-        Write(element, 0, gListTable.data());
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gListTable.data());
         BaseListBoxElement_Element_DeleteAll(element);
-        ElementList(element, 0x60).~TElementList();
-        ElementList(element, 0x4C).~TElementList();
-        Write(element, 0, gControllerTable.data());
+        ElementList(element, NC2Layout::ListBoxOffset::InputChildren).~TElementList();
+        ElementList(element, NC2Layout::ListBoxOffset::DrawChildren).~TElementList();
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gControllerTable.data());
         BaseElement_Destruct(element);
     }
     // Original function: FUN_00478661; BW_Element_DoNotUse.
@@ -201,15 +219,15 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d01cc.
     void BaseListBoxElement_Element_Remove(void* list, void* element)
     {
-        if (Read<void*>(list, 0x48) == element)
+        if (Read<void*>(list, NC2Layout::ListBoxOffset::ActiveChild) == element)
         {
             Virtual<TDeactivate>(element, 5)(element);
-            Write<void*>(list, 0x48, nullptr);
+            Write<void*>(list, NC2Layout::ListBoxOffset::ActiveChild, nullptr);
         }
-        if (void* window = Read<void*>(list, 0x20)) BaseWindow_Element_DoNotUse(window, element);
+        if (void* window = Read<void*>(list, NC2Layout::GuiBaseElementOffset::ParentWindow)) BaseWindow_Element_DoNotUse(window, element);
         CDesktop::sTheObjectPtr->Element_Remove(static_cast<CBaseElement*>(element));
-        ElementList(list, 0x4C).l_Base_RemoveElement(element);
-        ElementList(list, 0x60).l_Base_RemoveElement(element);
+        ElementList(list, NC2Layout::ListBoxOffset::DrawChildren).l_Base_RemoveElement(element);
+        ElementList(list, NC2Layout::ListBoxOffset::InputChildren).l_Base_RemoveElement(element);
         l_BoundingElementBox_Calculate(list);
     }
     // Original function: FUN_004d021b.
@@ -221,47 +239,47 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d0236.
     void BaseListBoxElement_Element_DeleteAll(void* list)
     {
-        while (void* element = ElementList(list, 0x4C).l_Base_GetStartElement()) BaseListBoxElement_Element_Delete(list, element);
+        while (void* element = ElementList(list, NC2Layout::ListBoxOffset::DrawChildren).l_Base_GetStartElement()) BaseListBoxElement_Element_Delete(list, element);
     }
     // Original function: FUN_004d0255.
     void BaseListBoxElement_ScrollOffset_Set(void* list, std::int32_t x, std::int32_t y)
     {
-        Write(list, 0x30, x);
-        Write(list, 0x34, y);
+        Write(list, NC2Layout::ListBoxOffset::ScrollX, x);
+        Write(list, NC2Layout::ListBoxOffset::ScrollY, y);
         l_ScrollOffset_Validate(list);
     }
     // Original function: FUN_004d026b.
     void BaseListBoxElement_ScrollOffset_SetPercentage(void* list, std::int32_t x, std::int32_t y)
     {
-        const auto rangeX = Subtract(Read<std::int32_t>(list, 0x40), Read<std::int32_t>(list, 0x0C));
-        const auto rangeY = Subtract(Read<std::int32_t>(list, 0x44), Read<std::int32_t>(list, 0x10));
-        if (x >= 0 && rangeX > 0) Write(list, 0x30, Subtract(Subtract(0, Read<std::int32_t>(list, 0x38)), Multiply(rangeX, x) / 100));
-        if (y >= 0 && rangeY > 0) Write(list, 0x34, Subtract(Subtract(0, Read<std::int32_t>(list, 0x3C)), Multiply(rangeY, y) / 100));
+        const auto rangeX = Subtract(Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ChildBoundsWidth), Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width));
+        const auto rangeY = Subtract(Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ChildBoundsHeight), Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Height));
+        if (x >= 0 && rangeX > 0) Write(list, NC2Layout::ListBoxOffset::ScrollX, Subtract(Subtract(0, Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ChildBounds)), Multiply(rangeX, x) / 100));
+        if (y >= 0 && rangeY > 0) Write(list, NC2Layout::ListBoxOffset::ScrollY, Subtract(Subtract(0, Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ChildBoundsY)), Multiply(rangeY, y) / 100));
         l_ScrollOffset_Validate(list);
     }
     // Original function: FUN_004d02fd.
     static void l_ScrollOffset_Validate(void* element)
     {
-        SRectangle viewport(Subtract(0, Read<std::int32_t>(element, 0x30)), Subtract(0, Read<std::int32_t>(element, 0x34)), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
+        SRectangle viewport(Subtract(0, Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX)), Subtract(0, Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY)), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
         SRectangle bounds(0, 0, 0, 0);
-        std::memcpy(&bounds, static_cast<std::byte*>(element) + 0x38, sizeof(bounds));
+        std::memcpy(&bounds, static_cast<std::byte*>(element) + NC2Layout::ListBoxOffset::ChildBounds, sizeof(bounds));
         viewport.PlaceInside(bounds);
-        Write(element, 0x30, Subtract(0, viewport.x));
-        Write(element, 0x34, Subtract(0, viewport.y));
+        Write(element, NC2Layout::ListBoxOffset::ScrollX, Subtract(0, viewport.x));
+        Write(element, NC2Layout::ListBoxOffset::ScrollY, Subtract(0, viewport.y));
     }
     // Original function: FUN_004d033f.
     bool BaseListBoxElement_ScrollOffset_CenterOnEntry_StartingWithLetter(void* list, char letter)
     {
-        NXBasics::CListBase::Iterator iterator(ElementList(list, 0x4C));
+        NXBasics::CListBase::Iterator iterator(ElementList(list, NC2Layout::ListBoxOffset::DrawChildren));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
+            if ((Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             char text[100];
             if (!Virtual<TMessage>(child, 2)(child, 0x800, 0x7F1, reinterpret_cast<std::uintptr_t>(text), 99, 0)) continue;
             if (NXBasics::Runtime_ToLower(static_cast<signed char>(text[0])) != NXBasics::Runtime_ToLower(static_cast<signed char>(letter))) continue;
             const auto rectangle = BaseElement_GetRectangle(child);
-            Write(list, 0x30, Subtract(Subtract(Read<std::int32_t>(list, 0x0C) / 2, rectangle.width / 2), rectangle.x));
-            Write(list, 0x34, Subtract(Subtract(Read<std::int32_t>(list, 0x10) / 2, rectangle.height / 2), rectangle.y));
+            Write(list, NC2Layout::ListBoxOffset::ScrollX, Subtract(Subtract(Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width) / 2, rectangle.width / 2), rectangle.x));
+            Write(list, NC2Layout::ListBoxOffset::ScrollY, Subtract(Subtract(Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Height) / 2, rectangle.height / 2), rectangle.y));
             l_ScrollOffset_Validate(list);
             return true;
         }
@@ -271,22 +289,22 @@ namespace NC2InGameGuiBaseListBox
     static void l_BoundingElementBox_Calculate(void* element)
     {
         SRectangle bounds(0, 0, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
-        NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
+        NXBasics::CListBase::Iterator iterator(ElementList(element, NC2Layout::ListBoxOffset::DrawChildren));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
-            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
-        Write(element, 0x38, bounds);
+            if ((Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
+        Write(element, NC2Layout::ListBoxOffset::ChildBounds, bounds);
         l_ScrollOffset_Validate(element);
     }
     // Original function: FUN_004d0471.
     static void __fastcall List_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
-        NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
+        NXBasics::CListBase::Iterator iterator(ElementList(element, NC2Layout::ListBoxOffset::DrawChildren));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
+            if ((Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             auto position = BaseElement_GetRectangle(child);
-            position.x = Add(position.x, Read<std::int32_t>(element, 0x30));
-            position.y = Add(position.y, Read<std::int32_t>(element, 0x34));
+            position.x = Add(position.x, Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX));
+            position.y = Add(position.y, Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY));
             if (!rectangle->IsTouching(position)) continue;
             auto visible = position;
             visible.CutInside(*rectangle);
@@ -301,7 +319,7 @@ namespace NC2InGameGuiBaseListBox
     {
         if (message == 0x100)
         {
-            Write(element, 0x34, Add(Read<std::int32_t>(element, 0x34), NXBasics::Runtime_TimeSigned32(param3) / 5));
+            Write(element, NC2Layout::ListBoxOffset::ScrollY, Add(Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY), NXBasics::Runtime_TimeSigned32(param3) / 5));
             l_ScrollOffset_Validate(element);
             return true;
         }
@@ -327,21 +345,21 @@ namespace NC2InGameGuiBaseListBox
     static void __fastcall List_Activate(void* element, void*, const std::int32_t* point)
     {
         BaseElement_Activate(element, nullptr, point);
-        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, 0x34))};
+        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY))};
         void* child = l_FindElementOnPosition(element, local, false);
-        void* active = Read<void*>(element, 0x48);
+        void* active = Read<void*>(element, NC2Layout::ListBoxOffset::ActiveChild);
         if (child == active) return;
         if (active != nullptr) Virtual<TDeactivate>(active, 5)(active);
-        Write(element, 0x48, child);
+        Write(element, NC2Layout::ListBoxOffset::ActiveChild, child);
         if (child != nullptr) Virtual<TActivate>(child, 4)(child, local);
     }
     // Original function: FUN_004d0654.
     static void __fastcall List_DeActivate(void* element)
     {
-        if (void* child = Read<void*>(element, 0x48))
+        if (void* child = Read<void*>(element, NC2Layout::ListBoxOffset::ActiveChild))
         {
             Virtual<TDeactivate>(child, 5)(child);
-            Write<void*>(element, 0x48, nullptr);
+            Write<void*>(element, NC2Layout::ListBoxOffset::ActiveChild, nullptr);
         }
         BaseElement_DeActivate(element);
     }
@@ -349,18 +367,18 @@ namespace NC2InGameGuiBaseListBox
     static bool __fastcall List_ButtonPressed(void* element, void*, const std::int32_t* point)
     {
         if (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState) != 1) return false;
-        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, 0x34))};
+        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY))};
         void* child = l_FindElementOnPosition(element, local, false);
         if (child == nullptr) return false;
         if (!BaseElement_CanBePressed(child)) return false;
-        if (child != Read<void*>(element, 0x48)) return true;
+        if (child != Read<void*>(element, NC2Layout::ListBoxOffset::ActiveChild)) return true;
         using TPressed = bool(__thiscall*)(void*, const std::int32_t*);
         return Virtual<TPressed>(child, 6)(child, local);
     }
     // Original function: FUN_004d06de.
     static bool __fastcall List_ButtonReleased(void* element)
     {
-        void* child = Read<void*>(element, 0x48);
+        void* child = Read<void*>(element, NC2Layout::ListBoxOffset::ActiveChild);
         using TReleased = bool(__thiscall*)(void*);
         return child != nullptr && Virtual<TReleased>(child, 7)(child);
     }
@@ -370,17 +388,17 @@ namespace NC2InGameGuiBaseListBox
         std::int32_t point[2];
         std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
         NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
-        point[0] = Subtract(point[0], Read<std::int32_t>(element, 0x30));
-        point[1] = Subtract(point[1], Read<std::int32_t>(element, 0x34));
+        point[0] = Subtract(point[0], Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX));
+        point[1] = Subtract(point[1], Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY));
         return l_FindElementOnPosition(element, point, includeDisabled);
     }
     // Original function: FUN_004d072d.
     static void* l_FindElementOnPosition(void* element, const std::int32_t* point, bool includeDisabled)
     {
-        NXBasics::CListBase::Iterator iterator(ElementList(element, 0x60));
+        NXBasics::CListBase::Iterator iterator(ElementList(element, NC2Layout::ListBoxOffset::InputChildren));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            const auto flags = Read<std::uint32_t>(child, 0x18);
+            const auto flags = Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::Flags);
             if (!includeDisabled && !BaseElement_CanBeActivated(child)) continue;
             if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             const auto rectangle = BaseElement_GetRectangle(child);
@@ -400,19 +418,19 @@ namespace NC2InGameGuiBaseListBox
     static void __fastcall List_ParentToLocalPosition(void* element, void*, std::int32_t* point)
     {
         BaseElement_ParentToLocalPosition(element, nullptr, point);
-        point[0] = Subtract(point[0], Read<std::int32_t>(element, 0x30));
-        point[1] = Subtract(point[1], Read<std::int32_t>(element, 0x34));
+        point[0] = Subtract(point[0], Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollX));
+        point[1] = Subtract(point[1], Read<std::int32_t>(element, NC2Layout::ListBoxOffset::ScrollY));
     }
     // Original function: FUN_004d07d8.
     static void* BaseListBoxControllerElement_Construct(void* element, const SRectangle* rectangle, void* list, bool horizontal, bool vertical, std::int32_t inset)
     {
         NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, 1, 0x81);
-        Write(element, 0, gControllerTable.data());
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 12);
-        Write(element, 0x30, list);
-        Write<std::uint8_t>(element, 0x34, horizontal);
-        Write<std::uint8_t>(element, 0x35, vertical);
-        Write(element, 0x38, inset);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gControllerTable.data());
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::ListBoxControllerOffset::List, 0, NC2Layout::RecordSize::ListBoxControllerState);
+        Write(element, NC2Layout::ListBoxControllerOffset::List, list);
+        Write<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::HorizontalEnabledFlag, horizontal);
+        Write<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::VerticalEnabledFlag, vertical);
+        Write(element, NC2Layout::ListBoxControllerOffset::Inset, inset);
         return element;
     }
     // Original function: FUN_004d0850.
@@ -422,14 +440,14 @@ namespace NC2InGameGuiBaseListBox
         if (Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) == 0) return true;
         std::int32_t point[2] = {NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2)};
         NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
-        const auto inset = Read<std::int32_t>(element, 0x38);
+        const auto inset = Read<std::int32_t>(element, NC2Layout::ListBoxControllerOffset::Inset);
         point[0] = Subtract(point[0], inset);
         point[1] = Subtract(point[1], inset);
-        void* list = Read<void*>(element, 0x30);
+        void* list = Read<void*>(element, NC2Layout::ListBoxControllerOffset::List);
         const auto width = Subtract(Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Add(inset, inset));
-        if (Read<std::uint8_t>(element, 0x34) != 0 && width > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, Multiply(point[0], 100) / width, -1);
+        if (Read<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::HorizontalEnabledFlag) != 0 && width > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, Multiply(point[0], 100) / width, -1);
         const auto height = Subtract(Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height), Add(inset, inset));
-        if (Read<std::uint8_t>(element, 0x35) != 0 && height > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, -1, Multiply(point[1], 100) / height);
+        if (Read<std::uint8_t>(element, NC2Layout::ListBoxControllerOffset::VerticalEnabledFlag) != 0 && height > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, -1, Multiply(point[1], 100) / height);
         return true;
     }
 }
@@ -441,22 +459,22 @@ using namespace NC2Lifetime;
 void* __fastcall ToolListBoxElement_Construct(void* element, void*, const NXBasics::SRectangle* rectangle)
 {
     BaseListBoxElement_Construct(element, rectangle, 0, 0);
-    Write(element, 0, gToolListTable.data());
+    Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gToolListTable.data());
     return element;
 }
 // Original function: FUN_004cfff5; NC2InGameGuiTool::CToolListBoxControllerElement.
 void* __fastcall ToolListBoxControllerElement_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, void* list, bool horizontal, bool vertical)
 {
     BaseListBoxControllerElement_Construct(element, rectangle, list, horizontal, vertical, 0x12);
-    Write(element, 0, gToolControllerTable.data());
+    Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gToolControllerTable.data());
     return element;
 }
 // Original function: FUN_004d01a3.
 void __fastcall BaseListBoxElement_Element_Add(void* list, void*, void* element)
 {
     Write(element, NC2Layout::GuiBaseElementOffset::MessageHandler, list);
-    ElementList(list, 0x4C).InsertAtEnd(element);
-    ElementList(list, 0x60).InsertAtStart(element);
+    ElementList(list, NC2Layout::ListBoxOffset::DrawChildren).InsertAtEnd(element);
+    ElementList(list, NC2Layout::ListBoxOffset::InputChildren).InsertAtStart(element);
     l_BoundingElementBox_Calculate(list);
 }
 // Original function: FUN_004c1a3f; NC2InGameGuiMiscWindows::Tool_Options_FillSavegameListboxForLoading.
@@ -464,7 +482,7 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
 {
     auto* manager = NC2Logic::gSavegamesManager;
     if (manager == nullptr) return;
-    NXBasics::SRectangle rectangle(0, 0, Read<std::int32_t>(list, 0x0C), 0x16);
+    NXBasics::SRectangle rectangle(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 0x16);
     manager->SavegameList_Update(network ? 2 : 1, !network);
     const bool grouped = manager->mSortType == 3;
     std::uint32_t previousType = 0;
@@ -479,11 +497,16 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
             const char* caption = "";
             switch (type)
             {
-            case SwitchIds::SavegameListType::System: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x84); break;
-            case SwitchIds::SavegameListType::User: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x85); break;
-            case SwitchIds::SavegameListType::Autosave: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x86); break;
-            case SwitchIds::SavegameListType::DeveloperUndo: caption = "Develop: undo savegames"; break;
-            case SwitchIds::SavegameListType::DeveloperTemporary: caption = "Develop: temp savegames"; break;
+            case SwitchIds::SavegameListType::System: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x84);
+                break;
+            case SwitchIds::SavegameListType::User: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x85);
+                break;
+            case SwitchIds::SavegameListType::Autosave: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x86);
+                break;
+            case SwitchIds::SavegameListType::DeveloperUndo: caption = "Develop: undo savegames";
+                break;
+            case SwitchIds::SavegameListType::DeveloperTemporary: caption = "Develop: temp savegames";
+                break;
             }
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
             void* heading = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption, false, false);
@@ -495,8 +518,8 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
         savegame->Tool_CreateSavegameButtonName(caption);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         void* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, caption, command, handler);
-        Write(button, 0x4C, savegame->uniqueId);
-        Write<std::uint32_t>(button, 0x50, 0);
+        Write(button, NC2Layout::ToolTextButtonOffset::CommandData1, savegame->uniqueId);
+        Write<std::uint32_t>(button, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
         if (savegame->uniqueId == selectedId) Write<std::uint8_t>(button, 0x55, 1);
         Write<std::uint8_t>(button, 0x57, 1);
         BaseListBoxElement_Element_Add(list, nullptr, button);

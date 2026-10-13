@@ -9,6 +9,23 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
 
 namespace NC2InGameGuiBaseListBox
 {
+    // Physical Windows storage. Child lists borrow elements; deletion is explicit.
+    struct SListBoxStorage
+    {
+        std::byte baseToolElement[48];
+        std::int32_t scrollX, scrollY;
+        NXBasics::SRectangle childBounds;
+        void* activeChild;
+        std::byte drawChildren[20], inputChildren[20];
+    };
+    struct SListBoxControllerStorage
+    {
+        std::byte baseToolElement[48];
+        void* list;
+        std::uint8_t horizontalEnabled, verticalEnabled;
+        std::byte unresolved36[2];
+        std::int32_t inset;
+    };
     void* BaseListBoxElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageTypes);
     void BaseListBoxElement_Destruct(void* element);
     void BaseListBoxElement_Element_Remove(void* list, void* element);
