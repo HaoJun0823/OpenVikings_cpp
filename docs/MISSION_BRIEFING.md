@@ -1,5 +1,15 @@
 # Mission briefing window and GUI savegame IO
 
+## Drachenland I: immediately checked goal descriptions - 2026-10-13
+
+The user screenshot shows four X-marked descriptions immediately in Drachenland I. This matches the installed original map script, not an established reconstruction defect. Read-only extraction from `DataX/Libs/data0001.lib` identifies the map as `data/maps/multiplayer_202_special_millitär`, German string 0 `DRACHENLAND I`.
+
+Mission records 2..5 (zero-based) are all named `dummy`, active and visible, with one `goal "True"`, no results and description IDs 5, 2, 3 and 6. These are the four displayed instruction paragraphs about defending against dragons, imprisoning them, searching for switches and closing all four caves. The native evaluator marks these description-only records successful as soon as it scans them; their status is not tied to actual switch/cave progress.
+
+The separate record 1, `win players`, has `description -1`, so it is excluded from the goals window. Its four predicates are `IsMissionDone 22`, `25`, `28` and `31`, followed by `MissionWon` results for players 0..4. Those referenced records detect players at the four switches and execute the cave-closing actions. Four checked dummy paragraphs therefore do not establish mission victory.
+
+Windows `0041E31B` evaluates goals and sets the completed byte at mission +0x25; renderer `004A4CED` selects string `005074B8` (`X`) for that byte and `005074B4` (`o`) for active, incomplete records. True's native jump-table target `0041F8F4` returns one. Current C++ follows that Windows behavior. The map's True predicates and the native status/symbol paths are confirmed from installed assets and Game.exe; no live manager state was inspected. Production code and map assets are unchanged. A more informative progress display would be an intentional later UI/script change, not a faithful reconstruction fix.
+
 ## Installed startup-script audit - 2026-10-08
 
 Read-only inspection of installed map.ini/map.cif files identifies 59 first-mission automatic briefings: 57 True and two TimeGone predicates (1/5 seconds). The reconstructed 36-tick Windows cadence evaluates these forms before PlayCutscene and callback 0x1B. A priority-50 multiplayer-goal link dummy was aborting the tick callback chain before mission evaluation. Its return and the AI/assistant/happiness callback returns now match the unconditional Windows true exits; their subsystem side effects remain unresolved and excluded from completion counts. Campaign 03/01, tutorial 003 and multiplayer 201 special coop request ID 0 via PlayCutscene 0 1. The map GUID, language path and HLT lookup were reconciled with 004A5164 and the original Game.exe string bytes. No guessed unconditional map-load popup was introduced. Gameplay opening remains unconfirmed; later briefing predicates/actions may still be unresolved. See [HUMAN_SELECTION_INFO_WINDOW.md](HUMAN_SELECTION_INFO_WINDOW.md).
