@@ -19,8 +19,8 @@ namespace NC2Logic
         void WriteMapSize(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MapSize, 1);
-            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, 4))));
-            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, 6))));
+            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroWidth))));
+            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroHeight))));
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -30,12 +30,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MacroHeight, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount); ++index)
             {
-                auto* record = records + index * 3u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 2)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMacroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMacroPointOffset::Height)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -45,12 +45,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MacroPatternA, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount); ++index)
             {
-                auto* record = records + index * 3u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMacroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMacroPointOffset::PatternA)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -60,12 +60,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MacroPatternB, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount); ++index)
             {
-                auto* record = records + index * 3u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 1)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMacroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMacroPointOffset::PatternB)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -75,12 +75,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::LandscapeType, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 2) : 0));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) != 0 ? Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -90,12 +90,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::LandscapeValency, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 3) : 0));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) != 0 ? Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -105,12 +105,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::LandscapePlayer, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 4) : NXBasics::IntegerRange::UInt8MaximumSigned));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) != 0 ? Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : NXBasics::IntegerRange::UInt8MaximumSigned));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -120,12 +120,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroContinent, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 6)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ContinentId)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -135,12 +135,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroWalkConnections, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 7)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::WalkingDirections)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -150,12 +150,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroMaximumMoveableSize, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 12) & 7));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -165,12 +165,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroPathResistance, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 12) >> 3) & 15));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::WalkingFlags) >> 3) & 15));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -180,12 +180,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroWalkingBlocked, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 12) >> 7));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::WalkingFlags) >> 7));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -195,12 +195,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroBuildingBlocked, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 13) & 1));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -210,12 +210,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroRoad, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 1) & 1));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::TerrainFlags) >> 1) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -225,12 +225,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroSectorBasePoint, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 4) & 1));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::TerrainFlags) >> 4) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -240,12 +240,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::AttachedObjects, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 4 ? Read<std::uint16_t>(record, 2) : 0));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 4 ? Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, NC2DataIds::PackingType::Rle16);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -255,12 +255,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::MicroHouseBuildForbidden, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 5) & 1));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::TerrainFlags) >> 5) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, NC2DataIds::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 1u, NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -270,12 +270,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Houses, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 2 ? (Read<std::uint16_t>(record, 4) | ((Read<std::uint8_t>(record, 2) & 1) << 15) | ((Read<std::uint8_t>(record, 2) & 2) << 13)) : NXBasics::IntegerRange::UInt16MaximumSigned));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? (Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::HouseId) | ((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) & 1) << 15) | ((Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) & 2) << 13)) : NXBasics::IntegerRange::UInt16MaximumSigned));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, NC2DataIds::PackingType::Rle16);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -285,12 +285,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Guides, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 3 ? Read<std::uint16_t>(record, 2) : NXBasics::IntegerRange::UInt16MaximumSigned));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, NC2Layout::MapMicroPointOffset::ObjectType) == 3 ? Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::ObjectData) : NXBasics::IntegerRange::UInt16MaximumSigned));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, NC2DataIds::PackingType::Rle16);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -300,12 +300,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Exploration, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, 8)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::ExplorationMask)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, NC2DataIds::PackingType::Rle16);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -315,12 +315,12 @@ namespace NC2Logic
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Fog, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
-                auto* record = records + index * 14u;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, 10)));
+                auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::FogMask)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, NC2DataIds::PackingType::Rle16);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -328,7 +328,7 @@ namespace NC2Logic
         void WriteContinentData(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Continents, 1);
-            io->IO_Memory_WriteBinary(gGameMapStaticStorage + 0x3C, 0xFA4);
+            io->IO_Memory_WriteBinary(gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentCount, NC2Layout::RecordSize::MapContinentRegion);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
     }

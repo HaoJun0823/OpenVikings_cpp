@@ -282,7 +282,7 @@ namespace NC2Logic
         }
 
         std::uint32_t continentCount;
-        std::memcpy(&continentCount, gGameMapStaticStorage + 0x3C, sizeof(continentCount));
+        std::memcpy(&continentCount, gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentCount, sizeof(continentCount));
         std::uint32_t landContinent = 0;
         std::uint32_t waterContinent = 0;
         // The Windows counter is a byte, including its original wraparound.

@@ -546,6 +546,22 @@ namespace NC2Layout
 
     namespace GameMapOffset
     {
+        inline constexpr auto Continents = 0x40;
+
+        inline constexpr auto MicroRectangle = 0x10;
+
+        inline constexpr auto MicroWidth = 0;
+
+        inline constexpr auto MacroRectangle = 0x20;
+
+        inline constexpr auto MacroPointCount = 8;
+
+        inline constexpr auto MicroPointCount = 0x0C;
+
+        inline constexpr auto ContinentsUnsigned = 0x40u;
+
+        inline constexpr auto ContinentCount = 0x3C;
+
         inline constexpr auto MicroHeight = 0x02;
         inline constexpr auto MacroWidth = 0x04;
         inline constexpr auto MacroHeight = 0x06;
@@ -1396,6 +1412,10 @@ namespace NC2Layout
 
     namespace MapMicroPointOffset
     {
+        inline constexpr auto FogMask = 0x0A;
+
+        inline constexpr auto ExplorationMask = 8;
+
         inline constexpr auto LandscapePlayerId = 4;
 
         inline constexpr auto ObjectType = 0;
@@ -1460,6 +1480,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MapContinent = 16;
+
+        inline constexpr auto MapContinentUnsigned = 16u;
+
+        inline constexpr auto MapContinentRegion = 0xFA4;
+
+        inline constexpr auto MapMicroPointUnsigned = 14u;
+
+        inline constexpr auto MapMacroPointUnsigned = 3u;
+
         inline constexpr auto MissionData = 0xDD8;
 
         inline constexpr auto MissionResult = 76;
@@ -2736,6 +2766,26 @@ namespace NC2Layout
         inline constexpr auto ResultsUnsigned = 0x4CCu;
 
         inline constexpr auto GoalsUnsigned = 0x18u;
+    }
+
+    namespace MapMacroPointOffset
+    {
+        inline constexpr auto PatternB = 1;
+
+        inline constexpr auto PatternA = 0;
+
+        inline constexpr auto Height = 2;
+    }
+
+    namespace MapContinentOffset
+    {
+        inline constexpr auto RetainedFlag = 12;
+
+        inline constexpr auto PointCount = 8;
+
+        inline constexpr auto SeedPoint = 4;
+
+        inline constexpr auto Type = 0;
     }
 
 }

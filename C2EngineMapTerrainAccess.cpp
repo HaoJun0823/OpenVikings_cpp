@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineMapTerrainAccess.h"
@@ -168,7 +169,7 @@ namespace NC2E2
     // Original function: FUN_004832dc; clear flags in descending index order.
     void EngineMap_Highlighting_Clear()
     {
-        auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(gGameMapStaticStorage, 12) - 1u);
+        auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) - 1u);
         while (index >= 0)
         {
             void* data = Read<void*>(gEngineMapStaticStorage, 4);
@@ -219,7 +220,7 @@ namespace NC2E2
     {
         gEngineMap = manager;
         std::memset(gEngineMapStaticStorage, 0, sizeof(gEngineMapStaticStorage));
-        const auto macroCount = Read<std::uint32_t>(gGameMapStaticStorage, 8), microCount = Read<std::uint32_t>(gGameMapStaticStorage, 12);
+        const auto macroCount = Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount), microCount = Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount);
         auto* macro = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(macroCount * 12u, 1));
         Write(gEngineMapStaticStorage, 0, macro);
         std::memset(macro, 0, macroCount * 12u);

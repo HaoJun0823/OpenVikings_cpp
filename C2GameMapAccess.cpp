@@ -115,9 +115,9 @@ namespace NC2Logic
             std::memcpy(gGameMapStaticStorage + offset, &buffer, sizeof(buffer));
         };
 
-        releaseBuffer(0x38);
-        releaseBuffer(0x30);
-        releaseBuffer(0x34);
+        releaseBuffer(NC2Layout::GameMapOffset::PackingScratchBuffer);
+        releaseBuffer(NC2Layout::GameMapOffset::MacroPointStorage);
+        releaseBuffer(NC2Layout::GameMapOffset::MicroPointStorage);
     }
 
     // Original function: FUN_004234c4
@@ -139,39 +139,39 @@ namespace NC2Logic
 
         // The continent count precedes the 250 serialized 16-byte continent records.
         const std::uint32_t initialValue3C = 1;
-        std::memcpy(gGameMapStaticStorage + 0x3C, &initialValue3C, sizeof(initialValue3C));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentCount, &initialValue3C, sizeof(initialValue3C));
 
         const std::uint32_t macroPointCount = static_cast<std::uint32_t>(static_cast<std::int32_t>(macroWidth) * static_cast<std::int32_t>(macroHeight));
 
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroWidth, &macroWidth, sizeof(macroWidth));
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroHeight, &macroHeight, sizeof(macroHeight));
-        std::memcpy(gGameMapStaticStorage + 0x08, &macroPointCount, sizeof(macroPointCount));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroPointCount, &macroPointCount, sizeof(macroPointCount));
 
         const NXBasics::SRectangle macroRectangle(0, 0, macroWidth, macroHeight);
-        std::memcpy(gGameMapStaticStorage + 0x20, &macroRectangle, sizeof(macroRectangle));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroRectangle, &macroRectangle, sizeof(macroRectangle));
 
         const std::int16_t microWidth = doubleLowWord(macroWidth);
         const std::int16_t microHeight = doubleLowWord(macroHeight);
         const std::uint32_t microPointCount = static_cast<std::uint32_t>(static_cast<std::int32_t>(microWidth) * static_cast<std::int32_t>(microHeight));
 
-        std::memcpy(gGameMapStaticStorage + 0, &microWidth, sizeof(microWidth));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroWidth, &microWidth, sizeof(microWidth));
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroHeight, &microHeight, sizeof(microHeight));
-        std::memcpy(gGameMapStaticStorage + 0x0C, &microPointCount, sizeof(microPointCount));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroPointCount, &microPointCount, sizeof(microPointCount));
 
         const NXBasics::SRectangle microRectangle(0, 0, microWidth, microHeight);
-        std::memcpy(gGameMapStaticStorage + 0x10, &microRectangle, sizeof(microRectangle));
+        std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroRectangle, &microRectangle, sizeof(microRectangle));
 
         // Original mirror writes at 0042354D..00423577, before buffer allocation.
         gMapPointDimensions.macroWidth = static_cast<std::int16_t>(GameMap_GetMacroWidth());
         gMapPointDimensions.macroHeight = static_cast<std::int16_t>(GameMap_GetMacroHeight());
         gMapPointDimensions.microWidth = GameMap_GetWidth();
         gMapPointDimensions.microHeight = GameMap_GetHeight();
-        const std::uint32_t macroBytes = macroPointCount * 3u;
+        const std::uint32_t macroBytes = macroPointCount * NC2Layout::RecordSize::MapMacroPointUnsigned;
         void* macroPoints = NXBasics::Runtime_AllocateWithNewHandler(macroBytes, 1);
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroPointStorage, &macroPoints, sizeof(macroPoints));
         std::memset(macroPoints, 0, macroBytes);
 
-        const std::uint32_t microBytes = microPointCount * 14u;
+        const std::uint32_t microBytes = microPointCount * NC2Layout::RecordSize::MapMicroPointUnsigned;
         auto* microPoints = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(microBytes, 1));
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroPointStorage, &microPoints, sizeof(microPoints));
         std::memset(microPoints, 0, microBytes);
@@ -220,7 +220,7 @@ namespace NC2Logic
         std::uint32_t base;
         std::memcpy(&x, packedMagPoint, sizeof(x));
         std::memcpy(&y, static_cast<const std::byte*>(packedMagPoint) + 2, sizeof(y));
-        std::memcpy(&width, gGameMapStaticStorage + 4, sizeof(width));
+        std::memcpy(&width, gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroWidth, sizeof(width));
         std::memcpy(&base, gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroPointStorage, sizeof(base));
         const auto index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(width)) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
         return reinterpret_cast<void*>(static_cast<std::uintptr_t>(base + index * 3u));
@@ -311,7 +311,7 @@ namespace NC2Logic
         const std::int32_t diameter = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(radius) * 2u);
         NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(static_cast<std::int32_t>(x)) - static_cast<std::uint32_t>(radius)), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) - static_cast<std::uint32_t>(radius)), diameter, diameter);
         NXBasics::SRectangle bounds(0, 0, 0, 0);
-        std::memcpy(&bounds, gGameMapStaticStorage + 0x10, sizeof(bounds));
+        std::memcpy(&bounds, gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroRectangle, sizeof(bounds));
         rectangle.CutInside(bounds);
         std::uint32_t baseAddress;
         std::memcpy(&baseAddress, gGameMapStaticStorage + NC2Layout::GameMapOffset::PackingScratchBuffer, sizeof(baseAddress));
@@ -338,12 +338,12 @@ namespace NC2Logic
     std::uint32_t GameMap_Continent_GetContinentTyp(std::uint32_t continentId)
     {
         std::uint32_t count;
-        std::memcpy(&count, gGameMapStaticStorage + 0x3C, sizeof(count));
+        std::memcpy(&count, gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentCount, sizeof(count));
         if (continentId >= count)
             return 0;
 
         std::uint32_t type;
-        std::memcpy(&type, gGameMapStaticStorage + 0x40 + continentId * 0x10u, sizeof(type));
+        std::memcpy(&type, gGameMapStaticStorage + NC2Layout::GameMapOffset::Continents + continentId * 0x10u, sizeof(type));
         return type;
     }
 
@@ -455,7 +455,7 @@ namespace NC2Logic
     // Original function: FUN_0042388D; distinct linear-index overload.
     void* GameMap_GetMapMicroPointPtr(std::uint32_t index)
     {
-        if (index >= NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, 12)) return nullptr;
+        if (index >= NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount)) return nullptr;
         return reinterpret_cast<void*>(NC2Lifetime::Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage) + index * 14u);
     }
     // Original function: FUN_00423EEC.

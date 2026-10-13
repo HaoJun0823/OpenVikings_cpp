@@ -52,7 +52,7 @@ namespace NC2Logic
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(source.points + index);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     std::uint32_t next = source.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (GameMap_CalculationMap_GetValue(&next) != 0) continue;
@@ -60,7 +60,7 @@ namespace NC2Logic
                     if (useWalkCosts || skipBlocked)
                     {
                         const void* nextMicroPoint = GameMap_GetConstMapMicroPointPtr(&next);
-                        const std::uint8_t flags = Read<std::uint8_t>(nextMicroPoint, 0x0C);
+                        const std::uint8_t flags = Read<std::uint8_t>(nextMicroPoint, NC2Layout::MapMicroPointOffset::WalkingFlags);
                         if (skipBlocked && (flags & NXBasics::BitMask::Bit7) != 0) continue;
                         if (useWalkCosts)
                         {
@@ -398,13 +398,13 @@ namespace NC2Logic
             other = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2);
         }
         else if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1) == 0) return false;
-        if ((Read<std::uint8_t>(microPoint, 7) & (1u << other)) == 0) return false;
+        if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << other)) == 0) return false;
         auto packed = Read<std::uint32_t>(point, 0);
         MapMigPoint_MoveCursorUnwrapped(packed, other);
         Write(point, 0, packed);
         const auto nextMicroPoint = GameMap_GetConstMapMicroPointPtr(point);
         const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(point));
-        if ((Read<std::uint8_t>(nextMicroPoint, 0x0C) & NXBasics::BitMask::Bit7) != 0 && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
+        if ((Read<std::uint8_t>(nextMicroPoint, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
         GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + 3u) % 6u)) | (remaining - 1u)));
         return true;
     }
@@ -424,7 +424,7 @@ namespace NC2Logic
         Write(point, 0, packed);
         const auto nextMicroPoint = GameMap_GetConstMapMicroPointPtr(point);
         const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(point));
-        const auto flags = Read<std::uint8_t>(nextMicroPoint, 0x0C);
+        const auto flags = Read<std::uint8_t>(nextMicroPoint, NC2Layout::MapMicroPointOffset::WalkingFlags);
         if (((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
         GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + 3u) % 6u)) | (remaining - 1u)));
         return true;
@@ -448,7 +448,7 @@ namespace NC2Logic
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(source.points + index);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = source.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if ((GameMap_CalculationMap_GetValue(&next) & NXBasics::BitMask::Bit9) != 0) continue;
@@ -538,7 +538,7 @@ namespace NC2Logic
             const auto direction = Read<std::uint32_t>(pathfinder, first ? 0x30 : 0x34);
             auto alternative = point;
             const void* microPoint = GameMap_GetConstMapMicroPointPtr(&point);
-            if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0)
+            if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0)
             {
                 if (!MapPathfinderElement_l_CheckOtherDirection(pathfinder, direction, &alternative, microPoint, radius)) return false;
                 point = alternative;
@@ -624,7 +624,7 @@ namespace NC2Logic
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
@@ -742,7 +742,7 @@ namespace NC2Logic
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);

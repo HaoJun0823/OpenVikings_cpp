@@ -99,9 +99,9 @@ namespace NC2Logic
     void __fastcall GameMap_Checksum_Calculate(void* /*map*/, void* /*unusedEdx*/, SGameChecksum* output)
     {
         output->components[4] = Tool_Checksum_Calculate(gGameMapStaticStorage, 0x30);
-        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, 8) * 3u);
-        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, 0x0C) * 14u);
-        output->components[7] = Tool_Checksum_Calculate(gGameMapStaticStorage + 0x3C, 0xFA4);
+        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount) * 3u);
+        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage), Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 14u);
+        output->components[7] = Tool_Checksum_Calculate(gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentCount, 0xFA4);
     }
 
     // Original function: FUN_00428736.

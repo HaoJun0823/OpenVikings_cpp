@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "ApplicationGlobals.h"
 #include "C2GameMapAccess.h"
@@ -35,11 +36,11 @@ namespace NC2Logic
         static_assert(sizeof(SContinentChangeWork) == 12408);
         static_assert(offsetof(SContinentChangeWork, samePoints) == 0x3EC);
         static_assert(offsetof(SContinentChangeWork, creations) == 0xFA8);
-        std::uint32_t ContinentCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 0x3C); }
-        void SetContinentCount(std::uint32_t value) { Write(gGameMapStaticStorage, 0x3C, value); }
-        std::byte* Continent(std::uint32_t id) { return gGameMapStaticStorage + 0x40u + id * 16u; }
-        std::uint32_t PointContinent(const void* point) { return Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), 6); }
-        void SetPointContinent(const void* point, std::uint32_t id) { Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), 6, static_cast<std::uint8_t>(id)); }
+        std::uint32_t ContinentCount() { return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentCount); }
+        void SetContinentCount(std::uint32_t value) { Write(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentCount, value); }
+        std::byte* Continent(std::uint32_t id) { return gGameMapStaticStorage + NC2Layout::GameMapOffset::ContinentsUnsigned + id * NC2Layout::RecordSize::MapContinentUnsigned; }
+        std::uint32_t PointContinent(const void* point) { return Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId); }
+        void SetPointContinent(const void* point, std::uint32_t id) { Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId, static_cast<std::uint8_t>(id)); }
         bool InChangedArea(const void* point, const void* first, const void* end)
         {
             return Read<std::int16_t>(point, 0) >= Read<std::int16_t>(first, 0) && Read<std::int16_t>(point, 0) < Read<std::int16_t>(end, 0) && Read<std::int16_t>(point, 2) >= Read<std::int16_t>(first, 2) && Read<std::int16_t>(point, 2) < Read<std::int16_t>(end, 2);
@@ -69,7 +70,7 @@ namespace NC2Logic
         for (std::uint32_t index = 0; index < work->idCount; ++index)
         {
             const auto id = work->ids[index];
-            if (work->changedCounts[id] != 0) Write(Continent(id), 8, Read<std::uint32_t>(Continent(id), 8) - work->changedCounts[id]);
+            if (work->changedCounts[id] != 0) Write(Continent(id), NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(Continent(id), NC2Layout::MapContinentOffset::PointCount) - work->changedCounts[id]);
         }
     }
 
@@ -110,7 +111,7 @@ namespace NC2Logic
         auto& queues = sMapPathfinderStaticVariables;
         queues[0].count = 0; queues[1].count = 0;
         std::uint32_t remaining = 0;
-        for (std::uint32_t old = 0; old < 250; ++old) if (changedIds[old] != 0 && Read<std::uint32_t>(Continent(old), 8) != 0) ++remaining;
+        for (std::uint32_t old = 0; old < 250; ++old) if (changedIds[old] != 0 && Read<std::uint32_t>(Continent(old), NC2Layout::MapContinentOffset::PointCount) != 0) ++remaining;
         if (remaining == 0) return 0;
         queues[0].count = 1; queues[0].points[0] = Read<std::uint32_t>(source, 0);
         const auto old = PointContinent(source);
@@ -118,8 +119,8 @@ namespace NC2Logic
         const auto reduce = [&](std::uint32_t oldId)
         {
             if (changedIds[oldId] == 0) return;
-            const auto value = Read<std::uint32_t>(Continent(oldId), 8) - 1u;
-            Write(Continent(oldId), 8, value);
+            const auto value = Read<std::uint32_t>(Continent(oldId), NC2Layout::MapContinentOffset::PointCount) - 1u;
+            Write(Continent(oldId), NC2Layout::MapContinentOffset::PointCount, value);
             if (value == 0) --remaining;
         };
         reduce(old);
@@ -219,7 +220,7 @@ namespace NC2Logic
     {
         for (std::int16_t y = 0; y < GameMap_GetHeight(); ++y)
             for (std::int16_t x = 0; x < GameMap_GetWidth(); ++x) { std::int16_t point[2] = {x, y}; SetPointContinent(point, 255); }
-        std::memset(Continent(0), 0, 250 * 16);
+        std::memset(Continent(0), 0, 250 * NC2Layout::RecordSize::MapContinent);
         SetContinentCount(1);
         std::uint32_t nextId = 1;
         for (std::int16_t y = 0; y < GameMap_GetHeight(); ++y)
@@ -231,10 +232,10 @@ namespace NC2Logic
                 if (type == 0) { SetPointContinent(point, 0); continue; }
                 if (nextId == 250) return;
                 auto* record = Continent(ContinentCount());
-                Write(record, 0, type); Write(record, 4, Read<std::uint32_t>(point, 0));
+                Write(record, NC2Layout::MapContinentOffset::Type, type); Write(record, NC2Layout::MapContinentOffset::SeedPoint, Read<std::uint32_t>(point, 0));
                 const auto count = type == 1 ? GameMap_l_Continents_FillLand(nextId, point) : GameMap_l_Continents_FillWater(nextId, point);
                 record = Continent(ContinentCount());
-                Write(record, 8, count);
+                Write(record, NC2Layout::MapContinentOffset::PointCount, count);
                 if (count < 20)
                 {
                     for (std::int16_t sy = 0; sy < GameMap_GetHeight(); ++sy)
@@ -244,7 +245,7 @@ namespace NC2Logic
                             if (PointContinent(scan) == nextId) SetPointContinent(scan, 0);
                         }
                 }
-                else { ++nextId; Write<std::uint8_t>(record, 12, 1); SetContinentCount(ContinentCount() + 1u); }
+                else { ++nextId; Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 1); SetContinentCount(ContinentCount() + 1u); }
             }
     }
 
@@ -254,14 +255,14 @@ namespace NC2Logic
         std::int16_t center[2];
         for (std::uint32_t axis = 0; axis < 2; ++axis) center[axis] = static_cast<std::int16_t>((Read<std::int16_t>(first, axis * 2u) + Read<std::int16_t>(end, axis * 2u)) / 2);
         std::uint32_t remaining = 0;
-        for (std::uint32_t id = 0; id < 250; ++id) if (replacements[id] != 0 && Read<std::uint32_t>(Continent(id), 8) != 0) ++remaining;
+        for (std::uint32_t id = 0; id < 250; ++id) if (replacements[id] != 0 && Read<std::uint32_t>(Continent(id), NC2Layout::MapContinentOffset::PointCount) != 0) ++remaining;
         const auto replace = [&](const void* point)
         {
             const auto id = PointContinent(point), target = replacements[id];
             if (target == 0) return;
             SetPointContinent(point, target == 255 ? 0u : target);
-            const auto count = Read<std::uint32_t>(Continent(id), 8) - 1u;
-            Write(Continent(id), 8, count);
+            const auto count = Read<std::uint32_t>(Continent(id), NC2Layout::MapContinentOffset::PointCount) - 1u;
+            Write(Continent(id), NC2Layout::MapContinentOffset::PointCount, count);
             if (count == 0) --remaining;
         };
         if (remaining != 0) replace(center);
@@ -285,7 +286,7 @@ namespace NC2Logic
     {
         SContinentChangeWork work;
         std::memset(&work, 0, sizeof(work));
-        Write<std::uint32_t>(Continent(0), 8, 0);
+        Write<std::uint32_t>(Continent(0), NC2Layout::MapContinentOffset::PointCount, 0);
         const auto temporaryBase = ContinentCount() + 50u;
         std::uint32_t replacements[250]{};
         for (;;)
@@ -315,7 +316,7 @@ namespace NC2Logic
                 work.creationCount = 1;
                 MapMigPoint_Construct(&work.creations[0].point, -1, -1, false);
                 replacements[temporaryBase] = 255;
-                Write(Continent(temporaryBase), 8, work.creations[0].count);
+                Write(Continent(temporaryBase), NC2Layout::MapContinentOffset::PointCount, work.creations[0].count);
             }
             bool sameFound = false;
             for (std::uint32_t slot = 0; slot < work.idCount; ++slot) if (MapMigPoint_IsInsideMap(&work.samePoints[work.ids[slot]])) { sameFound = true; break; }
@@ -331,7 +332,7 @@ namespace NC2Logic
                     {
                         auto& creation = work.creations[now - temporaryBase];
                         creation.oldIds[creation.oldIdCount++] = oldId;
-                        Write<std::uint8_t>(Continent(oldId), 12, 0);
+                        Write<std::uint8_t>(Continent(oldId), NC2Layout::MapContinentOffset::RetainedFlag, 0);
                         continue;
                     }
                     const auto type = GameMap_Continent_CalculateContinentType(&source);
@@ -340,7 +341,7 @@ namespace NC2Logic
                     creation.point = source; creation.oldIds[creation.oldIdCount++] = oldId; creation.count = count; creation.type = type;
                     GameMap_l_Continents_SubChanged(&work, work.creationCount);
                     ++work.creationCount;
-                    Write<std::uint8_t>(Continent(oldId), 12, 0);
+                    Write<std::uint8_t>(Continent(oldId), NC2Layout::MapContinentOffset::RetainedFlag, 0);
                 }
                 continue;
             }
@@ -370,15 +371,15 @@ namespace NC2Logic
                 if (creation.type != 0)
                 {
                     auto* record = Continent(ContinentCount());
-                    Write(record, 8, creation.count);
+                    Write(record, NC2Layout::MapContinentOffset::PointCount, creation.count);
                     if (creation.count >= 20)
                     {
-                        Write(record, 4, creation.point); Write(record, 0, creation.type); Write<std::uint8_t>(record, 12, 1);
+                        Write(record, NC2Layout::MapContinentOffset::SeedPoint, creation.point); Write(record, NC2Layout::MapContinentOffset::Type, creation.type); Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 1);
                         target = ContinentCount(); SetContinentCount(target + 1u);
                     }
                 }
                 replacements[temporaryBase + index] = target;
-                Write(Continent(temporaryBase + index), 8, creation.count);
+                Write(Continent(temporaryBase + index), NC2Layout::MapContinentOffset::PointCount, creation.count);
                 MapMigPoint_Construct(&creation.point, -1, -1, false);
             }
         };
@@ -406,16 +407,16 @@ namespace NC2Logic
             if (creation.type != 0)
             {
                 auto* record = Continent(creation.oldIds[0]);
-                Write(record, 8, Read<std::uint32_t>(record, 8) + creation.count);
-                Write(record, 4, creation.point); Write(record, 0, creation.type); Write<std::uint8_t>(record, 12, 1);
-                if (Read<std::uint32_t>(record, 8) < 20)
+                Write(record, NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) + creation.count);
+                Write(record, NC2Layout::MapContinentOffset::SeedPoint, creation.point); Write(record, NC2Layout::MapContinentOffset::Type, creation.type); Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 1);
+                if (Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) < 20)
                 {
-                    Write<std::uint8_t>(record, 12, 0); replacements[creation.oldIds[0]] = 255; target = 255;
-                    Write(record, 8, Read<std::uint32_t>(record, 8) - creation.count);
+                    Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 0); replacements[creation.oldIds[0]] = 255; target = 255;
+                    Write(record, NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) - creation.count);
                 }
             }
             if (target == 0) target = 255;
-            Write(Continent(temporaryBase + row), 8, creation.count); replacements[temporaryBase + row] = target;
+            Write(Continent(temporaryBase + row), NC2Layout::MapContinentOffset::PointCount, creation.count); replacements[temporaryBase + row] = target;
             links[row * columns + id] = 0;
         }
         for (std::uint32_t column = 0; column < columns; ++column)
@@ -432,7 +433,7 @@ namespace NC2Logic
             {
                 const auto row = matchingRows[index];
                 changedIds[temporaryBase + row] = 1;
-                Write(Continent(temporaryBase + row), 8, work.creations[row].count);
+                Write(Continent(temporaryBase + row), NC2Layout::MapContinentOffset::PointCount, work.creations[row].count);
             }
             const std::int16_t mapFirst[2] = {0, 0}, mapEnd[2] = {GameMap_GetWidth(), GameMap_GetHeight()};
             const auto mergedCount = GameMap_l_Continents_FillChangedArea(&selected->point, mapFirst, mapEnd, temporaryBase + work.creationCount, changedIds, selected->type);
@@ -443,22 +444,22 @@ namespace NC2Logic
                 if (!MapMigPoint_IsInsideMap(&creation.point) || PointContinent(&creation.point) != temporaryBase + work.creationCount) continue;
                 MapMigPoint_Construct(&creation.point, -1, -1, false); ++consumed; links[row * columns + column] = 0;
             }
-            Write(Continent(temporaryBase + work.creationCount), 8, mergedCount);
+            Write(Continent(temporaryBase + work.creationCount), NC2Layout::MapContinentOffset::PointCount, mergedCount);
             replacements[temporaryBase + work.creationCount] = selected->oldIds[0] == 0 ? 255u : selected->oldIds[0];
             ++work.creationCount;
             auto* record = Continent(selected->oldIds[0]);
             if (consumed == matchCount)
             {
                 for (std::uint32_t index = 0; index < matchCount; ++index) if (index != best) selected->count += work.creations[matchingRows[index]].count;
-                Write(record, 8, Read<std::uint32_t>(record, 8) + selected->count);
+                Write(record, NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) + selected->count);
             }
-            else Write(record, 8, mergedCount);
-            Write(record, 4, selected->point); Write<std::uint8_t>(record, 12, 1);
-            if (Read<std::uint32_t>(record, 8) < 20)
+            else Write(record, NC2Layout::MapContinentOffset::PointCount, mergedCount);
+            Write(record, NC2Layout::MapContinentOffset::SeedPoint, selected->point); Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 1);
+            if (Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) < 20)
             {
                 // Windows uses the already incremented creation index here.
                 replacements[temporaryBase + work.creationCount] = 255;
-                Write<std::uint8_t>(record, 12, 0);
+                Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 0);
             }
             for (std::uint32_t index = 0; index < matchCount; ++index)
             {
@@ -491,14 +492,14 @@ namespace NC2Logic
             for (std::uint32_t id = 0; id < columns; ++id) if (links[row * columns + id] != 0) ids[count++] = id;
             if (count < 2) continue;
             auto* record = Continent(creation.oldIds[0]);
-            Write(record, 8, Read<std::uint32_t>(record, 8) + creation.count); Write(record, 4, creation.point); Write(record, 0, creation.type);
-            GameMap_l_Continents_SearchFillArea(static_cast<std::byte*>(record) + 4, work.changedCounts, first, end, creation.oldIds[0], creation.type);
-            Write<std::uint8_t>(record, 12, 1); links[row * columns + creation.oldIds[0]] = 0;
+            Write(record, NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) + creation.count); Write(record, NC2Layout::MapContinentOffset::SeedPoint, creation.point); Write(record, NC2Layout::MapContinentOffset::Type, creation.type);
+            GameMap_l_Continents_SearchFillArea(static_cast<std::byte*>(record) + NC2Layout::MapContinentOffset::SeedPoint, work.changedCounts, first, end, creation.oldIds[0], creation.type);
+            Write<std::uint8_t>(record, NC2Layout::MapContinentOffset::RetainedFlag, 1); links[row * columns + creation.oldIds[0]] = 0;
             for (std::uint32_t index = 0; index < count; ++index)
             {
                 const auto id = ids[index];
                 if (id == creation.oldIds[0]) continue;
-                Write(record, 8, Read<std::uint32_t>(record, 8) + Read<std::uint32_t>(Continent(id), 8));
+                Write(record, NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(record, NC2Layout::MapContinentOffset::PointCount) + Read<std::uint32_t>(Continent(id), NC2Layout::MapContinentOffset::PointCount));
                 replacements[id] = creation.oldIds[0]; links[row * columns + id] = 0;
             }
         }
@@ -506,15 +507,15 @@ namespace NC2Logic
         std::uint32_t id = 1;
         while (id < ContinentCount())
         {
-            if (Read<std::uint8_t>(Continent(id), 12) == 0 && replacements[id] == 0)
+            if (Read<std::uint8_t>(Continent(id), NC2Layout::MapContinentOffset::RetainedFlag) == 0 && replacements[id] == 0)
             {
                 const auto last = ContinentCount() - 1u; SetContinentCount(last);
                 if (replacements[last] == 0)
                 {
-                    if (last == id) { Write<std::uint8_t>(Continent(id), 12, 0); break; }
-                    Write(Continent(id), 8, Read<std::uint32_t>(Continent(last), 8)); Write(Continent(id), 4, Read<std::uint32_t>(Continent(last), 4));
-                    Write(Continent(id), 0, Read<std::uint32_t>(Continent(last), 0)); Write(Continent(id), 12, Read<std::uint8_t>(Continent(last), 12));
-                    Write<std::uint8_t>(Continent(last), 12, 0); replacements[last] = id; id = 1;
+                    if (last == id) { Write<std::uint8_t>(Continent(id), NC2Layout::MapContinentOffset::RetainedFlag, 0); break; }
+                    Write(Continent(id), NC2Layout::MapContinentOffset::PointCount, Read<std::uint32_t>(Continent(last), NC2Layout::MapContinentOffset::PointCount)); Write(Continent(id), NC2Layout::MapContinentOffset::SeedPoint, Read<std::uint32_t>(Continent(last), NC2Layout::MapContinentOffset::SeedPoint));
+                    Write(Continent(id), NC2Layout::MapContinentOffset::Type, Read<std::uint32_t>(Continent(last), NC2Layout::MapContinentOffset::Type)); Write(Continent(id), NC2Layout::MapContinentOffset::RetainedFlag, Read<std::uint8_t>(Continent(last), NC2Layout::MapContinentOffset::RetainedFlag));
+                    Write<std::uint8_t>(Continent(last), NC2Layout::MapContinentOffset::RetainedFlag, 0); replacements[last] = id; id = 1;
                 }
             }
             ++id;

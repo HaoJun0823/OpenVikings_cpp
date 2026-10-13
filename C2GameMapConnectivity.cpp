@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "ApplicationGlobals.h"
 #include "C2CallbackManager.h"
@@ -48,7 +49,7 @@ namespace NC2Logic
         }
         std::uint32_t ContinentTypeUnchecked(std::uint32_t continent)
         {
-            return Read<std::uint32_t>(gGameMapStaticStorage, 0x40u + continent * 16u);
+            return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u);
         }
     }
 
@@ -248,7 +249,7 @@ namespace NC2Logic
             if (!land || Read<std::uint8_t>(pattern, 4) != 0) { sum += Read<std::uint32_t>(pattern, 8); ++count; }
         if (count == 0)
         {
-            Write<std::uint32_t>(gGameMapStaticStorage, 0x40u + continent * 16u, 0);
+            Write<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u, 0);
             return;
         }
         Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::ByteExceptBits3Through6) | (((sum / count) & 15u) << 3));
@@ -263,7 +264,7 @@ namespace NC2Logic
         {
             ExpandChangedArea(gContinentChangedArea, 5, 6);
             const auto area = static_cast<std::uint32_t>((static_cast<std::int32_t>(gContinentChangedArea[0]) - gContinentChangedArea[2]) * (static_cast<std::int32_t>(gContinentChangedArea[1]) - gContinentChangedArea[3]));
-            const auto limit = (Read<std::uint32_t>(gGameMapStaticStorage, 12) * 3u) >> 2;
+            const auto limit = (Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 3u) >> 2;
             if (area > limit) GameMap_l_Continents_RecalculateAll();
             else GameMap_l_Continents_UpdateArea(gContinentChangedArea, gContinentChangedArea + 2);
         }

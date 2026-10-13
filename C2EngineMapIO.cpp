@@ -30,8 +30,8 @@ namespace NC2E2
     namespace
     {
         std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer); }
-        std::uint32_t MacroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 8); }
-        std::uint32_t MicroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 12); }
+        std::uint32_t MacroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount); }
+        std::uint32_t MicroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); }
         std::byte* EngineMacro() { return Read<std::byte*>(gEngineMapStaticStorage, 0); }
         std::byte* EngineMicro() { return Read<std::byte*>(gEngineMapStaticStorage, 4); }
 

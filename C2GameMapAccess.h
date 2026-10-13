@@ -1,9 +1,32 @@
 #pragma once
 
+#include "XBasicTypes.h"
 #include <cstdint>
 
 namespace NC2Logic
 {
+    // Physical Windows map storage; byte payloads and unclassified trailing state stay explicit.
+    struct SLogicMapMacroPointStorage { std::uint8_t patternA, patternB, height; };
+    struct SLogicMapMicroPointStorage
+    {
+        std::uint8_t objectType;
+        std::byte unresolved01;
+        std::byte objectData[4];
+        std::uint8_t continentId, walkingDirections;
+        std::uint16_t explorationMask, fogMask;
+        std::uint8_t walkingFlags, terrainFlags;
+    };
+    struct SLogicMapContinentStorage { std::uint32_t type, seedPoint, pointCount; std::uint8_t retained; std::byte unresolved0D[3]; };
+    struct SLogicMapStorage
+    {
+        std::int16_t microWidth, microHeight, macroWidth, macroHeight;
+        std::uint32_t macroPointCount, microPointCount;
+        NXBasics::SRectangle microRectangle, macroRectangle;
+        void* macroPoints; void* microPoints; void* packingScratch;
+        std::uint32_t continentCount;
+        SLogicMapContinentStorage continents[250];
+        std::byte unresolvedFE0[44];
+    };
     // Original storage: signed word at DAT_00511570.
     std::int16_t GameMap_GetWidth();
 

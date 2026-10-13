@@ -1087,8 +1087,8 @@ namespace NC2E2
         Write<std::uint32_t>(state, NC2Layout::ParticleWindOffset::HorizontalSpeed, horizontal);
         const std::uint32_t vertical = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % 5;
         Write<std::uint32_t>(state, NC2Layout::ParticleWindOffset::VerticalSpeed, vertical);
-        const double horizontalScale = (static_cast<double>(horizontal) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 0));
-        const double verticalScale = (static_cast<double>(vertical) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 2));
+        const double horizontalScale = (static_cast<double>(horizontal) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroWidth));
+        const double verticalScale = (static_cast<double>(vertical) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroHeight));
         Write<double>(state, NC2Layout::ParticleWindOffset::HorizontalScale, horizontalScale);
         Write<double>(state, NC2Layout::ParticleWindOffset::VerticalScale, verticalScale);
         const std::int32_t angle = NXBasics::Runtime_Rand() % 361;
