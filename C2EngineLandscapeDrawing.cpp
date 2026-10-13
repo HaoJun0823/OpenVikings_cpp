@@ -49,7 +49,7 @@ namespace NC2E2
         // Repair sound branch 00491B45..00491BFF of 004911D5; use the first configured wave.
         void UpdateRepairSound(const void* display)
         {
-            auto intensity = Read<std::uint32_t>(display, 0xA0) * 10u;
+            auto intensity = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses) * 10u;
             if (intensity > 100u) intensity = 100u;
             const auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
             const auto soundId = sounds->staticSoundIdsByType[41];
@@ -104,10 +104,10 @@ namespace NC2E2
                 if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize;
                 if (NC2Logic::Human_Misc_IsHidden(human)) continue;
-                Write(display, 0x8C, Read<std::uint32_t>(display, 0x8C) + 1u);
+                Write(display, NC2Layout::EngineDisplayOffset::SeenHumans, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenHumans) + 1u);
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 {
-                    const auto offset = NC2Logic::Human_IsAgeAdult(human) ? (NC2Logic::Human_IsSexMale(human) ? 0x90u : 0x94u) : 0x98u;
+                    const auto offset = NC2Logic::Human_IsAgeAdult(human) ? (NC2Logic::Human_IsSexMale(human) ? NC2Layout::EngineDisplayOffset::SeenLocalAdultMenUnsigned : NC2Layout::EngineDisplayOffset::SeenLocalAdultWomenUnsigned) : NC2Layout::EngineDisplayOffset::SeenLocalChildrenUnsigned;
                     Write(display, offset, Read<std::uint32_t>(display, offset) + 1u);
                 }
                 E2HumanSoundManager_IncreaseSeenCounter(gE2HumanSoundManager, human);
@@ -211,7 +211,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         using NC2Lifetime::Write;
-        std::memset(static_cast<std::byte*>(display) + 0x84, 0, 32);
+        std::memset(static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::DrawCounters, 0, NC2Layout::RecordSize::DisplayDrawCounters);
         const bool foregroundPart = !staticPart && !backgroundPart;
         if (foregroundPart && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0)
         {
@@ -224,16 +224,16 @@ namespace NC2E2
         for (std::int32_t row = 0; row < rectangle[3]; ++row)
         {
             Point point{rectangle[0], static_cast<std::int16_t>(rectangle[1] + row)};
-            const auto rowY = Add(RoundFixed(Mul(Read<std::int32_t>(display, 0x0C), row)), pixelPoint[1]);
-            const auto rowX = Add(Mul((point[1] & 1) + 1, Read<std::int32_t>(display, 0x2C)), pixelPoint[0]);
+            const auto rowY = Add(RoundFixed(Mul(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed), row)), pixelPoint[1]);
+            const auto rowX = Add(Mul((point[1] & 1) + 1, Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels)), pixelPoint[0]);
             const auto* engine = static_cast<const std::byte*>(EngineMap_GetConstMapMicroPointPtr(point));
             const auto* logic = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
             if (foregroundPart && (Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 2u) != 0) E2ParticelManager_DrawParticelLine(gE2ParticelManager, display, point[1]);
             for (std::int32_t column = 0; column < rectangle[2]; ++column, ++point[0], engine += 4, logic += 14)
             {
-                Write(display, 0x84, Read<std::uint32_t>(display, 0x84) + 1u);
-                const auto x = Add(RoundFixed(Mul(Read<std::int32_t>(display, 0x10), column)), rowX);
-                const auto y = Sub(rowY, RoundFixed(Mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, 0x14))));
+                Write(display, NC2Layout::EngineDisplayOffset::VisitedMapPoints, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::VisitedMapPoints) + 1u);
+                const auto x = Add(RoundFixed(Mul(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed), column)), rowX);
+                const auto y = Sub(rowY, RoundFixed(Mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed))));
                 const auto flags = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags);
                 if ((flags & 1u) != 0 && (flags & NXBasics::BitMask::Bit18) == 0)
                 {
@@ -252,7 +252,7 @@ namespace NC2E2
                             const std::int32_t player = landscape ? Read<std::int8_t>(logic, 4) : -1;
                             if (landscape && type == 82) DrawAtom_Landscape_Wall_DoDraw(bitmap, x, y, phase, display, point, player);
                             else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, 3) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
-                            Write(display, 0x88, Read<std::uint32_t>(display, 0x88) + 1u);
+                            Write(display, NC2Layout::EngineDisplayOffset::LandscapeDrawCount, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::LandscapeDrawCount) + 1u);
                         }
                     }
                 }
@@ -268,10 +268,10 @@ namespace NC2E2
                         {
                             const auto id = Read<std::uint16_t>(logic, 4);
                             if ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & NXBasics::BitMask::Bits16Through17) != 0x30000u) DrawAtom_House_DoDraw(id, bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
-                            Write(display, 0x9C, Read<std::uint32_t>(display, 0x9C) + 1u);
+                            Write(display, NC2Layout::EngineDisplayOffset::SeenHouses, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenHouses) + 1u);
                             const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
                             const auto state = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState);
-                            if ((state == 3 || state == 2) && NC2Logic::House_HitPoints_IsDamaged(house)) Write(display, 0xA0, Read<std::uint32_t>(display, 0xA0) + 1u);
+                            if ((state == 3 || state == 2) && NC2Logic::House_HitPoints_IsDamaged(house)) Write(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses) + 1u);
                         }
                         // Windows guidepost branch 0049189E..004918CF.
                         if (Read<std::uint8_t>(logic, 0) == 3) DrawAtom_Guide_DoDraw(Read<std::uint16_t>(logic, 2), bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);

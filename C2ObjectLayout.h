@@ -306,6 +306,19 @@ namespace NC2Layout
 
     namespace EngineDisplayOffset
     {
+        inline constexpr auto DrawCounters = 0x84;
+        inline constexpr auto SeenLocalAdultMenUnsigned = 0x90u;
+        inline constexpr auto SeenLocalAdultWomenUnsigned = 0x94u;
+        inline constexpr auto SeenLocalChildrenUnsigned = 0x98u;
+        inline constexpr auto VisitedMapPoints = 0x84;
+        inline constexpr auto LandscapeDrawCount = 0x88;
+        inline constexpr auto SeenHumans = 0x8C;
+        inline constexpr auto SeenLocalAdultMen = 0x90;
+        inline constexpr auto SeenLocalAdultWomen = 0x94;
+        inline constexpr auto SeenLocalChildren = 0x98;
+        inline constexpr auto SeenHouses = 0x9C;
+        inline constexpr auto SeenDamagedHouses = 0xA0;
+
         inline constexpr auto PrimaryReferenceEnabled = 0xA4;
         inline constexpr auto PrimaryMarkedObject = 0xA8;
         inline constexpr auto SecondaryMarkedObjectCount = 0xAC;
@@ -758,6 +771,7 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto DisplayDrawCounters = 32;
         inline constexpr auto DisplayObjectReference = 68;
         inline constexpr auto DisplayMarkedObject = 0x48u;
         inline constexpr auto DisplaySearchObject = 396;

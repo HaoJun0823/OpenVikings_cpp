@@ -15,6 +15,19 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    struct SDisplayDrawCounters
+    {
+        std::uint32_t visitedMapPoints;
+        std::uint32_t landscapeDrawCount;
+        std::uint32_t seenHumans;
+        std::uint32_t seenLocalAdultMen;
+        std::uint32_t seenLocalAdultWomen;
+        std::uint32_t seenLocalChildren;
+        std::uint32_t seenHouses;
+        std::uint32_t seenDamagedHouses;
+    };
+    static_assert(sizeof(SDisplayDrawCounters) == 32);
+
     struct SDisplayObjectReference
     {
         std::uint32_t type;
