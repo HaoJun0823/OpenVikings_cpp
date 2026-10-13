@@ -114,7 +114,7 @@ namespace NC2InGameGuiMiscWindows
         else if (command == 12000)
         {
             const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + 0x1C));
+            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + ReadableValues::HouseOffset::MapPosition));
         }
         else return true;
         NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window)); return true;
@@ -205,7 +205,7 @@ namespace NC2InGameGuiMiscWindows
                     const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
                     const auto type = Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType); if (type != 7 && type != 8 && type != 9 && type != 1) continue;
                     if (NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, Read<std::int32_t>(house, ReadableValues::HouseOffset::PlayerId), player) != 1) continue;
-                    if (player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(house + 0x1C), 8) & (1u << player)) == 0) continue;
+                    if (player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(house + ReadableValues::HouseOffset::MapPosition), 8) & (1u << player)) == 0) continue;
                     for (auto offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, ReadableValues::IntegerRange::UInt32Maximum); offer != ReadableValues::IntegerRange::UInt32Maximum; offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, offer))
                     {
                         const auto* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + offer * 24u;

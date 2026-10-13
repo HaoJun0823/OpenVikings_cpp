@@ -1,5 +1,13 @@
 # Readable hexadecimal values
 
+## House position components; non-exhaustive hex pass - 2026-10-13
+
+The previous hex pass was **not exhaustive**. The user identified a missed, established coordinate component: `house + 0x1E` is the 16-bit Y component of the packed position at `0x1C`. Added `HouseOffset::MapPositionX/Y` and `DoorEntryPointX/Y` (`1C/1E`, `24/26`), retaining the whole-point `MapPosition` and `DoorEntryPoint` constants for DWORD reads and pointer references.
+
+Corrected **63 expressions in 22 source files**, including **57 previously raw offsets** and six existing whole-point names used for word accesses. All explicit `house` accesses/pointer additions at these four hex offsets are named. The complete native constructor at `0040AAD7`, packed point store at `00431018/0043101F` and coordinate call sites establish the Windows layout. Exact source reversal to `882dd1f` and Win32 syntax-only checks for all 22 affected units plus seven compiler value/type pairs pass. No build, tests or game run occurred. See [HOUSE_POSITION_OFFSETS.csv](HOUSE_POSITION_OFFSETS.csv).
+
+Other safely identifiable offsets may remain; the earlier 6858 count is a historical pass result, not proof that every possible name was recovered. Review component accesses and known object pointers outside the limited naming patterns before classifying remaining fields as unresolved.
+
 ## Scope - 2026-10-13
 
 This pass replaces **6858 hexadecimal literal occurrences in 364 registered source/header files**: **5298 use named constants** and **1560 use decimal notation** for sizes, byte counts and zero/one. It introduces **430 typed constants in 59 domains** in `ReadableValues.h` and reuses the existing `SwitchIdentifiers.h` / `XResultIdentifiers.h` constants where identity and literal type match. `OpenVikings.vcxproj` and its filters register the new header under `Core\Types`.

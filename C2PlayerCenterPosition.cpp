@@ -32,7 +32,7 @@ namespace NC2Logic
             const auto type = Read<std::uint32_t>(house, 0x14);
             if (type == 7 || type == 8 || type == 9 || type == 1)
             {
-                *mapPoint = Read<std::uint32_t>(house, 0x24);
+                *mapPoint = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
                 return true;
             }
         }

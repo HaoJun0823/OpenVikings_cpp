@@ -197,7 +197,7 @@ namespace NC2Logic
         if (Human_IsAttachedToLearnHouse(human) && Human_Misc_IsHidden(human))
         {
             auto* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId));
-            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(house, 0x24) && House_Production_IsAbleToProduceGood(house, 8, false))
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint) && House_Production_IsAbleToProduceGood(house, 8, false))
             {
                 if (!House_Stock_ModifyAmount(house, 8, amount, 0, false)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStep, 13); Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 7); }
                 return;

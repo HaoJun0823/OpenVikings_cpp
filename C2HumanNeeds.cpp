@@ -493,8 +493,8 @@ namespace NC2Logic
             return;
         }
         const void* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId));
-        const auto real = Read<std::uint32_t>(house, 0x1C);
-        const auto work = Read<std::uint32_t>(house, 0x24);
+        const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+        const auto work = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
         if (!Human_l_StartAtomicWalk(human, &real, &work)) Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
     }
 
@@ -573,13 +573,13 @@ namespace NC2Logic
     void Human_l_StartTask_FulfillNeeds_Religion_AtHome(void* human)
     {
         const void* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId));
-        if (Human_IsAtTargetPoint(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, 0x1C))
+        if (Human_IsAtTargetPoint(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition))
         {
             Human_l_StartAtomicAnimation(human, 12, -1);
             Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        const auto real = Read<std::uint32_t>(house, 0x1C);
+        const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
         std::uint32_t work = 0;
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
         House_Religion_GetNextPrayPoint(house, Human_GetMapPositionRef(human), &work, false, Read<std::uint32_t>(human, 4), continent);
@@ -621,7 +621,7 @@ namespace NC2Logic
                 if (Read<std::uint32_t>(house, 0x14) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, 0x2C) != 3) continue;
                 if (Read<std::uint8_t>(house, 0x7D0) != 0) return false;
                 if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6) != continent) continue;
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, 0x1C), Read<std::int16_t>(house, 0x1E)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionX), Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionY)));
                 if (distance > nearest) continue;
                 nearest = distance;
                 selected = house;

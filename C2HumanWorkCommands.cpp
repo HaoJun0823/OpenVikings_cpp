@@ -48,7 +48,7 @@ namespace NC2Logic
         if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 2)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 2); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
         return 2;
     }
 
@@ -64,7 +64,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, 0x14) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0) { Queue(human, 21, 31, 0); return 0; }
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 8)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 8); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
         return 2;
     }
 
@@ -84,7 +84,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 4)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 4); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
         return 2;
     }
 

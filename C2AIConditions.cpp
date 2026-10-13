@@ -219,7 +219,7 @@ namespace NC2Logic
                 const auto houseType = Read<std::uint32_t>(condition, 0x28);
                 if (houseType != 0 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) != houseType) continue;
                 if (Read<std::uint8_t>(condition, 0x24) != 0 && GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(handler, 0), housePlayer) != 3) continue;
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPosition), Read<std::uint16_t>(house, 0x1E), static_cast<std::uint16_t>(center), static_cast<std::uint16_t>(center >> 16))) < Read<std::uint32_t>(condition, 0x1C)) { active = 1; break; }
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionX), Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionY), static_cast<std::uint16_t>(center), static_cast<std::uint16_t>(center >> 16))) < Read<std::uint32_t>(condition, 0x1C)) { active = 1; break; }
             }
             break;
         }

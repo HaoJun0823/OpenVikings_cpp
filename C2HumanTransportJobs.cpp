@@ -241,7 +241,7 @@ namespace NC2Logic
         auto* house = Human_GetHousePtrAtTargetPosition(human);
         if (house != nullptr)
         {
-            if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
             if (House_Stock_CanStoreGoodType(house, good, true) && House_Stock_RequestAmountOfGoods(house, good, true) > 0) { Start(human, PickupAnimation(house)); return; }
         }

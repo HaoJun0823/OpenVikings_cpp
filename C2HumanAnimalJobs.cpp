@@ -140,7 +140,7 @@ namespace NC2Logic
         if (adults > 2)
         {
             auto slaughterPosition = Read<std::uint32_t>(Animal_GetMapPositionRef(slaughter), 0);
-            const auto workingPosition = Read<std::uint32_t>(house, 0x24), entryPosition = Read<std::uint32_t>(house, 0x1C);
+            const auto workingPosition = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint), entryPosition = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
             if (slaughterPosition == workingPosition)
             {
                 if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == workingPosition)
@@ -180,7 +180,7 @@ namespace NC2Logic
         const auto type = Read<std::uint32_t>(human, 0x1C) == 57 ? 19u : 10u;
         CAnimalIterator iterator;
         std::uint32_t adults = 0;
-        for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), Read<std::uint32_t>(house, 0x1C), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
+        for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
             if (Read<std::uint32_t>(animal, 0x14) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50) != Read<std::uint32_t>(house, 8) || Read<std::uint32_t>(animal, 0x18) != 49) continue;

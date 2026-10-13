@@ -61,8 +61,8 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, 0x2C) != 3) { Fail(human, 0); return; }
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, 0x1C)) { Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto animation = Read<std::uint32_t>(house, 0x14) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
             Human_l_StartAtomicAnimation(human, animation, -1);
             Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
@@ -70,7 +70,7 @@ namespace NC2Logic
             House_ActionOverlay_Start(house, 4, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
             return;
         }
-        const auto real = Read<std::uint32_t>(house, 0x1C), work = Read<std::uint32_t>(house, 0x24);
+        const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
         if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
         {
             if (!Human_l_StartAtomicWalk(human, &real, &work)) { Fail(human, 1); return; }
@@ -298,7 +298,7 @@ namespace NC2Logic
             auto* house = Human_GetHousePtrAtTargetPosition(human);
             if (house != nullptr)
             {
-                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
                 if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), true) && House_Stock_RequestAmountOfGoods(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), true) != 0)
                 {
                     const auto type = Read<std::uint32_t>(house, 0x14);
@@ -331,7 +331,7 @@ namespace NC2Logic
         auto* house = WorkHouse(human);
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, 0x1C) && House_Stock_IsFull(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) { Start(human, 22); return; }
+            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition) && House_Stock_IsFull(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) { Start(human, 22); return; }
             Human_Target_Reset(human);
             Human_StopCurrentGoodCirculationMode(human);
             Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
@@ -414,8 +414,8 @@ namespace NC2Logic
             auto* house = WorkHouse(human);
             if (Human_IsAtTargetPoint(human))
             {
-                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) != Read<std::uint32_t>(house, 0x1C)) { Human_Target_Reset(human); continue; }
-                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition)) { Human_Target_Reset(human); continue; }
+                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
                 if (!InputsAvailable(house, good)) { Fail(human, 10); Human_Target_Reset(human); return; }
                 Human_l_StartAtomicAnimation(human, static_cast<std::uint32_t>(good.atomicForProduction), -1);
                 Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
@@ -423,7 +423,7 @@ namespace NC2Logic
                 House_ActionOverlay_Start(house, 4, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
                 return;
             }
-            const auto real = Read<std::uint32_t>(house, 0x1C), work = Read<std::uint32_t>(house, 0x24);
+            const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
             if (Human_l_StartAtomicWalk(human, &real, &work)) Human_Target_SetTargetPositions(human, &real, &work);
             else Fail(human, 0);
             return;

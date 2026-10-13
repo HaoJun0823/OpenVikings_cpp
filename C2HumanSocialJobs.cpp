@@ -211,7 +211,7 @@ namespace NC2Logic
             return;
         }
         auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-        if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), false) && House_Stock_HasDemandForGood(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood)) && Human_l_StartAtomicWalk(human, house + 0x1C, house + 0x24)) return;
+        if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), false) && House_Stock_HasDemandForGood(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood)) && Human_l_StartAtomicWalk(human, house + ReadableValues::HouseOffset::MapPosition, house + ReadableValues::HouseOffset::DoorEntryPoint)) return;
         if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
         if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
         Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);

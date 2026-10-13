@@ -397,8 +397,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto* house = data.houses[Game_Random_GetNumber() % data.houseCount];
-            Write(realPosition, 0, Read<std::uint32_t>(house, 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(house, 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
             return true;
         }
         for (std::uint32_t index = 0; index < data.guideCount; ++index)
@@ -411,8 +411,8 @@ namespace NC2Logic
             if (Read<std::uint8_t>(micro, 0) == 2)
             {
                 const auto* house = House(Read<std::uint16_t>(micro, 4));
-                Write(realPosition, 0, Read<std::uint32_t>(house, 0x1C));
-                Write(workPosition, 0, Read<std::uint32_t>(house, 0x24));
+                Write(realPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition));
+                Write(workPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
             }
             else
             {
@@ -490,8 +490,8 @@ namespace NC2Logic
         if (!Human_IsAttachedToHomeHouse(human)) return false;
         const auto* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId));
         if (House_Stock_GetAmountOfGoods(house, 16, false) == 0 && House_Stock_GetAmountOfGoods(house, 17, false) == 0) return false;
-        Write(realPosition, 0, Read<std::uint32_t>(house, 0x1C));
-        Write(workPosition, 0, Read<std::uint32_t>(house, 0x24));
+        Write(realPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition));
+        Write(workPosition, 0, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
         return true;
     }
 
@@ -873,7 +873,7 @@ namespace NC2Logic
         std::uint32_t action = 22;
         if (house != nullptr)
         {
-            if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto type = Read<std::uint32_t>(house, 0x14);
             auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
             if (type == 10 || type == 11)

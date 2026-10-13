@@ -306,7 +306,11 @@ namespace ReadableValues
         inline constexpr auto EngineType = 0x10;
         inline constexpr auto LogicType = 0x14;
         inline constexpr auto MapPosition = 0x1C;
+        inline constexpr auto MapPositionX = 0x1C;
+        inline constexpr auto MapPositionY = 0x1E;
         inline constexpr auto DoorEntryPoint = 0x24;
+        inline constexpr auto DoorEntryPointX = 0x24;
+        inline constexpr auto DoorEntryPointY = 0x26;
         inline constexpr auto ConstructionState = 0x2C;
         inline constexpr auto LandscapeOverlayActiveFlags = 0x7BCu;
         inline constexpr auto LandscapeOverlayActiveFlagsSigned = 0x7BC;

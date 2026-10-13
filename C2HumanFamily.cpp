@@ -98,7 +98,7 @@ namespace NC2Logic
             {
                 Write(partner, 0xB28, static_cast<std::uint32_t>(houseId));
                 Write(partner, 0xB2C, Read<std::uint32_t>(house, 8));
-                if (Human_IsSexMale(human)) { Write(partner, 0xB30, Read<std::uint32_t>(house, 0x24)); Write<std::uint32_t>(partner, 0x38C, 0); Human_WorkCenterMarker_Update(partner); }
+                if (Human_IsSexMale(human)) { Write(partner, 0xB30, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)); Write<std::uint32_t>(partner, 0x38C, 0); Human_WorkCenterMarker_Update(partner); }
             }
         }
         if (attached && Human_IsHavingChild(human))
@@ -117,7 +117,7 @@ namespace NC2Logic
         }
         Write(human, ReadableValues::HumanOffset::HomeHouseId, static_cast<std::uint32_t>(houseId));
         Write(human, 0xB2C, Read<std::uint32_t>(house, 8));
-        if (Human_IsSexFemale(human)) { Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(house, 0x24)); Write<std::uint32_t>(human, 0x38C, 0); Human_WorkCenterMarker_Update(human); }
+        if (Human_IsSexFemale(human)) { Write(human, ReadableValues::HumanOffset::WorkCenter, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)); Write<std::uint32_t>(human, 0x38C, 0); Human_WorkCenterMarker_Update(human); }
         return 2;
     }
 

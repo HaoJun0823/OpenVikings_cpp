@@ -123,7 +123,7 @@ namespace NC2E2
                 if (Read<std::uint8_t>(graphic, 0x24Cu + stage * 12u) != 0)
                 {
                     NC2Logic::CHumanIterator iterator;
-                    auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, 0xC), house + 0x24, 1);
+                    auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, 0xC), house + ReadableValues::HouseOffset::DoorEntryPoint, 1);
                     while (human != -1 && NC2Logic::Human_Misc_IsHidden(Human(static_cast<std::uint32_t>(human)))) human = iterator.GetNextHumanId();
                     const auto bob = Read<std::uint32_t>(graphic, (human == -1 ? 0x254u : 0x250u) + stage * 12u);
                     if (bob != ReadableValues::IntegerRange::UInt32Maximum) ls_DrawAtom_House_DoDraw_PrintImageBob(manager, bob, paletteId, brightness, bitmap, x, y, false);
@@ -186,8 +186,8 @@ namespace NC2E2
             if (display != nullptr)
             {
                 std::int32_t origin[2], door[2];
-                Display_MapMigToLocalDisplayPixelCoordinates(display, house + 0x1C, origin, false);
-                Display_MapMigToLocalDisplayPixelCoordinates(display, house + 0x24, door, false);
+                Display_MapMigToLocalDisplayPixelCoordinates(display, house + ReadableValues::HouseOffset::MapPosition, origin, false);
+                Display_MapMigToLocalDisplayPixelCoordinates(display, house + ReadableValues::HouseOffset::DoorEntryPoint, door, false);
                 flagX = Sub(door[0], origin[0]);
                 flagY = Sub(door[1], origin[1]);
             }

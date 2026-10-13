@@ -73,7 +73,7 @@ namespace NC2Logic
             action.attackerRevision = Read<std::uint32_t>(house, 8);
             action.player = Read<std::uint32_t>(house, 12);
             action.tribe = Read<std::uint32_t>(house, 0x18);
-            action.sourcePosition = Read<std::uint32_t>(house, 0x1C);
+            action.sourcePosition = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
         }
         else if (attackerType == 2)
         {

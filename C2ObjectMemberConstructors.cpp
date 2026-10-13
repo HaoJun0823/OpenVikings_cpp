@@ -21,8 +21,8 @@ namespace NC2Logic
     // Original function: FUN_0040aad7; only the two embedded positions are initialized.
     void* __fastcall House_ConstructMembers(void* house, void* /*unusedEdx*/)
     {
-        Write<std::uint16_t>(house, 0x1E, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::MapPosition, 0);
-        Write<std::uint16_t>(house, 0x26, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::DoorEntryPoint, 0);
+        Write<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionY, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionX, 0);
+        Write<std::uint16_t>(house, ReadableValues::HouseOffset::DoorEntryPointY, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::DoorEntryPointX, 0);
         return house;
     }
 

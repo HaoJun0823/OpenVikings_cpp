@@ -203,7 +203,7 @@ namespace NC2Logic
                 if (state == 4 && MapMigPoint_IsInsideMap(Human_GetMapPositionRef(human)))
                 {
                     const auto* point = Human_GetMapPositionRef(human);
-                    if (point[0] != Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPosition) || point[1] != Read<std::uint16_t>(house, 0x1E)) break;
+                    if (point[0] != Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionX) || point[1] != Read<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionY)) break;
                 }
                 ++amount;
             }

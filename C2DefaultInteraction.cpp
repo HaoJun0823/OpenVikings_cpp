@@ -127,7 +127,7 @@ namespace NC2Logic
                 if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(37, 23);
                 return 0;
             }
-            if (Continent(house + 0x1C) != continent) return 0;
+            if (Continent(house + ReadableValues::HouseOffset::MapPosition) != continent) return 0;
             if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId)) return houseCommand(30, 20);
             if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId)) return houseCommand(26, 10);
             if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && !MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(36, 22);

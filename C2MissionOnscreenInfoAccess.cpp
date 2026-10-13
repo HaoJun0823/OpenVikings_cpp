@@ -52,7 +52,7 @@ namespace NC2Logic
         for (std::uint32_t ring = 1; ring <= radius && radius != 0; ++ring) { MapMigPoint_MoveCursorUnwrapped(point, 4); for (std::uint32_t direction = 0; direction < 6; ++direction) for (std::uint32_t step = 0; step < ring; ++step) { result += Tool_CountGoodsOnMap(good, &point); MapMigPoint_MoveCursorUnwrapped(point, direction); } }
         return result;
     }
-    static std::uint32_t Distance(const void* house, std::uint32_t point) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, 0x1C), Read<std::int16_t>(house, 0x1E), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2))); }
+    static std::uint32_t Distance(const void* house, std::uint32_t point) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionX), Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionY), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2))); }
     // Original function: FUN_0043b4d4.
     std::uint32_t Tool_CountGoodsInHouses(std::uint32_t player, std::uint32_t good, std::uint32_t point, std::uint32_t radius)
     {
