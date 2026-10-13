@@ -48,15 +48,15 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c6fec; equal names use the native nonzero stage tie result.
     std::int32_t __cdecl lsSortHouseTypeCompareFunction(const void* first, const void* second)
     {
-        const auto firstStage = Read<std::uint32_t>(first, 4), secondStage = Read<std::uint32_t>(second, 4);
-        const auto compare = NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(first, 0), firstStage, 1), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(second, 0), secondStage, 1));
+        const auto firstStage = Read<std::uint32_t>(first, NC2Layout::HelpHouseEntryOffset::DevelopmentStage), secondStage = Read<std::uint32_t>(second, NC2Layout::HelpHouseEntryOffset::DevelopmentStage);
+        const auto compare = NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(first, NC2Layout::HelpHouseEntryOffset::EngineType), firstStage, 1), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(second, NC2Layout::HelpHouseEntryOffset::EngineType), secondStage, 1));
         return compare != 0 ? compare : secondStage < firstStage ? 1 : -1;
     }
 
     // Original function: FUN_004c340e.
     static std::int32_t __cdecl lsSortGoodTypeCompareFunction(const void* first, const void* second)
     {
-        return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, 0), 1), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, 0), 1));
+        return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, NC2Layout::HelpGoodEntryOffset::GoodType), 1), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, NC2Layout::HelpGoodEntryOffset::GoodType), 1));
     }
 
     // Original function: FUN_004c31ca; Windows CHyperLinkTextWindow allocation 0x1050.
@@ -65,49 +65,57 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         BaseToolWindow_Construct(window, &rectangle);
-        auto* buttons = new (static_cast<std::byte*>(window) + 0x55C) CDynamicSubButtonsHandler();
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 4064);
+        auto* buttons = new (static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::DynamicButtons) CDynamicSubButtonsHandler();
+        std::memset(static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::Page, 0, NC2Layout::RecordSize::HelpWindowVars);
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHyperLinkTextWindowVirtualTable.data());
-        Write<std::int32_t>(window, 0x3AC, -1); buttons->SetWindow(window);
+        Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, -1);
+        buttons->SetWindow(window);
         Write<std::uint32_t>(window, 0x6C, 1);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        const auto tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC);
+        const auto tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeType);
         bool full = false;
         for (std::int32_t type = 0; type < NC2E2::gStaticHouseCount && !full; ++type)
         {
-            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + static_cast<std::uint32_t>(type) * 0x8BCu;
-            if (Read<std::uint32_t>(engine, 0x50) != tribe) continue;
-            for (std::uint32_t stage = 0; stage < Read<std::uint32_t>(engine, 0x54); ++stage)
+            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + static_cast<std::uint32_t>(type) * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
+            if (Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::TribeType) != tribe) continue;
+            for (std::uint32_t stage = 0; stage < Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount); ++stage)
             {
-                const auto logic = Read<std::uint32_t>(engine, 0x3Cu + stage * 4u);
+                const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u);
                 if (NC2Logic::gStaticHouseTypeStorage.records[logic].mainType == 6) continue;
-                const auto index = Read<std::uint32_t>(window, 0x84);
-                Write(window, 0x88u + index * 8u, type); Write(window, 0x8Cu + index * 8u, stage); Write(window, 0x84, index + 1);
-                if (index + 1 == 100) { full = true; break; }
+                const auto index = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
+                Write(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u, type);
+                Write(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u, stage);
+                Write(window, NC2Layout::HelpWindowOffset::HouseCount, index + 1);
+                if (index + 1 == 100)
+                {
+                    full = true;
+                    break;
+                }
             }
         }
-        const auto count = Read<std::uint32_t>(window, 0x84);
-        if (count > 1) NXBasics::Runtime_QuickSort(static_cast<std::byte*>(window) + 0x88, count, 8, lsSortHouseTypeCompareFunction);
+        const auto count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
+        if (count > 1) NXBasics::Runtime_QuickSort(static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::HouseTypes, count, 8, lsSortHouseTypeCompareFunction);
         char filename[260];
         NC2Logic::LanguageTool_GetFilename("data\\text\\%s\\strings\\help\\houseshelp.ini", filename, true);
-        Write(window, 0x3A8, NC2Logic::StringIO_CreateOutOfIniFile(filename));
-        Write<std::int32_t>(window, 0x548, -1);
+        Write(window, NC2Layout::HelpWindowOffset::HouseHelpStrings, NC2Logic::StringIO_CreateOutOfIniFile(filename));
+        Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex, -1);
         for (std::uint32_t good = 1; good <= 55; ++good)
         {
             if (good == 17 || good == 23) continue;
-            const auto index = Read<std::uint32_t>(window, 0x3B0);
-            Write(window, 0x3B4u + index * 4u, good); Write(window, 0x3B0, index + 1);
+            const auto index = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount);
+            Write(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u, good);
+            Write(window, NC2Layout::HelpWindowOffset::GoodCount, index + 1);
             if (index + 1 == 100) break;
         }
-        const auto goods = Read<std::uint32_t>(window, 0x3B0);
-        if (goods > 1) NXBasics::Runtime_QuickSort(static_cast<std::byte*>(window) + 0x3B4, goods, 4, lsSortGoodTypeCompareFunction);
+        const auto goods = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount);
+        if (goods > 1) NXBasics::Runtime_QuickSort(static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::Goods, goods, 4, lsSortGoodTypeCompareFunction);
         NC2Logic::LanguageTool_GetFilename("data\\text\\%s\\strings\\help\\goodshelp.ini", filename, true);
-        Write(window, 0x544, NC2Logic::StringIO_CreateOutOfIniFile(filename));
-        Write<std::int32_t>(window, 0x554, -1);
+        Write(window, NC2Layout::HelpWindowOffset::GoodHelpStrings, NC2Logic::StringIO_CreateOutOfIniFile(filename));
+        Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedMiscIndex, -1);
         NC2Logic::LanguageTool_GetFilename("data\\text\\%s\\strings\\help\\mischelp.ini", filename, true);
         auto* strings = NC2Logic::StringIO_CreateOutOfIniFile(filename);
-        Write(window, 0x550, strings);
-        Write(window, 0x54C, strings->GetNumberOfStrings() / 2);
+        Write(window, NC2Layout::HelpWindowOffset::MiscHelpStrings, strings);
+        Write(window, NC2Layout::HelpWindowOffset::MiscCount, strings->GetNumberOfStrings() / 2);
         HyperLinkTextWindow_l_GuiButtons_Add(window);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Stop_LargeWindowOpened();
         return window;
@@ -126,9 +134,9 @@ namespace NC2InGameGuiMiscWindows
     {
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHyperLinkTextWindowVirtualTable.data());
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
-        delete Read<NXBasics::CStringArray*>(window, 0x550);
-        delete Read<NXBasics::CStringArray*>(window, 0x544);
-        delete Read<NXBasics::CStringArray*>(window, 0x3A8);
+        delete Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings);
+        delete Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::GoodHelpStrings);
+        delete Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::HouseHelpStrings);
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
     }
@@ -140,12 +148,16 @@ namespace NC2InGameGuiMiscWindows
         if (message != 0x800) return false;
         if (command >= 10000 && command < 10010)
         {
-            Write<std::int32_t>(window, 0x3AC, -1); Write<std::int32_t>(window, 0x548, -1); Write<std::int32_t>(window, 0x554, -1);
-            Write(window, 0x70, command - 10000); HyperLinkTextWindow_l_GuiButtons_Update(window); return true;
+            Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, -1);
+            Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex, -1);
+            Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedMiscIndex, -1);
+            Write(window, NC2Layout::HelpWindowOffset::Page, command - 10000);
+            HyperLinkTextWindow_l_GuiButtons_Update(window);
+            return true;
         }
         if (command == 10024 || command == 10025)
         {
-            if (void* element = Read<void*>(window, 0x558))
+            if (void* element = Read<void*>(window, NC2Layout::HelpWindowOffset::HyperTextElement))
             {
                 HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 0.0f, 0);
                 Read<NHyperLinkTextSystem::CDisplayManager*>(element, 0x34)->ScrollY(command == 10024 ? -60 : 60);
@@ -155,32 +167,60 @@ namespace NC2InGameGuiMiscWindows
         std::uint32_t field = 0, count = 0;
         switch (command)
         {
-        case SwitchIds::HelpWindowCommand::SelectJob: Write(window, 0x3AC, param2); break;
-        case SwitchIds::HelpWindowCommand::ClearJobSelection: Write<std::int32_t>(window, 0x3AC, -1); break;
-        case SwitchIds::HelpWindowCommand::PreviousJob: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
-        case SwitchIds::HelpWindowCommand::NextJob: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
-        case SwitchIds::HelpWindowCommand::ShowHouseForJob:
+        case SwitchIds::HelpWindowCommand::SelectHouse: Write(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, param2);
+            break;
+        case SwitchIds::HelpWindowCommand::ClearHouseSelection: Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, -1);
+            break;
+        case SwitchIds::HelpWindowCommand::PreviousHouse: field = NC2Layout::HelpWindowOffset::SelectedHouseIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
+            break;
+        case SwitchIds::HelpWindowCommand::NextHouse: field = NC2Layout::HelpWindowOffset::SelectedHouseIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
+            break;
+        case SwitchIds::HelpWindowCommand::ShowGoodForHouse:
+        case SwitchIds::HelpWindowCommand::OpenGoodInfo:
+        {
+            Write<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page, 2);
+            std::int32_t slot = -1;
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u) == param2)
+            {
+                slot = index;
+                    break;
+                }
+            Write(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex, slot);
+                break;
+        }
+        case SwitchIds::HelpWindowCommand::SelectGood: Write(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex, param2);
+            break;
+        case SwitchIds::HelpWindowCommand::ClearGoodSelection: Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex, -1);
+            break;
+        case SwitchIds::HelpWindowCommand::PreviousGood: field = NC2Layout::HelpWindowOffset::SelectedGoodIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount);
+            break;
+        case SwitchIds::HelpWindowCommand::NextGood: field = NC2Layout::HelpWindowOffset::SelectedGoodIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount);
+            break;
+        case SwitchIds::HelpWindowCommand::SelectMisc: Write(window, NC2Layout::HelpWindowOffset::SelectedMiscIndex, param2);
+            break;
+        case SwitchIds::HelpWindowCommand::ClearMiscSelection: Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedMiscIndex, -1);
+            break;
+        case SwitchIds::HelpWindowCommand::PreviousMisc: field = NC2Layout::HelpWindowOffset::SelectedMiscIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::MiscCount);
+            break;
+        case SwitchIds::HelpWindowCommand::NextMisc: field = NC2Layout::HelpWindowOffset::SelectedMiscIndex;
+            count = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::MiscCount);
+            break;
         case SwitchIds::HelpWindowCommand::OpenHouseInfo:
         {
-            Write<std::uint32_t>(window, 0x70, 2);
+            Write<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page, 1);
             std::int32_t slot = -1;
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, 0x3B0); ++index) if (Read<std::uint32_t>(window, 0x3B4u + index * 4u) == param2) { slot = index; break; }
-            Write(window, 0x548, slot); break;
-        }
-        case SwitchIds::HelpWindowCommand::SelectHouse: Write(window, 0x548, param2); break;
-        case SwitchIds::HelpWindowCommand::ClearHouseSelection: Write<std::int32_t>(window, 0x548, -1); break;
-        case SwitchIds::HelpWindowCommand::PreviousHouse: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
-        case SwitchIds::HelpWindowCommand::NextHouse: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
-        case SwitchIds::HelpWindowCommand::SelectGood: Write(window, 0x554, param2); break;
-        case SwitchIds::HelpWindowCommand::ClearGoodSelection: Write<std::int32_t>(window, 0x554, -1); break;
-        case SwitchIds::HelpWindowCommand::PreviousGood: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
-        case SwitchIds::HelpWindowCommand::NextGood: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
-        case SwitchIds::HelpWindowCommand::OpenJobInfo:
-        {
-            Write<std::uint32_t>(window, 0x70, 1);
-            std::int32_t slot = -1;
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, 0x84); ++index) if (Read<std::uint32_t>(window, 0x88u + index * 8u) == param2 && Read<std::uint32_t>(window, 0x8Cu + index * 8u) == param3) { slot = index; break; }
-            Write(window, 0x3AC, slot); break;
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u) == param2 && Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u) == param3)
+            {
+                slot = index;
+                    break;
+                }
+            Write(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, slot);
+                break;
         }
         default: return true;
         }
@@ -198,17 +238,20 @@ namespace NC2InGameGuiMiscWindows
     void __fastcall HyperLinkTextWindow_l_GuiButtons_Update(void* window)
     {
         NXBaseGui::BaseWindow_Element_DeleteAll(window);
-        reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x55C)->AllButtonsHaveBeenRemoved();
+        reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::DynamicButtons)->AllButtonsHaveBeenRemoved();
         HyperLinkTextWindow_l_GuiButtons_Add(window);
     }
 
     // Original function: FUN_004c4853; the original user-bitmap callback always returns null.
-    static NXBasics::CBitmap* __cdecl ls_GetUserBitmapCallback(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t) { return nullptr; }
+    static NXBasics::CBitmap* __cdecl ls_GetUserBitmapCallback(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+    {
+        return nullptr;
+    }
 
     // Original function: FUN_004c3fa2; four native tabs, detail navigation and index lists.
     void __fastcall HyperLinkTextWindow_l_GuiButtons_Add(void* window)
     {
-        Write<void*>(window, 0x558, nullptr);
+        Write<void*>(window, NC2Layout::HelpWindowOffset::HyperTextElement, nullptr);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22u), 14);
         void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(30));
@@ -222,7 +265,7 @@ namespace NC2InGameGuiMiscWindows
             void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             return memory == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(memory, nullptr, &area, caption, command, window, selected);
         };
-        const auto page = Read<std::uint32_t>(window, 0x70);
+        const auto page = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page);
         rectangle = NXBasics::SRectangle(4, 22, 121, 22);
         for (std::uint32_t tab = 0; tab < 4; ++tab)
         {
@@ -232,8 +275,8 @@ namespace NC2InGameGuiMiscWindows
         rectangle = NXBasics::SRectangle(4, 59, 492, 22);
         if (page >= 1 && page <= 3)
         {
-            const std::uint32_t selections[3]{0x3AC, 0x548, 0x554};
-            const std::uint32_t counts[3]{0x84, 0x3B0, 0x54C};
+            const std::uint32_t selections[3]{NC2Layout::HelpWindowOffset::SelectedHouseIndex, NC2Layout::HelpWindowOffset::SelectedGoodIndex, NC2Layout::HelpWindowOffset::SelectedMiscIndex};
+            const std::uint32_t counts[3]{NC2Layout::HelpWindowOffset::HouseCount, NC2Layout::HelpWindowOffset::GoodCount, NC2Layout::HelpWindowOffset::MiscCount};
             const std::uint32_t selectCommands[3]{10011, 10016, 10020};
             const std::uint32_t previousCommands[3]{10012, 10017, 10021};
             if (Read<std::int32_t>(window, selections[page - 1]) != -1)
@@ -247,20 +290,23 @@ namespace NC2InGameGuiMiscWindows
                 }
                 return;
             }
-            rectangle.width = 468; rectangle.height = 416 - rectangle.y;
+            rectangle.width = 468;
+            rectangle.height = 416 - rectangle.y;
             allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
-            NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 22);
+            NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, counts[page - 1]); ++index)
             {
-                const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, 0x88u + index * 8u), Read<std::uint32_t>(window, 0x8Cu + index * 8u), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, 0x3B4u + index * 4u), 1) : Read<NXBasics::CStringArray*>(window, 0x550)->GetStringPtr(index * 2u);
+                const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u), Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u), 1) : Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings)->GetStringPtr(index * 2u);
                 element = button(row, caption, selectCommands[page - 1], false);
-                Write(element, 0x4C, index); Write<std::uint32_t>(element, 0x50, 0);
+                Write(element, NC2Layout::ToolTextButtonOffset::CommandData1, index);
+                Write<std::uint32_t>(element, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
                 BaseListBoxElement_Element_Add(list, nullptr, element);
                 row.y += row.height + 2;
             }
             NXBaseGui::BaseWindow_Element_Add(window, list);
-            rectangle.x = 476; rectangle.width = 20;
+            rectangle.x = 476;
+            rectangle.width = 20;
             allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
             element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
             NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -268,13 +314,14 @@ namespace NC2InGameGuiMiscWindows
         else if (page == 0)
         {
             rectangle.height = 354 - rectangle.y;
-            Write(window, 0x74, rectangle);
+            Write(window, NC2Layout::HelpWindowOffset::HyperTextFrame, rectangle);
             rectangle.Inflate(-5, -5);
             char directory[260];
             NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\ingamehelp", directory, "index.hlt");
             allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
             element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, reinterpret_cast<void*>(&ls_GetUserBitmapCallback));
-            Write(window, 0x558, element); Write<std::uint8_t>(element, 0x3A, 0);
+            Write(window, NC2Layout::HelpWindowOffset::HyperTextElement, element);
+            Write<std::uint8_t>(element, 0x3A, 0);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             for (std::uint32_t index = 0; index < 2; ++index)
@@ -292,22 +339,25 @@ namespace NC2InGameGuiMiscWindows
     {
         BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
         const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
-        auto* fontSmall = resources.font08; auto* fontMedium = resources.font10;
+        auto* fontSmall = resources.font08;
+        auto* fontMedium = resources.font10;
         const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontDarkPalette) + 0x400);
-        auto* buttons = reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x55C);
-        const auto page = Read<std::uint32_t>(window, 0x70);
+        auto* buttons = reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::DynamicButtons);
+        const auto page = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page);
         if (page == 0)
         {
-            NXBasics::SRectangle frame(0, 0, 0, 0); std::memcpy(&frame, static_cast<std::byte*>(window) + 0x74, sizeof(frame));
-            NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, frame, 2); return;
+            NXBasics::SRectangle frame(0, 0, 0, 0);
+            std::memcpy(&frame, static_cast<std::byte*>(window) + NC2Layout::HelpWindowOffset::HyperTextFrame, sizeof(frame));
+            NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, frame, 2);
+            return;
         }
         if (page == 3)
         {
-            const auto index = Read<std::int32_t>(window, 0x554);
+            const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedMiscIndex);
             if (index == -1) return;
-            auto* strings = Read<NXBasics::CStringArray*>(window, 0x550);
+            auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings);
             NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 20, 60, fontMedium, color, strings->GetStringPtr(static_cast<std::uint32_t>(index) * 2u));
-            if (Read<void*>(window, 0x544) != nullptr)
+            if (Read<void*>(window, NC2Layout::HelpWindowOffset::GoodHelpStrings) != nullptr)
             {
                 const auto* text = strings->GetStringPtr(static_cast<std::uint32_t>(index) * 2u + 1);
                 if (text != nullptr) NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, 90, 500, fontSmall, color, text);
@@ -316,27 +366,28 @@ namespace NC2InGameGuiMiscWindows
         }
         if (page == 2)
         {
-            const auto index = Read<std::int32_t>(window, 0x548);
+            const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex);
             if (index == -1) return;
-            const auto good = Read<std::uint32_t>(window, 0x3B4u + static_cast<std::uint32_t>(index) * 4u);
+            const auto good = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + static_cast<std::uint32_t>(index) * 4u);
             const auto* name = NC2Logic::StringAccess_GetGoodNamePtr(good, 1);
             NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, 60, fontMedium, color, "{gfxgood:%d,1}  %s", good, name);
             std::int32_t y = 90;
-            if (auto* strings = Read<NXBasics::CStringArray*>(window, 0x544))
+            if (auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::GoodHelpStrings))
             {
                 if (const char* text = strings->GetStringPtr(good)) y = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, y, 500, resources.font12, color, text) + 100;
             }
             y += 30;
             std::uint32_t producers[10]{}, producerCount = 0;
-            for (std::uint32_t houseIndex = 0; houseIndex < Read<std::uint32_t>(window, 0x84); ++houseIndex)
+            for (std::uint32_t houseIndex = 0; houseIndex < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++houseIndex)
             {
-                const auto type = Read<std::uint32_t>(window, 0x88u + houseIndex * 8u), stage = Read<std::uint32_t>(window, 0x8Cu + houseIndex * 8u);
-                const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * 0x8BCu;
-                const auto& house = NC2Logic::gStaticHouseTypeStorage.records[Read<std::uint32_t>(engine, 0x3Cu + stage * 4u)];
+                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + houseIndex * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * 8u);
+                const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
+                const auto& house = NC2Logic::gStaticHouseTypeStorage.records[Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u)];
                 for (std::uint32_t production = 0; production < house.productionCount; ++production)
                 {
                     if (static_cast<std::uint32_t>(house.productionGoods[production]) != good) continue;
-                    producers[producerCount++] = houseIndex; break;
+                    producers[producerCount++] = houseIndex;
+                    break;
                 }
                 if (producerCount == 10) break;
             }
@@ -347,7 +398,7 @@ namespace NC2InGameGuiMiscWindows
             for (std::uint32_t producer = 0; producer < producerCount; ++producer)
             {
                 const auto slot = producers[producer];
-                const auto type = Read<std::uint32_t>(window, 0x88u + slot * 8u), stage = Read<std::uint32_t>(window, 0x8Cu + slot * 8u);
+                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + slot * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * 8u);
                 const auto height = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, y, 500, resources.font12, color, NC2Logic::StringAccess_GetHouseNamePtr(type, stage, 1));
                 buttons->UpdateGfxButton(20000, producer, 478, y, 143, nullptr);
                 buttons->SetButtonMiscCommandData(20000, producer, type, stage);
@@ -356,16 +407,16 @@ namespace NC2InGameGuiMiscWindows
             return;
         }
         if (page != 1) return;
-        const auto index = Read<std::int32_t>(window, 0x3AC);
+        const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex);
         if (index == -1) return;
-        const auto type = Read<std::uint32_t>(window, 0x88u + static_cast<std::uint32_t>(index) * 8u), stage = Read<std::uint32_t>(window, 0x8Cu + static_cast<std::uint32_t>(index) * 8u);
-        const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * 0x8BCu;
-        const auto logic = Read<std::uint32_t>(engine, 0x3Cu + stage * 4u);
+        const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + static_cast<std::uint32_t>(index) * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * 8u);
+        const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
+        const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u);
         const auto& house = NC2Logic::gStaticHouseTypeStorage.records[logic];
         NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(static_cast<std::int32_t>(type), stage, bitmap, 250, 300, NC2E2::E2StaticDataPalettesManager_GetPalette256Id("house_sepia"), false, false);
         NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 20, 60, fontMedium, color, NC2Logic::StringAccess_GetHouseNamePtr(type, stage, 1));
         std::int32_t y = 86;
-        if (auto* strings = Read<NXBasics::CStringArray*>(window, 0x3A8))
+        if (auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::HouseHelpStrings))
         {
             if (const char* text = strings->GetStringPtr(logic)) y = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, y, 500, fontSmall, color, text) + 96;
         }
@@ -384,20 +435,25 @@ namespace NC2InGameGuiMiscWindows
                 NXBasics::Runtime_PrintString(tooltip, "%d %s", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount));
                 const auto id = firstId + static_cast<std::uint32_t>(slot);
                 buttons->UpdateTextButton(10015, id, x, y, 50, 24, graphic, false, tooltip);
-                buttons->SetButtonMiscCommandData(10015, id, good, 0); x += 52;
+                buttons->SetButtonMiscCommandData(10015, id, good, 0);
+                x += 52;
             }
         };
-        drawCosts(stage, false, 0); y += 30;
-        if (Read<std::uint32_t>(engine, 0x54) > stage + 1)
+        drawCosts(stage, false, 0);
+        y += 30;
+        if (Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount) > stage + 1)
         {
             NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, y, fontSmall, color, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(39));
-            y += 16; drawCosts(stage + 1, true, 1000); y += 30;
+            y += 16;
+            drawCosts(stage + 1, true, 1000);
+            y += 30;
         }
         if (house.mainType == 1 || house.mainType == 3 || house.mainType == 5)
         {
             NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, y, fontSmall, color, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(40));
             y += 16;
-            char text[300], worker[100]; text[0] = '\0';
+            char text[300], worker[100];
+            text[0] = '\0';
             for (std::int32_t slot = 0; slot < house.workerCount; ++slot)
             {
                 const auto amount = house.workers[slot].maximumWorkers;
@@ -405,7 +461,8 @@ namespace NC2InGameGuiMiscWindows
                 if (slot != 0) std::strcat(text, ", ");
                 std::strcat(text, worker);
             }
-            NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 40, y, fontSmall, color, text); y += 22;
+            NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 40, y, fontSmall, color, text);
+            y += 22;
         }
         NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, y, fontSmall, color, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(41));
         y += 16;
@@ -422,11 +479,16 @@ namespace NC2InGameGuiMiscWindows
             const auto good = static_cast<std::uint32_t>(house.stock[stock].goodType), amount = static_cast<std::uint32_t>(house.stock[stock].maximumAmount) * multiplier;
             const auto x = 20 + static_cast<std::int32_t>(column) * 220;
             NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, x + 20, y, fontSmall, color, "%d", amount);
-            char graphic[28]; NXBasics::Runtime_PrintString(graphic, "{setx:10}{gfxgood:%d,1}", good);
+            char graphic[28];
+            NXBasics::Runtime_PrintString(graphic, "{setx:10}{gfxgood:%d,1}", good);
             buttons->UpdateTextButton(10015, 2000 + stock, x + 40, y, 40, 18, graphic, false, NC2Logic::StringAccess_GetGoodNamePtr(good, 1));
             buttons->SetButtonMiscCommandData(10015, 2000 + stock, good, 0);
             NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, x + 84, y, fontSmall, color, "%s %s", NC2Logic::StringAccess_GetGoodNamePtr(good, amount), house.stock[stock].isOutputStock != 0 ? "<-" : "<>");
-            if (++column == 2) { column = 0; y += 20; }
+            if (++column == 2)
+            {
+                column = 0;
+                y += 20;
+            }
         }
     }
 }

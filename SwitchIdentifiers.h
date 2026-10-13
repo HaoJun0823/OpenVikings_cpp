@@ -553,21 +553,21 @@ namespace SwitchIds
 
     namespace HelpWindowCommand
     {
-        inline constexpr auto SelectJob = 10011;
-        inline constexpr auto ClearJobSelection = 10012;
-        inline constexpr auto PreviousJob = 10013;
-        inline constexpr auto NextJob = 10014;
-        inline constexpr auto ShowHouseForJob = 10015;
-        inline constexpr auto SelectHouse = 10016;
-        inline constexpr auto ClearHouseSelection = 10017;
-        inline constexpr auto PreviousHouse = 10018;
-        inline constexpr auto NextHouse = 10019;
-        inline constexpr auto SelectGood = 10020;
-        inline constexpr auto ClearGoodSelection = 10021;
-        inline constexpr auto PreviousGood = 10022;
-        inline constexpr auto NextGood = 10023;
-        inline constexpr auto OpenJobInfo = 20000;
-        inline constexpr auto OpenHouseInfo = 20001;
+        inline constexpr auto SelectHouse = 10011;
+        inline constexpr auto ClearHouseSelection = 10012;
+        inline constexpr auto PreviousHouse = 10013;
+        inline constexpr auto NextHouse = 10014;
+        inline constexpr auto ShowGoodForHouse = 10015;
+        inline constexpr auto SelectGood = 10016;
+        inline constexpr auto ClearGoodSelection = 10017;
+        inline constexpr auto PreviousGood = 10018;
+        inline constexpr auto NextGood = 10019;
+        inline constexpr auto SelectMisc = 10020;
+        inline constexpr auto ClearMiscSelection = 10021;
+        inline constexpr auto PreviousMisc = 10022;
+        inline constexpr auto NextMisc = 10023;
+        inline constexpr auto OpenHouseInfo = 20000;
+        inline constexpr auto OpenGoodInfo = 20001;
     }
 
     namespace HexagonDirection

@@ -513,6 +513,8 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto TribeType = 0xC;
+
         inline constexpr auto AllowedHouses = 0x2820;
 
         inline constexpr auto AllowedGoods = 0x1278;
@@ -548,6 +550,8 @@ namespace NC2Layout
 
     namespace HouseAttachmentOffset
     {
+        inline constexpr auto Flags = 0;
+
         inline constexpr auto RoleMask = 0;
         inline constexpr auto HumanId = 4;
         inline constexpr auto TrainingJobType = 8;
@@ -1450,6 +1454,12 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto EngineHouseTypeUnsigned = 0x8BCu;
+
+        inline constexpr auto HelpWindowVars = 4064;
+
+        inline constexpr auto SelectionHouseWindowVars = 15472;
+
         inline constexpr auto InputSelectedObject = 8;
 
         inline constexpr auto InputSelectedObjectUnsigned = 8u;
@@ -2298,6 +2308,126 @@ namespace NC2Layout
         inline constexpr auto UniqueId = 4;
 
         inline constexpr auto ObjectId = 0;
+    }
+
+    namespace SelectionHouseWindowOffset
+    {
+        inline constexpr auto StockHouseTabCollapsed = 127;
+
+        inline constexpr auto ProductionTabEnabled = 0x75;
+
+        inline constexpr auto BarrackTabEnabled = 0x76;
+
+        inline constexpr auto TabRectangles = 0x8C;
+
+        inline constexpr auto DynamicButtons = 0x31EC;
+
+        inline constexpr auto Tooltips = 0x308;
+
+        inline constexpr auto OpponentTradeTabEnabled = 0x7A;
+
+        inline constexpr auto OpponentTabEnabled = 0x79;
+
+        inline constexpr auto InhabitantsTabEnabled = 0x78;
+
+        inline constexpr auto HomeTabEnabled = 0x73;
+
+        inline constexpr auto DefenceTabEnabled = 0x71;
+
+        inline constexpr auto ConstructionTabCollapsed = 0x7D;
+
+        inline constexpr auto ConstructionTabEnabled = 0x72;
+
+        inline constexpr auto SelectedStockGood = 0x178;
+
+        inline constexpr auto StockPage = 0x17C;
+
+        inline constexpr auto PreviewElement = 0x174;
+
+        inline constexpr auto ComputedHeight = 0x140;
+
+        inline constexpr auto ComputedWidth = 0x13C;
+
+        inline constexpr auto TabStateChecksum = 0x88;
+
+        inline constexpr auto UncategorizedStockGoods = 0x2D0;
+
+        inline constexpr auto StockGoods = 0x180;
+
+        inline constexpr auto StockHouseTabEnabled = 0x74;
+
+        inline constexpr auto LayoutInvalidFlag = 0x170;
+
+        inline constexpr auto TabHeightOverrides = 0x144;
+
+        inline constexpr auto TabCollapsedFlags = 0x7B;
+
+        inline constexpr auto TabEnabledFlags = 0x70;
+    }
+
+    namespace SelectionHouseWindowVarsOffset
+    {
+        inline constexpr auto Tooltips = 0x298;
+    }
+
+    namespace HelpWindowOffset
+    {
+        inline constexpr auto Goods = 0x3B4;
+
+        inline constexpr auto HouseTypes = 0x88;
+
+        inline constexpr auto DynamicButtons = 0x55C;
+
+        inline constexpr auto HyperTextFrame = 0x74;
+
+        inline constexpr auto HyperTextElement = 0x558;
+
+        inline constexpr auto Page = 0x70;
+
+        inline constexpr auto MiscCount = 0x54C;
+
+        inline constexpr auto MiscHelpStrings = 0x550;
+
+        inline constexpr auto SelectedMiscIndex = 0x554;
+
+        inline constexpr auto GoodHelpStrings = 0x544;
+
+        inline constexpr auto GoodsUnsigned = 0x3B4u;
+
+        inline constexpr auto GoodCount = 0x3B0;
+
+        inline constexpr auto SelectedGoodIndex = 0x548;
+
+        inline constexpr auto HouseHelpStrings = 0x3A8;
+
+        inline constexpr auto HouseDevelopmentStagesUnsigned = 0x8Cu;
+
+        inline constexpr auto HouseTypesUnsigned = 0x88u;
+
+        inline constexpr auto HouseCount = 0x84;
+
+        inline constexpr auto SelectedHouseIndex = 0x3AC;
+    }
+
+    namespace HelpHouseEntryOffset
+    {
+        inline constexpr auto EngineType = 0;
+
+        inline constexpr auto DevelopmentStage = 4;
+    }
+
+    namespace HelpGoodEntryOffset
+    {
+        inline constexpr auto GoodType = 0;
+    }
+
+    namespace EngineHouseTypeOffset
+    {
+        inline constexpr auto LogicTypesUnsigned = 0x3Cu;
+
+        inline constexpr auto DevelopmentStageCount = 0x54;
+
+        inline constexpr auto TribeType = 0x50;
     }
 
 }
