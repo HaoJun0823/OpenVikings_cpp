@@ -504,7 +504,7 @@ namespace NC2Logic
         Human_l_StartAtomicAnimation(human, 2, -1);
         if (Human_IsAgeBaby(human))
         {
-            Write<std::uint32_t>(human, 0x37C, 10); // Original constant 004F3C34.
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 10); // Original constant 004F3C34.
             if (gGameTime.tick > 1u)
             {
                 const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + 0x4A14u;

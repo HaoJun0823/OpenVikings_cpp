@@ -371,7 +371,7 @@ namespace NC2Logic
                     if (armor != 0) total += 10;
                     if (weapon != 1) total += 10;
                     if (weapon == 8) total += 10;
-                    id = Read<std::int32_t>(human, 0xB58);
+                    id = Read<std::int32_t>(human, NC2Layout::HumanOffset::NextSectorHumanId);
                 }
                 for (auto id = Read<std::int32_t>(data, 0x20); id != -1;)
                 {

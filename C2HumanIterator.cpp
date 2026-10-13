@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2VehicleAccess.h"
 #include "C2HumanIterator.h"
 #include "C2LifetimeAccess.h"
@@ -15,8 +16,8 @@ namespace NC2Logic
         flags = 2;
         packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
         radius = searchRadius;
-        currentAnimalId = l_GetNext(CHumanArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CHumanArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c279; corners wrap to WORD before sector conversion.
@@ -34,8 +35,8 @@ namespace NC2Logic
         lastSector.CutInsideMap();
         currentSector = firstSector;
         flags = useSecondList ? 3u : 2u;
-        currentAnimalId = l_GetNextSectorHumanId(-1);
-        return currentAnimalId;
+        currentObjectId = l_GetNextSectorHumanId(-1);
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c31b; the full-grid overload retains the existing center/radius fields.
@@ -46,16 +47,16 @@ namespace NC2Logic
         lastSector = SSectorGridCursor(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) - 1u), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) - 1u));
         flags = useSecondList ? 1u : 0u;
         currentSector = firstSector;
-        currentAnimalId = l_GetNextSectorHumanId(-1);
-        return currentAnimalId;
+        currentObjectId = l_GetNextSectorHumanId(-1);
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c376.
     std::int32_t CHumanIterator::GetNextSectorHumanId()
     {
-        if (currentAnimalId == -1) return -1;
-        currentAnimalId = l_GetNextSectorHumanId(currentAnimalId);
-        return currentAnimalId;
+        if (currentObjectId == -1) return -1;
+        currentObjectId = l_GetNextSectorHumanId(currentObjectId);
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c433; sector chains retain list order without allocation filtering.
@@ -70,7 +71,7 @@ namespace NC2Logic
                 const auto index = static_cast<std::uint32_t>(manager->GetGridWidth()) * static_cast<std::uint32_t>(currentSector.y) + static_cast<std::uint32_t>(currentSector.x);
                 previous = Read<std::int32_t>(manager->GetSectorData(), (index * 21u + selection) * 64u + ((flags & 1u) != 0 ? 24u : 0u));
             }
-            else previous = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHumanArray::ElementSize, 0xB58);
+            else previous = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHumanArray::ElementSize, NC2Layout::HumanOffset::NextSectorHumanId);
             if (previous != -1)
             {
                 if ((flags & 2u) == 0) return previous;
@@ -92,8 +93,8 @@ namespace NC2Logic
     std::int32_t CHumanIterator::GetFirstHumanId()
     {
         flags = 0;
-        currentAnimalId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
-        return currentAnimalId;
+        currentObjectId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c1ee.
@@ -101,8 +102,8 @@ namespace NC2Logic
     {
         selection = player;
         flags = 1;
-        currentAnimalId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
-        return currentAnimalId;
+        currentObjectId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c214; the radius overload scans the same array in order.
@@ -112,16 +113,16 @@ namespace NC2Logic
         flags = 3;
         packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
         radius = radiusValue;
-        currentAnimalId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
-        return currentAnimalId;
+        currentObjectId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c392.
     std::int32_t CHumanIterator::GetNextHumanId()
     {
-        if (currentAnimalId == -1) return -1;
-        currentAnimalId = l_GetNext(currentAnimalId);
-        return currentAnimalId;
+        if (currentObjectId == -1) return -1;
+        currentObjectId = l_GetNext(currentObjectId);
+        return currentObjectId;
     }
 
     // Original function: FUN_0042c3ae.

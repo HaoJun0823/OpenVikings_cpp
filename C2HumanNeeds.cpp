@@ -157,24 +157,24 @@ namespace NC2Logic
         const auto need = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter);
         if (Human_GetPlayerType(human) == 2)
         {
-            if (need >= 1 && need <= 4) Write<std::uint32_t>(human, need == 1 ? 0xAA8 : need == 2 ? 0xAAC : need == 3 ? 0xAB0 : 0xAB4, 8000);
+            if (need >= 1 && need <= 4) Write<std::uint32_t>(human, need == 1 ? NC2Layout::HumanOffset::Food : need == 2 ? NC2Layout::HumanOffset::Stamina : need == 3 ? NC2Layout::HumanOffset::Social : NC2Layout::HumanOffset::Religion, 8000);
         }
         else
         {
             if (need == 3) return;
             if (need == 1 || need == 2)
             {
-                if (Read<std::int32_t>(human, 0x380) < 2) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); return; }
+                if (Read<std::int32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) < 2) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); return; }
                 if (!Human_UserControl_IsCommandTypeInQueue(human, need == 1 ? 7 : 8))
                 {
-                    if (Read<std::int32_t>(human, need == 1 ? 0xAA8 : 0xAAC) <= 2000) Human_UserMessage_SendToUserMessage(human, need == 1 ? 0x1C : 0x1D);
+                    if (Read<std::int32_t>(human, need == 1 ? NC2Layout::HumanOffset::Food : NC2Layout::HumanOffset::Stamina) <= 2000) Human_UserMessage_SendToUserMessage(human, need == 1 ? 0x1C : 0x1D);
                     else if (need == 1) Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
                     else Human_UserMessage_SendToUserMessage(human, 2);
                 }
             }
             else if (need == 4) Human_UserMessage_SendToUserMessage(human, 0x1F);
         }
-        Write(human, 0x380, Read<std::uint32_t>(human, 0x380) - 1u);
+        Write(human, NC2Layout::HumanOffset::TaskFailureCount, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) - 1u);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
     }
@@ -253,8 +253,8 @@ namespace NC2Logic
     // Original function: FUN_00463509; priority is food, stamina, social, religion.
     void Human_AI_DoCheckForUrgentNeeds(void* human)
     {
-        if (!Human_l_IsAtomicInterruptable(human) || Human_UserControl_IsExecutingUserCommand(human) || Read<std::uint8_t>(human, 0xA61) != 0) return;
-        Write<std::uint8_t>(human, 0xA61, 1);
+        if (!Human_l_IsAtomicInterruptable(human) || Human_UserControl_IsExecutingUserCommand(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::UrgentNeedsCheckedFlag) != 0) return;
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::UrgentNeedsCheckedFlag, 1);
         if (Human_AI_IsIgnoringNeeds(human)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 0); return; }
         std::uint32_t need = 0;
         const auto alreadyFulfilling = [human](std::uint32_t type) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == type && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 7 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) == 1; };
@@ -270,7 +270,7 @@ namespace NC2Logic
         if (item != -1) { Human_l_Item_UseItemInSlot(human, item); return; }
         if (!Human_IsRefreshingInWorld(human)) return;
         Human_CurrentTask_DoInterrupt(human);
-        Write<std::uint32_t>(human, 0x380, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write(human, NC2Layout::HumanOffset::CurrentTaskParameter, need);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 7);
@@ -424,7 +424,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 0);
             return;
         }
-        if (Read<std::uint32_t>(human, 0x380) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_FindFoodInHomeHouse(human, &real, &work))
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_FindFoodInHomeHouse(human, &real, &work))
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 16);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, true)) return;
@@ -480,7 +480,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        if (Read<std::uint32_t>(human, 0x380) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_l_StartTask_FulfillNeeds_Stamina_AtHome(human);
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_l_StartTask_FulfillNeeds_Stamina_AtHome(human);
         else Human_l_StartTask_FulfillNeeds_Stamina_OnMap(human);
     }
 

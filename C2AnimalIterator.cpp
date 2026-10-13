@@ -21,8 +21,8 @@ namespace NC2Logic
     std::int32_t CAnimalIterator::GetFirstAnimalId()
     {
         flags = 0;
-        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_004402cd; allocation eviction scans in array order.
@@ -30,8 +30,8 @@ namespace NC2Logic
     {
         selection = player;
         flags = 1;
-        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_004402f3; this scans the array, not sector chains.
@@ -41,16 +41,16 @@ namespace NC2Logic
         flags = 3;
         packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
         radius = searchRadius;
-        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_004403ec.
     std::int32_t CAnimalIterator::GetNextAnimalId()
     {
-        if (currentAnimalId == -1) return -1;
-        currentAnimalId = l_GetNext(currentAnimalId);
-        return currentAnimalId;
+        if (currentObjectId == -1) return -1;
+        currentObjectId = l_GetNext(currentObjectId);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440408; array and sector iteration are distinct.
@@ -75,7 +75,7 @@ namespace NC2Logic
     CAnimalIterator::CAnimalIterator()
     {
         l_InitIteratorFields();
-        currentAnimalId = -1;
+        currentObjectId = -1;
     }
 
     // Original function: FUN_00440cad; shared field initialization leaves flags, selection, radius and current ID untouched.
@@ -125,20 +125,20 @@ namespace NC2Logic
             flags += 2u;
 
         const std::int32_t animalId = l_GetNextSectorAnimalId(-1);
-        currentAnimalId = animalId;
+        currentObjectId = animalId;
         return animalId;
     }
 
     // Original function: FUN_004403d0
     std::int32_t CAnimalIterator::GetNextSectorAnimalId()
     {
-        const std::int32_t previousAnimalId = currentAnimalId;
+        const std::int32_t previousAnimalId = currentObjectId;
 
         if (previousAnimalId == -1)
             return -1;
 
         const std::int32_t animalId = l_GetNextSectorAnimalId(previousAnimalId);
-        currentAnimalId = animalId;
+        currentObjectId = animalId;
         return animalId;
     }
 

@@ -360,7 +360,7 @@ namespace NC2Logic
     // Original function: FUN_00462cd5; civilian and military destination continuations are connected.
     bool Human_AI_DoNewMapPositionReached(void* human, bool destinationReached)
     {
-        Write(human, 0x384, Read<std::uint32_t>(human, 0x384) + 1u);
+        Write(human, NC2Layout::HumanOffset::MapPositionReachedCount, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount) + 1u);
         const void* position = Human_GetMapPositionRef(human);
         const void* micro = GameMap_GetConstMapMicroPointPtr(position);
         GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), position, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius));
@@ -400,9 +400,9 @@ namespace NC2Logic
     bool Human_AI_DoNewMapPositionReached_DestinationNotReached(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return true;
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == 0 && Human_IsRefreshingInWorld(human) && Read<std::uint32_t>(human, 0x384) % 10u == 0)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == 0 && Human_IsRefreshingInWorld(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount) % 10u == 0)
         {
-            Write<std::uint8_t>(human, 0xA61, 0);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::UrgentNeedsCheckedFlag, 0);
             Human_AI_DoCheckForUrgentNeeds(human);
         }
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 7 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) == 0) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 13) return false;
@@ -413,7 +413,7 @@ namespace NC2Logic
             return false;
         }
         if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human)) return true;
-        if ((Read<std::uint32_t>(human, 0x384) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) % 10u != 0) return true;
+        if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) % 10u != 0) return true;
         const auto task = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask);
         if (task != 14 && task != 15 && !(Human_GetPlayerType(human) == 2 && task == 4)) return true;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 && Human_IsRefreshingInWorld(human)) return true;

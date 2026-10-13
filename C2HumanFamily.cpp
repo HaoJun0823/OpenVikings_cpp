@@ -304,7 +304,7 @@ namespace NC2Logic
     {
         Human_StopWaitingForOtherHuman_Detach(human);
         const auto failure = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep);
-        Write<std::uint32_t>(human, 0x380, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
         Human_UserMessage_SendToUserMessage(human, failure == 1 || failure == 7 ? 40u : failure == 6 ? 39u : 38u);
     }
 

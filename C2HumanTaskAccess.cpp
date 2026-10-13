@@ -113,7 +113,7 @@ namespace NC2Logic
         if (task != 1 && task != 8 && task != 9) return;
         if (Human_DoExecuteNextUserCommand(human))
         {
-            Write<std::uint32_t>(human, 0x37C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) == (task == 1 ? 0u : 1u) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1)
             {
                 Human_Target_Reset(human);
@@ -148,8 +148,8 @@ namespace NC2Logic
         const auto task = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask);
         if (task != 1)
         {
-            Write<std::uint32_t>(human, 0x380, 0);
-            if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, 0x37C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
+            if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
         }
         if (task < 1 || task > 29) return;
         if (task == 10) return; // Original table entry 00443790 is a no-op after the preamble.
@@ -221,15 +221,23 @@ namespace NC2Logic
     void Human_l_FailTask_ExecuteJob(void* human)
     {
         const auto job = Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType);
-        if (Read<std::uint32_t>(human, 0x380) >= 2 && job >= 8 && job <= 30 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) != 0)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) >= 2 && job >= 8 && job <= 30 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) != 0)
         {
             std::uint32_t productionCount = 0;
-            for (std::uint32_t good = 0; good < 66; ++good) { const auto count = Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u); if (count > 0 && count <= 11) ++productionCount; }
-            if (productionCount >= 2) { Write<std::uint32_t>(human, 0x380, 0); Human_Production_CouldNotProduceCurrentGood(human); }
+            for (std::uint32_t good = 0; good < 66; ++good)
+            {
+                const auto count = Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u);
+                if (count > 0 && count <= 11) ++productionCount;
+            }
+            if (productionCount >= 2)
+            {
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
+                Human_Production_CouldNotProduceCurrentGood(human);
+            }
         }
-        if (Read<std::uint32_t>(human, 0x380) >= 5)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) >= 5)
         {
-            Write<std::uint32_t>(human, 0x380, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
             switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep))
             {
             case SwitchIds::HumanTaskFailure::NoWork: if (!Human_IsAttachedToLearnHouse(human)) Human_UserMessage_SendToUserMessage(human, 2); break;
@@ -279,7 +287,7 @@ namespace NC2Logic
     {
         const auto task = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) Human_StopCurrentGoodCirculationMode(human);
-        Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
+        Write(human, NC2Layout::HumanOffset::TaskFailureCount, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) + 1u);
         bool doJob = true, checkUrgent = true;
         if (task == 8) { doJob = false; Human_l_FailTask_ExecuteJob(human); }
         else if (task == 14) Human_l_FailTask_Attack(human);
@@ -385,7 +393,11 @@ namespace NC2Logic
             }
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 && Human_IsRefreshingInWorld(human)) doJob = false;
         }
-        if (Read<std::int32_t>(human, 0x380) > 10) { Write<std::uint32_t>(human, 0x380, 0); doJob = false; }
+        if (Read<std::int32_t>(human, NC2Layout::HumanOffset::TaskFailureCount) > 10)
+        {
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
+            doJob = false;
+        }
         Human_Target_Reset(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 2);
@@ -424,8 +436,8 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
         }
         void* moveable = Moveable(human);
-        const auto idleCount = Read<std::uint32_t>(human, 0x37C) + 1u;
-        Write(human, 0x37C, idleCount);
+        const auto idleCount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount) + 1u;
+        Write(human, NC2Layout::HumanOffset::IdleStartCount, idleCount);
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) Human_StopCurrentGoodCirculationMode(human);
@@ -486,7 +498,7 @@ namespace NC2Logic
             if (distance >= 5)
             {
                 auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
-                if (Tool_Map_GetNotBlockedPosition(&point, true) && Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x37C, 0); return; }
+                if (Tool_Map_GetNotBlockedPosition(&point, true) && Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0); return; }
             }
             else if (Human_IsAbleToDoGoodieNow(human))
             {
@@ -616,7 +628,7 @@ namespace NC2Logic
         case SwitchIds::HumanJob::BabyFemale: case SwitchIds::HumanJob::BabyMale: case SwitchIds::HumanJob::ChildFemale: case SwitchIds::HumanJob::ChildMale:
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
-            Write<std::uint32_t>(human, 0x37C, 10); // Windows constant 004F3C34.
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 10); // Windows constant 004F3C34.
             break;
         case SwitchIds::HumanJob::Civilist: case SwitchIds::HumanJob::FisherSea: case SwitchIds::HumanJob::TraderSea: case SwitchIds::HumanJob::Scout:
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
@@ -671,7 +683,7 @@ namespace NC2Logic
             if (status == 1)
             {
                 Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 0);
-                Write<std::uint8_t>(human, 0xA61, 0);
+                Write<std::uint8_t>(human, NC2Layout::HumanOffset::UrgentNeedsCheckedFlag, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 2);
                 return;
             }

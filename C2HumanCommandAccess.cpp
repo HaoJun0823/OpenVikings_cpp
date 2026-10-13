@@ -280,7 +280,7 @@ namespace NC2Logic
             const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]);
             if (static_cast<std::uint32_t>(weapons[Human_Equipment_GetWeaponType(human)].minimumRange) > 1u)
             {
-                Write<std::uint32_t>(human, 0x37C, 0);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
             }
@@ -375,9 +375,9 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (!Human_l_IsAtomicInterruptable(human)) return;
-        Write<std::uint32_t>(human, 0x37C, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WaitingHumanCount, 0);
-        Write<std::uint32_t>(human, 0x380, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::TaskFailureCount, 0);
         switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask))
         {
         case SwitchIds::HumanTask::Goto:
@@ -464,13 +464,13 @@ namespace NC2Logic
                 MapMigPoint_AssignLong(&target, parameter1);
                 if (target == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition)) return true;
             }
-            Write<std::uint32_t>(human, 0x37C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
             Write<std::uint8_t>(human, 0x4F8, 0);
             Write<std::uint8_t>(human, 0x4E4, 0);
         }
         if (opcode >= 0x2B && opcode <= 0x2F)
         {
-            Write<std::uint32_t>(human, 0x37C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
             for (const auto offset : {0x9D0u, 0x9E4u, 0x9F8u, 0xA0Cu, 0xA20u, 0xA34u, 0x994u, 0x9A8u, 0x9BCu}) Write<std::uint8_t>(human, offset, 0);
         }
         const auto offset = NC2Layout::HumanOffset::UserCommandQueue + (static_cast<std::uint32_t>(opcode) - 2u) * NC2Layout::RecordSize::UserNetworkCommand;

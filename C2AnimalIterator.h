@@ -26,7 +26,7 @@ namespace NC2Logic
         SSectorGridCursor firstSector;
         SSectorGridCursor lastSector;
         SSectorGridCursor currentSector;
-        std::int32_t currentAnimalId;
+        std::int32_t currentObjectId;
 
     private:
         CAnimalIterator* l_InitIteratorFields();
@@ -42,5 +42,5 @@ namespace NC2Logic
     static_assert(offsetof(CAnimalIterator, firstSector) == 0x10);
     static_assert(offsetof(CAnimalIterator, lastSector) == 0x18);
     static_assert(offsetof(CAnimalIterator, currentSector) == 0x20);
-    static_assert(offsetof(CAnimalIterator, currentAnimalId) == 0x28);
+    static_assert(offsetof(CAnimalIterator, currentObjectId) == 0x28);
 }

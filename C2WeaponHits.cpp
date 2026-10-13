@@ -181,7 +181,7 @@ namespace NC2Logic
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && TargetData_GetPlayerId(attacker) != NXBasics::Runtime_TimeSigned32(player))
         {
             auto allowed = NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) > 0 && NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) <= 2 && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 4u) == 0;
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 4 && Read<std::uint32_t>(human, 0x384) < 10u) allowed = false;
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 4 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount) < 10u) allowed = false;
             const auto enemy = TargetData_GetPlayerId(attacker);
             if (enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, enemy, player) != 3 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) allowed = false;
             auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;

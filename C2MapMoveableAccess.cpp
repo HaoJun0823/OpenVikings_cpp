@@ -594,9 +594,9 @@ namespace NC2Logic
         const auto previous = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(human, 4);
         Write<std::int32_t>(data, offset, id);
-        Write<std::int32_t>(human, 0xB58, previous);
-        if (previous != -1) Write<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHumanArray::ElementSize, 0xB54, id);
-        Write<std::int32_t>(human, 0xB54, -1);
+        Write<std::int32_t>(human, NC2Layout::HumanOffset::NextSectorHumanId, previous);
+        if (previous != -1) Write<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHumanArray::ElementSize, NC2Layout::HumanOffset::PreviousSectorHumanId, id);
+        Write<std::int32_t>(human, NC2Layout::HumanOffset::PreviousSectorHumanId, -1);
         Write<std::uint32_t>(data, offset + 4, Read<std::uint32_t>(data, offset + 4) + 1u);
     }
 
@@ -607,21 +607,21 @@ namespace NC2Logic
         const auto offset = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
         auto current = Read<std::int32_t>(data, offset);
         const auto id = Read<std::int32_t>(human, 4);
-        const auto next = Read<std::int32_t>(human, 0xB58);
+        const auto next = Read<std::int32_t>(human, NC2Layout::HumanOffset::NextSectorHumanId);
         if (current == id)
         {
             Write<std::int32_t>(data, offset, next);
-            if (next != -1) Write<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(next) * CHumanArray::ElementSize, 0xB54, -1);
+            if (next != -1) Write<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(next) * CHumanArray::ElementSize, NC2Layout::HumanOffset::PreviousSectorHumanId, -1);
         }
         else
         {
             for (;;)
             {
                 void* previous = CHumanArray::mStaticVars + static_cast<std::uint32_t>(current) * CHumanArray::ElementSize;
-                current = Read<std::int32_t>(previous, 0xB58);
+                current = Read<std::int32_t>(previous, NC2Layout::HumanOffset::NextSectorHumanId);
                 if (current == id)
                 {
-                    Write<std::int32_t>(previous, 0xB58, next);
+                    Write<std::int32_t>(previous, NC2Layout::HumanOffset::NextSectorHumanId, next);
                     break;
                 }
             }

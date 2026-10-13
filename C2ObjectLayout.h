@@ -194,11 +194,15 @@ namespace NC2Layout
         inline constexpr auto CurrentTaskParameter = 0x370;
         inline constexpr auto CurrentTaskStep = 0x374;
         inline constexpr auto WaitingHumanCount = 0x378;
+        inline constexpr auto IdleStartCount = 0x37C;
+        inline constexpr auto TaskFailureCount = 0x380;
+        inline constexpr auto MapPositionReachedCount = 0x384;
         inline constexpr auto WorkRetriesRequired = 0x388;
         inline constexpr auto WorkRetryCount = 0x38C;
         inline constexpr auto UserCommandQueue = 0x390u;
         inline constexpr auto LastUserCommandIndex = 0xA5C;
         inline constexpr auto UserCommandActiveFlag = 0xA60;
+        inline constexpr auto UrgentNeedsCheckedFlag = 0xA61;
         inline constexpr auto InteractionTarget = 0xA68;
         inline constexpr auto TargetPosition = 0xA6C;
         inline constexpr auto TargetPositionX = 0xA6C;
@@ -253,6 +257,8 @@ namespace NC2Layout
         inline constexpr auto AttachedVehicleRevision = 0xB4C;
         inline constexpr auto InsideHouseFlag = 0xB50;
         inline constexpr auto InsideVehicleFlag = 0xB51;
+        inline constexpr auto PreviousSectorHumanId = 0xB54;
+        inline constexpr auto NextSectorHumanId = 0xB58;
         inline constexpr auto MilitaryMode = 0xB5C;
         inline constexpr auto MilitaryState = 0xB5C;
         inline constexpr auto MilitaryWorldRefreshmentFlag = 0xB60;

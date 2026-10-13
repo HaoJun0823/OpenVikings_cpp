@@ -249,7 +249,7 @@ namespace NC2Logic
         {
             Human_l_ResetAtomic(human);
             Human_CurrentTask_DoInterrupt(human);
-            Write<std::uint8_t>(human, 0xA61, 1);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::UrgentNeedsCheckedFlag, 1);
             Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 1);
             Human_AI_DoUpdateTaskMachine(human);
             Write<std::uint32_t>(Moveable(human), NC2Layout::MapMoveableOffset::Direction, 2);
@@ -287,7 +287,7 @@ namespace NC2Logic
         Human_Target_SetTargetPositions(human, realPosition, workPosition);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) Human_HouseMisc_Leave(human);
-        Write<std::uint32_t>(human, 0x384, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount, 0);
         return true;
     }
 
@@ -309,7 +309,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) Human_HouseMisc_Leave(human);
-        Write<std::uint32_t>(human, 0x384, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount, 0);
         return true;
     }
 

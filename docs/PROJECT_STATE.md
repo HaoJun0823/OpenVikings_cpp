@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Human task counters and sector links - 2026-10-13
+
+Named 49 accesses to idle-start, task-failure and position-reached counters, urgent-needs state and human sector links. Shared iterator current-ID naming now covers animals, humans and vehicles. Original non-head link removal and unsigned recovery arithmetic are retained. All 13 affected C++ units, ten value/type pairs and iterator layout assertions pass Win32 `/Zs`; 2008 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [HUMAN_TASK_COUNTER_REVIEW.md](HUMAN_TASK_COUNTER_REVIEW.md). Whole-source review continues with remaining overlays and engine/GUI/control/data helpers.
+
 ## Human military and assistant naming - 2026-10-13
 
 Corrected command 42 naming to world refreshment, preserving its behavior. Named 85 military/assistant human accesses, separate targets and the ten-record assistant history. All 17 affected C++ units and 26 value/type pairs pass Win32 `/Zs`; 921 native instruction byte sequences verify against Game.exe. No build or runtime run occurred. See [HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md](HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md). The full-source review continues with task counters, sector links and engine/GUI/control/data layouts.

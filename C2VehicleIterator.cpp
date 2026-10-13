@@ -12,8 +12,8 @@ namespace NC2Logic
     std::int32_t CVehicleIterator::GetFirstVehicleId()
     {
         flags = 0;
-        currentAnimalId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440ce6; this player scan does not initialize a radius filter.
@@ -21,8 +21,8 @@ namespace NC2Logic
     {
         selection = player;
         flags = 1;
-        currentAnimalId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440d0c; array iteration is distinct from sector iteration.
@@ -32,16 +32,16 @@ namespace NC2Logic
         flags = 3;
         packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
         radius = searchRadius;
-        currentAnimalId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
-        return currentAnimalId;
+        currentObjectId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440dfd.
     std::int32_t CVehicleIterator::GetNextVehicleId()
     {
-        if (currentAnimalId == -1) return -1;
-        currentAnimalId = l_GetNext(currentAnimalId);
-        return currentAnimalId;
+        if (currentObjectId == -1) return -1;
+        currentObjectId = l_GetNext(currentObjectId);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440e19; retain the live occupied-range upper bound.
@@ -77,16 +77,16 @@ namespace NC2Logic
         lastSector.CutInsideMap();
         currentSector = firstSector;
         flags = useSecondList ? 1u : 0u;
-        currentAnimalId = l_GetNextSectorVehicleId(-1);
-        return currentAnimalId;
+        currentObjectId = l_GetNextSectorVehicleId(-1);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440de1.
     std::int32_t CVehicleIterator::GetNextSectorVehicleId()
     {
-        if (currentAnimalId == -1) return -1;
-        currentAnimalId = l_GetNextSectorVehicleId(currentAnimalId);
-        return currentAnimalId;
+        if (currentObjectId == -1) return -1;
+        currentObjectId = l_GetNextSectorVehicleId(currentObjectId);
+        return currentObjectId;
     }
 
     // Original function: FUN_00440ea1; sector chains retain list order without allocation filtering.
