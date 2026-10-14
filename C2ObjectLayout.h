@@ -1510,6 +1510,20 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MerchantUnsigned = 0xC4u;
+
+        inline constexpr auto MerchantTradeAgreementBlock = 0x5A4;
+
+        inline constexpr auto MerchantDefaultPool = 196000;
+
+        inline constexpr auto MerchantArrayHeader = 52;
+
+        inline constexpr auto Merchant = 0xC4;
+
+        inline constexpr auto TradeAgreementUnsigned = 0x18u;
+
+        inline constexpr auto MerchantHouseUnsigned = 0x54u;
+
         inline constexpr auto GuidePointerUnsigned = 4u;
 
         inline constexpr auto GuideGoodCountUnsigned = 4u;
@@ -3196,6 +3210,73 @@ namespace NC2Layout
         inline constexpr auto SoldierCount = 0x12;
 
         inline constexpr auto HumanCount = 0;
+    }
+
+    namespace MerchantOffset
+    {
+        inline constexpr auto GoodsReceived = 16;
+
+        inline constexpr auto GoodsDelivered = 12;
+
+        inline constexpr auto SecondHouseId = 0x70;
+
+        inline constexpr auto Houses = 0x1C;
+
+        inline constexpr auto Allocated = 0;
+
+        inline constexpr auto HousesUnsigned = 0x1Cu;
+
+        inline constexpr auto CurrentHouseIndex = 0x18;
+
+        inline constexpr auto TradeAgreementId = 4;
+
+        inline constexpr auto ForeignHouseCount = 8;
+
+        inline constexpr auto HouseCount = 0x14;
+    }
+
+    namespace MerchantHouseOffset
+    {
+        inline constexpr auto ImportFlags = 0x10;
+
+        inline constexpr auto ImportFlagsUnsigned = 0x10u;
+
+        inline constexpr auto ImportCount = 12;
+
+        inline constexpr auto Foreign = 8;
+
+        inline constexpr auto HouseRevision = 4;
+
+        inline constexpr auto HouseId = 0;
+    }
+
+    namespace TradeAgreementOffset
+    {
+        inline constexpr auto IncomingAmount = 20;
+
+        inline constexpr auto IncomingGood = 16;
+
+        inline constexpr auto OutgoingAmount = 12;
+
+        inline constexpr auto OutgoingGood = 8;
+
+        inline constexpr auto HouseRevision = 4;
+
+        inline constexpr auto HouseId = 0;
+    }
+
+    namespace MerchantManagerOffset
+    {
+        inline constexpr auto Entries = 0x30;
+
+        inline constexpr auto TradeAgreementsUnsigned = 0x38u;
+
+        inline constexpr auto TradeAgreementCount = 0x34;
+    }
+
+    namespace ArrayHandlerOffset
+    {
+        inline constexpr auto Capacity = 4;
     }
 
 }

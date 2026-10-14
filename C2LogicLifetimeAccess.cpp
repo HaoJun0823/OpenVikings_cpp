@@ -241,12 +241,12 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gHumanMerchantArray = manager;
-        std::memset(manager, 0, 52);
-        void* entries = NXBasics::Runtime_Allocate(196000);
-        Write<void*>(manager, 0x30, entries);
-        std::memset(entries, 0, 196000);
-        std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 1444);
-        array->System_InitArray(1000, static_cast<std::byte*>(entries), 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        std::memset(manager, 0, NC2Layout::RecordSize::MerchantArrayHeader);
+        void* entries = NXBasics::Runtime_Allocate(NC2Layout::RecordSize::MerchantDefaultPool);
+        Write<void*>(manager, NC2Layout::MerchantManagerOffset::Entries, entries);
+        std::memset(entries, 0, NC2Layout::RecordSize::MerchantDefaultPool);
+        std::memset(static_cast<std::byte*>(manager) + NC2Layout::MerchantManagerOffset::TradeAgreementCount, 0, NC2Layout::RecordSize::MerchantTradeAgreementBlock);
+        array->System_InitArray(NC2Runtime::MerchantLimits::DefaultCapacity, static_cast<std::byte*>(entries), NC2Layout::RecordSize::Merchant, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, HumanMerchantArray_l_LogicCallback, 0xDE, 0x32);
         return manager;
     }
@@ -497,7 +497,7 @@ namespace NC2Logic
     static void HumanMerchantArray_Destruct(void* array)
     {
         Unregister(HumanMerchantArray_l_LogicCallback, 0xDE, {0x1A});
-        if (Read<void*>(array, 0x30) != nullptr) FreeAndClearField(array, 0x30);
+        if (Read<void*>(array, NC2Layout::MerchantManagerOffset::Entries) != nullptr) FreeAndClearField(array, NC2Layout::MerchantManagerOffset::Entries);
         gHumanMerchantArray = nullptr;
         Write<std::uint8_t>(array, 0, 0);
     }

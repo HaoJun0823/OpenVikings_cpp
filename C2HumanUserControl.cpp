@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2HumanUserControl.h"
@@ -45,8 +47,8 @@ namespace NC2Logic
             if (Human_IsJobTrader(human))
             {
                 const void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId));
-                if (Read<std::uint32_t>(merchant, 0x14) < 2) commands->AddCommand(22);
-                if (Read<std::uint32_t>(merchant, 0x14) != 0) commands->AddCommand(23);
+                if (Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::HouseCount) < 2) commands->AddCommand(22);
+                if (Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::HouseCount) != 0) commands->AddCommand(23);
             }
             if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) goto passenger;
             if (Human_IsAttachedToVehicle(human)) commands->AddCommand(13);

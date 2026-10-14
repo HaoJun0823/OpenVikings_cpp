@@ -212,30 +212,33 @@ namespace NC2Logic
         Human_Exit(human);
     }
     // Original function: FUN_0041c5f1.
-    static void MerchantData_Init(void* merchant)
+    #include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
+static void MerchantData_Init(void* merchant)
     {
-        Write<std::uint8_t>(merchant, 0, 1);
-        Write<std::uint32_t>(merchant, 0x14, 0);
-        Write<std::int32_t>(merchant, 0x18, -1);
-        Write<std::int32_t>(merchant, 0x1C, -1);
-        Write<std::int32_t>(merchant, 0x70, -1);
-        Write<std::int32_t>(merchant, 4, -1);
-        Write<std::uint32_t>(merchant, 8, 0);
-        Write<std::uint32_t>(merchant, 0x0C, 0);
-        Write<std::uint32_t>(merchant, 0x10, 0);
+        Write<std::uint8_t>(merchant, NC2Layout::MerchantOffset::Allocated, 1);
+        Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::HouseCount, 0);
+        Write<std::int32_t>(merchant, NC2Layout::MerchantOffset::CurrentHouseIndex, -1);
+        Write<std::int32_t>(merchant, NC2Layout::MerchantOffset::Houses, -1);
+        Write<std::int32_t>(merchant, NC2Layout::MerchantOffset::SecondHouseId, -1);
+        Write<std::int32_t>(merchant, NC2Layout::MerchantOffset::TradeAgreementId, -1);
+        Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::ForeignHouseCount, 0);
+        Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsDelivered, 0);
+        Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived, 0);
     }
     // Original function: FUN_0041c586; the human argument is unused by Windows.
     std::int32_t HumanMerchantArray_AllocateMerchant(void* manager, std::uint32_t /*human*/)
     {
         const auto id = static_cast<CArrayHandler*>(manager)->Element_Allocate();
-        if (id != -1) MerchantData_Init(Read<std::byte*>(manager, 0x30) + id * 0xC4);
+        if (id != -1) MerchantData_Init(Read<std::byte*>(manager, NC2Layout::MerchantManagerOffset::Entries) + id * NC2Layout::RecordSize::Merchant);
         return id;
     }
     // Original function: FUN_0041c5af.
     void HumanMerchantArray_FreeMerchant(void* manager, std::int32_t id)
     {
-        void* merchant = Read<std::byte*>(manager, 0x30) + id * 0xC4;
-        if (Read<std::uint8_t>(merchant, 0) != 0 && static_cast<CArrayHandler*>(manager)->Element_Free(id, true)) Write<std::uint8_t>(merchant, 0, 0);
+        void* merchant = Read<std::byte*>(manager, NC2Layout::MerchantManagerOffset::Entries) + id * NC2Layout::RecordSize::Merchant;
+        if (Read<std::uint8_t>(merchant, NC2Layout::MerchantOffset::Allocated) != 0 && static_cast<CArrayHandler*>(manager)->Element_Free(id, true)) Write<std::uint8_t>(merchant, NC2Layout::MerchantOffset::Allocated, 0);
     }
     // Original function: FUN_0042c817.
     bool Human_IsAttachedToLearnHouse(const void* human)

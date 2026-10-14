@@ -327,8 +327,8 @@ namespace NC2Logic
     void __fastcall HumanMerchantArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Merchants, 1);
-        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + 0x34, 0x5A4);
-        io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
+        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + NC2Layout::MerchantManagerOffset::TradeAgreementCount, NC2Layout::RecordSize::MerchantTradeAgreementBlock);
+        io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, NC2Layout::ArrayHandlerOffset::Capacity));
         static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
@@ -338,23 +338,23 @@ namespace NC2Logic
     {
         auto* array = ::new (manager) CArrayHandler();
         gHumanMerchantArray = manager;
-        std::memset(manager, 0, 52);
+        std::memset(manager, 0, NC2Layout::RecordSize::MerchantArrayHeader);
         CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, HumanMerchantArray_l_LogicCallback, 0xDE, 50);
         if (io->mReadHeader.version != 1)
         {
-            auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(196000, 1));
-            Write(manager, 0x30, records);
-            std::memset(records, 0, 196000);
-            std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 1444);
-            array->System_InitArray(1000, records, 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+            auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::MerchantDefaultPool, 1));
+            Write(manager, NC2Layout::MerchantManagerOffset::Entries, records);
+            std::memset(records, 0, NC2Layout::RecordSize::MerchantDefaultPool);
+            std::memset(static_cast<std::byte*>(manager) + NC2Layout::MerchantManagerOffset::TradeAgreementCount, 0, NC2Layout::RecordSize::MerchantTradeAgreementBlock);
+            array->System_InitArray(NC2Runtime::MerchantLimits::DefaultCapacity, records, NC2Layout::RecordSize::Merchant, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
             io->IO_File_Chunk_Skip();
             return manager;
         }
-        io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + 0x34, 0x5A4);
+        io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + NC2Layout::MerchantManagerOffset::TradeAgreementCount, NC2Layout::RecordSize::MerchantTradeAgreementBlock);
         const std::uint32_t capacity = io->IO_File_ReadLong();
-        const std::uint32_t bytes = capacity * 0xC4u;
+        const std::uint32_t bytes = capacity * NC2Layout::RecordSize::MerchantUnsigned;
         auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
-        Write(manager, 0x30, records);
+        Write(manager, NC2Layout::MerchantManagerOffset::Entries, records);
         std::memset(records, 0, bytes);
         array->IO_InitAndLoadArray(records, io, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
         return manager;

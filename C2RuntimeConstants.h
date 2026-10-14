@@ -298,4 +298,15 @@ namespace NC2Runtime
         inline constexpr auto Slots = 100;
     }
 
+    namespace MerchantLimits
+    {
+        inline constexpr auto DefaultCapacity = 1000;
+
+        inline constexpr auto Goods = 66;
+
+        inline constexpr auto TradeAgreements = 60;
+
+        inline constexpr auto Houses = 2;
+    }
+
 }

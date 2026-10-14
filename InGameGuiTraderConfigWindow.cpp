@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiTraderConfigWindow.h"
@@ -70,7 +72,7 @@ namespace NC2InGameGuiSelectedAction
         bool l_Merchant_IsTradingWithOpponent(void* window)
         {
             const void* merchant = Merchant(l_Merchant_GetHumanPtr(window));
-            return merchant != nullptr && Read<std::uint32_t>(merchant, 8) != 0;
+            return merchant != nullptr && Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::ForeignHouseCount) != 0;
         }
         // Original function: FUN_004cda63.
         void* l_Merchant_GetOpponentTradeHousePtr(void* window)
@@ -189,7 +191,7 @@ namespace NC2InGameGuiSelectedAction
             const void* house = l_Merchant_GetOpponentTradeHousePtr(window);
             if (house == nullptr) return;
             void* merchant = Merchant(l_Merchant_GetHumanPtr(window));
-            const auto selected = merchant == nullptr ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(merchant, 4);
+            const auto selected = merchant == nullptr ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::TradeAgreementId);
             std::uint32_t id = NXBasics::IntegerRange::UInt32Maximum;
             std::int32_t y = 0;
             while ((id = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, id)) != NXBasics::IntegerRange::UInt32Maximum)

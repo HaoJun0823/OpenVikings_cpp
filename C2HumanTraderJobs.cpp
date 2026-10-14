@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -29,7 +30,7 @@ namespace NC2Logic
     namespace
     {
         void* Vehicle(const void* human) { return CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize; }
-        void* House(const void* data) { return MerchantHouseData_IsValid(data) ? CHouseArray::mStaticVars + Read<std::uint32_t>(data, 0) * CHouseArray::ElementSize : nullptr; }
+        void* House(const void* data) { return MerchantHouseData_IsValid(data) ? CHouseArray::mStaticVars + Read<std::uint32_t>(data, NC2Layout::MerchantHouseOffset::HouseId) * CHouseArray::ElementSize : nullptr; }
         void* Merchant(const void* human) { return HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)); }
         bool IsFoodGroup16(std::uint32_t good) { return good == 16 || good == 18 || good == 19 || good == 21 || good == 56 || good == 22 || good == 23; }
         bool IsFoodGroup17(std::uint32_t good) { return good == 17 || good == 20; }
@@ -38,7 +39,7 @@ namespace NC2Logic
         void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
         void Start(void* human, std::uint32_t animation) { Human_l_StartAtomicAnimation(human, animation, 6); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
         void TargetVehicle(void* human) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision)); }
-        void TargetHouseData(void* human, const void* data) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(data, 0)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(data, 4)); }
+        void TargetHouseData(void* human, const void* data) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(data, NC2Layout::MerchantHouseOffset::HouseId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(data, NC2Layout::MerchantHouseOffset::HouseRevision)); }
         void EnterVehicle(void* human) { TargetVehicle(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 21); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0); }
         bool IsCommander(const void* human) { return Human_IsAttachedToVehicle(human) && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); }
         bool IsRestockForbidden(void* house, std::uint32_t good) { return (good == 15 || good == 28 || good == 29) && House_GetHouseMainType(house) == 2; }
@@ -66,7 +67,7 @@ namespace NC2Logic
             Human_Target_SetTargetPositions(human, &real, &work);
             return Human_l_StartAtomicWalk(human, &real, &work);
         }
-        void ResetTradeAmounts(void* merchant) { Write<std::uint32_t>(merchant, 12, 0); Write<std::uint32_t>(merchant, 16, 0); }
+        void ResetTradeAmounts(void* merchant) { Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsDelivered, 0); Write<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived, 0); }
 
         // Original function: FUN_0046e941; original outlined helper name is unresolved.
         void TraderFetchFromHouse(void* human, void* house, std::uint32_t good)
@@ -104,7 +105,7 @@ namespace NC2Logic
         auto* current = House(currentData);
         auto* next = House(nextData);
         auto* vehicle = Vehicle(human);
-        const bool unrestricted = Read<std::uint32_t>(currentData, 12) == 0 && Read<std::uint32_t>(nextData, 12) == 0;
+        const bool unrestricted = Read<std::uint32_t>(currentData, NC2Layout::MerchantHouseOffset::ImportCount) == 0 && Read<std::uint32_t>(nextData, NC2Layout::MerchantHouseOffset::ImportCount) == 0;
         std::int32_t bestRequests = 0, bestBalance = 0;
         std::uint32_t selected = 0;
         for (std::uint32_t good = 0; good <= 55; ++good)
@@ -159,7 +160,7 @@ namespace NC2Logic
         auto* current = House(currentData);
         auto* next = House(nextData);
         auto* vehicle = Human_IsAttachedToVehicle(human) ? Vehicle(human) : nullptr;
-        const bool unrestricted = Read<std::uint32_t>(currentData, 12) == 0 && Read<std::uint32_t>(nextData, 12) == 0;
+        const bool unrestricted = Read<std::uint32_t>(currentData, NC2Layout::MerchantHouseOffset::ImportCount) == 0 && Read<std::uint32_t>(nextData, NC2Layout::MerchantHouseOffset::ImportCount) == 0;
         std::int32_t bestRequests = 0, bestBalance = 0;
         std::uint32_t selected = 0;
         for (std::uint32_t good = 0; good <= 55; ++good)
@@ -218,7 +219,7 @@ namespace NC2Logic
         auto* current = House(currentData);
         auto* next = House(nextData);
         auto* vehicle = Human_IsAttachedToVehicle(human) ? Vehicle(human) : nullptr;
-        const bool unrestricted = Read<std::uint32_t>(currentData, 12) == 0 && Read<std::uint32_t>(nextData, 12) == 0;
+        const bool unrestricted = Read<std::uint32_t>(currentData, NC2Layout::MerchantHouseOffset::ImportCount) == 0 && Read<std::uint32_t>(nextData, NC2Layout::MerchantHouseOffset::ImportCount) == 0;
         const auto normalized = NormalizedGood(good);
         if (!House_Stock_CanStoreGoodType(current, normalized, false) || House_Stock_IsFullSoon(current, normalized) || IsRestockForbidden(current, good) || (TGoodTypes_IsFood(good) && House_GetHouseMainType(next) == 2)) return false;
         if (!unrestricted && !MerchantHouseData_GetGoodTypeImportFlag(currentData, normalized)) return !MerchantHouseData_GetGoodTypeImportFlag(nextData, normalized);
@@ -240,7 +241,7 @@ namespace NC2Logic
         auto* current = House(currentData);
         auto* next = House(nextData);
         auto* vehicle = Human_IsAttachedToVehicle(human) ? Vehicle(human) : nullptr;
-        const bool unrestricted = Read<std::uint32_t>(currentData, 12) == 0 && Read<std::uint32_t>(nextData, 12) == 0;
+        const bool unrestricted = Read<std::uint32_t>(currentData, NC2Layout::MerchantHouseOffset::ImportCount) == 0 && Read<std::uint32_t>(nextData, NC2Layout::MerchantHouseOffset::ImportCount) == 0;
         const auto normalized = NormalizedGood(good);
         if (!House_Stock_CanStoreGoodType(next, normalized, false) || IsRestockForbidden(next, good) || (TGoodTypes_IsFood(good) && House_GetHouseMainType(current) == 2) || House_Stock_IsFullSoon(next, normalized)) return false;
         if (!unrestricted && !MerchantHouseData_GetGoodTypeImportFlag(nextData, normalized)) return false;
@@ -273,7 +274,7 @@ namespace NC2Logic
             MerchantData_NextHouse(merchant);
             return;
         }
-        if (Read<std::uint8_t>(currentData, 8) == 0 && Read<std::uint8_t>(nextData, 8) == 0)
+        if (Read<std::uint8_t>(currentData, NC2Layout::MerchantHouseOffset::Foreign) == 0 && Read<std::uint8_t>(nextData, NC2Layout::MerchantHouseOffset::Foreign) == 0)
         {
             if (IsCommander(human) && (Human_l_Trader_GetNextGoodFromVehicle(human) != 0 || Human_l_Trader_GetNextGoodForNextHouse(human) != 0) && Human_l_Trader_MoveVehicleNearHouse(human, current)) return;
             const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
@@ -339,7 +340,7 @@ namespace NC2Logic
             MerchantData_NextHouse(merchant);
             return;
         }
-        const auto* agreement = static_cast<std::byte*>(gHumanMerchantArray) + 0x38u + Read<std::uint32_t>(merchant, 4) * 0x18u;
+        const auto* agreement = static_cast<std::byte*>(gHumanMerchantArray) + NC2Layout::MerchantManagerOffset::TradeAgreementsUnsigned + Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::TradeAgreementId) * NC2Layout::RecordSize::TradeAgreementUnsigned;
         if (!IsCommander(human))
         {
             Fail(human, 14);
@@ -348,7 +349,7 @@ namespace NC2Logic
             return;
         }
         const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
-        if (Read<std::uint8_t>(nextData, 8) != 0)
+        if (Read<std::uint8_t>(nextData, NC2Layout::MerchantHouseOffset::Foreign) != 0)
         {
             if (circulation == 4)
             {
@@ -359,7 +360,7 @@ namespace NC2Logic
                     if (target == 6)
                     {
                         auto* vehicle = Vehicle(human);
-                        if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && !Vehicle_Stock_IsFull(vehicle) && Read<std::uint32_t>(agreement, 8) == cargo) EnterVehicle(human);
+                        if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && !Vehicle_Stock_IsFull(vehicle) && Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood) == cargo) EnterVehicle(human);
                         else Fail(human, 0);
                         return;
                     }
@@ -376,7 +377,7 @@ namespace NC2Logic
                 }
                 else
                 {
-                    const auto outgoing = Read<std::uint32_t>(agreement, 8);
+                    const auto outgoing = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood);
                     if (cargo == outgoing || (IsFoodGroup16(cargo) && outgoing == 16) || (IsFoodGroup17(cargo) && outgoing == 17))
                     {
                         auto* vehicle = Vehicle(human);
@@ -391,13 +392,13 @@ namespace NC2Logic
             switch (Human_l_Trader_Foreign_CheckGoods(human, current, agreement, &excess))
             {
             case SwitchIds::TraderGoodsCheck::Unavailable:
-                Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(agreement, 8));
+                Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood));
                 Fail(human, 3);
                 ResetTradeAmounts(merchant);
                 MerchantData_NextHouse(merchant);
                 return;
             case SwitchIds::TraderGoodsCheck::FetchFromHouse:
-                if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromHouse(human, current, Read<std::uint32_t>(agreement, 8));
+                if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromHouse(human, current, Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood));
                 return;
             case SwitchIds::TraderGoodsCheck::VisitNextHouse: MerchantData_NextHouse(merchant); return;
             case SwitchIds::TraderGoodsCheck::FetchExcessFromVehicle:
@@ -410,7 +411,7 @@ namespace NC2Logic
         {
             auto recordIncoming = [human, current, merchant]()
             {
-                Write(merchant, 16, Read<std::uint32_t>(merchant, 16) + 1u);
+                Write(merchant, NC2Layout::MerchantOffset::GoodsReceived, Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived) + 1u);
                 const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + 0x4A30u;
                 Write(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
             };
@@ -427,20 +428,20 @@ namespace NC2Logic
                         {
                             Human_l_JobExperience_Gain(human);
                             Start(human, 23);
-                            Write(merchant, 12, Read<std::uint32_t>(merchant, 12) + 1u);
+                            Write(merchant, NC2Layout::MerchantOffset::GoodsDelivered, Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsDelivered) + 1u);
                             return;
                         }
                     }
                     else if (target == 6)
                     {
                         auto* vehicle = Vehicle(human);
-                        if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && !Vehicle_Stock_IsFull(vehicle) && Read<std::uint32_t>(agreement, 16) == cargo) { EnterVehicle(human); recordIncoming(); }
+                        if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && !Vehicle_Stock_IsFull(vehicle) && Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingGood) == cargo) { EnterVehicle(human); recordIncoming(); }
                         else Fail(human, 0);
                         return;
                     }
                 }
-                else if (cargo == Read<std::uint32_t>(agreement, 8)) { WalkToHouse(human, current, currentData); return; }
-                else if (cargo == Read<std::uint32_t>(agreement, 16))
+                else if (cargo == Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood)) { WalkToHouse(human, current, currentData); return; }
+                else if (cargo == Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingGood))
                 {
                     auto* vehicle = Vehicle(human);
                     if (!Vehicle_Stock_IsFull(vehicle) && Vehicle_Stock_CanStoreGoodType(vehicle, cargo))
@@ -457,22 +458,22 @@ namespace NC2Logic
             else if (circulation == 0)
             {
                 auto* vehicle = Vehicle(human);
-                const auto given = Read<std::uint32_t>(merchant, 12);
-                if (given >= Read<std::uint32_t>(agreement, 12))
+                const auto given = Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsDelivered);
+                if (given >= Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingAmount))
                 {
-                    if (Read<std::uint32_t>(merchant, 16) >= Read<std::uint32_t>(agreement, 20))
+                    if (Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived) >= Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingAmount))
                     {
                         ResetTradeAmounts(merchant);
-                        if (Vehicle_Stock_GetAmountOfGoods(vehicle, Read<std::uint32_t>(agreement, 8)) < Read<std::uint32_t>(agreement, 12)) MerchantData_NextHouse(merchant);
+                        if (Vehicle_Stock_GetAmountOfGoods(vehicle, Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood)) < Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingAmount)) MerchantData_NextHouse(merchant);
                         return;
                     }
                     if (Human_l_Trader_MoveVehicleNearHouse(human, current)) return;
                     if (Vehicle_Stock_IsFull(vehicle)) { ResetTradeAmounts(merchant); return; }
-                    TraderFetchFromHouse(human, current, Read<std::uint32_t>(agreement, 16));
+                    TraderFetchFromHouse(human, current, Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingGood));
                     return;
                 }
-                const auto outgoing = Read<std::uint32_t>(agreement, 8);
-                if (Vehicle_Stock_GetAmountOfGoods(vehicle, outgoing) + given >= Read<std::uint32_t>(agreement, 12))
+                const auto outgoing = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood);
+                if (Vehicle_Stock_GetAmountOfGoods(vehicle, outgoing) + given >= Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingAmount))
                 {
                     if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromVehicle(human, outgoing);
                     return;
@@ -569,7 +570,7 @@ namespace NC2Logic
     std::uint32_t Human_l_Trader_Foreign_CheckGoods(void* human, void* house, const void* agreement, std::uint32_t* excessGood)
     {
         auto* vehicle = Vehicle(human);
-        const auto outgoing = Read<std::uint32_t>(agreement, 8);
+        const auto outgoing = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood);
         for (std::uint32_t good = 1; good < 66; ++good)
         {
             if (good == outgoing || (IsFoodGroup16(good) && outgoing == 16) || (IsFoodGroup17(good) && outgoing == 17)) continue;
@@ -577,8 +578,8 @@ namespace NC2Logic
         }
         const auto available = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots) - Vehicle_Stock_GetTotalAmount(vehicle);
         const auto amount = Vehicle_Stock_GetAmountOfGoods(vehicle, outgoing);
-        const auto required = Read<std::uint32_t>(agreement, 12);
-        const auto incoming = Read<std::uint32_t>(agreement, 20);
+        const auto required = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingAmount);
+        const auto incoming = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingAmount);
         auto difference = incoming - required;
         if (NXBasics::Runtime_TimeSigned32(difference) < 0) difference = 0;
         const auto remaining = required - amount % required;

@@ -367,16 +367,19 @@ namespace NC2Logic
     void Human_Equipment_SetShoeType(void* human, std::uint32_t good) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes, good); }
 
     // Original function: FUN_0041c5e1; merchant records are owned by their array.
-    void* HumanMerchantArray_GetMerchantDataPtr(const void* manager, std::int32_t id) { return Read<std::byte*>(manager, 0x30) + static_cast<std::intptr_t>(id) * 0xC4; }
+    #include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
+void* HumanMerchantArray_GetMerchantDataPtr(const void* manager, std::int32_t id) { return Read<std::byte*>(manager, NC2Layout::MerchantManagerOffset::Entries) + static_cast<std::intptr_t>(id) * NC2Layout::RecordSize::Merchant; }
     // Original function: FUN_0041c799; the two house records have a 0x54-byte stride.
-    void* MerchantData_GetHouseDataPtr(void* merchant, std::uint32_t index) { return static_cast<std::byte*>(merchant) + 0x1Cu + index * 0x54u; }
+    void* MerchantData_GetHouseDataPtr(void* merchant, std::uint32_t index) { return static_cast<std::byte*>(merchant) + NC2Layout::MerchantOffset::HousesUnsigned + index * NC2Layout::RecordSize::MerchantHouseUnsigned; }
     // Original function: FUN_0041c98d; allocation and revision both participate.
     bool MerchantHouseData_IsValid(const void* houseData)
     {
-        const auto id = Read<std::int32_t>(houseData, 0);
+        const auto id = Read<std::int32_t>(houseData, NC2Layout::MerchantHouseOffset::HouseId);
         if (id == -1) return false;
         const auto* house = CHouseArray::mStaticVars + static_cast<std::intptr_t>(id) * CHouseArray::ElementSize;
-        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(houseData, 4);
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(houseData, NC2Layout::MerchantHouseOffset::HouseRevision);
     }
 
     // Original function: FUN_0042cc0b.
