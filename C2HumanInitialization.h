@@ -5,6 +5,10 @@
 
 namespace NC2Logic
 {
+    // Physical Windows work-marker record; the map moveable is allocated separately.
+    struct SMarkerStorage { std::uint8_t allocated; std::byte padding01[3]; std::int32_t markerId; std::uint32_t uniqueId; std::int32_t mapMoveableId; std::uint32_t type; std::int32_t humanId; };
+    struct SProductionGoodSelectionStorage { std::uint8_t mode, enabled[66]; };
+    struct SUnresolvedSevenEntrySelectionStorage { std::uint8_t mode, enabled[7]; };
     std::int32_t __fastcall MarkerArray_AllocateMarker(void* array, void* unusedEdx, std::uint32_t type, const void* point, std::uint32_t human);
     void __fastcall MarkerArray_FreeMarker(void* array, void* unusedEdx, std::int32_t id);
     std::int32_t Marker_PlayerId_Get(const void* marker);
@@ -33,7 +37,6 @@ namespace NC2Logic
     void Logic_EntryPoint_Edit_Stop();
 
     std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void* human);
-    // Remaining original operations are isolated in TemporaryLinkStubs.cpp.
     void HappinessManager_Messages_CivilistDied(void* manager, const void* human);
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void* point, std::uint32_t type, std::uint32_t valency, std::int32_t engineId, std::uint32_t parameter, std::int32_t player);
 }

@@ -270,7 +270,7 @@ namespace NC2Logic
         {
             Logic_EntryPoint_Edit_Start();
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B1) == 0 && type != 3 && type != 4)
+            if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag) == 0 && type != 3 && type != 4)
             {
                 auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
                 const auto wreck = [&](bool checkInside)
@@ -288,7 +288,7 @@ namespace NC2Logic
                         for (std::uint32_t step = 0; step < ring; ++step) { MapMigPoint_MoveCursorUnwrapped(point, direction); wreck(true); }
                 }
             }
-            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != 4 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != 3)
+            if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) == 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != 4 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != 3)
                 for (std::uint32_t good = 0; good < 66; ++good)
                 {
                     if (!Vehicle_Stock_CanStoreGoodType(vehicle, good)) continue;

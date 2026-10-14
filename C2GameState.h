@@ -66,7 +66,10 @@ namespace NC2Logic
         void* mapFileLibrary;                      // +0x1A8; original 005109C0, owned registered map archive.
         std::uint8_t networkGame;                  // +0x1AC; original 005109C4, startup/savegame network mode.
         std::uint8_t networkWait;                    // +0x1AD; original 005109C5.
-        std::byte unknown1AE[10];
+        std::byte unknown1AE[2];
+        std::uint8_t suppressDeathStatistics;      // +0x1B0; original 005109C8.
+        std::uint8_t suppressDestructionLandscape; // +0x1B1; original 005109C9.
+        std::byte unknown1B2[6];
     };
 #pragma pack(pop)
 

@@ -213,7 +213,7 @@ namespace NC2Logic
             {
                 GameMapModifyManager_StartGameMapModify();
                 // Original unresolved control bytes 005109C9/005109C8 retain their storage offsets.
-                if (Read<std::uint8_t>(&gGameStaticVars, 0x1B1) == 0)
+                if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag) == 0)
                 {
                     const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
                     for (std::uint32_t index = 0; index < (area->pointCount >> 1); ++index)
@@ -226,7 +226,7 @@ namespace NC2Logic
                         if (engine != -1) Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 1, 1, engine, 0, -1);
                     }
                 }
-                if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0)
+                if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) == 0)
                 {
                     Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value, 0);
                     Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value, 0);

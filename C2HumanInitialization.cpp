@@ -34,8 +34,8 @@ namespace NC2Logic
     // Original function: FUN_00438df2.
     std::int32_t Marker_PlayerId_Get(const void* marker)
     {
-        const auto humanId = NC2Lifetime::Read<std::int32_t>(marker, 0x14);
-        return humanId == -1 ? -1 : NC2Lifetime::Read<std::int32_t>(GetHumanPtr(humanId), 0x10);
+        const auto humanId = NC2Lifetime::Read<std::int32_t>(marker, NC2Layout::MarkerOffset::HumanId);
+        return humanId == -1 ? -1 : NC2Lifetime::Read<std::int32_t>(GetHumanPtr(humanId), NC2Layout::HumanOffset::PlayerId);
     }
 
     using namespace NC2Lifetime;
@@ -43,17 +43,17 @@ namespace NC2Logic
     // Original function: FUN_00438c79; one mode byte and 66 per-good enable flags.
     static void Human_ProductionGoodEnableFlags_Construct(void* data)
     {
-        std::memset(static_cast<std::byte*>(data) + 1, 0, 66);
-        Write<std::uint8_t>(data, 1, 1);
-        Write<std::uint8_t>(data, 0, 0);
+        std::memset(static_cast<std::byte*>(data) + NC2Layout::ByteEnableSelectionOffset::Entries, 0, 66);
+        Write<std::uint8_t>(data, NC2Layout::ByteEnableSelectionOffset::FirstEnabled, 1);
+        Write<std::uint8_t>(data, NC2Layout::ByteEnableSelectionOffset::Mode, 0);
     }
 
     // Original function: FUN_0044b5e1; one mode byte and seven enable flags; exact domain unresolved.
     static void SevenEntryEnableFlags_Construct(void* data)
     {
-        std::memset(static_cast<std::byte*>(data) + 1, 0, 7);
-        Write<std::uint8_t>(data, 1, 1);
-        Write<std::uint8_t>(data, 0, 0);
+        std::memset(static_cast<std::byte*>(data) + NC2Layout::ByteEnableSelectionOffset::Entries, 0, 7);
+        Write<std::uint8_t>(data, NC2Layout::ByteEnableSelectionOffset::FirstEnabled, 1);
+        Write<std::uint8_t>(data, NC2Layout::ByteEnableSelectionOffset::Mode, 0);
     }
 
     // Original function: FUN_0044b590; reset job, production and equipment capabilities for the new player.
@@ -62,7 +62,7 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::PlayerId, player);
         std::memset(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AllowedJobFlagsSigned, 0, 56);
         Human_ProductionGoodEnableFlags_Construct(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::ProductionSelectionMode);
-        SevenEntryEnableFlags_Construct(static_cast<std::byte*>(human) + 0x1D7);
+        SevenEntryEnableFlags_Construct(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::UnresolvedSevenEntrySelection);
         std::memset(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AllowedEquipmentFlagsSigned, 0, 56);
         Human_SetupPlayerSpecificStuff(human);
     }
@@ -123,15 +123,15 @@ namespace NC2Logic
         // Original function: FUN_00438d39.
         bool Marker_Init(void* marker, std::int32_t id, std::uint32_t type, const void* point, std::uint32_t human)
         {
-            if (Read<std::uint8_t>(marker, 0) != 0) return false;
-            std::memset(marker, 0, 24);
-            Write<std::uint8_t>(marker, 0, 1);
-            Write(marker, 4, id);
-            Write(marker, 8, Game_UniqueId_Generate());
-            Write(marker, 0x10, type);
-            Write(marker, 0x14, human);
+            if (Read<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated) != 0) return false;
+            std::memset(marker, 0, NC2Layout::RecordSize::Marker);
+            Write<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated, 1);
+            Write(marker, NC2Layout::MarkerOffset::MarkerId, id);
+            Write(marker, NC2Layout::MarkerOffset::UniqueId, Game_UniqueId_Generate());
+            Write(marker, NC2Layout::MarkerOffset::Type, type);
+            Write(marker, NC2Layout::MarkerOffset::HumanId, human);
             const auto moveable = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 4, id);
-            Write(marker, 0x0C, moveable);
+            Write(marker, NC2Layout::MarkerOffset::MapMoveableId, moveable);
             if (moveable == -1) return false;
             MapMoveable_Attachment_AttachToMap(Moveable(moveable), point);
             return true;
@@ -139,15 +139,15 @@ namespace NC2Logic
         // Original function: FUN_00438da4.
         void Marker_Exit(void* marker)
         {
-            if (Read<std::uint8_t>(marker, 0) == 0) return;
-            const auto id = Read<std::int32_t>(marker, 0x0C);
+            if (Read<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated) == 0) return;
+            const auto id = Read<std::int32_t>(marker, NC2Layout::MarkerOffset::MapMoveableId);
             if (id != -1) MapMoveableArray_FreeMapMoveable(gMapMoveableArrayStorage.manager, id);
-            Write<std::uint8_t>(marker, 0, 0);
+            Write<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated, 0);
         }
         // Original function: FUN_00438dc5.
         void Marker_MapPosition_Set(void* marker, const void* point)
         {
-            void* moveable = Moveable(Read<std::uint32_t>(marker, 0x0C));
+            void* moveable = Moveable(Read<std::uint32_t>(marker, NC2Layout::MarkerOffset::MapMoveableId));
             MapMoveable_Attachment_DetachFromMap(moveable);
             MapMoveable_Attachment_AttachToMap(moveable, point);
         }
@@ -156,15 +156,15 @@ namespace NC2Logic
     // Original function: FUN_0040badc.
     void __fastcall MarkerArray_FreeMarker(void* array, void*, std::int32_t id)
     {
-        void* marker = static_cast<std::byte*>(gMarkerEntries) + id * 0x18;
-        if (Read<std::uint8_t>(marker, 0) != 0 && static_cast<CArrayHandler*>(array)->Element_Free(id, true)) Marker_Exit(marker);
+        void* marker = static_cast<std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker;
+        if (Read<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated) != 0 && static_cast<CArrayHandler*>(array)->Element_Free(id, true)) Marker_Exit(marker);
     }
     // Original function: FUN_0040ba7d; invalid points retain the original slot reservation.
     std::int32_t __fastcall MarkerArray_AllocateMarker(void* array, void*, std::uint32_t type, const void* point, std::uint32_t human)
     {
         const auto id = static_cast<CArrayHandler*>(array)->Element_Allocate();
         if (id == -1 || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
-        if (!Marker_Init(static_cast<std::byte*>(gMarkerEntries) + id * 0x18, id, type, point, human)) { MarkerArray_FreeMarker(array, nullptr, id); return -1; }
+        if (!Marker_Init(static_cast<std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker, id, type, point, human)) { MarkerArray_FreeMarker(array, nullptr, id); return -1; }
         return id;
     }
 
@@ -246,7 +246,7 @@ static void MerchantData_Init(void* merchant)
         const auto id = Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
         if (id == -1) return false;
         const void* house = House(id);
-        if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) * 0x624u) != 4) return false;
+        if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) * NC2Layout::RecordSize::HouseTypeUnsigned) != 4) return false;
         return House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
     }
     // Original function: FUN_0042c6aa.
@@ -266,16 +266,16 @@ static void MerchantData_Init(void* merchant)
         if (Human_IsAttachedToWorkHouse(human) || !MapMigPoint_IsInsideMap(point)) return false;
         if (RoadBuildManager_IsRoadBuildFlagSetForPlayer(gWallBuildManager, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), point)) return true;
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)) return false;
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) != Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)) return false;
         std::int32_t engineId;
-        switch (Read<std::uint8_t>(micro, 2))
+        switch (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData))
         {
         case SwitchIds::WallLandscapeType::Wall: engineId = NC2LogicExternals::External_Misc_GetEngineWallElementLandscapeId(); break;
         case SwitchIds::WallLandscapeType::GateOpen: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, true); break;
         case SwitchIds::WallLandscapeType::GateClosed: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, false); break;
         default: return false;
         }
-        return Read<std::uint8_t>(micro, 3) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(engineId), 4);
+        return Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(engineId), NC2Layout::LandscapeLogicDataOffset::MaximumValency);
     }
     // Original function: FUN_0042c7b3; active build animations keep their attachment.
     bool Human_IsAttachedToBuildSite(const void* human)
@@ -290,14 +290,14 @@ static void MerchantData_Init(void* merchant)
     // Original function: FUN_00427a6d; shared CRoad/CWallBuildManager::DetachBuilder body.
     void BuildManager_DetachBuilder(void* manager, std::uint32_t player, const void* point)
     {
-        void* data = Read<void**>(manager, 4)[player];
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+        void* data = Read<void**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, 8u + i * 6u) != Read<std::uint32_t>(point, 0)) continue;
-            if (Read<std::uint8_t>(data, 12u + i * 6u) != 0)
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointsUnsigned + i * NC2Layout::RecordSize::BuildPointUnsigned) != Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssignedUnsigned + i * NC2Layout::RecordSize::BuildPointUnsigned) != 0)
             {
-                Write<std::uint8_t>(data, 12u + i * 6u, 0);
-                Write<std::uint32_t>(data, 4, Read<std::uint32_t>(data, 4) - 1u);
+                Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssignedUnsigned + i * NC2Layout::RecordSize::BuildPointUnsigned, 0);
+                Write<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
             }
             break;
         }
@@ -324,8 +324,8 @@ static void MerchantData_Init(void* merchant)
         const auto* array = static_cast<const CArrayHandler*>(gMarkerArray);
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
         {
-            const void* marker = static_cast<const std::byte*>(gMarkerEntries) + id * 0x18;
-            if (Read<std::uint8_t>(marker, 0) != 0 && Read<std::uint32_t>(marker, 0x10) == 1 && Read<std::uint32_t>(marker, 0x14) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) return id;
+            const void* marker = static_cast<const std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker;
+            if (Read<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated) != 0 && Read<std::uint32_t>(marker, NC2Layout::MarkerOffset::Type) == 1 && Read<std::uint32_t>(marker, NC2Layout::MarkerOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) return id;
         }
         return -1;
     }
@@ -339,9 +339,9 @@ static void MerchantData_Init(void* merchant)
         const auto id = Human_WorkCenterMarker_GetId(human);
         if (id != -1)
         {
-            void* marker = static_cast<std::byte*>(gMarkerEntries) + id * 0x18;
+            void* marker = static_cast<std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker;
             if (Human_WorkCenterMarker_IsVisible(human)) Marker_MapPosition_Set(marker, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
-            else MarkerArray_FreeMarker(gMarkerArray, nullptr, Read<std::int32_t>(marker, 4));
+            else MarkerArray_FreeMarker(gMarkerArray, nullptr, Read<std::int32_t>(marker, NC2Layout::MarkerOffset::MarkerId));
         }
         else if (Human_WorkCenterMarker_IsVisible(human)) Human_WorkCenterMarker_Create(human);
     }
@@ -360,8 +360,8 @@ static void MerchantData_Init(void* merchant)
         std::uint32_t point = 0;
         if (!Human_GetMapPosition(human, &point)) return false;
         const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-        if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 2u) == 0) return false;
-        const auto type = Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::LogicType);
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) == 0) return false;
+        const auto type = Read<std::int32_t>(House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId)), NC2Layout::HouseOffset::LogicType);
         if (type >= 10 && type <= 11) return false;
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag, 1);
         return true;
@@ -375,10 +375,10 @@ static void MerchantData_Init(void* merchant)
         for (;;)
         {
             const auto* descriptor = static_cast<const std::byte*>(gStaticJobTypeData) + job * NC2Layout::RecordSize::JobType;
-            if (Read<std::uint8_t>(descriptor, 0x24u + action) == 0) return false;
+            if (Read<std::uint8_t>(descriptor, NC2Layout::StaticJobTypeOffset::AllowedAtomicsUnsigned + action) == 0) return false;
             animation = gStaticTribeTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)].atomicIds[job][action];
             if (animation != NXBasics::IntegerRange::UInt32Maximum) break;
-            job = Read<std::uint32_t>(descriptor, 0x20);
+            job = Read<std::uint32_t>(descriptor, NC2Layout::StaticJobTypeOffset::BaseJob);
             if (job == 0) return false;
         }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame, 0);
@@ -398,25 +398,25 @@ static void MerchantData_Init(void* merchant)
     // Original function: FUN_0043819b.
     bool Human_Init(void* human, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
     {
-        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 || GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6)) == 0) return false;
-        std::memset(human, 0, 3160);
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 || GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId)) == 0) return false;
+        std::memset(human, 0, NC2Layout::RecordSize::Human);
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag, 1);
         Write(human, NC2Layout::HumanOffset::HumanId, id);
         Write(human, NC2Layout::HumanOffset::UniqueId, Game_UniqueId_Generate());
         Write(human, NC2Layout::HumanOffset::PlayerId, player);
-        for (const auto offset : {0xB28u, 0xB34u, 0xB3Cu, 0xB48u, 0xB44u, 0xB14u, 0xB18u, 0xB20u, 0xB1Cu, 0xB24u}) Write<std::int32_t>(human, offset, -1);
+        for (const auto offset : {NC2Layout::HumanOffset::HomeHouseIdUnsigned, NC2Layout::HumanOffset::WorkAttachmentHouseIdUnsigned, NC2Layout::HumanOffset::VehicleConstructionHouseIdUnsigned, NC2Layout::HumanOffset::AttachedVehicleIdUnsigned, NC2Layout::HumanOffset::MerchantIdUnsigned, NC2Layout::HumanOffset::FatherIdUnsigned, NC2Layout::HumanOffset::MotherIdUnsigned, NC2Layout::HumanOffset::SpouseIdUnsigned, NC2Layout::HumanOffset::WaitingHumanIdUnsigned, NC2Layout::HumanOffset::ChildIdUnsigned}) Write<std::int32_t>(human, offset, -1);
         const auto moveableId = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 1, id);
         Write(human, NC2Layout::HumanOffset::MapMoveableId, moveableId);
         if (moveableId == -1) return false;
         void* moveable = Moveable(moveableId);
         MapMoveable_Attachment_AttachToMap(moveable, point);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0 && Read<std::uint32_t>(House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
         Write(human, NC2Layout::HumanOffset::TribeType, tribe);
         // Original outlined operation 00438CEC: clear cargo before notifying its change.
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
-        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates));
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
         Human_WorkCenterMarker_Update(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition, 0);
@@ -444,11 +444,11 @@ static void MerchantData_Init(void* merchant)
             {
             case SwitchIds::HumanJob::SoldierUnarmed: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 1); break;
             case SwitchIds::HumanJob::SoldierSpearWooden: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 4); break;
-            case SwitchIds::HumanJob::SoldierSpearIron: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 5); Write<std::uint8_t>(human, 0x17D, 1); break;
+            case SwitchIds::HumanJob::SoldierSpearIron: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 5); Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedIronSpearSoldierFlag, 1); break;
             case SwitchIds::HumanJob::SoldierSwordShort: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 7); break;
-            case SwitchIds::HumanJob::SoldierSwordLong: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 8); Write<std::uint8_t>(human, 0x17F, 1); break;
+            case SwitchIds::HumanJob::SoldierSwordLong: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 8); Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedLongSwordSoldierFlag, 1); break;
             case SwitchIds::HumanJob::SoldierBowShort: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 16); break;
-            case SwitchIds::HumanJob::SoldierBowLong: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 17); Write<std::uint8_t>(human, 0x185, 1); break;
+            case SwitchIds::HumanJob::SoldierBowLong: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 17); Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedLongBowSoldierFlag, 1); break;
             default: job = 31; Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 1); break;
             }
         }
@@ -465,11 +465,11 @@ static void MerchantData_Init(void* merchant)
             case SwitchIds::HumanJob::HeroineBowXENA: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 18); Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor, 2); break;
             default: job = 42; Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor, 1); break;
             }
-            const auto experience = Read<std::uint32_t>(human, 0x13C);
-            Write<std::uint32_t>(human, 0x13C, experience > 9995u ? 10000u : experience + 5u);
+            const auto experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperienceSlot70);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperienceSlot70, experience > 9995u ? 10000u : experience + 5u);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | NXBasics::BitMask::Bit0AndBit6);
             if (tribe != 2 || job != 47) Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | NXBasics::BitMask::Bit7);
-            Write<std::uint8_t>(human, 0xB85, Read<std::uint8_t>(human, 0xB85) | NXBasics::BitMask::Bits3Through4);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MiscFlagsByte1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::MiscFlagsByte1) | NXBasics::BitMask::Bits3Through4);
             Human_Equipment_SetShoeType(human, 30);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition, 10000);
         }
@@ -510,7 +510,7 @@ static void MerchantData_Init(void* merchant)
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 10); // Original constant 004F3C34.
             if (gGameTime.tick > 1u)
             {
-                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + 0x4A14u;
+                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::BabiesBornUnsigned;
                 Write<std::uint32_t>(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
             }
         }
@@ -518,7 +518,7 @@ static void MerchantData_Init(void* merchant)
         {
             if (gGameStaticVars.networkGame != 0)
             {
-                if (static_cast<std::int32_t>(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 4u) == 1) Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | 1u);
+                if (static_cast<std::int32_t>(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TypeUnsigned) == 1) Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | 1u);
             }
             else if (player == 0) Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | 1u);
         }
@@ -590,7 +590,7 @@ static void MerchantData_Init(void* merchant)
         MapMoveable_Attachment_AttachToMap(Moveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId)), point);
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
-        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, 0));
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates));
         Human_WorkCenterMarker_Update(human);
     }
     // Original function: FUN_00438a26.
@@ -624,7 +624,7 @@ static void MerchantData_Init(void* merchant)
             if (parent != -1) { Write<std::int32_t>(Human(parent), NC2Layout::HumanOffset::ChildId, -1); Write<std::int32_t>(human, parentOffset, -1); }
         }
         const auto child = Read<std::int32_t>(human, NC2Layout::HumanOffset::ChildId);
-        if (child != -1) { Write<std::int32_t>(Human(child), Human_IsSexFemale(human) ? 0xB18u : 0xB14u, -1); Write<std::int32_t>(human, NC2Layout::HumanOffset::ChildId, -1); }
+        if (child != -1) { Write<std::int32_t>(Human(child), Human_IsSexFemale(human) ? NC2Layout::HumanOffset::MotherIdUnsigned : NC2Layout::HumanOffset::FatherIdUnsigned, -1); Write<std::int32_t>(human, NC2Layout::HumanOffset::ChildId, -1); }
         const auto spouse = Read<std::int32_t>(human, NC2Layout::HumanOffset::SpouseId);
         if (spouse != -1)
         {
@@ -650,17 +650,17 @@ static void MerchantData_Init(void* merchant)
     {
         // Shared System_Exit body at 00430CA4 clears the assistant allocation flag.
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::AssistantData, 0);
-        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0)
+        if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) == 0)
         {
             const auto playerOffset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-            Write<std::uint32_t>(gGameControl, playerOffset + 0x4A18u, Read<std::uint32_t>(gGameControl, playerOffset + 0x4A18u) + 1u);
-            if (Human_IsJobSoldier(human)) Write<std::uint32_t>(gGameControl, playerOffset + 0x4A1Cu, Read<std::uint32_t>(gGameControl, playerOffset + 0x4A1Cu) + 1u);
+            Write<std::uint32_t>(gGameControl, playerOffset + NC2Layout::GameControlPlayerOffset::HumansDiedUnsigned, Read<std::uint32_t>(gGameControl, playerOffset + NC2Layout::GameControlPlayerOffset::HumansDiedUnsigned) + 1u);
+            if (Human_IsJobSoldier(human)) Write<std::uint32_t>(gGameControl, playerOffset + NC2Layout::GameControlPlayerOffset::SoldiersDiedUnsigned, Read<std::uint32_t>(gGameControl, playerOffset + NC2Layout::GameControlPlayerOffset::SoldiersDiedUnsigned) + 1u);
             else HappinessManager_Messages_CivilistDied(gHappinessManager, human);
         }
         Human_StopCurrentGoodCirculationMode(human);
         Human_Detach(human, true);
         const auto moveableId = Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId);
-        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && Read<std::uint8_t>(Moveable(moveableId), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
+        if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) == 0 && moveableId != -1 && Read<std::uint8_t>(Moveable(moveableId), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x25, true, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 0);
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit14) == 0 && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32))
@@ -670,12 +670,12 @@ static void MerchantData_Init(void* merchant)
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
                     bool blocked = false;
-                    if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0)
+                    if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
                     {
                         const auto engineId = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(Human_GetMapPositionRef(human));
-                        const auto* area0 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0, 0);
-                        const auto* area1 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0, 1);
-                        const auto* area3 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0, 3);
+                        const auto* area0 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0, 0);
+                        const auto* area1 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0, 1);
+                        const auto* area3 = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0, 3);
                         blocked = area0 != nullptr || area1 != nullptr || area3 != nullptr;
                     }
                     if (!blocked)
@@ -685,16 +685,16 @@ static void MerchantData_Init(void* merchant)
                         Logic_EntryPoint_Edit_Stop();
                     }
                 }
-                const auto drop = [&](std::uint32_t good) { Map_GoodTool_PutOnMap(good, 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 10, true); };
+                const auto drop = [&](std::uint32_t good) { Map_GoodTool_PutOnMap(good, 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates), 10, true); };
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) drop(Human_GetCarriedGood(human));
                 // Windows multiplies as a DWORD before signed division; preserve overflow bits.
                 const auto percentage = [&](std::uint32_t offset) { return NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, offset) * 100u) / 10000; };
-                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition) != 0 && percentage(0xADC) >= 90) drop(Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes));
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition) != 0 && percentage(NC2Layout::HumanOffset::ShoeCondition) >= 90) drop(Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes));
                 const auto tool = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedTools);
                 if (tool != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ToolCondition) != 0 && (tool == 31 || tool == 32) && Human_GetPercentageConditionOfTool(human) >= 90) drop(tool);
                 const auto armor = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor);
-                if (armor != 0) drop(Read<std::uint32_t>(gStaticArmorTypeData, armor * 0x34u + 0x24u));
-                const auto weaponGood = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * 0xC4u + 0x24u);
+                if (armor != 0) drop(Read<std::uint32_t>(gStaticArmorTypeData, armor * NC2Layout::RecordSize::ArmorTypeUnsigned + NC2Layout::StaticArmorTypeOffset::GoodTypeUnsigned));
+                const auto weaponGood = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * NC2Layout::RecordSize::WeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::GoodTypeUnsigned);
                 if (weaponGood != 0 && Human_IsJobSoldier(human)) drop(weaponGood);
                 for (std::uint32_t slot = 0; slot < 4; ++slot) if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlots + slot * NC2Layout::RecordSize::HumanInventorySlot) != 0 && Read<std::int32_t>(human, NC2Layout::HumanOffset::InventoryConditions + slot * NC2Layout::RecordSize::HumanInventorySlot) > 0 && Human_l_Item_IsItemUnused(human, slot)) drop(Human_Inventory_GetGoodInSlot(human, slot));
             }

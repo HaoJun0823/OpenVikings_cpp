@@ -667,10 +667,10 @@ namespace NC2Logic
             break;
         }
         case SwitchIds::MissionResult::RemoveHumans:
-            Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 1);
+            Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag, 1);
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
                 Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId));
-            Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 0);
+            Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag, 0);
             break;
         case SwitchIds::MissionResult::RemoveVehicles:
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))

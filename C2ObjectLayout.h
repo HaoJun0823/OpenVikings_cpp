@@ -517,6 +517,14 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto TypeUnsigned = 4u;
+
+        inline constexpr auto SoldiersDiedUnsigned = 0x4A1Cu;
+
+        inline constexpr auto HumansDiedUnsigned = 0x4A18u;
+
+        inline constexpr auto BabiesBornUnsigned = 0x4A14u;
+
         inline constexpr auto PlayerSeenFlagsUnsigned = 0x45F8u;
 
         inline constexpr auto AvailableJobs = 0x948;
@@ -657,6 +665,38 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto ChildIdUnsigned = 0xB24u;
+
+        inline constexpr auto WaitingHumanIdUnsigned = 0xB1Cu;
+
+        inline constexpr auto SpouseIdUnsigned = 0xB20u;
+
+        inline constexpr auto MotherIdUnsigned = 0xB18u;
+
+        inline constexpr auto FatherIdUnsigned = 0xB14u;
+
+        inline constexpr auto MerchantIdUnsigned = 0xB44u;
+
+        inline constexpr auto AttachedVehicleIdUnsigned = 0xB48u;
+
+        inline constexpr auto VehicleConstructionHouseIdUnsigned = 0xB3Cu;
+
+        inline constexpr auto WorkAttachmentHouseIdUnsigned = 0xB34u;
+
+        inline constexpr auto HomeHouseIdUnsigned = 0xB28u;
+
+        inline constexpr auto UnresolvedSevenEntrySelection = 0x1D7;
+
+        inline constexpr auto MiscFlagsByte1 = 0xB85;
+
+        inline constexpr auto JobExperienceSlot70 = 0x13C;
+
+        inline constexpr auto AllowedLongBowSoldierFlag = 0x185;
+
+        inline constexpr auto AllowedLongSwordSoldierFlag = 0x17F;
+
+        inline constexpr auto AllowedIronSpearSoldierFlag = 0x17D;
+
         inline constexpr auto InventoryConditionsSigned = 0xAF8;
 
         inline constexpr auto AllowedEquipment32Flag = 0x200;
@@ -1485,6 +1525,8 @@ namespace NC2Layout
 
     namespace StaticWeaponTypeOffset
     {
+        inline constexpr auto GoodTypeUnsigned = 0x24u;
+
         inline constexpr auto MainTypeUnsigned = 0x20u;
         inline constexpr auto MainType = 0x20;
     }
@@ -1510,6 +1552,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto WeaponTypeUnsigned = 0xC4u;
+
+        inline constexpr auto ArmorTypeUnsigned = 0x34u;
+
+        inline constexpr auto Human = 3160;
+
+        inline constexpr auto Marker = 24;
+
+        inline constexpr auto HouseTypeUnsigned = 0x624u;
+
         inline constexpr auto MerchantUnsigned = 0xC4u;
 
         inline constexpr auto MerchantTradeAgreementBlock = 0x5A4;
@@ -1989,6 +2041,8 @@ namespace NC2Layout
 
     namespace BuildPlayerOffset
     {
+        inline constexpr auto FirstPointAssignedUnsigned = 12u;
+
         inline constexpr auto PointsUnsigned = 8u;
         inline constexpr auto SecondPoint = 14;
         inline constexpr auto FirstPointAssigned = 12;
@@ -2039,6 +2093,10 @@ namespace NC2Layout
 
     namespace StaticJobTypeOffset
     {
+        inline constexpr auto AllowedAtomicsUnsigned = 0x24u;
+
+        inline constexpr auto BaseJob = 0x20;
+
         inline constexpr auto MustHaveWorkHouse = 0x83;
 
         inline constexpr auto AllowedAtomics = 0x24;
@@ -3277,6 +3335,42 @@ namespace NC2Layout
     namespace ArrayHandlerOffset
     {
         inline constexpr auto Capacity = 4;
+    }
+
+    namespace MarkerOffset
+    {
+        inline constexpr auto MapMoveableId = 0x0C;
+
+        inline constexpr auto Type = 0x10;
+
+        inline constexpr auto UniqueId = 8;
+
+        inline constexpr auto MarkerId = 4;
+
+        inline constexpr auto Allocated = 0;
+
+        inline constexpr auto HumanId = 0x14;
+    }
+
+    namespace GameStaticVarsOffset
+    {
+        inline constexpr auto SuppressDestructionLandscapeFlag = 0x1B1;
+
+        inline constexpr auto SuppressDeathStatisticsFlag = 0x1B0;
+    }
+
+    namespace StaticArmorTypeOffset
+    {
+        inline constexpr auto GoodTypeUnsigned = 0x24u;
+    }
+
+    namespace ByteEnableSelectionOffset
+    {
+        inline constexpr auto Entries = 1;
+
+        inline constexpr auto Mode = 0;
+
+        inline constexpr auto FirstEnabled = 1;
     }
 
 }

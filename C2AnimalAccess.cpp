@@ -130,7 +130,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0) return;
         const auto moveableId = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId);
         auto size = static_cast<std::uint32_t>(Type(animal).maximumCadaverSize);
-        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
+        if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             const auto* point = Animal_GetMapPositionRef(animal);
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::EnvironmentalFoodValue) == NC2Runtime::AnimalFoodValue::SlaughteredBits)

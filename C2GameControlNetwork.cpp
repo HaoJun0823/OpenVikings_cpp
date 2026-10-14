@@ -37,8 +37,8 @@ namespace NC2Logic
     void __fastcall GameControl_Player_LeftGameModifyObjects(void* /*gameControl*/, void* /*unusedEdx*/, unsigned int player, bool /*originalFlag*/, bool removeObjects)
     {
         using namespace NC2Lifetime;
-        Write<std::uint8_t>(&gGameStaticVars, 0x1B1, 0);
-        Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 1);
+        Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag, 0);
+        Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag, 1);
         if (removeObjects)
         {
             for (std::int32_t id = 0; id < CHouseArray::sTheObjectPtr->mCapacity; ++id)
@@ -74,8 +74,8 @@ namespace NC2Logic
             CGuideIterator iterator;
             for (auto id = iterator.GetFirstGuideId(player); id != -1; id = iterator.GetNextGuideId()) GuideManager_RemoveGuide(gGuideManager, nullptr, static_cast<std::uint32_t>(id));
         }
-        Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 0);
-        Write<std::uint8_t>(&gGameStaticVars, 0x1B1, 0);
+        Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag, 0);
+        Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag, 0);
     }
 
     // Original function: FUN_0040a263.

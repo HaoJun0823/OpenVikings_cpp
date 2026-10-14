@@ -30,13 +30,13 @@ namespace NC2Logic
     // Original function: FUN_0042303e.
     std::uint32_t __fastcall Vehicle_Passengers_GetNumberOfSlots(const void* vehicle, void*) { return static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots); }
     // Original function: FUN_0042304a; native flag 005109C8.
-    bool Game_GetSuppressDeathStatisticsFlag() { return Read<std::uint8_t>(&gGameStaticVars, 0x1B0) != 0; }
+    bool Game_GetSuppressDeathStatisticsFlag() { return Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag) != 0; }
     // Original function: FUN_00423050.
-    void Game_SetSuppressDeathStatisticsFlag(bool flag) { Write<std::uint8_t>(&gGameStaticVars, 0x1B0, flag); }
+    void Game_SetSuppressDeathStatisticsFlag(bool flag) { Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDeathStatisticsFlag, flag); }
     // Original function: FUN_0042305a; native flag 005109C9.
-    bool Game_GetSuppressVehicleWreckFlag() { return Read<std::uint8_t>(&gGameStaticVars, 0x1B1) != 0; }
+    bool Game_GetSuppressVehicleWreckFlag() { return Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag) != 0; }
     // Original function: FUN_00423060.
-    void Game_SetSuppressVehicleWreckFlag(bool flag) { Write<std::uint8_t>(&gGameStaticVars, 0x1B1, flag); }
+    void Game_SetSuppressVehicleWreckFlag(bool flag) { Write<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag, flag); }
     // Original function: FUN_0042306a.
     std::uint32_t __fastcall House_GetMissionCheckId(const void* house, void*) { return Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId); }
     // Original function: FUN_004230d9.
