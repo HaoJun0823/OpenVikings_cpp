@@ -1516,7 +1516,7 @@ namespace NC2Layout
 
     namespace MapMicroPointOffset
     {
-        inline constexpr auto FogMask = 0x0A;
+        inline constexpr auto FirstMapMoveableId = 0x0A;
 
         inline constexpr auto ExplorationMask = 8;
 

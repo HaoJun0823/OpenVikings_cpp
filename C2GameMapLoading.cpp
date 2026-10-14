@@ -126,7 +126,7 @@ namespace NC2Logic
             case SwitchIds::LogicMapChunk::MicroSectorBasePoint: readMicroFlagPlane(NC2Layout::MapMicroPointOffset::TerrainFlags, 0x10, 4); break;
             case SwitchIds::LogicMapChunk::MicroHouseBuildForbidden: readMicroFlagPlane(NC2Layout::MapMicroPointOffset::TerrainFlags, 0x20, 5); break;
             case SwitchIds::LogicMapChunk::Exploration: readMicroWordPlane(NC2Layout::MapMicroPointOffset::ExplorationMask); break;
-            case SwitchIds::LogicMapChunk::Fog: readMicroWordPlane(NC2Layout::MapMicroPointOffset::FogMask); break;
+            case SwitchIds::LogicMapChunk::FirstMapMoveableId: readMicroWordPlane(NC2Layout::MapMicroPointOffset::FirstMapMoveableId); break;
             case SwitchIds::LogicMapChunk::LandscapePlayer:
             case SwitchIds::LogicMapChunk::LandscapeValency:
                 io->IO_File_ReadAndUnpackBinary(scratch, microCount);

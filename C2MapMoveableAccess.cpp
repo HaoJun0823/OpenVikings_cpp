@@ -427,8 +427,8 @@ namespace NC2Logic
     {
         void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MoveableId);
-        const auto previous = Read<std::int16_t>(point, 0x0A);
-        Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(id));
+        const auto previous = Read<std::int16_t>(point, NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
+        Write<std::uint16_t>(point, NC2Layout::MapMicroPointOffset::FirstMapMoveableId, static_cast<std::uint16_t>(id));
         Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId, previous);
     }
 
@@ -436,12 +436,12 @@ namespace NC2Logic
     void MapMoveable_l_Attachment_DetachFromGameMap(void* moveable)
     {
         void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
-        auto current = static_cast<std::int32_t>(Read<std::int16_t>(point, 0x0A));
+        auto current = static_cast<std::int32_t>(Read<std::int16_t>(point, NC2Layout::MapMicroPointOffset::FirstMapMoveableId));
         if (current == -1) return;
         const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::MoveableId);
         if (current == id)
         {
-            Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId)));
+            Write<std::uint16_t>(point, NC2Layout::MapMicroPointOffset::FirstMapMoveableId, static_cast<std::uint16_t>(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId)));
             return;
         }
         while (current != -1)

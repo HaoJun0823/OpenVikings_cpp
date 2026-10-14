@@ -200,7 +200,7 @@ namespace NC2DataIds
         inline constexpr auto AutoTransitions = 0x7361746D;
         inline constexpr auto FishManager = 0x7366696D;
         inline constexpr auto Exploration = 0x736D6578;
-        inline constexpr auto Fog = 0x736D666D;
+        inline constexpr auto FirstMapMoveableId = 0x736D666D;
         inline constexpr auto Guides = 0x736D6775;
         inline constexpr auto Houses = 0x736D686F;
         inline constexpr auto RoadBuildManager = 0x73726F64;

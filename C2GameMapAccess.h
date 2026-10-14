@@ -13,7 +13,7 @@ namespace NC2Logic
         std::byte unresolved01;
         std::byte objectData[4];
         std::uint8_t continentId, walkingDirections;
-        std::uint16_t explorationMask, fogMask;
+        std::uint16_t explorationMask, firstMapMoveableId;
         std::uint8_t walkingFlags, terrainFlags;
     };
     struct SLogicMapContinentStorage { std::uint32_t type, seedPoint, pointCount; std::uint8_t retained; std::byte unresolved0D[3]; };

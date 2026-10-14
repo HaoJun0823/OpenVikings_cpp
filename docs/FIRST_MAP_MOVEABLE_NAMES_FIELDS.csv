@@ -1,0 +1,9 @@
+file,line,constant
+C2GameMapAccess.cpp,185,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2GameMapLoading.cpp,129,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2GameMapSaving.cpp,321,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2MapMoveableAccess.cpp,430,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2MapMoveableAccess.cpp,431,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2MapMoveableAccess.cpp,439,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2MapMoveableAccess.cpp,444,NC2Layout::MapMicroPointOffset::FirstMapMoveableId
+C2OverviewObjectIterators.cpp,244,NC2Layout::MapMicroPointOffset::FirstMapMoveableId

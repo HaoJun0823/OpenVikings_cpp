@@ -310,15 +310,15 @@ namespace NC2Logic
         }
 
         // Original function: FUN_00430c2f.
-        void WriteFishAndMoveables(CIoHelper* io)
+        void WriteFirstMapMoveableIdMapChunk(CIoHelper* io)
         {
-            io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::Fog, 1);
+            io->IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::FirstMapMoveableId, 1);
             auto* scratch = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer);
             auto* records = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); ++index)
             {
                 auto* record = records + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
-                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::FogMask)));
+                Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, NC2Layout::MapMicroPointOffset::FirstMapMoveableId)));
             }
             io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount) * 2u, NC2DataIds::PackingType::Rle16);
             io->IO_Tool_Chunk_FinishAndWrite();
@@ -358,7 +358,7 @@ namespace NC2Logic
         WriteHouses(io);
         WriteGuides(io);
         WriteExtraValues(io);
-        WriteFishAndMoveables(io);
+        WriteFirstMapMoveableIdMapChunk(io);
         CMapWalkSectorManager::IO_Savegame_DoSave(*io);
         CGameMapSectorAttachmentManager::sTheObjectPtr->IO_Savegame_DoSave(*io);
         static_cast<CMapLandscapeAutoTransitionManager*>(gMapLandscapeAutoTransitionManager)->IO_Savegame_DoSave(*io);

@@ -241,7 +241,7 @@ namespace NC2Logic
     std::int32_t CMapMoveableIterator::GetFirstMapMoveableId(const void* point)
     {
         flags = 2;
-        current = Iterator_Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0A);
+        current = Iterator_Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
         if (current < -1) current = -1;
         return current;
     }

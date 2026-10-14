@@ -176,13 +176,13 @@ namespace NC2Logic
         std::memcpy(gGameMapStaticStorage + NC2Layout::GameMapOffset::MicroPointStorage, &microPoints, sizeof(microPoints));
         std::memset(microPoints, 0, microBytes);
 
-        const std::uint16_t initialWord0A = NXBasics::IntegerRange::UInt16Maximum;
+        const std::uint16_t initialFirstMapMoveableId = NXBasics::IntegerRange::UInt16Maximum;
         std::uint32_t microOffset = 0;
 
         for (std::uint32_t index = 0; index < microPointCount; ++index)
         {
-            // Preserve the original initial value without assigning a field meaning.
-            std::memcpy(microPoints + microOffset + 0x0A, &initialWord0A, sizeof(initialWord0A));
+            // The empty cell list uses the original all-one WORD sentinel.
+            std::memcpy(microPoints + microOffset + NC2Layout::MapMicroPointOffset::FirstMapMoveableId, &initialFirstMapMoveableId, sizeof(initialFirstMapMoveableId));
             microOffset += 14u;
         }
 
