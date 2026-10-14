@@ -1,5 +1,17 @@
 # Open Tasks
 
+## Military AI and vehicle inhabitants continuation - 2026-10-14
+
+Two further owner blocks are committed: military AI equipment/targets (`40dd7c5`) and both vehicle inhabitants widgets (`a7b644f`). See [AI_MILITARY_CONSUMERS_REVIEW.md](AI_MILITARY_CONSUMERS_REVIEW.md) and [VEHICLE_INHABITANTS_FIELDS_REVIEW.md](VEHICLE_INHABITANTS_FIELDS_REVIEW.md). Together with the eight blocks below, this continuation has completed ten further blocks. The broad whole-source review remains incomplete.
+
+Military AI: 50 value/type comparisons, 28 physical layout relationships, 2679 byte-verified native instructions and 133 named references. Its complete 8040-byte manager, 12-byte weapon/armor rows and distinct village views are described. The sole remaining raw field is the explicitly unresolved DWORD at `1454`; only its initialization to `-1` is established. Vehicle widgets: 21 value/type comparisons, 17 layout assertions, 769 byte-verified instructions and 103 references; all 87 raw accesses are named. Both 756-byte widgets and thirty 16-byte rows retain distinct functions/tables and original ownership. Compound function lines are split with unchanged normalized tokens. The existing x87/double precision limitation is preserved and documented.
+
+Both affected production units and private assertion units pass Win32 `/Zs`. The earlier all-307-production-unit plus ten-private-unit check at `f156cb2` passed without errors/warnings; selection and these later blocks pass targeted checks. No build, tests or game execution occurred. Project/filter registration remains unchanged.
+
+Fresh scan: 595 files, 150693 lines, **5833 raw numeric access operands**, **75 unknown-member mentions**, 1090 long multi-statement lines and 5014 native address annotations. This removes 177 additional candidates from 6010, or 906 since the prior 6739 session checkpoint. Initial reduction: 8897/14730 (60.40% text-scan reduction), not a functional-completion percentage. No complete reviewed-function x/y ledger exists.
+
+Next: mission execution 84, network commands 82, GUI support/vehicle simulation 81 each, pathfinder/main-menu commands 75 each, then remaining lifetime/guide/macro-map/resource consumers. Preserve all documented unresolved fields and original Windows behavior.
+
 ## AI, graphics, actor and input review checkpoint - 2026-10-14
 
 Eight further blocks are completed and committed through `a2e9ad6`: AI movement/no-way corrections (`b2b0df6`), an actual house-door overlay correction (`d9c945a`), complete house graphics/fire/selection records (`2091dbc`), AI condition records and script producers (`4bb2ac6`), remaining human goods consumers (`e824c51`), merchant routes/agreements with ownership and save/load (`7d7b807`), human initialization/global suppression flags (`f156cb2`), and remaining selection/input consumers (`a2e9ad6`). Evidence: [AI_MOVEMENT_FIELDS_REVIEW.md](AI_MOVEMENT_FIELDS_REVIEW.md), [HOUSE_DOOR_OVERLAY_FLAG_FIX.md](HOUSE_DOOR_OVERLAY_FLAG_FIX.md), [ENGINE_HOUSE_RECORDS_REVIEW.md](ENGINE_HOUSE_RECORDS_REVIEW.md), [AI_CONDITION_RECORDS_REVIEW.md](AI_CONDITION_RECORDS_REVIEW.md), [HUMAN_GOODS_FIELDS_REVIEW.md](HUMAN_GOODS_FIELDS_REVIEW.md), [MERCHANT_RECORDS_REVIEW.md](MERCHANT_RECORDS_REVIEW.md), [HUMAN_INITIALIZATION_FIELDS_REVIEW.md](HUMAN_INITIALIZATION_FIELDS_REVIEW.md), and [SELECTION_CONSUMER_FIELDS_REVIEW.md](SELECTION_CONSUMER_FIELDS_REVIEW.md).
