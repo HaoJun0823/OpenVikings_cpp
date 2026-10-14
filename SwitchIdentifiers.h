@@ -2080,7 +2080,7 @@ namespace SwitchIds
         inline constexpr auto SetGameSpeed = 0x87;
         inline constexpr auto PlayerLeavesGame = 0x88;
         inline constexpr auto ModifyObjectsAfterPlayerLeaves = 0x89;
-        inline constexpr auto RecordNetworkLatency = 0x8A;
+        inline constexpr auto SubmitGameChecksum = 0x8A;
         inline constexpr auto SetNetworkFrequency = 0x8B;
     }
 

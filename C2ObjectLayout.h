@@ -1564,6 +1564,22 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto UserNetworkCommandState = 2404;
+
+        inline constexpr auto TributeUnsigned = 0x3Cu;
+
+        inline constexpr auto NetworkChecksumSample = 12;
+
+        inline constexpr auto UserNetworkCommandSigned = 20;
+
+        inline constexpr auto NetworkCommandPacketHeader = 4;
+
+        inline constexpr auto NetworkCommandPacketHeaderUnsigned = 4u;
+
+        inline constexpr auto NetworkChecksumSampleUnsigned = 12u;
+
+        inline constexpr auto NetworkChecksumPlayerUnsigned = 0x78u;
+
         inline constexpr auto AttachedVehicleSelectionVars = 712;
 
         inline constexpr auto AttachedVehicleSelectionSlot = 16;
@@ -2835,6 +2851,8 @@ namespace NC2Layout
 
     namespace DiplomacyCommandOffset
     {
+        inline constexpr auto State = 12;
+
         inline constexpr auto Parameter = 12;
 
         inline constexpr auto SecondPlayer = 8;
@@ -3436,6 +3454,10 @@ namespace NC2Layout
 
     namespace HouseBuildCommandOffset
     {
+        inline constexpr auto SpecialItem = 16;
+
+        inline constexpr auto Position = 12;
+
         inline constexpr auto DevelopmentStage = 8;
 
         inline constexpr auto HouseType = 4;
@@ -3510,6 +3532,108 @@ namespace NC2Layout
         inline constexpr auto Commander = 4;
 
         inline constexpr auto ObjectId = 0;
+    }
+
+    namespace MapAreaCommandOffset
+    {
+        inline constexpr auto Radius = 8;
+
+        inline constexpr auto CenterPoint = 4;
+    }
+
+    namespace MapPointCommandOffset
+    {
+        inline constexpr auto Position = 4;
+    }
+
+    namespace WallGateStateCommandOffset
+    {
+        inline constexpr auto Open = 8;
+
+        inline constexpr auto Position = 4;
+    }
+
+    namespace TributeCommandOffset
+    {
+        inline constexpr auto TributeId = 12;
+    }
+
+    namespace GameAssistantCommandOffset
+    {
+        inline constexpr auto Parameter = 8;
+
+        inline constexpr auto Action = 4;
+    }
+
+    namespace GlobalDefendCommandOffset
+    {
+        inline constexpr auto Enabled = 4;
+    }
+
+    namespace GameSpeedCommandOffset
+    {
+        inline constexpr auto Speed = 4;
+    }
+
+    namespace PlayerDepartureCommandOffset
+    {
+        inline constexpr auto RemoveObjects = 12;
+
+        inline constexpr auto OriginalFlag = 8;
+
+        inline constexpr auto PlayerId = 4;
+    }
+
+    namespace GameChecksumCommandOffset
+    {
+        inline constexpr auto Checksum = 4;
+
+        inline constexpr auto Tick = 8;
+
+        inline constexpr auto NetworkPlayerId = 12;
+    }
+
+    namespace NetworkFrequencyCommandOffset
+    {
+        inline constexpr auto Frequency = 4;
+    }
+
+    namespace UserNetworkCommandManagerOffset
+    {
+        inline constexpr auto LastVerifiedTick = 0x960;
+
+        inline constexpr auto OrdinaryQueueUnsigned = 0x98Cu;
+
+        inline constexpr auto OrdinaryQueue = 0x98C;
+
+        inline constexpr auto DeferredQueueUnsigned = 0x978u;
+
+        inline constexpr auto DeferredQueue = 0x978;
+
+        inline constexpr auto SystemQueueUnsigned = 0x964u;
+
+        inline constexpr auto SystemQueue = 0x964;
+    }
+
+    namespace NetworkChecksumSampleOffset
+    {
+        inline constexpr auto NetworkPlayerId = 8;
+
+        inline constexpr auto Tick = 4;
+    }
+
+    namespace NetworkCommandPacketOffset
+    {
+        inline constexpr auto Commands = 4;
+
+        inline constexpr auto Count = 0;
+    }
+
+    namespace UserCommandQueuesOffset
+    {
+        inline constexpr auto Deferred = 0x14;
+
+        inline constexpr auto Ordinary = 0x28;
     }
 
 }

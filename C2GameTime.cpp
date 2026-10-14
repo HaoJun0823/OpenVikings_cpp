@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
@@ -100,11 +103,11 @@ namespace NC2Logic
             const std::uint32_t speed = static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.speed));
             if (gGameTime.tick % (speed * 30u) == 0)
             {
-                std::byte command[20]{};
-                command[0] = std::byte{0x8A};
-                Write<std::uint32_t>(command, 4, Game_Checksum_Calculate());
-                Write<std::uint32_t>(command, 8, gGameTime.tick);
-                Write<std::uint32_t>(command, 12, NNetwork::GetDynamicNetworkLocalPlayerId(&gDynamicNetworkData));
+                std::byte command[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+                command[0] = std::byte{SwitchIds::UserCommand::SubmitGameChecksum};
+                Write<std::uint32_t>(command, NC2Layout::GameChecksumCommandOffset::Checksum, Game_Checksum_Calculate());
+                Write<std::uint32_t>(command, NC2Layout::GameChecksumCommandOffset::Tick, gGameTime.tick);
+                Write<std::uint32_t>(command, NC2Layout::GameChecksumCommandOffset::NetworkPlayerId, NNetwork::GetDynamicNetworkLocalPlayerId(&gDynamicNetworkData));
                 UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
             }
         }

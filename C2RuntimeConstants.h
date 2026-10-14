@@ -325,4 +325,23 @@ namespace NC2Runtime
         inline constexpr auto Rows = 30;
     }
 
+    namespace NetworkCommandLimits
+    {
+        inline constexpr auto MaximumFrequency = 12;
+
+        inline constexpr auto MinimumFrequency = 1;
+
+        inline constexpr auto TicksPerSecondUnsigned = 12u;
+
+        inline constexpr auto ChecksumExpiryTicksUnsigned = 1440u;
+
+        inline constexpr auto ChecksumExpiryTicks = 1440;
+
+        inline constexpr auto Players = 20;
+
+        inline constexpr auto SamplesPerPlayer = 10;
+
+        inline constexpr auto PacketCommandsUnsigned = 9u;
+    }
+
 }
