@@ -635,4 +635,30 @@ namespace NC2Runtime
         inline constexpr auto RouteHouses = 2;
     }
 
+    namespace TitleScreenLimits
+    {
+        inline constexpr auto TransitionDisplayUpdates = 5;
+
+        inline constexpr auto PaletteColors = 256;
+    }
+
+    namespace TitleScreenTiming
+    {
+        inline constexpr auto PictureDurationMillisecondsUnsigned = 20000u;
+    }
+
+    namespace TitleScreenGeometry
+    {
+        inline constexpr auto IntroHeight = 480;
+
+        inline constexpr auto IntroWidth = 640;
+    }
+
+    namespace DisplayDepthBits
+    {
+        inline constexpr auto HighColor = 16;
+
+        inline constexpr auto TrueColor = 32;
+    }
+
 }

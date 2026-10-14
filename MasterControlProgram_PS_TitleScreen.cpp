@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
@@ -21,8 +24,12 @@
 namespace
 {
     using namespace NC2Lifetime;
-    // Complete 0050F630..0050F637 region: cleared byte, padding, manager pointer.
-    struct STitleScreenStaticVars { std::uint8_t state; std::byte padding[3]; void* manager; };
+    // Complete 0050F630..0050F637 region: unclassified cleared byte, padding, manager pointer.
+    // Windows has no read xref for the cleared byte; its legacy field name is retained.
+    struct STitleScreenStaticVars { std::uint8_t state;
+        std::byte padding[3];
+        void* manager;
+    };
     static STitleScreenStaticVars gTitleScreen{};
     static const GUID gLegacyDrawInterface = {0x6C14DB80, 0xA733, 0x11CE, {0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
     static const GUID gLegacySurfaceInterface = {0x6C14DB81, 0xA733, 0x11CE, {0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60}};
@@ -30,7 +37,7 @@ namespace
     // Verified application +4C, window +8, display +18/+20 COM ownership chain.
     static IUnknown* TitleScreen_DisplayInterface(std::uint32_t offset)
     {
-        auto* window = Read<NXSys2DApp::CWindow*>(NXSys2DApp::CApplication::sTheObjectPtr, 0x4C);
+        auto* window = Read<NXSys2DApp::CWindow*>(NXSys2DApp::CApplication::sTheObjectPtr, NC2Layout::ApplicationOffset::Window);
         return Read<IUnknown*>(window->GetDisplay(), offset);
     }
 
@@ -47,7 +54,7 @@ namespace
         NC2Logic::LanguageTool_GetFilename("data\\gui\\lang\\%s\\pictures\\titlescreen.bmp", fileName, false);
         {
             NXBasics::CPicture picture(fileName);
-            auto* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+            auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::Bitmap, 1);
             NXBasics::CBitmap* bitmap = nullptr;
             if (memory != nullptr)
             {
@@ -56,10 +63,10 @@ namespace
                 const auto depth = NXBasics::ConvertBitsToTDepth(NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth());
                 bitmap = TitleScreen_CreateBitmap(widthBitmap->GetRectangle().width, heightBitmap->GetRectangle().height, depth, memory);
             }
-            Write(manager, 0xD8, bitmap);
+            Write(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap, bitmap);
             picture.GetBitmap()->CopyIntoBitmap(bitmap, 0, 0);
         }
-        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+        auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::Bitmap, 1);
         NXBasics::CBitmap* bitmap = nullptr;
         if (memory != nullptr)
         {
@@ -70,41 +77,41 @@ namespace
             const auto width = widthApplication->GetDisplayWidth();
             bitmap = TitleScreen_CreateBitmap(width, height, depth, memory);
         }
-        Write(manager, 0xDC, bitmap);
+        Write(manager, NC2Layout::TitleScreenManagerOffset::ScreenBitmap, bitmap);
         bitmap->Fill(NXBasics::SColorRGB(0, 0, 0));
         auto* font = static_cast<NXBasics::CFont*>(NXBasics::XB_Storable_LoadObject("data\\gui\\fonts\\font10.fnt"));
-        Write(manager, 0xE0, font);
-        Write<std::uint32_t>(font, 0xC, NXBasics::IntegerRange::UInt32Maximum);
-        memory = NXBasics::Runtime_AllocateWithNewHandler(1036, 1);
+        Write(manager, NC2Layout::TitleScreenManagerOffset::Font, font);
+        Write<std::uint32_t>(font, NC2Layout::FontOffset::CharacterSpacing, NXBasics::IntegerRange::UInt32Maximum);
+        memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::Palette, 1);
         auto* palette = memory != nullptr ? ::new (memory) NXBasics::CPalette() : nullptr;
-        Write(manager, 0xE4, palette);
-        for (std::uint32_t index = 0; index < 256; ++index) reinterpret_cast<NXBasics::SColorRGB*>(reinterpret_cast<std::byte*>(palette) + 4 + index * 4)->SetColors(static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index));
+        Write(manager, NC2Layout::TitleScreenManagerOffset::GrayscalePalette, palette);
+        for (std::uint32_t index = 0; index < NC2Runtime::TitleScreenLimits::PaletteColors; ++index) reinterpret_cast<NXBasics::SColorRGB*>(reinterpret_cast<std::byte*>(palette) + NC2Layout::PaletteOffset::Colors + index * NC2Layout::RecordSize::PaletteColor)->SetColors(static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index));
     }
 
     // Original function: FUN_00402fcb; resource fields remain unchanged.
     static void TitleScreen_GfxData_Free(void* manager)
     {
-        if (auto* palette = Read<NXBasics::CPalette*>(manager, 0xE4)) delete palette;
-        if (auto* font = Read<NXBasics::CFont*>(manager, 0xE0)) delete font;
-        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, 0xDC)) delete bitmap;
-        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, 0xD8)) delete bitmap;
+        if (auto* palette = Read<NXBasics::CPalette*>(manager, NC2Layout::TitleScreenManagerOffset::GrayscalePalette)) delete palette;
+        if (auto* font = Read<NXBasics::CFont*>(manager, NC2Layout::TitleScreenManagerOffset::Font)) delete font;
+        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::ScreenBitmap)) delete bitmap;
+        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap)) delete bitmap;
     }
 
     // Original function: FUN_00402af2.
     static bool TitleScreen_FMV_Start(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0) == 0) return false;
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) == 0) return false;
         char pattern[260], fileName[260];
         // Requested installation layout: loose films are stored in DataX\FMV.
-        NXBasics::Runtime_PrintString(pattern, "datax\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
+        NXBasics::Runtime_PrintString(pattern, "datax\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + NC2Layout::TitleScreenManagerOffset::FmvStem);
         if (!NC2Logic::LanguageTool_GetFilename(pattern, fileName, false)) return false;
-        Read<NXBasics::CBitmap*>(manager, 0xDC)->Fill(NXBasics::SColorRGB(0, 0, 0));
+        Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::ScreenBitmap)->Fill(NXBasics::SColorRGB(0, 0, 0));
         if (NWindowsVideo::CVideoPlayer::sTheObjectPtr == nullptr)
         {
-            if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(44, 1)) new (memory) NWindowsVideo::CVideoPlayer();
+            if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::WindowsVideoPlayer, 1)) new (memory) NWindowsVideo::CVideoPlayer();
         }
         IDirectDraw* directDraw = nullptr;
-        TitleScreen_DisplayInterface(0x18)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
+        TitleScreen_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::DirectDraw)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
         if (directDraw != nullptr)
         {
             auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
@@ -112,26 +119,26 @@ namespace
             if (video->Open(fileName, directDraw, enableAudio))
             {
                 NWindowsVideo::CVideoPlayer::sTheObjectPtr->Start();
-                Write<std::uint8_t>(manager, 0xC9, 1);
+                Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive, 1);
             }
             directDraw->Release();
         }
-        if (Read<std::uint8_t>(manager, 0xC9) == 0) return false;
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive) == 0) return false;
         NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(true);
-        Write<std::uint8_t>(manager, 0xCA, 1);
+        Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::CursorHideRequested, 1);
         return true;
     }
 
     // Original function: FUN_00402c08; the force argument is unused by Windows.
     static void TitleScreen_UpdateDisplay(void* manager, bool /*force*/)
     {
-        if (Read<std::uint8_t>(manager, 0xC9) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive) != 0)
         {
             auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
             if (video != nullptr && video->IsPlaying())
             {
                 IDirectDrawSurface* surface = nullptr;
-                TitleScreen_DisplayInterface(0x20)->QueryInterface(gLegacySurfaceInterface, reinterpret_cast<void**>(&surface));
+                TitleScreen_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::BackSurface)->QueryInterface(gLegacySurfaceInterface, reinterpret_cast<void**>(&surface));
                 if (surface != nullptr)
                 {
                     NWindowsVideo::CVideoPlayer::sTheObjectPtr->Update(surface, nullptr);
@@ -140,44 +147,44 @@ namespace
                 }
             }
         }
-        else Read<NXBasics::CBitmap*>(manager, 0xD8)->CopyIntoBitmap_FitIn(Read<NXBasics::CBitmap*>(manager, 0xDC));
-        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(Read<NXBasics::CBitmap*>(manager, 0xDC), 0, 0);
+        else Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap)->CopyIntoBitmap_FitIn(Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::ScreenBitmap));
+        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::ScreenBitmap), 0, 0);
     }
 
     // Original function: FUN_00402c90.
     static void TitleScreen_ToNextMode(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0xC9) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive) != 0)
         {
             NWindowsVideo::CVideoPlayer::sTheObjectPtr->Stop();
-            Write<std::uint8_t>(manager, 0xC9, 0);
+            Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive, 0);
         }
-        if (Read<std::uint8_t>(manager, 0xCB) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::NextIntroPending) != 0)
         {
-            Write<std::uint8_t>(manager, 0xCB, 0);
-            std::strcpy(static_cast<char*>(manager) + 1, "intro");
+            Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::NextIntroPending, 0);
+            std::strcpy(static_cast<char*>(manager) + NC2Layout::TitleScreenManagerOffset::FmvStem, "intro");
             if (TitleScreen_FMV_Start(manager)) return;
         }
-        if (Read<std::uint8_t>(manager, 0) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0)
         {
             NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_ResetToUserResolution();
             TitleScreen_GfxData_Free(manager);
             TitleScreen_GfxData_Load(manager);
         }
         bool forceChange = false;
-        if (Read<std::uint8_t>(manager, 0xCC) != 0 || Read<std::uint8_t>(manager, 0xCD) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence) != 0 || Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PostPictureSequence) != 0)
         {
-            const auto index = Read<std::uint32_t>(manager, 0xD0) + 1u;
-            Write(manager, 0xD0, index);
-            const char* prefix = Read<std::uint8_t>(manager, 0xCC) != 0 ? "pre" : "post";
+            const auto index = Read<std::uint32_t>(manager, NC2Layout::TitleScreenManagerOffset::PictureIndex) + 1u;
+            Write(manager, NC2Layout::TitleScreenManagerOffset::PictureIndex, index);
+            const char* prefix = Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence) != 0 ? "pre" : "post";
             char fileName[200];
             NXBasics::Runtime_PrintString(fileName, "datax\\pictures\\%s%2.2d.bmp", prefix, NXBasics::Runtime_TimeSigned32(index));
             if (NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true))
             {
-                if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, 0xD8)) delete bitmap;
-                Write<void*>(manager, 0xD8, nullptr);
+                if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap)) delete bitmap;
+                Write<void*>(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap, nullptr);
                 NXBasics::CPicture picture(fileName);
-                auto* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+                auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::Bitmap, 1);
                 NXBasics::CBitmap* bitmap = nullptr;
                 if (memory != nullptr)
                 {
@@ -186,9 +193,9 @@ namespace
                     const auto depth = NXBasics::ConvertBitsToTDepth(NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth());
                     bitmap = TitleScreen_CreateBitmap(widthBitmap->GetRectangle().width, heightBitmap->GetRectangle().height, depth, memory);
                 }
-                Write(manager, 0xD8, bitmap);
+                Write(manager, NC2Layout::TitleScreenManagerOffset::PictureBitmap, bitmap);
                 picture.GetBitmap()->CopyIntoBitmap(bitmap, 0, 0);
-                Write<std::uint32_t>(manager, 0xD4, timeGetTime());
+                Write<std::uint32_t>(manager, NC2Layout::TitleScreenManagerOffset::PictureStartedAtMilliseconds, timeGetTime());
                 return;
             }
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_pre_intro"))
@@ -197,14 +204,14 @@ namespace
                 NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->System_ProgramState_ChangeNextTimePossible(NMasterControlProgram::TProgramState::TitleScreen, true);
                 return;
             }
-            if (Read<std::uint8_t>(manager, 0xCD) != 0)
+            if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PostPictureSequence) != 0)
             {
-                Write<std::uint8_t>(NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, 9, 1);
+                Write<std::uint8_t>(NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, NC2Layout::MasterControlOffset::ExitRequested, 1);
                 return;
             }
             forceChange = true;
         }
-        for (std::uint32_t frame = 0; frame < 5; ++frame)
+        for (std::uint32_t frame = 0; frame < NC2Runtime::TitleScreenLimits::TransitionDisplayUpdates; ++frame)
         {
             TitleScreen_UpdateDisplay(manager, forceChange);
             NXSys2DApp::CApplication::sTheObjectPtr->UpdateDisplay();
@@ -217,61 +224,61 @@ namespace
     static void* TitleScreen_Construct(void* manager)
     {
         gTitleScreen.manager = manager;
-        std::memset(manager, 0, 232);
+        std::memset(manager, 0, NC2Layout::ObjectSize::TitleScreenManager);
         gTitleScreen.state = 0;
-        Write<std::uint8_t>(manager, 0, 0);
+        Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode, 0);
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_pre_picture_sequence"))
         {
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_pre_picture_sequence");
             if (NXBasics::CFile::FileSystem_Tool_FileExists("datax\\pictures\\pre00.bmp", true))
             {
-                Write<std::uint32_t>(manager, 0xD0, NXBasics::IntegerRange::UInt32Maximum);
-                Write<std::uint8_t>(manager, 0xCC, 1);
+                Write<std::uint32_t>(manager, NC2Layout::TitleScreenManagerOffset::PictureIndex, NXBasics::IntegerRange::UInt32Maximum);
+                Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence, 1);
                 NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("game_start_pre_intro", false, 0, nullptr);
             }
         }
-        if (Read<std::uint8_t>(manager, 0xCC) == 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence) == 0)
         {
             if (!NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("intro_skip"))
             {
-                Write<std::uint8_t>(manager, 0, 1);
-                std::strcpy(static_cast<char*>(manager) + 1, "intro_00");
-                Write<std::uint8_t>(manager, 0xCB, 1);
+                Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode, 1);
+                std::strcpy(static_cast<char*>(manager) + NC2Layout::TitleScreenManagerOffset::FmvStem, "intro_00");
+                Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::NextIntroPending, 1);
             }
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("intro_skip", false, 0, nullptr);
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("start_fmv"))
             {
                 const char* caption = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("start_fmv");
-                Write<std::uint8_t>(manager, 0, 1);
-                std::strcpy(static_cast<char*>(manager) + 1, caption);
+                Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode, 1);
+                std::strcpy(static_cast<char*>(manager) + NC2Layout::TitleScreenManagerOffset::FmvStem, caption);
                 NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("start_fmv");
             }
         }
-        if (Read<std::uint8_t>(manager, 0) == 0 && NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_post_picture_sequence"))
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) == 0 && NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_post_picture_sequence"))
         {
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_post_picture_sequence");
             // Requested missing-asset fallback: the native sequence end already
             // requests program exit when the next post picture does not exist.
-            Write<std::uint32_t>(manager, 0xD0, NXBasics::IntegerRange::UInt32Maximum);
-            Write<std::uint8_t>(manager, 0xCD, 1);
+            Write<std::uint32_t>(manager, NC2Layout::TitleScreenManagerOffset::PictureIndex, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PostPictureSequence, 1);
         }
-        if (Read<std::uint8_t>(manager, 0) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0)
         {
-            std::uint32_t depth = 32;
-            if (!(NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() || NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth() == 32) || (NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() && !NXSys2DApp::CApplication::sTheObjectPtr->CheckFullscreenDisplayMode(640, 480, 32))) depth = 16;
+            std::uint32_t depth = NC2Runtime::DisplayDepthBits::TrueColor;
+            if (!(NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() || NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth() == NC2Runtime::DisplayDepthBits::TrueColor) || (NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() && !NXSys2DApp::CApplication::sTheObjectPtr->CheckFullscreenDisplayMode(NC2Runtime::TitleScreenGeometry::IntroWidth, NC2Runtime::TitleScreenGeometry::IntroHeight, NC2Runtime::DisplayDepthBits::TrueColor))) depth = NC2Runtime::DisplayDepthBits::HighColor;
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("intro_screen_depth")) depth = static_cast<std::uint32_t>(NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("intro_screen_depth"));
-            NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(640, 480, depth, false, false, true);
+            NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(NC2Runtime::TitleScreenGeometry::IntroWidth, NC2Runtime::TitleScreenGeometry::IntroHeight, depth, false, false, true);
         }
         TitleScreen_GfxData_Load(manager);
-        if (Read<std::uint8_t>(manager, 0) != 0) TitleScreen_FMV_Start(manager);
-        else if (Read<std::uint8_t>(manager, 0xCC) != 0 || Read<std::uint8_t>(manager, 0xCD) != 0 || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("tincat") || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_pre_stuff_skip")) TitleScreen_ToNextMode(manager);
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0) TitleScreen_FMV_Start(manager);
+        else if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence) != 0 || Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PostPictureSequence) != 0 || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("tincat") || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_pre_stuff_skip")) TitleScreen_ToNextMode(manager);
         return manager;
     }
 
     // Original function: FUN_00402a15.
     static void TitleScreen_Destruct(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0xCA) != 0) NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
+        if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::CursorHideRequested) != 0) NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
         if (auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr)
         {
             video->~CVideoPlayer();
@@ -284,11 +291,15 @@ namespace
     // Original function: FUN_00402a58.
     static void TitleScreen_System_Update(void* manager)
     {
-        bool advance = Read<std::uint8_t>(manager, 0) != 0 && (Read<std::uint8_t>(manager, 0xC9) == 0 || !NWindowsVideo::CVideoPlayer::sTheObjectPtr->IsPlaying());
-        if (!advance && (Read<std::uint8_t>(manager, 0xCD) != 0 || Read<std::uint8_t>(manager, 0xCC) != 0)) advance = timeGetTime() > Read<std::uint32_t>(manager, 0xD4) + 20000u;
-        if (advance) { TitleScreen_ToNextMode(manager); return; }
+        bool advance = Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0 && (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvActive) == 0 || !NWindowsVideo::CVideoPlayer::sTheObjectPtr->IsPlaying());
+        if (!advance && (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PostPictureSequence) != 0 || Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::PrePictureSequence) != 0)) advance = timeGetTime() > Read<std::uint32_t>(manager, NC2Layout::TitleScreenManagerOffset::PictureStartedAtMilliseconds) + NC2Runtime::TitleScreenTiming::PictureDurationMillisecondsUnsigned;
+        if (advance)
+        {
+            TitleScreen_ToNextMode(manager);
+            return;
+        }
         NXSysKeyManager::SKeyMessage message;
-        if ((NXSysKeyManager::CKeyManager::sTheObjectPtr->GetKey(message) && message.state != 0 && (message.auxiliaryCode == 0x20 || message.keyCode == 0x1B)) || NXSysMouseManager::CMouseManager::sTheObjectPtr->IsAnyButtonDown())
+        if ((NXSysKeyManager::CKeyManager::sTheObjectPtr->GetKey(message) && message.state != 0 && (message.auxiliaryCode == SwitchIds::TitleScreenSkipKey::Space || message.keyCode == SwitchIds::TitleScreenSkipKey::Escape)) || NXSysMouseManager::CMouseManager::sTheObjectPtr->IsAnyButtonDown())
         {
             NXSysKeyManager::CKeyManager::sTheObjectPtr->Init();
             TitleScreen_ToNextMode(manager);
@@ -302,8 +313,8 @@ namespace NMasterControlProgram
     // Original function: FUN_00402773.
     bool CMasterControlProgram::System_ProgramState_TitleScreen_StartUp()
     {
-        mProgramState = 4;
-        if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(232, 1)) TitleScreen_Construct(memory);
+        mProgramState = SwitchIds::ProgramState::TitleScreenStartUp;
+        if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::TitleScreenManager, 1)) TitleScreen_Construct(memory);
         mProgramState = static_cast<std::int32_t>(TProgramState::TitleScreen);
         return true;
     }
@@ -311,7 +322,7 @@ namespace NMasterControlProgram
     // Original function: FUN_0040279c.
     void CMasterControlProgram::System_ProgramState_TitleScreen_ShutDown()
     {
-        mProgramState = 6;
+        mProgramState = SwitchIds::ProgramState::TitleScreenShutDown;
         if (void* manager = gTitleScreen.manager)
         {
             TitleScreen_Destruct(manager);

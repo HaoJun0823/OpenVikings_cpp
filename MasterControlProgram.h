@@ -14,6 +14,23 @@ namespace NC2LogicExternals
     void __stdcall External_Misc_ProgressBar_Update();
 }
 
+namespace NTitleScreen
+{
+    // Physical Windows owner; raw allocation and destructor call ordering remain unchanged.
+    struct STitleScreenManagerStorage
+    {
+        std::uint8_t fmvMode;
+        char fmvStem[200];
+        std::uint8_t fmvActive, cursorHideRequested, nextIntroPending, prePictureSequence, postPictureSequence;
+        std::byte unclassifiedCE[2];
+        std::uint32_t pictureIndex, pictureStartedAtMilliseconds;
+        void* pictureBitmap;
+        void* screenBitmap;
+        void* font;
+        void* grayscalePalette;
+    };
+}
+
 namespace NMasterControlProgram
 {
     char FindGameCDDrive();

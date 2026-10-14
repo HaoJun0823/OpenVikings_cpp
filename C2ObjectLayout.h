@@ -916,6 +916,12 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto WindowsVideoPlayer = 44;
+
+        inline constexpr auto Palette = 1036;
+
+        inline constexpr auto TitleScreenManager = 232;
+
         inline constexpr auto GuiListBoxController = 60;
 
         inline constexpr auto GuiListBox = 116;
@@ -1646,6 +1652,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto PaletteColor = 4;
+
         inline constexpr auto GuiGfxElementVars = 12;
 
         inline constexpr auto GuiGfxButtonVars = 40;
@@ -4670,6 +4678,57 @@ namespace NC2Layout
         inline constexpr auto Y = 4;
 
         inline constexpr auto X = 0;
+    }
+
+    namespace TitleScreenManagerOffset
+    {
+        inline constexpr auto FmvStem = 1;
+
+        inline constexpr auto PictureStartedAtMilliseconds = 0xD4;
+
+        inline constexpr auto PictureIndex = 0xD0;
+
+        inline constexpr auto PostPictureSequence = 0xCD;
+
+        inline constexpr auto PrePictureSequence = 0xCC;
+
+        inline constexpr auto NextIntroPending = 0xCB;
+
+        inline constexpr auto CursorHideRequested = 0xCA;
+
+        inline constexpr auto FmvActive = 0xC9;
+
+        inline constexpr auto FmvMode = 0;
+
+        inline constexpr auto GrayscalePalette = 0xE4;
+
+        inline constexpr auto Font = 0xE0;
+
+        inline constexpr auto ScreenBitmap = 0xDC;
+
+        inline constexpr auto PictureBitmap = 0xD8;
+    }
+
+    namespace ApplicationOffset
+    {
+        inline constexpr auto Window = 0x4C;
+    }
+
+    namespace DirectDrawDisplayOffset
+    {
+        inline constexpr auto BackSurface = 0x20;
+
+        inline constexpr auto DirectDraw = 0x18;
+    }
+
+    namespace FontOffset
+    {
+        inline constexpr auto CharacterSpacing = 0xC;
+    }
+
+    namespace MasterControlOffset
+    {
+        inline constexpr auto ExitRequested = 9;
     }
 
 }

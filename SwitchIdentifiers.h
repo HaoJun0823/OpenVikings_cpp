@@ -1784,6 +1784,10 @@ namespace SwitchIds
 
     namespace ProgramState
     {
+        inline constexpr auto TitleScreenShutDown = 6;
+
+        inline constexpr auto TitleScreenStartUp = 4;
+
         inline constexpr auto TitleScreen = 5;
         inline constexpr auto MainMenu = 8;
         inline constexpr auto Game = 11;
@@ -2455,6 +2459,13 @@ namespace SwitchIds
         inline constexpr auto ToggleGoodImport = 10100;
 
         inline constexpr auto ClearImports = 10000;
+    }
+
+    namespace TitleScreenSkipKey
+    {
+        inline constexpr auto Escape = 0x1B;
+
+        inline constexpr auto Space = 0x20;
     }
 
 }
