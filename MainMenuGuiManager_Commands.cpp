@@ -1,3 +1,5 @@
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuGuiManager.h"
@@ -44,8 +46,8 @@ namespace
     std::uint32_t FixedPlayerColor(std::uint32_t slot) { return slot < 10 ? slot : 9; }
     void SendKickToPlayer(std::uint32_t player)
     {
-        std::byte message[360]{};
-        Write<std::uint32_t>(message, 0, 3);
+        std::byte message[NC2Layout::RecordSize::MenuNetworkMessage]{};
+        Write<std::uint32_t>(message, NC2Layout::MenuNetworkMessageOffset::Type, 3);
         NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, player, message, sizeof(message));
     }
 }
@@ -75,7 +77,7 @@ bool __fastcall MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_H
 {
     using NC2MainMenuGuiManager::CGuiManager;
     if (message != 0x200) return true;
-    if ((NC2Lifetime::Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2) != 0 && key == 0x56)
+    if ((NC2Lifetime::Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags) & 2) != 0 && key == 0x56)
     {
         char buffer[100];
         if (CopyClipboardText(buffer, sizeof(buffer)))
@@ -88,7 +90,7 @@ bool __fastcall MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_H
     std::memmove(lastKeysBuffer + 1, lastKeysBuffer, 19);
     lastKeysBuffer[20] = '\0';
     lastKeysBuffer[0] = value;
-    if (NC2Logic::gCampaignStaticDataManager == nullptr || CGuiManager::sTheObjectPtr->currentScreen != 5) return true;
+    if (NC2Logic::gCampaignStaticDataManager == nullptr || CGuiManager::sTheObjectPtr->currentScreen != SwitchIds::MainMenuScreen::CampaignMap) return true;
     // Windows compares case-sensitive prefixes of the newest-first history.
     const char* codes[] = { "esao", "lekaro", "lesniztahcs", "lepmet", "aipmylo", "oarahp", "sitnalta" };
     bool matched = false;
@@ -121,20 +123,20 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d71ba.
     bool CGuiManager::Network_SelectServiceProvider(std::uint32_t index)
     {
-        if (index >= Read<std::uint32_t>(this, 0x68))
+        if (index >= Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::ProviderCount))
         {
             Debug_ErrorString_Add("Select service provider - id out of range");
             return false;
         }
-        Write(this, 0x51C, index);
+        Write(this, NC2Layout::MainMenuManagerOffset::SelectedProviderIndex, index);
         return true;
     }
 
     // Original function: FUN_004d71dc; only the -1 sentinel is checked.
     const GUID* CGuiManager::Network_GetSelectedServiceProvider() const
     {
-        const auto index = Read<std::uint32_t>(this, 0x51C);
-        return index == NXBasics::IntegerRange::UInt32Maximum ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + index * 0x78u);
+        const auto index = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedProviderIndex);
+        return index == NXBasics::IntegerRange::UInt32Maximum ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + NC2Layout::MainMenuManagerOffset::FirstProviderGuid + index * NC2Layout::RecordSize::MenuNamedGuidRowUnsigned);
     }
 
     // Original function: FUN_004d787b.
@@ -147,22 +149,22 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d78a2; send the original kick message to a selected remote player.
     void CGuiManager::Network_KickSelectedPlayer()
     {
-        const auto player = Read<std::uint32_t>(this, 0xEE4);
+        const auto player = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId);
         if (player == 0) return;
         const auto index = Network_GetPlayerListIndex(player);
         if (index == NXBasics::IntegerRange::UInt32Maximum) return;
-        if (Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) return;
+        if (Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerHostFlag + index * NC2Layout::MainMenuManagerOffset::ProviderRowsUnsigned) != 0) return;
         SendKickToPlayer(player);
     }
 
     // Original function: FUN_004d7922.
     void CGuiManager::Network_KickUnassignedPlayers()
     {
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::PlayerCount); ++index)
         {
-            const auto player = Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu);
+            const auto player = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * NC2Layout::MainMenuManagerOffset::ProviderRowsUnsigned);
             std::uint32_t slot = 0;
-            while (slot < 20 && Read<std::uint32_t>(this, 0xF28 + slot * 0x10u) != player) ++slot;
+            while (slot < 20 && Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned) != player) ++slot;
             if (slot == 20) SendKickToPlayer(player);
         }
     }
@@ -171,10 +173,10 @@ namespace NC2MainMenuGuiManager
     void CGuiManager::Network_SelectPlayer(std::uint32_t playerId)
     {
         const auto index = Network_GetPlayerListIndex(playerId);
-        if (index == NXBasics::IntegerRange::UInt32Maximum) Write<std::uint32_t>(this, 0xEE4, 0);
+        if (index == NXBasics::IntegerRange::UInt32Maximum) Write<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId, 0);
         else
         {
-            Write(this, 0xEE4, playerId);
+            Write(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId, playerId);
             Screen_UpdateGui();
         }
     }
@@ -182,26 +184,26 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d7e5d; slot bounds remain unchecked.
     void CGuiManager::Network_AssignSelectedPlayer(std::uint32_t slot)
     {
-        const auto player = Read<std::uint32_t>(this, 0xEE4);
-        if (player == 0 || (Read<std::uint8_t>(this, 0xF30 + slot * 0x10u) & 2) == 0) return;
+        const auto player = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId);
+        if (player == 0 || (Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerOptions + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned) & 2) == 0) return;
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            const auto offset = 0xF28 + index * 0x10u;
-            if (Read<std::uint32_t>(this, offset) != Read<std::uint32_t>(this, 0xEE4)) continue;
+            const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + index * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
+            if (Read<std::uint32_t>(this, offset) != Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId)) continue;
             Write<std::uint32_t>(this, offset, 0);
-            Write<std::uint32_t>(this, offset + 4, 0);
-            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : 0u);
-            if (index != slot && (Read<std::uint8_t>(this, offset + 8) & 4) != 0)
+            Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 0);
+            if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) == 0) Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(index) : 0u);
+            if (index != slot && (Read<std::uint8_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Options) & 4) != 0)
             {
-                if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
-                Write<std::uint32_t>(this, offset + 4, 2);
+                if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) == 0) Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
+                Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2);
             }
         }
-        const auto offset = 0xF28 + slot * 0x10u;
-        Write<std::uint32_t>(this, offset + 4, 0);
-        if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
-        Write(this, offset, Read<std::uint32_t>(this, 0xEE4));
-        Write<std::uint32_t>(this, offset + 4, 1);
+        const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
+        Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 0);
+        if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) == 0) Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
+        Write(this, offset, Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId));
+        Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 1);
         Screen_UpdateGui();
         Network_SendLobbyData();
     }
@@ -209,27 +211,27 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d7f7e.
     void CGuiManager::Network_ChangePlayerType(std::uint32_t slot)
     {
-        const auto offset = 0xF28 + slot * 0x10u;
-        const auto type = Read<std::uint32_t>(this, offset + 4);
-        const auto flags = Read<std::uint8_t>(this, offset + 8);
+        const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
+        const auto type = Read<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type);
+        const auto flags = Read<std::uint8_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Options);
         if (type == 1)
         {
             bool changed = false;
-            if ((flags & 4) != 0) { Write<std::uint32_t>(this, offset + 4, 2); Write<std::uint32_t>(this, offset, 0); changed = true; }
-            if ((flags & 1) != 0) { Write<std::uint32_t>(this, offset + 4, 0); Write<std::uint32_t>(this, offset, 0); changed = true; }
+            if ((flags & 4) != 0) { Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2); Write<std::uint32_t>(this, offset, 0); changed = true; }
+            if ((flags & 1) != 0) { Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 0); Write<std::uint32_t>(this, offset, 0); changed = true; }
             if (!changed) return;
         }
         else if (type == 2)
         {
             if ((flags & 1) == 0) return;
-            Write<std::uint32_t>(this, offset + 4, 0);
+            Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 0);
             Write<std::uint32_t>(this, offset, 0);
         }
         else
         {
             if ((flags & 4) == 0) return;
-            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
-            Write<std::uint32_t>(this, offset + 4, 2);
+            if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) == 0) Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
+            Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2);
             Write<std::uint32_t>(this, offset, 0);
         }
         Screen_UpdateGui();
@@ -239,9 +241,9 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d804f.
     void CGuiManager::Network_ChangePlayerColor(std::uint32_t slot)
     {
-        if (Read<std::uint32_t>(this, 0xF24) != 0) return;
-        const auto color = Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(Read<std::uint32_t>(this, 0xF34 + slot * 0x10u));
-        Write(this, 0xF34 + slot * 0x10u, color);
+        if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) != 0) return;
+        const auto color = Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerColor + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned));
+        Write(this, NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerColor + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned, color);
         Screen_UpdateGui();
         Network_SendLobbyData();
     }
@@ -258,9 +260,9 @@ namespace NC2MainMenuGuiManager
             bool used = false;
             for (std::uint32_t slot = 0; slot < 20; ++slot)
             {
-                const auto offset = 0xF2C + slot * 0x10u;
+                const auto offset = NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerType + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
                 const auto type = Read<std::uint32_t>(this, offset);
-                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + 7) & NXBasics::BitMask::Bit7Signed) == 0 && Read<std::uint32_t>(this, offset + 8) == color) { used = true; break; }
+                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + NC2Layout::MenuLobbyPlayerTypeViewOffset::OptionsHighByte) & NXBasics::BitMask::Bit7Signed) == 0 && Read<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerTypeViewOffset::Color) == color) { used = true; break; }
             }
             if (!used) return color;
         }
@@ -280,7 +282,7 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d814c.
     void CGuiManager::Network_SetLobbyDifficulty(std::uint32_t difficulty)
     {
-        Write(this, 0x106C, difficulty);
+        Write(this, NC2Layout::MainMenuManagerOffset::LobbyDifficulty, difficulty);
         Screen_UpdateGui();
         Network_SendLobbyData();
     }
@@ -288,12 +290,12 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d81c7.
     void CGuiManager::Network_SelectMap(const NC2Logic::SCleanMapGuid& guid)
     {
-        const auto difficulty = Read<std::uint32_t>(this, 0x106C);
+        const auto difficulty = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbyDifficulty);
         std::memset(lobbyData, 0, sizeof(lobbyData));
-        Write<std::uint32_t>(lobbyData, 0, 1);
-        std::memcpy(lobbyData + 4, &guid, sizeof(guid));
+        Write<std::uint32_t>(lobbyData, NC2Layout::MenuLobbyOffset::Mode, 1);
+        std::memcpy(lobbyData + NC2Layout::MenuLobbyOffset::MapGuid, &guid, sizeof(guid));
         for (std::uint32_t slot = 0; slot < 20; ++slot)
-            Write(this, 0xF34 + slot * 0x10u, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : 0u);
+            Write(this, NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerColor + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : 0u);
         auto* map = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(guid);
         void* archive = nullptr;
         if (map->userMap != 0)
@@ -329,7 +331,7 @@ namespace NC2MainMenuGuiManager
                                 const auto option = static_cast<std::uint32_t>(reader.GetInt());
                                 if (option <= 2) flags |= 1u << option;
                             }
-                            Write(this, (static_cast<std::uint32_t>(slot) + 0xF3u) * 0x10u, flags);
+                            Write(this, (static_cast<std::uint32_t>(slot) + NC2Layout::MenuLobbyScaledOffset::OptionsIndexBiasUnsigned) * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned, flags);
                             break;
                         }
                         case SwitchIds::CampaignMenuToken::Playerhideinmenu:
@@ -337,13 +339,13 @@ namespace NC2MainMenuGuiManager
                             const auto slot = reader.GetInt();
                             if (slot < 20)
                             {
-                                const auto offset = (static_cast<std::uint32_t>(slot) + 0xF3u) * 0x10u + 3u;
+                                const auto offset = (static_cast<std::uint32_t>(slot) + NC2Layout::MenuLobbyScaledOffset::OptionsIndexBiasUnsigned) * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned + NC2Layout::MenuLobbyOptionsViewOffset::HighByteUnsigned;
                                 Write<std::uint8_t>(this, offset, Read<std::uint8_t>(this, offset) | NXBasics::BitMask::Bit7Signed);
                             }
                             break;
                         }
                         case SwitchIds::CampaignMenuToken::Playerfixcolors:
-                            Write<std::uint8_t>(this, 0x1068, reader.GetInt() != 0);
+                            Write<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors, reader.GetInt() != 0);
                             break;
                     }
                 }
@@ -352,13 +354,13 @@ namespace NC2MainMenuGuiManager
         }
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            const auto offset = 0xF28 + slot * 0x10u;
-            if ((Read<std::uint8_t>(this, offset + 8) & 4) == 0) continue;
-            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
-            Write<std::uint32_t>(this, offset + 4, 2);
+            const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
+            if ((Read<std::uint8_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Options) & 4) == 0) continue;
+            Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
+            Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2);
             Write<std::uint32_t>(this, offset, 0);
         }
-        Write(this, 0x106C, difficulty);
+        Write(this, NC2Layout::MainMenuManagerOffset::LobbyDifficulty, difficulty);
         Screen_UpdateGui();
         Network_SendLobbyData();
     }
@@ -367,22 +369,22 @@ namespace NC2MainMenuGuiManager
     void CGuiManager::Network_SelectSavegame(std::uint32_t id)
     {
         std::memset(lobbyData, 0, sizeof(lobbyData));
-        Write<std::uint32_t>(lobbyData, 0, 2);
-        Write(this, 0xF24, id);
+        Write<std::uint32_t>(lobbyData, NC2Layout::MenuLobbyOffset::Mode, 2);
+        Write(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId, id);
         auto* saved = NC2Logic::gSavegamesManager->GetSavegameInfoPtrByUniqueId(id);
         NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(saved->header.mapGuid);
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            const auto offset = 0xF28 + slot * 0x10u;
-            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : 0u);
+            const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
+            Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : 0u);
             if (saved->header.multiplayer == 0) continue;
             const auto type = saved->header.players[slot].value;
             if (type == 1 || type == 2)
             {
-                Write<std::uint32_t>(this, offset + 4, 2);
-                Write<std::uint32_t>(this, offset + 8, type == 1 ? 6 : 4);
+                Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2);
+                Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Options, type == 1 ? 6 : 4);
             }
-            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : saved->header.players[slot].colorId);
+            Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : saved->header.players[slot].colorId);
         }
         if (saved->header.multiplayer != 0)
         {
@@ -390,11 +392,11 @@ namespace NC2MainMenuGuiManager
             {
                 const auto& player = saved->header.players[slot];
                 if (player.value != 1 || std::strlen(player.name) == 0) continue;
-                for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::PlayerCount); ++index)
                 {
-                    if (NXBasics::Runtime_CompareStringsIgnoreCase(reinterpret_cast<const char*>(this) + 0xAA8 + index * 0x6Cu, player.name) != 0) continue;
-                    Write(this, 0xF28 + slot * 0x10u, Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu));
-                    Write<std::uint32_t>(this, 0xF2C + slot * 0x10u, 1);
+                    if (NXBasics::Runtime_CompareStringsIgnoreCase(reinterpret_cast<const char*>(this) + NC2Layout::MainMenuManagerOffset::PlayerRows + index * NC2Layout::MainMenuManagerOffset::ProviderRowsUnsigned, player.name) != 0) continue;
+                    Write(this, NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned, Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * NC2Layout::MainMenuManagerOffset::ProviderRowsUnsigned));
+                    Write<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstLobbyPlayerType + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned, 1);
                     break;
                 }
             }
@@ -415,76 +417,76 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
     auto* gui = CGuiManager::sTheObjectPtr;
     auto* master = CMasterControlProgram::sTheObjectPtr;
     auto changeScreen = [gui](std::int32_t screen, bool shutdown = false) { gui->Screen_ChangeTo(screen, shutdown); };
-    auto startup = [master]() { return reinterpret_cast<NC2Logic::SGameControlStartupData*>(reinterpret_cast<std::byte*>(master) + 0x2C); };
-    auto failNetwork = [gui, &changeScreen](const char* error) { changeScreen(18, true); gui->Debug_ErrorString_Add(error); };
+    auto startup = [master]() { return reinterpret_cast<NC2Logic::SGameControlStartupData*>(reinterpret_cast<std::byte*>(master) + NC2Layout::MasterControlProgramOffset::StartupData); };
+    auto failNetwork = [gui, &changeScreen](const char* error) { changeScreen(SwitchIds::MainMenuScreen::NetworkError, true); gui->Debug_ErrorString_Add(error); };
     switch (command)
     {
-        case SwitchIds::MainMenuCommand::ShowExitConfirmation: changeScreen(2); break;
+        case SwitchIds::MainMenuCommand::ShowExitConfirmation: changeScreen(SwitchIds::MainMenuScreen::ExitConfirmation); break;
         case SwitchIds::MainMenuCommand::ExitGame:
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("game_start_post_picture_sequence", false, 0, nullptr);
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
             break;
-        case SwitchIds::MainMenuCommand::ShowMainMenu: changeScreen(1); break;
-        case SwitchIds::MainMenuCommand::ShowSinglePlayerMenu: changeScreen(3); break;
-        case SwitchIds::MainMenuCommand::ShowMultiplayerCallsign: changeScreen(9); break;
+        case SwitchIds::MainMenuCommand::ShowMainMenu: changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
+        case SwitchIds::MainMenuCommand::ShowSinglePlayerMenu: changeScreen(SwitchIds::MainMenuScreen::SinglePlayerMenu); break;
+        case SwitchIds::MainMenuCommand::ShowMultiplayerCallsign: changeScreen(SwitchIds::MainMenuScreen::EnterCallsign); break;
         case SwitchIds::MainMenuCommand::PlayIntro:
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("intro_skip");
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
             break;
         case SwitchIds::MainMenuCommand::InternetLobby: break;
-        case SwitchIds::MainMenuCommand::ShowCredits: changeScreen(22); break;
-        case SwitchIds::MainMenuCommand::MainMenuAfterCdCheck: if (MainMenu_HasGameCD()) changeScreen(1); break;
-        case SwitchIds::MainMenuCommand::DisableSinglePlayer: CGuiManager::mStaticVars.unknown005694d8[0] = std::byte{1}; changeScreen(1); break;
-        case SwitchIds::MainMenuCommand::ShowMapList: changeScreen(4); break;
-        case SwitchIds::MainMenuCommand::ShowCampaignMap: changeScreen(5); break;
-        case SwitchIds::MainMenuCommand::ShowTutorialMapList: changeScreen(8); break;
-        case SwitchIds::MainMenuCommand::ShowLoadGame: changeScreen(6); break;
+        case SwitchIds::MainMenuCommand::ShowCredits: changeScreen(SwitchIds::MainMenuScreen::Credits); break;
+        case SwitchIds::MainMenuCommand::MainMenuAfterCdCheck: if (MainMenu_HasGameCD()) changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
+        case SwitchIds::MainMenuCommand::DisableSinglePlayer: CGuiManager::mStaticVars.unknown005694d8[0] = std::byte{1}; changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
+        case SwitchIds::MainMenuCommand::ShowMapList: changeScreen(SwitchIds::MainMenuScreen::MapList); break;
+        case SwitchIds::MainMenuCommand::ShowCampaignMap: changeScreen(SwitchIds::MainMenuScreen::CampaignMap); break;
+        case SwitchIds::MainMenuCommand::ShowTutorialMapList: changeScreen(SwitchIds::MainMenuScreen::TutorialMapList); break;
+        case SwitchIds::MainMenuCommand::ShowLoadGame: changeScreen(SwitchIds::MainMenuScreen::LoadGame); break;
         case SwitchIds::MainMenuCommand::StartSelectedMap:
         case SwitchIds::MainMenuCommand::StartSelectedCampaignMap:
             startup()->Reset();
-            Write<std::uint32_t>(startup(), 0, 1);
-            std::memcpy(reinterpret_cast<std::byte*>(startup()) + 4, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(data)), 16);
-            if (command == SwitchIds::MainMenuCommand::StartSelectedCampaignMap) changeScreen(7);
+            Write<std::uint32_t>(startup(), NC2Layout::GameControlStartupOffset::Mode, 1);
+            std::memcpy(reinterpret_cast<std::byte*>(startup()) + NC2Layout::GameControlStartupOffset::SingleMapGuid, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(data)), 16);
+            if (command == SwitchIds::MainMenuCommand::StartSelectedCampaignMap) changeScreen(SwitchIds::MainMenuScreen::DifficultyOptions);
             else master->System_ProgramState_ChangeNextTimePossible(TProgramState::Game, false);
             break;
         case SwitchIds::MainMenuCommand::LoadSelectedSavegame:
             startup()->Reset();
-            Write<std::uint32_t>(startup(), 0, 2);
-            Write(startup(), 0x14, data);
+            Write<std::uint32_t>(startup(), NC2Layout::GameControlStartupOffset::Mode, 2);
+            Write(startup(), NC2Layout::GameControlStartupOffset::SavegameId, data);
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::Game, false);
             break;
         case SwitchIds::MainMenuCommand::SortSavegamesByDate: NC2Logic::gSavegamesManager->SortType_Set(2); gui->Screen_UpdateGui(); break;
         case SwitchIds::MainMenuCommand::SortSavegamesByMapName: NC2Logic::gSavegamesManager->SortType_Set(1); gui->Screen_UpdateGui(); break;
         case SwitchIds::MainMenuCommand::SortSavegamesBySlot: NC2Logic::gSavegamesManager->SortType_Set(3); gui->Screen_UpdateGui(); break;
-        case SwitchIds::MainMenuCommand::DifficultyNormal: Write<std::uint32_t>(master, 0x148, 0); gui->Screen_UpdateGui(); break;
-        case SwitchIds::MainMenuCommand::DifficultyEasy: Write<std::uint32_t>(master, 0x148, 1); gui->Screen_UpdateGui(); break;
-        case SwitchIds::MainMenuCommand::DifficultyEasiest: Write<std::uint32_t>(master, 0x148, 2); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyNormal: Write<std::uint32_t>(master, NC2Layout::MasterControlProgramOffset::StartupDifficulty, 0); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyEasy: Write<std::uint32_t>(master, NC2Layout::MasterControlProgramOffset::StartupDifficulty, 1); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyEasiest: Write<std::uint32_t>(master, NC2Layout::MasterControlProgramOffset::StartupDifficulty, 2); gui->Screen_UpdateGui(); break;
         case SwitchIds::MainMenuCommand::StartPreGameVideo: master->System_ProgramState_ChangeNextTimePossible(TProgramState::PreIngameFmv, false); break;
-        case SwitchIds::MainMenuCommand::ReturnMainMenuAndShutDownNetwork: changeScreen(1, true); break;
+        case SwitchIds::MainMenuCommand::ReturnMainMenuAndShutDownNetwork: changeScreen(SwitchIds::MainMenuScreen::MainMenu, true); break;
         case SwitchIds::MainMenuCommand::ConfirmCallsign:
             if (std::strlen(NNetwork::Network_GetCallsign()) == 0) gui->textInput.StartEditing();
-            else changeScreen(10);
+            else changeScreen(SwitchIds::MainMenuScreen::SelectServiceProvider);
             break;
         case SwitchIds::MainMenuCommand::SelectServiceProvider:
-            if (gui->Network_SelectServiceProvider(data)) changeScreen(11);
+            if (gui->Network_SelectServiceProvider(data)) changeScreen(SwitchIds::MainMenuScreen::HostOrJoin);
             else failNetwork("Could not switch into select host or client mode");
             break;
         case SwitchIds::MainMenuCommand::HostSession:
-            if (gui->Network_HostDefaultSession()) changeScreen(14);
+            if (gui->Network_HostDefaultSession()) changeScreen(SwitchIds::MainMenuScreen::Lobby);
             else failNetwork("Could not switch into select host or client mode");
             break;
         case SwitchIds::MainMenuCommand::PrepareJoinSession:
             if (gui->Network_GetSelectedServiceProvider() == nullptr) failNetwork("No service provider selected");
-            else if (gui->Network_SelectedProviderIsTcpIp()) changeScreen(12);
-            else if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(13);
+            else if (gui->Network_SelectedProviderIsTcpIp()) changeScreen(SwitchIds::MainMenuScreen::EnterSessionName);
+            else if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(SwitchIds::MainMenuScreen::SessionList);
             else failNetwork("Could not switch to enum sessions mode");
             break;
         case SwitchIds::MainMenuCommand::SearchSessions:
-            if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(13);
+            if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(SwitchIds::MainMenuScreen::SessionList);
             else failNetwork("Could not switch to enum sessions mode");
             break;
         case SwitchIds::MainMenuCommand::JoinSelectedSession:
-            if (gui->Network_JoinSession(data)) changeScreen(14);
+            if (gui->Network_JoinSession(data)) changeScreen(SwitchIds::MainMenuScreen::Lobby);
             else failNetwork("Could not switch into wait for game start mode");
             break;
         case SwitchIds::MainMenuCommand::LobbySelectMap: gui->Network_SetLobbySelection(1, true); break;
@@ -504,7 +506,7 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
             {
                 GetNetworkInstance()->SetAllowConnections(true);
                 gui->Network_KickUnassignedPlayers();
-                changeScreen(15);
+                changeScreen(SwitchIds::MainMenuScreen::PlayerConfiguration);
             }
             break;
         }

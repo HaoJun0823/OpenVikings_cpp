@@ -1594,6 +1594,26 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MenuProviderListWithSelection = 1208;
+
+        inline constexpr auto MenuChatHistory = 2324;
+
+        inline constexpr auto MenuLobby = 352;
+
+        inline constexpr auto MenuPlayerListWithSelection = 1092;
+
+        inline constexpr auto MenuSessionList = 1204;
+
+        inline constexpr auto SessionSummaryCountCookie = 4;
+
+        inline constexpr auto SessionSummaryUnsigned = 0x14u;
+
+        inline constexpr auto MenuNetworkMessage = 360;
+
+        inline constexpr auto MenuLobbyPlayerRowUnsigned = 0x10u;
+
+        inline constexpr auto MenuNamedGuidRowUnsigned = 0x78u;
+
         inline constexpr auto GuiMessagePointerRegion = 12;
 
         inline constexpr auto GuiMessageStatePrefix = 12;
@@ -3768,6 +3788,150 @@ namespace NC2Layout
         inline constexpr auto DeathTick = 0x30;
 
         inline constexpr auto HumanUniqueId = 0;
+    }
+
+    namespace MainMenuManagerOffset
+    {
+        inline constexpr auto LobbyMode = 0xF10;
+
+        inline constexpr auto PlayerChangeCount = 0xEE0;
+
+        inline constexpr auto SessionName = 0xA3C;
+
+        inline constexpr auto FirstSessionGuid = 0x5F4;
+
+        inline constexpr auto SessionRows = 0x58C;
+
+        inline constexpr auto SessionCount = 0x588;
+
+        inline constexpr auto FirstProviderGuidUnsigned = 0xD4u;
+
+        inline constexpr auto ProviderRows = 0x6C;
+
+        inline constexpr auto LobbyDifficulty = 0x106C;
+
+        inline constexpr auto FixedPlayerColors = 0x1068;
+
+        inline constexpr auto FirstLobbyPlayerColor = 0xF34;
+
+        inline constexpr auto FirstLobbyPlayerOptions = 0xF30;
+
+        inline constexpr auto FirstLobbyPlayerType = 0xF2C;
+
+        inline constexpr auto LobbyPlayerRows = 0xF28;
+
+        inline constexpr auto LobbySavegameId = 0xF24;
+
+        inline constexpr auto SelectedPlayerId = 0xEE4;
+
+        inline constexpr auto FirstPlayerId = 0xB10;
+
+        inline constexpr auto FirstPlayerHostFlag = 0xB0E;
+
+        inline constexpr auto PlayerRows = 0xAA8;
+
+        inline constexpr auto PlayerCount = 0xAA4;
+
+        inline constexpr auto SelectedProviderIndex = 0x51C;
+
+        inline constexpr auto FirstProviderGuid = 0xD4;
+
+        inline constexpr auto ProviderRowsUnsigned = 0x6Cu;
+
+        inline constexpr auto ProviderCount = 0x68;
+    }
+
+    namespace MenuLobbyPlayerTypeViewOffset
+    {
+        inline constexpr auto Color = 8;
+
+        inline constexpr auto OptionsHighByte = 7;
+    }
+
+    namespace MenuLobbyPlayerOffset
+    {
+        inline constexpr auto NetworkPlayerId = 0;
+
+        inline constexpr auto Color = 0x0C;
+
+        inline constexpr auto Options = 8;
+
+        inline constexpr auto Type = 4;
+    }
+
+    namespace MenuLobbyOffset
+    {
+        inline constexpr auto Difficulty = 0x15C;
+
+        inline constexpr auto FixedPlayerColors = 0x158;
+
+        inline constexpr auto Players = 0x18;
+
+        inline constexpr auto SavegameId = 0x14;
+
+        inline constexpr auto MapGuid = 4;
+
+        inline constexpr auto Mode = 0;
+    }
+
+    namespace MenuLobbyScaledOffset
+    {
+        inline constexpr auto OptionsIndexBiasUnsigned = 0xF3u;
+    }
+
+    namespace MenuLobbyOptionsViewOffset
+    {
+        inline constexpr auto HighByteUnsigned = 3u;
+    }
+
+    namespace GameControlStartupOffset
+    {
+        inline constexpr auto SingleMapGuid = 4;
+
+        inline constexpr auto SavegameId = 0x14;
+
+        inline constexpr auto Mode = 0;
+    }
+
+    namespace MasterControlProgramOffset
+    {
+        inline constexpr auto StartupDifficulty = 0x148;
+
+        inline constexpr auto StartupData = 0x2C;
+    }
+
+    namespace MenuNetworkMessageOffset
+    {
+        inline constexpr auto Payload = 8;
+
+        inline constexpr auto Type = 0;
+    }
+
+    namespace KeyManagerOffset
+    {
+        inline constexpr auto ModifierFlags = 0;
+    }
+
+    namespace SessionSummaryOffset
+    {
+        inline constexpr auto InstanceGuid = 4;
+
+        inline constexpr auto Name = 0;
+    }
+
+    namespace MenuNetworkListOffset
+    {
+        inline constexpr auto Rows = 4;
+    }
+
+    namespace MenuNamedGuidRowOffset
+    {
+        inline constexpr auto Guid = 0x68;
+    }
+
+    namespace MenuNetworkPlayerOffset
+    {
+        inline constexpr auto HostFlag = 0x66;
     }
 
 }

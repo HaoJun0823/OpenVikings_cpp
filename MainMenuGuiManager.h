@@ -54,6 +54,16 @@ namespace NC2MainMenuGuiManager
     static_assert(offsetof(SGuiManagerStaticVars, unknown005694d8) == 0x28);
     static_assert(sizeof(SGuiManagerStaticVars) == 44);
 
+    // Physical Windows network/lobby records. Runtime access and ownership remain unchanged.
+    struct SMenuNamedGuidRowStorage { char name[100]; std::byte unresolved64[4]; GUID guid; };
+    struct SMenuProviderListStorage { std::uint32_t count; SMenuNamedGuidRowStorage rows[10]; std::uint32_t selectedIndex; };
+    struct SMenuSessionListStorage { std::uint32_t count; SMenuNamedGuidRowStorage rows[10]; };
+    struct SMenuNetworkPlayerStorage { char name[102]; std::uint8_t host; std::byte padding67; std::uint32_t networkPlayerId; };
+    struct SMenuPlayerListStorage { std::uint32_t count; SMenuNetworkPlayerStorage rows[10]; std::uint32_t changeCount, selectedPlayerId; };
+    struct SMenuLobbyPlayerStorage { std::uint32_t networkPlayerId, type, options, color; };
+    struct SMenuLobbyStorage { std::uint32_t mode; GUID mapGuid; std::uint32_t savegameId; SMenuLobbyPlayerStorage players[20]; std::uint8_t fixedPlayerColors; std::byte padding159[3]; std::uint32_t difficulty; };
+    struct SMenuNetworkMessageStorage { std::uint32_t type, retainedWord; std::byte payload[352]; };
+
     class CGuiManager
     {
     public:
@@ -132,9 +142,14 @@ namespace NC2MainMenuGuiManager
 
         // Unresolved fields retain their original address spans.
         std::int32_t currentScreen;                                         // +0x0000
-        std::byte unknown0004[1308];                                       // +0x0004
+        std::byte unknown0004[100];
+        SMenuProviderListStorage serviceProviders;                                       // +0x0004
         std::byte sessionSearchData[102];                                  // +0x0520
-        std::byte unknown0586[2402];                                       // +0x0586
+        std::byte padding0586[2];
+        SMenuSessionListStorage sessions;
+        char sessionName[100];
+        std::byte unresolved0AA0[4];
+        SMenuPlayerListStorage networkPlayers;                                       // +0x0586
         std::uint32_t lobbyValue;                                           // +0x0EE8
         std::uint8_t transferFlags[8];                                      // +0x0EEC
         NNetwork::CFileTransferManager* fileTransferManager;                // +0x0EF4
