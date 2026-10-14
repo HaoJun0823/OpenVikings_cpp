@@ -5,6 +5,28 @@
 
 namespace NC2Logic
 {
+    // Complete physical Windows pathfinder record; runtime byte access remains unchanged.
+    struct SMapPathfinderDirectionRunStorage { std::uint8_t direction, count; };
+    struct SMapPathfinderElementStorage
+    {
+        std::uint8_t allocated;
+        std::byte padding01[3];
+        std::uint32_t searchState, targetMode, searchRadius, requiredClearance;
+        std::uint8_t useResistance, useSectors, allowVerticalDirections, useGuides, deterministicDirectionChoice;
+        std::byte padding19[3];
+        std::int32_t sourceGuideId;
+        std::uint32_t sourceGuideRevision;
+        std::int32_t currentGuideId;
+        std::uint32_t currentGuideRevision;
+        std::int32_t playerId;
+        std::uint32_t preferredDirections[2], preferredDirectionWeights[2], currentPosition, destinationPosition;
+        std::int32_t targetMoveableId;
+        std::uint32_t targetObjectRevision;
+        std::int32_t targetDistance;
+        std::uint32_t directionRunIndex, blockedAreaSteps;
+        SMapPathfinderDirectionRunStorage directionRuns[20];
+    };
+
     struct SMapPathfinderPointQueue
     {
         std::uint32_t count;

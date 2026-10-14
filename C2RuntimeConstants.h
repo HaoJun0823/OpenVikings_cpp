@@ -417,4 +417,48 @@ namespace NC2Runtime
         inline constexpr auto StateManagers = 10;
     }
 
+    namespace PathfinderSearchLimits
+    {
+        inline constexpr auto InitialRadius = 5;
+        inline constexpr auto Players = 20;
+        inline constexpr auto MaximumRadiusUnsigned = 511u;
+        inline constexpr auto MaximumBudgetUnsigned = 511u;
+
+        inline constexpr auto DirectionRunsUnsigned = 20u;
+        inline constexpr auto MaximumRunLengthUnsigned = 255u;
+        inline constexpr auto QueuePointsUnsigned = 4000u;
+
+        inline constexpr auto PlainQueuesUnsigned = 2u;
+        inline constexpr auto PlainQueueMaskUnsigned = 1u;
+        inline constexpr auto WeightedQueues = 12;
+        inline constexpr auto WeightedQueuesUnsigned = 12u;
+        inline constexpr auto ResistanceQueues = 16;
+        inline constexpr auto ResistanceQueuesUnsigned = 16u;
+        inline constexpr auto ResistanceQueueMaskUnsigned = 15u;
+
+        inline constexpr auto WeightedRadiusMultiplierUnsigned = 2u;
+        inline constexpr auto WeightedBudgetPaddingUnsigned = 12u;
+        inline constexpr auto ResistanceBudgetMultiplierUnsigned = 8u;
+        inline constexpr auto NonPreferredDirectionCostUnsigned = 4u;
+
+        inline constexpr auto DirectedStopBudgetUnsigned = 13u;
+        inline constexpr auto ResistanceStopBudgetUnsigned = 17u;
+    }
+
+    namespace PathfinderDirection
+    {
+        inline constexpr auto Unassigned = 1000;
+
+        inline constexpr auto UnassignedUnsigned = 1000u;
+    }
+
+    namespace PathfinderGeometry
+    {
+        inline constexpr auto NeighbourDirectionsUnsigned = 6u;
+
+        inline constexpr auto OppositeDirectionOffsetUnsigned = 3u;
+
+        inline constexpr auto NeighbourDirections = 6;
+    }
+
 }

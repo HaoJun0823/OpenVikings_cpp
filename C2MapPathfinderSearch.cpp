@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -20,8 +21,8 @@ namespace NC2Logic
     {
         using NC2Lifetime::Read;
         using NC2Lifetime::Write;
-        if (radius > 511u) return false;
-        const bool recordStatistics = playerId >= 0 && playerId < 20;
+        if (radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
+        const bool recordStatistics = playerId >= 0 && playerId < NC2Runtime::PathfinderSearchLimits::Players;
         if (recordStatistics)
         {
             const std::uint32_t offset = static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::AreaSearchCount;
@@ -30,12 +31,12 @@ namespace NC2Logic
         SMapPathfinderManagerSearchOverMapCallbackData data{0, userData};
         if (callback(point, &data)) return true;
 
-        std::uint32_t remaining = useWalkCosts ? radius * 2u + 12u : radius;
+        std::uint32_t remaining = useWalkCosts ? radius * NC2Runtime::PathfinderSearchLimits::WeightedRadiusMultiplierUnsigned + NC2Runtime::PathfinderSearchLimits::WeightedBudgetPaddingUnsigned : radius;
         GameMap_CalculationMap_Clear(point, static_cast<std::int32_t>(remaining + 2u));
-        const std::uint32_t queueCount = useWalkCosts ? 12u : 2u;
+        const std::uint32_t queueCount = useWalkCosts ? NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned : NC2Runtime::PathfinderSearchLimits::PlainQueuesUnsigned;
         for (std::uint32_t index = 0; index < queueCount; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(point, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>(remaining));
 
         std::uint32_t current = 0;
@@ -45,12 +46,12 @@ namespace NC2Logic
             ++data.distance;
             --remaining;
             auto& source = sMapPathfinderStaticVariables[current];
-            if (!useWalkCosts) sMapPathfinderStaticVariables[(current - 1u) & 1u].count = 0;
+            if (!useWalkCosts) sMapPathfinderStaticVariables[(current - 1u) & NC2Runtime::PathfinderSearchLimits::PlainQueueMaskUnsigned].count = 0;
             for (std::uint32_t index = 0; index < source.count; ++index)
             {
                 if (useWalkCosts) --queued;
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(source.points + index);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     std::uint32_t next = source.points[index];
@@ -64,13 +65,13 @@ namespace NC2Logic
                         if (skipBlocked && (flags & NXBasics::BitMask::Bit7) != 0) continue;
                         if (useWalkCosts)
                         {
-                            cost = (flags >> 3) & 15u;
+                            cost = (flags >> NC2Runtime::MapWalkingFlags::SpeedShift) & NC2Runtime::MapWalkingFlags::SpeedMaskUnsigned;
                             if (cost == 0) continue;
                         }
                     }
                     if (callback(&next, &data)) return true;
-                    auto& destination = sMapPathfinderStaticVariables[useWalkCosts ? (current + cost) % 12u : (current - 1u) & 1u];
-                    if (destination.count == 4000u) continue;
+                    auto& destination = sMapPathfinderStaticVariables[useWalkCosts ? (current + cost) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned : (current - 1u) & NC2Runtime::PathfinderSearchLimits::PlainQueueMaskUnsigned];
+                    if (destination.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     destination.points[destination.count] = next;
                     ++destination.count;
                     if (useWalkCosts) ++queued;
@@ -81,15 +82,16 @@ namespace NC2Logic
             {
                 source.count = 0;
                 if (queued == 0) break;
-                current = (current + 1u) % 12u;
-                if (remaining <= 12u) break;
+                current = (current + 1u) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned;
+                if (remaining <= NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned) break;
             }
             else
             {
-                current = (current + 1u) & 1u;
+                current = (current + 1u) & NC2Runtime::PathfinderSearchLimits::PlainQueueMaskUnsigned;
                 if (sMapPathfinderStaticVariables[current].count == 0 || remaining <= 1u) break;
             }
-        } while (true);
+        }
+        while (true);
 
         if (recordStatistics)
         {
@@ -105,7 +107,7 @@ namespace NC2Logic
     {
         std::int32_t PathfinderDistance(const void* source, const void* destination)
         {
-            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(destination, 0), Read<std::int16_t>(destination, 2));
+            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY));
         }
     }
 
@@ -114,8 +116,8 @@ namespace NC2Logic
     {
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::SearchRequired);
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::TargetMode, NC2Runtime::PathfinderTargetMode::Position);
-        Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition, Read<std::uint32_t>(source, 0));
-        Write(pathfinder, NC2Layout::MapPathfinderOffset::DestinationPosition, Read<std::uint32_t>(destination, 0));
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition, Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates));
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::DestinationPosition, Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates));
         if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition) == Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::DestinationPosition)) Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
         Write(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius, radius);
         Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::UseResistanceFlag, useResistance);
@@ -123,7 +125,7 @@ namespace NC2Logic
         Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::UseGuidesFlag, useGuides);
         Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DeterministicDirectionChoiceFlag, deterministic);
         const auto player = Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId);
-        if (player >= 0 && player < 20)
+        if (player >= 0 && player < NC2Runtime::PathfinderSearchLimits::Players)
         {
             const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::PointPathfinderStartCount;
             Write(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
@@ -135,7 +137,7 @@ namespace NC2Logic
     {
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::SearchRequired);
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::TargetMode, NC2Runtime::PathfinderTargetMode::Moveable);
-        Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition, Read<std::uint32_t>(source, 0));
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition, Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates));
         Write(pathfinder, NC2Layout::MapPathfinderOffset::TargetMoveableId, moveableId);
         const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * NC2Layout::RecordSize::MapMoveable;
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0)
@@ -166,7 +168,11 @@ namespace NC2Logic
     // Original function: FUN_0044797B. Returns -4 deferred, -3 stopped, -2 arrived, -1 failed.
     std::int32_t MapPathfinderElement_GetNextDirection(void* pathfinder)
     {
-        const auto stop = [pathfinder](std::int32_t result) { MapPathfinderElement_StopPathfinder(pathfinder); return result; };
+        const auto stop = [pathfinder](std::int32_t result)
+        {
+            MapPathfinderElement_StopPathfinder(pathfinder);
+            return result;
+        };
         const auto currentPoint = static_cast<std::byte*>(pathfinder) + NC2Layout::MapPathfinderOffset::CurrentPosition;
         const auto destination = static_cast<std::byte*>(pathfinder) + NC2Layout::MapPathfinderOffset::DestinationPosition;
         const auto target = [pathfinder]() -> const void*
@@ -212,21 +218,21 @@ namespace NC2Logic
             if (distance <= 3 || (distance <= 10 && changed > 4) || (distance <= 20 && changed > 8) || (distance <= 50 && changed > 12) || (distance > 50 && changed > 20))
             {
                 Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::SearchRequired);
-                Write(destination, 0, point);
+                Write(destination, NC2Layout::MapMigPointOffset::Coordinates, point);
             }
         }
         if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState) == NC2Runtime::PathfinderSearchState::SearchRequiredUnsigned)
         {
-            if (Read<std::uint32_t>(currentPoint, 0) == Read<std::uint32_t>(destination, 0)) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
-            const auto sourceContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), 6);
-            const auto destinationContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 6);
+            if (Read<std::uint32_t>(currentPoint, NC2Layout::MapMigPointOffset::Coordinates) == Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates)) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
+            const auto sourceContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), NC2Layout::MapMicroPointOffset::ContinentId);
+            const auto destinationContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::ContinentId);
             if (sourceContinent != destinationContinent) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius))) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::RouteAvailable);
         }
         auto index = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex);
         // Index 20 means all twenty runs were consumed. Do not read beyond the original array.
-        if ((index == 20u || Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun) == 0) && Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState) == NC2Runtime::PathfinderSearchState::RouteAvailableUnsigned)
+        if ((index == NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned || Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun) == 0) && Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState) == NC2Runtime::PathfinderSearchState::RouteAvailableUnsigned)
         {
             if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius))) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             index = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex);
@@ -235,18 +241,18 @@ namespace NC2Logic
         const auto count = static_cast<std::uint8_t>(Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun) - 1u);
         Write(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun, count);
         if (count == 0) Write(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex, index + 1u);
-        auto point = Read<std::uint32_t>(currentPoint, 0);
+        auto point = Read<std::uint32_t>(currentPoint, NC2Layout::MapMigPointOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(point, direction);
-        Write(currentPoint, 0, point);
+        Write(currentPoint, NC2Layout::MapMigPointOffset::Coordinates, point);
         const auto blockedAreaSteps = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps);
         if (blockedAreaSteps != 0) Write(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps, blockedAreaSteps - 1u);
         else
         {
-            const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), 0x0C);
-            if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance))
+            const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), NC2Layout::MapMicroPointOffset::WalkingFlags);
+            if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance))
             {
                 MapMigPoint_MoveCursorUnwrapped(point, VE_HexagonDirection_OppositeDirection(direction));
-                Write(currentPoint, 0, point);
+                Write(currentPoint, NC2Layout::MapMigPointOffset::Coordinates, point);
                 return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             }
         }
@@ -256,17 +262,17 @@ namespace NC2Logic
             if (target() == nullptr) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             if (distance <= Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::TargetDistance)) Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
         }
-        else if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::TargetMode) == NC2Runtime::PathfinderTargetMode::PositionUnsigned && point == Read<std::uint32_t>(destination, 0)) Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
+        else if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::TargetMode) == NC2Runtime::PathfinderTargetMode::PositionUnsigned && point == Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates)) Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
         return direction;
     }
 
     // Original function: FUN_00447CF1. Local, sector and guide searches retain their distinct native order.
     bool MapPathfinderElement_l_FindWayAndBuildVectorList(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) return false;
         const bool vehicle = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance) != 0;
-        if (vehicle && (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
+        if (vehicle && (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
         bool found;
         if (vehicle)
         {
@@ -284,10 +290,10 @@ namespace NC2Logic
             if (Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::UseSectorsFlag) != 0)
             {
                 std::uint32_t firstPoint = 0, secondPoint = 0;
-                const bool land = GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6)) == 1;
+                const bool land = GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::ContinentId)) == 1;
                 if (!CMapWalkSectorManager::GetNextSectorBasePoint(source, destination, Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance), land, &firstPoint, &secondPoint, radius, Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId))) return false;
                 if (vehicle && resistance && !MapMigPoint_IsInsideMap(&firstPoint)) return false;
-                if (firstPoint == Read<std::uint32_t>(source, 0)) return false;
+                if (firstPoint == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return false;
                 if (vehicle)
                 {
                     if (resistance) found = MapPathfinderElement_l_VehicleFindWayDirectedWithResitance(pathfinder, source, &secondPoint, radius) || MapPathfinderElement_l_VehicleFindWayDirectedWithResitance(pathfinder, source, &firstPoint, radius);
@@ -301,7 +307,10 @@ namespace NC2Logic
             }
             else if (!vehicle && Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::UseGuidesFlag) != 0)
             {
-                const auto guide = [](std::int32_t id) { return CGuideArray::mStaticVars + static_cast<std::intptr_t>(id) * CGuideArray::ElementSize; };
+                const auto guide = [](std::int32_t id)
+                {
+                    return CGuideArray::mStaticVars + static_cast<std::intptr_t>(id) * CGuideArray::ElementSize;
+                };
                 auto previousGuide = Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId);
                 auto sourceGuide = Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId);
                 if (previousGuide == sourceGuide && (!resistance || previousGuide != -1))
@@ -310,16 +319,16 @@ namespace NC2Logic
                     Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
                     sourceGuide = -1;
                 }
-                bool cached = sourceGuide != -1 && Read<std::uint8_t>(guide(sourceGuide), 0) != 0 && Read<std::uint32_t>(guide(sourceGuide), 0x10) == Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideRevision);
+                bool cached = sourceGuide != -1 && Read<std::uint8_t>(guide(sourceGuide), NC2Layout::GuideOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(guide(sourceGuide), NC2Layout::GuideOffset::UniqueId) == Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideRevision);
                 const auto currentGuide = Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId);
-                cached = cached && currentGuide != -1 && Read<std::uint8_t>(guide(currentGuide), 0) != 0 && Read<std::uint32_t>(guide(currentGuide), 0x10) == Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideRevision) && Read<std::uint32_t>(guide(currentGuide), 0x0C) == Read<std::uint32_t>(guide(sourceGuide), 0x0C);
+                cached = cached && currentGuide != -1 && Read<std::uint8_t>(guide(currentGuide), NC2Layout::GuideOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(guide(currentGuide), NC2Layout::GuideOffset::UniqueId) == Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideRevision) && Read<std::uint32_t>(guide(currentGuide), NC2Layout::GuideOffset::LinkSystemId) == Read<std::uint32_t>(guide(sourceGuide), NC2Layout::GuideOffset::LinkSystemId);
                 if (cached) Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, GuideManager_GetNextGuideId(gGuideManager, currentGuide, sourceGuide));
                 else
                 {
                     const auto next = GuideManager_GetNextGuideId(gGuideManager, Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId), radius, source, destination, sourceGuide, previousGuide);
                     Write(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, sourceGuide);
                     Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, next);
-                    if (sourceGuide != -1) Write(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideRevision, Read<std::uint32_t>(guide(sourceGuide), 0x10));
+                    if (sourceGuide != -1) Write(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideRevision, Read<std::uint32_t>(guide(sourceGuide), NC2Layout::GuideOffset::UniqueId));
                 }
                 auto nextGuide = Read<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId);
                 if (nextGuide == -1) return false;
@@ -333,7 +342,7 @@ namespace NC2Logic
                     Guide_GetMovePoint(guide(nextGuide), &point);
                     found = resistance ? MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, &point, radius) : MapPathfinderElement_l_FindWayDirected(pathfinder, source, &point, radius);
                 }
-                if (found) Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideRevision, Read<std::uint32_t>(guide(nextGuide), 0x10));
+                if (found) Write(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideRevision, Read<std::uint32_t>(guide(nextGuide), NC2Layout::GuideOffset::UniqueId));
             }
             if (!found) return false;
         }
@@ -341,39 +350,39 @@ namespace NC2Logic
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps, 0);
         auto point = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition);
         std::uint32_t runs = 0;
-        std::uint32_t previous = 1000;
+        std::uint32_t previous = NC2Runtime::PathfinderDirection::Unassigned;
         bool blockedArea = (GameMap_CalculationMap_GetValue(&point) & NXBasics::BitMask::Bit9) != 0;
         while (true)
         {
             const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&point));
             if ((value & NXBasics::BitMask::WordExceptBits0Through9) == 0) break;
-            std::uint32_t direction = 1000;
-            std::uint32_t first = 1000;
-            for (std::uint32_t candidate = 0; candidate < 6; ++candidate)
+            std::uint32_t direction = NC2Runtime::PathfinderDirection::Unassigned;
+            std::uint32_t first = NC2Runtime::PathfinderDirection::Unassigned;
+            for (std::uint32_t candidate = 0; candidate < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++candidate)
             {
                 if ((value & (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << candidate)) == 0) continue;
-                if (first == 1000u) first = candidate;
+                if (first == NC2Runtime::PathfinderDirection::UnassignedUnsigned) first = candidate;
                 if (candidate == previous) direction = previous;
             }
-            if (direction == 1000u) direction = first;
-            if (static_cast<std::uint32_t>(PathfinderDistance(&point, static_cast<std::byte*>(pathfinder) + NC2Layout::MapPathfinderOffset::DestinationPosition)) > 3u && (direction == 1u || direction == 2u || direction == 4u || direction == 5u) && Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllowVerticalDirectionsFlag) != 0)
+            if (direction == NC2Runtime::PathfinderDirection::UnassignedUnsigned) direction = first;
+            if (static_cast<std::uint32_t>(PathfinderDistance(&point, static_cast<std::byte*>(pathfinder) + NC2Layout::MapPathfinderOffset::DestinationPosition)) > 3u && (direction == SwitchIds::HexagonDirection::SouthEastUnsigned || direction == SwitchIds::HexagonDirection::SouthWestUnsigned || direction == SwitchIds::HexagonDirection::NorthWestUnsigned || direction == SwitchIds::HexagonDirection::NorthEastUnsigned) && Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllowVerticalDirectionsFlag) != 0)
             {
                 auto next = point;
                 MapMigPoint_MoveCursorUnwrapped(next, direction);
                 const auto nextValue = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                 if ((nextValue & NXBasics::BitMask::WordExceptBits0Through9) != 0)
                 {
-                    if (direction == 1u && (nextValue & NXBasics::BitMask::Bit12) != 0) direction = 7;
-                    else if (direction == 2u && (nextValue & NXBasics::BitMask::Bit11) != 0) direction = 7;
-                    else if (direction == 4u && (nextValue & NXBasics::BitMask::Bit15) != 0) direction = 6;
-                    else if (direction == 5u && (nextValue & NXBasics::BitMask::Bit14) != 0) direction = 6;
+                    if (direction == SwitchIds::HexagonDirection::SouthEastUnsigned && (nextValue & NXBasics::BitMask::Bit12) != 0) direction = SwitchIds::HexagonDirection::South;
+                    else if (direction == SwitchIds::HexagonDirection::SouthWestUnsigned && (nextValue & NXBasics::BitMask::Bit11) != 0) direction = SwitchIds::HexagonDirection::South;
+                    else if (direction == SwitchIds::HexagonDirection::NorthWestUnsigned && (nextValue & NXBasics::BitMask::Bit15) != 0) direction = SwitchIds::HexagonDirection::North;
+                    else if (direction == SwitchIds::HexagonDirection::NorthEastUnsigned && (nextValue & NXBasics::BitMask::Bit14) != 0) direction = SwitchIds::HexagonDirection::North;
                 }
             }
             const auto countOffset = NC2Layout::MapPathfinderOffset::DirectionRunCountsUnsigned + (runs - 1u) * NC2Layout::RecordSize::PathfinderDirectionRun;
-            if (direction == previous && Read<std::uint8_t>(pathfinder, countOffset) != 255u) Write<std::uint8_t>(pathfinder, countOffset, static_cast<std::uint8_t>(Read<std::uint8_t>(pathfinder, countOffset) + 1u));
+            if (direction == previous && Read<std::uint8_t>(pathfinder, countOffset) != NC2Runtime::PathfinderSearchLimits::MaximumRunLengthUnsigned) Write<std::uint8_t>(pathfinder, countOffset, static_cast<std::uint8_t>(Read<std::uint8_t>(pathfinder, countOffset) + 1u));
             else
             {
-                if (runs == 20u) break;
+                if (runs == NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned) break;
                 Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRuns + runs * NC2Layout::RecordSize::PathfinderDirectionRun, static_cast<std::uint8_t>(direction));
                 Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + runs * NC2Layout::RecordSize::PathfinderDirectionRun, 1);
                 ++runs;
@@ -383,7 +392,7 @@ namespace NC2Logic
             if (blockedArea && (GameMap_CalculationMap_GetValue(&point) & NXBasics::BitMask::Bit9) != 0) Write(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps, Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps) + 1u);
             else blockedArea = false;
         }
-        if (runs < 20u) Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + runs * NC2Layout::RecordSize::PathfinderDirectionRun, 0);
+        if (runs < NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned) Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + runs * NC2Layout::RecordSize::PathfinderDirectionRun, 0);
         Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::RouteAvailable);
         return true;
     }
@@ -399,13 +408,13 @@ namespace NC2Logic
         }
         else if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1) == 0) return false;
         if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << other)) == 0) return false;
-        auto packed = Read<std::uint32_t>(point, 0);
+        auto packed = Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(packed, other);
-        Write(point, 0, packed);
+        Write(point, NC2Layout::MapMigPointOffset::Coordinates, packed);
         const auto nextMicroPoint = GameMap_GetConstMapMicroPointPtr(point);
         const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(point));
         if ((Read<std::uint8_t>(nextMicroPoint, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
-        GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + 3u) % 6u)) | (remaining - 1u)));
+        GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned)) | (remaining - 1u)));
         return true;
     }
 
@@ -419,14 +428,14 @@ namespace NC2Logic
             other = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2);
         }
         else if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1) == 0) return false;
-        auto packed = Read<std::uint32_t>(point, 0);
+        auto packed = Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(packed, other);
-        Write(point, 0, packed);
+        Write(point, NC2Layout::MapMigPointOffset::Coordinates, packed);
         const auto nextMicroPoint = GameMap_GetConstMapMicroPointPtr(point);
         const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(point));
         const auto flags = Read<std::uint8_t>(nextMicroPoint, NC2Layout::MapMicroPointOffset::WalkingFlags);
-        if (((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
-        GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + 3u) % 6u)) | (remaining - 1u)));
+        if (((flags & NXBasics::BitMask::Bit7) != 0 || (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) return false;
+        GameMap_CalculationMap_SetValue(point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((other + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned)) | (remaining - 1u)));
         return true;
     }
 
@@ -435,85 +444,110 @@ namespace NC2Logic
     {
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[1].count = 0;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(point, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(point, NC2Runtime::PathfinderCalculationValue::BlockedStartAreaFlag);
         std::uint32_t current = 0;
         do
         {
             auto& source = sMapPathfinderStaticVariables[current];
-            auto& destination = sMapPathfinderStaticVariables[(current - 1u) & 1u];
+            auto& destination = sMapPathfinderStaticVariables[(current - 1u) & NC2Runtime::PathfinderSearchLimits::PlainQueueMaskUnsigned];
             destination.count = 0;
             for (std::uint32_t index = 0; index < source.count; ++index)
             {
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(source.points + index);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = source.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if ((GameMap_CalculationMap_GetValue(&next) & NXBasics::BitMask::Bit9) != 0) continue;
-                    const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
-                    if ((flags & NXBasics::BitMask::Bit7) == 0 && (flags & 7u) >= Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) continue;
-                    if (destination.count == 4000u) continue;
+                    const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), NC2Layout::MapMicroPointOffset::WalkingFlags);
+                    if ((flags & NXBasics::BitMask::Bit7) == 0 && (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) >= Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) continue;
+                    if (destination.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     destination.points[destination.count++] = next;
                     GameMap_CalculationMap_SetValue(&next, NC2Runtime::PathfinderCalculationValue::BlockedStartAreaFlag);
                 }
             }
-            current = (current + 1u) & 1u;
-        } while (sMapPathfinderStaticVariables[current].count != 0);
+            current = (current + 1u) & NC2Runtime::PathfinderSearchLimits::PlainQueueMaskUnsigned;
+        }
+        while (sMapPathfinderStaticVariables[current].count != 0);
     }
 
     // Original function: FUN_00448A6B. Windows sign-extends the half-distance word.
     void MapPathfinderElement_l_GetPreferedDirections(void* pathfinder, const void* source, const void* destination)
     {
-        const auto dx = static_cast<std::int32_t>(Read<std::int16_t>(destination, 0)) - Read<std::int16_t>(source, 0);
-        const auto dy = static_cast<std::int32_t>(Read<std::int16_t>(destination, 2)) - Read<std::int16_t>(source, 2);
+        const auto dx = static_cast<std::int32_t>(Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapX)) - Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapX);
+        const auto dy = static_cast<std::int32_t>(Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY)) - Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapY);
         auto x = dx < 0 ? -dx : dx;
         const auto y = dy < 0 ? -dy : dy;
-        if ((y & 1) != 0 && ((Read<std::int16_t>(destination, 2) & 1) != 0 ? dx < 0 : dx > 0)) --x;
+        if ((y & 1) != 0 && ((Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY) & 1) != 0 ? dx < 0 : dx > 0)) --x;
         const auto halfY = static_cast<std::int16_t>(y / 2);
         if (x > halfY)
         {
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? (dx < 0 ? 4u : 5u) : (dx < 0 ? 2u : 1u));
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dx < 0 ? 3u : 0u);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? (dx < 0 ? SwitchIds::HexagonDirection::NorthWestUnsigned : SwitchIds::HexagonDirection::NorthEastUnsigned) : (dx < 0 ? SwitchIds::HexagonDirection::SouthWestUnsigned : SwitchIds::HexagonDirection::SouthEastUnsigned));
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dx < 0 ? SwitchIds::HexagonDirection::WestUnsigned : SwitchIds::HexagonDirection::EastUnsigned);
         }
         else
         {
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? 5u : 1u);
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dy < 0 ? 4u : 2u);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? SwitchIds::HexagonDirection::NorthEastUnsigned : SwitchIds::HexagonDirection::SouthEastUnsigned);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dy < 0 ? SwitchIds::HexagonDirection::NorthWestUnsigned : SwitchIds::HexagonDirection::SouthWestUnsigned);
         }
     }
 
     // Original function: FUN_00448B1E. This is a distinct geometry routine, including weights.
     void MapPathfinderElement_l_GetPreferedDirectionsAndDistance(void* pathfinder, const void* source, const void* destination)
     {
-        const auto dx = static_cast<std::int32_t>(Read<std::int16_t>(destination, 0)) - Read<std::int16_t>(source, 0);
-        const auto dy = static_cast<std::int32_t>(Read<std::int16_t>(destination, 2)) - Read<std::int16_t>(source, 2);
+        const auto dx = static_cast<std::int32_t>(Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapX)) - Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapX);
+        const auto dy = static_cast<std::int32_t>(Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY)) - Read<std::int16_t>(source, NC2Layout::MapMigPointOffset::MapY);
         auto x = dx < 0 ? -dx : dx;
         const auto y = dy < 0 ? -dy : dy;
-        if ((y & 1) != 0 && ((Read<std::int16_t>(destination, 2) & 1) != 0 ? dx < 0 : dx > 0)) --x;
+        if ((y & 1) != 0 && ((Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY) & 1) != 0 ? dx < 0 : dx > 0)) --x;
         const auto halfY = static_cast<std::int16_t>(y / 2);
         std::int32_t firstWeight, secondWeight;
         if (x > halfY)
         {
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? (dx < 0 ? 4u : 5u) : (dx < 0 ? 2u : 1u));
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dx < 0 ? 3u : 0u);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? (dx < 0 ? SwitchIds::HexagonDirection::NorthWestUnsigned : SwitchIds::HexagonDirection::NorthEastUnsigned) : (dx < 0 ? SwitchIds::HexagonDirection::SouthWestUnsigned : SwitchIds::HexagonDirection::SouthEastUnsigned));
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dx < 0 ? SwitchIds::HexagonDirection::WestUnsigned : SwitchIds::HexagonDirection::EastUnsigned);
             firstWeight = y;
             secondWeight = x - halfY;
         }
         else
         {
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? 5u : 1u);
-            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dy < 0 ? 4u : 2u);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1, dy < 0 ? SwitchIds::HexagonDirection::NorthEastUnsigned : SwitchIds::HexagonDirection::SouthEastUnsigned);
+            Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2, dy < 0 ? SwitchIds::HexagonDirection::NorthWestUnsigned : SwitchIds::HexagonDirection::SouthWestUnsigned);
             if (halfY != 0)
             {
-                if (dx >= 0) { secondWeight = halfY - x; firstWeight = y - secondWeight; }
-                else { firstWeight = halfY - x; secondWeight = y - firstWeight; }
+                if (dx >= 0)
+                {
+                    secondWeight = halfY - x;
+                    firstWeight = y - secondWeight;
+                }
+                else
+                {
+                    firstWeight = halfY - x;
+                    secondWeight = y - firstWeight;
+                }
             }
-            else if (y != 0 && dx > 0) { firstWeight = y; secondWeight = 0; }
-            else if (y != 0 && dx < 0) { firstWeight = 0; secondWeight = y; }
-            else if (y != 0 && x == 0 && (Read<std::int16_t>(destination, 2) & 1) != 0) { firstWeight = y; secondWeight = 0; }
-            else { firstWeight = 0; secondWeight = y; }
+            else if (y != 0 && dx > 0)
+            {
+                firstWeight = y;
+                secondWeight = 0;
+            }
+            else if (y != 0 && dx < 0)
+            {
+                firstWeight = 0;
+                secondWeight = y;
+            }
+            else if (y != 0 && x == 0 && (Read<std::int16_t>(destination, NC2Layout::MapMigPointOffset::MapY) & 1) != 0)
+            {
+                firstWeight = y;
+                secondWeight = 0;
+            }
+            else
+            {
+                firstWeight = 0;
+                secondWeight = y;
+            }
         }
         Write(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1, static_cast<std::uint32_t>(firstWeight));
         Write(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight2, static_cast<std::uint32_t>(secondWeight));
@@ -522,20 +556,20 @@ namespace NC2Logic
     // Original function: FUN_00448460.
     bool MapPathfinderElement_l_FindWayWithLine(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius + 2u));
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(radius));
-        auto point = Read<std::uint32_t>(destination, 0);
+        auto point = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         do
         {
             MapPathfinderElement_l_GetPreferedDirectionsAndDistance(pathfinder, &point, source);
             const auto firstWeight = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1);
             const auto secondWeight = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight2);
             const bool first = Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DeterministicDirectionChoiceFlag) == 0 ? Game_Random_GetNumber() % (firstWeight + secondWeight) < firstWeight : firstWeight > secondWeight;
-            const auto direction = Read<std::uint32_t>(pathfinder, first ? 0x30 : 0x34);
+            const auto direction = Read<std::uint32_t>(pathfinder, first ? NC2Layout::MapPathfinderOffset::PreferredDirection1 : NC2Layout::MapPathfinderOffset::PreferredDirection2);
             auto alternative = point;
             const void* microPoint = GameMap_GetConstMapMicroPointPtr(&point);
             if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0)
@@ -546,70 +580,72 @@ namespace NC2Logic
             else
             {
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
-                const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0x0C);
+                const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::WalkingFlags);
                 const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&point));
                 if (((nextFlags & NXBasics::BitMask::Bit7) != 0) && (value & NXBasics::BitMask::Bit9Unsigned) == 0)
                 {
                     if (!MapPathfinderElement_l_CheckOtherDirection(pathfinder, direction, &alternative, microPoint, radius)) return false;
                     point = alternative;
                 }
-                else GameMap_CalculationMap_SetValue(&point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u)) | (radius - 1u)));
+                else GameMap_CalculationMap_SetValue(&point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned)) | (radius - 1u)));
             }
-            if (point == Read<std::uint32_t>(source, 0)) return true;
+            if (point == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
             --radius;
-        } while (radius > 1u);
+        }
+        while (radius > 1u);
         return false;
     }
 
     // Original function: FUN_004486DC.
     bool MapPathfinderElement_l_VehicleFindWayWithLine(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius + 2u));
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
+        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(radius));
-        auto point = Read<std::uint32_t>(destination, 0);
+        auto point = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         do
         {
             MapPathfinderElement_l_GetPreferedDirectionsAndDistance(pathfinder, &point, source);
             const auto firstWeight = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight1);
             const auto secondWeight = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirectionWeight2);
             const bool first = Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DeterministicDirectionChoiceFlag) == 0 ? Game_Random_GetNumber() % (firstWeight + secondWeight) < firstWeight : firstWeight > secondWeight;
-            const auto direction = Read<std::uint32_t>(pathfinder, first ? 0x30 : 0x34);
+            const auto direction = Read<std::uint32_t>(pathfinder, first ? NC2Layout::MapPathfinderOffset::PreferredDirection1 : NC2Layout::MapPathfinderOffset::PreferredDirection2);
             auto alternative = point;
             {
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
-                const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0x0C);
+                const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::WalkingFlags);
                 const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&point));
-                if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0)
+                if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0)
                 {
                     if (!MapPathfinderElement_l_VehicleCheckOtherDirection(pathfinder, direction, &alternative, radius)) return false;
                     point = alternative;
                 }
-                else GameMap_CalculationMap_SetValue(&point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u)) | (radius - 1u)));
+                else GameMap_CalculationMap_SetValue(&point, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | (NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned)) | (radius - 1u)));
             }
-            if (point == Read<std::uint32_t>(source, 0)) return true;
+            if (point == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
             --radius;
-        } while (radius > 1u);
+        }
+        while (radius > 1u);
         return false;
     }
 
     // Original function: FUN_00448C55. Queue capacity and equal-cost direction masks are retained.
     bool MapPathfinderElement_l_FindWayDirected(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
         std::uint32_t budget = radius * 4u;
-        if (budget > 511u) return false;
+        if (budget > NC2Runtime::PathfinderSearchLimits::MaximumBudgetUnsigned) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
-        for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
+        for (std::uint32_t index = 0; index < NC2Runtime::PathfinderSearchLimits::WeightedQueues; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -622,54 +658,55 @@ namespace NC2Logic
                 --queued;
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(queue.points + index);
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if (((nextFlags & NXBasics::BitMask::Bit7) != 0) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = 0;
-                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += 4u;
+                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += NC2Runtime::PathfinderSearchLimits::NonPreferredDirectionCostUnsigned;
                     const std::uint32_t oldCost = value & NXBasics::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
-                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u);
+                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned);
                     if (remaining - cost == oldCost)
                     {
                         GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>(value | reverseMask));
                         continue;
                     }
-                    auto& target = sMapPathfinderStaticVariables[(current + cost + 1u) % 12u];
-                    if (target.count == 4000u) continue;
+                    auto& target = sMapPathfinderStaticVariables[(current + cost + 1u) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned];
+                    if (target.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     target.points[target.count++] = next;
                     ++queued;
                     GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
-                    if (next == Read<std::uint32_t>(source, 0)) return true;
+                    if (next == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
                 }
             }
             queue.count = 0;
             if (queued == 0) break;
-            current = (current + 1u) % 12u;
+            current = (current + 1u) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned;
             budget = remaining;
-        } while (budget > 13u);
+        }
+        while (budget > NC2Runtime::PathfinderSearchLimits::DirectedStopBudgetUnsigned);
         return (GameMap_CalculationMap_GetValue(source) & NXBasics::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_00448EF0. Queue capacity and equal-cost direction masks are retained.
     bool MapPathfinderElement_l_VehicleFindWayDirected(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
         std::uint32_t budget = radius * 4u;
-        if (budget > 511u) return false;
+        if (budget > NC2Runtime::PathfinderSearchLimits::MaximumBudgetUnsigned) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
-        for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
+        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
+        for (std::uint32_t index = 0; index < NC2Runtime::PathfinderSearchLimits::WeightedQueues; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -681,53 +718,54 @@ namespace NC2Logic
             {
                 --queued;
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInsideMap(&next)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
+                    if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = 0;
-                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += 4u;
+                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += NC2Runtime::PathfinderSearchLimits::NonPreferredDirectionCostUnsigned;
                     const std::uint32_t oldCost = value & NXBasics::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
-                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u);
+                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned);
                     if (remaining - cost == oldCost)
                     {
                         GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>(value | reverseMask));
                         continue;
                     }
-                    auto& target = sMapPathfinderStaticVariables[(current + cost + 1u) % 12u];
-                    if (target.count == 4000u) continue;
+                    auto& target = sMapPathfinderStaticVariables[(current + cost + 1u) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned];
+                    if (target.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     target.points[target.count++] = next;
                     ++queued;
                     GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
-                    if (next == Read<std::uint32_t>(source, 0)) return true;
+                    if (next == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
                 }
             }
             queue.count = 0;
             if (queued == 0) break;
-            current = (current + 1u) % 12u;
+            current = (current + 1u) % NC2Runtime::PathfinderSearchLimits::WeightedQueuesUnsigned;
             budget = remaining;
-        } while (budget > 13u);
+        }
+        while (budget > NC2Runtime::PathfinderSearchLimits::DirectedStopBudgetUnsigned);
         return (GameMap_CalculationMap_GetValue(source) & NXBasics::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_004491AD. Queue capacity and equal-cost direction masks are retained.
     bool MapPathfinderElement_l_FindWayDirectedWithResitance(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
-        std::uint32_t budget = radius * 8u;
-        if (budget > 511u) return false;
+        std::uint32_t budget = radius * NC2Runtime::PathfinderSearchLimits::ResistanceBudgetMultiplierUnsigned;
+        if (budget > NC2Runtime::PathfinderSearchLimits::MaximumBudgetUnsigned) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
-        for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
+        for (std::uint32_t index = 0; index < NC2Runtime::PathfinderSearchLimits::ResistanceQueues; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -740,54 +778,55 @@ namespace NC2Logic
                 --queued;
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(queue.points + index);
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     if ((Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if (((nextFlags & NXBasics::BitMask::Bit7) != 0) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
-                    std::uint32_t cost = (nextFlags >> 3) & 15u;
-                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += 4u;
+                    std::uint32_t cost = (nextFlags >> NC2Runtime::MapWalkingFlags::SpeedShift) & NC2Runtime::MapWalkingFlags::SpeedMaskUnsigned;
+                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += NC2Runtime::PathfinderSearchLimits::NonPreferredDirectionCostUnsigned;
                     const std::uint32_t oldCost = value & NXBasics::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
-                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u);
+                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned);
                     if (remaining - cost == oldCost)
                     {
                         GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>(value | reverseMask));
                         continue;
                     }
-                    auto& target = sMapPathfinderStaticVariables[(current + cost) & 15u];
-                    if (target.count == 4000u) continue;
+                    auto& target = sMapPathfinderStaticVariables[(current + cost) & NC2Runtime::PathfinderSearchLimits::ResistanceQueueMaskUnsigned];
+                    if (target.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     target.points[target.count++] = next;
                     ++queued;
                     GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
-                    if (next == Read<std::uint32_t>(source, 0)) return true;
+                    if (next == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
                 }
             }
             queue.count = 0;
             if (queued == 0) break;
-            current = (current + 1u) % 16u;
+            current = (current + 1u) % NC2Runtime::PathfinderSearchLimits::ResistanceQueuesUnsigned;
             budget = remaining;
-        } while (budget > 17u);
+        }
+        while (budget > NC2Runtime::PathfinderSearchLimits::ResistanceStopBudgetUnsigned);
         return (GameMap_CalculationMap_GetValue(source) & NXBasics::BitMask::Low9BitsSigned) != 0;
     }
 
     // Original function: FUN_00449447. Queue capacity and equal-cost direction masks are retained.
     bool MapPathfinderElement_l_VehicleFindWayDirectedWithResitance(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
+        if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
-        std::uint32_t budget = radius * 8u;
-        if (budget > 511u) return false;
+        std::uint32_t budget = radius * NC2Runtime::PathfinderSearchLimits::ResistanceBudgetMultiplierUnsigned;
+        if (budget > NC2Runtime::PathfinderSearchLimits::MaximumBudgetUnsigned) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
-        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
-        for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), NC2Layout::MapMicroPointOffset::WalkingFlags);
+        if ((flags & NXBasics::BitMask::Bit7) != 0 || (flags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) MapPathfinderElement_l_MakeMoveableArea(pathfinder, source);
+        for (std::uint32_t index = 0; index < NC2Runtime::PathfinderSearchLimits::ResistanceQueues; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -799,37 +838,38 @@ namespace NC2Logic
             {
                 --queued;
                 MapPathfinderElement_l_GetPreferedDirections(pathfinder, queue.points + index, source);
-                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t direction = 0; direction < NC2Runtime::PathfinderGeometry::NeighbourDirections; ++direction)
                 {
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInsideMap(&next)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
-                    if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
-                    std::uint32_t cost = (nextFlags >> 3) & 15u;
-                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += 4u;
+                    if (((nextFlags & NXBasics::BitMask::Bit7) != 0 || (nextFlags & NC2Runtime::MapWalkingFlags::VehicleSizeMaskUnsigned) < Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance)) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
+                    std::uint32_t cost = (nextFlags >> NC2Runtime::MapWalkingFlags::SpeedShift) & NC2Runtime::MapWalkingFlags::SpeedMaskUnsigned;
+                    if (direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection1) && direction != Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PreferredDirection2)) cost += NC2Runtime::PathfinderSearchLimits::NonPreferredDirectionCostUnsigned;
                     const std::uint32_t oldCost = value & NXBasics::BitMask::Low9Bits;
                     if (oldCost >= budget - cost) continue;
-                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + 3u) % 6u);
+                    const auto reverseMask = NC2Runtime::PathfinderCalculationValue::DirectionMaskBase << ((direction + NC2Runtime::PathfinderGeometry::OppositeDirectionOffsetUnsigned) % NC2Runtime::PathfinderGeometry::NeighbourDirectionsUnsigned);
                     if (remaining - cost == oldCost)
                     {
                         GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>(value | reverseMask));
                         continue;
                     }
-                    auto& target = sMapPathfinderStaticVariables[(current + cost) & 15u];
-                    if (target.count == 4000u) continue;
+                    auto& target = sMapPathfinderStaticVariables[(current + cost) & NC2Runtime::PathfinderSearchLimits::ResistanceQueueMaskUnsigned];
+                    if (target.count == NC2Runtime::PathfinderSearchLimits::QueuePointsUnsigned) continue;
                     target.points[target.count++] = next;
                     ++queued;
                     GameMap_CalculationMap_SetValue(&next, static_cast<std::int16_t>((value & NXBasics::BitMask::Bit9Unsigned) | reverseMask | (remaining - cost)));
-                    if (next == Read<std::uint32_t>(source, 0)) return true;
+                    if (next == Read<std::uint32_t>(source, NC2Layout::MapMigPointOffset::Coordinates)) return true;
                 }
             }
             queue.count = 0;
             if (queued == 0) break;
-            current = (current + 1u) % 16u;
+            current = (current + 1u) % NC2Runtime::PathfinderSearchLimits::ResistanceQueuesUnsigned;
             budget = remaining;
-        } while (budget > 17u);
+        }
+        while (budget > NC2Runtime::PathfinderSearchLimits::ResistanceStopBudgetUnsigned);
         return (GameMap_CalculationMap_GetValue(source) & NXBasics::BitMask::Low9BitsSigned) != 0;
     }
 

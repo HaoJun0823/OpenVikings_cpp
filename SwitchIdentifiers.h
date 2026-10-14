@@ -604,6 +604,15 @@ namespace SwitchIds
         inline constexpr auto West = 3;
         inline constexpr auto NorthWest = 4;
         inline constexpr auto NorthEast = 5;
+        inline constexpr auto North = 6;
+        inline constexpr auto South = 7;
+
+        inline constexpr auto EastUnsigned = 0u;
+        inline constexpr auto SouthEastUnsigned = 1u;
+        inline constexpr auto SouthWestUnsigned = 2u;
+        inline constexpr auto WestUnsigned = 3u;
+        inline constexpr auto NorthWestUnsigned = 4u;
+        inline constexpr auto NorthEastUnsigned = 5u;
     }
 
     namespace HouseAttachmentMask

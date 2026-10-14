@@ -497,7 +497,7 @@ namespace NC2Logic
         Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
         Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
         Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllocatedFlag, 1);
-        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius, 5);
+        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius, NC2Runtime::PathfinderSearchLimits::InitialRadius);
     }
 
     // Original function: FUN_0042ea28. Animals update the count before linking neighbours.
