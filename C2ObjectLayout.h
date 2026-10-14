@@ -94,6 +94,10 @@ namespace NC2Layout
 
     namespace DynamicHouseOffset
     {
+        inline constexpr auto FirePointFlagsUnsigned = 4u;
+
+        inline constexpr auto ActiveFirePointCount = 0;
+
         inline constexpr auto SelectedFlag = 0xCC;
     }
 
@@ -1490,6 +1494,26 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto EnginePixelPointUnsigned = 8u;
+
+        inline constexpr auto DynamicHouseSavedPrefix = 0xCC;
+
+        inline constexpr auto DynamicHouse = 0xD0;
+
+        inline constexpr auto EngineHouseStagePoints = 0x34;
+
+        inline constexpr auto EngineHouseType = 0x8BC;
+
+        inline constexpr auto EngineHouseConstructionLayerUnsigned = 0x14u;
+
+        inline constexpr auto EngineHouseConstructionLayersUnsigned = 0x68u;
+
+        inline constexpr auto EngineHouseStagePointsUnsigned = 0x34u;
+
+        inline constexpr auto EngineHouseActionOverlayUnsigned = 228u;
+
+        inline constexpr auto DynamicHouseUnsigned = 0xD0u;
+
         inline constexpr auto AIMainTaskNoWayCorrection = 16;
 
         inline constexpr auto AIMainTaskPrefix = 0x34;
@@ -2505,6 +2529,64 @@ namespace NC2Layout
 
     namespace EngineHouseTypeOffset
     {
+        inline constexpr auto ArrowSlotsUnsigned = 0x1F0u;
+
+        inline constexpr auto ConstructionGoodsUnsigned = 0x84u;
+
+        inline constexpr auto WorkAreas = 0x70;
+
+        inline constexpr auto WalkAreas = 0x5C;
+
+        inline constexpr auto BuildArea = 0x58;
+
+        inline constexpr auto ClosedDoorBobIdsUnsigned = 0x254u;
+
+        inline constexpr auto OpenDoorBobIdsUnsigned = 0x250u;
+
+        inline constexpr auto DoorPoints = 0x1C4;
+
+        inline constexpr auto LogicTypes = 0x3C;
+
+        inline constexpr auto DoorOverlays = 0x24C;
+
+        inline constexpr auto PaletteIds = 0x220;
+
+        inline constexpr auto ArrowSlotCount = 0x1EC;
+
+        inline constexpr auto MaximumHitpoints = 0x1D8;
+
+        inline constexpr auto ClosedDoorBobIds = 0x254;
+
+        inline constexpr auto OpenDoorBobIds = 0x250;
+
+        inline constexpr auto StagePoints = 0x7B8;
+
+        inline constexpr auto ConstructionLayersUnsigned = 0x288u;
+
+        inline constexpr auto LandscapeOverlaysUnsigned = 0x498u;
+
+        inline constexpr auto StagePointsUnsigned = 0x7B8u;
+
+        inline constexpr auto MaximumHitpointsUnsigned = 0x1D8u;
+
+        inline constexpr auto DoorOverlaysUnsigned = 0x24Cu;
+
+        inline constexpr auto ActionOverlays = 0x494;
+
+        inline constexpr auto ActionOverlayCount = 0x490;
+
+        inline constexpr auto ShadingFactor256 = 0x234;
+
+        inline constexpr auto StageBobIdsUnsigned = 0x238u;
+
+        inline constexpr auto ShadowBobManager = 0x218;
+
+        inline constexpr auto BobManager = 0x214;
+
+        inline constexpr auto PaletteIdsUnsigned = 0x220u;
+
+        inline constexpr auto PaletteCount = 0x21C;
+
         inline constexpr auto LogicTypesUnsigned = 0x3Cu;
 
         inline constexpr auto DevelopmentStageCount = 0x54;
@@ -2805,6 +2887,124 @@ namespace NC2Layout
     namespace MapMigPointOffset
     {
         inline constexpr auto Coordinates = 0;
+    }
+
+    namespace EngineHouseStageViewOffset
+    {
+        inline constexpr auto SoldierFlagXUnsigned = 0x7E4u;
+
+        inline constexpr auto HolyFirePointCountUnsigned = 0x7D0u;
+
+        inline constexpr auto BackSmokePointCountUnsigned = 0x7C8u;
+
+        inline constexpr auto ForwardSmokePointCountUnsigned = 0x7C0u;
+
+        inline constexpr auto FirePointCountUnsigned = 0x7B8u;
+
+        inline constexpr auto FirePoints = 0x7BC;
+
+        inline constexpr auto HolyFirePointCount = 0x7D0;
+
+        inline constexpr auto HolyFirePoints = 0x7D4;
+
+        inline constexpr auto BackSmokePointCount = 0x7C8;
+
+        inline constexpr auto BackSmokePoints = 0x7CC;
+
+        inline constexpr auto ForwardSmokePointCount = 0x7C0;
+
+        inline constexpr auto ForwardSmokePoints = 0x7C4;
+
+        inline constexpr auto SoldierFlagY = 0x7E8;
+
+        inline constexpr auto SoldierFlagX = 0x7E4;
+
+        inline constexpr auto SoldierFlagEnabled = 0x7E0;
+
+        inline constexpr auto FlagY = 0x7DC;
+
+        inline constexpr auto FlagX = 0x7D8;
+
+        inline constexpr auto FlagYUnsigned = 0x7DCu;
+
+        inline constexpr auto FlagXUnsigned = 0x7D8u;
+    }
+
+    namespace EngineHouseActionOverlayOffset
+    {
+        inline constexpr auto BobIds = 28;
+
+        inline constexpr auto OffsetY = 16;
+
+        inline constexpr auto OffsetX = 12;
+
+        inline constexpr auto BobIdsUnsigned = 0x1Cu;
+
+        inline constexpr auto FrameTicks = 20;
+
+        inline constexpr auto RequiredActiveFlag = 8;
+
+        inline constexpr auto FrameCount = 24;
+
+        inline constexpr auto DevelopmentStage = 0;
+
+        inline constexpr auto Action = 4;
+    }
+
+    namespace EngineHouseLandscapeOverlayOffset
+    {
+        inline constexpr auto OffsetY = 8;
+
+        inline constexpr auto OffsetX = 4;
+
+        inline constexpr auto LandscapeId = 0xC;
+
+        inline constexpr auto EnabledFlag = 0;
+    }
+
+    namespace EngineHouseConstructionLayerOffset
+    {
+        inline constexpr auto BobId = 4;
+
+        inline constexpr auto ShadowBobId = 8;
+
+        inline constexpr auto UpgradeFlag = 0;
+
+        inline constexpr auto LastPercentage = 0x10;
+
+        inline constexpr auto FirstPercentage = 0xC;
+    }
+
+    namespace EngineHouseConstructionLayersOffset
+    {
+        inline constexpr auto EntriesUnsigned = 4u;
+
+        inline constexpr auto Count = 0;
+    }
+
+    namespace WorldDisplayOffset
+    {
+        inline constexpr auto ActiveDisplayFlag = 0x6C;
+
+        inline constexpr auto Font = 0x924;
+
+        inline constexpr auto DrawFlagsByte2 = 0x72;
+
+        inline constexpr auto HighlightingEnabled = 0x74;
+    }
+
+    namespace EngineHouseLogicViewOffset
+    {
+        inline constexpr auto DevelopmentStageCount = 0x18;
+
+        inline constexpr auto TribeType = 0x14;
+
+        inline constexpr auto DoorPoints = 0x188;
+    }
+
+    namespace EnginePixelPointOffset
+    {
+        inline constexpr auto YUnsigned = 4u;
     }
 
 }

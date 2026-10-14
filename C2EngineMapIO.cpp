@@ -267,9 +267,9 @@ namespace NC2E2
     // Original function: FUN_00480348.
     static void DynamicDataHumanManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHumanArray>(io, gDynamicDataHumans, NC2Layout::RecordSize::DynamicHuman, NC2Layout::RecordSize::DynamicHumanSavegamePayload, true); }
     // Original function: FUN_00490798.
-    static void DynamicDataHouseManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHouseArray>(io, SwitchIds::EngineSavegameChunk::DynamicHouses, gDynamicDataHouses, 0xD0, 0xCC, false, false); }
+    static void DynamicDataHouseManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHouseArray>(io, SwitchIds::EngineSavegameChunk::DynamicHouses, gDynamicDataHouses, NC2Layout::RecordSize::DynamicHouse, NC2Layout::RecordSize::DynamicHouseSavedPrefix, false, false); }
     // Original function: FUN_00490817.
-    static void DynamicDataHouseManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHouseArray>(io, gDynamicDataHouses, 0xD0, 0xCC, false); }
+    static void DynamicDataHouseManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHouseArray>(io, gDynamicDataHouses, NC2Layout::RecordSize::DynamicHouse, NC2Layout::RecordSize::DynamicHouseSavedPrefix, false); }
     // Original function: FUN_00490918.
     static void DynamicDataVehicleManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CVehicleArray>(io, SwitchIds::EngineSavegameChunk::DynamicVehicles, gDynamicDataVehicles, NC2Layout::RecordSize::DynamicAnimalVehicle, 4, true, false); }
     // Original function: FUN_004909a8.

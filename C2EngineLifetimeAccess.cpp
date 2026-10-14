@@ -676,13 +676,13 @@ namespace NC2E2
     {
         for (std::int32_t index = 0; index < gStaticHouseCount; ++index)
         {
-            void* entry = static_cast<std::byte*>(gStaticHouseEntries) + static_cast<std::uint32_t>(index) * 0x8BC;
-            DestroyMapArea(Read<void*>(entry, 0x58));
+            void* entry = static_cast<std::byte*>(gStaticHouseEntries) + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::EngineHouseType;
+            DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::BuildArea));
             for (std::uint32_t state = 0; state < 5; ++state)
             {
-                DestroyMapArea(Read<void*>(entry, 0x5C + state * 4));
-                DestroyMapArea(Read<void*>(entry, 0x70 + state * 4));
-                const std::uint32_t offset = 0x7C4 + state * 0x34;
+                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WalkAreas + state * 4));
+                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WorkAreas + state * 4));
+                const std::uint32_t offset = NC2Layout::EngineHouseStageViewOffset::ForwardSmokePoints + state * NC2Layout::RecordSize::EngineHouseStagePoints;
                 FreeField(entry, offset - 8);
                 FreeField(entry, offset);
                 FreeField(entry, offset + 8);
@@ -846,7 +846,7 @@ namespace NC2E2
     // Original function: FUN_0049088c; HouseXtructed.
     static void E2DynamicDataHouseManager_HouseXtructed(std::uint32_t index, bool created)
     {
-        if (created) std::memset(gDynamicDataHouses.entries + index * 0xD0u, 0, 208);
+        if (created) std::memset(gDynamicDataHouses.entries + index * NC2Layout::RecordSize::DynamicHouseUnsigned, 0, NC2Layout::RecordSize::DynamicHouse);
     }
     // Original function: FUN_004908b4.
     static void* E2DynamicDataVehicleManager_Construct(void* manager)

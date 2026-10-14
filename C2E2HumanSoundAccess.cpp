@@ -66,7 +66,7 @@ namespace NC2E2
             return true;
         }
         case SwitchIds::CallbackType::ResetHouseDynamicGraphics:
-            std::memset(static_cast<std::byte*>(gDynamicDataHouses.entries) + parameter1 * 0xD0u, 0, 204);
+            std::memset(static_cast<std::byte*>(gDynamicDataHouses.entries) + parameter1 * NC2Layout::RecordSize::DynamicHouseUnsigned, 0, NC2Layout::RecordSize::DynamicHouseSavedPrefix);
             return true;
         case SwitchIds::CallbackType::HumanPaletteChanged:
         {

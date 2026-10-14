@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataHouses.h"
 #include "C2E2StaticDataPalettes.h"
@@ -50,9 +51,9 @@ namespace
     void* HouseLogicData_Construct(void* data);
     void HouseDoorPoints_Construct(void* points);
     // Original function: FUN_0048f580; record constructors precede the native array clear.
-    void* HouseRecord_Construct(void* entry) { HouseLogicData_Construct(static_cast<std::byte*>(entry) + 0x3C); return entry; }
+    void* HouseRecord_Construct(void* entry) { HouseLogicData_Construct(static_cast<std::byte*>(entry) + NC2Layout::EngineHouseTypeOffset::LogicTypes); return entry; }
     // Original function: FUN_0048f58f.
-    void* HouseLogicData_Construct(void* data) { HouseDoorPoints_Construct(static_cast<std::byte*>(data) + 0x188); return data; }
+    void* HouseLogicData_Construct(void* data) { HouseDoorPoints_Construct(static_cast<std::byte*>(data) + NC2Layout::EngineHouseLogicViewOffset::DoorPoints); return data; }
     // Original function: FUN_0048f5a1.
     void HouseDoorPoints_Construct(void* points) { std::memset(points, 0, 5 * 4); }
 
@@ -95,9 +96,9 @@ namespace NC2E2
         const auto entries = gStaticHouseEntries;
         for (; index < limit; index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u))
         {
-            const auto record = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + static_cast<std::uint32_t>(index) * 0x8BCu + 0x3Cu);
-            if (Read<std::uint32_t>(record, 0x14) != tribe) continue;
-            for (std::uint32_t item = 0; item < Read<std::uint32_t>(record, 0x18); ++item)
+            const auto record = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::EngineHouseTypeUnsigned + 0x3Cu);
+            if (Read<std::uint32_t>(record, NC2Layout::EngineHouseLogicViewOffset::TribeType) != tribe) continue;
+            for (std::uint32_t item = 0; item < Read<std::uint32_t>(record, NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount); ++item)
             {
                 if (Read<std::uint32_t>(record, item * 4u) == logicType) { *stage = item; return index; }
             }
@@ -116,16 +117,16 @@ namespace NC2E2
         gStaticHouseCount = NXBasics::Runtime_TimeSigned32(reader.GetNumberOfGroups("GfxHouse"));
         if (gStaticHouseCount == 0) return manager;
 
-        const auto bytes = static_cast<std::uint32_t>(gStaticHouseCount) * 0x8BCu;
+        const auto bytes = static_cast<std::uint32_t>(gStaticHouseCount) * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
         auto* entries = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
         if (entries != nullptr)
         {
-            for (std::int32_t index = 0; index < gStaticHouseCount; ++index) HouseRecord_Construct(entries + index * 0x8BCu);
+            for (std::int32_t index = 0; index < gStaticHouseCount; ++index) HouseRecord_Construct(entries + index * NC2Layout::RecordSize::EngineHouseTypeUnsigned);
         }
         gStaticHouseEntries = entries;
         std::memset(entries, 0, bytes);
         auto* entry = entries;
-        for (char* group = reader.GetFirstGroup("GfxHouse"); group != nullptr; group = reader.GetNextGroup("GfxHouse"), entry += 0x8BC)
+        for (char* group = reader.GetFirstGroup("GfxHouse"); group != nullptr; group = reader.GetNextGroup("GfxHouse"), entry += NC2Layout::RecordSize::EngineHouseType)
         {
             SHouseAreaScratch buildArea;
             SHouseAreaScratch walkAreas[5];
@@ -134,17 +135,17 @@ namespace NC2E2
             for (std::uint32_t stage = 0; stage < 5; ++stage)
             {
                 walkAreas[stage].count = workAreas[stage].count = 0;
-                Write<std::int32_t>(entry, 0x250 + stage * 12, -1);
-                Write<std::int32_t>(entry, 0x254 + stage * 12, -1);
+                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::OpenDoorBobIds + stage * 12, -1);
+                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIds + stage * 12, -1);
             }
-            Write<std::uint32_t>(entry, 0x234, 256);
+            Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::ShadingFactor256, 256);
             const auto overlayCount = reader.GetNumberOfCommandsInGroup("GfxOverlay");
-            Write(entry, 0x490, overlayCount);
+            Write(entry, NC2Layout::EngineHouseTypeOffset::ActionOverlayCount, overlayCount);
             if (overlayCount != 0)
             {
-                void* overlays = NXBasics::Runtime_AllocateWithNewHandler(overlayCount * 0xE4u, 1);
-                Write(entry, 0x494, overlays);
-                std::memset(overlays, 0, overlayCount * 228u);
+                void* overlays = NXBasics::Runtime_AllocateWithNewHandler(overlayCount * NC2Layout::RecordSize::EngineHouseActionOverlayUnsigned, 1);
+                Write(entry, NC2Layout::EngineHouseTypeOffset::ActionOverlays, overlays);
+                std::memset(overlays, 0, overlayCount * NC2Layout::RecordSize::EngineHouseActionOverlayUnsigned);
             }
 
             reader.SetCurrentLineToGroupStart();
@@ -153,16 +154,16 @@ namespace NC2E2
                 const auto* name = reader.GetCurrentName();
                 std::uint32_t offset;
                 if (NXBasics::Runtime_CompareStringsIgnoreCase(name, "GfxFirePoint") == 0)
-                    offset = 0x7B8u + static_cast<std::uint32_t>(reader.GetInt()) * 0x34u;
+                    offset = NC2Layout::EngineHouseStageViewOffset::FirePointCountUnsigned + static_cast<std::uint32_t>(reader.GetInt()) * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned;
                 else if (NXBasics::Runtime_CompareStringsIgnoreCase(name, "GfxSmokePoint") == 0)
                 {
                     const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                     reader.GetInt();
                     reader.GetInt();
-                    offset = (reader.GetInt() != 0 ? 0x7C0u : 0x7C8u) + stage * 0x34u;
+                    offset = (reader.GetInt() != 0 ? NC2Layout::EngineHouseStageViewOffset::ForwardSmokePointCountUnsigned : NC2Layout::EngineHouseStageViewOffset::BackSmokePointCountUnsigned) + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned;
                 }
                 else if (NXBasics::Runtime_CompareStringsIgnoreCase(name, "GfxHolyFirePoint") == 0)
-                    offset = 0x7D0u + static_cast<std::uint32_t>(reader.GetInt()) * 0x34u;
+                    offset = NC2Layout::EngineHouseStageViewOffset::HolyFirePointCountUnsigned + static_cast<std::uint32_t>(reader.GetInt()) * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned;
                 else continue;
                 // Windows deliberately does not validate the stage during this counting pass.
                 Write(entry, offset, Read<std::uint32_t>(entry, offset) + 1u);
@@ -171,7 +172,7 @@ namespace NC2E2
             {
                 for (std::uint32_t kind = 0; kind < 4; ++kind)
                 {
-                    const auto offset = 0x7B8u + stage * 0x34u + kind * 8u;
+                    const auto offset = NC2Layout::EngineHouseStageViewOffset::FirePointCountUnsigned + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned + kind * 8u;
                     const auto count = Read<std::uint32_t>(entry, offset);
                     if (count != 0) Write(entry, offset + 4, NXBasics::Runtime_AllocateWithNewHandler(count * 8u, 1));
                 }
@@ -195,20 +196,20 @@ namespace NC2E2
                 {
                     case SwitchIds::HouseGraphicsToken::EditName: std::strncpy(reinterpret_cast<char*>(entry), reader.GetString(), 29); break;
                     case SwitchIds::HouseGraphicsToken::EditGroups: std::strncpy(reinterpret_cast<char*>(entry) + 0x1E, reader.GetString(), 29); break;
-                    case SwitchIds::HouseGraphicsToken::LogicTribeType: Write(entry, 0x50, reader.GetInt()); break;
+                    case SwitchIds::HouseGraphicsToken::LogicTribeType: Write(entry, NC2Layout::EngineHouseTypeOffset::TribeType, reader.GetInt()); break;
                     case SwitchIds::HouseGraphicsToken::LogicMaximumSize:
                     {
                         auto size = static_cast<std::uint32_t>(reader.GetInt());
                         if (size > 5) size = 5;
-                        Write(entry, 0x54, size);
-                        for (std::uint32_t stage = 0; stage < size; ++stage) Write<std::uint32_t>(entry, 0x1D8 + stage * 4, 1000);
+                        Write(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount, size);
+                        for (std::uint32_t stage = 0; stage < size; ++stage) Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::MaximumHitpoints + stage * 4, 1000);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Logictype: case SwitchIds::HouseGraphicsToken::LogicHitpoints: case SwitchIds::HouseGraphicsToken::Gfxbobid:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = token == SwitchIds::HouseGraphicsToken::Logictype ? 0x3Cu : token == SwitchIds::HouseGraphicsToken::LogicHitpoints ? 0x1D8u : 0x238u;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
+                        const auto offset = token == SwitchIds::HouseGraphicsToken::Logictype ? NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned : token == SwitchIds::HouseGraphicsToken::LogicHitpoints ? NC2Layout::EngineHouseTypeOffset::MaximumHitpointsUnsigned : NC2Layout::EngineHouseTypeOffset::StageBobIdsUnsigned;
                         Write(entry, offset + stage * 4, reader.GetInt());
                         break;
                     }
@@ -216,7 +217,7 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::LogicWalkBlockArea: case SwitchIds::HouseGraphicsToken::Logicconstructionworkarea:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         ReadAreaRow(reader, token == SwitchIds::HouseGraphicsToken::LogicWalkBlockArea ? walkAreas[stage] : workAreas[stage]);
                         break;
                     }
@@ -225,8 +226,8 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::Logicconstructiongoods:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = 0x84u + stage * 0x40u;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
+                        const auto offset = NC2Layout::EngineHouseTypeOffset::ConstructionGoodsUnsigned + stage * 0x40u;
                         while (reader.GetTypeOfNextParameter() == 3)
                         {
                             const auto count = Read<std::uint32_t>(entry, offset);
@@ -239,51 +240,51 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::Logicdoorpoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const auto x = static_cast<std::int16_t>(reader.GetInt());
                         const auto y = static_cast<std::int16_t>(reader.GetInt());
-                        NC2Logic::MapMigPoint_Construct(entry + 0x1C4 + stage * 4, x, y, false);
+                        NC2Logic::MapMigPoint_Construct(entry + NC2Layout::EngineHouseTypeOffset::DoorPoints + stage * 4, x, y, false);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::ArrowSlotData:
                     {
-                        const auto count = Read<std::uint32_t>(entry, 0x1EC);
-                        const auto offset = 0x1F0u + count * 12u;
+                        const auto count = Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::ArrowSlotCount);
+                        const auto offset = NC2Layout::EngineHouseTypeOffset::ArrowSlotsUnsigned + count * 12u;
                         Write<std::int32_t>(entry, offset, static_cast<std::int16_t>(reader.GetInt()));
                         Write<std::int32_t>(entry, offset + 4, static_cast<std::int16_t>(reader.GetInt()));
                         Write(entry, offset + 8, reader.GetInt());
-                        Write(entry, 0x1EC, count + 1u);
+                        Write(entry, NC2Layout::EngineHouseTypeOffset::ArrowSlotCount, count + 1u);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Gfxboblibs:
                     {
                         const char* name = reader.GetString();
-                        if (std::strlen(name) != 0) Write(entry, 0x214, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
+                        if (std::strlen(name) != 0) Write(entry, NC2Layout::EngineHouseTypeOffset::BobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
                         name = reader.GetString();
-                        if (std::strlen(name) != 0) Write(entry, 0x218, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
+                        if (std::strlen(name) != 0) Write(entry, NC2Layout::EngineHouseTypeOffset::ShadowBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::GfxPalette:
                     {
                         while (reader.GetTypeOfNextParameter() == 2)
                         {
-                            const auto count = Read<std::uint32_t>(entry, 0x21C);
+                            const auto count = Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::PaletteCount);
                             if (count == 5) break;
                             const auto palette = E2StaticDataPalettesManager_GetPalette256Id(reader.GetString());
                             if (palette == -1) break;
-                            Write(entry, 0x220 + count * 4, palette);
-                            Write(entry, 0x21C, count + 1u);
+                            Write(entry, NC2Layout::EngineHouseTypeOffset::PaletteIds + count * 4, palette);
+                            Write(entry, NC2Layout::EngineHouseTypeOffset::PaletteCount, count + 1u);
                         }
                         break;
                     }
-                    case SwitchIds::HouseGraphicsToken::GfxShadingFactor: Write<std::uint32_t>(entry, 0x234, static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(reader.GetDouble() * 256.0))); break;
+                    case SwitchIds::HouseGraphicsToken::GfxShadingFactor: Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::ShadingFactor256, static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(reader.GetDouble() * 256.0))); break;
                     case SwitchIds::HouseGraphicsToken::Gfxdoorbobid:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const bool open = reader.GetInt() != 0;
-                        Write(entry, (open ? 0x250u : 0x254u) + stage * 12, reader.GetInt());
-                        Write<std::uint8_t>(entry, 0x24C + stage * 12, 1);
+                        Write(entry, (open ? NC2Layout::EngineHouseTypeOffset::OpenDoorBobIdsUnsigned : NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIdsUnsigned) + stage * 12, reader.GetInt());
+                        Write<std::uint8_t>(entry, NC2Layout::EngineHouseTypeOffset::DoorOverlays + stage * 12, 1);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Gfxbobconstructionlayer:
@@ -294,8 +295,8 @@ namespace NC2E2
                         const auto second = reader.GetInt();
                         const auto third = reader.GetInt();
                         const auto fourth = reader.GetInt();
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = 0x288u + stage * 0x68u;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
+                        const auto offset = NC2Layout::EngineHouseTypeOffset::ConstructionLayersUnsigned + stage * NC2Layout::RecordSize::EngineHouseConstructionLayersUnsigned;
                         const auto count = Read<std::uint32_t>(entry, offset);
                         if (count == 5) break;
                         const auto layer = offset + count * 20u;
@@ -309,22 +310,22 @@ namespace NC2E2
                     }
                     case SwitchIds::HouseGraphicsToken::GfxOverlay:
                     {
-                        if (overlayIndex >= Read<std::uint32_t>(entry, 0x490)) break;
-                        auto* overlay = Read<std::byte*>(entry, 0x494) + overlayIndex * 0xE4u;
+                        if (overlayIndex >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::ActionOverlayCount)) break;
+                        auto* overlay = Read<std::byte*>(entry, NC2Layout::EngineHouseTypeOffset::ActionOverlays) + overlayIndex * NC2Layout::RecordSize::EngineHouseActionOverlayUnsigned;
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        Write(overlay, 0, stage);
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        Write(overlay, 4, reader.GetInt());
-                        Write<std::uint8_t>(overlay, 8, reader.GetInt() != 0);
-                        Write(overlay, 12, reader.GetInt());
-                        Write(overlay, 16, reader.GetInt());
-                        Write(overlay, 20, reader.GetInt());
+                        Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::DevelopmentStage, stage);
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
+                        Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::Action, reader.GetInt());
+                        Write<std::uint8_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::RequiredActiveFlag, reader.GetInt() != 0);
+                        Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetX, reader.GetInt());
+                        Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetY, reader.GetInt());
+                        Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameTicks, reader.GetInt());
                         while (reader.GetTypeOfNextParameter() == 3)
                         {
-                            const auto count = Read<std::uint32_t>(overlay, 24);
+                            const auto count = Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount);
                             if (count == 50) break;
-                            Write(overlay, 28 + count * 4, reader.GetInt());
-                            Write(overlay, 24, count + 1u);
+                            Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIds + count * 4, reader.GetInt());
+                            Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount, count + 1u);
                         }
                         ++overlayIndex;
                         break;
@@ -332,10 +333,10 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::GfxOverlayLandscape:
                     {
                         const auto stage = reader.GetInt();
-                        if (stage < 0 || stage >= Read<std::int32_t>(entry, 0x54)) break;
+                        if (stage < 0 || stage >= Read<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const auto slot = reader.GetInt();
                         if (slot < 0 || static_cast<std::uint32_t>(slot) >= 10) break;
-                        const auto offset = 0x498u + (stage * 10u + slot) * 16u;
+                        const auto offset = NC2Layout::EngineHouseTypeOffset::LandscapeOverlaysUnsigned + (stage * 10u + slot) * 16u;
                         if (Read<std::uint8_t>(entry, offset) != 0) break;
                         Write<std::uint8_t>(entry, offset, 1);
                         Write(entry, offset + 4, reader.GetInt());
@@ -346,9 +347,9 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::GfxFlagPoint: case SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
-                        const auto offset = (token == SwitchIds::HouseGraphicsToken::GfxFlagPoint ? 0x7D8u : 0x7E4u) + stage * 0x34u;
-                        if (token == SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint) Write<std::uint8_t>(entry, 0x7E0 + stage * 0x34, 1);
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
+                        const auto offset = (token == SwitchIds::HouseGraphicsToken::GfxFlagPoint ? NC2Layout::EngineHouseStageViewOffset::FlagXUnsigned : NC2Layout::EngineHouseStageViewOffset::SoldierFlagXUnsigned) + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned;
+                        if (token == SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint) Write<std::uint8_t>(entry, 0x7E0 + stage * NC2Layout::RecordSize::EngineHouseStagePoints, 1);
                         Write(entry, offset, reader.GetInt());
                         Write(entry, offset + 4, reader.GetInt());
                         break;
@@ -356,9 +357,9 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::GfxFirePoint: case SwitchIds::HouseGraphicsToken::GfxHolyFirePoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const auto kind = token == SwitchIds::HouseGraphicsToken::GfxFirePoint ? 0u : 3u;
-                        const auto offset = 0x7B8u + stage * 0x34u + kind * 8u;
+                        const auto offset = NC2Layout::EngineHouseStageViewOffset::FirePointCountUnsigned + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned + kind * 8u;
                         auto& index = pointIndices[kind][stage];
                         if (index >= Read<std::uint32_t>(entry, offset)) break;
                         void* points = Read<void*>(entry, offset + 4);
@@ -370,11 +371,11 @@ namespace NC2E2
                     case SwitchIds::HouseGraphicsToken::GfxSmokePoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
-                        if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
+                        if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const auto x = reader.GetInt();
                         const auto y = reader.GetInt();
                         const auto kind = reader.GetInt() != 0 ? 1u : 2u;
-                        const auto offset = 0x7B8u + stage * 0x34u + kind * 8u;
+                        const auto offset = NC2Layout::EngineHouseStageViewOffset::FirePointCountUnsigned + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned + kind * 8u;
                         auto& index = pointIndices[kind][stage];
                         if (index >= Read<std::uint32_t>(entry, offset)) break;
                         void* points = Read<void*>(entry, offset + 4);
