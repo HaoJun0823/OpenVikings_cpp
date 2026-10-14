@@ -309,4 +309,15 @@ namespace NC2Runtime
         inline constexpr auto Houses = 2;
     }
 
+    namespace AIEquipmentLimits
+    {
+        inline constexpr auto RecruitmentLimit = 190;
+
+        inline constexpr auto Armors = 5;
+
+        inline constexpr auto Tribes = 8;
+
+        inline constexpr auto Weapons = 22;
+    }
+
 }

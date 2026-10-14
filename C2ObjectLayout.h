@@ -517,6 +517,12 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto DeadFlag = 8;
+
+        inline constexpr auto PlayerSeenFlags = 0x45F8;
+
+        inline constexpr auto AllowedEquipment = 0x3C78;
+
         inline constexpr auto TypeUnsigned = 4u;
 
         inline constexpr auto SoldiersDiedUnsigned = 0x4A1Cu;
@@ -1525,6 +1531,12 @@ namespace NC2Layout
 
     namespace StaticWeaponTypeOffset
     {
+        inline constexpr auto DamageValues = 56;
+
+        inline constexpr auto GoodType = 36;
+
+        inline constexpr auto MaximumRange = 48;
+
         inline constexpr auto GoodTypeUnsigned = 0x24u;
 
         inline constexpr auto MainTypeUnsigned = 0x20u;
@@ -1552,6 +1564,24 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MapMigPoint = 4;
+
+        inline constexpr auto AIPlayerHandlerPointer = 4;
+
+        inline constexpr auto TribeEquipmentEnables = 56;
+
+        inline constexpr auto AIMilitaryTribeEquipment = 264;
+
+        inline constexpr auto ArmorType = 52;
+
+        inline constexpr auto AIEquipmentRow = 12;
+
+        inline constexpr auto AIMilitaryPoint = 32;
+
+        inline constexpr auto StaticWeaponType = 0xC4;
+
+        inline constexpr auto WeaponDamageValue = 4;
+
         inline constexpr auto WeaponTypeUnsigned = 0xC4u;
 
         inline constexpr auto ArmorTypeUnsigned = 0x34u;
@@ -1973,6 +2003,10 @@ namespace NC2Layout
 
     namespace TargetDataOffset
     {
+        inline constexpr auto ObjectRevisionHighWord = 10;
+
+        inline constexpr auto ObjectIdOrMapPoint = 4;
+
         inline constexpr auto Type = 0;
         inline constexpr auto ObjectIdOrMapPosition = 4;
         inline constexpr auto MapPositionX = 4;
@@ -3361,6 +3395,10 @@ namespace NC2Layout
 
     namespace StaticArmorTypeOffset
     {
+        inline constexpr auto GoodType = 36;
+
+        inline constexpr auto MaterialType = 40;
+
         inline constexpr auto GoodTypeUnsigned = 0x24u;
     }
 
@@ -3402,6 +3440,36 @@ namespace NC2Layout
         inline constexpr auto SecondPoint = 8;
 
         inline constexpr auto FirstPoint = 4;
+    }
+
+    namespace AIEquipmentGoodViewOffset
+    {
+        inline constexpr auto PreferredType = 4;
+    }
+
+    namespace MapTargetDataOffset
+    {
+        inline constexpr auto MapY = 6;
+
+        inline constexpr auto MapX = 4;
+    }
+
+    namespace AIVillagePhysicalSlotOffset
+    {
+        inline constexpr auto Radius = 20;
+
+        inline constexpr auto Center = 16;
+
+        inline constexpr auto Active = 0;
+    }
+
+    namespace AIHighLevelVillageViewOffset
+    {
+        inline constexpr auto DefendPoints = 0x108;
+
+        inline constexpr auto DefendPointCount = 0x104;
+
+        inline constexpr auto Active = 0x24;
     }
 
 }

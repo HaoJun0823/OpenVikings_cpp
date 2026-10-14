@@ -9,6 +9,19 @@ namespace NC2Logic
     static_assert(sizeof(SAIMilitaryPointStorage) == 32);
     static_assert(sizeof(SAIMilitarySlotStorage) == 52);
 
+    // Physical Windows manager. The DWORD after its slot pool remains unresolved.
+    struct SAIEquipmentEvaluationStorage { std::uint32_t weight, good, preferredType; };
+    struct SAIMilitaryManagerStorage
+    {
+        std::uint32_t playerId;
+        SAIMilitarySlotStorage slots[100];
+        std::uint32_t unresolved1454;
+        SAIEquipmentEvaluationStorage weapons[8][22], armors[5];
+        SAIMilitaryPointStorage enemyTargets[20];
+        std::int32_t enemyScanCursor, targetedEnemyPlayer, targetedEnemyPointIndex;
+        std::int16_t attackedX, attackedY;
+        std::int32_t attackedPointIndex;
+    };
     void AIMilitaryManager_Init(void* manager, std::uint32_t player, const void* center, std::uint32_t radius);
     void AIMilitaryManager_DoOneLogicGameTick(void* manager, void* high, std::uint32_t tick);
     void AIMilitaryManager_l_Soldier_Create(void* manager, const void* high);

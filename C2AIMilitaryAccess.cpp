@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -37,47 +38,47 @@ namespace NC2Logic
     // Original function: FUN_00453efb; equipment tables retain tribe-specific records.
     void AIMilitaryManager_Init(void* manager, std::uint32_t player, const void* center, std::uint32_t radius)
     {
-        for (std::uint32_t i = 0; i < 100; ++i) Write<std::uint8_t>(manager, NC2Layout::AIMilitarySlotAccessOffset::Active + i * 52, 0);
+        for (std::uint32_t i = 0; i < 100; ++i) Write<std::uint8_t>(manager, NC2Layout::AIMilitarySlotAccessOffset::Active + i * NC2Layout::RecordSize::AIMilitarySlot, 0);
         Write<std::int32_t>(manager, 0x1454, -1);
         Write(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId, player);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
-        for (std::uint32_t t = 0; t < 8; ++t)
-            for (std::uint32_t weapon = 0; weapon < 22; ++weapon)
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
+        for (std::uint32_t t = 0; t < NC2Runtime::AIEquipmentLimits::Tribes; ++t)
+            for (std::uint32_t weapon = 0; weapon < NC2Runtime::AIEquipmentLimits::Weapons; ++weapon)
             {
-                const auto* data = static_cast<const std::byte*>(gStaticWeaponTypeArrays[t]) + weapon * 0xC4;
-                const auto offset = NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (t * 22 + weapon) * 12;
-                if (Read<std::uint32_t>(data, 48) == 0) { Write<std::uint32_t>(manager, offset, 0); continue; }
+                const auto* data = static_cast<const std::byte*>(gStaticWeaponTypeArrays[t]) + weapon * NC2Layout::RecordSize::StaticWeaponType;
+                const auto offset = NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (t * NC2Runtime::AIEquipmentLimits::Weapons + weapon) * NC2Layout::RecordSize::AIEquipmentRow;
+                if (Read<std::uint32_t>(data, NC2Layout::StaticWeaponTypeOffset::MaximumRange) == 0) { Write<std::uint32_t>(manager, offset, 0); continue; }
                 std::uint32_t best = 0; std::int32_t damage = 100000;
-                for (std::uint32_t armor = 0; armor < 5; ++armor)
+                for (std::uint32_t armor = 0; armor < NC2Runtime::AIEquipmentLimits::Armors; ++armor)
                 {
-                    const auto* armorData = static_cast<const std::byte*>(gStaticArmorTypeData) + armor * 52;
-                    const auto candidate = Read<std::int32_t>(data, 56 + Read<std::uint32_t>(armorData, 40) * 4);
-                    if (candidate >= damage || Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(armorData, 36) + 0x3C78) == 0) continue;
+                    const auto* armorData = static_cast<const std::byte*>(gStaticArmorTypeData) + armor * NC2Layout::RecordSize::ArmorType;
+                    const auto candidate = Read<std::int32_t>(data, NC2Layout::StaticWeaponTypeOffset::DamageValues + Read<std::uint32_t>(armorData, NC2Layout::StaticArmorTypeOffset::MaterialType) * NC2Layout::RecordSize::WeaponDamageValue);
+                    if (candidate >= damage || Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * NC2Layout::StaticWeaponTypeOffset::DamageValues + Read<std::uint32_t>(armorData, NC2Layout::StaticArmorTypeOffset::GoodType) + NC2Layout::GameControlPlayerOffset::AllowedEquipment) == 0) continue;
                     best = armor; damage = candidate;
                 }
-                Write(manager, offset + 4, best);
-                if (weapon == 4 || weapon == 5 || weapon == 7 || weapon == 8 || weapon == 16 || weapon == 17) Write(manager, offset, Read<std::uint32_t>(data, 36));
+                Write(manager, offset + NC2Layout::AIEquipmentGoodViewOffset::PreferredType, best);
+                if (weapon == 4 || weapon == 5 || weapon == 7 || weapon == 8 || weapon == 16 || weapon == 17) Write(manager, offset, Read<std::uint32_t>(data, NC2Layout::StaticWeaponTypeOffset::GoodType));
             }
-        for (std::uint32_t armor = 0; armor < 5; ++armor)
+        for (std::uint32_t armor = 0; armor < NC2Runtime::AIEquipmentLimits::Armors; ++armor)
         {
-            const auto* data = static_cast<const std::byte*>(gStaticArmorTypeData) + armor * 52;
-            Write(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * 12, Read<std::uint32_t>(data, 36));
+            const auto* data = static_cast<const std::byte*>(gStaticArmorTypeData) + armor * NC2Layout::RecordSize::ArmorType;
+            Write(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * NC2Layout::RecordSize::AIEquipmentRow, Read<std::uint32_t>(data, NC2Layout::StaticArmorTypeOffset::GoodType));
             std::uint32_t best = 0; std::int32_t damage = 0;
-            for (std::uint32_t weapon = 0; weapon < 22; ++weapon)
+            for (std::uint32_t weapon = 0; weapon < NC2Runtime::AIEquipmentLimits::Weapons; ++weapon)
             {
                 if (weapon != 4 && weapon != 5 && weapon != 7 && weapon != 8 && weapon != 16 && weapon != 17) continue;
-                const auto* weaponData = static_cast<const std::byte*>(gStaticWeaponTypeArrays[tribe]) + weapon * 0xC4;
-                if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(weaponData, 36) + 0x3C78) == 0) continue;
-                const auto candidate = Read<std::int32_t>(weaponData, 56 + Read<std::uint32_t>(data, 40) * 4);
+                const auto* weaponData = static_cast<const std::byte*>(gStaticWeaponTypeArrays[tribe]) + weapon * NC2Layout::RecordSize::StaticWeaponType;
+                if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * NC2Layout::StaticWeaponTypeOffset::DamageValues + Read<std::uint32_t>(weaponData, NC2Layout::StaticWeaponTypeOffset::GoodType) + NC2Layout::GameControlPlayerOffset::AllowedEquipment) == 0) continue;
+                const auto candidate = Read<std::int32_t>(weaponData, NC2Layout::StaticWeaponTypeOffset::DamageValues + Read<std::uint32_t>(data, NC2Layout::StaticArmorTypeOffset::MaterialType) * NC2Layout::RecordSize::WeaponDamageValue);
                 if (candidate > damage) { damage = candidate; best = weapon; }
             }
-            Write(manager, NC2Layout::AIMilitaryManagerOffset::ArmorPreferredWeapon + armor * 12, best);
+            Write(manager, NC2Layout::AIMilitaryManagerOffset::ArmorPreferredWeapon + armor * NC2Layout::RecordSize::AIEquipmentRow, best);
         }
-        auto* single = Read<void*>(gAIManager, player * 4);
-        if (Read<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription) == 1 && Read<std::uint16_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskPosition) == Read<std::uint16_t>(center, 0)) { Write<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription, 0);
+        auto* single = Read<void*>(gAIManager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
+        if (Read<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription) == 1 && Read<std::uint16_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskPosition) == Read<std::uint16_t>(center, NC2Layout::MapMigPointOffset::MapX)) { Write<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription, 0);
         AISinglePlayerHandler_MainTask_RecheckAll(single); }
         AISinglePlayerHandler_EntryPoint_SingleSoldier_SetDefaultPosition(single, center, radius * 2);
-        for (std::uint32_t i = 0; i < 20; ++i) AIMilitaryPoint_Clear(static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + i * 32);
+        for (std::uint32_t i = 0; i < 20; ++i) AIMilitaryPoint_Clear(static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + i * NC2Layout::RecordSize::AIMilitaryPoint);
         Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::EnemyScanCursor, -1);
         Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyPlayer, -1);
         Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyMilitaryPointIndex, -1);
@@ -110,8 +111,8 @@ namespace NC2Logic
         auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(AIVillagesData_Military_GetBarrackHouseId(villages)) * CHouseArray::ElementSize;
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return;
         const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId);
-        auto count = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player), 18);
-        if (count > 190) return;
+        auto count = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player), NC2Layout::PlayerStatisticSampleOffset::SoldierCount);
+        if (count > NC2Runtime::AIEquipmentLimits::RecruitmentLimit) return;
         auto needed = static_cast<std::int32_t>(AIVillagesData_GetNumberOfUsedHumans(villages) * 120) / 100;
         CHumanIterator humans;
         for (auto id = humans.GetFirstSectorHumanId(player, false); id != -1; id = humans.GetNextSectorHumanId())
@@ -126,15 +127,15 @@ namespace NC2Logic
             if (id == -1) return;
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             Human_DoAddNewUserCommand(human, 32, static_cast<std::uint8_t>(player), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-            if (++count > 190) return;
+            if (++count > NC2Runtime::AIEquipmentLimits::RecruitmentLimit) return;
             ++needed;
         }
     }
     // Original function: FUN_0045479c.
     void AIMilitaryManager_l_Soldier_CheckOthersEquipment(void* manager)
     {
-        for (std::uint32_t i = 0; i < 8 * 22; ++i) Write<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * 12, 0);
-        for (std::uint32_t i = 0; i < 5; ++i) Write<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * 12, 0);
+        for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Tribes * NC2Runtime::AIEquipmentLimits::Weapons; ++i) Write<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * NC2Layout::RecordSize::AIEquipmentRow, 0);
+        for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Armors; ++i) Write<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * NC2Layout::RecordSize::AIEquipmentRow, 0);
         for (std::uint32_t player = 0; player < 20; ++player)
         {
             if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned) == 0 || player == Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId)) continue;
@@ -145,9 +146,9 @@ namespace NC2Logic
             for (auto id = humans.GetFirstSectorHumanId(player, true); id != -1; id = humans.GetNextSectorHumanId())
             {
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                const auto weapon = NC2Layout::AIMilitaryManagerOffset::WeaponWeights + (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 22 + Human_Equipment_GetWeaponType(human)) * 12;
+                const auto weapon = NC2Layout::AIMilitaryManagerOffset::WeaponWeights + (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::AIEquipmentLimits::Weapons + Human_Equipment_GetWeaponType(human)) * NC2Layout::RecordSize::AIEquipmentRow;
                 Write(manager, weapon, Read<std::uint32_t>(manager, weapon) + weight);
-                const auto armor = NC2Layout::AIMilitaryManagerOffset::ArmorWeights + Human_Equipment_GetArmorType(human) * 12;
+                const auto armor = NC2Layout::AIMilitaryManagerOffset::ArmorWeights + Human_Equipment_GetArmorType(human) * NC2Layout::RecordSize::AIEquipmentRow;
                 Write(manager, armor, Read<std::uint32_t>(manager, armor) + weight);
             }
         }
@@ -156,7 +157,7 @@ namespace NC2Logic
     std::uint32_t AIMilitaryManager_l_Soldier_GetBestPossibleArmorType(void* manager, std::uint32_t armor, void* high)
     {
         auto* villages = static_cast<std::byte*>(high) + NC2Layout::AIHighLevelOffset::Villages; const auto* catcher = static_cast<std::byte*>(high) + NC2Layout::AIHighLevelOffset::AnimalCatcher;
-        if ((armor == 4 || armor == 3) && AIVillagesData_Good_IsProducingGood(villages, 32, true) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * 12), true)) return armor;
+        if ((armor == 4 || armor == 3) && AIVillagesData_Good_IsProducingGood(villages, 32, true) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * NC2Layout::RecordSize::AIEquipmentRow), true)) return armor;
         if ((!AIAnimalCatcher_IsType19Available(catcher) || armor == 2) && AIAnimalCatcher_IsType10Available(catcher) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorTwoGood), true)) return 2;
         if (AIAnimalCatcher_IsType19Available(catcher) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorOneGood), true)) return 1;
         return 0;
@@ -165,26 +166,26 @@ namespace NC2Logic
     std::uint32_t AIMilitaryManager_l_Soldier_GetBestPossibleWeaponType(void* manager, std::uint32_t weapon, void* high)
     {
         const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
         auto* villages = static_cast<std::byte*>(high) + NC2Layout::AIHighLevelOffset::Villages;
-        if ((weapon == 5 || weapon == 7 || weapon == 8) && AIVillagesData_Good_IsProducingGood(villages, 32, true) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * 22 + weapon) * 12), true)) return weapon;
-        if ((weapon == 16 || weapon == 17) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * 22 + weapon) * 12), true)) return weapon;
-        const auto good = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponFourGood + tribe * 264);
-        if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0 && AIVillagesData_Good_IsProducingGood(villages, good, true)) return 4;
+        if ((weapon == 5 || weapon == 7 || weapon == 8) && AIVillagesData_Good_IsProducingGood(villages, 32, true) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * NC2Runtime::AIEquipmentLimits::Weapons + weapon) * NC2Layout::RecordSize::AIEquipmentRow), true)) return weapon;
+        if ((weapon == 16 || weapon == 17) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * NC2Runtime::AIEquipmentLimits::Weapons + weapon) * NC2Layout::RecordSize::AIEquipmentRow), true)) return weapon;
+        const auto good = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponFourGood + tribe * NC2Layout::RecordSize::AIMilitaryTribeEquipment);
+        if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * NC2Layout::RecordSize::TribeEquipmentEnables + good + NC2Layout::GameControlPlayerOffset::AllowedEquipment) != 0 && AIVillagesData_Good_IsProducingGood(villages, good, true)) return 4;
         return 0;
     }
     // Original function: FUN_004557ed.
     void AIMilitaryManager_l_MilitaryPoints_Villages_Refresh(void* manager, const void* high)
     {
-        for (std::uint32_t i = 0; i < 8; ++i)
+        for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Tribes; ++i)
         {
-            const auto* entry = static_cast<const std::byte*>(high) + NC2Layout::AIHighLevelOffset::FirstVillageActive + i * 0xCF0;
-            if (Read<std::uint8_t>(entry, 0) == 0) continue;
+            const auto* entry = static_cast<const std::byte*>(high) + NC2Layout::AIHighLevelOffset::FirstVillageActive + i * NC2Layout::RecordSize::AIVillageSlot;
+            if (Read<std::uint8_t>(entry, NC2Layout::AIVillagePhysicalSlotOffset::Active) == 0) continue;
             std::byte target[12]{};
-            Write<std::uint32_t>(target, 0, 5);
-            Write(target, 4, Read<std::uint32_t>(entry, 16));
-            Write<std::uint16_t>(target, 10, 0);
-            AIMilitaryManager_MilitaryPoint_Add(manager, 1, 0, target, Read<std::uint32_t>(entry, 20) + 30, 1, 5);
+            Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 5);
+            Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, Read<std::uint32_t>(entry, NC2Layout::AIVillagePhysicalSlotOffset::Center));
+            Write<std::uint16_t>(target, NC2Layout::TargetDataOffset::ObjectRevisionHighWord, 0);
+            AIMilitaryManager_MilitaryPoint_Add(manager, 1, 0, target, Read<std::uint32_t>(entry, NC2Layout::AIVillagePhysicalSlotOffset::Radius) + 30, 1, 5);
         }
     }
     // Original function: FUN_00455860; process one eligible enemy per invocation.
@@ -196,17 +197,17 @@ namespace NC2Logic
             const auto enemy = Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::EnemyScanCursor);
             if (enemy == 20) { Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::EnemyScanCursor, -1); return; }
             const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId);
-            if (static_cast<std::uint32_t>(enemy) != player && enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned) != 0 && Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + enemy + 0x45F8) != 0 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned + 8) == 0)
+            if (static_cast<std::uint32_t>(enemy) != player && enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned) != 0 && Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + enemy + NC2Layout::GameControlPlayerOffset::PlayerSeenFlags) != 0 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::DeadFlag) == 0)
             {
-                auto* target = static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(enemy) * 32;
+                auto* target = static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::AIMilitaryPoint;
                 if (GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) AIMilitaryPoint_Clear(target);
                 else
                 {
                     std::uint32_t enemyCenter = 0; Tool_Misc_GetPlayerCenterPosition(enemy, &enemyCenter);
-                    if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(center), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&enemyCenter), 6))
+                    if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(center), NC2Layout::MapMicroPointOffset::ContinentId) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&enemyCenter), NC2Layout::MapMicroPointOffset::ContinentId))
                     {
                         std::uint32_t form = 0;
-                        if (!CMapWalkSectorManager::AI_Military_GetFormPoint(player, center, &enemyCenter, &form)) form = Read<std::uint32_t>(center, 0);
+                        if (!CMapWalkSectorManager::AI_Military_GetFormPoint(player, center, &enemyCenter, &form)) form = Read<std::uint32_t>(center, NC2Layout::MapMigPointOffset::Coordinates);
                         std::uint32_t candidate[3]{};
                         if (AIMilitaryManager_l_EnemyTarget_GetBestTarget(manager, enemy, &form, candidate)) AIMilitaryPoint_SetTarget(target, player, candidate, 60, 1, 3);
                         else AIMilitaryPoint_Clear(target);
@@ -220,21 +221,21 @@ namespace NC2Logic
     // Original function: FUN_004559de; Windows repeats its first house-sector query on failure.
     bool AIMilitaryManager_l_EnemyTarget_GetBestTarget(const void* manager, std::uint32_t enemy, const void* point, void* target)
     {
-        Write<std::uint32_t>(target, 0, 0); std::int32_t best = 100000;
+        Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 0); std::int32_t best = 100000;
         const auto player = Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId); CHouseIterator houses;
         const auto searchHouses = [&]()
         {
             for (auto id = houses.GetFirstSectorHouseId(enemy, point, 10000, false); id != -1; id = houses.GetNextSectorHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(point, 0), Read<std::uint16_t>(point, 2));
+                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapY));
                 const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(house + NC2Layout::HouseOffset::DoorEntryPoint, player, 5);
                 const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(distance) + static_cast<std::uint32_t>(danger));
                 if (score >= best) continue;
                 best = score;
-                Write(target, 4, id);
-                Write(target, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-                Write<std::uint32_t>(target, 0, 4);
+                Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, id);
+                Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 4);
             }
         };
         searchHouses();
@@ -247,14 +248,14 @@ namespace NC2Logic
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                 if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human)) continue;
                 const auto* position = Human_GetMapPositionRef(human);
-                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(position, 0), Read<std::uint16_t>(position, 2), Read<std::uint16_t>(point, 0), Read<std::uint16_t>(point, 2));
+                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapX), Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapY), Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapY));
                 const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(Human_GetMapPositionRef(human), player, 5);
                 const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(distance) + static_cast<std::uint32_t>(danger));
                 if (score >= best) continue;
                 best = score;
-                Write(target, 4, id);
-                Write(target, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
-                Write<std::uint32_t>(target, 0, 1);
+                Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, id);
+                Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+                Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 1);
             }
         }
         return TargetData_IsValid(target);
@@ -262,8 +263,8 @@ namespace NC2Logic
     // Original function: FUN_00455449.
     void AIMilitaryManager_l_MilitaryPoints_Update(void* manager, void* high)
     {
-        const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId); auto* single = Read<void*>(gAIManager, player * 4);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId); auto* single = Read<void*>(gAIManager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
         auto* villages = static_cast<std::byte*>(high) + NC2Layout::AIHighLevelOffset::Villages;
         for (std::uint32_t index = 0; index < 100; ++index)
         {
@@ -280,7 +281,7 @@ namespace NC2Logic
                 {
                     maximum = static_cast<std::int32_t>(static_cast<std::uint32_t>(danger) + 5) / 10;
                     if (AIVillagesData_Good_IsProducingGood(villages, 6, false) && maximum > 1) maximum >>= 1;
-                    if (AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, tribe * 264 + NC2Layout::AIMilitaryManagerOffset::WeaponSeventeenGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, tribe * 264 + NC2Layout::AIMilitaryManagerOffset::WeaponFourGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorTwoGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorOneGood), false)) if (maximum > 1) maximum >>= 1;
+                    if (AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, tribe * NC2Layout::RecordSize::AIMilitaryTribeEquipment + NC2Layout::AIMilitaryManagerOffset::WeaponSeventeenGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, tribe * NC2Layout::RecordSize::AIMilitaryTribeEquipment + NC2Layout::AIMilitaryManagerOffset::WeaponFourGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorTwoGood), false) || AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorOneGood), false)) if (maximum > 1) maximum >>= 1;
                     minimum = Read<std::uint32_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::TargetPolicy) == 3 ? maximum : (maximum >> 1) + (maximum & 1);
                     if (Read<std::uint32_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::MaximumSoldiers) != 0)
                     {
@@ -322,7 +323,7 @@ namespace NC2Logic
                 const auto added = AISinglePlayerHandler_MainTask_Add(single, task); if (added != NXBasics::IntegerRange::UInt32Maximum) Write(entry, NC2Layout::AIMilitarySlotAccessOffset::MainTaskIndex, added);
                 continue;
             }
-            auto* old = static_cast<std::byte*>(single) + NC2Layout::AISinglePlayerOffset::MainTasks + static_cast<std::uint32_t>(taskId) * 68;
+            auto* old = static_cast<std::byte*>(single) + NC2Layout::AISinglePlayerOffset::MainTasks + static_cast<std::uint32_t>(taskId) * NC2Layout::RecordSize::AIMainTask;
             if (Read<std::uint32_t>(old, NC2Layout::AIMainTaskOffset::ConfiguredPriority) == priority && AITaskSimpleDescription_IsEqualTo(old + NC2Layout::AIMainTaskOffset::Description, task + 8)) continue;
             if (attack && Read<std::uint32_t>(old, NC2Layout::AIMainTaskOffset::ConfiguredPriority) != 0)
             {
@@ -340,24 +341,24 @@ namespace NC2Logic
     // Original function: FUN_00454a3e; adjust queued soldiers before choosing equipment quotas.
     void AIMilitaryManager_l_Soldier_SetupCorrectEquipment(void* manager, void* high)
     {
-        const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId); auto* single = Read<void*>(gAIManager, player * 4);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto player = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId); auto* single = Read<void*>(gAIManager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
         auto count = Read<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::SoldierCount); if (count == 0) return;
         auto remaining = count; auto* villages = static_cast<std::byte*>(high) + NC2Layout::AIHighLevelOffset::Villages;
-        const auto available = [&](std::uint32_t good) { return Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0; };
-        const auto weaponGood = [&](std::uint32_t weapon) { return Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * 22 + weapon) * 12); };
-        const auto armorGood = [&](std::uint32_t armor) { return Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * 12); };
-        const auto soldierAt = [&](std::uint32_t i) { return static_cast<std::byte*>(single) + NC2Layout::AISinglePlayerOffset::Soldiers + i * 84; };
+        const auto available = [&](std::uint32_t good) { return Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * NC2Layout::RecordSize::TribeEquipmentEnables + good + NC2Layout::GameControlPlayerOffset::AllowedEquipment) != 0; };
+        const auto weaponGood = [&](std::uint32_t weapon) { return Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponGoods + (tribe * NC2Runtime::AIEquipmentLimits::Weapons + weapon) * NC2Layout::RecordSize::AIEquipmentRow); };
+        const auto armorGood = [&](std::uint32_t armor) { return Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorGoods + armor * NC2Layout::RecordSize::AIEquipmentRow); };
+        const auto soldierAt = [&](std::uint32_t i) { return static_cast<std::byte*>(single) + NC2Layout::AISinglePlayerOffset::Soldiers + i * NC2Layout::RecordSize::AISoldier; };
         const auto humanAt = [&](const void* soldier) { return CHumanArray::mStaticVars + Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId) * CHumanArray::ElementSize; };
         const auto inVillage = [&](const void* human) { return AIVillagesData_GetVillageId(villages, Human_GetMapPositionRef(human)) != -1; };
-        const auto equip = [&](void* human, std::uint8_t opcode, std::uint32_t good) { Human_DoAddNewUserCommand(human, opcode, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), good, 0); };
+        const auto equip = [&](void* human, std::uint8_t opcode, std::uint32_t good) { Human_DoAddNewUserCommand(human, opcode, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), good, 0); };
         std::int32_t percentage = 0; std::uint32_t ranged = 0;
         if (available(weaponGood(17)) && AIVillagesData_Good_IsProducingGood(villages, weaponGood(17), true)) { percentage = 30; ranged = 17; }
         else if (available(weaponGood(16)) && AIVillagesData_Good_IsProducingGood(villages, weaponGood(16), true)) { percentage = 40; ranged = 16; }
         std::uint32_t weaponWeight = 0, armorWeight = 0;
-        for (std::uint32_t i = 0; i < 8 * 22; ++i) weaponWeight += Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * 12);
-        for (std::uint32_t i = 0; i < 5; ++i) armorWeight += Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * 12);
-        std::int32_t weapons[22]{}, armors[5]{};
+        for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Tribes * NC2Runtime::AIEquipmentLimits::Weapons; ++i) weaponWeight += Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * NC2Layout::RecordSize::AIEquipmentRow);
+        for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Armors; ++i) armorWeight += Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * NC2Layout::RecordSize::AIEquipmentRow);
+        std::int32_t weapons[NC2Runtime::AIEquipmentLimits::Weapons]{}, armors[5]{};
         for (std::uint32_t i = 0; i < count; ++i)
         {
             auto* soldier = soldierAt(i); const auto state = Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction);
@@ -406,22 +407,22 @@ namespace NC2Logic
         else remaining -= static_cast<std::uint32_t>(wantedRanged);
         if (remaining != 0)
         {
-            std::uint32_t wantedWeapons[22]{}, wantedArmors[5]{};
-            std::uint32_t possibleWeapons[22], possibleArmors[5];
+            std::uint32_t wantedWeapons[NC2Runtime::AIEquipmentLimits::Weapons]{}, wantedArmors[5]{};
+            std::uint32_t possibleWeapons[NC2Runtime::AIEquipmentLimits::Weapons], possibleArmors[5];
             if (weaponWeight != 0)
-                for (std::uint32_t i = 0; i < 8 * 22; ++i)
+                for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Tribes * NC2Runtime::AIEquipmentLimits::Weapons; ++i)
                 {
-                    const auto amount = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * 12) * remaining / weaponWeight;
-                    if (amount != 0) wantedArmors[Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponPreferredArmor + i * 12)] += amount;
+                    const auto amount = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponWeights + i * NC2Layout::RecordSize::AIEquipmentRow) * remaining / weaponWeight;
+                    if (amount != 0) wantedArmors[Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::WeaponPreferredArmor + i * NC2Layout::RecordSize::AIEquipmentRow)] += amount;
                 }
             if (armorWeight != 0)
-                for (std::uint32_t i = 0; i < 5; ++i)
+                for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Armors; ++i)
                 {
-                    const auto amount = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * 12) * remaining / armorWeight;
-                    if (amount != 0) wantedWeapons[Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorPreferredWeapon + i * 12)] += amount;
+                    const auto amount = Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorWeights + i * NC2Layout::RecordSize::AIEquipmentRow) * remaining / armorWeight;
+                    if (amount != 0) wantedWeapons[Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::ArmorPreferredWeapon + i * NC2Layout::RecordSize::AIEquipmentRow)] += amount;
                 }
-            for (std::uint32_t i = 0; i < 22; ++i) if (wantedWeapons[i] != 0) possibleWeapons[i] = AIMilitaryManager_l_Soldier_GetBestPossibleWeaponType(manager, i, high);
-            for (std::uint32_t i = 0; i < 5; ++i) if (wantedArmors[i] != 0) possibleArmors[i] = AIMilitaryManager_l_Soldier_GetBestPossibleArmorType(manager, i, high);
+            for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Weapons; ++i) if (wantedWeapons[i] != 0) possibleWeapons[i] = AIMilitaryManager_l_Soldier_GetBestPossibleWeaponType(manager, i, high);
+            for (std::uint32_t i = 0; i < NC2Runtime::AIEquipmentLimits::Armors; ++i) if (wantedArmors[i] != 0) possibleArmors[i] = AIMilitaryManager_l_Soldier_GetBestPossibleArmorType(manager, i, high);
             for (std::uint32_t i = 0; i < count; ++i)
             {
                 auto* soldier = soldierAt(i); const auto state = Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction);
@@ -429,7 +430,7 @@ namespace NC2Logic
                 auto* human = humanAt(soldier); if (!inVillage(human)) continue;
                 const auto weapon = Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::WeaponType);
                 if (weapon != 17 && weapon != 16 && weapons[weapon] > static_cast<std::int32_t>(wantedWeapons[weapon]) && weaponWeight != 0)
-                    for (std::uint32_t next = 1; next < 22; ++next)
+                    for (std::uint32_t next = 1; next < NC2Runtime::AIEquipmentLimits::Weapons; ++next)
                     {
                         if (weapons[next] >= static_cast<std::int32_t>(wantedWeapons[next]) || possibleWeapons[next] == 0) continue;
                         equip(human, 81, weaponGood(possibleWeapons[next])); ++weapons[next]; --weapons[weapon];
@@ -494,7 +495,7 @@ namespace NC2Logic
         if (type != 4) return false;
         std::uint32_t position = 0;
         TargetData_GetMapPosition(point, &position);
-        return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&position), 0) != 3;
+        return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&position), NC2Layout::MapMicroPointOffset::ObjectType) != 3;
     }
     // Original function: FUN_00472ae7.
     bool AIMilitaryPoint_IsValid(const void* point)
@@ -531,7 +532,7 @@ namespace NC2Logic
         std::int32_t free = -1;
         for (std::int32_t i = 0; i < 100; ++i)
         {
-            const auto* entry = static_cast<const std::byte*>(manager) + static_cast<std::uint32_t>(i) * 52;
+            const auto* entry = static_cast<const std::byte*>(manager) + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::AIMilitarySlot;
             if (Read<std::uint8_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::Active) != 0)
             {
                 if (AIMilitaryPoint_IsEqualTo(point, entry + NC2Layout::AIMilitarySlotAccessOffset::Point)) return i;
@@ -539,7 +540,7 @@ namespace NC2Logic
             else if (free == -1) free = i;
         }
         if (free == -1) return free;
-        auto* entry = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(free) * 52;
+        auto* entry = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(free) * NC2Layout::RecordSize::AIMilitarySlot;
         for (std::uint32_t i = 0; i < 32; i += 4) Write(entry, NC2Layout::AIMilitarySlotAccessOffset::Point + i, Read<std::uint32_t>(point, i));
         Write(entry, NC2Layout::AIMilitarySlotAccessOffset::Role, type);
         Write<std::uint8_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::Active, 1);
@@ -551,14 +552,14 @@ namespace NC2Logic
     // Original function: FUN_004553c4.
     void AIMilitaryManager_MilitaryPoint_Clear(void* manager, std::int32_t index)
     {
-        auto* entry = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(index) * 52;
+        auto* entry = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AIMilitarySlot;
         if (Read<std::uint8_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::Active) != 0)
         {
             const auto task = Read<std::int32_t>(entry, NC2Layout::AIMilitarySlotAccessOffset::MainTaskIndex);
             if (task != -1)
             {
-                void* single = Read<void*>(gAIManager, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId) * 4);
-                Write<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescriptionUnsigned + static_cast<std::uint32_t>(task) * 68, 0);
+                void* single = Read<void*>(gAIManager, Read<std::uint32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId) * NC2Layout::RecordSize::AIPlayerHandlerPointer);
+                Write<std::uint32_t>(single, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescriptionUnsigned + static_cast<std::uint32_t>(task) * NC2Layout::RecordSize::AIMainTask, 0);
                 AISinglePlayerHandler_MainTask_RecheckAll(single);
                 AIMilitaryPoint_Clear(entry + NC2Layout::AIMilitarySlotAccessOffset::Point);
             }
@@ -576,7 +577,7 @@ namespace NC2Logic
     void AIMilitaryManager_l_EnemyTarget_ClearCurrentTargetedEnemyPlayer(void* manager)
     {
         const auto index = Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyMilitaryPointIndex);
-        if (index != -1 && Read<std::uint8_t>(manager, static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AIMilitarySlot + 4) != 0) AIMilitaryManager_MilitaryPoint_Clear(manager, index);
+        if (index != -1 && Read<std::uint8_t>(manager, static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AIMilitarySlot + NC2Layout::AIMilitarySlotAccessOffset::Active) != 0) AIMilitaryManager_MilitaryPoint_Clear(manager, index);
         Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyMilitaryPointIndex, -1);
         Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyPlayer, -1);
     }
@@ -588,13 +589,13 @@ namespace NC2Logic
         std::uint32_t score = 100000;
         for (std::int32_t i = 0; i < 20; ++i)
         {
-            const auto* target = static_cast<const std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(i) * 32;
+            const auto* target = static_cast<const std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::AIMilitaryPoint;
             if (!AIMilitaryPoint_IsValid(target)) continue;
             std::uint32_t position = 0;
             TargetData_GetMapPosition(target, &position);
             Tool_Map_GetNotBlockedPosition(&position, true);
             const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(&position, Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::PlayerId), 5);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(center, 0), Read<std::int16_t>(center, 2), Read<std::int16_t>(&position, 0), Read<std::int16_t>(&position, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(center, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(center, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(&position, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(&position, NC2Layout::MapMigPointOffset::MapY));
             const auto candidate = static_cast<std::uint32_t>(danger) + static_cast<std::uint32_t>(distance);
             if (static_cast<std::int32_t>(candidate) >= static_cast<std::int32_t>(score)) continue;
             score = candidate; best = i;
@@ -606,14 +607,14 @@ namespace NC2Logic
     {
         const auto enemy = Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyPlayer);
         if (enemy == -1) return;
-        const auto* target = static_cast<const std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(enemy) * 32;
+        const auto* target = static_cast<const std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets + static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::AIMilitaryPoint;
         if (!AIMilitaryPoint_IsValid(target)) { AIMilitaryManager_l_EnemyTarget_ClearCurrentTargetedEnemyPlayer(manager); return; }
         const auto index = Read<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyMilitaryPointIndex);
         if (index != -1)
         {
-            const auto* previous = static_cast<const std::byte*>(manager) + static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::AIMilitarySlot + 12;
+            const auto* previous = static_cast<const std::byte*>(manager) + static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::AIMilitarySlot + NC2Layout::AIMilitarySlotAccessOffset::Point;
             // Windows compares the current enemy index here, rather than the military-point index.
-            if (Read<std::uint32_t>(previous, NC2Layout::AIMilitaryPointOffset::TargetUniqueId) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(previous, NC2Layout::AIMilitaryPointOffset::Target) == Read<std::uint32_t>(target, 0)) return;
+            if (Read<std::uint32_t>(previous, NC2Layout::AIMilitaryPointOffset::TargetUniqueId) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) && Read<std::uint32_t>(previous, NC2Layout::AIMilitaryPointOffset::Target) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type)) return;
             Write<std::int32_t>(manager, NC2Layout::AIMilitaryManagerOffset::TargetedEnemyMilitaryPointIndex, -1);
             AIMilitaryManager_MilitaryPoint_Clear(manager, index);
         }
@@ -626,8 +627,8 @@ namespace NC2Logic
         auto* position = static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::AttackedPosition;
         TargetData_GetMapPosition(target, position);
         std::byte mapTarget[12]{};
-        Write<std::uint32_t>(mapTarget, 0, 5);
-        Write(mapTarget, 4, Read<std::uint16_t>(position, 0)); Write(mapTarget, 6, Read<std::uint16_t>(position, 2));
+        Write<std::uint32_t>(mapTarget, NC2Layout::TargetDataOffset::Type, 5);
+        Write(mapTarget, NC2Layout::MapTargetDataOffset::MapX, Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapX)); Write(mapTarget, NC2Layout::MapTargetDataOffset::MapY, Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapY));
         Write(manager, NC2Layout::AIMilitaryManagerOffset::AttackedPositionMilitaryPointIndex, AIMilitaryManager_MilitaryPoint_Add(manager, 2, 2, mapTarget, 30, 1, 2));
     }
     // Original function: FUN_0045522f.
@@ -635,18 +636,18 @@ namespace NC2Logic
     {
         for (std::uint32_t village = 0; village < 8; ++village)
         {
-            const auto* entry = static_cast<const std::byte*>(high) + village * 0xCF0;
-            if (Read<std::uint8_t>(entry, 0x24) == 0) continue;
+            const auto* entry = static_cast<const std::byte*>(high) + village * NC2Layout::RecordSize::AIVillageSlot;
+            if (Read<std::uint8_t>(entry, NC2Layout::AIHighLevelVillageViewOffset::Active) == 0) continue;
             std::byte target[12]{};
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, 0x104); ++i)
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIHighLevelVillageViewOffset::DefendPointCount); ++i)
             {
-                const auto* micro = GameMap_GetConstMapMicroPointPtr(entry + 0x108 + i * 4);
-                const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, 4)) : -1;
+                const auto* micro = GameMap_GetConstMapMicroPointPtr(entry + NC2Layout::AIHighLevelVillageViewOffset::DefendPoints + i * NC2Layout::RecordSize::MapMigPoint);
+                const auto houseId = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId)) : -1;
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
                 if (House_GetHouseMainType(house) != 5) continue;
-                Write<std::uint32_t>(target, 0, 4);
-                Write(target, 4, houseId);
-                Write(target, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 4);
+                Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, houseId);
+                Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 AIMilitaryManager_MilitaryPoint_Add(manager, 1, 0, target, 30, 2, 3);
             }
         }
