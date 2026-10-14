@@ -2468,4 +2468,47 @@ namespace SwitchIds
         inline constexpr auto Space = 0x20;
     }
 
+    namespace GuiWindowMessage
+    {
+        inline constexpr auto Query = 0x1000;
+    }
+
+    namespace GuiWindowQuery
+    {
+        inline constexpr auto GameSafetyBox = 0x7EB;
+
+        inline constexpr auto Options = 0x7D8;
+    }
+
+    namespace GameSafetyBoxCommand
+    {
+        inline constexpr auto Restart = 0x2712;
+
+        inline constexpr auto Cancel = 0x2711;
+
+        inline constexpr auto Confirm = 0x2710;
+    }
+
+    namespace GameSafetyBoxMode
+    {
+        inline constexpr auto RestartMap = 3;
+
+        inline constexpr auto MapOutcome = 2;
+
+        inline constexpr auto LeaveGame = 1;
+    }
+
+    namespace OptionsCommandRange
+    {
+        inline constexpr auto FirstPageTab = 0x2904;
+
+        inline constexpr auto FirstPageTabUnsigned = 0x2904u;
+
+        inline constexpr auto FirstAutosaveInterval = 0x28A0;
+
+        inline constexpr auto FirstGameSpeed = 0x283C;
+
+        inline constexpr auto FirstResolution = 0x2710;
+    }
+
 }

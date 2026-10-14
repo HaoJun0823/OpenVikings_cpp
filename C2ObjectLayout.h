@@ -916,6 +916,12 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto GameSafetyBoxWindow = 116;
+
+        inline constexpr auto OptionsWindow = 120;
+
+        inline constexpr auto GuiClockElement = 80;
+
         inline constexpr auto WindowsVideoPlayer = 44;
 
         inline constexpr auto Palette = 1036;
@@ -1652,6 +1658,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto ClockInitializedSuffix = 31;
+
+        inline constexpr auto OptionsWindowVars = 8;
+
         inline constexpr auto PaletteColor = 4;
 
         inline constexpr auto GuiGfxElementVars = 12;
@@ -3694,6 +3704,24 @@ namespace NC2Layout
 
     namespace InGameGuiManagerOffset
     {
+        inline constexpr auto ExpertMode = 0xE0;
+
+        inline constexpr auto MainMode = 0xDC;
+
+        inline constexpr auto ScrollSpeed = 0xD8;
+
+        inline constexpr auto SavedGameSpeed = 0x1A0;
+
+        inline constexpr auto PausedByLargeWindow = 0x198;
+
+        inline constexpr auto SoftwareMouse = 0xE4;
+
+        inline constexpr auto TooltipsDisabled = 0xE1;
+
+        inline constexpr auto BorderScroll = 0xE3;
+
+        inline constexpr auto ThirdButtonScroll = 0xE2;
+
         inline constexpr auto LocalPlayerId = 0;
 
         inline constexpr auto WorldDisplayElement = 4;
@@ -4454,6 +4482,8 @@ namespace NC2Layout
 
     namespace AmbientSoundManagerOffset
     {
+        inline constexpr auto ActiveLoopCount = 0xC;
+
         inline constexpr auto ActiveLoops = 0x0C;
 
         inline constexpr auto LastLandscapeSoundTick = 0x60;
@@ -4536,6 +4566,10 @@ namespace NC2Layout
 
     namespace DirectSoundManagerOffset
     {
+        inline constexpr auto MainVolume = 0x10;
+
+        inline constexpr auto Quality = 0xC;
+
         inline constexpr auto Initialized = 4;
     }
 
@@ -4729,6 +4763,25 @@ namespace NC2Layout
     namespace MasterControlOffset
     {
         inline constexpr auto ExitRequested = 9;
+    }
+
+    namespace OptionsWindowOffset
+    {
+        inline constexpr auto SpeedComparisonValue = 0x74;
+
+        inline constexpr auto Page = 0x70;
+    }
+
+    namespace GameSafetyBoxOffset
+    {
+        inline constexpr auto Mode = 0x70;
+    }
+
+    namespace ClockElementOffset
+    {
+        inline constexpr auto TimeText = 0x31;
+
+        inline constexpr auto AnalogMode = 0x30;
     }
 
 }

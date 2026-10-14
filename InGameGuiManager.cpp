@@ -199,13 +199,13 @@ namespace NInGameGuiManager
             ::new (guiDefinitionTable) NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager;
         }
 
-        *reinterpret_cast<std::int32_t*>(mLegacyState + 0xD8) = ReadIntegerProperty("gui_scroll_speed", 2);
-        *reinterpret_cast<std::int32_t*>(mLegacyState + 0xDC) = ReadIntegerProperty("gui_main_mode", 1);
-        mLegacyState[0xE0] = ReadIntegerProperty("gui_expert_flag", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
-        mLegacyState[0xE1] = ReadIntegerProperty("gui_tooltipsoff_flag", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
-        mLegacyState[0xE2] = ReadIntegerProperty("gui_scroll_on_third_button", 1) != 0 ? std::byte{ 1 } : std::byte{ 0 };
-        mLegacyState[0xE3] = ReadIntegerProperty("gui_scroll_on_border", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
-        mLegacyState[0xE4] = ReadIntegerProperty("gui_mouse_software", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
+        *reinterpret_cast<std::int32_t*>(mLegacyState + NC2Layout::InGameGuiManagerOffset::ScrollSpeed) = ReadIntegerProperty("gui_scroll_speed", 2);
+        *reinterpret_cast<std::int32_t*>(mLegacyState + NC2Layout::InGameGuiManagerOffset::MainMode) = ReadIntegerProperty("gui_main_mode", 1);
+        mLegacyState[NC2Layout::InGameGuiManagerOffset::ExpertMode] = ReadIntegerProperty("gui_expert_flag", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
+        mLegacyState[NC2Layout::InGameGuiManagerOffset::TooltipsDisabled] = ReadIntegerProperty("gui_tooltipsoff_flag", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
+        mLegacyState[NC2Layout::InGameGuiManagerOffset::ThirdButtonScroll] = ReadIntegerProperty("gui_scroll_on_third_button", 1) != 0 ? std::byte{ 1 } : std::byte{ 0 };
+        mLegacyState[NC2Layout::InGameGuiManagerOffset::BorderScroll] = ReadIntegerProperty("gui_scroll_on_border", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
+        mLegacyState[NC2Layout::InGameGuiManagerOffset::SoftwareMouse] = ReadIntegerProperty("gui_mouse_software", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
 
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("allow_cheats") && NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("allow_cheats") != 0)
         {
@@ -256,7 +256,7 @@ namespace NInGameGuiManager
 
     bool CInGameGuiManager::IsMiddleButtonScrollingEnabled() const
     {
-        return mLegacyState[0xE2] != std::byte{ 0 };
+        return mLegacyState[NC2Layout::InGameGuiManagerOffset::ThirdButtonScroll] != std::byte{ 0 };
     }
 
     // Original function: FUN_004a030c.
@@ -393,7 +393,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::ControllingPlayer_Set(std::int32_t playerId, bool force)
     {
         if (GetLocalPlayerId() == playerId && !force) return;
-        NC2Lifetime::Write<std::int32_t>(this, 0, playerId);
+        NC2Lifetime::Write<std::int32_t>(this, NC2Layout::InGameGuiManagerOffset::LocalPlayerId, playerId);
         NC2E2::Inform_ControllingPlayerChanged(playerId);
         NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(playerId);
         static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAll(false);
@@ -664,70 +664,70 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2af3.
     void CInGameGuiManager::Options_ScrollSpeed_Set(std::uint32_t speed, bool save)
     {
-        if (NC2Lifetime::Read<std::uint32_t>(this, 0xD8) == speed) return;
-        NC2Lifetime::Write<std::uint32_t>(this, 0xD8, speed);
+        if (NC2Lifetime::Read<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::ScrollSpeed) == speed) return;
+        NC2Lifetime::Write<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::ScrollSpeed, speed);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2b2d.
     void CInGameGuiManager::Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save)
     {
-        if (NC2Lifetime::Read<std::uint32_t>(this, 0xDC) == mode) return;
-        NC2Lifetime::Write<std::uint32_t>(this, 0xDC, mode);
+        if (NC2Lifetime::Read<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::MainMode) == mode) return;
+        NC2Lifetime::Write<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::MainMode, mode);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2b52.
     void CInGameGuiManager::Options_GuiMisc_SetExpertFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE0) == static_cast<std::uint8_t>(enabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(this, 0xE0, enabled);
+        if (NC2Lifetime::Read<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::ExpertMode) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::ExpertMode, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2b77.
     void CInGameGuiManager::Options_GuiMisc_SetTooltipsOffFlag(bool disabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE1) == static_cast<std::uint8_t>(disabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(this, 0xE1, disabled);
+        if (NC2Lifetime::Read<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::TooltipsDisabled) == static_cast<std::uint8_t>(disabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::TooltipsDisabled, disabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2b9c.
     void CInGameGuiManager::Options_Scrolling_SetThirdMouseButtonScrollFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE2) == static_cast<std::uint8_t>(enabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(this, 0xE2, enabled);
+        if (NC2Lifetime::Read<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::ThirdButtonScroll) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::ThirdButtonScroll, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2bc1.
     void CInGameGuiManager::Options_Scrolling_SetBorderScrollFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE3) == static_cast<std::uint8_t>(enabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(this, 0xE3, enabled);
+        if (NC2Lifetime::Read<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::BorderScroll) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::BorderScroll, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2be6.
     void CInGameGuiManager::Options_Scrolling_SetSoftwareMouseFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE4) == static_cast<std::uint8_t>(enabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(this, 0xE4, enabled);
+        if (NC2Lifetime::Read<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::SoftwareMouse) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(this, NC2Layout::InGameGuiManagerOffset::SoftwareMouse, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
 
     // Original function: FUN_004a2b18.
     std::uint32_t CInGameGuiManager::Options_ScrollSpeed_Get() const
     {
-        return NC2Lifetime::Read<std::uint32_t>(this, 0xD8);
+        return NC2Lifetime::Read<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::ScrollSpeed);
     }
 
     // Original function: FUN_004a2b1f; complete three-DWORD table at 00507380..0050738B.
     std::uint32_t CInGameGuiManager::Options_ScrollSpeed_GetInPixelPerSecond() const
     {
         static constexpr std::uint32_t speeds[3]{300, 600, 1200};
-        return speeds[NC2Lifetime::Read<std::uint32_t>(this, 0xD8)];
+        return speeds[NC2Lifetime::Read<std::uint32_t>(this, NC2Layout::InGameGuiManagerOffset::ScrollSpeed)];
     }
 }
 

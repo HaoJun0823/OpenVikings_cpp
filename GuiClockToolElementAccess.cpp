@@ -90,18 +90,30 @@ namespace NC2InGameGuiBase
         Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 1);
         Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gClockVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 31);
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::ClockElementOffset::AnalogMode, 0, NC2Layout::RecordSize::ClockInitializedSuffix);
         return element;
     }
     // Original empty exit callbacks are distinct entries.
     // Original function: FUN_004b9c5f.
-    static int __cdecl ClockColourExit255() { return 0; }
+    static int __cdecl ClockColourExit255()
+    {
+        return 0;
+    }
     // Original function: FUN_004b9c60.
-    static int __cdecl ClockColourExit200() { return 0; }
+    static int __cdecl ClockColourExit200()
+    {
+        return 0;
+    }
     // Original function: FUN_004b9c61.
-    static int __cdecl ClockColourExit150() { return 0; }
+    static int __cdecl ClockColourExit150()
+    {
+        return 0;
+    }
     // Original function: FUN_004b9c62.
-    static int __cdecl ClockColourExit100() { return 0; }
+    static int __cdecl ClockColourExit100()
+    {
+        return 0;
+    }
     // Complete lazy colour region 00569438..0056944B.
     struct SClockColourState
     {
@@ -165,9 +177,9 @@ namespace NC2InGameGuiBase
         const auto offsetY = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->y));
         SYSTEMTIME time;
         ::GetLocalTime(&time);
-        char* text = static_cast<char*>(element) + 0x31;
+        char* text = static_cast<char*>(element) + NC2Layout::ClockElementOffset::TimeText;
         NXBasics::Runtime_PrintString(text, "%d:%2.2d:%2.2d", time.wHour, time.wMinute, time.wSecond);
-        if (Read<std::uint8_t>(element, 0x30) != 0)
+        if (Read<std::uint8_t>(element, NC2Layout::ClockElementOffset::AnalogMode) != 0)
         {
             ClockColours_Initialize();
             constexpr float fullTurn = 6.283185482025146484375f;
@@ -176,7 +188,8 @@ namespace NC2InGameGuiBase
             {
                 ToolClockElement_DrawPointer(element, bitmap, angle, &gClockColours.colour100, 0.800000011920928955f, 1.0f, offsetX, offsetY);
                 angle = static_cast<float>(static_cast<double>(angle) + 0.52359879016876220703125f);
-            } while (angle < fullTurn);
+            }
+            while (angle < fullTurn);
             constexpr float sixtieth = 0.0166666675359010696f;
             constexpr float twelfth = 0.083333335816860199f;
             const float seconds = static_cast<float>(static_cast<double>(time.wSecond) * sixtieth * fullTurn);
@@ -200,7 +213,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b9c63.
     static bool __fastcall ToolClockElement_ToolTip(void* element, void*, const char** output)
     {
-        *output = static_cast<const char*>(element) + 0x31;
+        *output = static_cast<const char*>(element) + NC2Layout::ClockElementOffset::TimeText;
         return true;
     }
 }

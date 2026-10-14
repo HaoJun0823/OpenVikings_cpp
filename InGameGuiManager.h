@@ -13,6 +13,20 @@ namespace NC2Logic { class CIoHelper; }
 
 namespace NInGameGuiManager
 {
+    // Documentary view of the 424-byte legacy block; unclassified spans are not guessed members.
+    struct SGuiSettingsAndPauseStorage
+    {
+        std::int32_t localPlayerId;
+        void* worldDisplayElement;
+        std::byte unclassified08[208];
+        std::uint32_t scrollSpeed, mainMode;
+        std::uint8_t expertMode, tooltipsDisabled, thirdButtonScroll, borderScroll, softwareMouse;
+        std::byte unclassifiedE5[179];
+        std::uint8_t pausedByLargeWindow;
+        std::byte unclassified199[7];
+        double savedGameSpeed;
+    };
+
     struct SInGameGuiStaticVars
     {
         bool desktopInitialized;             // 005690B8

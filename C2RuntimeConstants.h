@@ -661,4 +661,18 @@ namespace NC2Runtime
         inline constexpr auto TrueColor = 32;
     }
 
+    namespace AutosaveDisplayTiming
+    {
+        inline constexpr auto TicksPerSecondUnsigned = 12u;
+
+        inline constexpr auto TicksPerMinuteUnsigned = 720u;
+    }
+
+    namespace OptionsWindowLimits
+    {
+        inline constexpr auto UserSaveSlots = 100;
+
+        inline constexpr auto Pages = 6;
+    }
+
 }
