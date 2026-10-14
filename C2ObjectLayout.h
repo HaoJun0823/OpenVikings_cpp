@@ -1264,6 +1264,16 @@ namespace NC2Layout
 
     namespace AIMainTaskOffset
     {
+        inline constexpr auto NoWayCorrection = 0x34;
+
+        inline constexpr auto NoWayCorrectionMode = 0x38;
+
+        inline constexpr auto NoWayCorrectionPendingFlag = 0x34;
+
+        inline constexpr auto NoWayTargetPoint = 64;
+
+        inline constexpr auto NoWaySourcePoint = 60;
+
         inline constexpr auto Description = 8;
         inline constexpr auto PrimaryPosition = 12;
         inline constexpr auto PrimaryPositionY = 14;
@@ -1480,6 +1490,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AIMainTaskNoWayCorrection = 16;
+
+        inline constexpr auto AIMainTaskPrefix = 0x34;
+
         inline constexpr auto MapContinent = 16;
 
         inline constexpr auto MapContinentUnsigned = 16u;
@@ -2786,6 +2800,11 @@ namespace NC2Layout
         inline constexpr auto SeedPoint = 4;
 
         inline constexpr auto Type = 0;
+    }
+
+    namespace MapMigPointOffset
+    {
+        inline constexpr auto Coordinates = 0;
     }
 
 }

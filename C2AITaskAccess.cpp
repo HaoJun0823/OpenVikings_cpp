@@ -123,8 +123,8 @@ namespace NC2Logic
     // Original function: FUN_0042b489.
     void AIMainTask_Init(void* task, std::uint32_t type, std::int32_t priority, std::uint32_t condition)
     {
-        NXBasics::Runtime_FillMemory(task, 0, 0x34);
-        NXBasics::Runtime_FillMemory(static_cast<std::byte*>(task) + 0x34, 0, 16);
+        NXBasics::Runtime_FillMemory(task, 0, NC2Layout::RecordSize::AIMainTaskPrefix);
+        NXBasics::Runtime_FillMemory(static_cast<std::byte*>(task) + NC2Layout::AIMainTaskOffset::NoWayCorrection, 0, NC2Layout::RecordSize::AIMainTaskNoWayCorrection);
         Write(task, NC2Layout::AIMainTaskOffset::Description, type);
         Write(task, NC2Layout::AIMainTaskOffset::ConfiguredPriority, priority);
         Write(task, NC2Layout::AIMainTaskOffset::ConditionId, condition);
