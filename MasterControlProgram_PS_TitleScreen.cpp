@@ -78,7 +78,7 @@ namespace
         memory = NXBasics::Runtime_AllocateWithNewHandler(1036, 1);
         auto* palette = memory != nullptr ? ::new (memory) NXBasics::CPalette() : nullptr;
         Write(manager, 0xE4, palette);
-        for (std::uint32_t index = 0; index < 256; ++index) reinterpret_cast<NXBasics::SColorRGB*>(reinterpret_cast<std::byte*>(palette) + 4 + index * 4)->SetColors(static_cast<std::uint8_t>(index), 0, 0);
+        for (std::uint32_t index = 0; index < 256; ++index) reinterpret_cast<NXBasics::SColorRGB*>(reinterpret_cast<std::byte*>(palette) + 4 + index * 4)->SetColors(static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index), static_cast<std::uint8_t>(index));
     }
 
     // Original function: FUN_00402fcb; resource fields remain unchanged.
