@@ -411,6 +411,8 @@ namespace NC2Layout
 
     namespace PaletteOffset
     {
+        inline constexpr auto LastColor = 0x400;
+
         inline constexpr auto Colors = 4;
         inline constexpr auto PlayerColorSampleWithinRange = 0x2C;
     }
@@ -1594,6 +1596,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuiTextButtonVars = 48;
+
+        inline constexpr auto GuiTextElementVars = 206;
+
         inline constexpr auto HouseInhabitantsSelectionVars = 2232;
 
         inline constexpr auto HouseInhabitantsSelectionSlot = 20;
@@ -3972,6 +3978,60 @@ namespace NC2Layout
         inline constexpr auto RoleMask = 4;
 
         inline constexpr auto HumanId = 0;
+    }
+
+    namespace GuiTextElementOffset
+    {
+        inline constexpr auto Caption = 0x30;
+
+        inline constexpr auto DarkFontFlag = 0xFD;
+
+        inline constexpr auto SmallFontFlag = 0xFB;
+
+        inline constexpr auto DrawFrameFlag = 0xFA;
+
+        inline constexpr auto CenteredFlag = 0xF8;
+
+        inline constexpr auto CaptionTerminator = 0xF7;
+
+        inline constexpr auto WrapTextFlag = 0xFC;
+
+        inline constexpr auto FillBackgroundFlag = 0xF9;
+    }
+
+    namespace GuiTextButtonOffset
+    {
+        inline constexpr auto ImmediateTooltipFlag = 0x48;
+
+        inline constexpr auto MessageParameter2 = 0x50;
+
+        inline constexpr auto MessageParameter1 = 0x4C;
+
+        inline constexpr auto LineCount = 0x38;
+
+        inline constexpr auto SkipOverwideCaptionFlag = 0x58;
+
+        inline constexpr auto MultilineFlag = 0x34;
+
+        inline constexpr auto Caption = 0x30;
+
+        inline constexpr auto SmallFontFlag = 0x57;
+
+        inline constexpr auto SolidColor = 0x5C;
+
+        inline constexpr auto FillSolidColorFlag = 0x59;
+
+        inline constexpr auto DisabledFlag = 0x56;
+
+        inline constexpr auto Tooltip = 0x44;
+
+        inline constexpr auto CenteredFlag = 0x54;
+
+        inline constexpr auto SelectedFlag = 0x55;
+
+        inline constexpr auto Receiver = 0x40;
+
+        inline constexpr auto Command = 0x3C;
     }
 
 }

@@ -468,4 +468,16 @@ namespace NC2Runtime
         inline constexpr auto Humans = 100;
     }
 
+    namespace TextElementLimits
+    {
+        inline constexpr auto CaptionCharacters = 0xC7;
+    }
+
+    namespace GuiVirtualSlot
+    {
+        inline constexpr auto DoPressedAction = 17;
+
+        inline constexpr auto MessageHandle = 2;
+    }
+
 }

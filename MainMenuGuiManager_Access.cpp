@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "MainMenuGuiManager_Access.h"
 #include "MainMenuGuiManager.h"
 #include "MainMenuWorldDisplayElement.h"
@@ -255,20 +258,20 @@ namespace NC2InGameGuiBase
     void BaseToolTextButton_SetCaptionString(void* element, const char* text)
     {
         using namespace NC2Lifetime;
-        NXBasics::Runtime_Free(Read<char*>(element, 0x30));
-        Write<char*>(element, 0x30, nullptr);
+        NXBasics::Runtime_Free(Read<char*>(element, NC2Layout::GuiTextButtonOffset::Caption));
+        Write<char*>(element, NC2Layout::GuiTextButtonOffset::Caption, nullptr);
         char* copy = NXBasics::StringDuplicate(text);
-        Write(element, 0x30, copy);
+        Write(element, NC2Layout::GuiTextButtonOffset::Caption, copy);
         const char* separator = std::strstr(copy, "\r\n");
-        Write<std::uint32_t>(element, 0x38, 0);
-        Write<std::uint8_t>(element, 0x34, separator != nullptr);
+        Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::LineCount, 0);
+        Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::MultilineFlag, separator != nullptr);
         if (separator != nullptr)
         {
-            Write<std::uint32_t>(element, 0x38, 1);
-            separator = std::strstr(Read<char*>(element, 0x30), "\r\n");
+            Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::LineCount, 1);
+            separator = std::strstr(Read<char*>(element, NC2Layout::GuiTextButtonOffset::Caption), "\r\n");
             while (separator != nullptr)
             {
-                Write(element, 0x38, Read<std::uint32_t>(element, 0x38) + 1u);
+                Write(element, NC2Layout::GuiTextButtonOffset::LineCount, Read<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::LineCount) + 1u);
                 separator = std::strstr(separator + 2, "\r\n");
             }
         }
@@ -278,17 +281,17 @@ namespace NC2InGameGuiBase
     void BaseToolTextButton_SetBackgroundColor(void* element, const void* color)
     {
         using namespace NC2Lifetime;
-        Write<std::uint8_t>(element, 0x59, 1);
-        Write(element, 0x5C, Read<std::uint32_t>(color, 0));
+        Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::FillSolidColorFlag, 1);
+        Write(element, NC2Layout::GuiTextButtonOffset::SolidColor, Read<std::uint32_t>(color, 0));
     }
 
     // Original function: FUN_004b9052.
     void BaseToolTextButton_SetToolTipString(void* element, const char* text)
     {
         using namespace NC2Lifetime;
-        NXBasics::Runtime_Free(Read<char*>(element, 0x44));
-        Write<char*>(element, 0x44, nullptr);
-        if (text != nullptr) Write(element, 0x44, NXBasics::StringDuplicate(text));
+        NXBasics::Runtime_Free(Read<char*>(element, NC2Layout::GuiTextButtonOffset::Tooltip));
+        Write<char*>(element, NC2Layout::GuiTextButtonOffset::Tooltip, nullptr);
+        if (text != nullptr) Write(element, NC2Layout::GuiTextButtonOffset::Tooltip, NXBasics::StringDuplicate(text));
     }
 }
 

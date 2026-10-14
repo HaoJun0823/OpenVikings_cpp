@@ -2363,4 +2363,20 @@ namespace SwitchIds
         inline constexpr auto Catapult = 0x36;
     }
 
+    namespace TextButtonMessage
+    {
+        inline constexpr auto DoPressedAction = 0x40;
+
+        inline constexpr auto ForwardToParentHandler = 0x100;
+
+        inline constexpr auto Command = 0x800;
+    }
+
+    namespace TextButtonCommand
+    {
+        inline constexpr auto GetPlainCaption = 0x7F1;
+
+        inline constexpr auto GetCommandParameters = 0x7F0;
+    }
+
 }
