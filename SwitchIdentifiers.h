@@ -2174,6 +2174,8 @@ namespace SwitchIds
 
     namespace VehicleTask
     {
+        inline constexpr auto Idle = 0;
+
         inline constexpr auto Dock = 1;
         inline constexpr auto Attack = 2;
         inline constexpr auto WaitForPassengers = 3;
@@ -2339,6 +2341,11 @@ namespace SwitchIds
         inline constexpr auto Or = 2;
 
         inline constexpr auto And = 1;
+    }
+
+    namespace VehicleJob
+    {
+        inline constexpr auto Catapult = 0x36;
     }
 
 }

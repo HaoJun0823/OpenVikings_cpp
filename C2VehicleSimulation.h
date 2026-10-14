@@ -1,8 +1,19 @@
 #pragma once
 #include <cstdint>
+#include <cstddef>
 
 namespace NC2Logic
 {
+    // Physical Windows fragments; existing byte access and ownership remain unchanged.
+    struct SVehiclePassengerReferenceStorage { std::uint32_t objectId, objectRevision; std::uint8_t inside; std::byte padding09[3]; };
+    struct SVehicleMilitaryTargetStorage { std::uint32_t type, objectIdOrMapPosition, objectRevision; };
+    struct SVehicleMilitaryStateStorage
+    {
+        SVehicleMilitaryTargetStorage targets[2];
+        std::uint32_t activeTargetIndex, militaryMode, carrierVehicleId, carrierVehicleRevision;
+        std::uint8_t insideVehicle;
+        std::byte padding29[3];
+    };
     struct SStaticAtomicAnimationEventData;
     void Vehicle_DoUpdateConditions(void* vehicle);
     void Vehicle_DoUpdateAI(void* vehicle);

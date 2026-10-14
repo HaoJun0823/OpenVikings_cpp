@@ -1913,6 +1913,8 @@ namespace NC2Layout
 
     namespace VehicleOffset
     {
+        inline constexpr auto PrimaryMilitaryTargetRevisionHighWord = 0x52A;
+
         inline constexpr auto AllocatedFlag = 0;
         inline constexpr auto VehicleId = 4;
         inline constexpr auto UniqueId = 8;
@@ -2150,6 +2152,8 @@ namespace NC2Layout
 
     namespace ToUserMessageOffset
     {
+        inline constexpr auto EquipmentItems = 0x2E0;
+
         inline constexpr auto Type = 0;
         inline constexpr auto FinishedFlag = 4;
         inline constexpr auto PlayerId = 8;
@@ -3666,6 +3670,13 @@ namespace NC2Layout
         inline constexpr auto Deferred = 0x14;
 
         inline constexpr auto Ordinary = 0x28;
+    }
+
+    namespace LogicActorHeaderOffset
+    {
+        inline constexpr auto UniqueId = 8;
+
+        inline constexpr auto AllocatedFlag = 0;
     }
 
 }

@@ -351,4 +351,49 @@ namespace NC2Runtime
         inline constexpr auto EvaluationIntervalTicksUnsigned = 36u;
     }
 
+    namespace VehicleCommandQueue
+    {
+        inline constexpr auto Capacity = 22;
+    }
+
+    namespace VehicleWeaponSlot
+    {
+        inline constexpr auto CatapultUnsigned = 21u;
+    }
+
+    namespace VehicleAtomicAction
+    {
+        inline constexpr auto Dock = 0x54;
+
+        inline constexpr auto Attack = 0x51;
+
+        inline constexpr auto Walk = 1;
+
+        inline constexpr auto None = 0;
+    }
+
+    namespace VehicleWalkTiming
+    {
+        inline constexpr auto TurningTicks = 2;
+
+        inline constexpr auto ProgressRoundingBiasUnsigned = 9999u;
+
+        inline constexpr auto MinimumTicks = 3;
+
+        inline constexpr auto CatapultMultiplierUnsigned = 2u;
+
+        inline constexpr auto BaseTicksUnsigned = 4u;
+
+        inline constexpr auto TerrainMultiplierUnsigned = 2u;
+    }
+
+    namespace MapWalkingFlags
+    {
+        inline constexpr auto SpeedMaskUnsigned = 15u;
+
+        inline constexpr auto SpeedShift = 3;
+
+        inline constexpr auto VehicleSizeMaskUnsigned = 7u;
+    }
+
 }
