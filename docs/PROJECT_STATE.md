@@ -1,5 +1,23 @@
 # OpenVikings Project State
 
+## Network, missions, vehicles, GUI support and pathfinder continuation - 2026-10-14
+
+Five further owning blocks are completed and committed: network commands/checksum queues (`1308184`), mission fixed-field consumers/player statistics (`ca6f7cf`), vehicle simulation/passenger and target records (`98bde8e`), selection groups/retained-human records and their save/message consumers (`b6fbc38`), and pathfinder fields/search budgets/directions (`03c1074`). Evidence: [NETWORK_COMMAND_RECORDS_REVIEW.md](NETWORK_COMMAND_RECORDS_REVIEW.md), [MISSION_CONSUMER_FIELDS_REVIEW.md](MISSION_CONSUMER_FIELDS_REVIEW.md), [VEHICLE_SIMULATION_FIELDS_REVIEW.md](VEHICLE_SIMULATION_FIELDS_REVIEW.md), [GUI_SUPPORT_RECORDS_REVIEW.md](GUI_SUPPORT_RECORDS_REVIEW.md), and [PATHFINDER_SEARCH_FIELDS_REVIEW.md](PATHFINDER_SEARCH_FIELDS_REVIEW.md). The wider whole-source readability and Windows behavior review remains incomplete.
+
+| Block | Value/type comparisons | Physical relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| Network command records | 67 | 20 | 1286 | 130 |
+| Mission consumer fields | 62 | 16 | 6141 | 131 |
+| Vehicle simulation | 71 | 20 | 2769 | 140 |
+| GUI support records | 70 | 27 | 1402 | 180 |
+| Pathfinder search fields | 46 | 34 | 3132 | 100 |
+
+Each block has exact frozen-baseline/stage/source-token checks, literal/type and physical layout assertions, Windows instruction-byte provenance and targeted Win32 `/Zs` checks. A final check of all 307 production translation units plus fifteen private assertion units passed without errors or warnings. The new direction names additionally use both complete eight-entry Windows cursor tables; inline jump tables are excluded from instruction counts. No build, tests or game execution occurred. Project/filter parity remains 307 CPP / 288 headers and the naming map has 3151 unique addresses. The independent CFile bounds/prefix-move commit `b223fff` is preserved.
+
+Fresh scan: 595 registered files, 151382 lines, **5427 raw numeric access operands**, **75 unknown-member mentions**, 1095 long multi-statement lines and 5014 native address annotations. This removes 406 candidates from 5833. Relative to the initial 14730, 9303 candidates are removed (63.16% text-scan reduction). These are review candidates, not missing-function counts or an overall completion percentage; numeric mission parameter-array indices can remain flagged after fixed offsets are named. The known-entry reconstruction ledger remains 5063/5063 and does not certify full behavioral equivalence. No complete reviewed-function x/y ledger exists.
+
+Next file-level candidates: main-menu commands 75; engine lifetime, AI guides and engine macro maps 72 each; map resources and terrain access 71 each; military target search 70; human attack tasks 69; house-inhabitants GUI 68; animal tasks 65; single-player AI and house access 61 each. Preserve documented unresolved fields and original Windows behavior. New explicit physical targets include the group manager's four-byte prefix and retained-human record bytes `2C..2F`; the one-byte input static region and callback selector `2E` also remain unresolved. Mission parameter meanings/repath thresholds require further review. Do not infer identities from Mac layouts or claim naming as runtime completion.
+
 ## Military AI and vehicle inhabitants continuation - 2026-10-14
 
 Two further owner blocks are committed: military AI equipment/targets (`40dd7c5`) and both vehicle inhabitants widgets (`a7b644f`). See [AI_MILITARY_CONSUMERS_REVIEW.md](AI_MILITARY_CONSUMERS_REVIEW.md) and [VEHICLE_INHABITANTS_FIELDS_REVIEW.md](VEHICLE_INHABITANTS_FIELDS_REVIEW.md). Together with the eight blocks below, this continuation has completed ten further blocks. The broad whole-source review remains incomplete.
