@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
@@ -52,7 +53,7 @@ namespace NC2Logic
     bool __fastcall AIManager_IO_InitFromScript(void* manager, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)
     {
         std::byte task[68]{};
-        std::byte condition[72];
+        std::byte condition[NC2Layout::RecordSize::AICondition];
         if (reader->GetFirstGroup("AIData") == nullptr) return true;
         do
         {
@@ -102,43 +103,43 @@ namespace NC2Logic
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
-                    const std::uint32_t type = token == SwitchIds::AIToken::AISetConditionTrue ? 1u : token == SwitchIds::AIToken::AISetConditionOnTime ? 2u : token == SwitchIds::AIToken::AISetConditionOnConditions ? 3u : token == SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed ? 4u : token == SwitchIds::AIToken::AISetConditionOnDiplomacyChange ? 5u : token == SwitchIds::AIToken::AISetConditionOnCreatureInRange ? 6u : token == SwitchIds::AIToken::AISetConditionOnHouseInRange ? 7u : token == SwitchIds::AIToken::AISetConditionOnPlayerSeen ? 8u : token == SwitchIds::AIToken::AISetConditionOnPlayerDead ? 9u : token == SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers ? 10u : token == SwitchIds::AIToken::AISetConditionOnExternal ? 11u : 12u;
-                    if (type == 1 || type == 2) AICondition_Init(condition, type, 1);
+                    const std::uint32_t type = token == SwitchIds::AIToken::AISetConditionTrue ? SwitchIds::AICondition::TrueUnsigned : token == SwitchIds::AIToken::AISetConditionOnTime ? SwitchIds::AICondition::GameTimeUnsigned : token == SwitchIds::AIToken::AISetConditionOnConditions ? SwitchIds::AICondition::LogicalCombinationUnsigned : token == SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed ? SwitchIds::AICondition::TimeSinceConditionChangeUnsigned : token == SwitchIds::AIToken::AISetConditionOnDiplomacyChange ? SwitchIds::AICondition::DiplomacyUnsigned : token == SwitchIds::AIToken::AISetConditionOnCreatureInRange ? SwitchIds::AICondition::MapMoveableNearPositionUnsigned : token == SwitchIds::AIToken::AISetConditionOnHouseInRange ? SwitchIds::AICondition::HouseNearPositionUnsigned : token == SwitchIds::AIToken::AISetConditionOnPlayerSeen ? SwitchIds::AICondition::ExternalFlagUnsigned : token == SwitchIds::AIToken::AISetConditionOnPlayerDead ? SwitchIds::AICondition::PlayerHasNoHumansUnsigned : token == SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers ? SwitchIds::AICondition::SoldierCountUnsigned : token == SwitchIds::AIToken::AISetConditionOnExternal ? SwitchIds::AICondition::ActivatedFlagUnsigned : SwitchIds::AICondition::PeriodicUnsigned;
+                    if (type == SwitchIds::AICondition::True || type == SwitchIds::AICondition::GameTime) AICondition_Init(condition, type, 1);
                     const auto index = reader->GetInt();
-                    const auto flag = type == 1 || type == 2 || type == 9 ? 1 : type == 11 || type == 12 ? 0 : reader->GetInt() != 0;
-                    if (type != 1 && type != 2) AICondition_Init(condition, type, static_cast<std::uint8_t>(flag));
+                    const auto flag = type == SwitchIds::AICondition::True || type == SwitchIds::AICondition::GameTime || type == SwitchIds::AICondition::PlayerHasNoHumans ? 1 : type == SwitchIds::AICondition::ActivatedFlag || type == SwitchIds::AICondition::Periodic ? 0 : reader->GetInt() != 0;
+                    if (type != SwitchIds::AICondition::True && type != SwitchIds::AICondition::GameTime) AICondition_Init(condition, type, static_cast<std::uint8_t>(flag));
                     const auto integer = [&](std::uint32_t offset) { Write(condition, offset, static_cast<std::uint32_t>(reader->GetInt())); };
                     const auto coordinate = [&](std::uint32_t offset) { Write(condition, offset, static_cast<std::int16_t>(reader->GetInt())); };
                     const auto boolean = [&](std::uint32_t offset) { Write<std::uint8_t>(condition, offset, reader->GetInt() != 0); };
-                    if (type == 2) Write(condition, 24, static_cast<std::uint32_t>(reader->GetInt()) * 720u);
-                    else if (type == 3)
+                    if (type == SwitchIds::AICondition::GameTime) Write(condition, NC2Layout::AIConditionGameTimeOffset::RequiredTick, static_cast<std::uint32_t>(reader->GetInt()) * NC2Runtime::AIConditionLimits::TicksPerScriptMinuteUnsigned);
+                    else if (type == SwitchIds::AICondition::LogicalCombination)
                     {
-                        AIConditionToConditionCheck_Tool_Init(condition + 24, reader->GetInt());
+                        AIConditionToConditionCheck_Tool_Init(condition + NC2Layout::AIConditionOffset::Payload, reader->GetInt());
                         while (reader->GetTypeOfNextParameter() == 3)
                         {
                             const auto reference = reader->GetInt();
-                            const auto count = Read<std::uint32_t>(condition, 28);
-                            if (count < 10) { Write(condition, 32 + count * 4, reference); Write(condition, 28, count + 1); }
+                            const auto count = Read<std::uint32_t>(condition, NC2Layout::AIConditionLogicalCombinationOffset::OperandCount);
+                            if (count < NC2Runtime::AIConditionLimits::Operands) { Write(condition, NC2Layout::AIConditionLogicalCombinationOffset::OperandIds + count * NC2Layout::RecordSize::AIConditionOperand, reference); Write(condition, NC2Layout::AIConditionLogicalCombinationOffset::OperandCount, count + 1); }
                         }
                     }
-                    else if (type == 4) { integer(24); boolean(28); Write(condition, 32, static_cast<std::uint32_t>(reader->GetInt()) * 12u); }
-                    else if (type == 5 || type == 12) { integer(24); integer(28); integer(32); }
-                    else if (type == 6 || type == 7)
+                    else if (type == SwitchIds::AICondition::TimeSinceConditionChange) { integer(NC2Layout::AIConditionTimeSinceConditionChangeOffset::ConditionId); boolean(NC2Layout::AIConditionTimeSinceConditionChangeOffset::WatchActive); Write(condition, NC2Layout::AIConditionTimeSinceConditionChangeOffset::DelayTicks, static_cast<std::uint32_t>(reader->GetInt()) * NC2Runtime::AIConditionLimits::TicksPerScriptSecondUnsigned); }
+                    else if (type == SwitchIds::AICondition::Diplomacy || type == SwitchIds::AICondition::Periodic) { integer(NC2Layout::AIConditionOffset::PayloadWord0); integer(NC2Layout::AIConditionOffset::PayloadWord1); integer(NC2Layout::AIConditionOffset::PayloadWord2); }
+                    else if (type == SwitchIds::AICondition::MapMoveableNearPosition || type == SwitchIds::AICondition::HouseNearPosition)
                     {
-                        coordinate(24); coordinate(26); integer(28); integer(32); boolean(36);
-                        if (type == 7) { integer(40); boolean(44); } else boolean(37);
+                        coordinate(NC2Layout::AIConditionNearPositionOffset::MapX); coordinate(NC2Layout::AIConditionNearPositionOffset::MapY); integer(NC2Layout::AIConditionNearPositionOffset::Radius); integer(NC2Layout::AIConditionNearPositionOffset::PlayerId); boolean(NC2Layout::AIConditionNearPositionOffset::OpponentsOnly);
+                        if (type == SwitchIds::AICondition::HouseNearPosition) { integer(NC2Layout::AIConditionHouseNearPositionOffset::HouseType); boolean(NC2Layout::AIConditionHouseNearPositionOffset::CompletedOnly); } else boolean(NC2Layout::AIConditionMapMoveableNearPositionOffset::MilitaryOnly);
                     }
-                    else if (type == 8)
+                    else if (type == SwitchIds::AICondition::ExternalFlag)
                     {
                         const auto first = reader->GetInt();
                         if (!IsScriptPlayerActive(first)) break;
                         const auto second = reader->GetInt();
                         if (!IsScriptPlayerActive(second)) break;
-                        Write(condition, 24, first); Write(condition, 28, second);
+                        Write(condition, NC2Layout::AIConditionExternalFlagOffset::PlayerId, first); Write(condition, NC2Layout::AIConditionExternalFlagOffset::SeenPlayerId, second);
                     }
-                    else if (type == 9) integer(24);
-                    else if (type == 10) { integer(24); integer(28); }
-                    else if (type == 11) boolean(24);
+                    else if (type == SwitchIds::AICondition::PlayerHasNoHumans) integer(NC2Layout::AIConditionPlayerHasNoHumansOffset::PlayerId);
+                    else if (type == SwitchIds::AICondition::SoldierCount) { integer(NC2Layout::AIConditionSoldierCountOffset::MinimumCount); integer(NC2Layout::AIConditionSoldierCountOffset::PlayerId); }
+                    else if (type == SwitchIds::AICondition::ActivatedFlag) boolean(NC2Layout::AIConditionActivatedFlagOffset::Flag);
                     AIManager_EntryPoint_Condition_Set(manager, player, index, condition);
                     break;
                 }

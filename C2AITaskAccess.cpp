@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AITaskAccess.h"
@@ -181,8 +183,8 @@ namespace NC2Logic
     // Original function: FUN_0042b5d3.
     void AIConditionToConditionCheck_Tool_Init(void* check, std::uint32_t operation)
     {
-        Write<std::uint32_t>(check, 4, 0); Write(check, 0, operation);
-        for (std::uint32_t i = 0; i < 10; ++i) Write<std::uint32_t>(check, 8 + i * 4, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(check, NC2Layout::AIConditionCheckOffset::OperandCount, 0); Write(check, NC2Layout::AIConditionCheckOffset::Operation, operation);
+        for (std::uint32_t i = 0; i < NC2Runtime::AIConditionLimits::Operands; ++i) Write<std::uint32_t>(check, NC2Layout::AIConditionCheckOffset::OperandIds + i * NC2Layout::RecordSize::AIConditionOperand, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0044e09a; Windows combines matching type-2 centers only.

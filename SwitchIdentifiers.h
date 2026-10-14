@@ -6,6 +6,32 @@ namespace SwitchIds
 {
     namespace AICondition
     {
+        inline constexpr auto PeriodicUnsigned = 12u;
+
+        inline constexpr auto ActivatedFlagUnsigned = 11u;
+
+        inline constexpr auto SoldierCountUnsigned = 10u;
+
+        inline constexpr auto PlayerHasNoHumansUnsigned = 9u;
+
+        inline constexpr auto ExternalFlagUnsigned = 8u;
+
+        inline constexpr auto HouseNearPositionUnsigned = 7u;
+
+        inline constexpr auto MapMoveableNearPositionUnsigned = 6u;
+
+        inline constexpr auto DiplomacyUnsigned = 5u;
+
+        inline constexpr auto TimeSinceConditionChangeUnsigned = 4u;
+
+        inline constexpr auto LogicalCombinationUnsigned = 3u;
+
+        inline constexpr auto GameTimeUnsigned = 2u;
+
+        inline constexpr auto TrueUnsigned = 1u;
+
+        inline constexpr auto Disabled = 13;
+
         inline constexpr auto True = 1;
         inline constexpr auto GameTime = 2;
         inline constexpr auto LogicalCombination = 3;
@@ -2298,6 +2324,17 @@ namespace SwitchIds
         inline constexpr auto Down = 0x400;
         inline constexpr auto Up = 0x800;
         inline constexpr auto TowardZero = 0xC00;
+    }
+
+    namespace AIConditionOperation
+    {
+        inline constexpr auto Xor = 4;
+
+        inline constexpr auto Not = 3;
+
+        inline constexpr auto Or = 2;
+
+        inline constexpr auto And = 1;
     }
 
 }

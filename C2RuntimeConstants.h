@@ -266,4 +266,28 @@ namespace NC2Runtime
         inline constexpr auto GoalsAndResults = 30;
     }
 
+    namespace AIConditionReference
+    {
+        inline constexpr auto UnresolvedOperand = 999999;
+
+        inline constexpr auto AlwaysInactive = 100001;
+
+        inline constexpr auto AlwaysActive = 100000;
+    }
+
+    namespace AIConditionLimits
+    {
+        inline constexpr auto TicksPerScriptSecondUnsigned = 12u;
+
+        inline constexpr auto TicksPerScriptMinuteUnsigned = 720u;
+
+        inline constexpr auto Operands = 10;
+
+        inline constexpr auto PlayerDeathGraceTicks = 720;
+
+        inline constexpr auto RecheckPasses = 10;
+
+        inline constexpr auto Slots = 100;
+    }
+
 }

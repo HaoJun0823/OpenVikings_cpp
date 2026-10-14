@@ -517,6 +517,8 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto PlayerSeenFlagsUnsigned = 0x45F8u;
+
         inline constexpr auto AvailableJobs = 0x948;
 
         inline constexpr auto AvailableGoods = 0x1D4C;
@@ -1165,6 +1167,18 @@ namespace NC2Layout
     // Windows AI owners, task records and soldier/military storage.
     namespace AISinglePlayerOffset
     {
+        inline constexpr auto FirstActivatedConditionFlagUnsigned = 0x24u;
+
+        inline constexpr auto ConditionsUnsigned = 0x0Cu;
+
+        inline constexpr auto FirstConditionTypeUnsigned = 0x18u;
+
+        inline constexpr auto LastConditionIndex = 8;
+
+        inline constexpr auto MaxUnitLimit = 0xAD3C;
+
+        inline constexpr auto UnitLimit = 0xAD38;
+
         inline constexpr auto SoldierCount = 0x6168;
         inline constexpr auto PlayerId = 0;
         inline constexpr auto CombinedTaskCount = 0x2A48;
@@ -1494,6 +1508,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AIPlayerHandlerPointerUnsigned = 4u;
+
+        inline constexpr auto AIConditionOperandUnsigned = 4u;
+
+        inline constexpr auto AIConditionOperand = 4;
+
+        inline constexpr auto AIConditionUnsigned = 0x48u;
+
+        inline constexpr auto AICondition = 72;
+
         inline constexpr auto EnginePixelPointUnsigned = 8u;
 
         inline constexpr auto DynamicHouseSavedPrefix = 0xCC;
@@ -3005,6 +3029,163 @@ namespace NC2Layout
     namespace EnginePixelPointOffset
     {
         inline constexpr auto YUnsigned = 4u;
+    }
+
+    namespace AIConditionOffset
+    {
+        inline constexpr auto PayloadWord2 = 32;
+
+        inline constexpr auto PayloadWord1 = 28;
+
+        inline constexpr auto PayloadWord0 = 24;
+
+        inline constexpr auto Payload = 24;
+
+        inline constexpr auto DeactivatedTickUnsigned = 8u;
+
+        inline constexpr auto ActivatedTickUnsigned = 4u;
+
+        inline constexpr auto Active = 0;
+
+        inline constexpr auto CreatedTick = 0x14;
+
+        inline constexpr auto DeactivatedTick = 8;
+
+        inline constexpr auto ActivatedTick = 4;
+
+        inline constexpr auto KeepActive = 0x10;
+
+        inline constexpr auto Type = 0x0C;
+    }
+
+    namespace AIConditionCheckOffset
+    {
+        inline constexpr auto OperandIds = 8;
+
+        inline constexpr auto OperandCount = 4;
+
+        inline constexpr auto Operation = 0;
+    }
+
+    namespace AIConditionGameTimeOffset
+    {
+        inline constexpr auto RequiredTick = 24;
+    }
+
+    namespace AIConditionLogicalCombinationOffset
+    {
+        inline constexpr auto OperandIdsUnsigned = 0x20u;
+
+        inline constexpr auto OperandCount = 28;
+
+        inline constexpr auto SecondOperandId = 0x24;
+
+        inline constexpr auto OperandIds = 32;
+
+        inline constexpr auto Operation = 0x18;
+    }
+
+    namespace AIConditionTimeSinceConditionChangeOffset
+    {
+        inline constexpr auto DelayTicks = 32;
+
+        inline constexpr auto WatchActive = 28;
+
+        inline constexpr auto ConditionId = 24;
+    }
+
+    namespace AIConditionDiplomacyOffset
+    {
+        inline constexpr auto State = 0x20;
+
+        inline constexpr auto SecondPlayerId = 0x1C;
+
+        inline constexpr auto FirstPlayerId = 0x18;
+    }
+
+    namespace AIConditionMapMoveableNearPositionOffset
+    {
+        inline constexpr auto Radius = 0x1C;
+
+        inline constexpr auto MilitaryOnly = 37;
+
+        inline constexpr auto OpponentsOnly = 0x24;
+
+        inline constexpr auto PlayerId = 0x20;
+
+        inline constexpr auto MapY = 0x1A;
+
+        inline constexpr auto MapX = 0x18;
+    }
+
+    namespace AIConditionHouseNearPositionOffset
+    {
+        inline constexpr auto Radius = 0x1C;
+
+        inline constexpr auto OpponentsOnly = 0x24;
+
+        inline constexpr auto HouseType = 40;
+
+        inline constexpr auto CompletedOnly = 44;
+
+        inline constexpr auto PlayerId = 0x20;
+
+        inline constexpr auto MapY = 0x1A;
+
+        inline constexpr auto MapX = 0x18;
+    }
+
+    namespace AIConditionExternalFlagOffset
+    {
+        inline constexpr auto SeenPlayerId = 28;
+
+        inline constexpr auto PlayerId = 24;
+    }
+
+    namespace AIConditionPlayerHasNoHumansOffset
+    {
+        inline constexpr auto PlayerId = 24;
+    }
+
+    namespace AIConditionSoldierCountOffset
+    {
+        inline constexpr auto MinimumCount = 24;
+
+        inline constexpr auto PlayerId = 28;
+    }
+
+    namespace AIConditionActivatedFlagOffset
+    {
+        inline constexpr auto Flag = 24;
+    }
+
+    namespace AIConditionPeriodicOffset
+    {
+        inline constexpr auto InitialDelayTicks = 0x18;
+
+        inline constexpr auto InactiveTicks = 0x20;
+
+        inline constexpr auto ActiveTicks = 0x1C;
+    }
+
+    namespace AIConditionNearPositionOffset
+    {
+        inline constexpr auto OpponentsOnly = 36;
+
+        inline constexpr auto Radius = 28;
+
+        inline constexpr auto MapY = 26;
+
+        inline constexpr auto MapX = 24;
+
+        inline constexpr auto PlayerId = 32;
+    }
+
+    namespace PlayerStatisticSampleOffset
+    {
+        inline constexpr auto SoldierCount = 0x12;
+
+        inline constexpr auto HumanCount = 0;
     }
 
 }
