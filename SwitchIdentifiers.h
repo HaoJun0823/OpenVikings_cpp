@@ -1469,18 +1469,18 @@ namespace SwitchIds
 
     namespace MissionStartToken
     {
-        inline constexpr auto Addgoods = 0x61676F64;
+        inline constexpr auto AddGoods = 0x61676F64;
         inline constexpr auto AttachToHouse = 0x6174686F;
         inline constexpr auto AttachToVehicle = 0x61747665;
         inline constexpr auto ChildOfWoman = 0x636F776F;
         inline constexpr auto Marry = 0x6D617272;
         inline constexpr auto MoveInToVehicle = 0x6D697665;
         inline constexpr auto SetAnimal = 0x73616E69;
-        inline constexpr auto Setexpierence = 0x73657870;
-        inline constexpr auto Setguide = 0x73677569;
+        inline constexpr auto SetExperience = 0x73657870;
+        inline constexpr auto SetGuide = 0x73677569;
         inline constexpr auto SetHouse = 0x73686F75;
         inline constexpr auto SetHuman = 0x7368756D;
-        inline constexpr auto Setproducedgood = 0x73706764;
+        inline constexpr auto SetProducedGood = 0x73706764;
         inline constexpr auto SetVehicle = 0x73766568;
     }
 
@@ -2535,6 +2535,24 @@ namespace SwitchIds
     namespace WorldCursorGraphic
     {
         inline constexpr auto MarkerFirstFrameUnsigned = 0xBAu;
+    }
+
+    namespace IniParameterType
+    {
+        inline constexpr auto String = 2;
+    }
+
+    namespace MissionStartObjectKind
+    {
+        inline constexpr auto Animal = 3;
+
+        inline constexpr auto House = 4;
+
+        inline constexpr auto Vehicle = 2;
+
+        inline constexpr auto Human = 1;
+
+        inline constexpr auto None = 0;
     }
 
 }

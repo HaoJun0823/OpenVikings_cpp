@@ -815,4 +815,20 @@ namespace NC2Runtime
         inline constexpr auto Markers = 10;
     }
 
+    namespace MissionStartLimits
+    {
+        inline constexpr auto GoodsUnsigned = 66u;
+
+        inline constexpr auto ChildAgeBaseUnsigned = 1440u;
+
+        inline constexpr auto AgeRandomRangeUnsigned = 720u;
+
+        inline constexpr auto Players = 20;
+    }
+
+    namespace HumanExperienceLimits
+    {
+        inline constexpr auto MaximumUnsigned = 10000u;
+    }
+
 }

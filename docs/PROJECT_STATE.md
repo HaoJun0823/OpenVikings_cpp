@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## Mission-start record continuation — 2026-10-14
+
+Completed the [mission-start records review](MISSION_START_RECORDS_REVIEW.md): family/home/vehicle fields, age and production state, experience stride/limit, current-object kind/IDs and token identifiers. All **50** raw numeric accesses in the owning file are now named. Windows stores, unchecked indices, unsigned wrap, tie behavior and parser consumption remain unchanged. Seventeen tokens plus three terminators match the Windows PE. **50 value/type comparisons, 12 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 154,699 lines, 3,139 raw numeric-access operands, 74 heuristic unknown mentions, 1,058 long compound lines and 5,014 original-address annotations**. Cumulative reduction **2,288 / 5,427 (42.16%)**, twenty-six completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending docs remain preserved. Next block: game-control startup (49 raw operands), followed by human attacks (49).
+
 ## Mouse/world cursor continuation — 2026-10-14
 
 Completed the [mouse and world cursor records block](MOUSE_CURSOR_RECORDS_REVIEW.md), following single-player AI (`30d3e9f`) and character selection (`e2e0469`). Named tooltip cache, mouse callback/button state, hardware enable, hovered-object/command fields, marker limits, frames and timing. In-game/main-menu routines keep their different hover-cache behavior and repeated callback evaluation. **51 value/type comparisons, 19 physical assertions and incremental Win32 syntax checking** pass.

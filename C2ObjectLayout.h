@@ -1686,6 +1686,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HumanProductionCounterUnsigned = 4u;
+
         inline constexpr auto GuiMousePointerVariables = 16;
 
         inline constexpr auto SingleHumanExperienceJobId = 4;

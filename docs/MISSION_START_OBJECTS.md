@@ -1,5 +1,7 @@
 # Mission start-object command loading
 
+Current naming/layout follow-up: [2026-10-14 records review](MISSION_START_RECORDS_REVIEW.md). The implementation-boundary and percentage figures below are historical snapshots; consult PROJECT_STATE.md and HEAD for current state.
+
 Snapshot: 2026-10-04. The complete Windows StaticObjects command dispatcher and its naming/graphics postpasses are now connected. This is a parser/control-flow reconstruction, not completed start-object creation or confirmation that the black in-game terrain is fixed.
 
 ## Windows behavior
