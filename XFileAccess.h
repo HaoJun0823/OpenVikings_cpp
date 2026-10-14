@@ -418,12 +418,13 @@ namespace NXBasics
     inline void File_Initialize(void* file, const char* inputFileName, bool openForReading)
     {
         auto* fileBytes = static_cast<std::uint8_t*>(file);
-        auto* fileName = reinterpret_cast<char*>(fileBytes + 0x08);
+        auto& fileName = *reinterpret_cast<char (*)[260]>(fileBytes + 0x08);
 
         File_InitObject(file);
 
-        // The original does not explicitly append a terminator here.
-        std::strncpy(fileName, inputFileName, 0x103);
+        // The native reset already leaves this last byte zero after the 259-byte copy.
+        std::strncpy(fileName, inputFileName, sizeof(fileName) - 1);
+        fileName[sizeof(fileName) - 1] = '\0';
 
         for (std::uint32_t index = 0; index < 5; ++index)
         {
@@ -447,15 +448,17 @@ namespace NXBasics
 
         std::int32_t length = static_cast<std::int32_t>(std::strlen(fileName));
 
+        // Remove one leading dot and backslash, including moving the terminator.
+        if (length > 2 && fileName[0] == '.' && fileName[1] == '\\')
+        {
+            length -= 2;
+            // Windows 00405E3F calls the reconstructed overlap-safe move at 004E71F0.
+            Runtime_MoveMemory(fileName, fileName + 2, static_cast<std::uint32_t>(length) + 1u);
+        }
+
+        // Prefix removal can reduce the length to one or two; no slash pair is scanned then.
         if (length > 2)
         {
-            // Remove one leading dot and backslash, including moving the terminator.
-            if (fileName[0] == '.' && fileName[1] == '\\')
-            {
-                length -= 2;
-                std::memmove(fileName, fileName + 2, static_cast<std::size_t>(length) + 1);
-            }
-
             // Start at index one to preserve an initial UNC backslash pair.
             for (std::int32_t index = 1; index < length - 1; ++index)
             {

@@ -59,7 +59,7 @@ MSVC reported 82 distinct static-analysis diagnostics after deduplicating repeat
 
 Reviewed representative high-risk paths against current source and Windows ASM:
 
-- `XFileAccess.h` unterminated-string warning: the normal `strncpy(..., 0x103)` path retains its final zero byte because `File_InitObject` first zeroes the entire `0x104`-byte name buffer. The independent unchecked system-path concatenation remains original behavior.
+- `XFileAccess.h` unterminated-string warning: the normal `strncpy(..., 0x103)` path retains its final zero byte because `File_InitObject` first zeroes the entire `0x104`-byte name buffer. The independent unchecked system-path concatenation remains original behavior. Follow-up 2026-10-14: explicit buffer extent/termination and the original runtime move binding now remove C6053/C6385 without suppressing warnings; see [CFILE_PATH_ANALYSIS_FIX.md](CFILE_PATH_ANALYSIS_FIX.md).
 - `NetworkRuntime.cpp`, `StoreCommandMessageData` (`004E1310`): lengths above 200 are reported, but the original still reaches `memmove`. Adding an early return would change Windows behavior. This is a confirmed original bounds hazard.
 - `NetworkRuntime.cpp`, `OpenNetworkLog` (`004DB8EA`): the original reserves a `0x100`-byte temporary path buffer and passes it to `GetTempFileNameA`; its API-size warning is an original hazard, not a translation-only difference.
 - `DSManager.cpp`, buffer restoration: the original retries every nonzero `Restore` result. Changing this loop to retry only `DSERR_BUFFERLOST` would change its error path.
