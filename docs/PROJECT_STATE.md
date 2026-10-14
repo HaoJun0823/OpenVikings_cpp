@@ -1,5 +1,22 @@
 # OpenVikings Project State
 
+## Options/pause and military range continuation — 2026-10-14
+
+Two further blocks are committed: [options, safety dialogs, settings and pause](OPTIONS_WINDOW_RECORDS_REVIEW.md) (`b5ba513`) and [object/landscape military range storage](MILITARY_RANGE_RECORDS_REVIEW.md) (`85b3839`). The broad source review now has twenty-two completed naming/layout blocks; eight were completed in this continuation, alongside the separate confirmed title-palette correction. The request to review all remaining sites remains open.
+
+| Block | Value/type comparisons | Physical relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| Options / safety / settings / pause / clock | 67 | 24 | 3662 | 111 |
+| Military object / landscape range records | 15 | 9 | 1203 | 105 |
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 153,974 lines, 3,376 raw numeric access operands, 74 heuristic unknown-member mentions, 1,084 long compound lines and 5,014 original-address annotations**. These two blocks removed 129 further candidates; all eight blocks in this continuation removed 461. Cumulative reduction is **2,051 / 5,427 (37.79%)**. This counts heuristic numeric access operands, including normal indices and intentionally unresolved fields; it is not a missing-function count, exhaustive unresolved-field inventory or gameplay-completion percentage. A complete per-function behavioral-review ledger remains open.
+
+Options and safety owners retain distinct page/mode fields; the manager's typed documentary view keeps unrelated spans explicitly unclassified. Expert mode is separate from scroll speed. Clock mode is analog wall-clock rendering. The speed comparison's invalid sentinel, pause/resume command order, integer truncation, unordered comparison and all four campaign branches remain native. Range records distinguish object IDs from packed points; equal distances retain discovery order, neutral animals retain player 20, actor eligibility starts at one while landscape eligibility starts at zero, and landscape stepping retains the maximum-distance-per-ring behavior. No corrective guard or common sorting implementation was invented.
+
+Windows assembly and `Game.exe` establish the evidence; Mac supplies names only. Frozen-stage comparisons verify unchanged C++ operations, literal values and types. The latest source passes Win32 `/Zs` for **all 307 production units and 37 private compiler assertion units**, without errors or warnings. No build, test project or game run was performed. Project registration remains 307/288; assistant-only scripts/logs/assertions/handoff remain under ignored `.codex-work/`. Independent pending documentation remains untouched.
+
+Next owning block: single-player AI and its remaining initialization/state consumers (**53** raw candidates). Other large blocks: selection GUI (52), mission-start and mouse cursor (50 each), game-control startup/human attacks (49 each), human job windows (48), multiplayer goals (47), map resources (44), house and construction-selection/needs (43 each). Do not guess identities to reduce the counter.
+
 ## Trader GUI and title-screen continuation — 2026-10-14
 
 Two further naming/layout blocks are committed after `0301fc6`: [trader configuration and graphic buttons](TRADER_WINDOW_RECORDS_REVIEW.md) (`36cdb27`) and [title-screen FMV/picture/resource state](TITLE_SCREEN_RECORDS_REVIEW.md) (`06c3b4e`). A separately confirmed Windows translation mismatch was corrected in `120e8de`: [the title palette now uses equal RGB channels](TITLE_PALETTE_TRANSLATION_FIX.md), preserving the original grayscale values and fourth bytes. This is not attributed to the user's earlier GUI color reports.
