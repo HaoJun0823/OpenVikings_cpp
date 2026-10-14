@@ -762,4 +762,32 @@ namespace NC2Runtime
         inline constexpr auto ResultPosition = 3;
     }
 
+    namespace SingleHumanWindowLimits
+    {
+        inline constexpr auto TraderRoutes = 2;
+
+        inline constexpr auto ExperienceJobsPerPage = 14;
+
+        inline constexpr auto ExperienceJobs = 78;
+
+        inline constexpr auto ExperiencePages = 11;
+
+        inline constexpr auto Tabs = 6;
+
+        inline constexpr auto ExperienceJobsPerPageUnsigned = 14u;
+    }
+
+    namespace SelectionTooltipLimits
+    {
+        inline constexpr auto FormatTerminator = 99;
+
+        inline constexpr auto FormatBufferBytes = 100;
+
+        inline constexpr auto StoredTerminator = 100;
+
+        inline constexpr auto CopiedTextBytes = 100;
+
+        inline constexpr auto Entries = 100;
+    }
+
 }

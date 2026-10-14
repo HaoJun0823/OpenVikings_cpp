@@ -2516,4 +2516,11 @@ namespace SwitchIds
         inline constexpr auto Enemy = 3;
     }
 
+    namespace SingleHumanWindowCommand
+    {
+        inline constexpr auto SelectWorkHouse = 10017;
+
+        inline constexpr auto SelectSpouse = 10022;
+    }
+
 }

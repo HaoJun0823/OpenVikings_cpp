@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -44,31 +45,37 @@ extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void*
 namespace NC2InGameGuiBase
 {
     // Original function: FUN_004b9d0c; full Windows storage, including text padding.
-    CStaticToolTipHandler::CStaticToolTipHandler() { std::memset(this, 0, sizeof(*this)); }
+    CStaticToolTipHandler::CStaticToolTipHandler()
+    {
+        std::memset(this, 0, sizeof(*this));
+    }
     // Original function: FUN_004b9d23.
     CStaticToolTipHandler::~CStaticToolTipHandler() {}
     // Original function: FUN_004b9d24.
-    void CStaticToolTipHandler::ClearAll() { mCount = 0; }
+    void CStaticToolTipHandler::ClearAll()
+    {
+        mCount = 0;
+    }
     // Original function: FUN_004b9d28; the terminator follows the 100 copied bytes.
     bool CStaticToolTipHandler::Add(const NXBasics::SRectangle& rectangle, const char* text)
     {
-        if (mCount == 100) return false;
+        if (mCount == NC2Runtime::SelectionTooltipLimits::Entries) return false;
         auto& entry = mEntries[mCount];
         entry.rectangle = rectangle;
-        std::strncpy(entry.text, text, 100);
-        entry.text[100] = '\0';
+        std::strncpy(entry.text, text, NC2Runtime::SelectionTooltipLimits::CopiedTextBytes);
+        entry.text[NC2Runtime::SelectionTooltipLimits::StoredTerminator] = '\0';
         ++mCount;
         return true;
     }
     // Original function: FUN_004b9d73; the native temporary buffer holds 100 bytes.
     bool CStaticToolTipHandler::AddV(const NXBasics::SRectangle& rectangle, const char* format, ...)
     {
-        char text[100];
+        char text[NC2Runtime::SelectionTooltipLimits::FormatBufferBytes];
         va_list arguments;
         va_start(arguments, format);
-        NXBasics::Runtime_FormatString(text, 100, format, arguments);
+        NXBasics::Runtime_FormatString(text, NC2Runtime::SelectionTooltipLimits::FormatBufferBytes, format, arguments);
         va_end(arguments);
-        text[99] = '\0';
+        text[NC2Runtime::SelectionTooltipLimits::FormatTerminator] = '\0';
         return Add(rectangle, text);
     }
     // Original function: FUN_004b9da3; later rectangles take precedence.
@@ -85,9 +92,15 @@ namespace NC2InGameGuiBase
     }
 
     // Original function: FUN_004b9ddd; complete 100-entry Windows storage.
-    CDynamicSubButtonsHandler::CDynamicSubButtonsHandler() { std::memset(this, 0, sizeof(*this)); }
+    CDynamicSubButtonsHandler::CDynamicSubButtonsHandler()
+    {
+        std::memset(this, 0, sizeof(*this));
+    }
     // Original function: FUN_004b9df4; the owning window survives child deletion.
-    void CDynamicSubButtonsHandler::AllButtonsHaveBeenRemoved() { std::memset(mEntries, 0, sizeof(mEntries)); }
+    void CDynamicSubButtonsHandler::AllButtonsHaveBeenRemoved()
+    {
+        std::memset(mEntries, 0, sizeof(mEntries));
+    }
     // Original function: FUN_004b9e08; unchanged coordinates retain the existing control.
     void CDynamicSubButtonsHandler::UpdateGfxButton(std::uint32_t command, std::uint32_t id, std::int32_t x, std::int32_t y, std::uint32_t graphic, const char* tooltip)
     {
@@ -101,10 +114,13 @@ namespace NC2InGameGuiBase
         else entry = l_GetFreeButtonDataPtr();
         if (entry == nullptr) return;
         const NXBasics::SRectangle rectangle(x, y, 18, 16);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiGfxButton, 1);
         entry->graphic = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, graphic, tooltip, command, mWindow);
         NXBaseGui::BaseWindow_Element_Add(mWindow, entry->graphic);
-        entry->x = x; entry->y = y; entry->command = command; entry->id = id;
+        entry->x = x;
+        entry->y = y;
+        entry->command = command;
+        entry->id = id;
         NC2Lifetime::Write<std::uint8_t>(entry, NC2Layout::DynamicSubButtonEntryOffset::ActiveFlag, 1);
     }
     // Original function: FUN_004b9eb7.
@@ -120,11 +136,14 @@ namespace NC2InGameGuiBase
         else entry = l_GetFreeButtonDataPtr();
         if (entry == nullptr) return;
         const NXBasics::SRectangle rectangle(x, y, width, height);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
         entry->text = allocation == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &rectangle, text, tooltip, command, mWindow);
         NC2Lifetime::Write<std::uint8_t>(entry->text, NC2Layout::ToolTextButtonOffset::CenteredFlag, centered);
         NXBaseGui::BaseWindow_Element_Add(mWindow, entry->text);
-        entry->x = x; entry->y = y; entry->command = command; entry->id = id;
+        entry->x = x;
+        entry->y = y;
+        entry->command = command;
+        entry->id = id;
         NC2Lifetime::Write<std::uint8_t>(entry, NC2Layout::DynamicSubButtonEntryOffset::ActiveFlag, 1);
     }
     // Original function: FUN_004b9f70; the two control classes have distinct offsets.
@@ -133,8 +152,16 @@ namespace NC2InGameGuiBase
         if (mWindow == nullptr) return;
         auto* entry = l_GetButtonDataPtr(command, id);
         if (entry == nullptr) return;
-        if (entry->graphic != nullptr) { NC2Lifetime::Write(entry->graphic, NC2Layout::ToolGfxButtonOffset::CommandData1, first); NC2Lifetime::Write(entry->graphic, NC2Layout::ToolGfxButtonOffset::CommandData2, second); }
-        if (entry->text != nullptr) { NC2Lifetime::Write(entry->text, NC2Layout::ToolTextButtonOffset::CommandData1, first); NC2Lifetime::Write(entry->text, NC2Layout::ToolTextButtonOffset::CommandData2, second); }
+        if (entry->graphic != nullptr)
+        {
+            NC2Lifetime::Write(entry->graphic, NC2Layout::ToolGfxButtonOffset::CommandData1, first);
+            NC2Lifetime::Write(entry->graphic, NC2Layout::ToolGfxButtonOffset::CommandData2, second);
+        }
+        if (entry->text != nullptr)
+        {
+            NC2Lifetime::Write(entry->text, NC2Layout::ToolTextButtonOffset::CommandData1, first);
+            NC2Lifetime::Write(entry->text, NC2Layout::ToolTextButtonOffset::CommandData2, second);
+        }
     }
     // Original function: FUN_004b9fad; inactive entries retain their unused fields.
     void CDynamicSubButtonsHandler::RemoveButton(std::uint32_t command, std::uint32_t id)
@@ -177,17 +204,20 @@ namespace NC2InGameGuiSelection
     {
         const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
         auto* font = largeFont ? resources.font10 : resources.font08;
-        bitmap->Text_Print(font, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400), rectangle.x + (rectangle.width - NXBasics::Font_GetPixelWidth(font, text)) / 2, rectangle.y + (rectangle.height - NXBasics::Font_GetPixelHeight(font, text)) / 2 - 1, text);
+        bitmap->Text_Print(font, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + NC2Layout::PaletteOffset::LastColor), rectangle.x + (rectangle.width - NXBasics::Font_GetPixelWidth(font, text)) / 2, rectangle.y + (rectangle.height - NXBasics::Font_GetPixelHeight(font, text)) / 2 - 1, text);
     }
 
     namespace
     {
         // Complete Windows descriptor region 004F6770..004F67CF. The final field is zero.
-        struct SSubTabDescriptor { std::int32_t width, height; std::uint32_t title, field0C; };
+        struct SSubTabDescriptor { std::int32_t width, height;
+            std::uint32_t title, field0C;
+        };
         constexpr SSubTabDescriptor gSubTabs[6] = {{200,136,1,0}, {240,100,2,0}, {260,100,3,0}, {260,80,5,0}, {260,80,4,0}, {200,84,6,0}};
         static_assert(sizeof(gSubTabs) == 96);
         // Complete Windows experience-button/job-page region 004F67D0..004F6A8F.
-        struct SExperiencePageButton { std::uint32_t graphic, tooltip; };
+        struct SExperiencePageButton { std::uint32_t graphic, tooltip;
+        };
         constexpr SExperiencePageButton gExperiencePageButtons[11] = {{151,130},{149,131},{146,132},{155,133},{147,134},{153,135},{152,136},{148,137},{154,138},{150,139},{156,140}};
         constexpr std::uint32_t gExperiencePages[11][14] = {
             {}, {45,47,49,50,51,52,65}, {37,38,39,40,41,42,43,44}, {3,9,10,11,12,13,14,15,16,17,18,19,20},
@@ -195,26 +225,43 @@ namespace NC2InGameGuiSelection
             {62,63}, {70,69,71,72,73,74,75,76}, {1,67,68,77}
         };
         static_assert(sizeof(gExperiencePageButtons) + sizeof(gExperiencePages) == 704);
-        struct SSelectionSingleHumanWindowMostExperiencesData { std::uint32_t count; struct SEntry { std::uint32_t job, amount; } entries[78]; };
-        const char* HumanString(std::uint32_t id) { return NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr(id); }
-        NC2InGameGuiBase::CStaticToolTipHandler& Tooltips(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CStaticToolTipHandler*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::Tooltips)); }
+        struct SSelectionSingleHumanWindowMostExperiencesData { std::uint32_t count;
+            struct SEntry { std::uint32_t job, amount;
+            } entries[78];
+        };
+        const char* HumanString(std::uint32_t id)
+        {
+            return NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr(id);
+        }
+        NC2InGameGuiBase::CStaticToolTipHandler& Tooltips(void* window)
+        {
+            return *std::launder(reinterpret_cast<NC2InGameGuiBase::CStaticToolTipHandler*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::Tooltips));
+        }
 
-        NC2InGameGuiBase::CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::DynamicButtons)); }
-        SRectangle Section(void* window, std::uint32_t index) { SRectangle rectangle(0, 0, 0, 0); std::memcpy(&rectangle, static_cast<const std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * 16u, sizeof(rectangle)); return rectangle; }
+        NC2InGameGuiBase::CDynamicSubButtonsHandler& Buttons(void* window)
+{
+    return *std::launder(reinterpret_cast<NC2InGameGuiBase::CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::DynamicButtons));
+        }
+        SRectangle Section(void* window, std::uint32_t index)
+        {
+            SRectangle rectangle(0, 0, 0, 0);
+            std::memcpy(&rectangle, static_cast<const std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * NC2Layout::RecordSize::SingleHumanTabRectangleUnsigned, sizeof(rectangle));
+            return rectangle;
+        }
         // Original function: FUN_004aed3f.
         void l_SubTabs_OverwriteHeight(void* window, std::uint32_t index, std::int32_t height)
         {
             if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0 || Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags + index) != 0) return;
             if (height < 16) height = 16;
-            if (Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * 4u) == height) return;
-            Write(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * 4u, height);
+            if (Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::SingleHumanTabHeightUnsigned) == height) return;
+            Write(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::SingleHumanTabHeightUnsigned, height);
             Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::LayoutInvalidFlag, 1);
         }
         // Original function: FUN_004aeaf8.
         std::uint32_t l_SubTabs_GetEnabledChecksum(void* window)
         {
             std::uint32_t checksum = 0;
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0) continue;
                 checksum |= 1u << (index * 2u);
@@ -237,46 +284,52 @@ namespace NC2InGameGuiSelection
             output->count = 0;
             const void* human = l_Misc_GetSelectedHumanPtr();
             if (human == nullptr) return;
-            for (std::uint32_t job = 0; job < 78; ++job)
+            for (std::uint32_t job = 0; job < NC2Runtime::SingleHumanWindowLimits::ExperienceJobs; ++job)
             {
                 if (job == 2 || job == 46 || job == 48 || job == 53) continue;
-                const auto amount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + job * 4u);
+                const auto amount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + job * NC2Layout::RecordSize::HumanJobExperienceUnsigned);
                 if (amount != 0) output->entries[output->count++] = {job, amount};
             }
             for (std::uint32_t pass = 0; pass + 1 < output->count; ++pass)
                 for (std::uint32_t index = 0; index + 1 < output->count; ++index)
                 {
-                    auto& first = output->entries[index]; auto& second = output->entries[index + 1];
+                    auto& first = output->entries[index];
+                auto& second = output->entries[index + 1];
                     if (first.amount > second.amount) continue;
                     if (first.amount == second.amount && NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetJobExperienceNamePtr(first.job), NC2Logic::StringAccess_GetJobExperienceNamePtr(second.job)) <= 0) continue;
-                    const auto temporary = first; first = second; second = temporary;
+                    const auto temporary = first;
+                first = second;
+                second = temporary;
                 }
         }
         // Original function: FUN_004aee77.
-        std::int32_t __cdecl lsSortExperiencesCompareFunction(const void* first, const void* second) { return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetJobExperienceNamePtr(*static_cast<const std::uint32_t*>(first)), NC2Logic::StringAccess_GetJobExperienceNamePtr(*static_cast<const std::uint32_t*>(second))); }
+        std::int32_t __cdecl lsSortExperiencesCompareFunction(const void* first, const void* second)
+        {
+            return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetJobExperienceNamePtr(*static_cast<const std::uint32_t*>(first)), NC2Logic::StringAccess_GetJobExperienceNamePtr(*static_cast<const std::uint32_t*>(second)));
+        }
         // Original function: FUN_004aed79; eleven pages of fourteen Windows job IDs.
         void l_SubTabs_Experiences_Init(void* window)
         {
             if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceTabEnabled) == 0 || l_Misc_GetSelectedHumanPtr() == nullptr) return;
-            for (std::uint32_t page = 0; page < 11; ++page)
+            for (std::uint32_t page = 0; page < NC2Runtime::SingleHumanWindowLimits::ExperiencePages; ++page)
             {
                 std::uint32_t count = 0;
                 for (auto job : gExperiencePages[page])
                 {
                     if (job == 2 || job == 46 || job == 48 || job == 53) continue;
-                    Write(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + (page * 14u + count++) * 4u, job);
+                    Write(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + (page * NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPageUnsigned + count++) * NC2Layout::RecordSize::SingleHumanExperienceJobIdUnsigned, job);
                 }
             }
             SSelectionSingleHumanWindowMostExperiencesData most;
             l_SubTabs_Experiences_GetMostExperiences(&most);
-            const auto count = most.count < 14 ? most.count : 14u;
-            for (std::uint32_t index = 0; index < 14; ++index) Write(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + index * 4u, index < count ? most.entries[index].job : 0u);
-            for (std::uint32_t page = 1; page < 11; ++page)
+            const auto count = most.count < NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPage ? most.count : NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPageUnsigned;
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPage; ++index) Write(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + index * NC2Layout::RecordSize::SingleHumanExperienceJobIdUnsigned, index < count ? most.entries[index].job : 0u);
+            for (std::uint32_t page = 1; page < NC2Runtime::SingleHumanWindowLimits::ExperiencePages; ++page)
             {
-                auto* jobs = reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + page * 56u);
+                auto* jobs = reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + page * NC2Layout::RecordSize::SingleHumanExperiencePageUnsigned);
                 std::uint32_t number = 0;
-                for (std::uint32_t index = 0; index < 14; ++index) if (jobs[index] != 0) ++number;
-                if (number > 1) NXBasics::Runtime_QuickSort(jobs, number, 4, lsSortExperiencesCompareFunction);
+                for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPage; ++index) if (jobs[index] != 0) ++number;
+                if (number > 1) NXBasics::Runtime_QuickSort(jobs, number, NC2Layout::RecordSize::SingleHumanExperienceJobId, lsSortExperiencesCompareFunction);
             }
         }
         // Original function: FUN_004ae25f.
@@ -306,41 +359,47 @@ namespace NC2InGameGuiSelection
             {
                 void* element = Read<void*>(window, offset);
                 desktop->Element_Hide(static_cast<NXBaseGui::CBaseElement*>(element));
-                Write<std::uint8_t>(element, 0x50, 1);
+                Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Disabled, 1);
             };
             const auto show = [&](std::uint32_t offset)
             {
                 void* element = Read<void*>(window, offset);
                 desktop->Element_UnHide(static_cast<NXBaseGui::CBaseElement*>(element));
-                Write<std::uint8_t>(element, 0x50, 0);
+                Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Disabled, 0);
             };
-            hide(NC2Layout::SingleHumanWindowOffset::RouteSelectButtons); hide(NC2Layout::SingleHumanWindowOffset::SecondRouteSelectButton); show(NC2Layout::SingleHumanWindowOffset::RouteAssignButtons); show(NC2Layout::SingleHumanWindowOffset::SecondRouteAssignButton); hide(NC2Layout::SingleHumanWindowOffset::RouteActionButtons); hide(NC2Layout::SingleHumanWindowOffset::SecondRouteActionButton);
+            hide(NC2Layout::SingleHumanWindowOffset::RouteSelectButtons);
+            hide(NC2Layout::SingleHumanWindowOffset::SecondRouteSelectButton);
+            show(NC2Layout::SingleHumanWindowOffset::RouteAssignButtons);
+            show(NC2Layout::SingleHumanWindowOffset::SecondRouteAssignButton);
+            hide(NC2Layout::SingleHumanWindowOffset::RouteActionButtons);
+            hide(NC2Layout::SingleHumanWindowOffset::SecondRouteActionButton);
             NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::RouteLabels), HumanString(112));
             NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::SecondRouteLabel), HumanString(113));
-            Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton), 0x56, 1);
+            Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton), NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
             void* merchant = l_Misc_GetSelectedMerchantDataPtr();
             if (merchant == nullptr) return;
             std::uint32_t row = 0;
-            for (std::uint32_t index = 0; index < 2; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::TraderRoutes; ++index)
             {
                 const void* houseData = NC2Logic::MerchantData_GetHouseDataPtr(merchant, index);
                 if (!NC2Logic::MerchantHouseData_IsValid(houseData)) continue;
-                const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(houseData, 0) * NC2Logic::CHouseArray::ElementSize;
-                NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::RouteLabelsUnsigned + row * 16u), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1));
+                const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(houseData, NC2Layout::MerchantHouseOffset::HouseId) * NC2Logic::CHouseArray::ElementSize;
+                NC2InGameGuiBase::BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::RouteLabelsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1));
                 for (auto offset : {NC2Layout::SingleHumanWindowOffset::RouteSelectButtonsUnsigned, NC2Layout::SingleHumanWindowOffset::RouteActionButtonsUnsigned})
                 {
-                    void* element = Read<void*>(window, offset + row * 16u);
-                    Write(element, 0x48, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(element, 0x4C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-                    show(offset + row * 16u);
-                    if (offset == NC2Layout::SingleHumanWindowOffset::RouteSelectButtons) hide(NC2Layout::SingleHumanWindowOffset::RouteAssignButtonsUnsigned + row * 16u);
+                    void* element = Read<void*>(window, offset + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned);
+                    Write(element, NC2Layout::GuiGfxButtonOffset::MessageParameter1, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+                    Write(element, NC2Layout::GuiGfxButtonOffset::MessageParameter2, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                    show(offset + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned);
+                    if (offset == NC2Layout::SingleHumanWindowOffset::RouteSelectButtons) hide(NC2Layout::SingleHumanWindowOffset::RouteAssignButtonsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned);
                 }
-                if (++row == 2) break;
+                if (++row == NC2Runtime::SingleHumanWindowLimits::TraderRoutes) break;
             }
-            Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton), 0x56, row < 2);
+            Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton), NC2Layout::GuiTextButtonOffset::DisabledFlag, row < NC2Runtime::SingleHumanWindowLimits::TraderRoutes);
         }
         void* AddGraphicButton(void* window, const SRectangle& rectangle, std::uint32_t graphic, std::uint32_t tooltip, std::uint32_t command)
         {
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiGfxButton, 1);
             void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, graphic, HumanString(tooltip), command, window);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             return element;
@@ -354,39 +413,44 @@ namespace NC2InGameGuiSelection
             Write(window, NC2Layout::SingleHumanWindowOffset::TabStateChecksum, checksum);
             Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::LayoutInvalidFlag, 0);
             std::int32_t width = 0, height = 0;
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0) continue;
                 if (width < gSubTabs[index].width) width = gSubTabs[index].width;
-                const auto overrideHeight = Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * 4u);
+                const auto overrideHeight = Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::SingleHumanTabHeightUnsigned);
                 height += Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags + index) != 0 ? 16 : 16 + (overrideHeight == 0 ? gSubTabs[index].height : overrideHeight);
             }
-            Write(window, NC2Layout::SingleHumanWindowOffset::ComputedWidth, width); Write(window, NC2Layout::SingleHumanWindowOffset::ComputedHeight, height);
+            Write(window, NC2Layout::SingleHumanWindowOffset::ComputedWidth, width);
+            Write(window, NC2Layout::SingleHumanWindowOffset::ComputedHeight, height);
             std::int32_t y = 0;
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 SRectangle rectangle(-1, -1, 0, 0);
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) != 0)
                 {
-                    const auto overrideHeight = Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * 4u);
+                    const auto overrideHeight = Read<std::int32_t>(window, NC2Layout::SingleHumanWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::SingleHumanTabHeightUnsigned);
                     rectangle = SRectangle(width - gSubTabs[index].width, y, gSubTabs[index].width, Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags + index) != 0 ? 16 : 16 + (overrideHeight == 0 ? gSubTabs[index].height : overrideHeight));
                     y += rectangle.height;
                 }
-                std::memcpy(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * 16u, &rectangle, sizeof(rectangle));
+                std::memcpy(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * NC2Layout::RecordSize::SingleHumanTabRectangleUnsigned, &rectangle, sizeof(rectangle));
             }
             const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
             const SRectangle rectangle(NC2InGameGuiBase::GetDisplayWidth() - width, NC2InGameGuiBase::GetDisplayHeight() - height, width, height);
             NC2InGameGuiBase::GetDesktopPtr()->Window_ChangeAreaRectangle(static_cast<NXBaseGui::CBaseWindow*>(window), rectangle);
             NXBaseGui::BaseWindow_Element_DeleteAll(window);
-            std::memset(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::PreviewElement, 0, 44);
+            std::memset(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::PreviewElement, 0, NC2Layout::RecordSize::SingleHumanChildControlPointers);
             Buttons(window).AllButtonsHaveBeenRemoved();
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0) continue;
                 const auto section = Section(window, index);
                 const auto collapsed = Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags + index) != 0;
                 void* toggle = AddGraphicButton(window, SRectangle(section.x + section.width - 19, section.y + 2, 16, 12), collapsed ? 19u : 20u, collapsed ? 90u : 91u, 10000);
-                if (toggle != nullptr) { Write(toggle, 0x48, index); Write<std::uint32_t>(toggle, 0x4C, 0); }
+                if (toggle != nullptr)
+                {
+                    Write(toggle, NC2Layout::GuiGfxButtonOffset::MessageParameter1, index);
+                    Write<std::uint32_t>(toggle, NC2Layout::GuiGfxButtonOffset::MessageParameter2, 0);
+                }
             }
             const auto basic = Section(window, 0);
             const auto collapsed = Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags) != 0;
@@ -394,14 +458,16 @@ namespace NC2InGameGuiSelection
             if (!collapsed && human != nullptr)
             {
                 const SRectangle previewRect(basic.x + 4, basic.y + 20, 60, 80);
-                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
+                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::WorldDisplayElement, 1);
                 void* preview = allocation == nullptr ? nullptr : NC2InGameGuiWorldElement::WorldDisplayElement_Construct(allocation, &previewRect, false, false);
                 Write(window, NC2Layout::SingleHumanWindowOffset::PreviewElement, preview);
                 if (preview != nullptr)
                 {
                     Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::FrameMode, 2);
-                    Write(preview, NC2Layout::WorldGuiElementOffset::LeftClickHandler, window); Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::LeftClickCommand, 10001);
-                    Write(preview, NC2Layout::WorldGuiElementOffset::DoubleClickHandler, window); Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::DoubleClickCommand, 10002);
+                    Write(preview, NC2Layout::WorldGuiElementOffset::LeftClickHandler, window);
+                    Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::LeftClickCommand, 10001);
+                    Write(preview, NC2Layout::WorldGuiElementOffset::DoubleClickHandler, window);
+                    Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::DoubleClickCommand, 10002);
                     NXBaseGui::BaseWindow_Element_Add(window, preview);
                     NC2E2::DE_ControllingPlayer_SetId(Read<void*>(preview, NC2Layout::WorldGuiElementOffset::Display), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId());
                     l_Misc_CenterWorldDisplay(window);
@@ -412,7 +478,7 @@ namespace NC2InGameGuiSelection
                 const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId);
                 const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name;
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
                 void* nameElement = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &nameRect, name, HumanString(103), 10006, window);
                 if (nameElement != nullptr) Write<std::uint8_t>(nameElement, NC2Layout::GuiTextButtonOffset::DisabledFlag, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit7) != 0);
                 Write(window, NC2Layout::SingleHumanWindowOffset::NameElement, nameElement);
@@ -421,34 +487,38 @@ namespace NC2InGameGuiSelection
             if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceTabEnabled) != 0 && Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceTabCollapsed) == 0)
             {
                 const auto experience = Section(window, 3);
-                for (std::uint32_t page = 0; page < 11; ++page)
+                for (std::uint32_t page = 0; page < NC2Runtime::SingleHumanWindowLimits::ExperiencePages; ++page)
                 {
                     void* button = AddGraphicButton(window, SRectangle(experience.x + 8 + static_cast<std::int32_t>(page) * 22, experience.y + 24, 20, 18), gExperiencePageButtons[page].graphic, gExperiencePageButtons[page].tooltip, 10042);
-                    Write(button, 0x48, page); Write<std::uint32_t>(button, 0x4C, 0);
-                    Write<std::uint8_t>(button, 0x36, page == Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperiencePage));
-                    Write<std::uint8_t>(button, 0x35, 1); Write<std::uint8_t>(button, 0x44, 1);
+                    Write(button, NC2Layout::GuiGfxButtonOffset::MessageParameter1, page);
+                    Write<std::uint32_t>(button, NC2Layout::GuiGfxButtonOffset::MessageParameter2, 0);
+                    Write<std::uint8_t>(button, NC2Layout::GuiGfxButtonOffset::Selected, page == Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperiencePage));
+                    Write<std::uint8_t>(button, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
+                    Write<std::uint8_t>(button, NC2Layout::GuiGfxButtonOffset::ImmediateTooltip, 1);
                 }
             }
             if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabEnabled) != 0 && Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabCollapsed) == 0 && l_Misc_GetSelectedMerchantDataPtr() != nullptr)
             {
                 const auto trader = Section(window, 5);
                 void* allocation;
-                for (std::uint32_t row = 0; row < 2; ++row)
+                for (std::uint32_t row = 0; row < NC2Runtime::SingleHumanWindowLimits::TraderRoutes; ++row)
                 {
                     const auto y = trader.y + 24 + static_cast<std::int32_t>(row) * 24;
-                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteSelectButtonsUnsigned + row * 16u, AddGraphicButton(window, SRectangle(trader.x, y, 20, 18), 18, 117, 10007));
-                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteAssignButtonsUnsigned + row * 16u, AddGraphicButton(window, SRectangle(trader.x, y, 20, 30), 30, 118, 10008));
-                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteActionButtonsUnsigned + row * 16u, AddGraphicButton(window, SRectangle(trader.x + 20, y, 20, 30), 29, 119, 10009));
-                    allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
+                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteSelectButtonsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned, AddGraphicButton(window, SRectangle(trader.x, y, 20, 18), 18, 117, 10007));
+                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteAssignButtonsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned, AddGraphicButton(window, SRectangle(trader.x, y, 20, 30), 30, 118, 10008));
+                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteActionButtonsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned, AddGraphicButton(window, SRectangle(trader.x + 20, y, 20, 30), 29, 119, 10009));
+                    allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextElement, 1);
                     const SRectangle textRect(trader.x + 38, y, 154, 20);
                     void* label = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &textRect, "", false, false);
-                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteLabelsUnsigned + row * 16u, label); Write<std::uint8_t>(label, 0xFB, 1);
+                    Write(window, NC2Layout::SingleHumanWindowOffset::RouteLabelsUnsigned + row * NC2Layout::RecordSize::SingleHumanRouteControlsUnsigned, label);
+                    Write<std::uint8_t>(label, NC2Layout::GuiTextElementOffset::SmallFontFlag, 1);
                     NXBaseGui::BaseWindow_Element_Add(window, label);
                 }
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
                 const SRectangle config(trader.x + 8, trader.y + 76, 184, 20);
                 void* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &config, HumanString(110), 10010, window);
-                Write(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton, button); NXBaseGui::BaseWindow_Element_Add(window, button);
+                Write(window, NC2Layout::SingleHumanWindowOffset::TraderConfigButton, button);
+                NXBaseGui::BaseWindow_Element_Add(window, button);
                 l_SubTabs_Trader_UpdateButtons(window);
             }
         }
@@ -457,7 +527,11 @@ namespace NC2InGameGuiSelection
         void DrawBar(void* window, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t current, std::int32_t maximum, std::uint32_t icon, std::uint32_t label, NXBasics::CPalette* palette, bool hitpoints)
         {
             std::int32_t percent = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(current) * 100u) / maximum;
-            if (hitpoints) { if (percent < 0) percent = 0; if (percent > 100) percent = 100; }
+            if (hitpoints)
+            {
+                if (percent < 0) percent = 0;
+                if (percent > 100) percent = 100;
+            }
             NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, x + 6, y + 6);
             const auto width = Section(window, 0).width - 72;
             SRectangle bar(x + 16, y + 2, width - 16, 8);
@@ -467,7 +541,7 @@ namespace NC2InGameGuiSelection
             bar.width = static_cast<std::int32_t>(static_cast<std::uint32_t>(bar.width) * fillPercent / 100u);
             auto colorIndex = static_cast<std::uint32_t>(percent) * 255u / 100u;
             if (colorIndex > 255u) colorIndex = 255u;
-            bitmap->Draw_Box(bar, *reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + 4 + colorIndex * 4u));
+            bitmap->Draw_Box(bar, *reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + NC2Layout::PaletteOffset::Colors + colorIndex * NC2Layout::RecordSize::PaletteColorUnsigned));
             if (hitpoints) Tooltips(window).AddV(SRectangle(x, y, width, 12), "%s %d/%d", HumanString(label), current, maximum);
             else Tooltips(window).AddV(SRectangle(x, y, width, 12), "%s %d%%", HumanString(label), percent);
         }
@@ -517,7 +591,9 @@ namespace NC2InGameGuiSelection
                 if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10030, 0, x + 78, y, 30, HumanString(65));
                 y += 20;
             }
-            else { Buttons(window).RemoveButton(10029, 0); Buttons(window).RemoveButton(10030, 0); }
+            else { Buttons(window).RemoveButton(10029, 0);
+                Buttons(window).RemoveButton(10030, 0);
+            }
             if (NC2Logic::Human_IsAgeAdult(human) && NC2Logic::Human_IsSexMale(human) && !NC2Logic::Human_IsJobHero(human))
             {
                 printLabel(66);
@@ -538,7 +614,9 @@ namespace NC2InGameGuiSelection
                 }
                 else Buttons(window).RemoveButton(10031, 0);
             }
-            else { Buttons(window).RemoveButton(10032, 0); Buttons(window).RemoveButton(10031, 0); }
+            else { Buttons(window).RemoveButton(10032, 0);
+                Buttons(window).RemoveButton(10031, 0);
+            }
             if (!NC2Logic::Human_IsJobHero(human))
             {
                 printLabel(72);
@@ -546,8 +624,8 @@ namespace NC2InGameGuiSelection
                 {
                     const auto itemX = x + 100 + static_cast<std::int32_t>(slot) * 42;
                     SelectionTool_FillRectangle(bitmap, SRectangle(itemX - 3, y - 2, 25, 20), 2);
-                    const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlotsSigned + slot * 8u);
-                    if (good != 0 && Read<std::int32_t>(human, NC2Layout::HumanOffset::InventoryConditionsSigned + slot * 8u) > 0)
+                    const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlotsSigned + slot * NC2Layout::RecordSize::HumanInventorySlot);
+                    if (good != 0 && Read<std::int32_t>(human, NC2Layout::HumanOffset::InventoryConditionsSigned + slot * NC2Layout::RecordSize::HumanInventorySlot) > 0)
                     {
                         char text[100];
                         NXBasics::Runtime_PrintStringN(text, sizeof(text), "{gfxgood:%d,1}", good);
@@ -579,11 +657,14 @@ namespace NC2InGameGuiSelection
                 char text[140];
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s: %s", HumanString(80), NC2Logic::StringAccess_GetMilitaryModeNamePtr(NC2Logic::Human_GetMilitaryMode(human)));
                 text[sizeof(text) - 1] = '\0';
-                bitmap->Text_Print(resources.font08, color, section.x + 8, y, text); y += 14;
-                bitmap->Text_Print(resources.font08, color, section.x + 8, y, HumanString(Read<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag) != 0 ? 81 : 82)); y += 14;
+                bitmap->Text_Print(resources.font08, color, section.x + 8, y, text);
+                y += 14;
+                bitmap->Text_Print(resources.font08, color, section.x + 8, y, HumanString(Read<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag) != 0 ? 81 : 82));
+                y += 14;
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s: %d%%", HumanString(83), NC2Logic::Human_Tool_Gui_GetExperienceForEquippedWeapon(human));
                 text[sizeof(text) - 1] = '\0';
-                bitmap->Text_Print(resources.font08, color, section.x + 8, y, text); y += 14;
+                bitmap->Text_Print(resources.font08, color, section.x + 8, y, text);
+                y += 14;
             }
             l_SubTabs_OverwriteHeight(window, 1, y - section.y - 8);
         }
@@ -615,10 +696,10 @@ namespace NC2InGameGuiSelection
             const auto house = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
             if (house != NXBasics::IntegerRange::UInt32Maximum)
             {
-                Buttons(window).UpdateGfxButton(10017, 0, textX, y, 18, HumanString(30));
+                Buttons(window).UpdateGfxButton(SwitchIds::SingleHumanWindowCommand::SelectWorkHouse, 0, textX, y, 18, HumanString(30));
                 textX += 20;
             }
-            else Buttons(window).RemoveButton(10017, 0);
+            else Buttons(window).RemoveButton(SwitchIds::SingleHumanWindowCommand::SelectWorkHouse, 0);
             NC2Logic::SUserCommandsForHumanHandler available;
             const std::int32_t actions[4]{16, 17, 20, 21};
             for (std::uint32_t index = 0; index < 4; ++index)
@@ -626,7 +707,8 @@ namespace NC2InGameGuiSelection
                 const auto command = 10018u + index;
                 if (NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && available.IsCommandAllowed(actions[index]))
                 {
-                    Buttons(window).UpdateGfxButton(command, 0, textX, y, (index & 1u) != 0 ? 29 : 30, HumanString(31u + index)); textX += 20;
+                    Buttons(window).UpdateGfxButton(command, 0, textX, y, (index & 1u) != 0 ? 29 : 30, HumanString(31u + index));
+                    textX += 20;
                 }
                 else Buttons(window).RemoveButton(command, 0);
             }
@@ -642,19 +724,33 @@ namespace NC2InGameGuiSelection
             {
                 NC2GuiToolsBase::DrawTool_DrawIcon(39, bitmap, section.x + 10, y + 6);
                 auto markerX = section.x + 24;
-                if (available.IsCommandAllowed(28)) { Buttons(window).UpdateGfxButton(10037, 0, markerX, y, 30, HumanString(35)); markerX += 20; }
+                if (available.IsCommandAllowed(28))
+                {
+                    Buttons(window).UpdateGfxButton(10037, 0, markerX, y, 30, HumanString(35));
+                    markerX += 20;
+                }
                 else Buttons(window).RemoveButton(10037, 0);
                 if (available.IsCommandAllowed(29)) Buttons(window).UpdateGfxButton(10038, 0, markerX, y, 28, HumanString(36));
                 else Buttons(window).RemoveButton(10038, 0);
                 y += 14;
             }
-            else { Buttons(window).RemoveButton(10037, 0); Buttons(window).RemoveButton(10038, 0); }
+            else { Buttons(window).RemoveButton(10037, 0);
+                Buttons(window).RemoveButton(10038, 0);
+            }
             bool first = true;
             for (std::uint32_t good = 1; good < 66; ++good)
             {
                 const auto counter = NC2Logic::Human_Production_GetCounter(human, good);
-                if (counter == 12 || counter == 13) { removeCounterButtons(good); continue; }
-                if (first) { y += 8; first = false; }
+                if (counter == 12 || counter == 13)
+                {
+                    removeCounterButtons(good);
+                    continue;
+                }
+                if (first)
+                {
+                    y += 8;
+                    first = false;
+                }
                 const char* name = NC2Logic::StringAccess_GetGoodNamePtr(good, 1);
                 char text[160];
                 if (counter == 14)
@@ -662,7 +758,9 @@ namespace NC2InGameGuiSelection
                     NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s [%s]", name, HumanString(house != NXBasics::IntegerRange::UInt32Maximum ? 40 : 41));
                     text[sizeof(text) - 1] = '\0';
                     bitmap->Text_Print(resources.font08, color, section.x + 11, y, text);
-                    y += 12; removeCounterButtons(good); continue;
+                    y += 12;
+                    removeCounterButtons(good);
+                    continue;
                 }
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) == good) bitmap->Text_Print(resources.font08, color, section.x + 4, y, ">");
                 if (counter == 11)
@@ -705,11 +803,15 @@ namespace NC2InGameGuiSelection
                 if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0 || NC2Logic::Human_DoesEducationAllowGoodProduction(human, good)) continue;
                 const auto needed = NC2Logic::Human_GetExperienceNeededYetForGoodProduction_Value(human, good);
                 if (needed <= 0) continue;
-                if (firstLocked) { y += 8; firstLocked = false; }
+                if (firstLocked)
+                {
+                    y += 8;
+                    firstLocked = false;
+                }
                 char text[180];
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s - %d %s", NC2Logic::StringAccess_GetGoodNamePtr(good, 1), needed, NC2Logic::StringAccess_GetJobExperienceNamePtr(NC2Logic::Human_GetExperienceNeededYetForGoodProduction_Type(human, good)));
                 text[sizeof(text) - 1] = '\0';
-                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x25C), section.x + 4, y, text);
+                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + NC2Layout::PaletteOffset::MissingProductionExperienceColor), section.x + 4, y, text);
                 y += 12;
             }
             l_SubTabs_OverwriteHeight(window, 2, y - section.y - 10);
@@ -723,11 +825,11 @@ namespace NC2InGameGuiSelection
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             auto y = section.y + 46;
             const auto page = Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperiencePage);
-            for (std::uint32_t index = 0; index < 14; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPage; ++index)
             {
-                const auto job = Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + (page * 14u + index) * 4u);
+                const auto job = Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + (page * NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPageUnsigned + index) * NC2Layout::RecordSize::SingleHumanExperienceJobIdUnsigned);
                 if (job == 0) break;
-                const auto amount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + job * 4u);
+                const auto amount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + job * NC2Layout::RecordSize::HumanJobExperienceUnsigned);
                 if (amount == 0) continue;
                 char text[160];
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s: %d", NC2Logic::StringAccess_GetJobExperienceNamePtr(job), amount);
@@ -742,11 +844,12 @@ namespace NC2InGameGuiSelection
         void __fastcall SelectionSingleHumanWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* clip)
         {
             Tooltips(window).ClearAll();
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0) continue;
                 auto section = Section(window, index);
-                section.x += clip->x; section.y += clip->y;
+                section.x += clip->x;
+                section.y += clip->y;
                 const auto collapsed = Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags + index) != 0;
                 const SRectangle title(section.x + (collapsed ? section.width - 200 : 0), section.y, collapsed ? 200 : section.width, 16);
                 SelectionTool_FillRectangle(bitmap, title, 5);
@@ -767,7 +870,7 @@ namespace NC2InGameGuiSelection
                 if (NC2Logic::Human_IsAgeAdult(human)) NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s", jobName);
                 else NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s - %d %s", jobName, Read<std::int32_t>(human, NC2Layout::HumanOffset::AgeCounter) / 270, HumanString(10));
                 job[139] = '\0';
-                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400), basic.x + 68 + (basic.width - 72 - NXBasics::Font_GetPixelWidth(resources.font08, job)) / 2, basic.y + 34, job);
+                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + NC2Layout::PaletteOffset::LastColor), basic.x + 68 + (basic.width - 72 - NXBasics::Font_GetPixelWidth(resources.font08, job)) / 2, basic.y + 34, job);
                 DrawBar(window, bitmap, basic.x + 68, basic.y + 48, Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints), static_cast<std::int32_t>(NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), 34, 11, resources.hitpointsBarPalette, true);
                 // Windows helper 00463AD2: children and adult behavior-flag bit 0 omit needs.
                 if (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 1u) == 0)
@@ -779,37 +882,52 @@ namespace NC2InGameGuiSelection
                 }
                 std::int32_t rowY = basic.y + (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 1u) == 0 ? 103 : 100);
                 NC2Logic::SUserCommandsForHumanHandler available;
-                const auto allowed = [&](std::int32_t action) { return NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && available.IsCommandAllowed(action); };
+                const auto allowed = [&](std::int32_t action)
+                {
+                    return NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && available.IsCommandAllowed(action);
+                };
                 const auto relative = [&](std::size_t field, std::uint32_t command, std::uint32_t label, std::uint32_t icon)
                 {
                     const auto id = Read<std::uint32_t>(human, field);
-                    if (id == NXBasics::IntegerRange::UInt32Maximum) { Buttons(window).RemoveButton(command, 0); return; }
+                    if (id == NXBasics::IntegerRange::UInt32Maximum)
+                    {
+                        Buttons(window).RemoveButton(command, 0);
+                        return;
+                    }
                     NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, basic.x + 10, rowY + 6);
                     bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name);
                     Buttons(window).UpdateGfxButton(command, 0, basic.x + 24, rowY, 18, HumanString(label));
                     rowY += 14;
                 };
-                relative(0xB20, 10022, 20, 33);
+                relative(NC2Layout::HumanOffset::SpouseId, 10022, 20, 33);
                 if (allowed(7))
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(33, bitmap, basic.x + 10, rowY + 6);
-                    Buttons(window).UpdateGfxButton(10026, 0, basic.x + 24, rowY, 30, HumanString(21)); rowY += 14;
+                    Buttons(window).UpdateGfxButton(10026, 0, basic.x + 24, rowY, 30, HumanString(21));
+                    rowY += 14;
                 }
                 else Buttons(window).RemoveButton(10026, 0);
-                relative(0xB24, 10025, 22, 31);
+                relative(NC2Layout::HumanOffset::ChildId, 10025, 22, 31);
                 const bool canGetPregnant = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && (available.IsCommandAllowed(8) || available.IsCommandAllowed(9));
                 if (canGetPregnant)
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(31, bitmap, basic.x + 10, rowY + 6);
                     auto x = basic.x + 24;
-                    if (available.IsCommandAllowed(9)) { Buttons(window).UpdateGfxButton(10028, 0, x, rowY, 30, HumanString(24)); x += 20; }
+                    if (available.IsCommandAllowed(9))
+                    {
+                        Buttons(window).UpdateGfxButton(10028, 0, x, rowY, 30, HumanString(24));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10028, 0);
                     if (available.IsCommandAllowed(8)) Buttons(window).UpdateGfxButton(10027, 0, x, rowY, 30, HumanString(23));
                     else Buttons(window).RemoveButton(10027, 0);
                     rowY += 14;
                 }
-                else { Buttons(window).RemoveButton(10027, 0); Buttons(window).RemoveButton(10028, 0); }
-                relative(0xB18, 10023, 25, 31); relative(0xB14, 10024, 26, 31);
+                else { Buttons(window).RemoveButton(10027, 0);
+                    Buttons(window).RemoveButton(10028, 0);
+                }
+                relative(NC2Layout::HumanOffset::MotherId, 10023, 25, 31);
+                relative(NC2Layout::HumanOffset::FatherId, 10024, 26, 31);
                 if (!NC2Logic::Human_IsJobHero(human))
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(32, bitmap, basic.x + 10, rowY + 6);
@@ -818,13 +936,22 @@ namespace NC2InGameGuiSelection
                     std::uint32_t type = 0;
                     if (house != NXBasics::IntegerRange::UInt32Maximum)
                     {
-                        Buttons(window).UpdateGfxButton(10011, 0, x, rowY, 18, HumanString(27)); x += 20;
+                        Buttons(window).UpdateGfxButton(10011, 0, x, rowY, 18, HumanString(27));
+                        x += 20;
                         type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::LogicType);
                     }
                     else Buttons(window).RemoveButton(10011, 0);
-                    if (allowed(10)) { Buttons(window).UpdateGfxButton(10012, 0, x, rowY, 30, HumanString(28)); x += 20; }
+                    if (allowed(10))
+                    {
+                        Buttons(window).UpdateGfxButton(10012, 0, x, rowY, 30, HumanString(28));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10012, 0);
-                    if (allowed(11)) { Buttons(window).UpdateGfxButton(10013, 0, x, rowY, 29, HumanString(29)); x += 20; }
+                    if (allowed(11))
+                    {
+                        Buttons(window).UpdateGfxButton(10013, 0, x, rowY, 29, HumanString(29));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10013, 0);
                     if (type != 0) bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
                     rowY += 12;
@@ -837,11 +964,23 @@ namespace NC2InGameGuiSelection
                     rowY += 6;
                     NC2GuiToolsBase::DrawTool_DrawIcon(144, bitmap, basic.x + 10, rowY + 6);
                     auto x = basic.x + 24;
-                    if (attached) { Buttons(window).UpdateGfxButton(10014, 0, x, rowY, 18, HumanString(37)); x += 20; }
+                    if (attached)
+                    {
+                        Buttons(window).UpdateGfxButton(10014, 0, x, rowY, 18, HumanString(37));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10014, 0);
-                    if (hasCommands && available.IsCommandAllowed(12)) { Buttons(window).UpdateGfxButton(10015, 0, x, rowY, 30, HumanString(38)); x += 20; }
+                    if (hasCommands && available.IsCommandAllowed(12))
+                    {
+                        Buttons(window).UpdateGfxButton(10015, 0, x, rowY, 30, HumanString(38));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10015, 0);
-                    if (hasCommands && available.IsCommandAllowed(13)) { Buttons(window).UpdateGfxButton(10016, 0, x, rowY, 29, HumanString(39)); x += 20; }
+                    if (hasCommands && available.IsCommandAllowed(13))
+                    {
+                        Buttons(window).UpdateGfxButton(10016, 0, x, rowY, 29, HumanString(39));
+                        x += 20;
+                    }
                     else Buttons(window).RemoveButton(10016, 0);
                     if (attached)
                     {
@@ -876,7 +1015,7 @@ namespace NC2InGameGuiSelection
             {
                 if (const void* human = selectedHuman)
                 {
-                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
                     NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, NC2Layout::WorldGuiElementOffset::Display), reinterpret_cast<const std::uint32_t*>(NC2Logic::Human_GetMapPositionRef(human)));
                     NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
                 }
@@ -886,7 +1025,7 @@ namespace NC2InGameGuiSelection
             {
                 if (const void* human = selectedHuman)
                 {
-                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
                     const auto id = Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId);
                     if (NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_GetHumanId(world) == id) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
                     else NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, id);
@@ -898,16 +1037,16 @@ namespace NC2InGameGuiSelection
             {
                 if (const void* human = selectedHuman)
                 {
-                    const std::size_t fields[4] = {0xB20, 0xB18, 0xB14, 0xB24};
-                    const auto id = Read<std::uint32_t>(human, fields[command - 10022]);
+                    const std::size_t fields[4] = {NC2Layout::HumanOffset::SpouseId, NC2Layout::HumanOffset::MotherId, NC2Layout::HumanOffset::FatherId, NC2Layout::HumanOffset::ChildId};
+                    const auto id = Read<std::uint32_t>(human, fields[command - SwitchIds::SingleHumanWindowCommand::SelectSpouse]);
                     if (id != NXBasics::IntegerRange::UInt32Maximum) NC2InGameGuiInputManager::Selection_SelectSingleHuman(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
                 }
             }
-            else if (command == 10017 || command == 10011)
+            else if (command == SwitchIds::SingleHumanWindowCommand::SelectWorkHouse || command == 10011)
             {
                 if (const void* human = selectedHuman)
                 {
-                    const auto id = Read<std::uint32_t>(human, command == 10017 ? 0xB34 : 0xB28);
+                    const auto id = Read<std::uint32_t>(human, command == SwitchIds::SingleHumanWindowCommand::SelectWorkHouse ? NC2Layout::HumanOffset::WorkAttachmentHouseId : NC2Layout::HumanOffset::HomeHouseId);
                     if (id != NXBasics::IntegerRange::UInt32Maximum) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
                 }
             }
@@ -925,9 +1064,10 @@ namespace NC2InGameGuiSelection
                 {
                     if (command != 10016 || NC2Logic::Human_IsAttachedToVehicle(human))
                     {
-                        std::byte networkCommand[20]{};
+                        std::byte networkCommand[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
                         const auto opcode = command == 10013 ? 27 : command == 10016 ? 39 : command == 10019 ? 29 : command == 10021 ? 31 : command - 10012;
-                        Write<std::uint8_t>(networkCommand, 0, static_cast<std::uint8_t>(opcode)); Write(networkCommand, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+                        Write<std::uint8_t>(networkCommand, NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(opcode));
+                        Write(networkCommand, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
                         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
                         NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId));
                     }
@@ -952,8 +1092,11 @@ namespace NC2InGameGuiSelection
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3)
                     if (const void* human = selectedHuman)
                     {
-                        std::byte networkCommand[20]{};
-                        Write<std::uint8_t>(networkCommand, 0, 37); Write(networkCommand, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(networkCommand, 12, param2); Write(networkCommand, 16, param3);
+                        std::byte networkCommand[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+                        Write<std::uint8_t>(networkCommand, NC2Layout::UserNetworkCommandOffset::Opcode, 37);
+                    Write(networkCommand, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+                    Write(networkCommand, NC2Layout::UserNetworkCommandOffset::Parameter1, param2);
+                    Write(networkCommand, NC2Layout::UserNetworkCommandOffset::Parameter2, param3);
                         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
                     }
             }
@@ -976,17 +1119,17 @@ namespace NC2InGameGuiSelection
             {
                 if (const void* human = selectedHuman)
                 {
-                    std::byte networkCommand[20]{};
-                    Write<std::uint8_t>(networkCommand, 0, command == 10039 ? 0x16 : 0x17);
-                    Write(networkCommand, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-                    Write(networkCommand, 0x0C, param2);
+                    std::byte networkCommand[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+                    Write<std::uint8_t>(networkCommand, NC2Layout::UserNetworkCommandOffset::Opcode, command == 10039 ? 0x16 : 0x17);
+                    Write(networkCommand, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+                    Write(networkCommand, NC2Layout::UserNetworkCommandOffset::Parameter1, param2);
                     if (command == 10040)
                     {
                         auto amount = param3;
-                        if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0) amount *= 11u;
+                        if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) != 0) amount *= 11u;
                         if (NC2Logic::Human_Production_GetCounter(human, param2) == 0 && NXBasics::Runtime_TimeSigned32(amount) < 0) amount = 11;
                         if (NC2Logic::Human_Production_GetCounter(human, param2) == 11 && NXBasics::Runtime_TimeSigned32(amount) > 0) amount = 0u - 11u;
-                        Write(networkCommand, 0x10, amount);
+                        Write(networkCommand, NC2Layout::UserNetworkCommandOffset::Parameter2, amount);
                     }
                     NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
                     NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, static_cast<std::int32_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)));
@@ -1020,17 +1163,19 @@ namespace NC2InGameGuiSelection
                 if (human != nullptr && nameElement != nullptr)
                 {
                     const auto* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name;
-                    if (std::strcmp(name, Read<const char*>(nameElement, 0x30)) != 0) l_SubTabs_UpdateAll(window, true);
+                    if (std::strcmp(name, Read<const char*>(nameElement, NC2Layout::GuiTextButtonOffset::Caption)) != 0) l_SubTabs_UpdateAll(window, true);
                 }
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceTabEnabled) != 0 && Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceTabCollapsed) == 0 && Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperiencePage) == 0)
                 {
                     SSelectionSingleHumanWindowMostExperiencesData most;
                     l_SubTabs_Experiences_GetMostExperiences(&most);
-                    const auto count = most.count < 14 ? most.count : 14u;
+                    const auto count = most.count < NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPage ? most.count : NC2Runtime::SingleHumanWindowLimits::ExperienceJobsPerPageUnsigned;
                     for (std::uint32_t index = 0; index < count; ++index)
                     {
-                        if (Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + index * 4u) == most.entries[index].job) continue;
-                        l_SubTabs_Experiences_Init(window); l_SubTabs_UpdateAll(window, true); break;
+                        if (Read<std::uint32_t>(window, NC2Layout::SingleHumanWindowOffset::ExperienceJobsUnsigned + index * NC2Layout::RecordSize::SingleHumanExperienceJobIdUnsigned) == most.entries[index].job) continue;
+                        l_SubTabs_Experiences_Init(window);
+                        l_SubTabs_UpdateAll(window, true);
+                        break;
                     }
                 }
                 l_Misc_CenterWorldDisplay(window);
@@ -1043,7 +1188,9 @@ namespace NC2InGameGuiSelection
                 }
                 else
                 {
-                    Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::WorkTabEnabled, 0); Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::JobTabEnabled, 0); Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabEnabled, 0);
+                    Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::WorkTabEnabled, 0);
+                    Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::JobTabEnabled, 0);
+                    Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabEnabled, 0);
                 }
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabEnabled) != 0 && Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TraderTabCollapsed) == 0) l_SubTabs_Trader_UpdateButtons(window);
                 l_SubTabs_UpdateAll(window, false);
@@ -1053,11 +1200,11 @@ namespace NC2InGameGuiSelection
         // Original function: FUN_004ae1b6.
         bool __fastcall SelectionSingleHumanWindow_IsHit(void* window, void*, const std::int32_t* point)
         {
-            for (std::uint32_t index = 0; index < 6; ++index)
+            for (std::uint32_t index = 0; index < NC2Runtime::SingleHumanWindowLimits::Tabs; ++index)
             {
                 if (Read<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags + index) == 0) continue;
                 SRectangle rectangle(0, 0, 0, 0);
-                std::memcpy(&rectangle, static_cast<const std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * 16u, sizeof(rectangle));
+                std::memcpy(&rectangle, static_cast<const std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabRectangles + index * NC2Layout::RecordSize::SingleHumanTabRectangleUnsigned, sizeof(rectangle));
                 const auto right = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u);
                 const auto bottom = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u);
                 if (point[0] >= rectangle.x && point[0] <= right && point[1] >= rectangle.y && point[1] <= bottom) return true;
@@ -1068,7 +1215,7 @@ namespace NC2InGameGuiSelection
         bool __fastcall SelectionSingleHumanWindow_ToolTipAvailable(void* window, void*, const char** output)
         {
             const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
-            std::int32_t point[2] = {Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
+            std::int32_t point[2] = {Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::X), Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::Y)};
             NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(window, point);
             const char* tooltip = Tooltips(window).Get(point);
             if (tooltip == nullptr) return false;
@@ -1076,7 +1223,10 @@ namespace NC2InGameGuiSelection
             return true;
         }
         // Original function: FUN_004bf2f4.
-        bool __fastcall SelectionSingleHumanWindow_True(void*) { return true; }
+        bool __fastcall SelectionSingleHumanWindow_True(void*)
+        {
+            return true;
+        }
         extern const std::uintptr_t gSingleHumanWindowVirtualTable[19];
         // Original function: FUN_004ab9b7; close the owned popup before unregistering.
         void SelectionSingleHumanWindow_Destruct(void* window)
@@ -1125,7 +1275,11 @@ namespace NC2InGameGuiSelection
     }
 
     // Original function: FUN_004ab9a5; the receiver is the embedded SVars at window +0x70.
-    static void* SelectionSingleHumanWindow_Vars_Construct(void* vars) { ::new(static_cast<std::byte*>(vars) + NC2Layout::SingleHumanWindowVarsOffset::Tooltips) NC2InGameGuiBase::CStaticToolTipHandler; return vars; }
+    static void* SelectionSingleHumanWindow_Vars_Construct(void* vars)
+    {
+        ::new(static_cast<std::byte*>(vars) + NC2Layout::SingleHumanWindowVarsOffset::Tooltips) NC2InGameGuiBase::CStaticToolTipHandler;
+        return vars;
+    }
     // Original function: FUN_004ab7f1; native embedded constructors precede the storage reset.
     void* SelectionSingleHumanWindow_Construct(void* window)
     {
@@ -1164,13 +1318,17 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004be4fb; complete selector region 004BE610..004BE648.
     void Tool_LandscapeType_GetTooltipStringPtr(std::int32_t graphicId, std::int32_t amount, char* output, bool* isGood, bool* isResource)
     {
-        output[0] = 0; if (isGood != nullptr) *isGood = false; if (isResource != nullptr) *isResource = false;
-        const auto type = NC2Lifetime::Read<std::int32_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(graphicId) * 0x8Cu + 0x38u);
+        output[0] = 0;
+        if (isGood != nullptr) *isGood = false;
+        if (isResource != nullptr) *isResource = false;
+        const auto type = NC2Lifetime::Read<std::int32_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(graphicId) * NC2Layout::RecordSize::StaticEngineLandscapeUnsigned + NC2Layout::EngineLandscapeTypeOffset::LogicTypeUnsigned);
         const auto good = NC2Logic::gStaticDependencyGoodByLandscape[type];
         if (good != 0)
         {
             const auto* name = NC2Logic::StringAccess_GetGoodNamePtr(good, amount);
-            NXBasics::Runtime_PrintString(output, "%d %s", amount, name); if (isGood != nullptr) *isGood = true; return;
+            NXBasics::Runtime_PrintString(output, "%d %s", amount, name);
+            if (isGood != nullptr) *isGood = true;
+            return;
         }
         std::uint32_t stringId = 0;
         constexpr std::uint8_t strings[25]{100,0,0,0,0,101,101,101,102,102,0,103,103,0,104,104,0,105,105,0,0,0,0,106,106};

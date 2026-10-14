@@ -411,6 +411,8 @@ namespace NC2Layout
 
     namespace PaletteOffset
     {
+        inline constexpr auto MissingProductionExperienceColor = 0x25C;
+
         inline constexpr auto InactiveGoalColor = 0x2E8;
 
         inline constexpr auto LastColor = 0x400;
@@ -916,6 +918,8 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto WorldDisplayElement = 580;
+
         inline constexpr auto GameSafetyBoxWindow = 116;
 
         inline constexpr auto OptionsWindow = 120;
@@ -1678,6 +1682,26 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto SingleHumanExperienceJobId = 4;
+
+        inline constexpr auto SingleHumanExperienceJobIdUnsigned = 4u;
+
+        inline constexpr auto PaletteColorUnsigned = 4u;
+
+        inline constexpr auto SingleHumanChildControlPointers = 44;
+
+        inline constexpr auto HumanJobExperience = 4;
+
+        inline constexpr auto SingleHumanExperiencePageUnsigned = 56u;
+
+        inline constexpr auto SingleHumanRouteControlsUnsigned = 16u;
+
+        inline constexpr auto SingleHumanTabRectangleUnsigned = 16u;
+
+        inline constexpr auto HumanJobExperienceUnsigned = 4u;
+
+        inline constexpr auto SingleHumanTabHeightUnsigned = 4u;
+
         inline constexpr auto AISoldierSelfDefenceOrigins = 800;
 
         inline constexpr auto AISinglePlayerVariables = 44360;
@@ -4886,6 +4910,11 @@ namespace NC2Layout
     namespace AIBuildHouseArrayOffset
     {
         inline constexpr auto FirstPosition = 8;
+    }
+
+    namespace EngineLandscapeTypeOffset
+    {
+        inline constexpr auto LogicTypeUnsigned = 0x38u;
     }
 
 }

@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Character selection record continuation — 2026-10-14
+
+Completed the [character selection window records block](SELECTION_WINDOW_RECORDS_REVIEW.md): trader route rows, experience pages, graphic/text control fields, tooltip limits, family selection, world reference and command payloads. The source keeps the Windows calls, arithmetic, branch order and ownership. **60 value/type comparisons, 44 physical assertions and Win32 syntax checking** pass. The preceding [single-player AI block](SINGLE_AI_RECORDS_REVIEW.md) is committed as `30d3e9f`.
+
+Fresh scan: **595 registered files (307 CPP / 288 headers), 154,375 lines, 3,261 raw numeric-access operands, 74 heuristic unknown mentions, 1,078 long compound lines and 5,014 original-address annotations**. These two blocks remove 115 candidates. Cumulative reduction: **2,166 / 5,427 (39.91%)**, twenty-four completed naming/layout blocks. These figures count heuristic refactoring candidates, not functions or gameplay completion. The broad whole-source request and complete behavioral-review ledger remain open. Six changed production units and two new private compiler assertion units pass incrementally; no build/test/game run. Next owning block: mission-start objects or mouse cursor (50 candidates each).
+
 ## Single-player AI record continuation — 2026-10-14
 
 Completed the [single-player AI records block](SINGLE_AI_RECORDS_REVIEW.md): initialization flags, wall/gate requests and consumers, house plans, population samples, stock/stage strides and update cadence. Windows behavior is retained, including the gate ownership/state asymmetries, unsigned population/stock arithmetic, inclusive task index and stale request flags. Frozen comparisons and Win32 syntax checking pass **85 value/type comparisons and 31 physical assertions** across five changed production units.
