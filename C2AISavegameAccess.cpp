@@ -126,13 +126,13 @@ namespace NC2Logic
         void C2AISinglePlayerHandler_Init(void* handler, std::uint32_t player, bool enabled)
         {
             AISinglePlayerHandler_Construct(handler);
-            std::memset(handler, 0, 44360);
-            std::memset(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOrigins, 0, 800);
+            std::memset(handler, 0, NC2Layout::RecordSize::AISinglePlayerVariables);
+            std::memset(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOrigins, 0, NC2Layout::RecordSize::AISoldierSelfDefenceOrigins);
             Write<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, NXBasics::IntegerRange::UInt32Maximum);
             Write(handler, NC2Layout::AISinglePlayerOffset::PlayerId, player);
             Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::Enabled, enabled);
-            Write<std::uint8_t>(handler, 5, 1);
-            Write<std::uint32_t>(handler, 0xAD38, 0x50);
+            Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::InitializationPendingFlag, 1);
+            Write<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::UnitLimit, NC2Runtime::AISinglePlayerLimits::DefaultUnitLimit);
         }
 
         // Original function: FUN_00407cdc.

@@ -159,12 +159,12 @@ namespace NC2Logic
             }
             else if (type == 4 && !Human_IsAttachedToWorkHouse(human))
             {
-                for (std::uint32_t wall = 0; wall < Read<std::uint32_t>(handler, 0x43A8); ++wall)
+                for (std::uint32_t wall = 0; wall < Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::WallCount); ++wall)
                 {
-                    if (Read<std::uint8_t>(handler, 0x43A4) == 0) break;
-                    const auto offset = 0x43AC + wall * 6;
+                    if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::WallWorkPendingFlag) == 0) break;
+                    const auto offset = NC2Layout::AISinglePlayerOffset::FirstWallWorkPendingFlag + wall * NC2Layout::RecordSize::AISingleWall;
                     if (Read<std::uint8_t>(handler, offset) == 0) continue;
-                    Send(human, 17, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + offset + 2), 0);
+                    Send(human, 17, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + offset + NC2Layout::AISingleWallOffset::MapPosition), 0);
                     Write<std::uint8_t>(handler, offset, 0);
                 }
             }
@@ -243,19 +243,19 @@ namespace NC2Logic
             }
         }
         std::uint32_t assigned = 0;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x43A8); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::WallCount); ++i)
         {
-            if (Read<std::uint8_t>(handler, 0x43A4) == 0) break;
-            if (Read<std::uint8_t>(handler, 0x43AC + i * 6) == 0) continue;
-            if (AISinglePlayerHandler_l_Request_TryToGetWallBuilder(handler, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + 0x43AE + i * 6))) ++assigned;
+            if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::WallWorkPendingFlag) == 0) break;
+            if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::FirstWallWorkPendingFlag + i * NC2Layout::RecordSize::AISingleWall) == 0) continue;
+            if (AISinglePlayerHandler_l_Request_TryToGetWallBuilder(handler, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::FirstWallPosition + i * NC2Layout::RecordSize::AISingleWall))) ++assigned;
             if (assigned == 2) break;
         }
         assigned = 0;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x5B20); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::GateCount); ++i)
         {
-            if (Read<std::uint8_t>(handler, 0x5B1C) == 0) break;
-            if (Read<std::uint8_t>(handler, 0x5B24 + i * 8) == 0) continue;
-            if (!AISinglePlayerHandler_l_Request_TryToGetWallBuilder(handler, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + 0x5B26 + i * 8))) break;
+            if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::GateRepairPendingFlag) == 0) break;
+            if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::FirstGateRepairPendingFlag + i * NC2Layout::RecordSize::AISingleGate) == 0) continue;
+            if (!AISinglePlayerHandler_l_Request_TryToGetWallBuilder(handler, MapMigPoint_GetLong(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::FirstGatePosition + i * NC2Layout::RecordSize::AISingleGate))) break;
             if (++assigned == 2) break;
         }
     }

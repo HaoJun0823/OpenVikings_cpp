@@ -38,11 +38,11 @@ namespace NC2Logic
         // Original function: FUN_00407e5b.
         void* AIActiveCombinedMainTasksArray_Construct(void* array) { ConstructPoints(array, 0x58, 0x58, 50); return array; }
         // Original function: FUN_00407e73.
-        void* AISingleWallArray_Construct(void* array) { ConstructPoints(array, 10, 6, 1000); return array; }
+        void* AISingleWallArray_Construct(void* array) { ConstructPoints(array, NC2Layout::AISingleWallArrayOffset::FirstPosition, NC2Layout::RecordSize::AISingleWall, NC2Runtime::AISinglePlayerLimits::Walls); return array; }
         // Original function: FUN_00407e8d.
-        void* AISingleGateArray_Construct(void* array) { ConstructPoints(array, 10, 8, 50); return array; }
+        void* AISingleGateArray_Construct(void* array) { ConstructPoints(array, NC2Layout::AISingleGateArrayOffset::FirstPosition, NC2Layout::RecordSize::AISingleGate, NC2Runtime::AISinglePlayerLimits::Gates); return array; }
         // Original function: FUN_00407ec7.
-        void* AIBuildHouseArray_Construct(void* array) { ConstructPoints(array, 8, 16, 100); return array; }
+        void* AIBuildHouseArray_Construct(void* array) { ConstructPoints(array, NC2Layout::AIBuildHouseArrayOffset::FirstPosition, NC2Layout::RecordSize::AIBuildHouse, NC2Runtime::AISinglePlayerLimits::BuildHouses); return array; }
         // Original function: FUN_00407edf.
         void* AISingleVehicleArray_Construct(void* array)
         {
@@ -70,8 +70,8 @@ namespace NC2Logic
         {
             auto* bytes = static_cast<std::byte*>(handler);
             AIMainTaskArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::LastMainTaskIndex); AIActiveCombinedMainTasksArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::CombinedTaskCount);
-            AIBuildHouseArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::BuildHouseCount); AISingleWallArray_Construct(bytes + 0x43A4);
-            AISingleGateArray_Construct(bytes + 0x5B1C); AISingleVehicleArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::VehicleCount); AISingleSoldiers_Construct(bytes + NC2Layout::AISinglePlayerOffset::SoldierCount);
+            AIBuildHouseArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::BuildHouseCount); AISingleWallArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::WallWorkPendingFlag);
+            AISingleGateArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::GateRepairPendingFlag); AISingleVehicleArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::VehicleCount); AISingleSoldiers_Construct(bytes + NC2Layout::AISinglePlayerOffset::SoldierCount);
             return handler;
         }
         // Original function: FUN_0042940e; the two original fills overlap.

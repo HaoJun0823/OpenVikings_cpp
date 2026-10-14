@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## Single-player AI record continuation — 2026-10-14
+
+Completed the [single-player AI records block](SINGLE_AI_RECORDS_REVIEW.md): initialization flags, wall/gate requests and consumers, house plans, population samples, stock/stage strides and update cadence. Windows behavior is retained, including the gate ownership/state asymmetries, unsigned population/stock arithmetic, inclusive task index and stale request flags. Frozen comparisons and Win32 syntax checking pass **85 value/type comparisons and 31 physical assertions** across five changed production units.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 154,153 lines, 3,313 raw numeric-access operands, 74 heuristic unknown mentions, 1,091 long compound lines and 5,014 original-address annotations**. This block removes 63 candidates; cumulative reduction is **2,114 / 5,427 (38.95%)** across twenty-three naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay percentages. A complete per-function behavioral-review ledger remains open. No build/test/game run; assistant-only artifacts remain ignored. Next block: selection GUI (52 raw operands), then mission-start/mouse (50 each).
+
 ## Options/pause and military range continuation — 2026-10-14
 
 Two further blocks are committed: [options, safety dialogs, settings and pause](OPTIONS_WINDOW_RECORDS_REVIEW.md) (`b5ba513`) and [object/landscape military range storage](MILITARY_RANGE_RECORDS_REVIEW.md) (`85b3839`). The broad source review now has twenty-two completed naming/layout blocks; eight were completed in this continuation, alongside the separate confirmed title-palette correction. The request to review all remaining sites remains open.

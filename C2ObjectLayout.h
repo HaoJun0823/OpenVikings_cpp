@@ -1291,6 +1291,26 @@ namespace NC2Layout
     // Windows AI owners, task records and soldier/military storage.
     namespace AISinglePlayerOffset
     {
+        inline constexpr auto InitializationPendingFlag = 5;
+
+        inline constexpr auto FirstGateRepairPendingFlag = 0x5B24;
+
+        inline constexpr auto GateRepairPendingFlag = 0x5B1C;
+
+        inline constexpr auto WallWorkPendingFlag = 0x43A4;
+
+        inline constexpr auto FirstGateStateFlag = 0x5B2A;
+
+        inline constexpr auto FirstGatePosition = 0x5B26;
+
+        inline constexpr auto GateCount = 0x5B20;
+
+        inline constexpr auto FirstWallWorkPendingFlag = 0x43AC;
+
+        inline constexpr auto FirstWallPosition = 0x43AE;
+
+        inline constexpr auto WallCount = 0x43A8;
+
         inline constexpr auto Enabled = 4;
 
         inline constexpr auto FirstActivatedConditionFlagUnsigned = 0x24u;
@@ -1658,6 +1678,20 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AISoldierSelfDefenceOrigins = 800;
+
+        inline constexpr auto AISinglePlayerVariables = 44360;
+
+        inline constexpr auto HouseConstructionGoods = 64;
+
+        inline constexpr auto StaticHouseStock = 12;
+
+        inline constexpr auto AIBuildHouse = 16;
+
+        inline constexpr auto AISingleGate = 8;
+
+        inline constexpr auto AISingleWall = 6;
+
         inline constexpr auto EnemyRangeDistanceUnsigned = 4u;
 
         inline constexpr auto EnemyRangeResultUnsigned = 8u;
@@ -3421,6 +3455,8 @@ namespace NC2Layout
 
     namespace EngineHouseLogicViewOffset
     {
+        inline constexpr auto ConstructionGoods = 0x48;
+
         inline constexpr auto DevelopmentStageCount = 0x18;
 
         inline constexpr auto TribeType = 0x14;
@@ -3585,6 +3621,10 @@ namespace NC2Layout
 
     namespace PlayerStatisticSampleOffset
     {
+        inline constexpr auto AdultFemaleCount = 8;
+
+        inline constexpr auto AdultMaleCount = 2;
+
         inline constexpr auto SoldierCount = 0x12;
 
         inline constexpr auto HumanCount = 0;
@@ -4810,6 +4850,42 @@ namespace NC2Layout
     namespace EnemyLandscapeTargetListOffset
     {
         inline constexpr auto Count = 0;
+    }
+
+    namespace AIBuildHouseOffset
+    {
+        inline constexpr auto MapPosition = 4;
+
+        inline constexpr auto MissionCheckId = 12;
+
+        inline constexpr auto DevelopmentStage = 8;
+
+        inline constexpr auto EngineType = 0;
+    }
+
+    namespace StaticHouseTypeOffset
+    {
+        inline constexpr auto Stocks = 0x64;
+    }
+
+    namespace AISingleWallOffset
+    {
+        inline constexpr auto MapPosition = 2;
+    }
+
+    namespace AISingleWallArrayOffset
+    {
+        inline constexpr auto FirstPosition = 10;
+    }
+
+    namespace AISingleGateArrayOffset
+    {
+        inline constexpr auto FirstPosition = 10;
+    }
+
+    namespace AIBuildHouseArrayOffset
+    {
+        inline constexpr auto FirstPosition = 8;
     }
 
 }

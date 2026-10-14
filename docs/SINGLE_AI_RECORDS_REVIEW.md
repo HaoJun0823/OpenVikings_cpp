@@ -1,0 +1,21 @@
+# Single-player AI records review — 2026-10-14
+
+Reviewed against `dd2ae8a`. Windows assembly and original `Game.exe` establish field meanings, widths, strides, capacities and cadence. Mac declarations supply names only. This is a naming/layout block, not a claim that all AI functions have a complete behavioral audit.
+
+The handler prefix has a pending-initialization byte at 5. House-plan storage starts at 0x3D60 and contains a DWORD count plus 100 sixteen-byte entries (engine type, packed point, stage, mission-check ID). Wall storage at 0x43A4 contains a pending-work byte, three unclassified bytes, a DWORD count and 1,000 six-byte entries: pending-work byte, unclassified byte, two WORD coordinates. Gate storage at 0x5B1C has the same header with 50 eight-byte entries; its final two bytes are state flag and an unclassified byte. Documentary views preserve original accesses and do not replace live objects.
+
+The work loop retains the original order: initialization/default tasks and saved positions, soldier/vehicle list rebuilds, task rechecks, tower attachment, list/commander updates, conditions, soldier task cleanup and attached tasks. Defence/task updates run every two supplied ticks; house building every three; wall/gate checks, stock targets and inhabitant requests every six; energy, failed-path repair and family work every twelve. Gates are checked each enabled update. These are supplied-tick intervals, not assumed wall-clock durations.
+
+Population samples are confirmed by `004408EE`: all humans, adult men, adult men without work/home, adult women, adult women without home, children, children without home, all humans without home and soldiers. AI family work subtracts soldiers from adult men with DWORD unsigned arithmetic, then uses signed division by three for the comparison against adult women. Commands 14/15/16 remain marry/boy/girl. The girl branch returns after one command; the boy branch continues. The meaning of pregnancy-required good 16 is not newly classified here.
+
+Preserved Windows details:
+
+- The center point is appended without capacity checks and without clearing its wall-request byte; rings check equality against capacity, not greater-or-equal. Lists are not reset by the scan.
+- Walls require matching ownership during collection. Gates do not; gate operation later checks ownership. Gate-state initialization tests the closed landscape ID, while subsequent stores use open/close command values. The neutral field name deliberately avoids asserting a uniform polarity.
+- Wall and gate passes mark at most ten requests. Unselected per-entry flags are not cleared. Request consumers retain their different early exits and two-worker limits.
+- Building permits at most three unfinished houses. The engine-house getter returns a view biased by 0x3C; construction-goods count is therefore at relative 0x48 with a 64-byte stage stride. Static logic stock entries remain twelve bytes; the five-unit stock delta retains unsigned subtraction followed by the original signed cast.
+- Main-task repair retains inclusive last-index traversal, shared temporary callback pointers and primary/secondary position selection. No guards, ownership changes or algorithm substitutions were introduced.
+
+Evidence regions: `0045B4F4..0045BDE3` (work/default/family/stocks/walls/gates/defence), `0044E49A..0044E60F` (house building), `00473070..00473101` (repair, including the branch after its first return), `004408EE..004409C0` (sample producer), `00407DD4..00407EDE` (member constructors), `004294CF..0042951A` (initialization) and `00457AEB..00458166` (request consumer). Byte verification includes a few neighbouring instructions in the two constructor/initialization exports; their presence is provenance, not a claim to have reviewed those neighbours.
+
+Frozen stages verify unchanged C++ operation tokens after resolving named constants. **85 value/type comparisons, 31 physical assertions, 1,715 byte-verified instruction instances and 111 named layout references** pass. Win32 `/Zs` passes the five changed production units and the private assertions, with no diagnostics. No build, test project or game run was performed. The numeric-access scan falls from 3,376 to **3,313**; this file's 53 raw operands become zero. Unknown spans remain explicitly unclassified.

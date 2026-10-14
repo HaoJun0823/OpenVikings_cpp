@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2PlayerStatisticAccess.h"
@@ -97,26 +99,26 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
         {
             const auto* human = GetHumanPtr(id);
-            ++counts[0];
+            ++counts[NC2Runtime::HumanStatisticIndex::All];
             if (Human_IsAgeAdult(human))
             {
                 if (Human_IsSexMale(human))
                 {
-                    ++counts[1];
-                    if (!Human_IsAttachedToHomeHouse(human)) { ++counts[3]; ++counts[8]; }
-                    if (!Human_IsAttachedToWorkHouse(human)) ++counts[2];
-                    if (Human_IsJobSoldier(human)) ++counts[9];
+                    ++counts[NC2Runtime::HumanStatisticIndex::AdultMale];
+                    if (!Human_IsAttachedToHomeHouse(human)) { ++counts[NC2Runtime::HumanStatisticIndex::AdultMaleWithoutHome]; ++counts[NC2Runtime::HumanStatisticIndex::WithoutHome]; }
+                    if (!Human_IsAttachedToWorkHouse(human)) ++counts[NC2Runtime::HumanStatisticIndex::AdultMaleWithoutWorkHouse];
+                    if (Human_IsJobSoldier(human)) ++counts[NC2Runtime::HumanStatisticIndex::Soldiers];
                 }
                 else
                 {
-                    ++counts[4];
-                    if (!Human_IsAttachedToHomeHouse(human)) { ++counts[5]; ++counts[8]; }
+                    ++counts[NC2Runtime::HumanStatisticIndex::AdultFemale];
+                    if (!Human_IsAttachedToHomeHouse(human)) { ++counts[NC2Runtime::HumanStatisticIndex::AdultFemaleWithoutHome]; ++counts[NC2Runtime::HumanStatisticIndex::WithoutHome]; }
                 }
             }
             else
             {
-                ++counts[6];
-                if (!Human_IsAttachedToHomeHouse(human)) { ++counts[7]; ++counts[8]; }
+                ++counts[NC2Runtime::HumanStatisticIndex::Children];
+                if (!Human_IsAttachedToHomeHouse(human)) { ++counts[NC2Runtime::HumanStatisticIndex::ChildrenWithoutHome]; ++counts[NC2Runtime::HumanStatisticIndex::WithoutHome]; }
             }
         }
     }

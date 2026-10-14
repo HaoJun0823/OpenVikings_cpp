@@ -691,4 +691,75 @@ namespace NC2Runtime
         inline constexpr auto MapPosition = 0;
     }
 
+    namespace AISinglePlayerLimits
+    {
+        inline constexpr auto HouseBuildSearchRadius = 12;
+
+        inline constexpr auto EnemySearchRadius = 40;
+
+        inline constexpr auto DefenceHouseSearchRadius = 10000;
+
+        inline constexpr auto DefaultMainTaskRadius = 40;
+
+        inline constexpr auto DefaultSoldierRadius = 15;
+
+        inline constexpr auto NearbyHumanRadius = 40;
+
+        inline constexpr auto DefaultUnitLimit = 0x50;
+
+        inline constexpr auto BuildHouses = 100;
+
+        inline constexpr auto EnergyRepairAndFamilyInterval = 12;
+
+        inline constexpr auto ConstructionAndInhabitantsInterval = 6;
+
+        inline constexpr auto HouseBuildInterval = 3;
+
+        inline constexpr auto SoldierTaskUpdateInterval = 2;
+
+        inline constexpr auto DesiredHouseStockAmountUnsigned = 5u;
+
+        inline constexpr auto DefenceTimeoutTicks = 360;
+
+        inline constexpr auto UnfinishedHouses = 3;
+
+        inline constexpr auto WallOrGateWorkPerPass = 10;
+
+        inline constexpr auto Gates = 50;
+
+        inline constexpr auto Walls = 1000;
+
+        inline constexpr auto MainTasks = 50;
+    }
+
+    namespace HumanStatisticIndex
+    {
+        inline constexpr auto ChildrenWithoutHome = 7;
+
+        inline constexpr auto Children = 6;
+
+        inline constexpr auto AdultFemaleWithoutHome = 5;
+
+        inline constexpr auto AdultFemale = 4;
+
+        inline constexpr auto Soldiers = 9;
+
+        inline constexpr auto AdultMaleWithoutWorkHouse = 2;
+
+        inline constexpr auto WithoutHome = 8;
+
+        inline constexpr auto AdultMaleWithoutHome = 3;
+
+        inline constexpr auto AdultMale = 1;
+
+        inline constexpr auto All = 0;
+    }
+
+    namespace HouseBuildSearchCallbackComponent
+    {
+        inline constexpr auto Count = 4;
+
+        inline constexpr auto ResultPosition = 3;
+    }
+
 }
