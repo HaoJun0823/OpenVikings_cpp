@@ -675,4 +675,20 @@ namespace NC2Runtime
         inline constexpr auto Pages = 6;
     }
 
+    namespace EnemyRangeLimits
+    {
+        inline constexpr auto NeutralPlayer = 20;
+
+        inline constexpr auto PlayersIncludingNeutral = 21;
+
+        inline constexpr auto Players = 20;
+    }
+
+    namespace EnemyRangeResultComponent
+    {
+        inline constexpr auto Distance = 1;
+
+        inline constexpr auto MapPosition = 0;
+    }
+
 }

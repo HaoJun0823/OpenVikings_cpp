@@ -2511,4 +2511,9 @@ namespace SwitchIds
         inline constexpr auto FirstResolution = 0x2710;
     }
 
+    namespace DiplomacyState
+    {
+        inline constexpr auto Enemy = 3;
+    }
+
 }

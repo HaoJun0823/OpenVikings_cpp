@@ -1658,6 +1658,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto EnemyRangeDistanceUnsigned = 4u;
+
+        inline constexpr auto EnemyRangeResultUnsigned = 8u;
+
         inline constexpr auto ClockInitializedSuffix = 31;
 
         inline constexpr auto OptionsWindowVars = 8;
@@ -4782,6 +4786,30 @@ namespace NC2Layout
         inline constexpr auto TimeText = 0x31;
 
         inline constexpr auto AnalogMode = 0x30;
+    }
+
+    namespace EnemyRangeResultOffset
+    {
+        inline constexpr auto DistanceUnsigned = 4u;
+    }
+
+    namespace EnemyObjectResultOffset
+    {
+        inline constexpr auto Distance = 4;
+
+        inline constexpr auto ObjectId = 0;
+    }
+
+    namespace EnemyLandscapeResultOffset
+    {
+        inline constexpr auto Distance = 4;
+
+        inline constexpr auto MapPosition = 0;
+    }
+
+    namespace EnemyLandscapeTargetListOffset
+    {
+        inline constexpr auto Count = 0;
     }
 
 }

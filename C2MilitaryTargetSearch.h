@@ -1,9 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace NC2Logic
 {
+    // Windows result views deliberately distinguish object IDs from packed map coordinates.
+    struct SEnemyObjectRangeResultStorage { std::int32_t objectId; std::uint32_t distance; };
+    struct SEnemyLandscapeRangeResultStorage { std::uint32_t mapPosition, distance; };
+    // Original landscape-list template identity remains unresolved; this is only its physical view.
+    struct SEnemyLandscapeTargetListStorage { std::uint32_t count, capacity; void* entries; };
+
     bool Tool_IsEnemyLandscapeOnPoint(std::int32_t player, const void* point);
     bool Tool_FillArrayFromPoint(std::int32_t player, const void* source, const void* point, void* list);
     bool Tool_GetNextNearestEnemyLandscapeInRange(std::uint32_t player, const void* point, std::uint32_t minimumDistance, std::uint32_t maximumDistance, bool sameContinent, void* list);

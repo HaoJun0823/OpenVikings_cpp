@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2MilitaryTargetSearch.h"
 #include "C2GameControlNetwork.h"
@@ -25,10 +27,10 @@ namespace NC2Logic
         // Original function: FUN_0043ab64.
         LandscapeTargetList* LandscapeTargetList_Construct(LandscapeTargetList* list, std::uint32_t capacity)
         {
-            void* entries = NXBasics::Runtime_AllocateWithNewHandler(capacity * 8u, 1);
+            void* entries = NXBasics::Runtime_AllocateWithNewHandler(capacity * NC2Layout::RecordSize::EnemyRangeResultUnsigned, 1);
             if (entries != nullptr && NXBasics::Runtime_TimeSigned32(capacity - 1u) >= 0)
             {
-                for (std::uint32_t index = 0; index < capacity; ++index) Write<std::uint32_t>(entries, index * 8u, 0);
+                for (std::uint32_t index = 0; index < capacity; ++index) Write<std::uint32_t>(entries, index * NC2Layout::RecordSize::EnemyRangeResultUnsigned, 0);
             }
             list->count = 0;
             list->capacity = capacity;
@@ -41,13 +43,13 @@ namespace NC2Logic
         {
             if (list->count == 0)
             {
-                Write(list->entries, 0, entry[0]);
-                Write(list->entries, 4, entry[1]);
+                Write(list->entries, NC2Layout::EnemyLandscapeResultOffset::MapPosition, entry[NC2Runtime::EnemyRangeResultComponent::MapPosition]);
+                Write(list->entries, NC2Layout::EnemyLandscapeResultOffset::Distance, entry[NC2Runtime::EnemyRangeResultComponent::Distance]);
                 ++list->count;
                 return true;
             }
             std::uint32_t index = 0;
-            while (index < list->count && entry[1] >= Read<std::uint32_t>(list->entries, index * 8u + 4u)) ++index;
+            while (index < list->count && entry[NC2Runtime::EnemyRangeResultComponent::Distance] >= Read<std::uint32_t>(list->entries, index * NC2Layout::RecordSize::EnemyRangeResultUnsigned + NC2Layout::EnemyRangeResultOffset::DistanceUnsigned)) ++index;
             auto shift = list->count;
             if (list->count == list->capacity)
             {
@@ -57,12 +59,12 @@ namespace NC2Logic
             else ++list->count;
             while (shift > index)
             {
-                Write(list->entries, shift * 8u, Read<std::uint32_t>(list->entries, (shift - 1u) * 8u));
-                Write(list->entries, shift * 8u + 4u, Read<std::uint32_t>(list->entries, (shift - 1u) * 8u + 4u));
+                Write(list->entries, shift * NC2Layout::RecordSize::EnemyRangeResultUnsigned, Read<std::uint32_t>(list->entries, (shift - 1u) * NC2Layout::RecordSize::EnemyRangeResultUnsigned));
+                Write(list->entries, shift * NC2Layout::RecordSize::EnemyRangeResultUnsigned + NC2Layout::EnemyRangeResultOffset::DistanceUnsigned, Read<std::uint32_t>(list->entries, (shift - 1u) * NC2Layout::RecordSize::EnemyRangeResultUnsigned + NC2Layout::EnemyRangeResultOffset::DistanceUnsigned));
                 --shift;
             }
-            Write(list->entries, index * 8u, entry[0]);
-            Write(list->entries, index * 8u + 4u, entry[1]);
+            Write(list->entries, index * NC2Layout::RecordSize::EnemyRangeResultUnsigned, entry[NC2Runtime::EnemyRangeResultComponent::MapPosition]);
+            Write(list->entries, index * NC2Layout::RecordSize::EnemyRangeResultUnsigned + NC2Layout::EnemyRangeResultOffset::DistanceUnsigned, entry[NC2Runtime::EnemyRangeResultComponent::Distance]);
             return true;
         }
     }
@@ -75,10 +77,10 @@ namespace NC2Logic
         const bool result = Tool_GetNextNearestEnemyLandscapeInRange(player, point, minimumDistance, maximumDistance, sameContinent, &list);
         if (result)
         {
-            const auto cutoff = Read<std::uint32_t>(list.entries, 4) + distanceThreshold;
+            const auto cutoff = Read<std::uint32_t>(list.entries, NC2Layout::EnemyLandscapeResultOffset::Distance) + distanceThreshold;
             std::uint32_t eligible = 0;
-            while (eligible < list.count && Read<std::uint32_t>(list.entries, eligible * 8u + 4u) <= cutoff) ++eligible;
-            Write(output, 0, Read<std::uint32_t>(list.entries, (Game_Random_GetNumber() % eligible) * 8u));
+            while (eligible < list.count && Read<std::uint32_t>(list.entries, eligible * NC2Layout::RecordSize::EnemyRangeResultUnsigned + NC2Layout::EnemyRangeResultOffset::DistanceUnsigned) <= cutoff) ++eligible;
+            Write(output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(list.entries, (Game_Random_GetNumber() % eligible) * NC2Layout::RecordSize::EnemyRangeResultUnsigned));
         }
         NXBasics::Runtime_Free(list.entries);
         return result;
@@ -88,13 +90,13 @@ namespace NC2Logic
     bool Tool_GetNextNearestEnemyLandscapeInRange(std::uint32_t player, const void* point, std::uint32_t minimumDistance, std::uint32_t maximumDistance, bool sameContinent, void* list)
     {
         std::uint32_t enemyCount = 0;
-        for (std::uint32_t enemy = 0; enemy < 20; ++enemy)
+        for (std::uint32_t enemy = 0; enemy < NC2Runtime::EnemyRangeLimits::Players; ++enemy)
         {
-            if (Read<std::uint8_t>(gGameControl, enemy * NC2Layout::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == 3) ++enemyCount;
+            if (Read<std::uint8_t>(gGameControl, enemy * NC2Layout::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) == SwitchIds::DiplomacyState::Enemy) ++enemyCount;
         }
         if (enemyCount == 0) return false;
         if (minimumDistance == 0 && !Tool_FillArrayFromPoint(NXBasics::Runtime_TimeSigned32(player), point, point, list)) return false;
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         if (minimumDistance != 0) MapMigPoint_MoveCursorUnwrapped(&cursor, 4, minimumDistance - 1u);
         else ++minimumDistance;
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId);
@@ -109,11 +111,11 @@ namespace NC2Logic
                     MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     if (!MapMigPoint_IsInsideMap(&cursor)) continue;
                     if (sameContinent && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-                    if (!Tool_FillArrayFromPoint(NXBasics::Runtime_TimeSigned32(player), point, &cursor, list)) return Read<std::uint32_t>(list, 0) != 0;
+                    if (!Tool_FillArrayFromPoint(NXBasics::Runtime_TimeSigned32(player), point, &cursor, list)) return Read<std::uint32_t>(list, NC2Layout::EnemyLandscapeTargetListOffset::Count) != 0;
                 }
             }
         }
-        return Read<std::uint32_t>(list, 0) != 0;
+        return Read<std::uint32_t>(list, NC2Layout::EnemyLandscapeTargetListOffset::Count) != 0;
     }
 
     // Original function: FUN_0043ace1.
@@ -123,7 +125,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) return false;
         const auto owner = Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId);
         if (owner == -1) return false;
-        return player == -1 || GameControl_Diplomacy_GetState(gGameControl, static_cast<std::uint32_t>(player), static_cast<std::uint32_t>(owner)) == 3;
+        return player == -1 || GameControl_Diplomacy_GetState(gGameControl, static_cast<std::uint32_t>(player), static_cast<std::uint32_t>(owner)) == SwitchIds::DiplomacyState::Enemy;
     }
 
     // Original function: FUN_0043ad26; a full list stops traversal before the point predicate.
