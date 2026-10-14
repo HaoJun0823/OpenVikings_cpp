@@ -1,5 +1,24 @@
 # Reverse-Engineering State
 
+## Goods, animal/diplomacy and speech continuation — 2026-10-14
+
+Three further blocks after `e0ef520` are committed: [global/local AI goods planning](AI_GOODS_PLANNING_RECORDS_REVIEW.md) (`4c25fce`), [animal catcher and diplomacy](AI_ANIMAL_DIPLOMACY_RECORDS_REVIEW.md) (`f47c7ab`) and [human speech/static wave storage](HUMAN_SOUND_STORAGE_RECORDS_REVIEW.md) (`402e98c`). The current continuation has completed **fourteen blocks**, while the request to review all remaining roughly five thousand sites is still open.
+
+| Block | Value/type comparisons | Physical relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| AI goods planning | 71 | 25 | 1114 | 251 |
+| Animal catcher / diplomacy | 26 | 19 | 559 | 85 |
+| Human speech / wave storage | 28 | 17 | 813 | 68 |
+
+Fresh scan: **595 registered files (307 CPP / 288 headers), 152,930 lines, 3,837 raw numeric access operands, 74 heuristic unknown-member mentions and 1,087 long compound lines**. This continuation has removed **1,590 / 5,427 numeric-access candidates (29.30%)**. Dynamic numeric indices and explicitly unclassified fields remain in this scan; these are not counts of missing implementations or a runtime-completion percentage. There is still no complete per-function Windows behavioral review ledger.
+
+The local good row is forty bytes, its producer twenty and the global good row eighty; importing villages remain distinct from production candidates. Tribe-specific forced-production addresses are proved constant expressions with explicit good indices. Catcher quantities/request bytes/target/military point and diplomacy cursor/intrusion counts retain independent fields. The 3,364-byte speech manager retains the tick gate, twenty-four 140-byte rows and separate biased response view. Static wave slot extent is explicitly marked as inferred from Windows allocation/indexing; unchecked parser behavior is preserved. Windows establishes effects/layout evidence; Mac supplies names only.
+
+The latest source state passes Win32 `/Zs` for **all 307 production units and 29 private compiler assertion units**, without errors or warnings. Project/filter registration remains 307/288 and the naming map 3,151 unique addresses. Frozen-stage operations/value/type/layout audits pass. No build, tests or game execution occurred. Private scripts/logs/handoff remain gitignored; unrelated pending changes are preserved.
+
+Largest remaining owner blocks: engine lifetime and mission-info GUI (57 candidates each), trader GUI (56), title screen (55), single-player AI/options GUI/military target search (54 each), selection windows (52), mission-start and mouse cursor (50 each), game-control startup and human attack tasks (49 each). Continue complete owner blocks and their proved consumers; do not manufacture semantic names for unclassified data.
+
+
 ## Whole-source readability continuation — 2026-10-14
 
 The request to finish the remaining roughly five thousand sites remains open. Eleven further blocks are committed after `432bbe2`; this is a partial readability and Windows-layout review, not a claim of complete behavioral equivalence.
