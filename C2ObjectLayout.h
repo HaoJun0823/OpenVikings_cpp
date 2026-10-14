@@ -1594,6 +1594,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HouseInhabitantsSelectionVars = 2232;
+
+        inline constexpr auto HouseInhabitantsSelectionSlot = 20;
+
         inline constexpr auto MenuProviderListWithSelection = 1208;
 
         inline constexpr auto MenuChatHistory = 2324;
@@ -3932,6 +3936,42 @@ namespace NC2Layout
     namespace MenuNetworkPlayerOffset
     {
         inline constexpr auto HostFlag = 0x66;
+    }
+
+    namespace HouseInhabitantsSelectionOffset
+    {
+        inline constexpr auto Tooltip = 0x810;
+
+        inline constexpr auto Rows = 0x38;
+
+        inline constexpr auto Count = 0x34;
+
+        inline constexpr auto BaselineY = 0x808;
+
+        inline constexpr auto Receiver = 0x8E0;
+
+        inline constexpr auto ActionCommand = 0x8DC;
+
+        inline constexpr auto SelectCommand = 0x8D8;
+
+        inline constexpr auto HitIndex = 0x80C;
+
+        inline constexpr auto HouseRevision = 0x30;
+
+        inline constexpr auto HouseId = 0x2C;
+    }
+
+    namespace HouseInhabitantsSelectionSlotOffset
+    {
+        inline constexpr auto X = 8;
+
+        inline constexpr auto TraderFlag = 16;
+
+        inline constexpr auto SortPriority = 12;
+
+        inline constexpr auto RoleMask = 4;
+
+        inline constexpr auto HumanId = 0;
     }
 
 }

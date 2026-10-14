@@ -461,4 +461,11 @@ namespace NC2Runtime
         inline constexpr auto NeighbourDirections = 6;
     }
 
+    namespace HouseInhabitantsSelectionLimits
+    {
+        inline constexpr auto HouseAttachments = 20;
+
+        inline constexpr auto Humans = 100;
+    }
+
 }

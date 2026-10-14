@@ -617,6 +617,12 @@ namespace SwitchIds
 
     namespace HouseAttachmentMask
     {
+        inline constexpr auto BuilderUnsigned = 4u;
+
+        inline constexpr auto WorkerUnsigned = 2u;
+
+        inline constexpr auto HomeUnsigned = 1u;
+
         inline constexpr auto Home = 1;
         inline constexpr auto Worker = 2;
         inline constexpr auto Builder = 4;
