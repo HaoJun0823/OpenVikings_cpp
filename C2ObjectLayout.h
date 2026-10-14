@@ -1564,6 +1564,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AttachedVehicleSelectionVars = 712;
+
+        inline constexpr auto AttachedVehicleSelectionSlot = 16;
+
         inline constexpr auto MapMigPoint = 4;
 
         inline constexpr auto AIPlayerHandlerPointer = 4;
@@ -3418,6 +3422,8 @@ namespace NC2Layout
 
     namespace InGameGuiManagerOffset
     {
+        inline constexpr auto LocalPlayerId = 0;
+
         inline constexpr auto WorldDisplayElement = 4;
     }
 
@@ -3470,6 +3476,40 @@ namespace NC2Layout
         inline constexpr auto DefendPointCount = 0x104;
 
         inline constexpr auto Active = 0x24;
+    }
+
+    namespace AttachedVehicleSelectionOffset
+    {
+        inline constexpr auto Tooltip = 0x220;
+
+        inline constexpr auto Slots = 0x38;
+
+        inline constexpr auto Count = 0x34;
+
+        inline constexpr auto BaselineY = 0x218;
+
+        inline constexpr auto Receiver = 0x2F0;
+
+        inline constexpr auto ActionCommand = 0x2EC;
+
+        inline constexpr auto SelectCommand = 0x2E8;
+
+        inline constexpr auto HitIndex = 0x21C;
+
+        inline constexpr auto VehicleRevision = 0x30;
+
+        inline constexpr auto VehicleId = 0x2C;
+    }
+
+    namespace AttachedVehicleSelectionSlotOffset
+    {
+        inline constexpr auto X = 8;
+
+        inline constexpr auto SortPriority = 0xC;
+
+        inline constexpr auto Commander = 4;
+
+        inline constexpr auto ObjectId = 0;
     }
 
 }

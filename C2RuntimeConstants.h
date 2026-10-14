@@ -320,4 +320,9 @@ namespace NC2Runtime
         inline constexpr auto Weapons = 22;
     }
 
+    namespace AttachedVehicleSelectionLimits
+    {
+        inline constexpr auto Rows = 30;
+    }
+
 }
