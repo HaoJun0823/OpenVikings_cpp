@@ -413,7 +413,7 @@ namespace NC2E2
     static void E2AmbientSoundManager_Destruct(void* manager)
     {
         if (NDSManager::CManager::sTheObjectPtr != nullptr) Unregister(E2AmbientSoundManager_Callback, 0x32, {2, 0x16, 0x31, 0x32, 0x33});
-        if (Read<void*>(manager, 8) != nullptr) FreeAndClearField(manager, 8);
+        if (Read<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors) != nullptr) FreeAndClearField(manager, NC2Layout::AmbientSoundManagerOffset::Sectors);
         gE2AmbientSoundManager = nullptr;
     }
     // Original function: FUN_004973c8.
@@ -1362,23 +1362,23 @@ namespace NC2E2
             if (static_cast<std::uint16_t>(param1) != 0)
             {
                 AmbientSoundManager_AllocateMemory(gE2AmbientSoundManager);
-                Write<std::uint32_t>(gE2AmbientSoundManager, 0x60, 0);
+                Write<std::uint32_t>(gE2AmbientSoundManager, NC2Layout::AmbientSoundManagerOffset::LastLandscapeSoundTick, 0);
             }
             break;
         case SwitchIds::CallbackType::LoadDone: AmbientSoundManager_RecalculateAllAmbientSoundSector(gE2AmbientSoundManager); break;
         case SwitchIds::CallbackType::BeginMapChanges:
-            Write<std::int16_t>(&gAmbientSoundChangeState, 6, 0);
-            Write<std::int16_t>(&gAmbientSoundChangeState, 4, 0);
+            Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastY, 0);
+            Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastX, 0);
             gAmbientSoundChangeState.landscapesChanged = 0;
             gAmbientSoundChangeState.patternsChanged = 0;
-            Write<std::int16_t>(&gAmbientSoundChangeState, 2, 32000);
-            Write<std::int16_t>(&gAmbientSoundChangeState, 0, 32000);
+            Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstY, 32000);
+            Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstX, 32000);
             break;
         case SwitchIds::CallbackType::EndMapChanges:
-            if (Read<std::int16_t>(&gAmbientSoundChangeState, 0) != 32000)
+            if (Read<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstX) != 32000)
             {
-                const NC2Logic::SSectorGridCursor first(Read<std::uint32_t>(&gAmbientSoundChangeState, 0));
-                const NC2Logic::SSectorGridCursor last(Read<std::uint32_t>(&gAmbientSoundChangeState, 4));
+                const NC2Logic::SSectorGridCursor first(Read<std::uint32_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstX));
+                const NC2Logic::SSectorGridCursor last(Read<std::uint32_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastX));
                 for (std::int32_t y = first.y; y <= last.y; ++y)
                 {
                     for (std::int32_t x = first.x; x <= last.x; ++x)
@@ -1400,10 +1400,10 @@ namespace NC2E2
                 NC2Logic::MapMigPoint_AssignLong(&point, param2);
                 const std::int16_t x = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X);
                 const std::int16_t y = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y);
-                if (x < Read<std::int16_t>(&gAmbientSoundChangeState, 0)) Write<std::int16_t>(&gAmbientSoundChangeState, 0, x);
-                if (x > Read<std::int16_t>(&gAmbientSoundChangeState, 4)) Write<std::int16_t>(&gAmbientSoundChangeState, 4, x);
-                if (y < Read<std::int16_t>(&gAmbientSoundChangeState, 2)) Write<std::int16_t>(&gAmbientSoundChangeState, 2, y);
-                if (y > Read<std::int16_t>(&gAmbientSoundChangeState, 6)) Write<std::int16_t>(&gAmbientSoundChangeState, 6, y);
+                if (x < Read<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstX)) Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstX, x);
+                if (x > Read<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastX)) Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastX, x);
+                if (y < Read<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstY)) Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::FirstY, y);
+                if (y > Read<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastY)) Write<std::int16_t>(&gAmbientSoundChangeState, NC2Layout::AmbientChangeBoundsOffset::LastY, y);
             }
             break;
         }

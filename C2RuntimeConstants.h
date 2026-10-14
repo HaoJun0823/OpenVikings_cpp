@@ -551,4 +551,34 @@ namespace NC2Runtime
         inline constexpr auto FilenameCopyLength = 0x4F;
     }
 
+    namespace AmbientSoundLimits
+    {
+        inline constexpr auto StaticSoundsUnsigned = 40u;
+
+        inline constexpr auto ActiveLoops = 10;
+
+        inline constexpr auto LastSectorEntry = 2;
+
+        inline constexpr auto SectorEntries = 3;
+
+        inline constexpr auto GroupCount = 100;
+    }
+
+    namespace AmbientSoundGrid
+    {
+        inline constexpr auto PatternTrianglesPerSectorUnsigned = 200u;
+
+        inline constexpr auto FullPercentageUnsigned = 100u;
+
+        inline constexpr auto MicroPointsPerSectorUnsigned = 20u;
+
+        inline constexpr auto MicroSectorCenterUnsigned = 10u;
+
+        inline constexpr auto MacroPointsPerSectorUnsigned = 10u;
+
+        inline constexpr auto MacroPointsPerSector = 10;
+
+        inline constexpr auto MacroRoundUp = 9;
+    }
+
 }

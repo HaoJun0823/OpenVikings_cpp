@@ -3,6 +3,12 @@
 
 namespace NC2E2
 {
+    // Complete physical Windows records; the raw access code preserves original lifetimes.
+    struct SAmbientLoopEntryStorage { std::uint32_t ambientId, volume; };
+    struct SAmbientLoopListStorage { std::int32_t count; SAmbientLoopEntryStorage entries[10]; };
+    struct SAmbientSectorStorage { std::int32_t patternCount; SAmbientLoopEntryStorage patterns[3]; std::int32_t landscapeCount; SAmbientLoopEntryStorage landscapes[3]; };
+    struct SAmbientSoundManagerStorage { std::int32_t sectorWidth, sectorHeight; SAmbientSectorStorage* sectors; SAmbientLoopListStorage activeLoops; std::uint32_t lastLandscapeSoundTick; };
+
     void* __fastcall AmbientSoundManager_Construct(void* manager, void* unusedEdx);
     void AmbientSoundManager_AllocateMemory(void* manager);
     void AmbientSoundManager_RecalculateAmbientSoundSector(void* manager, const NC2Logic::SSectorGridCursor* sector, bool patterns, bool landscapes);

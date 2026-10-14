@@ -228,7 +228,7 @@ namespace NC2E2
 
         if (groupCount != 0)
         {
-            const std::uint32_t allocationBytes = groupCount * 0x1570u;
+            const std::uint32_t allocationBytes = groupCount * NC2Layout::RecordSize::StaticAmbientSoundUnsigned;
             ambientSounds = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
             std::memset(ambientSounds, 0, allocationBytes);
 
@@ -236,7 +236,7 @@ namespace NC2E2
 
             for (char* group = reader.GetFirstGroup("SoundFXAmbient"); group != nullptr; group = reader.GetNextGroup("SoundFXAmbient"))
             {
-                std::byte* record = addressAt(ambientSounds, ambientSoundCount * 0x1570u);
+                std::byte* record = addressAt(ambientSounds, ambientSoundCount * NC2Layout::RecordSize::StaticAmbientSoundUnsigned);
                 ++ambientSoundCount;
 
                 while (reader.GetNextCommandLineInGroup() != nullptr)
@@ -282,10 +282,10 @@ namespace NC2E2
                                 if (!NDSManager::CManager::sTheObjectPtr->PreloadWave_Load(soundFileName, &identifier))
                                     break;
 
-                                writeWord(soundData + 0x78, identifier);
-                                writeWord(soundData + 0x80, static_cast<std::uint32_t>(reader.GetInt()));
-                                writeWord(soundData + 0x7C, static_cast<std::uint32_t>(reader.GetInt()));
-                                writeWord(soundData + 0x84, static_cast<std::uint32_t>(reader.GetInt()));
+                                writeWord(soundData + NC2Layout::StaticAmbientWaveOffset::WaveId, identifier);
+                                writeWord(soundData + NC2Layout::StaticAmbientWaveOffset::SelectionWeight, static_cast<std::uint32_t>(reader.GetInt()));
+                                writeWord(soundData + NC2Layout::StaticAmbientWaveOffset::Volume, static_cast<std::uint32_t>(reader.GetInt()));
+                                writeWord(soundData + NC2Layout::StaticAmbientWaveOffset::ChanceMultiplier, static_cast<std::uint32_t>(reader.GetInt()));
 
                                 l_Ambient_AddSound(record, soundData);
                                 break;
@@ -303,32 +303,32 @@ namespace NC2E2
         const auto* source = static_cast<const std::byte*>(soundData);
 
         std::uint32_t count;
-        std::memcpy(&count, record + 0x2C, sizeof(count));
+        std::memcpy(&count, record + NC2Layout::StaticAmbientSoundOffset::SoundCount, sizeof(count));
 
-        if (count >= 40u)
+        if (count >= NC2Runtime::AmbientSoundLimits::StaticSoundsUnsigned)
             return;
 
-        std::byte* destination = record + 0x30 + count * 0x88u;
+        std::byte* destination = record + NC2Layout::StaticAmbientSoundOffset::Sounds + count * NC2Layout::RecordSize::StaticAmbientWaveUnsigned;
 
         // Preserve the forward DWORD copy performed by REP MOVSD.
-        for (std::uint32_t offset = 0; offset < 0x88u; offset += 4u)
+        for (std::uint32_t offset = 0; offset < NC2Layout::RecordSize::StaticAmbientWaveUnsigned; offset += 4u)
         {
             std::uint32_t value;
             std::memcpy(&value, source + offset, sizeof(value));
             std::memcpy(destination + offset, &value, sizeof(value));
         }
 
-        std::memcpy(&count, record + 0x2C, sizeof(count));
+        std::memcpy(&count, record + NC2Layout::StaticAmbientSoundOffset::SoundCount, sizeof(count));
         ++count;
-        std::memcpy(record + 0x2C, &count, sizeof(count));
+        std::memcpy(record + NC2Layout::StaticAmbientSoundOffset::SoundCount, &count, sizeof(count));
 
         std::uint32_t contribution;
-        std::memcpy(&contribution, source + 0x80, sizeof(contribution));
+        std::memcpy(&contribution, source + NC2Layout::StaticAmbientWaveOffset::SelectionWeight, sizeof(contribution));
 
         std::uint32_t total;
-        std::memcpy(&total, record + 0x28, sizeof(total));
+        std::memcpy(&total, record + NC2Layout::StaticAmbientSoundOffset::TotalSelectionWeight, sizeof(total));
         total += contribution;
-        std::memcpy(record + 0x28, &total, sizeof(total));
+        std::memcpy(record + NC2Layout::StaticAmbientSoundOffset::TotalSelectionWeight, &total, sizeof(total));
     }
 
     // Original function: FUN_0048e19a

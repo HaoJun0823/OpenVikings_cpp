@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2GameState.h"
@@ -52,12 +54,12 @@ namespace NC2E2
 
     static bool Ambient_SoundDeviceIsReady()
     {
-        return NDSManager::CManager::sTheObjectPtr != nullptr && Ambient_ReadField<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) != 0;
+        return NDSManager::CManager::sTheObjectPtr != nullptr && Ambient_ReadField<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, NC2Layout::DirectSoundManagerOffset::Initialized) != 0;
     }
 
     static void* Ambient_GetStaticRecord(std::uint32_t ambientId)
     {
-        return Ambient_AddressAt(CE2StaticDataSoundFXManager::sTheObjectPtr->ambientSounds, ambientId * 0x1570u);
+        return Ambient_AddressAt(CE2StaticDataSoundFXManager::sTheObjectPtr->ambientSounds, ambientId * NC2Layout::RecordSize::StaticAmbientSoundUnsigned);
     }
 
     static void* Ambient_GetSector(void* manager, std::int32_t x, std::int32_t y);
@@ -70,8 +72,8 @@ namespace NC2E2
     void* __fastcall AmbientSoundManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2AmbientSoundManager = manager;
-        std::memset(manager, 0, 100);
-        std::memset(&gAmbientSoundChangeState, 0, 10);
+        std::memset(manager, 0, NC2Layout::ObjectSize::AmbientSoundManager);
+        std::memset(&gAmbientSoundChangeState, 0, NC2Layout::RecordSize::AmbientChangeState);
         if (NDSManager::CManager::sTheObjectPtr != nullptr)
         {
             for (const auto type : {2u, 0x16u, 0x31u, 0x32u, 0x33u}) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, E2AmbientSoundManager_Callback, 0x32, 0xC8);
@@ -83,17 +85,17 @@ namespace NC2E2
     void AmbientSoundManager_AllocateMemory(void* manager)
     {
         using namespace NC2Lifetime;
-        if (Read<void*>(manager, 8) != nullptr)
+        if (Read<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors) != nullptr)
         {
-            NXBasics::Runtime_Free(Read<void*>(manager, 8));
-            Write<void*>(manager, 8, nullptr);
+            NXBasics::Runtime_Free(Read<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors));
+            Write<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors, nullptr);
         }
-        Write<std::int32_t>(manager, 0, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) + 9) / 10);
-        Write<std::int32_t>(manager, 4, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) + 9) / 10);
-        const auto size = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 0x38u;
+        Write<std::int32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorWidth, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) + NC2Runtime::AmbientSoundGrid::MacroRoundUp) / NC2Runtime::AmbientSoundGrid::MacroPointsPerSector);
+        Write<std::int32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorHeight, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) + NC2Runtime::AmbientSoundGrid::MacroRoundUp) / NC2Runtime::AmbientSoundGrid::MacroPointsPerSector);
+        const auto size = Read<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorHeight) * NC2Layout::RecordSize::AmbientSectorUnsigned;
         void* sectors = NXBasics::Runtime_Allocate(size);
-        Write<void*>(manager, 8, sectors);
-        const auto clearSize = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 0x38u;
+        Write<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors, sectors);
+        const auto clearSize = Read<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorHeight) * NC2Layout::RecordSize::AmbientSectorUnsigned;
         std::memset(sectors, 0, clearSize);
     }
 
@@ -101,12 +103,12 @@ namespace NC2E2
     static void AmbientSoundManager_RecalculatePatternAmbientSoundLoops(void* sectorData, const NC2Logic::SSectorGridCursor* sector)
     {
         using namespace NC2Lifetime;
-        Write<std::uint32_t>(sectorData, 0, 0);
+        Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternCount, 0);
         std::memset(gPatternAmbientGroupCounts, 0, sizeof(gPatternAmbientGroupCounts));
-        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * 10u);
-        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * 10u);
-        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + 10u);
-        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + 10u);
+        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * NC2Runtime::AmbientSoundGrid::MacroPointsPerSectorUnsigned);
+        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * NC2Runtime::AmbientSoundGrid::MacroPointsPerSectorUnsigned);
+        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + NC2Runtime::AmbientSoundGrid::MacroPointsPerSectorUnsigned);
+        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + NC2Runtime::AmbientSoundGrid::MacroPointsPerSectorUnsigned);
         for (auto y = startY; y < endY; ++y)
         {
             for (auto x = startX; x < endX; ++x)
@@ -116,42 +118,42 @@ namespace NC2E2
                 const auto* data = Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(point);
                 for (std::uint32_t triangle = 0; triangle < 2; ++triangle)
                 {
-                    const auto pattern = Read<std::uint16_t>(data, triangle * 2u);
+                    const auto pattern = Read<std::uint16_t>(data, triangle * NC2Layout::RecordSize::EnginePatternIdUnsigned);
                     // Original lookup entry: FUN_00480fe3, 70-byte static pattern records.
-                    const auto* record = static_cast<const std::byte*>(gStaticPatternEntries) + static_cast<std::uint32_t>(pattern) * 0x70u;
-                    for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
+                    const auto* record = static_cast<const std::byte*>(gStaticPatternEntries) + static_cast<std::uint32_t>(pattern) * NC2Layout::RecordSize::StaticEnginePatternUnsigned;
+                    for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::Count); ++index)
                     {
-                        const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
+                        const auto group = Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::IdsUnsigned + index * NC2Layout::RecordSize::AmbientGroupIdUnsigned);
                         // Windows 83 /7 sign-extends the FF immediate to FFFFFFFF.
                         if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gPatternAmbientGroupCounts[group];
                     }
                 }
             }
         }
-        for (std::uint32_t group = 0; group < 100; ++group)
+        for (std::uint32_t group = 0; group < NC2Runtime::AmbientSoundLimits::GroupCount; ++group)
         {
             const auto weight = gPatternAmbientGroupCounts[group];
             if (weight == 0) continue;
             std::int32_t position = 0;
-            auto count = Read<std::int32_t>(sectorData, 0);
-            while (position < count && weight <= gPatternAmbientGroupCounts[Read<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(position) * 8u)]) ++position;
+            auto count = Read<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternCount);
+            while (position < count && weight <= gPatternAmbientGroupCounts[Read<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(position) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned)]) ++position;
             if (position < count)
             {
-                for (auto destination = 2; destination > position; --destination) Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(destination) * 8u, Read<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(destination - 1) * 8u));
-                Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(position) * 8u, group);
-                if (count < 3) Write<std::int32_t>(sectorData, 0, ++count);
+                for (auto destination = NC2Runtime::AmbientSoundLimits::LastSectorEntry; destination > position; --destination) Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(destination) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, Read<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(destination - 1) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned));
+                Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(position) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, group);
+                if (count < NC2Runtime::AmbientSoundLimits::SectorEntries) Write<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternCount, ++count);
             }
-            if (position == count && count < 3)
+            if (position == count && count < NC2Runtime::AmbientSoundLimits::SectorEntries)
             {
-                Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(count) * 8u, group);
-                Write<std::int32_t>(sectorData, 0, count + 1);
+                Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(count) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, group);
+                Write<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternCount, count + 1);
             }
         }
-        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, 0); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::PatternCount); ++index)
         {
-            const auto offset = 4u + static_cast<std::uint32_t>(index) * 8u;
+            const auto offset = NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned;
             const auto group = Read<std::uint32_t>(sectorData, offset);
-            Write<std::uint32_t>(sectorData, offset + 4u, gPatternAmbientGroupCounts[group] * 100u / 200u);
+            Write<std::uint32_t>(sectorData, offset + NC2Layout::AmbientLoopEntryOffset::VolumeUnsigned, gPatternAmbientGroupCounts[group] * NC2Runtime::AmbientSoundGrid::FullPercentageUnsigned / NC2Runtime::AmbientSoundGrid::PatternTrianglesPerSectorUnsigned);
             Write<std::uint32_t>(sectorData, offset, CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group]);
         }
     }
@@ -160,12 +162,12 @@ namespace NC2E2
     static void AmbientSoundManager_RecalculateLandscapeAmbientSounds(void* sectorData, const NC2Logic::SSectorGridCursor* sector)
     {
         using namespace NC2Lifetime;
-        Write<std::uint32_t>(sectorData, 0x1C, 0);
+        Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeCount, 0);
         std::memset(gLandscapeAmbientGroupCounts, 0, sizeof(gLandscapeAmbientGroupCounts));
-        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * 20u);
-        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * 20u);
-        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + 20u);
-        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + 20u);
+        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned);
+        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned);
+        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned);
+        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned);
         for (auto y = startY; y < endY; ++y)
         {
             for (auto x = startX; x < endX; ++x)
@@ -173,41 +175,41 @@ namespace NC2E2
                 const std::int16_t point[2] = {static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
                 if (NC2Logic::MapMigPoint_IsBorderPoint(point)) continue;
                 const auto* data = Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(point);
-                const auto landscape = Read<std::uint16_t>(data, 0);
+                const auto landscape = Read<std::uint16_t>(data, NC2Layout::EngineMicroPointOffset::LandscapeId);
                 if (landscape == NXBasics::IntegerRange::UInt16Maximum) continue;
                 // Original lookup entry: FUN_00480ff1, 8C-byte static landscape records.
-                const auto* record = static_cast<const std::byte*>(gStaticLandscapeEntries) + static_cast<std::uint32_t>(landscape) * 0x8Cu;
-                for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
+                const auto* record = static_cast<const std::byte*>(gStaticLandscapeEntries) + static_cast<std::uint32_t>(landscape) * NC2Layout::RecordSize::StaticEngineLandscapeUnsigned;
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::Count); ++index)
                 {
-                    const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
+                    const auto group = Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::IdsUnsigned + index * NC2Layout::RecordSize::AmbientGroupIdUnsigned);
                     if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gLandscapeAmbientGroupCounts[group];
                 }
             }
         }
-        for (std::uint32_t group = 0; group < 100; ++group)
+        for (std::uint32_t group = 0; group < NC2Runtime::AmbientSoundLimits::GroupCount; ++group)
         {
             const auto weight = gLandscapeAmbientGroupCounts[group];
             if (weight == 0) continue;
             std::int32_t position = 0;
-            auto count = Read<std::int32_t>(sectorData, 0x1C);
-            while (position < count && weight <= gLandscapeAmbientGroupCounts[Read<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(position) * 8u)]) ++position;
+            auto count = Read<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeCount);
+            while (position < count && weight <= gLandscapeAmbientGroupCounts[Read<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(position) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned)]) ++position;
             if (position < count)
             {
-                for (auto destination = 2; destination > position; --destination) Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(destination) * 8u, Read<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(destination - 1) * 8u));
-                Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(position) * 8u, group);
-                if (count < 3) Write<std::int32_t>(sectorData, 0x1C, ++count);
+                for (auto destination = NC2Runtime::AmbientSoundLimits::LastSectorEntry; destination > position; --destination) Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(destination) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, Read<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(destination - 1) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned));
+                Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(position) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, group);
+                if (count < NC2Runtime::AmbientSoundLimits::SectorEntries) Write<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeCount, ++count);
             }
-            if (position == count && count < 3)
+            if (position == count && count < NC2Runtime::AmbientSoundLimits::SectorEntries)
             {
-                Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(count) * 8u, group);
-                Write<std::int32_t>(sectorData, 0x1C, count + 1);
+                Write<std::uint32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(count) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned, group);
+                Write<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeCount, count + 1);
             }
         }
-        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, 0x1C); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, NC2Layout::AmbientSectorOffset::LandscapeCount); ++index)
         {
-            const auto offset = 0x20u + static_cast<std::uint32_t>(index) * 8u;
+            const auto offset = NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned;
             const auto group = Read<std::uint32_t>(sectorData, offset);
-            Write<std::uint32_t>(sectorData, offset + 4u, gLandscapeAmbientGroupCounts[group]);
+            Write<std::uint32_t>(sectorData, offset + NC2Layout::AmbientLoopEntryOffset::VolumeUnsigned, gLandscapeAmbientGroupCounts[group]);
             Write<std::uint32_t>(sectorData, offset, CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group]);
         }
     }
@@ -223,9 +225,9 @@ namespace NC2E2
     // Original function: FUN_0047f90b.
     void AmbientSoundManager_RecalculateAllAmbientSoundSector(void* manager)
     {
-        for (std::uint32_t y = 0; y < Ambient_ReadField<std::uint32_t>(manager, 4); ++y)
+        for (std::uint32_t y = 0; y < Ambient_ReadField<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorHeight); ++y)
         {
-            for (std::uint32_t x = 0; x < Ambient_ReadField<std::uint32_t>(manager, 0); ++x)
+            for (std::uint32_t x = 0; x < Ambient_ReadField<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorWidth); ++x)
             {
                 NC2Logic::SSectorGridCursor sector;
                 sector.x = NXBasics::Runtime_TimeSigned32(x);
@@ -241,7 +243,7 @@ namespace NC2E2
         if (!Ambient_SoundDeviceIsReady())
             return;
 
-        auto* previous = reinterpret_cast<SSoundLoopIds*>(Ambient_AddressAt(manager, 0x0C));
+        auto* previous = reinterpret_cast<SSoundLoopIds*>(Ambient_AddressAt(manager, NC2Layout::AmbientSoundManagerOffset::ActiveLoops));
         for (std::int32_t index = 0; index < requested.count; ++index)
         {
             const auto& entry = requested.entries[index];
@@ -251,7 +253,7 @@ namespace NC2E2
 
             if (previousIndex == previous->count || (previousIndex < previous->count && previous->entries[previousIndex].volume != entry.volume))
             {
-                const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), 0xA8);
+                const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), NC2Layout::StaticAmbientSoundOffset::FirstWaveId);
                 if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(waveId))
                     NDSManager::CManager::sTheObjectPtr->PreloadWave_ChangeVolume(waveId, entry.volume, true, 1000);
                 else
@@ -266,7 +268,7 @@ namespace NC2E2
         {
             if (previous->entries[index].ambientId == NXBasics::IntegerRange::UInt32Maximum)
                 continue;
-            const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(previous->entries[index].ambientId), 0xA8);
+            const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(previous->entries[index].ambientId), NC2Layout::StaticAmbientSoundOffset::FirstWaveId);
             if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(waveId))
                 NDSManager::CManager::sTheObjectPtr->PreloadWave_ChangeVolume(waveId, 0, true, 1000);
         }
@@ -281,8 +283,8 @@ namespace NC2E2
 
     static std::uint32_t Ambient_GetSectorCenter(std::int32_t x, std::int32_t y)
     {
-        std::uint16_t pointX = static_cast<std::uint16_t>(static_cast<std::uint32_t>(x) * 20u + 10u);
-        std::uint16_t pointY = static_cast<std::uint16_t>(static_cast<std::uint32_t>(y) * 20u + 10u);
+        std::uint16_t pointX = static_cast<std::uint16_t>(static_cast<std::uint32_t>(x) * NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned + NC2Runtime::AmbientSoundGrid::MicroSectorCenterUnsigned);
+        std::uint16_t pointY = static_cast<std::uint16_t>(static_cast<std::uint32_t>(y) * NC2Runtime::AmbientSoundGrid::MicroPointsPerSectorUnsigned + NC2Runtime::AmbientSoundGrid::MicroSectorCenterUnsigned);
         std::int16_t signedX;
         std::int16_t signedY;
         std::memcpy(&signedX, &pointX, sizeof(signedX));
@@ -302,13 +304,13 @@ namespace NC2E2
         if ((Ambient_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) == 0 || player >= 16u)
             return true;
         const void* microPoint = NC2Logic::GameMap_GetConstMapMicroPointPtr(&point);
-        return (Ambient_ReadField<std::uint16_t>(microPoint, 8) & (1u << player)) != 0;
+        return (Ambient_ReadField<std::uint16_t>(microPoint, NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0;
     }
 
     static void* Ambient_GetSector(void* manager, std::int32_t x, std::int32_t y)
     {
-        const std::uint32_t index = Ambient_ReadField<std::uint32_t>(manager, 0) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x);
-        return Ambient_AddressAt(Ambient_ReadField<void*>(manager, 8), index * 0x38u);
+        const std::uint32_t index = Ambient_ReadField<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::SectorWidth) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x);
+        return Ambient_AddressAt(Ambient_ReadField<void*>(manager, NC2Layout::AmbientSoundManagerOffset::Sectors), index * NC2Layout::RecordSize::AmbientSectorUnsigned);
     }
 
     // Original function: FUN_0047fdca; CE2AmbientSoundManager::l_UpdateAmbientLoops.
@@ -316,7 +318,7 @@ namespace NC2E2
     {
         SSoundLoopIds requested;
         requested.count = 0;
-        for (std::int32_t slot = 0; slot < 3; ++slot)
+        for (std::int32_t slot = 0; slot < NC2Runtime::AmbientSoundLimits::SectorEntries; ++slot)
         {
             for (std::int32_t y = first.y; y <= last.y; ++y)
             {
@@ -326,18 +328,18 @@ namespace NC2E2
                         continue;
 
                     const void* sector = Ambient_GetSector(manager, x, y);
-                    if (slot >= Ambient_ReadField<std::int32_t>(sector, 0))
+                    if (slot >= Ambient_ReadField<std::int32_t>(sector, NC2Layout::AmbientSectorOffset::PatternCount))
                         continue;
-                    const std::uint32_t ambientId = Ambient_ReadField<std::uint32_t>(sector, 4u + static_cast<std::uint32_t>(slot) * 8u);
+                    const std::uint32_t ambientId = Ambient_ReadField<std::uint32_t>(sector, NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned);
                     if (ambientId == NXBasics::IntegerRange::UInt32Maximum)
                         continue;
-                    const std::uint32_t volume = Ambient_ReadField<std::uint32_t>(sector, 8u + static_cast<std::uint32_t>(slot) * 8u);
+                    const std::uint32_t volume = Ambient_ReadField<std::uint32_t>(sector, NC2Layout::AmbientSectorOffset::FirstPatternVolumeUnsigned + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned);
                     std::int32_t index = 0;
                     while (index < requested.count && requested.entries[index].ambientId != ambientId)
                         ++index;
                     if (index < requested.count)
                         requested.entries[index].volume += volume;
-                    else if (requested.count < 10)
+                    else if (requested.count < NC2Runtime::AmbientSoundLimits::ActiveLoops)
                         requested.entries[requested.count++] = { ambientId, volume };
                 }
             }
@@ -352,16 +354,16 @@ namespace NC2E2
     void AmbientSoundManager_StopAllAmbientSounds(void* manager)
     {
         auto* soundManager = NDSManager::CManager::sTheObjectPtr;
-        if (soundManager == nullptr || Ambient_ReadField<std::uint8_t>(soundManager, 4) == 0)
+        if (soundManager == nullptr || Ambient_ReadField<std::uint8_t>(soundManager, NC2Layout::DirectSoundManagerOffset::Initialized) == 0)
             return;
 
-        auto* loops = reinterpret_cast<SSoundLoopIds*>(Ambient_AddressAt(manager, 0x0C));
+        auto* loops = reinterpret_cast<SSoundLoopIds*>(Ambient_AddressAt(manager, NC2Layout::AmbientSoundManagerOffset::ActiveLoops));
         for (std::int32_t index = 0; index < loops->count; ++index)
         {
             if (index != 0) soundManager = NDSManager::CManager::sTheObjectPtr;
             auto& entry = loops->entries[index];
             if (entry.ambientId == NXBasics::IntegerRange::UInt32Maximum) continue;
-            const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), 0xA8);
+            const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), NC2Layout::StaticAmbientSoundOffset::FirstWaveId);
             if (soundManager->PreloadWave_IsRunning(waveId))
             {
                 NDSManager::CManager::sTheObjectPtr->PreloadWave_Stop(waveId);
@@ -373,20 +375,20 @@ namespace NC2E2
     // Original function: FUN_00480137; weighted selection within a static ambient record.
     static const void* Ambient_SelectLandscapeSound(const void* record)
     {
-        std::uint32_t remaining = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % Ambient_ReadField<std::uint32_t>(record, 0x28);
+        std::uint32_t remaining = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % Ambient_ReadField<std::uint32_t>(record, NC2Layout::StaticAmbientSoundOffset::TotalSelectionWeight);
         std::uint32_t index = 0;
         for (;; ++index)
         {
-            remaining -= Ambient_ReadField<std::uint32_t>(record, 0xB0u + index * 0x88u);
+            remaining -= Ambient_ReadField<std::uint32_t>(record, NC2Layout::StaticAmbientSoundOffset::FirstSelectionWeightUnsigned + index * NC2Layout::RecordSize::StaticAmbientWaveUnsigned);
             if ((remaining & NXBasics::IntegerRange::Bit31) != 0)
-                return static_cast<const std::byte*>(record) + 0x30u + index * 0x88u;
+                return static_cast<const std::byte*>(record) + NC2Layout::StaticAmbientSoundOffset::SoundsUnsigned + index * NC2Layout::RecordSize::StaticAmbientWaveUnsigned;
         }
     }
 
     // Original function: FUN_0047fb9d; CE2AmbientSoundManager::l_PlayLandscapeAmbientSounds.
     static void AmbientSoundManager_PlayLandscapeAmbientSounds(void* manager, const NC2Logic::SSectorGridCursor& first, const NC2Logic::SSectorGridCursor& last, const std::int16_t* rectangle, const void* display)
     {
-        if (!Ambient_SoundDeviceIsReady() || Ambient_ReadField<std::uint32_t>(manager, 0x60) == NC2Logic::gGameTime.tick)
+        if (!Ambient_SoundDeviceIsReady() || Ambient_ReadField<std::uint32_t>(manager, NC2Layout::AmbientSoundManagerOffset::LastLandscapeSoundTick) == NC2Logic::gGameTime.tick)
             return;
 
         const std::int32_t centerX = rectangle[0] + (static_cast<std::int32_t>(rectangle[2]) >> 1);
@@ -401,20 +403,20 @@ namespace NC2E2
                 if (!Ambient_SectorIsVisible(display, point))
                     continue;
                 const void* sector = Ambient_GetSector(manager, x, y);
-                for (std::int32_t index = 0; index < Ambient_ReadField<std::int32_t>(sector, 0x1C); ++index)
+                for (std::int32_t index = 0; index < Ambient_ReadField<std::int32_t>(sector, NC2Layout::AmbientSectorOffset::LandscapeCount); ++index)
                 {
-                    const std::uint32_t offset = static_cast<std::uint32_t>(index) * 8u;
-                    const void* record = Ambient_GetStaticRecord(Ambient_ReadField<std::uint32_t>(sector, 0x20u + offset));
-                    if (Ambient_ReadField<std::uint32_t>(record, 0x2C) == 0)
+                    const std::uint32_t offset = static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned;
+                    const void* record = Ambient_GetStaticRecord(Ambient_ReadField<std::uint32_t>(sector, NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + offset));
+                    if (Ambient_ReadField<std::uint32_t>(record, NC2Layout::StaticAmbientSoundOffset::SoundCount) == 0)
                         continue;
                     const void* sound = Ambient_SelectLandscapeSound(record);
                     const std::uint32_t chance = static_cast<std::uint32_t>(NXBasics::Runtime_Rand() % 10000);
-                    const std::uint32_t threshold = Ambient_ReadField<std::uint32_t>(sector, 0x24u + offset) * Ambient_ReadField<std::uint32_t>(sound, 0x84);
+                    const std::uint32_t threshold = Ambient_ReadField<std::uint32_t>(sector, NC2Layout::AmbientSectorOffset::FirstLandscapeVolumeUnsigned + offset) * Ambient_ReadField<std::uint32_t>(sound, NC2Layout::StaticAmbientWaveOffset::ChanceMultiplier);
                     if (chance >= threshold)
                         continue;
 
-                    const std::int32_t pointX = Ambient_ReadField<std::int16_t>(&point, 0);
-                    const std::int32_t pointY = Ambient_ReadField<std::int16_t>(&point, 2);
+                    const std::int32_t pointX = Ambient_ReadField<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X);
+                    const std::int32_t pointY = Ambient_ReadField<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y);
                     const std::int32_t horizontal = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(pointX) - static_cast<std::uint32_t>(centerX)) << 7) / rectangle[2];
                     const std::int32_t vertical = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(pointY) - static_cast<std::uint32_t>(centerY)) << 7) / rectangle[3];
                     const std::uint32_t absoluteX = horizontal < 0 ? 0u - static_cast<std::uint32_t>(horizontal) : static_cast<std::uint32_t>(horizontal);
@@ -422,12 +424,12 @@ namespace NC2E2
                     const std::int32_t distance = NXBasics::Runtime_TimeSigned32(absoluteX + absoluteY) / 2;
                     if (distance > 64)
                         continue;
-                    const std::uint32_t volume = ((64u - static_cast<std::uint32_t>(distance)) * Ambient_ReadField<std::uint32_t>(sound, 0x7C)) >> 6;
-                    NDSManager::CManager::sTheObjectPtr->PreloadWave_Play(Ambient_ReadField<std::uint32_t>(sound, 0x78), volume, 1, static_cast<std::uint32_t>(horizontal) + 64u, false, 0);
+                    const std::uint32_t volume = ((64u - static_cast<std::uint32_t>(distance)) * Ambient_ReadField<std::uint32_t>(sound, NC2Layout::StaticAmbientWaveOffset::Volume)) >> 6;
+                    NDSManager::CManager::sTheObjectPtr->PreloadWave_Play(Ambient_ReadField<std::uint32_t>(sound, NC2Layout::StaticAmbientWaveOffset::WaveId), volume, 1, static_cast<std::uint32_t>(horizontal) + 64u, false, 0);
                 }
             }
         }
-        std::memcpy(static_cast<std::byte*>(manager) + 0x60, &NC2Logic::gGameTime.tick, sizeof(NC2Logic::gGameTime.tick));
+        std::memcpy(static_cast<std::byte*>(manager) + NC2Layout::AmbientSoundManagerOffset::LastLandscapeSoundTick, &NC2Logic::gGameTime.tick, sizeof(NC2Logic::gGameTime.tick));
     }
 
     // Original function: FUN_0047fae2; CE2AmbientSoundManager::UpdateAmbientSounds.

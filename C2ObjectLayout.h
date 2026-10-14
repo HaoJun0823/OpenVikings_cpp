@@ -1610,6 +1610,24 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto EnginePatternIdUnsigned = 2u;
+
+        inline constexpr auto StaticAmbientWaveUnsigned = 0x88u;
+
+        inline constexpr auto StaticAmbientSoundUnsigned = 0x1570u;
+
+        inline constexpr auto AmbientSectorUnsigned = 0x38u;
+
+        inline constexpr auto AmbientLoopEntryUnsigned = 8u;
+
+        inline constexpr auto StaticEngineLandscapeUnsigned = 0x8Cu;
+
+        inline constexpr auto StaticEnginePatternUnsigned = 0x70u;
+
+        inline constexpr auto AmbientGroupIdUnsigned = 4u;
+
+        inline constexpr auto AmbientChangeState = 10;
+
         inline constexpr auto StaticBobCacheEntry = 84;
 
         inline constexpr auto StaticSoundFxUnsigned = 0x43Cu;
@@ -4370,6 +4388,93 @@ namespace NC2Layout
         inline constexpr auto GuiBubblesBobManager = 0x18;
 
         inline constexpr auto FishBobManager = 0x14;
+    }
+
+    namespace AmbientSoundManagerOffset
+    {
+        inline constexpr auto ActiveLoops = 0x0C;
+
+        inline constexpr auto LastLandscapeSoundTick = 0x60;
+
+        inline constexpr auto SectorHeight = 4;
+
+        inline constexpr auto SectorWidth = 0;
+
+        inline constexpr auto Sectors = 8;
+    }
+
+    namespace AmbientSectorOffset
+    {
+        inline constexpr auto FirstLandscapeVolumeUnsigned = 0x24u;
+
+        inline constexpr auto FirstPatternVolumeUnsigned = 8u;
+
+        inline constexpr auto LandscapeEntriesUnsigned = 0x20u;
+
+        inline constexpr auto PatternEntriesUnsigned = 4u;
+
+        inline constexpr auto LandscapeCount = 0x1C;
+
+        inline constexpr auto PatternCount = 0;
+    }
+
+    namespace TerrainAmbientGroupsOffset
+    {
+        inline constexpr auto IdsUnsigned = 0x2Cu;
+
+        inline constexpr auto Count = 0x28;
+    }
+
+    namespace AmbientLoopEntryOffset
+    {
+        inline constexpr auto VolumeUnsigned = 4u;
+    }
+
+    namespace StaticAmbientSoundOffset
+    {
+        inline constexpr auto Sounds = 0x30;
+
+        inline constexpr auto SoundsUnsigned = 0x30u;
+
+        inline constexpr auto FirstSelectionWeightUnsigned = 0xB0u;
+
+        inline constexpr auto SoundCount = 0x2C;
+
+        inline constexpr auto TotalSelectionWeight = 0x28;
+
+        inline constexpr auto FirstWaveId = 0xA8;
+    }
+
+    namespace StaticAmbientWaveOffset
+    {
+        inline constexpr auto SelectionWeight = 0x80;
+
+        inline constexpr auto WaveId = 0x78;
+
+        inline constexpr auto Volume = 0x7C;
+
+        inline constexpr auto ChanceMultiplier = 0x84;
+    }
+
+    namespace EngineMicroPointOffset
+    {
+        inline constexpr auto LandscapeId = 0;
+    }
+
+    namespace AmbientChangeBoundsOffset
+    {
+        inline constexpr auto FirstX = 0;
+
+        inline constexpr auto FirstY = 2;
+
+        inline constexpr auto LastX = 4;
+
+        inline constexpr auto LastY = 6;
+    }
+
+    namespace DirectSoundManagerOffset
+    {
+        inline constexpr auto Initialized = 4;
     }
 
 }

@@ -9,6 +9,10 @@ namespace NC2E2
     // The original parser's wave count remains unchecked; this model introduces no capacity guard.
     struct SStaticSoundWaveStorage { std::uint32_t waveId, volume; };
     struct SStaticSoundFxStorage { char name[40]; std::uint32_t waveCount; SStaticSoundWaveStorage waves[130]; };
+    // The first wave is also used for pattern loops; landscape selection uses all weighted waves.
+    struct SStaticAmbientWaveStorage { char filename[120]; std::uint32_t waveId, volume, selectionWeight, chanceMultiplier; };
+    struct SStaticAmbientSoundStorage { char name[40]; std::uint32_t totalSelectionWeight, soundCount; SStaticAmbientWaveStorage sounds[40]; };
+
     struct SJingleSoundData
     {
         std::uint32_t event;
