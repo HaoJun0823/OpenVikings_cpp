@@ -438,7 +438,7 @@ namespace NC2E2
     // Original function: FUN_00487556.
     void MacroMap_l_FreeAllData(void* map)
     {
-        for (std::uint32_t offset = NC2Layout::MacroMapOffset::PatternNames; offset <= NC2Layout::MacroMapOffset::FishSwarms; offset += 8) FreeField(map, offset);
+        for (std::uint32_t offset = NC2Layout::MacroMapOffset::PatternNames; offset <= NC2Layout::MacroMapOffset::FishSwarms; offset += NC2Layout::RecordSize::MacroMapSection) FreeField(map, offset);
         std::memset(map, 0, NC2Layout::RecordSize::MacroMap);
     }
     // Original function: FUN_00489f2f.
@@ -447,12 +447,12 @@ namespace NC2E2
         if (Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries) == nullptr) return;
         for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::MacroMapManagerOffset::Count); ++index)
         {
-            void* map = Read<void*>(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), static_cast<std::uint32_t>(index) * 4);
+            void* map = Read<void*>(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MacroMapPointer);
             if (map != nullptr)
             {
                 MacroMap_Destruct(map);
                 NXBasics::Runtime_Free(map);
-                Write<void*>(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), static_cast<std::uint32_t>(index) * 4, nullptr);
+                Write<void*>(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MacroMapPointer, nullptr);
             }
         }
         FreeAndClearField(manager, NC2Layout::MacroMapManagerOffset::Entries);

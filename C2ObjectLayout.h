@@ -1201,6 +1201,8 @@ namespace NC2Layout
 
     namespace MacroMapLandscapeOffset
     {
+        inline constexpr auto PlayerIdUnsigned = 12u;
+
         inline constexpr auto MapY = 2;
         inline constexpr auto NameIndex = 4;
         inline constexpr auto MapX = 0;
@@ -1604,6 +1606,18 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MacroMapPointer = 4;
+
+        inline constexpr auto MacroMapSection = 8;
+
+        inline constexpr auto MacroMapManager = 8;
+
+        inline constexpr auto MacroMapPointerUnsigned = 4u;
+
+        inline constexpr auto EngineTrianglePatternId = 2;
+
+        inline constexpr auto MacroMapCaptureUsageUnsigned = 8u;
+
         inline constexpr auto AIGuideGridCellUnsigned = 12u;
 
         inline constexpr auto AIGuideManager = 36;
@@ -3547,6 +3561,8 @@ namespace NC2Layout
 
     namespace EngineMapMicroPointOffset
     {
+        inline constexpr auto LandscapeId = 0;
+
         inline constexpr auto HighlightFlags = 2;
     }
 
@@ -4110,6 +4126,34 @@ namespace NC2Layout
         inline constexpr auto X = 0;
 
         inline constexpr auto Y = 2;
+    }
+
+    namespace FishSwarmOffset
+    {
+        inline constexpr auto FishCount = 4;
+
+        inline constexpr auto MapY = 2;
+
+        inline constexpr auto MapX = 0;
+    }
+
+    namespace MacroMapSectionOffset
+    {
+        inline constexpr auto Entries = 4;
+
+        inline constexpr auto EntriesUnsigned = 4u;
+    }
+
+    namespace MacroMapCaptureUsageOffset
+    {
+        inline constexpr auto NameIndexUnsigned = 4u;
+    }
+
+    namespace EngineMapMacroPointOffset
+    {
+        inline constexpr auto VertexColorIndex = 5;
+
+        inline constexpr auto TransitionsUnsigned = 7u;
     }
 
 }

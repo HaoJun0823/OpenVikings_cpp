@@ -1,0 +1,11 @@
+# Remaining macro-map storage and consumers — 2026-10-14
+
+Baseline `243dd85`. This continues the earlier MACRO_MAP_RECORDS_REVIEW.md and preserves its historical field inventory. Complete physical models now describe the 376-byte root, all thirteen count/pointer sections, name/pattern/transition/landscape/height-color/creature/house/fish records and manager. A separate eight-byte temporary usage record holds the occurrence count and captured name index. The filename region occupies the bytes before the width field; the model does not introduce a bounded copy or claim a different runtime filename limit.
+
+The owning parser/capture/placement/mirror code now names remaining root coordinate accesses, section pointer displacements, temporary usage indexing, fish fields, source-map height/landscape/color fields and height application modes. The manager destructor retains section and pointer strides. Existing fixed-field names and earlier evidence remain intact. Dynamic array indices remain dynamic.
+
+Windows `00487508..00489DDF` and `00489DE0..00489F74` establish these layouts and operations. The evidence stops at complete instruction/function boundaries, unlike the earlier manager excerpt that extended into the next routine. Original names were previously recovered from Mac declarations only; no Mac behavior/layout is used.
+
+Preserved: section allocation/free order, zero-count cases, equality-only capacity checks, DWORD landscape valency with byte parsing, stable name-ID assignment, WORD coordinate/mirror arithmetic, callback order, translated-point calculation followed by stored-coordinate house placement, sparse fish slots and full map recreation order. Compound statements in the owning macro-map unit are split; ordinary argument lists stay on one line. The engine-global missing-resource byte and player presence byte remain targets of their own owner records.
+
+Five source/header files match frozen stages with identical normalized operations, values and types. Twenty-six value/type pairs and thirty-six physical relationships pass. The audit byte-checks 3,288 instructions and records 94 references in MACRO_MAP_REMAINING_RECORDS_FIELDS.csv. Both production units and the private assertion unit pass Win32 `/Zs`. No build, tests or game execution occurred.

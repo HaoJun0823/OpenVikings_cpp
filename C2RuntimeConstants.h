@@ -487,4 +487,18 @@ namespace NC2Runtime
         inline constexpr auto CandidateLinkSystems = 10;
     }
 
+    namespace EngineMapEncoding
+    {
+        inline constexpr auto TrianglesPerLayerUnsigned = 2u;
+    }
+
+    namespace MacroMapHeightMode
+    {
+        inline constexpr auto Subtract = 2;
+
+        inline constexpr auto Add = 1;
+
+        inline constexpr auto Set = 0;
+    }
+
 }
