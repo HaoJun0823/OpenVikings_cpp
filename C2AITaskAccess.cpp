@@ -259,14 +259,14 @@ namespace NC2Logic
     // Original function: FUN_0042a53f; the player index is unchecked in Windows.
     bool AIManager_EntryPoint_MainTask_Add(void* manager, std::uint32_t player, const void* task)
     {
-        void* handler = Read<void*>(manager, player * 4u);
+        void* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned);
         return handler != nullptr && AISinglePlayerHandler_MainTask_Add(handler, task) != NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_0042a5bf.
     bool AIManager_EntryPoint_SingleSoldier_SetDefaultPosition(void* manager, std::uint32_t player, const void* point, std::uint32_t radius)
     {
-        void* handler = Read<void*>(manager, player * 4u);
+        void* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned);
         return handler != nullptr && AISinglePlayerHandler_EntryPoint_SingleSoldier_SetDefaultPosition(handler, point, radius);
     }
 

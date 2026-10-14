@@ -22,11 +22,11 @@ namespace NC2Logic
     std::uint32_t __fastcall AIManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/)
     {
         std::uint32_t checksum = 1234567u;
-        for (std::uint32_t player = 0; player < 20; ++player)
+        for (std::uint32_t player = 0; player < NC2Runtime::AIManagerLimits::Players; ++player)
         {
             if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer) == 0) continue;
-            Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, player * 4u), 0xB068);
-            Tool_Checksum_Combine(&checksum, AIHighLevelHandler_Checksum_Calculate(Read<const void*>(manager, 0x50u + player * 4u), nullptr));
+            Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned), NC2Layout::ObjectSize::AISinglePlayerHandler);
+            Tool_Checksum_Combine(&checksum, AIHighLevelHandler_Checksum_Calculate(Read<const void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlersUnsigned + player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned), nullptr));
         }
         return checksum;
     }

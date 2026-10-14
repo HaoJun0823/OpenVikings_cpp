@@ -57,17 +57,17 @@ namespace NC2Logic
     // Original function: FUN_00462316.
     void AIManager_Message_Attacked(void* manager, std::uint32_t player, const void* point)
     {
-        if (auto* handler = Read<void*>(manager, player * 4u)) AISinglePlayerHandler_Messages_Attacked(handler, nullptr, point);
+        if (auto* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned)) AISinglePlayerHandler_Messages_Attacked(handler, nullptr, point);
     }
 
     // Original function: FUN_0046232d; single-player notification precedes high-level notification.
     void AIManager_Messages_SoldierAttacked(void* manager, std::uint32_t player, std::uint32_t human, const void* target)
     {
-        if (auto* handler = Read<void*>(manager, player * 4u))
+        if (auto* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned))
         {
             AISinglePlayerHandler_Messages_SoldierAttacked(handler, nullptr, human, target);
-            auto* high = Read<void*>(manager, player * 4u + 0x50u);
-            if (Read<std::uint8_t>(high, 4) != 0) AIHighLevelHandler_Message_Soldier_Attacked(high, nullptr, target);
+            auto* high = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned + NC2Layout::AIManagerOffset::HighLevelHandlersUnsigned);
+            if (Read<std::uint8_t>(high, NC2Layout::AIHighLevelOffset::Enabled) != 0) AIHighLevelHandler_Message_Soldier_Attacked(high, nullptr, target);
         }
     }
 

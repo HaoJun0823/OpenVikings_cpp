@@ -916,6 +916,10 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto AIHighLevelHandler = 43580;
+
+        inline constexpr auto AISinglePlayerHandler = 0xB068;
+
         inline constexpr auto MissionInfoWindow = 952;
 
         inline constexpr auto HypertextGuiElement = 72;
@@ -1257,6 +1261,8 @@ namespace NC2Layout
     // Windows AI owners, task records and soldier/military storage.
     namespace AISinglePlayerOffset
     {
+        inline constexpr auto Enabled = 4;
+
         inline constexpr auto FirstActivatedConditionFlagUnsigned = 0x24u;
 
         inline constexpr auto ConditionsUnsigned = 0x0Cu;
@@ -1435,6 +1441,8 @@ namespace NC2Layout
 
     namespace AIHighLevelOffset
     {
+        inline constexpr auto Enabled = 4;
+
         inline constexpr auto Diplomacy = 0xA9C4;
 
         inline constexpr auto AnimalCatcherHumanRequestedFlag = 0x94F0;
@@ -1620,6 +1628,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AISinglePlayerVersion3Prefix = 0xA5B8;
+
         inline constexpr auto HypertextGuiElementVars = 28;
 
         inline constexpr auto MissionBriefingHistory = 0xCC;
@@ -4557,6 +4567,13 @@ namespace NC2Layout
     namespace BitmapViewOffset
     {
         inline constexpr auto Rectangle = 8;
+    }
+
+    namespace AIManagerOffset
+    {
+        inline constexpr auto HighLevelHandlers = 0x50;
+
+        inline constexpr auto HighLevelHandlersUnsigned = 0x50u;
     }
 
 }

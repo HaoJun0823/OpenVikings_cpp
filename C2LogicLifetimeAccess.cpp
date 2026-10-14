@@ -526,17 +526,17 @@ namespace NC2Logic
     static void AIManager_Destruct(void* manager)
     {
         Unregister(AIManager_l_AI_Callback, 0x0B, {0x2A, 1});
-        for (std::uint32_t index = 0; index < 20; ++index)
+        for (std::uint32_t index = 0; index < NC2Runtime::AIManagerLimits::Players; ++index)
         {
-            if (Read<void*>(manager, index * 4) != nullptr)
+            if (Read<void*>(manager, index * NC2Layout::RecordSize::AIPlayerHandlerPointer) != nullptr)
             {
                 FreeAndClearField(manager, index * 4);
-                void* player = Read<void*>(manager, 0x50 + index * 4);
+                void* player = Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + index * NC2Layout::RecordSize::AIPlayerHandlerPointer);
                 if (player != nullptr)
                 {
                     AIGuideManager_Destruct(static_cast<std::byte*>(player) + NC2Layout::AIHighLevelOffset::GuideManager);
                     NXBasics::Runtime_Free(player);
-                    Write<void*>(manager, 0x50 + index * 4, nullptr);
+                    Write<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + index * NC2Layout::RecordSize::AIPlayerHandlerPointer, nullptr);
                 }
             }
         }

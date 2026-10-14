@@ -38,7 +38,7 @@ namespace NC2Logic
     // Original function: FUN_00428bb2; alternating village updates retain the Windows cadence.
     void AIHighLevelHandler_DoOneGameTick(void* handler, std::uint32_t tick)
     {
-        if (Read<std::uint8_t>(handler, 4) == 0) return;
+        if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::Enabled) == 0) return;
         auto* bytes = static_cast<std::byte*>(handler);
         auto* villages = bytes + 0x1C; auto* resources = bytes + 0x67B4; auto* roads = bytes + 0x94E4;
         auto* catcher = bytes + 0x94E8; auto* goods = bytes + 0x9520; auto* military = bytes + 0x7578; auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
@@ -141,7 +141,7 @@ namespace NC2Logic
         CHumanIterator humans;
         for (auto id = humans.GetFirstSectorHumanId(player, false); id != -1; id = humans.GetNextSectorHumanId()) if (!Human_IsJobHero(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize)) ++count;
         std::uint32_t center = 0;
-        if (!Tool_Misc_GetPlayerCenterPosition(player, &center)) { Write<std::uint8_t>(handler, 4, 0); return false; }
+        if (!Tool_Misc_GetPlayerCenterPosition(player, &center)) { Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::Enabled, 0); return false; }
         CHouseIterator houses; auto chosen = center; std::uint32_t distance = 10000;
         for (auto id = houses.GetFirstSectorHouseId(player, &chosen, 10000, false); id != -1; id = houses.GetNextSectorHouseId())
         {

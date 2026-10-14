@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "MasterControlProgram.h"
 #include "ApplicationGlobals.h"
@@ -17,11 +19,11 @@ namespace NC2Logic
     // Original function: FUN_00408f18; Mac CAIManager::EnableAI.
     static void AIManager_EnableAI(void* manager, std::int32_t playerId)
     {
-        if (playerId >= 20) return;
+        if (playerId >= NC2Runtime::AIManagerLimits::Players) return;
         const std::uint32_t index = static_cast<std::uint32_t>(playerId);
         if (NC2Lifetime::Read<std::uint8_t>(gGameControl, index * NC2Layout::RecordSize::GameControlPlayerSigned) == 0) return;
-        NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, index * 4), 4, 1);
-        NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, 0x50 + index * 4), 4, 1);
+        NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, index * NC2Layout::RecordSize::AIPlayerHandlerPointer), NC2Layout::AISinglePlayerOffset::Enabled, 1);
+        NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + index * NC2Layout::RecordSize::AIPlayerHandlerPointer), NC2Layout::AIHighLevelOffset::Enabled, 1);
     }
 }
 

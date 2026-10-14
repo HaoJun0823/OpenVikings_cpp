@@ -45,7 +45,7 @@ namespace NC2Logic
         bool IsScriptPlayerActive(std::int32_t player)
         {
             // The original signed comparison relies on valid nonnegative script player indices.
-            return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) != 0;
+            return player < NC2Runtime::AIManagerLimits::Players && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) != 0;
         }
     }
 
@@ -161,7 +161,7 @@ namespace NC2Logic
                     else if (token == SwitchIds::AIToken::AIDisable) AIManager_DisableAI(manager, player);
                     else
                     {
-                        void* high = Read<void*>(manager, 0x50u + static_cast<std::uint32_t>(player) * 4u);
+                        void* high = Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlersUnsigned + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned);
                         std::uint32_t offset = token == SwitchIds::AIToken::HAIDisable ? 4u : token == SwitchIds::AIToken::HAIDisableCollectResources ? 0x19u : token == SwitchIds::AIToken::HAIDisableGuideBuild ? 0x17u : token == SwitchIds::AIToken::HAIDisableHomeExpansion ? 0x16u : token == SwitchIds::AIToken::HAIDisableMilitary ? 5u : 0x18u;
                         if (token == SwitchIds::AIToken::HAIDisableHouseBuild || token == SwitchIds::AIToken::HAIDisableHouseUpgrade)
                         {
@@ -183,26 +183,26 @@ namespace NC2Logic
     void AIManager_DisableAI(void* manager, std::int32_t player)
     {
         if (!IsScriptPlayerActive(player)) return;
-        Write<std::uint8_t>(Read<void*>(manager, static_cast<std::uint32_t>(player) * 4u), 4, 0);
-        Write<std::uint8_t>(Read<void*>(manager, 0x50u + static_cast<std::uint32_t>(player) * 4u), 4, 0);
+        Write<std::uint8_t>(Read<void*>(manager, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned), NC2Layout::AISinglePlayerOffset::Enabled, 0);
+        Write<std::uint8_t>(Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlersUnsigned + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned), NC2Layout::AIHighLevelOffset::Enabled, 0);
     }
     // Original function: FUN_0042b6be; the Windows bound is signed.
     bool AIManager_Tool_IsAIEnabled(const void* manager, std::int32_t player)
     {
-        if (player >= 20) return false;
-        const auto* handler = Read<void*>(manager, static_cast<std::uint32_t>(player) * 4);
-        return handler != nullptr && Read<std::uint8_t>(handler, 4) != 0;
+        if (player >= NC2Runtime::AIManagerLimits::Players) return false;
+        const auto* handler = Read<void*>(manager, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::AIPlayerHandlerPointer);
+        return handler != nullptr && Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::Enabled) != 0;
     }
     // Original function: FUN_0042b6dd.
     void AIManager_System_DoOneGameTick(void* manager)
     {
-        const auto remainder = gGameTime.tick % 60;
-        if (remainder % 3 != 0) return;
-        const auto player = remainder / 3;
-        if (player >= 20 || !AIManager_Tool_IsAIEnabled(manager, player)) return;
-        const auto tick = gGameTime.tick / 60;
-        AISinglePlayerHandler_WorkOnAI(Read<void*>(manager, player * 4), tick);
-        auto* high = Read<void*>(manager, 0x50 + player * 4);
+        const auto remainder = gGameTime.tick % NC2Runtime::AIManagerTiming::CycleTicks;
+        if (remainder % NC2Runtime::AIManagerTiming::PlayerSlotTicks != 0) return;
+        const auto player = remainder / NC2Runtime::AIManagerTiming::PlayerSlotTicks;
+        if (player >= NC2Runtime::AIManagerLimits::Players || !AIManager_Tool_IsAIEnabled(manager, player)) return;
+        const auto tick = gGameTime.tick / NC2Runtime::AIManagerTiming::CycleTicks;
+        AISinglePlayerHandler_WorkOnAI(Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer), tick);
+        auto* high = Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
         if (high != nullptr) AIHighLevelHandler_DoOneGameTick(high, tick);
     }
     // Original function: FUN_00408f7b.

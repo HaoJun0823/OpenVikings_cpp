@@ -257,7 +257,7 @@ namespace NC2Logic
     // Original function: FUN_0045b4f4; the native cadence and call order are preserved.
     void AISinglePlayerHandler_WorkOnAI(void* handler, std::uint32_t tick)
     {
-        if (Read<std::uint8_t>(handler, 4) == 0) return;
+        if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::Enabled) == 0) return;
         const auto initialize = Read<std::uint8_t>(handler, 5);
         if (initialize != 0 || Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::MainTasksChanged) != 0)
         {

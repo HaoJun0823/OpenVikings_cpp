@@ -609,4 +609,16 @@ namespace NC2Runtime
         inline constexpr auto WidthUnsigned = 500u;
     }
 
+    namespace AIManagerLimits
+    {
+        inline constexpr auto Players = 20;
+    }
+
+    namespace AIManagerTiming
+    {
+        inline constexpr auto PlayerSlotTicks = 3;
+
+        inline constexpr auto CycleTicks = 60;
+    }
+
 }

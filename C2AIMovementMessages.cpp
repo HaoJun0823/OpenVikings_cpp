@@ -400,7 +400,7 @@ namespace NC2Logic
         const auto* entry = gMapMoveableArrayStorage.entries + moveable * NC2Layout::RecordSize::MapMoveable;
         if (Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectType) != 1) return;
         const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectId)));
-        if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * 4u)) AISinglePlayerHandler_Messages_NoWayFound(handler, Human_GetMapPositionRef(human), target);
+        if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned)) AISinglePlayerHandler_Messages_NoWayFound(handler, Human_GetMapPositionRef(human), target);
     }
 
     // Original function: FUN_00462361.
@@ -409,13 +409,13 @@ namespace NC2Logic
         const auto* entry = gMapMoveableArrayStorage.entries + moveable * NC2Layout::RecordSize::MapMoveable;
         if (Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectType) != 1) return;
         auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectId))));
-        if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * 4u)) AISinglePlayerHandler_Messages_Human_NoWayFoundToEnemy(handler, human, target);
+        if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned)) AISinglePlayerHandler_Messages_Human_NoWayFoundToEnemy(handler, human, target);
     }
 
     // Original function: FUN_00462398.
     void AIManager_Message_StartSelfDefence(void* manager, std::uint32_t player, std::uint32_t human, const void* target)
     {
-        if (auto* handler = Read<void*>(manager, player * 4u)) AISinglePlayerHandler_Messages_Soldier_StartSelfDefence(handler, human, target);
+        if (auto* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned)) AISinglePlayerHandler_Messages_Soldier_StartSelfDefence(handler, human, target);
     }
     // Original function: FUN_004736e2.
     bool AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(void* handler, std::uint32_t slot, std::uint32_t target, bool defence)

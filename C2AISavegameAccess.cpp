@@ -20,7 +20,7 @@ namespace NC2Logic
     // Original function: FUN_0042a5de; an absent player handler leaves the stored array untouched.
     void AIManager_EntryPoint_RebuildHouseArray(void* manager, std::int32_t player)
     {
-        void* handler = Read<void*>(manager, static_cast<std::uint32_t>(player) * 4u);
+        void* handler = Read<void*>(manager, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::AIPlayerHandlerPointerUnsigned);
         if (handler != nullptr) AISinglePlayerHandler_EntryPoint_RecalculateHouseArray(handler);
     }
 
@@ -117,7 +117,7 @@ namespace NC2Logic
         void C2AIHighLevelHandler_Init(void* handler, std::uint32_t player, bool enabled)
         {
             Write(handler, 0, player);
-            Write<std::uint8_t>(handler, 4, enabled);
+            Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::Enabled, enabled);
             AIGuideManager_Init(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager);
             Write<std::uint8_t>(handler, 0x1A, 1);
         }
@@ -130,7 +130,7 @@ namespace NC2Logic
             std::memset(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOrigins, 0, 800);
             Write<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, NXBasics::IntegerRange::UInt32Maximum);
             Write(handler, NC2Layout::AISinglePlayerOffset::PlayerId, player);
-            Write<std::uint8_t>(handler, 4, enabled);
+            Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::Enabled, enabled);
             Write<std::uint8_t>(handler, 5, 1);
             Write<std::uint32_t>(handler, 0xAD38, 0x50);
         }
@@ -138,16 +138,16 @@ namespace NC2Logic
         // Original function: FUN_00407cdc.
         void AIManager_l_InitPlayerArrays(void* manager, bool enableHighLevel)
         {
-            for (std::uint32_t player = 0; player < 20; ++player)
+            for (std::uint32_t player = 0; player < NC2Runtime::AIManagerLimits::Players; ++player)
             {
                 const std::uint32_t offset = player * NC2Layout::RecordSize::GameControlPlayerSigned;
                 if (Read<std::uint8_t>(gGameControl, offset) == 0) continue;
-                void* single = NXBasics::Runtime_AllocateWithNewHandler(45160, 1);
-                Write(manager, player * 4, single);
+                void* single = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AISinglePlayerHandler, 1);
+                Write(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer, single);
                 C2AISinglePlayerHandler_Init(single, player, Read<std::uint32_t>(gGameControl, offset + 4) == 2);
-                void* high = NXBasics::Runtime_AllocateWithNewHandler(43580, 1);
+                void* high = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AIHighLevelHandler, 1);
                 if (high != nullptr) C2AIHighLevelHandler_Construct(high);
-                Write(manager, 0x50 + player * 4, high);
+                Write(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer, high);
                 const bool enabled = enableHighLevel && Read<std::uint32_t>(gGameControl, offset + 4) == 2 && Read<std::uint32_t>(gGameControl, offset + 12) != 5 && Read<std::uint32_t>(gGameControl, offset + 12) != 6;
                 C2AIHighLevelHandler_Init(high, player, enabled);
             }
@@ -171,7 +171,7 @@ namespace NC2Logic
     void* __fastcall AIManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gAIManager = manager;
-        std::memset(manager, 0, 160);
+        std::memset(manager, 0, NC2Layout::ObjectSize::AIManager);
         AIManager_l_InitPlayerArrays(manager, true);
         RegisterAICallbacks();
         return manager;
@@ -181,15 +181,15 @@ namespace NC2Logic
     void __fastcall AIManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::AI, 5);
-        io->IO_Memory_WriteLong(20);
-        for (std::uint32_t player = 0; player < 20; ++player)
+        io->IO_Memory_WriteLong(NC2Runtime::AIManagerLimits::Players);
+        for (std::uint32_t player = 0; player < NC2Runtime::AIManagerLimits::Players; ++player)
         {
-            void* handler = Read<void*>(manager, player * 4);
+            void* handler = Read<void*>(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
             io->IO_Memory_WriteByte(handler != nullptr);
             if (handler != nullptr)
             {
-                io->IO_Memory_WriteBinary(handler, 0xB068);
-                C2AIHighLevelHandler_IO_Savegame_WriteBinary(Read<void*>(manager, 0x50 + player * 4), io);
+                io->IO_Memory_WriteBinary(handler, NC2Layout::ObjectSize::AISinglePlayerHandler);
+                C2AIHighLevelHandler_IO_Savegame_WriteBinary(Read<void*>(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer), io);
             }
         }
         io->IO_Tool_Chunk_FinishAndWrite();
@@ -199,7 +199,7 @@ namespace NC2Logic
     void* __fastcall AIManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gAIManager = manager;
-        std::memset(manager, 0, 160);
+        std::memset(manager, 0, NC2Layout::ObjectSize::AIManager);
         const std::uint32_t version = io->mReadHeader.version;
         if (version == 3 || version == 5)
         {
@@ -208,18 +208,18 @@ namespace NC2Logic
             for (std::uint32_t player = 0; player < players; ++player)
                 if (io->IO_File_ReadByte() != 0)
                 {
-                    void* single = NXBasics::Runtime_AllocateWithNewHandler(45160, 1);
+                    void* single = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AISinglePlayerHandler, 1);
                     if (single != nullptr) AISinglePlayerHandler_Construct(single);
-                    Write(manager, player * 4, single);
-                    io->IO_File_ReadBinary(single, version == 3 ? 0xA5B8 : 0xB068);
+                    Write(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer, single);
+                    io->IO_File_ReadBinary(single, version == 3 ? NC2Layout::RecordSize::AISinglePlayerVersion3Prefix : NC2Layout::ObjectSize::AISinglePlayerHandler);
                     if (version == 3) io->IO_File_Skip(0x3C08);
-                    void* high = NXBasics::Runtime_AllocateWithNewHandler(43580, 1);
+                    void* high = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AIHighLevelHandler, 1);
                     if (high != nullptr)
                     {
                         if (version == 3) C2AIHighLevelHandler_Construct(high);
                         else C2AIHighLevelHandler_ConstructFromSavegame(high, io);
                     }
-                    Write(manager, 0x50 + player * 4, high);
+                    Write(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer, high);
                     if (version == 3) C2AIHighLevelHandler_Init(high, player, false);
                 }
         }

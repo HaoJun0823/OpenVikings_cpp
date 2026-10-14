@@ -188,7 +188,7 @@ namespace NC2Logic
     std::int32_t AIVillageManager_Good_GetWorkHouseId(void* village, std::uint32_t good)
     {
         const auto player = Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::PlayerId);
-        const auto* high = Read<void*>(gAIManager, 0x50 + player * 4);
+        const auto* high = Read<void*>(gAIManager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
         const auto* data = static_cast<const std::byte*>(high) + NC2Layout::AIHighLevelOffset::ResourceGoodRequirements + good * NC2Layout::RecordSize::AIResourceGood;
         SWorkHouseCandidates candidates;
         const auto addTypes = [&](std::uint32_t logic)
@@ -292,7 +292,7 @@ namespace NC2Logic
         std::int32_t best = -1;
         std::uint32_t distance = 10000;
         const auto player = Read<std::uint32_t>(handler, 0);
-        const auto* single = Read<void*>(gAIManager, player * 4);
+        const auto* single = Read<void*>(gAIManager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
         CHumanIterator iterator;
         for (auto id = iterator.GetFirstSectorHumanId(player, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
@@ -332,13 +332,13 @@ namespace NC2Logic
     // Original function: FUN_004715c4.
     bool AIVillageManager_Good_GetWorkCenterPoint(const void* village, std::uint32_t good, void* point)
     {
-        const auto* high = Read<void*>(gAIManager, 0x50 + Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::PlayerId) * 4);
+        const auto* high = Read<void*>(gAIManager, NC2Layout::AIManagerOffset::HighLevelHandlers + Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::PlayerId) * NC2Layout::RecordSize::AIPlayerHandlerPointer);
         return AIResourceManager_GetResourcePosition(static_cast<const std::byte*>(high) + NC2Layout::AIHighLevelOffset::Resources, good, point) && AIVillage_IsPointInside(village, point);
     }
     // Original function: FUN_00471e40.
     std::int32_t AIVillageManager_Good_GetWorkHumanId(const void* village, const void* point)
     {
-        return AIHighLevelHandler_Tool_GetUnusedHuman(Read<void*>(gAIManager, 0x50 + Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::PlayerId) * 4), point);
+        return AIHighLevelHandler_Tool_GetUnusedHuman(Read<void*>(gAIManager, NC2Layout::AIManagerOffset::HighLevelHandlers + Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::PlayerId) * NC2Layout::RecordSize::AIPlayerHandlerPointer), point);
     }
     // Original function: FUN_004726bf.
     void AIHouseManager_Init(void* manager)
