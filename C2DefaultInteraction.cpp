@@ -159,7 +159,7 @@ namespace NC2Logic
             const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)); const auto type = Read<std::int32_t>(landscape, 0);
             if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)].landscapeToHarvest) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             for (std::uint32_t good = 0; good < 66; ++good)
-                if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) && Human_DoesEducationAllowGoodProduction(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
+                if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) && Human_IsAbleToProduceGoodNow(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
                 {
                     Prepare(command, 22, human, good);
                     if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1) Prepare(secondary, 17, human, MapMigPoint_GetLong(point));

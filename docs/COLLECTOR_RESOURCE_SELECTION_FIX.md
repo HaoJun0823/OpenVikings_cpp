@@ -1,0 +1,11 @@
+# Collector resource selection - 2026-10-14
+
+While following the reported qualified right-click workplace assignment through Windows `00435605`, a second incorrect predicate was found in the same selector's landscape branch. At `00435D62`, Windows calls `0042D9FA`, `Human_IsAbleToProduceGoodNow`, before matching the resource's harvest landscape. The C++ selector instead called `Human_DoesEducationAllowGoodProduction` (`0042D938`).
+
+The selector now uses the existing native production-availability predicate. It accepts the current unlocked production permission and job capability, then retains workplace requirements, construction-state requirements and the workplace's allowed products. Consequently, experience-unlocked production can be selected without incorrectly requiring education, and a resource unsupported by the current job/workplace cannot be selected solely because of education. The original order of unlocked-flag, current-product, availability and landscape checks is unchanged.
+
+The selected resource still prepares network command 22 and, for a human without a workplace, secondary point command 17; the returned action remains 25. No experience thresholds, job unlock data or execution routines are changed. The separate workplace job-change correction is documented in [QUALIFIED_WORKPLACE_ASSIGNMENT_FIX.md](QUALIFIED_WORKPLACE_ASSIGNMENT_FIX.md).
+
+The user withdrew the separate report about collector names after clarification. The inspected Windows basic human status window displays the generic job name, the job chooser adds resource-specific `job - good` rows, and other human lists/hover descriptions append the current product in parentheses. These names and formats are retained. No unsupported resource suffix was introduced.
+
+Windows ASM and `Game.exe` establish the production predicate and branch behavior; Mac declarations supply existing names only. The expanded private provenance audit verified 260 instruction byte sequences across the workplace, qualification, contextual tooltip and resource-selection regions. The final changed selector passes MSVC Win32 `/Zs`; the mouse tooltip unit passed the same check before its preceding commit. No tests, Debug/Release project build or gameplay run occurred.
