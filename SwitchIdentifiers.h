@@ -946,6 +946,10 @@ namespace SwitchIds
 
     namespace InputMode
     {
+        inline constexpr auto RoadStart = 14;
+
+        inline constexpr auto VehicleAttackHuman = 24;
+
         inline constexpr auto AttachHomeHouse = 4;
         inline constexpr auto AttachWorkHouse = 5;
         inline constexpr auto AttachLearnHouse = 6;

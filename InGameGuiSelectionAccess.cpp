@@ -152,11 +152,11 @@ namespace NC2InGameGuiInputManager
         bool SelectSingle(void* manager, std::uint32_t mode, std::uint32_t offset, std::uint32_t id, const void* object, std::uint32_t revisionOffset, std::uint32_t callback)
         {
             auto revision = Read<std::uint32_t>(object, revisionOffset);
-            if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == mode && Read<std::uint32_t>(manager, offset) == id && Read<std::uint32_t>(manager, offset + 4) == revision) return false;
+            if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == mode && Read<std::uint32_t>(manager, offset) == id && Read<std::uint32_t>(manager, offset + NC2Layout::InputSelectedObjectOffset::UniqueId) == revision) return false;
             Selection_UnselectAll(manager);
             InputMode_Set(manager, 0);
             revision = Read<std::uint32_t>(object, revisionOffset);
-            Write(manager, NC2Layout::InputManagerOffset::SelectionType, mode); Write(manager, offset, id); Write(manager, offset + 4, revision);
+            Write(manager, NC2Layout::InputManagerOffset::SelectionType, mode); Write(manager, offset, id); Write(manager, offset + NC2Layout::InputSelectedObjectOffset::UniqueId, revision);
             Changed(manager);
             if (callback != 0) Inform(callback, id, revision, true);
             return true;
@@ -164,7 +164,7 @@ namespace NC2InGameGuiInputManager
 
         void ResetInvalid(void* manager) { Selection_UnselectAll(manager); InputMode_Set(manager, 0); }
 
-        bool IsLive(const void* object, std::uint32_t revision, std::uint32_t offset = 8) { return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, offset) == revision; }
+        bool IsLive(const void* object, std::uint32_t revision, std::uint32_t offset = NC2Layout::ActorIdentityOffset::UniqueId) { return Read<std::uint8_t>(object, NC2Layout::ActorIdentityOffset::Allocated) != 0 && Read<std::uint32_t>(object, offset) == revision; }
 
         void ValidateGroup(void* manager, bool vehicles)
         {
@@ -175,7 +175,7 @@ namespace NC2InGameGuiInputManager
                 auto* record = static_cast<std::byte*>(manager) + entriesOffset + index * NC2Layout::RecordSize::InputSelectedObjectUnsigned;
                 const auto id = Read<std::uint32_t>(record, NC2Layout::InputSelectedObjectOffset::ObjectId), revision = Read<std::uint32_t>(record, NC2Layout::InputSelectedObjectOffset::UniqueId);
                 const auto* object = vehicles ? Vehicle(id) : Human(id);
-                if (IsLive(object, revision) && Read<std::uint32_t>(object, vehicles ? 0x1E0 : 0x10) == Player()) { ++index; continue; }
+                if (IsLive(object, revision) && Read<std::uint32_t>(object, vehicles ? NC2Layout::VehicleOffset::PlayerId : NC2Layout::HumanOffset::PlayerId) == Player()) { ++index; continue; }
                 Inform(vehicles ? 0x10 : 0xE, id, revision, false);
                 const auto count = Read<std::uint32_t>(manager, countOffset) - 1u;
                 Write(manager, countOffset, count);
@@ -236,11 +236,11 @@ namespace NC2InGameGuiInputManager
                 {
                     const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
                     auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-                    Write<std::uint8_t>(micro, 2, Read<std::uint8_t>(micro, 2) & NXBasics::BitMask::ByteExceptBits0Through1);
+                    Write<std::uint8_t>(micro, NC2Layout::EngineMapMicroPointOffset::HighlightFlags, Read<std::uint8_t>(micro, NC2Layout::EngineMapMicroPointOffset::HighlightFlags) & NXBasics::BitMask::ByteExceptBits0Through1);
                 }
-            auto* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+            auto* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
             auto* display = Read<void*>(world, NC2Layout::WorldGuiElementOffset::Display);
-            if (Read<std::uint8_t>(display, 0x74) != static_cast<std::uint8_t>(enabled)) { Write<std::uint8_t>(display, 0x74, enabled); Write<std::uint8_t>(display, 0x978, 1); }
+            if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) != static_cast<std::uint8_t>(enabled)) { Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled, enabled); Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1); }
         }
     }
 
@@ -299,11 +299,11 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b66e5; coordinates are two WORDs, not a pointer identity.
     bool Selection_SelectEngineLandscapeType(void* manager, std::uint32_t type, std::uint32_t valency, const void* point, std::int32_t player)
     {
-        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 9 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeType) == type && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeVariant) == valency && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint) == Read<std::uint32_t>(point, 0) && Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::LandscapePlayerId) == player) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 9 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeType) == type && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeVariant) == valency && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint) == Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates) && Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::LandscapePlayerId) == player) return false;
         UnselectAll(manager);
         Write(manager, NC2Layout::InputManagerOffset::LandscapeType, type); Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 9); Write(manager, NC2Layout::InputManagerOffset::LandscapeVariant, valency);
         Write(manager, NC2Layout::InputManagerOffset::SelectionChangeCount, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionChangeCount) + 1u);
-        Write(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint, Read<std::uint32_t>(point, 0)); Write(manager, NC2Layout::InputManagerOffset::LandscapePlayerId, player);
+        Write(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)); Write(manager, NC2Layout::InputManagerOffset::LandscapePlayerId, player);
         InGameGuiManager_Selection_UpdateWindows(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
         return true;
     }
@@ -321,7 +321,7 @@ namespace NC2InGameGuiInputManager
             case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::AnimalId); if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player()) action = 3; break;
             case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::VehicleId); if (Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == Player()) action = 4; break;
             case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::HouseId); action = 6; break;
-            case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::GuideId); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
+            case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::GuideId); if (Read<std::uint32_t>(Guide(id), NC2Layout::GuideOffset::PlayerId) == Player()) action = 8; break;
             case SwitchIds::MapObjectUnderCursor::Landscape: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::LandscapeId); *second = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant); *third = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::MapPosition); *fourth = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::PlayerId); action = 9; break;
             case SwitchIds::MapObjectUnderCursor::RoadBuildPlace: case SwitchIds::MapObjectUnderCursor::WallBuildPlace:
             {
@@ -417,16 +417,16 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b6788.
     bool Selection_SelectRoadBuildPlace(void* manager, const void* point)
     {
-        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 10 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::RoadBuildPoint) == Read<std::uint32_t>(point, 0)) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 10 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::RoadBuildPoint) == Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)) return false;
         Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 10); Write(manager, NC2Layout::InputManagerOffset::RoadBuildPoint, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 10); Write(manager, NC2Layout::InputManagerOffset::RoadBuildPoint, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)); Changed(manager); return true;
     }
     // Original function: FUN_004b67ed.
     bool Selection_SelectWallBuildPlace(void* manager, const void* point)
     {
-        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 11 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::WallBuildPoint) == Read<std::uint32_t>(point, 0)) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 11 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::WallBuildPoint) == Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)) return false;
         Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 11); Write(manager, NC2Layout::InputManagerOffset::WallBuildPoint, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 11); Write(manager, NC2Layout::InputManagerOffset::WallBuildPoint, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates)); Changed(manager); return true;
     }
 
     // Original function: FUN_004b618b; at most 300 humans, preserving the old single first.
@@ -450,7 +450,7 @@ namespace NC2InGameGuiInputManager
             const auto count = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount);
             for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + i * NC2Layout::RecordSize::InputSelectedObjectUnsigned) == id) return false;
             if (count == NC2Runtime::InputSelectionLimits::Humans) return false;
-            Write(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + count * 8u, id); Write(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIdsUnsigned + count * 8u, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::HumanGroupCount, count + 1u);
+            Write(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + count * NC2Layout::RecordSize::InputSelectedObjectUnsigned, id); Write(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIdsUnsigned + count * NC2Layout::RecordSize::InputSelectedObjectUnsigned, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::HumanGroupCount, count + 1u);
             Changed(manager);
         }
         Inform(0xE, id, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId), true);
@@ -468,7 +468,7 @@ namespace NC2InGameGuiInputManager
             for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + i * NC2Layout::RecordSize::InputSelectedObjectUnsigned) == id) return false;
             if (count == NC2Runtime::InputSelectionLimits::Vehicles) return false;
             if (Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroup)), NC2Layout::VehicleOffset::LogicType) != 5 || Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::LogicType) != 5) return Selection_SelectSingleVehicle(manager, id);
-            Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + count * 8u, id); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUniqueIdsUnsigned + count * 8u, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupCount, count + 1u);
+            Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + count * NC2Layout::RecordSize::InputSelectedObjectUnsigned, id); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUniqueIdsUnsigned + count * NC2Layout::RecordSize::InputSelectedObjectUnsigned, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupCount, count + 1u);
             Changed(manager);
         }
         else
@@ -500,7 +500,7 @@ namespace NC2InGameGuiInputManager
         case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleUniqueId)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId)), NC2Layout::VehicleOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleVehicles: ValidateGroup(manager, true); return;
         case SwitchIds::SelectionType::House: valid = IsLive(House(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseUniqueId)); break;
-        case SwitchIds::SelectionType::Guide: valid = IsLive(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideUniqueId), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), 4) == Player(); break;
+        case SwitchIds::SelectionType::Guide: valid = IsLive(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideUniqueId), NC2Layout::GuideOffset::UniqueId) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), NC2Layout::GuideOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::RoadBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::RoadBuildPoint) != nullptr; break;
         case SwitchIds::SelectionType::WallBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::WallBuildPoint) != nullptr; break;
         default: break;
@@ -538,9 +538,9 @@ namespace NC2InGameGuiInputManager
                 {
                     const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
                     auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-                    const auto wanted = mark(point), flags = Read<std::uint8_t>(micro, 2);
+                    const auto wanted = mark(point), flags = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData);
                     if ((flags & 3u) == wanted) continue;
-                    Write<std::uint8_t>(micro, 2, (flags & NXBasics::BitMask::ByteExceptBits0Through1) | wanted);
+                    Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData, (flags & NXBasics::BitMask::ByteExceptBits0Through1) | wanted);
                     changed = true;
                 }
             return changed;
@@ -560,7 +560,7 @@ namespace NC2InGameGuiInputManager
             const auto mark = [continent](const void* point) -> std::uint8_t
             {
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                return Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 ? 3 : 1;
+                return Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 ? 3 : 1;
             };
             return UpdateHighlightArea(rectangle, mark);
         }
@@ -573,7 +573,7 @@ namespace NC2InGameGuiInputManager
             if (!NC2Logic::Human_GetMapPosition(human, &position)) return HighlightInvalidArea(rectangle);
             if (NC2Logic::Human_UsesExtendedPathfinder(human))
             {
-                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6);
+                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), NC2Layout::MapMicroPointOffset::ContinentId);
                 if (continent == 0 || NC2Logic::GameMap_Continent_GetContinentTyp(continent) != 1) return HighlightInvalidArea(rectangle);
                 return HighlightHumanContinent(rectangle, continent);
             }
@@ -591,7 +591,7 @@ namespace NC2InGameGuiInputManager
             if (!NC2Logic::Human_GetMapPosition(human, &position)) return HighlightInvalidArea(rectangle);
             if (NC2Logic::Human_UsesExtendedPathfinder(human))
             {
-                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6);
+                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), NC2Layout::MapMicroPointOffset::ContinentId);
                 if (continent == 0 || NC2Logic::GameMap_Continent_GetContinentTyp(continent) != 1) return HighlightInvalidArea(rectangle);
                 return HighlightHumanContinent(rectangle, continent);
             }
@@ -629,8 +629,8 @@ namespace NC2InGameGuiInputManager
             return UpdateHighlightArea(rectangle, [id, merchant, mode](const void* point) -> std::uint8_t
             {
                 const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return 1;
-                const auto houseId = Read<std::uint16_t>(micro, 4);
+                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) == 0) return 1;
+                const auto houseId = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId);
                 void* house = House(houseId);
                 bool valid = false;
                 switch (mode)
@@ -651,18 +651,18 @@ namespace NC2InGameGuiInputManager
         {
             const auto player = Player();
             const void* vehicle = Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager));
-            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), 6);
+            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), NC2Layout::MapMicroPointOffset::ContinentId);
             return UpdateHighlightArea(rectangle, [player, continent](const void* point) -> std::uint8_t
             {
                 if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point)) return 1;
                 const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                if (NC2Logic::GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || (Read<std::uint8_t>(micro, 0xC) & NXBasics::BitMask::Bit7) != 0) return 1;
-                auto cursor = Read<std::uint32_t>(point, 0);
+                if (NC2Logic::GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId)) != 1 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return 1;
+                auto cursor = Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates);
                 NC2Logic::MapMigPoint_MoveCursorUnwrapped(cursor, 4);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
                     NC2Logic::MapMigPoint_MoveCursorUnwrapped(cursor, direction);
-                    if (!NC2Logic::MapMigPoint_IsBorderPoint(&cursor) && Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&cursor), 6) == continent) return 3;
+                    if (!NC2Logic::MapMigPoint_IsBorderPoint(&cursor) && Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&cursor), NC2Layout::MapMicroPointOffset::ContinentId) == continent) return 3;
                 }
                 return 1;
             });
@@ -675,8 +675,8 @@ namespace NC2InGameGuiInputManager
             const auto mark = [player](const void* point) -> std::uint8_t
             {
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return 1;
-                return NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::PlayerId)) == 3 ? 3 : 1;
+                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) == 0) return 1;
+                return NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId)), NC2Layout::HouseOffset::PlayerId)) == 3 ? 3 : 1;
             };
             return UpdateHighlightArea(rectangle, mark);
         }
@@ -695,7 +695,7 @@ namespace NC2InGameGuiInputManager
             const auto mark = [player](const void* point) -> std::uint8_t
             {
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                const auto owner = Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 ? Read<std::int8_t>(micro, 4) : -1;
+                const auto owner = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 ? Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::HouseId) : -1;
                 return owner != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, owner) == 3 ? 3 : 1;
             };
             return UpdateHighlightArea(rectangle, mark);
@@ -710,7 +710,7 @@ namespace NC2InGameGuiInputManager
             return UpdateHighlightArea(rectangle, [type, stage, player](const void* point) -> std::uint8_t
             {
                 if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point)) return 1;
-                if (!NC2Logic::Tool_House_IsAllowedToBeBuild(player, type, stage, Read<std::uint32_t>(point, 0), false, true)) return 1;
+                if (!NC2Logic::Tool_House_IsAllowedToBeBuild(player, type, stage, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates), false, true)) return 1;
                 return NC2Logic::Tool_Human_IsAnyOfPlayerAround(player, point, 24, true) ? 3 : 1;
             });
         }
@@ -719,26 +719,26 @@ namespace NC2InGameGuiInputManager
         bool HighlightVehicleWorkCenter(const std::int16_t* rectangle)
         {
             const void* vehicle = Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager));
-            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), 6);
+            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), NC2Layout::MapMicroPointOffset::ContinentId);
             const auto size = static_cast<std::uint32_t>(NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
             return UpdateHighlightArea(rectangle, [continent, size](const void* point) -> std::uint8_t
             {
-                if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 6) != continent) return 1;
-                return (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 0x0C) & 7u) >= size ? 3 : 1;
+                if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId) != continent) return 1;
+                return (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) >= size ? 3 : 1;
             });
         }
 
         // Original function: FUN_004cade3; groups can target the complete rectangle.
         bool HighlightVehicleMovement(const std::int16_t* rectangle)
         {
-            const auto selection = Read<std::uint32_t>(gInputManager, 4);
+            const auto selection = Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType);
             if (selection == 4)
             {
                 const void* position = NC2Logic::Vehicle_GetMapPositionRef(Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager)));
                 NC2Logic::GameMap_GetConstMapMicroPointPtr(position);
                 return UpdateHighlightArea(rectangle, [position](const void* point) -> std::uint8_t
                 {
-                    const auto distance = NC2Logic::VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2));
+                    const auto distance = NC2Logic::VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(position, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(position, NC2Layout::MapMigPointOffset::MapY));
                     return static_cast<std::uint32_t>(distance) <= 30u ? 3 : 1;
                 });
             }
@@ -797,23 +797,23 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b767e; all point modes 1..22 use the native five target rings.
     void Cursor_SetPosition(void* manager, const void* point)
     {
-        Write(manager, NC2Layout::InputManagerOffset::CursorMapPoint, Read<std::uint32_t>(point, 0));
+        Write(manager, NC2Layout::InputManagerOffset::CursorMapPoint, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates));
         auto* cursor = static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::CursorMapPoint;
         NC2Logic::MapMigPoint_ValidatePosition(cursor);
         if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) >= 1 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) <= 22)
         {
-            std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, 0) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, 2) - 7), 14, 14};
+            std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, NC2Layout::MapMigPointOffset::MapX) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, NC2Layout::MapMigPointOffset::MapY) - 7), 14, 14};
             // Native SMapMigRectangle construction clips before highlighting.
             NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
             Highlighting_Map_Update(manager, rectangle);
             const auto accept = [&](const void* candidate)
             {
-                if ((Read<std::uint8_t>(NC2E2::EngineMap_GetConstMapMicroPointPtr(candidate), 2) & 3u) != 3) return false;
-                Write<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent, 1); Write(manager, NC2Layout::InputManagerOffset::AcceptedTargetMapPoint, Read<std::uint32_t>(candidate, 0)); return true;
+                if ((Read<std::uint8_t>(NC2E2::EngineMap_GetConstMapMicroPointPtr(candidate), NC2Layout::EngineMapMicroPointOffset::HighlightFlags) & 3u) != 3) return false;
+                Write<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent, 1); Write(manager, NC2Layout::InputManagerOffset::AcceptedTargetMapPoint, Read<std::uint32_t>(candidate, NC2Layout::MapMigPointOffset::Coordinates)); return true;
             };
             if (accept(cursor)) return;
             Write<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent, 0);
-            auto candidate = Read<std::uint32_t>(cursor, 0);
+            auto candidate = Read<std::uint32_t>(cursor, NC2Layout::MapMigPointOffset::Coordinates);
             for (std::uint32_t radius = 1; radius <= 5; ++radius)
             {
                 NC2Logic::MapMigPoint_MoveCursorWrapped(&candidate, 4);
@@ -829,7 +829,7 @@ namespace NC2InGameGuiInputManager
         if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) != 0) return;
         const bool valid = NC2Logic::MapMigPoint_IsInsideMap(cursor) && !NC2Logic::MapMigPoint_IsBorderPoint(cursor);
         Write<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent, valid);
-        if (valid) Write(manager, NC2Layout::InputManagerOffset::AcceptedTargetMapPoint, Read<std::uint32_t>(cursor, 0));
+        if (valid) Write(manager, NC2Layout::InputManagerOffset::AcceptedTargetMapPoint, Read<std::uint32_t>(cursor, NC2Layout::MapMigPointOffset::Coordinates));
     }
 
     namespace
@@ -850,7 +850,7 @@ namespace NC2InGameGuiInputManager
         void QueueHumanTarget(std::int32_t humanId, std::uint8_t opcode, std::uint32_t first, std::uint32_t second, bool respond)
         {
             std::byte command[20]{};
-            Write(command, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(command, 4, humanId); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, first); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, second);
+            Write(command, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, humanId); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, first); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, second);
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             if (respond) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, humanId);
         }
@@ -860,7 +860,7 @@ namespace NC2InGameGuiInputManager
             const auto send = [&](std::int32_t humanId)
             {
                 const auto first = target != nullptr ? targetId : NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint);
-                QueueHumanTarget(humanId, opcode, first, target != nullptr ? Read<std::uint32_t>(target, 8) : 0u, false);
+                QueueHumanTarget(humanId, opcode, first, target != nullptr ? Read<std::uint32_t>(target, NC2Layout::ActorIdentityOffset::UniqueId) : 0u, false);
             };
             if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 1)
             {
@@ -971,7 +971,7 @@ namespace NC2InGameGuiInputManager
             if (Read<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent) == 0) return false;
             std::byte command[20]{};
             Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 117); Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Player()));
-            Write(command, 4, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseType)); Write(command, 8, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseDevelopmentStage));
+            Write(command, NC2Layout::HouseBuildCommandOffset::HouseType, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseType)); Write(command, NC2Layout::HouseBuildCommandOffset::DevelopmentStage, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseDevelopmentStage));
             Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint));
             Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItemType) << 16) | (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItem) & NXBasics::IntegerRange::UInt16Maximum));
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
@@ -981,13 +981,13 @@ namespace NC2InGameGuiInputManager
         {
             if (Read<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent) == 0) return false;
             const auto* point = static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint;
-            if (mode == 20) Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(point, 0));
+            if (mode == 20) Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates));
             else
             {
                 const auto send = [&](std::int32_t id)
                 {
                     std::byte command[20]{};
-                    Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, mode == 19 ? 103 : 108); Write(command, 4, id);
+                    Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, mode == 19 ? 103 : 108); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, id);
                     Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(point));
                     NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
                 };
@@ -1008,23 +1008,23 @@ namespace NC2InGameGuiInputManager
             {
                 if (Read<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent) == 0) return false;
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint);
-                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
-                targetId = Read<std::uint16_t>(micro, 4);
+                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) == 0) return false;
+                targetId = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId);
                 if (!Misc_House_IsEnemyToAttack(manager, targetId)) return false;
                 target = House(targetId);
             }
             else
             {
                 if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != (mode == 24 ? 1u : 3u)) return false;
-                targetId = Read<std::int32_t>(object, mode == 24 ? NC2Layout::DisplayObjectReferenceOffset::HumanId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+                targetId = Read<std::int32_t>(object, mode == SwitchIds::InputMode::VehicleAttackHuman ? NC2Layout::DisplayObjectReferenceOffset::HumanId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
                 if (!(mode == 24 ? Misc_Human_IsEnemyToAttack(manager, targetId) : Misc_Vehicle_IsEnemyToAttack(manager, targetId))) return false;
                 target = mode == 24 ? Human(targetId) : Vehicle(targetId);
             }
             const auto send = [&](std::int32_t id)
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, mode == 11 ? 105 : mode == 24 ? 104 : 107); Write(command, 4, id);
-                Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, targetId); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, Read<std::uint32_t>(target, 8));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, mode == 11 ? 105 : mode == 24 ? 104 : 107); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, id);
+                Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, targetId); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, Read<std::uint32_t>(target, NC2Layout::ActorIdentityOffset::UniqueId));
                 NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
             };
             if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 4) send(Selection_GetSelectedSingleVehicleId(manager));
@@ -1037,13 +1037,13 @@ namespace NC2InGameGuiInputManager
             auto* point = static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint;
             if (mode == 14 || mode == 16)
             {
-                Write(manager, mode == 14 ? NC2Layout::InputManagerOffset::RoadStartPoint : NC2Layout::InputManagerOffset::WallStartPoint, Read<std::uint32_t>(point, 0));
+                Write(manager, mode == SwitchIds::InputMode::RoadStart ? NC2Layout::InputManagerOffset::RoadStartPoint : NC2Layout::InputManagerOffset::WallStartPoint, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates));
                 InputMode_Set(manager, mode == 14 ? 15 : 17); return true;
             }
             std::byte command[20]{};
             Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, mode == 15 ? 0x76 : mode == 17 ? 0x78 : 0x7B); Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Player()));
-            if (mode == 18) Write(command, 4, NC2Logic::MapMigPoint_GetLong(point));
-            else { Write(command, 4, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + (mode == 15 ? NC2Layout::InputManagerOffset::RoadStartPoint : NC2Layout::InputManagerOffset::WallStartPoint))); Write(command, 8, NC2Logic::MapMigPoint_GetLong(point)); }
+            if (mode == 18) Write(command, NC2Layout::ConstructionLineCommandOffset::FirstPoint, NC2Logic::MapMigPoint_GetLong(point));
+            else { Write(command, NC2Layout::ConstructionLineCommandOffset::FirstPoint, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + (mode == 15 ? NC2Layout::InputManagerOffset::RoadStartPoint : NC2Layout::InputManagerOffset::WallStartPoint))); Write(command, NC2Layout::ConstructionLineCommandOffset::SecondPoint, NC2Logic::MapMigPoint_GetLong(point)); }
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             InputMode_Cancel(manager); return true;
         }
@@ -1073,8 +1073,8 @@ namespace NC2InGameGuiInputManager
         {
             if (Read<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent) == 0) return false;
             const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint);
-            if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
-            const auto id = Read<std::uint16_t>(micro, 4);
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) == 0) return false;
+            const auto id = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId);
             if (!Misc_House_IsEnemyToAttack(manager, id)) return false;
             QueueSelectedHumanTargets(manager, 44, id, House(id));
             InputMode_Cancel(manager);
@@ -1084,7 +1084,7 @@ namespace NC2InGameGuiInputManager
         {
             const auto type = mode == 23 ? 1u : mode == 25 ? 2u : 3u;
             if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != type) return false;
-            const auto id = Read<std::int32_t>(object, type == 1 ? NC2Layout::DisplayObjectReferenceOffset::HumanId : type == 2 ? NC2Layout::DisplayObjectReferenceOffset::AnimalId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+            const auto id = Read<std::int32_t>(object, type == SwitchIds::MapMoveableType::Human ? NC2Layout::DisplayObjectReferenceOffset::HumanId : type == SwitchIds::MapMoveableType::Animal ? NC2Layout::DisplayObjectReferenceOffset::AnimalId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
             const bool allowed = mode == 23 ? Misc_Human_IsEnemyToAttack(manager, id) : mode == 25 ? Misc_Animal_CanBeAttacked(manager, id, true) : Misc_Vehicle_IsEnemyToAttack(manager, id);
             if (!allowed) return false;
             const auto* target = mode == 23 ? Human(id) : mode == 25 ? Animal(id) : Vehicle(id);
@@ -1101,7 +1101,7 @@ namespace NC2InGameGuiInputManager
             if (selection == 1 || selection == 4)
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, selection == 1 ? 38 : 113); Write(command, 4, Read<std::uint32_t>(manager, selection == 1 ? 8 : 0x97C));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, selection == 1 ? 38 : 113); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(manager, selection == SwitchIds::SelectionType::SingleHuman ? NC2Layout::InputManagerOffset::SingleHumanId : NC2Layout::InputManagerOffset::SingleVehicleId));
                 Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, id); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId));
                 if (selection == 1)
                 {
@@ -1116,12 +1116,12 @@ namespace NC2InGameGuiInputManager
         if ((mode != 4 && mode != 5 && mode != 6 && mode != 7 && mode != 8 && mode != 9) || Read<std::uint8_t>(manager, NC2Layout::InputManagerOffset::AcceptedTargetPresent) == 0) return false;
         bool selectSchoolJob = false;
         const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint);
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) != 0)
         {
-            const auto id = Read<std::uint16_t>(micro, 4);
+            const auto id = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId);
             std::byte command[20]{};
             const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 6 ? 32 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
-            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(opcode)); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
             Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1, id); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::UniqueId));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             selectSchoolJob = mode == 6 && Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::LogicType) == 38;
@@ -1143,23 +1143,23 @@ namespace NC2InGameGuiInputManager
         if (mode == 1 || mode == 4)
         {
             const auto player = Player();
-            if (player >= 16 || (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 8) & (1u << player)) != 0) return false;
+            if (player >= 16 || (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0) return false;
         }
         if (mode == 4)
         {
-            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, 0));
+            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, NC2Layout::MapMigPointOffset::Coordinates));
             return true;
         }
         if (mode == 5)
         {
             NC2Logic::Vehicle_GetMapPosition(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroup)), &position);
-            if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 6) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6)) return false;
-            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, 0));
+            if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), NC2Layout::MapMicroPointOffset::ContinentId)) return false;
+            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, NC2Layout::MapMigPointOffset::Coordinates));
             return true;
         }
-        const void* human = Human(Read<std::uint32_t>(manager, mode == 1 ? 8 : 0x14));
+        const void* human = Human(Read<std::uint32_t>(manager, mode == SwitchIds::SelectionType::SingleHuman ? NC2Layout::InputManagerOffset::SingleHumanId : NC2Layout::InputManagerOffset::HumanGroup));
         if (!NC2Logic::Human_GetMapPosition(human, &position)) return false;
-        if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 6) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6)) return false;
+        if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), NC2Layout::MapMicroPointOffset::ContinentId)) return false;
         Misc_Tool_SendSelectedHuman(manager, cursor);
         return true;
     }
@@ -1193,7 +1193,7 @@ namespace NC2InGameGuiInputManager
             {
                 const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
                 std::int32_t pixel[2];
-                NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, 0), pixel, true);
+                NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, NC2Layout::MapMigPointOffset::Coordinates), pixel, true);
                 for (auto id = iterator.GetFirstMapMoveableId(point); id != -1 && count != 300; id = iterator.GetNextMapMoveableId())
                 {
                     const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
@@ -1266,7 +1266,7 @@ bool __cdecl InputManager_ls_Callback_Logic(unsigned int type, unsigned int, uns
 // Original function: FUN_004a0d01; preserve the fourteen desktop element notifications.
 void __fastcall InGameGuiManager_InputMode_Changed(void* manager)
 {
-    const bool normal = NC2Lifetime::Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) == 0;
+    const bool normal = NC2Lifetime::Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, NC2Layout::InputManagerOffset::InputMode) == 0;
     auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
     for (std::uint32_t offset = 0xC; offset <= 0x40; offset += 4)
     {

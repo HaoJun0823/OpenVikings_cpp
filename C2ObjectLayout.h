@@ -3373,4 +3373,35 @@ namespace NC2Layout
         inline constexpr auto FirstEnabled = 1;
     }
 
+    namespace EngineMapMicroPointOffset
+    {
+        inline constexpr auto HighlightFlags = 2;
+    }
+
+    namespace InGameGuiManagerOffset
+    {
+        inline constexpr auto WorldDisplayElement = 4;
+    }
+
+    namespace ActorIdentityOffset
+    {
+        inline constexpr auto UniqueId = 8;
+
+        inline constexpr auto Allocated = 0;
+    }
+
+    namespace HouseBuildCommandOffset
+    {
+        inline constexpr auto DevelopmentStage = 8;
+
+        inline constexpr auto HouseType = 4;
+    }
+
+    namespace ConstructionLineCommandOffset
+    {
+        inline constexpr auto SecondPoint = 8;
+
+        inline constexpr auto FirstPoint = 4;
+    }
+
 }
