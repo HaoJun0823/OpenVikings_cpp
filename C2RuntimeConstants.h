@@ -12,6 +12,14 @@ namespace NC2Runtime
 
     namespace GoodSearchLimits
     {
+        inline constexpr auto WorkCenterPileRadius = 20;
+
+        inline constexpr auto QuarryPileRadius = 10;
+
+        inline constexpr auto SearchRadiusUnsigned = 40u;
+
+        inline constexpr auto SearchRadius = 40;
+
         inline constexpr auto LandscapeCandidates = 10;
         inline constexpr auto HouseCandidates = 2;
         inline constexpr auto GuideCandidates = 3;

@@ -1464,6 +1464,8 @@ namespace NC2Layout
 
     namespace GuideConnectionOffset
     {
+        inline constexpr auto Distance = 0;
+
         inline constexpr auto GuideId = 4;
     }
 
@@ -1508,6 +1510,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuidePointerUnsigned = 4u;
+
+        inline constexpr auto GuideGoodCountUnsigned = 4u;
+
         inline constexpr auto AIPlayerHandlerPointerUnsigned = 4u;
 
         inline constexpr auto AIConditionOperandUnsigned = 4u;
@@ -2910,6 +2916,10 @@ namespace NC2Layout
 
     namespace MapMigPointOffset
     {
+        inline constexpr auto MapX = 0;
+
+        inline constexpr auto MapY = 2;
+
         inline constexpr auto Coordinates = 0;
     }
 
