@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -49,25 +50,25 @@ namespace NC2Logic
         // Original function: FUN_0042955d; serialized fields exclude the owned calculation grid.
         void AIGuideManager_Init(void* guides, CIoHelper* io)
         {
-            io->IO_File_ReadBinary(guides, 0x18);
-            std::memset(static_cast<std::byte*>(guides) + 0x18, 0, 12);
+            io->IO_File_ReadBinary(guides, NC2Runtime::AIGuideLimits::SerializedBytes);
+            std::memset(static_cast<std::byte*>(guides) + NC2Layout::AIGuideManagerOffset::CalculationGrid, 0, NC2Layout::RecordSize::AIGuideGrid);
         }
 
         // Original function: FUN_00429580.
         void AIGuideManager_IO_Savegame_WriteBinary(void* guides, CIoHelper* io)
         {
-            io->IO_Memory_WriteBinary(guides, 0x18);
+            io->IO_Memory_WriteBinary(guides, NC2Runtime::AIGuideLimits::SerializedBytes);
         }
 
         // Original function: FUN_00428a97.
         void* C2AIHighLevelHandler_ConstructFromSavegame(void* handler, CIoHelper* io)
         {
             AIHighLevelHandler_Vars_Construct(handler);
-            AIGuideManager_Construct(static_cast<std::byte*>(handler) + 0xAA18);
+            AIGuideManager_Construct(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager);
             std::memset(handler, 0, 43544);
-            auto* guides = static_cast<std::byte*>(handler) + 0xAA18;
-            std::memset(guides, 0, 36);
-            io->IO_File_ReadBinary(handler, 0xAA18);
+            auto* guides = static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager;
+            std::memset(guides, 0, NC2Layout::RecordSize::AIGuideManager);
+            io->IO_File_ReadBinary(handler, NC2Layout::AIHighLevelOffset::GuideManager);
             AIGuideManager_Init(guides, io);
             return handler;
         }
@@ -76,9 +77,9 @@ namespace NC2Logic
         void* C2AIHighLevelHandler_Construct(void* handler)
         {
             AIHighLevelHandler_Vars_Construct(handler);
-            AIGuideManager_Construct(static_cast<std::byte*>(handler) + 0xAA18);
+            AIGuideManager_Construct(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager);
             std::memset(handler, 0, 43544);
-            std::memset(static_cast<std::byte*>(handler) + 0xAA18, 0, 36);
+            std::memset(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager, 0, NC2Layout::RecordSize::AIGuideManager);
             return handler;
         }
 
@@ -86,16 +87,16 @@ namespace NC2Logic
     // Original function: FUN_004295c2.
     void AIGuideManager_CalcVars_CreateGuideCalcArray(void* grid)
     {
-        if (Read<std::int32_t>(grid, 0) == SSectorGridCursor::sGridWidth && Read<std::int32_t>(grid, 4) == SSectorGridCursor::sGridHeight) return;
-        if (Read<void*>(grid, 8) != nullptr)
+        if (Read<std::int32_t>(grid, NC2Layout::AIGuideGridOffset::Width) == SSectorGridCursor::sGridWidth && Read<std::int32_t>(grid, NC2Layout::AIGuideGridOffset::Height) == SSectorGridCursor::sGridHeight) return;
+        if (Read<void*>(grid, NC2Layout::AIGuideGridOffset::Cells) != nullptr)
         {
-            NXBasics::Runtime_Free(Read<void*>(grid, 8));
-            Write<void*>(grid, 8, nullptr);
+            NXBasics::Runtime_Free(Read<void*>(grid, NC2Layout::AIGuideGridOffset::Cells));
+            Write<void*>(grid, NC2Layout::AIGuideGridOffset::Cells, nullptr);
         }
-        Write(grid, 4, SSectorGridCursor::sGridHeight);
-        Write(grid, 0, SSectorGridCursor::sGridWidth);
-        const auto bytes = static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) * static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) * 12u;
-        Write(grid, 8, NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+        Write(grid, NC2Layout::AIGuideGridOffset::Height, SSectorGridCursor::sGridHeight);
+        Write(grid, NC2Layout::AIGuideGridOffset::Width, SSectorGridCursor::sGridWidth);
+        const auto bytes = static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) * static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) * NC2Layout::RecordSize::AIGuideGridCellUnsigned;
+        Write(grid, NC2Layout::AIGuideGridOffset::Cells, NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
     }
 
     namespace
@@ -103,13 +104,13 @@ namespace NC2Logic
         // Original function: FUN_0042958f.
         void AIGuideManager_Init(void* guides)
         {
-            Write<std::uint32_t>(guides, 0, NXBasics::IntegerRange::UInt32Maximum);
-            Write<std::uint8_t>(guides, 8, 0);
-            Write<std::uint8_t>(guides, 0x14, 0);
-            AIGuideManager_CalcVars_CreateGuideCalcArray(static_cast<std::byte*>(guides) + 0x18);
-            Write<std::uint16_t>(guides, 0x10, NXBasics::IntegerRange::UInt16MaximumSigned);
-            Write<std::uint16_t>(guides, 0x12, NXBasics::IntegerRange::UInt16MaximumSigned);
-            Write<std::uint32_t>(guides, 0x0C, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(guides, NC2Layout::AIGuideManagerOffset::ScoutHumanId, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint8_t>(guides, NC2Layout::AIGuideManagerOffset::ScoutRequestedFlag, 0);
+            Write<std::uint8_t>(guides, NC2Layout::AIGuideManagerOffset::GuidePairSearchExhaustedFlag, 0);
+            AIGuideManager_CalcVars_CreateGuideCalcArray(static_cast<std::byte*>(guides) + NC2Layout::AIGuideManagerOffset::CalculationGrid);
+            Write<std::uint16_t>(guides, NC2Layout::AIGuideManagerOffset::Destination, NXBasics::IntegerRange::UInt16MaximumSigned);
+            Write<std::uint16_t>(guides, NC2Layout::AIGuideManagerOffset::DestinationY, NXBasics::IntegerRange::UInt16MaximumSigned);
+            Write<std::uint32_t>(guides, NC2Layout::AIGuideManagerOffset::MilitaryPointIndex, NXBasics::IntegerRange::UInt32Maximum);
         }
 
         // Original function: FUN_00428ae7.
@@ -117,7 +118,7 @@ namespace NC2Logic
         {
             Write(handler, 0, player);
             Write<std::uint8_t>(handler, 4, enabled);
-            AIGuideManager_Init(static_cast<std::byte*>(handler) + 0xAA18);
+            AIGuideManager_Init(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager);
             Write<std::uint8_t>(handler, 0x1A, 1);
         }
 
@@ -155,8 +156,8 @@ namespace NC2Logic
         // Original function: FUN_00428b0a.
         void C2AIHighLevelHandler_IO_Savegame_WriteBinary(void* handler, CIoHelper* io)
         {
-            io->IO_Memory_WriteBinary(handler, 0xAA18);
-            AIGuideManager_IO_Savegame_WriteBinary(static_cast<std::byte*>(handler) + 0xAA18, io);
+            io->IO_Memory_WriteBinary(handler, NC2Layout::AIHighLevelOffset::GuideManager);
+            AIGuideManager_IO_Savegame_WriteBinary(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager, io);
         }
 
         void RegisterAICallbacks()

@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AIObjectAccess.h"
@@ -23,7 +25,7 @@ namespace NC2Logic
     {
         const auto* bytes = static_cast<const std::byte*>(handler);
         if (AIScout_IsObjectUsed(bytes + 0x94E8, target)) return true;
-        if (AIScout_IsObjectUsed(bytes + 0xAA18, target)) return true;
+        if (AIScout_IsObjectUsed(bytes + NC2Layout::AIHighLevelOffset::GuideManager, target)) return true;
         if (AITradeManager_IsObjectUsed(bytes + 0x74D4, target)) return true;
         return AIVillagesData_IsObjectUsed(bytes + 0x1C, target);
     }
@@ -49,20 +51,20 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00453cc3.
-    void AIScout_Init(void* scout) { Write<std::uint32_t>(scout, 0, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint8_t>(scout, 8, 0); }
+    void AIScout_Init(void* scout) { Write<std::uint32_t>(scout, NC2Layout::AIScoutOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint8_t>(scout, NC2Layout::AIScoutOffset::HumanRequestedFlag, 0); }
 
     // Original function: FUN_00453ccb.
     void AIScout_Set(void* scout, std::int32_t human)
     {
-        Write(scout, 0, human);
-        Write(scout, 4, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
-        Write<std::uint8_t>(scout, 8, 0);
+        Write(scout, NC2Layout::AIScoutOffset::HumanId, human);
+        Write(scout, NC2Layout::AIScoutOffset::HumanRevision, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
+        Write<std::uint8_t>(scout, NC2Layout::AIScoutOffset::HumanRequestedFlag, 0);
     }
 
     // Original function: FUN_00453ceb.
     bool AIScout_IsObjectUsed(const void* scout, const void* target)
     {
-        return Read<std::uint32_t>(target, 0) == 1 && Read<std::uint32_t>(target, 4) == Read<std::uint32_t>(scout, 0) && Read<std::uint32_t>(target, 8) == Read<std::uint32_t>(scout, 4);
+        return Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) == 1 && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) == Read<std::uint32_t>(scout, NC2Layout::AIScoutOffset::HumanId) && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) == Read<std::uint32_t>(scout, NC2Layout::AIScoutOffset::HumanRevision);
     }
 
     // Original function: FUN_00453d0c.
@@ -71,7 +73,7 @@ namespace NC2Logic
         if (!AIGoodManager_Producer_IsHumanValid(scout)) return;
         auto* human = Human(scout);
         Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), 0, 0, 6, 0);
-        Write<std::uint32_t>(scout, 0, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(scout, NC2Layout::AIScoutOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_00453d3c.
@@ -88,7 +90,7 @@ namespace NC2Logic
     {
         const auto* human = Human(scout);
         const auto* position = Human_GetMapPositionRef(human);
-        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(point, 0), Read<std::uint16_t>(point, 2), Read<std::uint16_t>(position, 0), Read<std::uint16_t>(position, 2)));
+        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::uint16_t>(point, NC2Layout::MapMigPointOffset::MapY), Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapX), Read<std::uint16_t>(position, NC2Layout::MapMigPointOffset::MapY)));
         return distance <= 50 && !Human_IsWalking(human);
     }
 

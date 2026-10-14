@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2GameChecksum.h"
 #include "C2ChecksumTools.h"
@@ -153,12 +155,12 @@ namespace NC2Logic
     // Original function: FUN_00428b2f.
     std::uint32_t __fastcall AIHighLevelHandler_Checksum_Calculate(const void* handler, void* /*unusedEdx*/)
     {
-        auto checksum = Tool_Checksum_Calculate(handler, 0xAA18);
-        Tool_Checksum_Combine(&checksum, AIGuideManager_Checksum_Calculate(static_cast<const std::byte*>(handler) + 0xAA18, nullptr));
+        auto checksum = Tool_Checksum_Calculate(handler, NC2Layout::AIHighLevelOffset::GuideManager);
+        Tool_Checksum_Combine(&checksum, AIGuideManager_Checksum_Calculate(static_cast<const std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager, nullptr));
         return checksum;
     }
     // Original function: FUN_004295b7.
-    std::uint32_t __fastcall AIGuideManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/) { return Tool_Checksum_Calculate(manager, 0x18); }
+    std::uint32_t __fastcall AIGuideManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/) { return Tool_Checksum_Calculate(manager, NC2Runtime::AIGuideLimits::SerializedBytes); }
     // Original function: FUN_0044e7af.
     std::uint32_t __fastcall MapFishManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/) { return Tool_Checksum_Calculate(manager, 0x1774); }
 

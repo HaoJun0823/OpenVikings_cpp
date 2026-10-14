@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2AIConstruction.h"
 #include "C2LifetimeAccess.h"
@@ -139,8 +141,8 @@ namespace NC2Logic
     // Original function: FUN_0042951b.
     void* AIGuideManager_Construct(void* manager)
     {
-        Write<std::uint16_t>(manager, 0x12, 0); Write<std::uint16_t>(manager, 0x10, 0);
-        NXBasics::Runtime_FillMemory(manager, 0, 24); NXBasics::Runtime_FillMemory(static_cast<std::byte*>(manager) + 24, 0, 12); return manager;
+        Write<std::uint16_t>(manager, NC2Layout::AIGuideManagerOffset::DestinationY, 0); Write<std::uint16_t>(manager, NC2Layout::AIGuideManagerOffset::Destination, 0);
+        NXBasics::Runtime_FillMemory(manager, 0, NC2Runtime::AIGuideLimits::SerializedBytes); NXBasics::Runtime_FillMemory(static_cast<std::byte*>(manager) + NC2Layout::AIGuideManagerOffset::CalculationGrid, 0, NC2Layout::RecordSize::AIGuideGrid); return manager;
     }
     // Original function: FUN_00408fbb; the shared Windows vector-constructor loop.
     void __stdcall ConstructOriginalMemberArray(void* array, std::uint32_t stride, std::uint32_t count, void(__thiscall* constructor)(void*))

@@ -1423,6 +1423,14 @@ namespace NC2Layout
 
     namespace AIHighLevelOffset
     {
+        inline constexpr auto GuidePairSearchExhaustedFlag = 0xAA2C;
+
+        inline constexpr auto GuideScoutRequestedFlag = 0xAA20;
+
+        inline constexpr auto GuideDestination = 0xAA28;
+
+        inline constexpr auto GuideManager = 0xAA18;
+
         inline constexpr auto Resources = 0x67B4;
 
         inline constexpr auto ResourcePoints = 0x67B8;
@@ -1596,6 +1604,14 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AIGuideGridCellUnsigned = 12u;
+
+        inline constexpr auto AIGuideManager = 36;
+
+        inline constexpr auto AIGuideGrid = 12;
+
+        inline constexpr auto AIGuideGridCell = 12;
+
         inline constexpr auto GuiTextButtonVars = 48;
 
         inline constexpr auto GuiTextElementVars = 206;
@@ -4032,6 +4048,58 @@ namespace NC2Layout
         inline constexpr auto Receiver = 0x40;
 
         inline constexpr auto Command = 0x3C;
+    }
+
+    namespace AIGuideManagerOffset
+    {
+        inline constexpr auto DestinationY = 0x12;
+
+        inline constexpr auto GuidePairSearchExhaustedFlag = 0x14;
+
+        inline constexpr auto ScoutHumanRevision = 4;
+
+        inline constexpr auto ScoutHumanId = 0;
+
+        inline constexpr auto ScoutRequestedFlag = 8;
+
+        inline constexpr auto MilitaryPointIndex = 0x0C;
+
+        inline constexpr auto GridHeight = 28;
+
+        inline constexpr auto CalculationGrid = 24;
+
+        inline constexpr auto Destination = 0x10;
+
+        inline constexpr auto GridCells = 0x20;
+    }
+
+    namespace AIGuideGridCellOffset
+    {
+        inline constexpr auto HouseId = 8;
+
+        inline constexpr auto HasHouseFlag = 0;
+
+        inline constexpr auto GuideId = 4;
+
+        inline constexpr auto HasGuideFlag = 1;
+    }
+
+    namespace AIGuideGridOffset
+    {
+        inline constexpr auto Cells = 8;
+
+        inline constexpr auto Height = 4;
+
+        inline constexpr auto Width = 0;
+    }
+
+    namespace AIScoutOffset
+    {
+        inline constexpr auto HumanRevision = 4;
+
+        inline constexpr auto HumanRequestedFlag = 8;
+
+        inline constexpr auto HumanId = 0;
     }
 
 }

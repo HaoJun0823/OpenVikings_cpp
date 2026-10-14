@@ -517,10 +517,10 @@ namespace NC2Logic
         gMapMoveableArrayStorage.manager = nullptr;
         array->mInitialized = 0;
     }
-    // Original function: FUN_00429546; owning AI member type is not yet identified.
-    static void AIMember00429546_Destruct(void* object)
+    // Original function: FUN_00429546; CAIGuideManager releases its owned calculation grid.
+    static void AIGuideManager_Destruct(void* object)
     {
-        if (Read<void*>(object, 0x20) != nullptr) FreeAndClearField(object, 0x20);
+        if (Read<void*>(object, NC2Layout::AIGuideManagerOffset::GridCells) != nullptr) FreeAndClearField(object, NC2Layout::AIGuideManagerOffset::GridCells);
     }
     // Original function: FUN_00407f55.
     static void AIManager_Destruct(void* manager)
@@ -534,7 +534,7 @@ namespace NC2Logic
                 void* player = Read<void*>(manager, 0x50 + index * 4);
                 if (player != nullptr)
                 {
-                    AIMember00429546_Destruct(static_cast<std::byte*>(player) + 0xAA18);
+                    AIGuideManager_Destruct(static_cast<std::byte*>(player) + NC2Layout::AIHighLevelOffset::GuideManager);
                     NXBasics::Runtime_Free(player);
                     Write<void*>(manager, 0x50 + index * 4, nullptr);
                 }

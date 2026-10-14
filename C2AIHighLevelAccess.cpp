@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AIHighLevelAccess.h"
@@ -39,7 +41,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(handler, 4) == 0) return;
         auto* bytes = static_cast<std::byte*>(handler);
         auto* villages = bytes + 0x1C; auto* resources = bytes + 0x67B4; auto* roads = bytes + 0x94E4;
-        auto* catcher = bytes + 0x94E8; auto* goods = bytes + 0x9520; auto* military = bytes + 0x7578; auto* guides = bytes + 0xAA18;
+        auto* catcher = bytes + 0x94E8; auto* goods = bytes + 0x9520; auto* military = bytes + 0x7578; auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
         const auto player = Read<std::uint32_t>(handler, 0);
         if (Read<std::uint8_t>(handler, 0x1A) != 0)
         {
@@ -51,9 +53,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(handler, 0x94E0) != 0) AIHighLevelHandler_l_DestroyRandom(handler, tick);
         if ((tick & 1) == 0) AIResourceManager_UpdateResourcePointArray(resources, player, villages);
         AIGuideManager_CheckAndBuildGuides(guides, player, military);
-        if (Read<std::uint8_t>(handler, 0xAA20) != 0)
+        if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuideScoutRequestedFlag) != 0)
         {
-            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(handler, bytes + 0xAA28);
+            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(handler, bytes + NC2Layout::AIHighLevelOffset::GuideDestination);
             if (id != -1) AIScout_Set(guides, id);
         }
         if ((tick & 1) == 0) { AIVillagesData_DoOneLogicTick(villages, resources, goods, tick); AIResourceManager_ClearResourceUpdateFlags(resources); }
@@ -62,7 +64,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(handler, 0x94F0) != 0)
         {
             // Windows also uses the guide destination when assigning the animal catcher.
-            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(handler, bytes + 0xAA28);
+            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(handler, bytes + NC2Layout::AIHighLevelOffset::GuideDestination);
             if (id != -1) AIScout_Set(catcher, id);
         }
         AIHighLevelHandler_l_Villages_EnhanceVillages(handler); AIHighLevelHandler_l_Villages_CheckForNeedments(handler);
@@ -109,11 +111,11 @@ namespace NC2Logic
     // Original function: FUN_00428f26.
     void AIHighLevelHandler_l_Villages_EnhanceVillages(void* handler)
     {
-        auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + 0xAA18;
+        auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
         const auto player = Read<std::uint32_t>(handler, 0);
-        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, 0xAA28) == NXBasics::IntegerRange::UInt16MaximumSigned)
+        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, NC2Layout::AIHighLevelOffset::GuideDestination) == NXBasics::IntegerRange::UInt16MaximumSigned)
         {
-            if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE)) { if (Read<std::uint8_t>(handler, 0xAA2C) != 0) Write<std::uint8_t>(handler, 0x67AD, 1); }
+            if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE)) { if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuidePairSearchExhaustedFlag) != 0) Write<std::uint8_t>(handler, 0x67AD, 1); }
             else AIGuideManager_BuildGuideNearPosition(guides, player, bytes + 0x67AE);
         }
         auto* villages = bytes + 0x1C;

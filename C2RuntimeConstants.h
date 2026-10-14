@@ -480,4 +480,11 @@ namespace NC2Runtime
         inline constexpr auto MessageHandle = 2;
     }
 
+    namespace AIGuideLimits
+    {
+        inline constexpr auto SerializedBytes = 0x18;
+
+        inline constexpr auto CandidateLinkSystems = 10;
+    }
+
 }
