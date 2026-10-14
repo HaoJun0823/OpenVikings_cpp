@@ -76,8 +76,8 @@ namespace NC2Logic
     std::int32_t Logic_EntryPoint_House_GetOnPosition(const void* point)
     {
         const void* micro = GameMap_GetMapMicroPointPtr(point);
-        if (micro == nullptr || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2) return -1;
-        return Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
+        if (micro == nullptr || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 2) return -1;
+        return Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId);
     }
 
     // Original function: FUN_0040ae9a.
@@ -98,15 +98,15 @@ namespace NC2Logic
     {
         const auto job = Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType);
         if (job >= 1 && job <= 4) return false;
-        if (Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum || Read<std::uint32_t>(human, 0xB1C) != NXBasics::IntegerRange::UInt32Maximum) return false;
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::SpouseId) != NXBasics::IntegerRange::UInt32Maximum || Read<std::uint32_t>(human, NC2Layout::HumanOffset::WaitingHumanId) != NXBasics::IntegerRange::UInt32Maximum) return false;
         return job != 27 && !(job >= 31 && job <= 41) && !(job >= 42 && job <= 47);
     }
 
     // Original function: FUN_0042ca95; shared with human message validation.
-    bool Human_IsMarried(const void* human) { return Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum; }
+    bool Human_IsMarried(const void* human) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::SpouseId) != NXBasics::IntegerRange::UInt32Maximum; }
 
     // Original function: FUN_0042caa2.
-    bool Human_IsHavingChild(const void* human) { return Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum; }
+    bool Human_IsHavingChild(const void* human) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::ChildId) != NXBasics::IntegerRange::UInt32Maximum; }
 
     // Original function: FUN_0044b9c9; the good index is unchecked.
     void Human_Production_SetCounter(void* human, std::uint32_t good, std::uint32_t counter) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u, counter); }
@@ -117,7 +117,7 @@ namespace NC2Logic
         CHumanIterator iterator;
         for (auto id = iterator.GetFirstHumanId(); id != -1; id = iterator.GetNextHumanId())
         {
-            if (Read<std::uint32_t>(GetHumanPtr(id), 0xB80) == missionCheck) return id;
+            if (Read<std::uint32_t>(GetHumanPtr(id), NC2Layout::HumanOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }
@@ -129,7 +129,7 @@ namespace NC2Logic
         for (auto id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u); id <= CHumanArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
         {
             const auto* human = GetHumanPtr(id);
-            if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 0xB80) == missionCheck) return id;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }

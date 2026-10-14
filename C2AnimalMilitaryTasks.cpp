@@ -108,7 +108,7 @@ namespace NC2Logic
         TargetData_GetMapPosition(target, &point);
         const auto* source = Animal_GetMapPositionRef(animal);
         const auto distance = Distance(&point, source);
-        if (distance > static_cast<std::uint32_t>(weapon->maximumRange)) { Animal_l_StartAtomicWalk(animal, Read<std::int32_t>(object, 12), weapon->maximumRange); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8); return; }
+        if (distance > static_cast<std::uint32_t>(weapon->maximumRange)) { Animal_l_StartAtomicWalk(animal, Read<std::int32_t>(object, NC2Layout::HumanOffset::MapMoveableId), weapon->maximumRange); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8); return; }
         if (distance < static_cast<std::uint32_t>(weapon->minimumRange))
         {
             if (!Animal_l_Military_GetNextPointToStartAttack(animal, &point)) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 1); return; }

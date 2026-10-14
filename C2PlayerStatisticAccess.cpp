@@ -36,7 +36,7 @@ namespace NC2Logic
     std::int32_t Tool_PlayerStatistics_CountHumansOfJobExecuting(std::uint32_t player, std::uint32_t job)
     {
         std::int32_t count = 0; CHumanIterator iterator;
-        for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId()) if (Read<std::uint32_t>(GetHumanPtr(id), 0x18) == job) ++count;
+        for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId()) if (Read<std::uint32_t>(GetHumanPtr(id), NC2Layout::HumanOffset::JobType) == job) ++count;
         return count;
     }
     // Original function: FUN_00440b92; complete Windows jump table 00440C6D..00440CAC.
@@ -58,9 +58,9 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             const auto* house = static_cast<const std::byte*>(CHouseArray::mStaticVars) + static_cast<std::uint32_t>(id) * 0x7E0u;
-            if (Read<std::uint32_t>(house, 0x14) != type) continue;
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != type) continue;
             ++total;
-            if (Read<std::uint32_t>(house, 0x2C) != 3) ++*unfinished;
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) ++*unfinished;
         }
         return total;
     }
@@ -129,8 +129,8 @@ namespace NC2Logic
         {
             const auto* house = reinterpret_cast<const std::byte*>(CHouseArray::mStaticVars) + static_cast<std::uint32_t>(id) * 0x7E0u;
             ++counts[0];
-            const bool completed = Read<std::uint32_t>(house, 0x2C) == 3;
-            if (completed) ++counts[5u + Read<std::uint32_t>(house, 0x14)];
+            const bool completed = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3;
+            if (completed) ++counts[5u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType)];
             if (House_GetHouseMainType(house) == 2) ++counts[completed ? 1 : 2];
             else ++counts[completed ? 3 : 4];
         }

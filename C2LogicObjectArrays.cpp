@@ -72,13 +72,13 @@ namespace NC2Logic
     // Original function: FUN_0042d2ee.
     bool Human_HasEquippedShoes(const void* human)
     {
-        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xADC) != 0;
+        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition) != 0;
     }
 
     // Original function: FUN_0042d304.
     bool Human_HasEquippedTools(const void* human)
     {
-        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedTools) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) != 0;
+        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedTools) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ToolCondition) != 0;
     }
     // Original function: FUN_0040211a; IDs are deliberately not range checked.
     const void* GetHumanPtr(std::int32_t id)

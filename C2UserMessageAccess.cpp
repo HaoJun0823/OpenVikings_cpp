@@ -42,7 +42,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
-        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, 4));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 23);
         Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, item);
@@ -56,7 +56,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
-        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, 4));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 41);
         Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
@@ -71,7 +71,7 @@ namespace NC2Logic
         std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 41);
-        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, 4));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -84,7 +84,7 @@ namespace NC2Logic
         std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 19);
-        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, 4));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
@@ -98,7 +98,7 @@ namespace NC2Logic
         std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 20);
-        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, 4));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, NC2Layout::ToUserMessageOffset::JobItems, job);
         ToUserMessage_FinishMessage(message);

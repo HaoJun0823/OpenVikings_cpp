@@ -157,7 +157,7 @@ namespace NC2Logic
                 offsetY = Read<std::uint32_t>(data, 0x1B8u + selected * 12u);
             }
         }
-        const auto experience = Read<std::uint32_t>(human, 0x150);
+        const auto experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory6Experience);
         if (chance > experience + 10u)
         {
             const auto spread = (chance - experience - 10u) * (Distance(&position, &source) >> 2) / chance;

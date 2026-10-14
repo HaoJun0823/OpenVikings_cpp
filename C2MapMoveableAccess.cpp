@@ -592,7 +592,7 @@ namespace NC2Logic
         auto* data = GetSector(sector);
         const auto offset = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
         const auto previous = Read<std::int32_t>(data, offset);
-        const auto id = Read<std::int32_t>(human, 4);
+        const auto id = Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId);
         Write<std::int32_t>(data, offset, id);
         Write<std::int32_t>(human, NC2Layout::HumanOffset::NextSectorHumanId, previous);
         if (previous != -1) Write<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHumanArray::ElementSize, NC2Layout::HumanOffset::PreviousSectorHumanId, id);
@@ -606,7 +606,7 @@ namespace NC2Logic
         auto* data = GetSector(sector);
         const auto offset = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) << 6) + (Human_IsJobSoldier(human) || Human_IsJobHero(human) ? 0x18u : 0u);
         auto current = Read<std::int32_t>(data, offset);
-        const auto id = Read<std::int32_t>(human, 4);
+        const auto id = Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId);
         const auto next = Read<std::int32_t>(human, NC2Layout::HumanOffset::NextSectorHumanId);
         if (current == id)
         {

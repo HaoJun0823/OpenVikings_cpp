@@ -143,7 +143,7 @@ namespace NC2Logic
         const auto& armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor)];
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         auto damage = static_cast<std::uint32_t>(data.damageValues[armor.materialType]) * 200u / (200u - (power > 100u ? 100u : power));
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveable;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         auto facing = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u;
         if (facing == 7) facing = 2;
         else if (facing == 6) facing = 5;
@@ -192,12 +192,12 @@ namespace NC2Logic
                 TargetData_GetMapPosition(secondary, &previousPosition);
                 if (Distance(Human_GetMapPositionRef(human), &previousPosition) <= Distance(Human_GetMapPositionRef(human), &attackerPosition)) allowed = false;
             }
-            else if (allowed && Human_GetPlayerType(human) == 2) AIManager_Messages_SoldierAttacked(gAIManager, player, Read<std::uint32_t>(human, 4), attacker);
+            else if (allowed && Human_GetPlayerType(human) == 2) AIManager_Messages_SoldierAttacked(gAIManager, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), attacker);
             // Native comparison deliberately checks type/revision without comparing the object id.
             if (allowed && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision) == attacker[2] && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget) == attacker[0]))
             {
                 for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * 4u, attacker[index]);
-                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
             }
         }
         else if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
@@ -214,7 +214,7 @@ namespace NC2Logic
             CHumanIterator humans;
             for (std::uint32_t group = 0; group < 2; ++group)
                 for (auto id = humans.GetFirstSectorHumanId(player, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), group == 0 ? 40 : 20, group == 0); id != -1; id = humans.GetNextSectorHumanId())
-                    if (static_cast<std::uint32_t>(id) != Read<std::uint32_t>(human, 4)) Human_Military_StartGettingHitByWeapon(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, Human_GetMapPositionRef(human), tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
+                    if (static_cast<std::uint32_t>(id) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) Human_Military_StartGettingHitByWeapon(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, Human_GetMapPositionRef(human), tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
             CAnimalIterator animals;
             for (std::uint32_t group = 0; group < 2; ++group)
                 for (auto id = animals.GetFirstSectorAnimalId(player, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), group == 0 ? 40 : 20, true, false); id != -1; id = animals.GetNextSectorAnimalId()) Animal_Military_StartGettingHitByWeapon(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);

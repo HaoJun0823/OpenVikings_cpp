@@ -106,8 +106,8 @@ namespace
     {
         using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, 0) != 0) return;
         const auto capacity = CHumanArray::sTheObjectPtr->mCapacity; std::int32_t start = 0, stop = capacity - 1;
-        if (Read<std::uint32_t>(gInputManager, 4) == 1) { const auto selected = Selection_GetSelectedSingleHumanId(gInputManager); if (Read<std::uint32_t>(GetHumanPtr(selected), 0x18) == job) { start = selected + 1; if (start == capacity) start = 0; stop = selected; } }
-        while (start != stop) { const auto* human = GetHumanPtr(start); if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 0x10) == static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) && Read<std::uint32_t>(human, 0x18) == job) { Selection_SelectSingleHuman(gInputManager, start); break; } if (++start == capacity) start = 0; }
+        if (Read<std::uint32_t>(gInputManager, 4) == 1) { const auto selected = Selection_GetSelectedSingleHumanId(gInputManager); if (Read<std::uint32_t>(GetHumanPtr(selected), NC2Layout::HumanOffset::JobType) == job) { start = selected + 1; if (start == capacity) start = 0; stop = selected; } }
+        while (start != stop) { const auto* human = GetHumanPtr(start); if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == job) { Selection_SelectSingleHuman(gInputManager, start); break; } if (++start == capacity) start = 0; }
     }
     static void FilterSelectedHumans(bool heroes)
     {

@@ -132,8 +132,8 @@ namespace NC2Logic
         for (; index <= CHumanArray::sTheObjectPtr->mLastScanIndex; index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u))
         {
             const void* human = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(CHumanArray::mStaticVars) + static_cast<std::uint32_t>(index) * 0xC58u);
-            if (NC2Lifetime::Read<std::uint8_t>(human, 0) == 0) continue;
-            if ((flags & 1u) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0x10) != selection) continue;
+            if (NC2Lifetime::Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0) continue;
+            if ((flags & 1u) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != selection) continue;
             if ((flags & 2u) != 0)
             {
                 const auto* position = Human_GetMapPositionRef(human);

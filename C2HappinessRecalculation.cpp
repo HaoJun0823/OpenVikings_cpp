@@ -69,11 +69,11 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(player, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             const void* human = GetHumanPtr(id);
-            if (Read<std::int32_t>(human, 0xAA8) < 1000) --value;
+            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Food) < 1000) --value;
             if (!Human_IsAgeAdult(human)) ++value;
             else
             {
-                if (Read<std::int32_t>(human, 0xAB0) < 8000) --value;
+                if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Social) < 8000) --value;
                 if (Human_IsMarried(human)) value += 2u;
                 if (!Human_IsAttachedToHomeHouse(human)) --value;
             }

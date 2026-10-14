@@ -165,10 +165,10 @@ namespace NC2Logic
         for (std::int32_t index = Iterator_Increment(previous); index <= CHouseArray::sTheObjectPtr->mLastScanIndex; index = Iterator_Increment(index))
         {
             const void* house = Iterator_Entry(CHouseArray::mStaticVars, index, CHouseArray::ElementSize);
-            if (Iterator_Read<std::uint8_t>(house, 0) == 0) continue;
-            if ((flags & 1u) != 0 && Iterator_Read<std::uint32_t>(house, 0x0C) != player) continue;
+            if (Iterator_Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) continue;
+            if ((flags & 1u) != 0 && Iterator_Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != player) continue;
             if ((flags & 2u) != 0 && static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Iterator_Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Iterator_Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY), center[0], center[1])) > radius) continue;
-            if ((flags & 4u) != 0 && Iterator_Read<std::uint32_t>(house, 0x10) != houseType) continue;
+            if ((flags & 4u) != 0 && Iterator_Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) != houseType) continue;
             return index;
         }
         return -1;

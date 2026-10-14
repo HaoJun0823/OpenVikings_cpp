@@ -268,7 +268,7 @@ namespace NC2Logic
         }
         auto* current = House(currentData);
         auto* next = House(nextData);
-        if (current == nullptr || next == nullptr || Read<std::uint8_t>(current, 0x7D0) != 0 || Read<std::uint8_t>(next, 0x7D0) != 0 || Read<std::uint32_t>(current, 0x2C) != 3 || Read<std::uint32_t>(next, 0x2C) != 3)
+        if (current == nullptr || next == nullptr || Read<std::uint8_t>(current, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint8_t>(next, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(current, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint32_t>(next, NC2Layout::HouseOffset::ConstructionState) != 3)
         {
             Fail(human, 2);
             MerchantData_NextHouse(merchant);
@@ -412,7 +412,7 @@ namespace NC2Logic
             auto recordIncoming = [human, current, merchant]()
             {
                 Write(merchant, NC2Layout::MerchantOffset::GoodsReceived, Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived) + 1u);
-                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned;
+                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, NC2Layout::HouseOffset::PlayerId) * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned;
                 Write(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
             };
             if (circulation == 4)

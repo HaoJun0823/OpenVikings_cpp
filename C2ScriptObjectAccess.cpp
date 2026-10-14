@@ -42,7 +42,7 @@ namespace NC2Logic
     // Original function: FUN_004230d9.
     void* MarkerArray_GetExistingObjectPtr() { return gMarkerArray; }
     // Original function: FUN_004230df.
-    std::uint32_t __fastcall Human_GetExplorationRange(const void* human, void*) { return Read<std::uint32_t>(human, 0xB7C); }
+    std::uint32_t __fastcall Human_GetExplorationRange(const void* human, void*) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius); }
     // Original function: FUN_004230e6; folded across different array object types.
     std::uint32_t __fastcall ArrayObject_GetId(const void* object, void*) { return Read<std::uint32_t>(object, 4); }
     // Original function: FUN_004230ea; folded player-ID and marker-type access, no unique original name established.

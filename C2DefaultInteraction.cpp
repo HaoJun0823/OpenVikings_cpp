@@ -32,7 +32,7 @@ namespace NC2Logic
         std::byte* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         const std::byte* Vehicle(std::uint32_t id) { return CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize; }
         const std::byte* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * NC2Layout::RecordSize::MapMoveable; }
-        std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId); }
+        std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId); }
         void Prepare(void* command, std::uint8_t opcode, const void* actor, std::uint32_t first, std::uint32_t second = 0)
         {
             std::memset(command, 0, 20); Write(command, 0, opcode); Write(command, 4, Read<std::uint32_t>(actor, 4)); Write(command, 8, Read<std::uint32_t>(actor, 8)); Write(command, 0xC, first); Write(command, 0x10, second);
@@ -90,7 +90,7 @@ namespace NC2Logic
         const auto continent = Continent(Human_GetMapPositionRef(human));
         SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, false, false);
         const auto* point = static_cast<const std::byte*>(target) + NC2Layout::DisplayObjectReferenceOffset::MapPosition;
-        const auto id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
+        const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const auto sendTo = [&]() { return Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, command, point, false, modifier); };
         switch (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type))
         {
@@ -98,7 +98,7 @@ namespace NC2Logic
         {
             const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
             const auto* other = GetHumanPtr(targetId);
-            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, 8)); return 41; }
+            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::HumanOffset::PlayerId)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId)); return 41; }
             if (Read<std::uint8_t>(Moveable(other), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
             // Windows queries the active target's continent and still returns no command.
             Continent(Human_GetMapPositionRef(other)); return 0;
@@ -107,10 +107,10 @@ namespace NC2Logic
         {
             const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::AnimalId);
             const auto* animal = GetAnimalPtr(targetId);
-            const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * NC2Layout::RecordSize::MapMoveable;
+            const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
             if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
-            if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u].warrantable != 0) return sendTo();
-            if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false)) { Prepare(command, 45, human, targetId, Read<std::uint32_t>(animal, 8)); return 43; }
+            if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) - 8u].warrantable != 0) return sendTo();
+            if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false)) { Prepare(command, 45, human, targetId, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::UniqueId)); return 43; }
             return 0;
         }
         case SwitchIds::MapObjectUnderCursor::Vehicle:
@@ -157,9 +157,9 @@ namespace NC2Logic
             if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId)) == 3) { Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45; }
             if (Continent(point) != continent) return 0;
             const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)); const auto type = Read<std::int32_t>(landscape, 0);
-            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, 0x1C)].landscapeToHarvest) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)].landscapeToHarvest) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             for (std::uint32_t good = 0; good < 66; ++good)
-                if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, 0x1C) && Human_DoesEducationAllowGoodProduction(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
+                if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) && Human_DoesEducationAllowGoodProduction(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
                 {
                     Prepare(command, 22, human, good);
                     if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1) Prepare(secondary, 17, human, MapMigPoint_GetLong(point));
@@ -180,10 +180,10 @@ namespace NC2Logic
             {
                 Prepare(command, 18, human, MapMigPoint_GetLong(point));
                 auto destination = MapMigPoint_GetLong(point); MapMigPoint_MoveCursorUnwrapped(destination, 2);
-                if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
+                if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
                 {
                     MapMigPoint_MoveCursorUnwrapped(destination, 0);
-                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) destination = MapMigPoint_GetLong(point);
+                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) destination = MapMigPoint_GetLong(point);
                 }
                 Prepare(secondary, 4, human, destination); return 30;
             }
@@ -205,9 +205,9 @@ namespace NC2Logic
             if (Continent(point) != continent) return 0;
             if (modifier)
             {
-                if (available.IsCommandAllowed(28) && Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && Continent(point) == Continent(Moveable(human) + 0x12) && (player >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+                if (available.IsCommandAllowed(28) && Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && Continent(point) == Continent(Moveable(human) + 0x12) && (player >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             }
-            else if (available.IsCommandAllowed(32) && player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) { Prepare(command, 20, human, MapMigPoint_GetLong(point)); return 32; }
+            else if (available.IsCommandAllowed(32) && player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) { Prepare(command, 20, human, MapMigPoint_GetLong(point)); return 32; }
             return sendTo();
         }
         default: return 0;
@@ -219,7 +219,7 @@ namespace NC2Logic
     {
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0) return false;
         SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, true, true);
-        const auto id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
+        const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const auto commitTarget = [&](std::uint32_t wantedAction, std::uint8_t opcode, std::uint32_t targetId, const void* other)
         {
             if (index != 0) return *action == wantedAction && Read<std::uint8_t>(command, 0) == opcode && Read<std::uint32_t>(command, 0xC) == targetId;
@@ -231,7 +231,7 @@ namespace NC2Logic
         {
             const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
             const auto* other = GetHumanPtr(targetId);
-            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) return commitTarget(41, 43, targetId, other);
+            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::HumanOffset::PlayerId)) == 3) return commitTarget(41, 43, targetId, other);
             return false;
         }
         case SwitchIds::MapObjectUnderCursor::Animal:
@@ -360,7 +360,7 @@ namespace NC2Logic
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
-        if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return 0;
+        if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return 0;
         if (modifier && commands->IsCommandAllowed(8)) { Prepare(command, 108, vehicle, MapMigPoint_GetLong(point)); return 8; }
         if (Continent(point) != Continent(moveable + NC2Layout::MapMoveableOffset::MapPosition)) return 0;
         Prepare(command, 101, vehicle, MapMigPoint_GetLong(point)); return 2;
