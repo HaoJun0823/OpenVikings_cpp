@@ -1,5 +1,26 @@
 # Open Tasks
 
+## Graphics lifetimes, mission GUI and central AI continuation — 2026-10-14
+
+Four additional naming/layout blocks are committed: [Bob-manager cache](BOB_CACHE_RECORDS_REVIEW.md) (`91612af`), [ambient sound sectors and weighted waves](AMBIENT_STORAGE_RECORDS_REVIEW.md) (`44fc596`), [mission information window and hyperlink adapter](MISSION_WINDOW_RECORDS_REVIEW.md) (`bb116e1`), and [central AI-manager ownership](AI_MANAGER_ROOT_RECORDS_REVIEW.md) (`10eefac`). This brings the ongoing source review to eighteen completed blocks; the broad request to review all remaining sites is still open.
+
+| Block | Value/type comparisons | Layout relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| Bob-manager cache | 6 | 6 | 149 | 15 |
+| Ambient storage / lifetime | 55 | 35 | 1543 | 137 |
+| Mission window / hyperlink adapter | 80 | 33 | 1837 | 119 |
+| AI-manager root / scheduling | 14 | 7 | 637 | 67 |
+
+The latest scan contains **595 registered files (307 CPP / 288 headers), 153,374 lines, 3,645 raw numeric access operands, 74 heuristic unknown-member mentions and 1,087 long compound lines**. These four blocks removed **192 further raw candidates**; cumulative progress from the 5,427-candidate checkpoint is **1,782 / 5,427 (32.84%)**. Numeric indices and deliberately unclassified fields contribute to the remaining count. The scanner is a refactoring heuristic, not an exhaustive field inventory, missing-function count or runtime-completion percentage. A complete per-function Windows behavioral review ledger is still absent.
+
+The complete cache payload/manager, ambient manager/sector/wave storage, mission-window suffix, hyperlink element and two AI-handler pointer arrays have physical models with explicit unresolved bytes. Named cache fields distinguish owning payload pointers from borrowed fish/bubble pointers. Ambient pattern loops retain the first-wave view and landscape selection retains weighted waves. Mission previews, independent goal strings, callback data, signed camera averaging and fifty-entry history keep their original lifetimes and data widths. The AI manager retains its paired-handler ownership gate, save versions and sixty-/three-tick schedule; task/parser payloads and complete handler internals remain separate open work.
+
+Windows assembly and `Game.exe` establish the documented layouts/uses; Mac declarations supply names only. Frozen comparisons verify unchanged C++ operations, literal values and literal types against each block's baseline. This evidence does not establish complete runtime equivalence for the whole project.
+
+Win32 `/Zs` passed for **all 307 production units and 33 private compiler assertion units**, without errors or warnings. No build, test project or game execution was performed. Production registration remains 307/288; no production files were added. Assistant scripts, assertion units, logs and handoff remain under ignored `.codex-work/`. Independent pending changes remain outside these commits.
+
+Next complete owning block: trader configuration GUI (**56** raw candidates). Other large blocks are title screen (55), options and military target search (54 each), single-player AI (53), selection GUI (52), mission-start and mouse cursor (50 each), game-control startup and human attack tasks (49 each). Do not guess semantic identities to reduce the count.
+
 ## Goods, animal/diplomacy and speech continuation — 2026-10-14
 
 Three further blocks after `e0ef520` are committed: [global/local AI goods planning](AI_GOODS_PLANNING_RECORDS_REVIEW.md) (`4c25fce`), [animal catcher and diplomacy](AI_ANIMAL_DIPLOMACY_RECORDS_REVIEW.md) (`f47c7ab`) and [human speech/static wave storage](HUMAN_SOUND_STORAGE_RECORDS_REVIEW.md) (`402e98c`). The current continuation has completed **fourteen blocks**, while the request to review all remaining roughly five thousand sites is still open.
