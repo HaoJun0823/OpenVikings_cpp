@@ -1,3 +1,5 @@
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataSoundFX.h"
@@ -130,13 +132,13 @@ namespace NC2E2
 
         if (groupCount != 0)
         {
-            const std::uint32_t allocationBytes = groupCount * 0x43Cu;
+            const std::uint32_t allocationBytes = groupCount * NC2Layout::RecordSize::StaticSoundFxUnsigned;
             staticSounds = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
             std::memset(staticSounds, 0, allocationBytes);
 
             for (char* group = reader.GetFirstGroup("SoundFXStatic"); group != nullptr; group = reader.GetNextGroup("SoundFXStatic"))
             {
-                std::byte* record = addressAt(staticSounds, staticSoundCount * 0x43Cu);
+                std::byte* record = addressAt(staticSounds, staticSoundCount * NC2Layout::RecordSize::StaticSoundFxUnsigned);
                 ++staticSoundCount;
 
                 while (reader.GetNextCommandLineInGroup() != nullptr)
@@ -172,11 +174,11 @@ namespace NC2E2
                                     break;
 
                                 const std::uint32_t value = static_cast<std::uint32_t>(reader.GetInt());
-                                const std::uint32_t soundCount = readWord(record + 0x28);
+                                const std::uint32_t soundCount = readWord(record + NC2Layout::StaticSoundFxOffset::WaveCount);
 
-                                writeWord(addressAt(record, 0x2Cu + soundCount * 8u), identifier);
-                                writeWord(addressAt(record, 0x30u + soundCount * 8u), value);
-                                writeWord(record + 0x28, soundCount + 1u);
+                                writeWord(addressAt(record, NC2Layout::StaticSoundFxOffset::WavesUnsigned + soundCount * NC2Layout::RecordSize::StaticSoundWaveUnsigned), identifier);
+                                writeWord(addressAt(record, NC2Layout::StaticSoundFxOffset::FirstWaveVolumeUnsigned + soundCount * NC2Layout::RecordSize::StaticSoundWaveUnsigned), value);
+                                writeWord(record + NC2Layout::StaticSoundFxOffset::WaveCount, soundCount + 1u);
                                 break;
                             }
                     }
@@ -351,7 +353,7 @@ namespace NC2E2
             if (NXBasics::Runtime_CompareStringsIgnoreCase(recordName, name) == 0)
                 return index;
 
-            offset += 0x43Cu;
+            offset += NC2Layout::RecordSize::StaticSoundFxUnsigned;
         }
 
         return 0;

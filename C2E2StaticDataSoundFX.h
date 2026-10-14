@@ -5,6 +5,10 @@
 
 namespace NC2E2
 {
+    // Physical Windows wave slots inferred from the fixed allocation and all observed indexing.
+    // The original parser's wave count remains unchecked; this model introduces no capacity guard.
+    struct SStaticSoundWaveStorage { std::uint32_t waveId, volume; };
+    struct SStaticSoundFxStorage { char name[40]; std::uint32_t waveCount; SStaticSoundWaveStorage waves[130]; };
     struct SJingleSoundData
     {
         std::uint32_t event;

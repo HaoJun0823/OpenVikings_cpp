@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -103,8 +104,10 @@ namespace NC2E2
             }
             return true;
         }
-        case SwitchIds::CallbackType::HumanJobChanged: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3); return true;
-        case SwitchIds::CallbackType::HumanArmorChanged: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2); return true;
+        case SwitchIds::CallbackType::HumanJobChanged: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3);
+            return true;
+        case SwitchIds::CallbackType::HumanArmorChanged: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2);
+            return true;
         case SwitchIds::CallbackType::PlayPlayerJingle:
         {
             const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
@@ -140,9 +143,12 @@ namespace NC2E2
             E2ParticelManager_CreateMunitionParticel(gE2ParticelManager, data, Read<std::uint32_t>(data, 8), static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 0xC, static_cast<const std::byte*>(data) + 0x14, Read<std::uint32_t>(data, 0x1C), Read<std::uint32_t>(data, 0x20));
             return true;
         }
-        case SwitchIds::CallbackType::CreateFallingSmokeParticle: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3); return true;
-        case SwitchIds::CallbackType::StartParticleEffect: E2ParticelManager_StartParticelEffect(gE2ParticelManager, parameter1, &parameter2, parameter3); return true;
-        case SwitchIds::CallbackType::StartDirectionalParticleEffect: E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, parameter1, &parameter2, &parameter3, 0); return true;
+        case SwitchIds::CallbackType::CreateFallingSmokeParticle: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3);
+            return true;
+        case SwitchIds::CallbackType::StartParticleEffect: E2ParticelManager_StartParticelEffect(gE2ParticelManager, parameter1, &parameter2, parameter3);
+            return true;
+        case SwitchIds::CallbackType::StartDirectionalParticleEffect: E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, parameter1, &parameter2, &parameter3, 0);
+            return true;
         case SwitchIds::CallbackType::StartDirectionalParticleEffectFromRecord:
         {
             const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
@@ -158,21 +164,21 @@ namespace NC2E2
         const auto left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY), width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
         if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
         const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return true;
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return true;
         const auto pan = (x - width / 2 - left) * 128 / width, vertical = (y - height / 2 - top) * 128 / height;
         const auto distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
         if (distance > 64) return true;
         auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
         const auto soundId = sounds->staticSoundIdsByType[soundType];
         if (soundId == NXBasics::IntegerRange::UInt32Maximum) return true;
-        const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
-        const auto count = Read<std::uint32_t>(sound, 0x28);
+        const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * NC2Layout::RecordSize::StaticSoundFxUnsigned;
+        const auto count = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount);
         if (count == 0) return true;
         const auto variant = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % count;
-        const auto wave = Read<std::uint32_t>(sound, 0x2Cu + variant * 8u);
+        const auto wave = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WavesUnsigned + variant * NC2Layout::RecordSize::StaticSoundWaveUnsigned);
         auto* manager = NDSManager::CManager::sTheObjectPtr;
         if (skipRunning != 0 && manager->PreloadWave_IsRunning(wave)) return true;
-        manager->PreloadWave_Play(wave, ((64u - static_cast<std::uint32_t>(distance)) * Read<std::uint32_t>(sound, 0x30u + variant * 8u)) >> 6, 1, static_cast<std::uint32_t>(pan) + 64u, false, 0);
+        manager->PreloadWave_Play(wave, ((64u - static_cast<std::uint32_t>(distance)) * Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::FirstWaveVolumeUnsigned + variant * NC2Layout::RecordSize::StaticSoundWaveUnsigned)) >> 6, 1, static_cast<std::uint32_t>(pan) + 64u, false, 0);
         return true;
     }
 
@@ -187,24 +193,24 @@ namespace NC2E2
     void E2HumanSoundManager_PlayHumanScreamSound(const void* manager, const void* human)
     {
         const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
-        const auto tribe = Read<std::uint32_t>(human, 0x14);
+        const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
         const auto category = HumanSound_GetSexAgeIndex(human);
-        const auto soundId = Read<std::uint32_t>(manager, 8u + (tribe * 3u + category) * 0x8Cu);
+        const auto soundId = Read<std::uint32_t>(manager, NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned + (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + category) * NC2Layout::RecordSize::HumanSoundRecordUnsigned);
         Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(human), soundId, display, true, true);
     }
 
     // Original function: FUN_0048571d; eight tribes, three sex/age counters each.
     void E2HumanSoundManager_ClearSeenHumanCounter(void* manager)
     {
-        for (std::uint32_t tribe = 0; tribe < 8; ++tribe)
-            for (std::uint32_t category = 0; category < 3; ++category) NC2Lifetime::Write<std::uint32_t>(manager, 4u + (tribe * 3u + category) * 0x8Cu, 0);
+        for (std::uint32_t tribe = 0; tribe < NC2Runtime::HumanSoundLimits::Tribes; ++tribe)
+            for (std::uint32_t category = 0; category < NC2Runtime::HumanSoundLimits::SexAgeCategories; ++category) NC2Lifetime::Write<std::uint32_t>(manager, NC2Layout::HumanSoundManagerViewOffset::FirstSeenCountUnsigned + (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + category) * NC2Layout::RecordSize::HumanSoundRecordUnsigned, 0);
     }
 
     // Original function: FUN_00485735.
     void E2HumanSoundManager_IncreaseSeenCounter(void* manager, const void* human)
     {
-        const auto tribe = Read<std::uint32_t>(human, 0x14);
-        const auto offset = 4u + (tribe * 3u + HumanSound_GetSexAgeIndex(human)) * 0x8Cu;
+        const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
+        const auto offset = NC2Layout::HumanSoundManagerViewOffset::FirstSeenCountUnsigned + (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + HumanSound_GetSexAgeIndex(human)) * NC2Layout::RecordSize::HumanSoundRecordUnsigned;
         NC2Lifetime::Write(manager, offset, Read<std::uint32_t>(manager, offset) + 1u);
     }
 
@@ -213,36 +219,44 @@ namespace NC2E2
     {
         if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0) return;
         const auto tick = NC2Logic::gGameTime.tick;
-        if (Read<std::uint32_t>(manager, 0) == tick) return;
-        NC2Lifetime::Write(manager, 0, tick);
+        if (Read<std::uint32_t>(manager, NC2Layout::HumanSoundManagerOffset::LastGenericSoundTick) == tick) return;
+        NC2Lifetime::Write(manager, NC2Layout::HumanSoundManagerOffset::LastGenericSoundTick, tick);
         std::int16_t rectangle[4]{};
         DisplayDescription_GetMapRectangle(display, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight), rectangle);
         const std::uint32_t center = static_cast<std::uint16_t>(rectangle[0] + (rectangle[2] >> 1)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(rectangle[1] + (rectangle[3] >> 1))) << 16);
         const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-        const auto chance = static_cast<std::uint32_t>(NXBasics::Runtime_Rand() % 2000);
-        for (std::uint32_t tribe = 0; tribe < 8; ++tribe)
+        const auto chance = static_cast<std::uint32_t>(NXBasics::Runtime_Rand() % NC2Runtime::HumanSoundLimits::GenericChanceRange);
+        for (std::uint32_t tribe = 0; tribe < NC2Runtime::HumanSoundLimits::Tribes; ++tribe)
         {
-            for (std::uint32_t category = 0; category < 3; ++category)
+            for (std::uint32_t category = 0; category < NC2Runtime::HumanSoundLimits::SexAgeCategories; ++category)
             {
-                const auto offset = (tribe * 3u + category) * 0x8Cu;
-                if (chance >= Read<std::uint32_t>(manager, offset + 4u) || Read<std::uint32_t>(manager, offset + 0x0Cu) == NXBasics::IntegerRange::UInt32Maximum) continue;
+                const auto offset = (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + category) * NC2Layout::RecordSize::HumanSoundRecordUnsigned;
+                if (chance >= Read<std::uint32_t>(manager, offset + NC2Layout::HumanSoundManagerViewOffset::FirstSeenCountUnsigned) || Read<std::uint32_t>(manager, offset + NC2Layout::HumanSoundManagerViewOffset::FirstGenericSoundIdUnsigned) == NXBasics::IntegerRange::UInt32Maximum) continue;
                 NC2Logic::CHumanIterator iterator;
                 const void* selected = nullptr;
                 for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], false); id != -1; id = iterator.GetNextSectorHumanId())
                 {
                     const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == category) { selected = human; break; }
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == category)
+                    {
+                        selected = human;
+                        break;
+                    }
                 }
                 if (selected == nullptr && category == 2)
                 {
                     for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], true); id != -1; id = iterator.GetNextSectorHumanId())
                     {
                         const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-                        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == 2) { selected = human; break; }
+                        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == 2)
+                        {
+                            selected = human;
+                            break;
+                        }
                     }
                 }
                 if (selected == nullptr) continue;
-                Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(selected), Read<std::uint32_t>(manager, offset + 0x0Cu), display, true, true);
+                Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(selected), Read<std::uint32_t>(manager, offset + NC2Layout::HumanSoundManagerViewOffset::FirstGenericSoundIdUnsigned), display, true, true);
                 return;
             }
         }
@@ -251,31 +265,31 @@ namespace NC2E2
     // Original function: FUN_00485a73. The Mac reference inlines this response-list access.
     static std::uint32_t HumanSound_GetRespondingSoundId(const void* record, std::uint32_t responseType, std::uint32_t selector)
     {
-        const std::uint32_t offset = responseType * 0x40u;
-        const std::uint32_t count = Read<std::uint32_t>(record, offset + 8u);
-        return count == 0 ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(record, offset + 0x0Cu + (selector % count) * 4u);
+        const std::uint32_t offset = responseType * NC2Layout::RecordSize::HumanSoundResponseGroupUnsigned;
+        const std::uint32_t count = Read<std::uint32_t>(record, offset + NC2Layout::HumanSoundScreamViewOffset::ResponseCountUnsigned);
+        return count == 0 ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(record, offset + NC2Layout::HumanSoundScreamViewOffset::ResponseSoundIdsUnsigned + (selector % count) * NC2Layout::RecordSize::StaticSoundIdUnsigned);
     }
 
     // Original function: FUN_00485931; CE2HumanSoundManager::PlayRespondingSound.
     void E2HumanSoundManager_PlayRespondingSound(const void* manager, std::uint32_t responseType, const void* human, const void* display)
     {
         if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0) return;
-        std::uint32_t selector = Read<std::uint32_t>(human, 4);
+        std::uint32_t selector = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId);
         if (NC2Logic::Human_IsJobHero(human)) selector = 0;
-        const std::uint32_t tribe = Read<std::uint32_t>(human, 0x14);
-        const std::uint32_t job = Read<std::uint32_t>(human, 0x18);
+        const std::uint32_t tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
+        const std::uint32_t job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
         if ((tribe == 2u && job == 0x2Au) || (tribe == 3u && (job == 0x2Au || job == 0x20u))) return;
 
-        const auto* record = static_cast<const std::byte*>(manager) + 8u + (tribe * 3u + HumanSound_GetSexAgeIndex(human)) * 0x8Cu;
+        const auto* record = static_cast<const std::byte*>(manager) + NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned + (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + HumanSound_GetSexAgeIndex(human)) * NC2Layout::RecordSize::HumanSoundRecordUnsigned;
         const std::uint32_t soundId = HumanSound_GetRespondingSoundId(record, responseType, selector);
         if (soundId == NXBasics::IntegerRange::UInt32Maximum) return;
-        const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * 0x43Cu;
-        if (Read<std::uint32_t>(sound, 0x28) == 0) return;
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(sound, 0x28); ++index)
+        const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * NC2Layout::RecordSize::StaticSoundFxUnsigned;
+        if (Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount) == 0) return;
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount); ++index)
         {
-            if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(Read<std::uint32_t>(sound, 0x2Cu + index * 8u))) return;
+            if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WavesUnsigned + index * NC2Layout::RecordSize::StaticSoundWaveUnsigned))) return;
         }
-        const auto* currentRecord = static_cast<const std::byte*>(manager) + 8u + (Read<std::uint32_t>(human, 0x14) * 3u + HumanSound_GetSexAgeIndex(human)) * 0x8Cu;
+        const auto* currentRecord = static_cast<const std::byte*>(manager) + NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned + (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + HumanSound_GetSexAgeIndex(human)) * NC2Layout::RecordSize::HumanSoundRecordUnsigned;
         const std::uint32_t currentSoundId = HumanSound_GetRespondingSoundId(currentRecord, responseType, selector);
         Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(human), currentSoundId, display, true, false);
     }
@@ -306,7 +320,7 @@ namespace NC2E2
             if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0)
             {
                 const std::uint32_t player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-                if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return;
+                if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return;
             }
         }
         // The Windows routine requires a nonzero display width and height.
@@ -314,13 +328,13 @@ namespace NC2E2
         const std::int32_t vertical = (y - top - height / 2) * 128 / height;
         const std::int32_t distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
         if (distance > 64 && attenuate) return;
-        const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * 0x43Cu;
-        const std::uint32_t count = Read<std::uint32_t>(sound, 0x28);
+        const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * NC2Layout::RecordSize::StaticSoundFxUnsigned;
+        const std::uint32_t count = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount);
         if (count == 0) return;
         const std::uint32_t variant = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % count;
-        const std::uint32_t waveId = Read<std::uint32_t>(sound, 0x2Cu + variant * 8u);
+        const std::uint32_t waveId = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WavesUnsigned + variant * NC2Layout::RecordSize::StaticSoundWaveUnsigned);
         if (skipRunning && NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(waveId)) return;
-        std::uint32_t volume = Read<std::uint32_t>(sound, 0x30u + variant * 8u);
+        std::uint32_t volume = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::FirstWaveVolumeUnsigned + variant * NC2Layout::RecordSize::StaticSoundWaveUnsigned);
         if (attenuate) volume = ((64u - static_cast<std::uint32_t>(distance)) * volume) >> 6;
         else
         {

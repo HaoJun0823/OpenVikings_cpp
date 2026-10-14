@@ -80,13 +80,13 @@ namespace NC2E2
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
                 const auto token = NXBasics::XB_Token_FindTokenInArray(gHumanSoundTokens, reader.GetCurrentName());
-                if (token == NC2DataIds::EngineLifetimeToken::Scream || token == NC2DataIds::ParticleGeneratorToken::Generate)
+                if (token == NC2DataIds::EngineLifetimeToken::Scream || token == NC2DataIds::EngineLifetimeToken::Generic)
                 {
                     const auto sexAge = static_cast<std::uint32_t>(reader.GetInt());
                     auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
                     const char* name = reader.GetString();
                     const auto id = soundManager->GetStaticSoundFxIdByNamePtr(name);
-                    Write<std::uint32_t>(manager, (tribe * 3u + sexAge) * 0x8Cu + (token == NC2DataIds::EngineLifetimeToken::Scream ? 8u : 12u), id);
+                    Write<std::uint32_t>(manager, (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + sexAge) * NC2Layout::RecordSize::HumanSoundRecordUnsigned + (token == NC2DataIds::EngineLifetimeToken::Scream ? NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned : NC2Layout::HumanSoundManagerViewOffset::FirstGenericSoundIdUnsigned), id);
                 }
                 else if (token == NC2DataIds::EngineLifetimeToken::Respond)
                 {
@@ -95,11 +95,11 @@ namespace NC2E2
                     auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
                     const char* name = reader.GetString();
                     const auto id = soundManager->GetStaticSoundFxIdByNamePtr(name);
-                    const auto offset = (tribe * 3u + sexAge) * 0x8Cu + response * 0x40u + 0x10u;
+                    const auto offset = (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + sexAge) * NC2Layout::RecordSize::HumanSoundRecordUnsigned + response * NC2Layout::RecordSize::HumanSoundResponseGroupUnsigned + NC2Layout::HumanSoundManagerViewOffset::FirstResponsesUnsigned;
                     const auto count = Read<std::uint32_t>(manager, offset);
-                    if (count < 15u)
+                    if (count < NC2Runtime::HumanSoundLimits::ResponseSoundsUnsigned)
                     {
-                        Write<std::uint32_t>(manager, offset + count * 4u + 4u, id);
+                        Write<std::uint32_t>(manager, offset + count * NC2Layout::RecordSize::StaticSoundIdUnsigned + NC2Layout::HumanSoundResponseGroupOffset::SoundIdsUnsigned, id);
                         Write<std::uint32_t>(manager, offset, count + 1u);
                     }
                 }
@@ -110,11 +110,11 @@ namespace NC2E2
     void* __fastcall E2HumanSoundManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2HumanSoundManager = manager;
-        std::memset(manager, 0, 3364);
-        for (std::uint32_t record = 0; record < 24; ++record)
+        std::memset(manager, 0, NC2Layout::ObjectSize::E2HumanSoundManager);
+        for (std::uint32_t record = 0; record < NC2Runtime::HumanSoundLimits::Records; ++record)
         {
-            Write<std::uint32_t>(manager, 8u + record * 0x8Cu, NXBasics::IntegerRange::UInt32Maximum);
-            Write<std::uint32_t>(manager, 12u + record * 0x8Cu, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(manager, NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned + record * NC2Layout::RecordSize::HumanSoundRecordUnsigned, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(manager, NC2Layout::HumanSoundManagerViewOffset::FirstGenericSoundIdUnsigned + record * NC2Layout::RecordSize::HumanSoundRecordUnsigned, NXBasics::IntegerRange::UInt32Maximum);
         }
         if (NDSManager::CManager::sTheObjectPtr != nullptr && Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) != 0)
         {
@@ -988,7 +988,7 @@ namespace NC2E2
                 void* map = NXBasics::Runtime_Allocate(1);
                 if (map != nullptr) EngineMap_Construct(map, nullptr);
                 C2DEngineDisplayManager::sTheObjectPtr->InformThatMapXtructed();
-                Write<std::uint32_t>(gE2HumanSoundManager, 0, 0);
+                Write<std::uint32_t>(gE2HumanSoundManager, NC2Layout::HumanSoundManagerOffset::LastGenericSoundTick, 0);
                 Write<std::uint32_t>(CE2AnimalSoundManager::sTheObjectPtr, 0, 0);
             }
             else

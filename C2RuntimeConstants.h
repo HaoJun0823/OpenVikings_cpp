@@ -531,4 +531,19 @@ namespace NC2Runtime
         inline constexpr auto Types = 2;
     }
 
+    namespace HumanSoundLimits
+    {
+        inline constexpr auto Records = 24;
+
+        inline constexpr auto ResponseSoundsUnsigned = 15u;
+
+        inline constexpr auto GenericChanceRange = 2000;
+
+        inline constexpr auto SexAgeCategories = 3;
+
+        inline constexpr auto Tribes = 8;
+
+        inline constexpr auto SexAgeCategoriesUnsigned = 3u;
+    }
+
 }

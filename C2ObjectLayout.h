@@ -1610,6 +1610,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto StaticSoundFxUnsigned = 0x43Cu;
+
+        inline constexpr auto StaticSoundWaveUnsigned = 8u;
+
+        inline constexpr auto StaticSoundIdUnsigned = 4u;
+
+        inline constexpr auto HumanSoundResponseGroupUnsigned = 0x40u;
+
+        inline constexpr auto HumanSoundRecordUnsigned = 0x8Cu;
+
         inline constexpr auto AITargetReference = 12;
 
         inline constexpr auto AIDiplomacyCounter = 4;
@@ -4309,6 +4319,43 @@ namespace NC2Layout
         inline constexpr auto IntrusionCounts = 4;
 
         inline constexpr auto PlayerCursor = 0;
+    }
+
+    namespace HumanSoundManagerOffset
+    {
+        inline constexpr auto LastGenericSoundTick = 0;
+    }
+
+    namespace HumanSoundManagerViewOffset
+    {
+        inline constexpr auto FirstResponsesUnsigned = 0x10u;
+
+        inline constexpr auto FirstGenericSoundIdUnsigned = 12u;
+
+        inline constexpr auto FirstSeenCountUnsigned = 4u;
+
+        inline constexpr auto FirstScreamSoundIdUnsigned = 8u;
+    }
+
+    namespace HumanSoundScreamViewOffset
+    {
+        inline constexpr auto ResponseSoundIdsUnsigned = 0x0Cu;
+
+        inline constexpr auto ResponseCountUnsigned = 8u;
+    }
+
+    namespace StaticSoundFxOffset
+    {
+        inline constexpr auto FirstWaveVolumeUnsigned = 0x30u;
+
+        inline constexpr auto WavesUnsigned = 0x2Cu;
+
+        inline constexpr auto WaveCount = 0x28;
+    }
+
+    namespace HumanSoundResponseGroupOffset
+    {
+        inline constexpr auto SoundIdsUnsigned = 4u;
     }
 
 }
