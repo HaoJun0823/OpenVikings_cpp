@@ -1425,6 +1425,10 @@ namespace NC2Layout
 
     namespace AIHighLevelOffset
     {
+        inline constexpr auto Diplomacy = 0xA9C4;
+
+        inline constexpr auto AnimalCatcherHumanRequestedFlag = 0x94F0;
+
         inline constexpr auto GuidePairSearchExhaustedFlag = 0xAA2C;
 
         inline constexpr auto GuideScoutRequestedFlag = 0xAA20;
@@ -1606,6 +1610,12 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AITargetReference = 12;
+
+        inline constexpr auto AIDiplomacyCounter = 4;
+
+        inline constexpr auto AIAnimalCount = 12;
+
         inline constexpr auto AIGoodUnsigned = 0x28u;
 
         inline constexpr auto AIGoodProducer = 20;
@@ -4264,6 +4274,41 @@ namespace NC2Layout
         inline constexpr auto HouseId = 8;
 
         inline constexpr auto HumanId = 0;
+    }
+
+    namespace AIAnimalCountsOffset
+    {
+        inline constexpr auto FirstRequestedFlag = 12;
+
+        inline constexpr auto FirstTribeType = 8;
+
+        inline constexpr auto FirstQuantity = 4;
+
+        inline constexpr auto Count = 0;
+    }
+
+    namespace AIAnimalCatcherOffset
+    {
+        inline constexpr auto TypeCount = 12;
+
+        inline constexpr auto Counts = 12;
+
+        inline constexpr auto HumanRevision = 4;
+
+        inline constexpr auto HumanId = 0;
+
+        inline constexpr auto HumanRequestedFlag = 8;
+
+        inline constexpr auto Target = 40;
+
+        inline constexpr auto MilitaryPointIndex = 0x34;
+    }
+
+    namespace AIDiplomacyOffset
+    {
+        inline constexpr auto IntrusionCounts = 4;
+
+        inline constexpr auto PlayerCursor = 0;
     }
 
 }

@@ -61,7 +61,7 @@ namespace NC2Logic
         if ((tick & 1) == 0) { AIVillagesData_DoOneLogicTick(villages, resources, goods, tick); AIResourceManager_ClearResourceUpdateFlags(resources); }
         if (tick % 5 == 0) AIRoadManager_DoOneLogicTick(roads, player, resources);
         AIAnimalCatcher_DoOneLogicTick(catcher, player, bytes + 0x34, military);
-        if (Read<std::uint8_t>(handler, 0x94F0) != 0)
+        if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::AnimalCatcherHumanRequestedFlag) != 0)
         {
             // Windows also uses the guide destination when assigning the animal catcher.
             const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(handler, bytes + NC2Layout::AIHighLevelOffset::GuideDestination);
@@ -70,7 +70,7 @@ namespace NC2Logic
         AIHighLevelHandler_l_Villages_EnhanceVillages(handler); AIHighLevelHandler_l_Villages_CheckForNeedments(handler);
         AIMilitaryManager_DoOneLogicGameTick(military, handler, tick);
         Write(handler, 0xA9C0, AIHighLevelHandler_l_Humans_CheckShoes(handler, Read<std::int32_t>(handler, 0xA9C0)));
-        AIDiplomacy_DoOneLogicTick(bytes + 0xA9C4, player, villages);
+        AIDiplomacy_DoOneLogicTick(bytes + NC2Layout::AIHighLevelOffset::Diplomacy, player, villages);
     }
     // Original function: FUN_00428d5a; stop at the first allocated human of this player.
     std::int32_t AIHighLevelHandler_l_Humans_CheckShoes(void* handler, std::int32_t previous)

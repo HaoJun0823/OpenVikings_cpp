@@ -95,7 +95,7 @@ namespace NC2Logic
         // Original function: FUN_00428a46.
         void* AIAnimalCatcher_Construct(void* manager)
         {
-            Write<std::uint32_t>(manager, 12, 0); NXBasics::Runtime_FillMemory(static_cast<std::byte*>(manager) + 40, 0, 12); return manager;
+            Write<std::uint32_t>(manager, NC2Layout::AIAnimalCatcherOffset::TypeCount, 0); NXBasics::Runtime_FillMemory(static_cast<std::byte*>(manager) + NC2Layout::AIAnimalCatcherOffset::Target, 0, NC2Layout::RecordSize::AITargetReference); return manager;
         }
         // Original function: FUN_00428a61.
         void* AIResourcePointArray_Construct(void* array) { ConstructPoints(array, 0, 20, 20); return array; }

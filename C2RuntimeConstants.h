@@ -524,4 +524,11 @@ namespace NC2Runtime
         inline constexpr auto GoodIndexScale = 2;
     }
 
+    namespace AIAnimalCatcherLimits
+    {
+        inline constexpr auto DesiredQuantity = 2;
+
+        inline constexpr auto Types = 2;
+    }
+
 }
