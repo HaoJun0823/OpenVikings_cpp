@@ -131,15 +131,15 @@ namespace NC2E2
         NXBasics::CListBase::Iterator iterator(*list);
         for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
         {
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(entry), fileName) == 0) return Read<void*>(entry, 0x50);
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(entry), fileName) == 0) return Read<void*>(entry, NC2Layout::StaticBobCacheEntryOffset::BobManager);
         }
         if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true)) return nullptr;
-        void* entry = NXBasics::Runtime_Allocate(84);
-        std::memset(entry, 0, 84);
-        std::strncpy(static_cast<char*>(entry), fileName, 0x4F);
-        Write<void*>(entry, 0x50, NXBasics::XB_Storable_LoadObject(fileName));
+        void* entry = NXBasics::Runtime_Allocate(NC2Layout::RecordSize::StaticBobCacheEntry);
+        std::memset(entry, 0, NC2Layout::RecordSize::StaticBobCacheEntry);
+        std::strncpy(static_cast<char*>(entry), fileName, NC2Runtime::StaticBobCacheLimits::FilenameCopyLength);
+        Write<void*>(entry, NC2Layout::StaticBobCacheEntryOffset::BobManager, NXBasics::XB_Storable_LoadObject(fileName));
         list->InsertAtEnd(entry);
-        return Read<void*>(entry, 0x50);
+        return Read<void*>(entry, NC2Layout::StaticBobCacheEntryOffset::BobManager);
     }
 
     // Original function: FUN_004905b9; Windows clears the entire inherited list header.
@@ -147,9 +147,9 @@ namespace NC2E2
     {
         ::new (manager) CRuntimeOwnedList<SStaticBobManagerListTag>(false);
         gE2StaticDataBobManagersManager = manager;
-        std::memset(manager, 0, 28);
-        Write<void*>(manager, 0x14, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\LS_fishes.bmd"));
-        Write<void*>(manager, 0x18, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\ls_gui_bubbles.bmd"));
+        std::memset(manager, 0, NC2Layout::ObjectSize::E2StaticDataBobManagersManager);
+        Write<void*>(manager, NC2Layout::StaticBobCacheManagerOffset::FishBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\LS_fishes.bmd"));
+        Write<void*>(manager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\ls_gui_bubbles.bmd"));
         return manager;
     }
 
@@ -770,7 +770,7 @@ namespace NC2E2
         while (void* entry = list->l_Base_GetStartElement())
         {
             list->l_Base_RemoveElement(entry);
-            DeleteStorable(Read<void*>(entry, 0x50));
+            DeleteStorable(Read<void*>(entry, NC2Layout::StaticBobCacheEntryOffset::BobManager));
             NXBasics::Runtime_Free(entry);
         }
         gE2StaticDataBobManagersManager = nullptr;

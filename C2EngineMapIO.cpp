@@ -200,7 +200,7 @@ namespace NC2E2
         auto* list = static_cast<NXBasics::CListBase*>(manager);
         NXBasics::CListBase::Iterator iterator(*list);
         for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
-            if (Read<void*>(entry, 0x50) == bobManager) return static_cast<const char*>(entry);
+            if (Read<void*>(entry, NC2Layout::StaticBobCacheEntryOffset::BobManager) == bobManager) return static_cast<const char*>(entry);
         return nullptr;
     }
 

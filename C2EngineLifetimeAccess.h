@@ -1,9 +1,14 @@
 #pragma once
 
 #include "C2CallbackManager.h"
+#include <cstddef>
 
 namespace NC2E2
 {
+    // Windows cache payloads own their loaded storable; the two manager fields borrow it.
+    struct SStaticBobCacheEntryStorage { char filename[80]; void* bobManager; };
+    struct SStaticBobCacheManagerStorage { std::byte inheritedList[20]; void* fishBobManager; void* guiBubblesBobManager; };
+
     // Windows weather data is raw storage; these records document its exact layout.
     struct SWeatherSector
     {

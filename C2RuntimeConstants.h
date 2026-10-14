@@ -546,4 +546,9 @@ namespace NC2Runtime
         inline constexpr auto SexAgeCategoriesUnsigned = 3u;
     }
 
+    namespace StaticBobCacheLimits
+    {
+        inline constexpr auto FilenameCopyLength = 0x4F;
+    }
+
 }

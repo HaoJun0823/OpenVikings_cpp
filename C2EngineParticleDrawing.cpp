@@ -302,7 +302,7 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 {
     using namespace NC2E2;
     using namespace NC2Lifetime;
-    const auto bobManager = Read<void*>(gE2StaticDataBobManagersManager, 0x14);
+    const auto bobManager = Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::FishBobManager);
     NC2Logic::CFishSwarmIterator iterator;
     const std::int16_t bounds[4] = {Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY) - 3), Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight) + 3)};
     const double time = NC2Logic::gGameTime.tick;

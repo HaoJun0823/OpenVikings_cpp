@@ -342,7 +342,7 @@ namespace NC2E2
             const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0;
             sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType), special ? 5u : 0u, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) != 0, special ? 4u : Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), palette, palette, bitmap, x, y, brightness, marking, player, false, centered, false, nullptr, -1, -1, display, false);
             if (player != -1 && vehicleType != 3 && vehicleType != 4)
-                NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints), vehicleType == 5 ? 3000u : 1000u), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+                NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), HealthBob(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints), vehicleType == 5 ? 3000u : 1000u), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
             return;
         }
         if (type == 2)
@@ -355,7 +355,7 @@ namespace NC2E2
             auto* palette = gStaticPalettes.palettes256[Read<std::uint32_t>(dynamic, NC2Layout::DynamicAnimalVehicleOffset::PaletteId)].palette;
             const auto player = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
             sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount), palette, palette, bitmap, x, y, brightness, marking, player, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) != 0, centered, false, nullptr, -1, -1, display, false);
-            if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+            if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), HealthBob(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
             if (!centered && display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49)
             {
                 const auto offset = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) * 4u - 0x1Cu;
@@ -392,12 +392,12 @@ namespace NC2E2
         auto iconY = AddOffset(y, -56);
         const bool tallSoldier = tribe == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32;
         if (tallSoldier) iconY = AddOffset(iconY, -16);
-        auto icon = [&](std::uint32_t bob) { NXBasics::BobManager_PrintBob_UsingShadedAlpha(Read<void*>(gE2StaticDataBobManagersManager, 0x18), bob, bitmap, x, iconY, gStaticPalettes.palettes256[gStaticPalettes.guiBubblesPaletteId].palette, brightness); };
+        auto icon = [&](std::uint32_t bob) { NXBasics::BobManager_PrintBob_UsingShadedAlpha(Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), bob, bitmap, x, iconY, gStaticPalettes.palettes256[gStaticPalettes.guiBubblesPaletteId].palette, brightness); };
         auto experience = [&](std::uint32_t value) { const auto level = (std::min)(value, 100u) / 25u; if (level > 0) { icon(10u - level); iconY = AddOffset(iconY, -16); } };
         if (NC2Logic::Human_IsJobSoldier(human) && !centered && !tallSoldier) experience(NC2Logic::Human_Tool_Gui_GetExperienceForEquippedWeapon(human));
         if (player == playerId && !centered && Read<std::uint8_t>(dynamic, NC2Layout::DynamicHumanOffset::SelectedFlag) != 0)
         {
-            NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(human, NC2Layout::HumanOffset::Hitpoints), NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), bitmap, x, iconY, EnginePalette_GetPlayerPalette(player));
+            NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), HealthBob(Read<std::uint32_t>(human, NC2Layout::HumanOffset::Hitpoints), NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), bitmap, x, iconY, EnginePalette_GetPlayerPalette(player));
             iconY = AddOffset(iconY, -20);
         }
         if (player == playerId && !centered)

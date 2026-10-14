@@ -1610,6 +1610,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto StaticBobCacheEntry = 84;
+
         inline constexpr auto StaticSoundFxUnsigned = 0x43Cu;
 
         inline constexpr auto StaticSoundWaveUnsigned = 8u;
@@ -4356,6 +4358,18 @@ namespace NC2Layout
     namespace HumanSoundResponseGroupOffset
     {
         inline constexpr auto SoundIdsUnsigned = 4u;
+    }
+
+    namespace StaticBobCacheEntryOffset
+    {
+        inline constexpr auto BobManager = 0x50;
+    }
+
+    namespace StaticBobCacheManagerOffset
+    {
+        inline constexpr auto GuiBubblesBobManager = 0x18;
+
+        inline constexpr auto FishBobManager = 0x14;
     }
 
 }
