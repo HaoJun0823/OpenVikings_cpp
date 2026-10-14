@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
@@ -213,13 +214,13 @@ namespace NC2Logic
                         auto* first = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                         auto* second = PlayerData(gameControl, static_cast<std::uint32_t>(other));
                         if (Read<std::uint8_t>(first, 0) == 0 || Read<std::uint8_t>(second, 0) == 0) continue;
-                        const std::uint32_t offset = command == NC2DataIds::GameControlToken::RelationNotChangeable ? 0x4958u : command == NC2DataIds::GameControlToken::RelationHide ? 0x496Cu : command == NC2DataIds::GameControlToken::RelationHideDetails ? 0x4980u : 0x4994u;
+                        const std::uint32_t offset = command == NC2DataIds::GameControlToken::RelationNotChangeable ? NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned : command == NC2DataIds::GameControlToken::RelationHide ? NC2Layout::GameControlPlayerOffset::HideDiplomacyChangesUnsigned : command == NC2DataIds::GameControlToken::RelationHideDetails ? NC2Layout::GameControlPlayerOffset::HideDiplomacyDetailsUnsigned : NC2Layout::GameControlPlayerOffset::SuppressPlayerSeenMessagesUnsigned;
                         Write<std::uint8_t>(first, offset + static_cast<std::uint32_t>(other), 1);
                         Write<std::uint8_t>(second, offset + static_cast<std::uint32_t>(player), 1);
                         if (command == NC2DataIds::GameControlToken::RelationHide)
                         {
-                            Write<std::uint8_t>(first, 0x4958u + static_cast<std::uint32_t>(other), 1);
-                            Write<std::uint8_t>(second, 0x4958u + static_cast<std::uint32_t>(player), 1);
+                            Write<std::uint8_t>(first, NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned + static_cast<std::uint32_t>(other), 1);
+                            Write<std::uint8_t>(second, NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned + static_cast<std::uint32_t>(player), 1);
                         }
                     }
                 }
@@ -396,7 +397,7 @@ namespace NC2Logic
                 const auto state = GameControl_Diplomacy_GetState(gGameControl, static_cast<std::int32_t>(player), static_cast<std::int32_t>(other));
                 if (state == 2 || (state != 2 && GameControl_Diplomacy_GetState(gGameControl, static_cast<std::int32_t>(player), static_cast<std::int32_t>(other)) == 1)) GameControl_Diplomacy_SetState(gGameControl, nullptr, player, other, 3);
             }
-            Write<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other + 0x4944u, 1);
+            Write<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other + NC2Layout::GameControlPlayerOffset::AttackedByPlayersUnsigned, 1);
         }
         return true;
     }

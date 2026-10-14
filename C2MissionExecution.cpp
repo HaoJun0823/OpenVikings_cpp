@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -52,7 +53,7 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Original function: FUN_00422fdb; the original index is unchecked.
-    std::uint32_t SResult::GetParameter(std::uint32_t index) const { return Read<std::uint32_t>(this, NC2Layout::MissionResultOffset::ParametersUnsigned + index * 4u); }
+    std::uint32_t SResult::GetParameter(std::uint32_t index) const { return Read<std::uint32_t>(this, NC2Layout::MissionResultOffset::ParametersUnsigned + index * NC2Layout::RecordSize::MissionResultParameterUnsigned); }
 
     namespace
     {
@@ -73,7 +74,7 @@ namespace NC2Logic
     // Original function: FUN_004230ee; only tick callbacks at multiples of 36 evaluate goals.
     bool __cdecl MissionManager_l_Mission_Callback(TCallbackTypes type, std::uint32_t /*userData*/, std::uint32_t tick, std::uint32_t /*param2*/, std::uint32_t /*param3*/)
     {
-        if (type == 1 && tick % 36u == 0) return MissionManager_CheckAllMissionGoals(gMissionManager);
+        if (type == SwitchIds::CallbackType::GameTick && tick % NC2Runtime::MissionTiming::EvaluationIntervalTicksUnsigned == 0) return MissionManager_CheckAllMissionGoals(gMissionManager);
         return true;
     }
 
@@ -112,10 +113,10 @@ namespace NC2Logic
         {
             auto* goal = reinterpret_cast<SMissionGoal*>(static_cast<std::byte*>(mission) + NC2Layout::MissionDataOffset::Goals + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MissionGoalUnsigned);
             bool success;
-            if (goal->type == 28 || goal->type == 45)
+            if (goal->type == SwitchIds::MissionGoal::TimeGone || goal->type == SwitchIds::MissionGoal::RandomTimeGone)
             {
                 auto seconds = goal->parameters[0];
-                if (goal->type == 45)
+                if (goal->type == SwitchIds::MissionGoal::RandomTimeGone)
                 {
                     if (goal->parameters[1] == 0)
                     {
@@ -124,8 +125,8 @@ namespace NC2Logic
                     }
                     seconds = goal->parameters[1];
                 }
-                success = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ActivationTick) + seconds * 12u <= gGameTime.tick;
-                if (success && goal->type == 45) goal->parameters[1] = 0;
+                success = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ActivationTick) + seconds * NC2Runtime::MissionTiming::TicksPerSecondUnsigned <= gGameTime.tick;
+                if (success && goal->type == SwitchIds::MissionGoal::RandomTimeGone) goal->parameters[1] = 0;
             }
             else success = MissionManager_l_CheckGoal(manager, *goal);
             Write<std::uint8_t>(goal, NC2Layout::MissionGoalOffset::FulfilledFlag, success);
@@ -183,7 +184,7 @@ namespace NC2Logic
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 const void* micro = GameMap_GetConstMapMicroPointPtr(House_GetMapPositionRef(house));
-                if (p[0] >= 16 || (Read<std::uint16_t>(micro, 8) & (1u << p[0])) != 0) return true;
+                if (p[0] >= 16 || (Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << p[0])) != 0) return true;
             }
             return false;
         case SwitchIds::MissionGoal::FindPosByHumans:
@@ -191,7 +192,7 @@ namespace NC2Logic
             {
                 const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                 const void* point = Human_GetMapPositionRef(human);
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapY), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
             }
             return false;
         case SwitchIds::MissionGoal::FindPosByVehicles:
@@ -199,7 +200,7 @@ namespace NC2Logic
             {
                 const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 const void* point = Vehicle_GetMapPositionRef(vehicle);
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapY), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
             }
             return false;
         case SwitchIds::MissionGoal::FindHousesByHumans:
@@ -209,7 +210,7 @@ namespace NC2Logic
                 for (auto houseId = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[1]); houseId != -1; houseId = MissionCheck_GetNextHouseIdWithMissionCheckId(p[1], houseId))
                 {
                     const void* target = House_GetMapPositionRef(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize);
-                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))) <= p[2]) return true;
+                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(target, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(target, NC2Layout::MapMigPointOffset::MapY))) <= p[2]) return true;
                 }
             }
             return false;
@@ -220,14 +221,14 @@ namespace NC2Logic
                 for (auto houseId = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[1]); houseId != -1; houseId = MissionCheck_GetNextHouseIdWithMissionCheckId(p[1], houseId))
                 {
                     const void* target = House_GetMapPositionRef(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize);
-                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))) <= p[2]) return true;
+                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(target, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(target, NC2Layout::MapMigPointOffset::MapY))) <= p[2]) return true;
                 }
             }
             return false;
         case SwitchIds::MissionGoal::HumansDied: return MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]) == -1;
         case SwitchIds::MissionGoal::VehiclesDied: return MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]) == -1;
         case SwitchIds::MissionGoal::HousesDied: return MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]) == -1;
-        case SwitchIds::MissionGoal::PlayerDied: return NXBasics::Runtime_TimeSigned32(p[0]) < 20 && Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 8u) != 0;
+        case SwitchIds::MissionGoal::PlayerDied: return NXBasics::Runtime_TimeSigned32(p[0]) < 20 && Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::DeadFlagUnsigned) != 0;
         case SwitchIds::MissionGoal::FindPosByPlayersMapMoveable:
         {
             std::uint32_t point;
@@ -241,12 +242,12 @@ namespace NC2Logic
         {
             std::uint32_t point;
             MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ContinentId);
             CHouseIterator iterator;
             for (auto id = iterator.GetFirstHouseId(p[0]); id != -1; id = iterator.GetNextHouseId())
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == p[3] && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House_GetMapPositionRef(house)), 6) == continent) return true;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == p[3] && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House_GetMapPositionRef(house)), NC2Layout::MapMicroPointOffset::ContinentId) == continent) return true;
             }
             return false;
         }
@@ -281,8 +282,8 @@ namespace NC2Logic
             }
             return false;
         }
-        case SwitchIds::MissionGoal::JobEnabled: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 56u + p[2] + 0x948u) != 0;
-        case SwitchIds::MissionGoal::GoodProduceable: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 66u + p[2] + 0x1D4Cu) != 0;
+        case SwitchIds::MissionGoal::JobEnabled: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + p[2] + NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned) != 0;
+        case SwitchIds::MissionGoal::GoodProduceable: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + p[2] + NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned) != 0;
         case SwitchIds::MissionGoal::HumanAttachedToWorkHouse:
         {
             CHumanIterator iterator;
@@ -378,18 +379,18 @@ namespace NC2Logic
         {
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
-            return p[0] >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(&point), 8) & (1u << p[0])) != 0;
+            return p[0] >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << p[0])) != 0;
         }
         case SwitchIds::MissionGoal::FindHumans:
         case SwitchIds::MissionGoal::FindVehicles:
         case SwitchIds::MissionGoal::FindAnimals:
         {
-            const auto first = goal.type == 8 ? MissionCheck_GetFirstHumanIdWithMissionCheckId : goal.type == 9 ? MissionCheck_GetFirstVehicleIdWithMissionCheckId : MissionCheck_GetFirstAnimalIdWithMissionCheckId;
-            const auto next = goal.type == 8 ? MissionCheck_GetNextHumanIdWithMissionCheckId : goal.type == 9 ? MissionCheck_GetNextVehicleIdWithMissionCheckId : MissionCheck_GetNextAnimalIdWithMissionCheckId;
+            const auto first = goal.type == SwitchIds::MissionGoal::FindHumans ? MissionCheck_GetFirstHumanIdWithMissionCheckId : goal.type == SwitchIds::MissionGoal::FindVehicles ? MissionCheck_GetFirstVehicleIdWithMissionCheckId : MissionCheck_GetFirstAnimalIdWithMissionCheckId;
+            const auto next = goal.type == SwitchIds::MissionGoal::FindHumans ? MissionCheck_GetNextHumanIdWithMissionCheckId : goal.type == SwitchIds::MissionGoal::FindVehicles ? MissionCheck_GetNextVehicleIdWithMissionCheckId : MissionCheck_GetNextAnimalIdWithMissionCheckId;
             for (auto id = first(p[1]); id != -1; id = next(p[1], id))
             {
-                const void* point = goal.type == 8 ? Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize) : goal.type == 9 ? Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize) : Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize);
-                const auto mask = Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8);
+                const void* point = goal.type == SwitchIds::MissionGoal::FindHumans ? Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize) : goal.type == SwitchIds::MissionGoal::FindVehicles ? Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize) : Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize);
+                const auto mask = Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ExplorationMask);
                 if (p[0] >= 16 || (mask & (1u << p[0])) != 0) return true;
             }
             return false;
@@ -398,17 +399,17 @@ namespace NC2Logic
         case SwitchIds::MissionGoal::FindHumansByVehicles:
         case SwitchIds::MissionGoal::FindVehiclesByVehicles:
         {
-            const auto firstOuter = goal.type == 13 ? MissionCheck_GetFirstHumanIdWithMissionCheckId : MissionCheck_GetFirstVehicleIdWithMissionCheckId;
-            const auto nextOuter = goal.type == 13 ? MissionCheck_GetNextHumanIdWithMissionCheckId : MissionCheck_GetNextVehicleIdWithMissionCheckId;
-            const auto firstInner = goal.type == 15 ? MissionCheck_GetFirstVehicleIdWithMissionCheckId : MissionCheck_GetFirstHumanIdWithMissionCheckId;
-            const auto nextInner = goal.type == 15 ? MissionCheck_GetNextVehicleIdWithMissionCheckId : MissionCheck_GetNextHumanIdWithMissionCheckId;
+            const auto firstOuter = goal.type == SwitchIds::MissionGoal::FindHumansByHumans ? MissionCheck_GetFirstHumanIdWithMissionCheckId : MissionCheck_GetFirstVehicleIdWithMissionCheckId;
+            const auto nextOuter = goal.type == SwitchIds::MissionGoal::FindHumansByHumans ? MissionCheck_GetNextHumanIdWithMissionCheckId : MissionCheck_GetNextVehicleIdWithMissionCheckId;
+            const auto firstInner = goal.type == SwitchIds::MissionGoal::FindVehiclesByVehicles ? MissionCheck_GetFirstVehicleIdWithMissionCheckId : MissionCheck_GetFirstHumanIdWithMissionCheckId;
+            const auto nextInner = goal.type == SwitchIds::MissionGoal::FindVehiclesByVehicles ? MissionCheck_GetNextVehicleIdWithMissionCheckId : MissionCheck_GetNextHumanIdWithMissionCheckId;
             for (auto outer = firstOuter(p[0]); outer != -1; outer = nextOuter(p[0], outer))
             {
-                const void* a = goal.type == 13 ? Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(outer) * CHumanArray::ElementSize) : Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(outer) * CVehicleArray::ElementSize);
+                const void* a = goal.type == SwitchIds::MissionGoal::FindHumansByHumans ? Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(outer) * CHumanArray::ElementSize) : Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(outer) * CVehicleArray::ElementSize);
                 for (auto inner = firstInner(p[1]); inner != -1; inner = nextInner(p[1], inner))
                 {
-                    const void* b = goal.type == 15 ? Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(inner) * CVehicleArray::ElementSize) : Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(inner) * CHumanArray::ElementSize);
-                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))) <= p[2]) return true;
+                    const void* b = goal.type == SwitchIds::MissionGoal::FindVehiclesByVehicles ? Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(inner) * CVehicleArray::ElementSize) : Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(inner) * CHumanArray::ElementSize);
+                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(a, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(b, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(b, NC2Layout::MapMigPointOffset::MapY))) <= p[2]) return true;
                 }
             }
             return false;
@@ -431,7 +432,7 @@ namespace NC2Logic
         // Timed goals are evaluated by l_CheckMission, not by this native dispatcher.
         case SwitchIds::MissionGoal::TimeGone:
         case SwitchIds::MissionGoal::RandomTimeGone: return false;
-        case SwitchIds::MissionGoal::PlayerSeen: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + 0x45F8u) != 0;
+        case SwitchIds::MissionGoal::PlayerSeen: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned) != 0;
         case SwitchIds::MissionGoal::IsHumanInVehicle:
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
             {
@@ -449,30 +450,30 @@ namespace NC2Logic
                 if (vehicles.GetFirstVehicleId(p[1], point, NXBasics::Runtime_TimeSigned32(p[2])) != -1) return true;
             }
             return false;
-        case SwitchIds::MissionGoal::SoldiersDied: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4A1Cu) >= p[1];
+        case SwitchIds::MissionGoal::SoldiersDied: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::SoldiersDiedUnsigned) >= p[1];
         case SwitchIds::MissionGoal::AnimalsDied: return MissionCheck_GetNumberOfAnimalsWithMissionCheckId(p[0]) == 0;
-        case SwitchIds::MissionGoal::PlayerAttackedByPlayer: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + 0x4944u) != 0;
-        case SwitchIds::MissionGoal::NumberOfHumansDied: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4A18u) >= p[1];
-        case SwitchIds::MissionGoal::NumberOfGoodsTraded: return NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 4u + 0x4A30u)) >= NXBasics::Runtime_TimeSigned32(p[2]);
+        case SwitchIds::MissionGoal::PlayerAttackedByPlayer: return Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + NC2Layout::GameControlPlayerOffset::AttackedByPlayersUnsigned) != 0;
+        case SwitchIds::MissionGoal::NumberOfHumansDied: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::HumansDiedUnsigned) >= p[1];
+        case SwitchIds::MissionGoal::NumberOfGoodsTraded: return NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Layout::RecordSize::PlayerTradeCounterUnsigned + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned)) >= NXBasics::Runtime_TimeSigned32(p[2]);
         case SwitchIds::MissionGoal::CheckNumberOfWildAnimals:
         case SwitchIds::MissionGoal::NumberOfAnimals:
         {
             CAnimalIterator iterator;
             std::uint32_t count = 0;
-            const auto type = goal.type == 44 ? p[0] : p[1], threshold = goal.type == 44 ? p[1] : p[2];
-            for (auto id = iterator.GetFirstAnimalId(goal.type == 44 ? 20 : p[0]); id != -1; id = iterator.GetNextAnimalId())
+            const auto type = goal.type == SwitchIds::MissionGoal::CheckNumberOfWildAnimals ? p[0] : p[1], threshold = goal.type == SwitchIds::MissionGoal::CheckNumberOfWildAnimals ? p[1] : p[2];
+            for (auto id = iterator.GetFirstAnimalId(goal.type == SwitchIds::MissionGoal::CheckNumberOfWildAnimals ? 20 : p[0]); id != -1; id = iterator.GetNextAnimalId())
                 if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::TribeType) == type && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(threshold)) return true;
             return false;
         }
-        case SwitchIds::MissionGoal::NumberOfHumansKilled: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4618u) + Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4614u) >= p[1];
+        case SwitchIds::MissionGoal::NumberOfHumansKilled: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::CiviliansKilledUnsigned) + Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::SoldiersKilledUnsigned) >= p[1];
         case SwitchIds::MissionGoal::HumanIsOnContinent:
         {
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
             if (!MapMigPoint_IsInsideMap(&point)) return false;
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ContinentId);
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
-                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize)), 6) == continent) return true;
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize)), NC2Layout::MapMicroPointOffset::ContinentId) == continent) return true;
             return false;
         }
         case SwitchIds::MissionGoal::NumberOfSoldiersNearPos:
@@ -481,22 +482,22 @@ namespace NC2Logic
             std::uint32_t point, count = 0;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
             CHumanIterator humans;
-            for (auto id = humans.GetFirstSectorHumanId(p[0], point, NXBasics::Runtime_TimeSigned32(p[3]), goal.type == 51); id != -1; id = humans.GetNextSectorHumanId())
+            for (auto id = humans.GetFirstSectorHumanId(p[0], point, NXBasics::Runtime_TimeSigned32(p[3]), goal.type == SwitchIds::MissionGoal::NumberOfSoldiersNearPos); id != -1; id = humans.GetNextSectorHumanId())
             {
                 const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                if (goal.type == 52 || (Human_IsJobSoldier(human) && !Human_IsJobHero(human))) ++count;
+                if (goal.type == SwitchIds::MissionGoal::NumberOfCivilainsNearPos || (Human_IsJobSoldier(human) && !Human_IsJobHero(human))) ++count;
             }
             CVehicleIterator vehicles;
             for (auto id = vehicles.GetFirstVehicleId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[3])); id != -1; id = vehicles.GetNextVehicleId())
             {
                 const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-                auto qualifies = [&](std::uint32_t humanId) { const void* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize; return Human_IsJobSoldier(human) == (goal.type == 51) && !Human_IsJobHero(human); };
+                auto qualifies = [&](std::uint32_t humanId) { const void* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize; return Human_IsJobSoldier(human) == (goal.type == SwitchIds::MissionGoal::NumberOfSoldiersNearPos) && !Human_IsJobHero(human); };
                 if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0 && qualifies(static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedCommanderId(vehicle)))) ++count;
                 if (Vehicle_Passengers_GetNumberOfAttachedHumans(vehicle, true) != 0)
                     for (std::uint32_t slot = 0; slot < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots); ++slot)
                     {
                         const void* reference = static_cast<const std::byte*>(vehicle) + NC2Layout::VehicleOffset::HumanPassengers + slot * NC2Layout::RecordSize::VehiclePassenger;
-                        if (HumanReference_IsAllocated(reference) && qualifies(Read<std::uint32_t>(reference, 0))) ++count;
+                        if (HumanReference_IsAllocated(reference) && qualifies(Read<std::uint32_t>(reference, NC2Layout::VehiclePassengerOffset::ObjectId))) ++count;
                     }
             }
             return NXBasics::Runtime_TimeSigned32(count) >= NXBasics::Runtime_TimeSigned32(p[4]);
@@ -505,7 +506,7 @@ namespace NC2Logic
         {
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[0]), static_cast<std::int16_t>(p[1]), false);
-            auto isChest = [&]() { if (!MapMigPoint_IsInsideMap(&point)) return false; const void* micro = GameMap_GetConstMapMicroPointPtr(&point); return Read<std::uint8_t>(micro, 0) == 1 && (Read<std::uint8_t>(micro, 2) == 0x55 || Read<std::uint8_t>(micro, 2) == 0x56); };
+            auto isChest = [&]() { if (!MapMigPoint_IsInsideMap(&point)) return false; const void* micro = GameMap_GetConstMapMicroPointPtr(&point); return Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 0x55 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 0x56); };
             if (isChest()) return true;
             for (std::int32_t radius = 1; radius <= NXBasics::Runtime_TimeSigned32(p[2]); ++radius)
             {
@@ -528,7 +529,7 @@ namespace NC2Logic
         {
             std::uint32_t point, count = 0;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
-            if (goal.type == 57)
+            if (goal.type == SwitchIds::MissionGoal::NumberOfVehiclesInArea)
             {
                 CVehicleIterator iterator;
                 for (auto id = iterator.GetFirstVehicleId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[5])); id != -1; id = iterator.GetNextVehicleId())
@@ -541,7 +542,7 @@ namespace NC2Logic
                 const void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
                 if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) != p[1]) continue;
                 const void* a = Animal_GetMapPositionRef(animal);
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2))) <= p[5] && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(p[2])) return true;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(a, NC2Layout::MapMigPointOffset::MapY), Read<std::int16_t>(&point, NC2Layout::MapMigPointOffset::MapX), Read<std::int16_t>(&point, NC2Layout::MapMigPointOffset::MapY))) <= p[5] && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(p[2])) return true;
             }
             return false;
         }
@@ -562,8 +563,8 @@ namespace NC2Logic
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[0]), static_cast<std::int16_t>(p[1]), false);
             if (!MapMigPoint_IsInsideMap(&point)) return false;
             const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) return false;
-            if (goal.type == 61) return true;
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 0) return false;
+            if (goal.type == SwitchIds::MissionGoal::IsAnyLandscapeOnPoint) return true;
             const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(&point);
             if (engine == -1) return false;
             const auto target = NC2LogicExternals::External_Landscape_GetLandscapeIdByNamePtr("player10 construction sign");
@@ -596,7 +597,7 @@ namespace NC2Logic
         auto moveHuman = [&](std::int32_t id, std::uint32_t target)
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            redraw(Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 1);
+            redraw(Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates), 1);
             MapMoveable_Attachment_AttachToMap(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &target);
             Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Object_GetField10(human, nullptr)), ArrayObject_GetId(human, nullptr), Object_GetField08(human, nullptr), target, 0);
             GameMap_Exploration_DoExplore(Object_GetField10(human, nullptr), &target, Human_GetExplorationRange(human, nullptr));
@@ -714,7 +715,7 @@ namespace NC2Logic
         {
             // SMapMigPoint::SetPosition(..., false) truncates both coordinates to WORDs.
             const std::uint32_t point = static_cast<std::uint16_t>(p[1]) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(p[2])) << 16);
-            if (Read<std::uint16_t>(&point, 0) != 0 && Read<std::uint16_t>(&point, 2) != 0 && p[3] != 0) GameMap_Exploration_DoExplore(p[0], &point, p[3]);
+            if (Read<std::uint16_t>(&point, NC2Layout::MapMigPointOffset::MapX) != 0 && Read<std::uint16_t>(&point, NC2Layout::MapMigPointOffset::MapY) != 0 && p[3] != 0) GameMap_Exploration_DoExplore(p[0], &point, p[3]);
             else GameMap_Exploration_DoExploreAll(p[0]);
             break;
         }
@@ -754,10 +755,10 @@ namespace NC2Logic
                 Animal_ChangePlayerId(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, p[1]);
             for (auto id = guides.GetFirstGuideId(p[0]); id != -1; id = guides.GetNextGuideId())
             {
-                Write(CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize, 4, p[1]);
+                Write(CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize, NC2Layout::GuideOffset::PlayerId, p[1]);
                 GuideManager_RecalculateGuideConnections(gGuideManager, id);
             }
-            if (NXBasics::Runtime_TimeSigned32(p[1]) < 20 && Read<std::uint32_t>(gGameControl, p[1] * NC2Layout::RecordSize::GameControlPlayer + 4) == 2) AIManager_EntryPoint_RebuildHouseArray(gAIManager, NXBasics::Runtime_TimeSigned32(p[1]));
+            if (NXBasics::Runtime_TimeSigned32(p[1]) < 20 && Read<std::uint32_t>(gGameControl, p[1] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::Type) == 2) AIManager_EntryPoint_RebuildHouseArray(gAIManager, NXBasics::Runtime_TimeSigned32(p[1]));
             break;
         }
         case SwitchIds::MissionResult::SendHuman:
@@ -779,14 +780,14 @@ namespace NC2Logic
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
             Tool_Map_GetNotBlockedPosition(&point, false);
-            alignas(4) std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 0x65);
-            Write(command, 0x0C, MapMigPoint_GetLong(&point));
+            alignas(4) std::byte command[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, SwitchIds::UserCommand::VehicleGotoAndWait);
+            Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(&point));
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
             }
             break;
@@ -796,14 +797,14 @@ namespace NC2Logic
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
             Tool_Map_GetNotBlockedPosition(&point, false);
-            alignas(4) std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 0x67);
-            Write(command, 0x0C, MapMigPoint_GetLong(&point));
+            alignas(4) std::byte command[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, SwitchIds::UserCommand::VehicleDock);
+            Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(&point));
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
             }
             break;
@@ -875,12 +876,12 @@ namespace NC2Logic
             break;
         case SwitchIds::MissionResult::EnableJob:
         {
-            const auto offset = p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 56u + p[2] + 0x948u;
+            const auto offset = p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + p[2] + NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned;
             if (Read<std::uint8_t>(gGameControl, offset) == 0) Write<std::uint8_t>(gGameControl, offset, 1);
             break;
         }
         case SwitchIds::MissionResult::EnableHouse:
-            if (Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 55u + p[2] + 0x3126u) == 0) PlayerAllowedThings_MarkHouseAvailable(static_cast<std::byte*>(gGameControl) + p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x18, p[1], p[2]);
+            if (Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + p[2] + NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned) == 0) PlayerAllowedThings_MarkHouseAvailable(static_cast<std::byte*>(gGameControl) + p[0] * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::AllowedThings, p[1], p[2]);
             break;
         case SwitchIds::MissionResult::DisableAll:
             for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::MissionManagerOffset::MissionCount); ++index) MissionData_SetMissionActiveFlag(GetMission(manager, static_cast<std::uint32_t>(index)), false);
@@ -901,7 +902,7 @@ namespace NC2Logic
         }
         case SwitchIds::MissionResult::EnableGood:
         {
-            const auto offset = p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 66u + p[2] + 0x1D4Cu;
+            const auto offset = p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + p[2] + NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned;
             if (Read<std::uint8_t>(gGameControl, offset) == 0) Write<std::uint8_t>(gGameControl, offset, 1);
             break;
         }
@@ -951,7 +952,7 @@ namespace NC2Logic
             {
                 const void* house = GetHousePtr(houses[index]);
                 const auto player = House_GetPlayerId(house), engineType = Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType);
-                const auto point = Read<std::uint32_t>(House_GetMapPositionRef(house), 0);
+                const auto point = Read<std::uint32_t>(House_GetMapPositionRef(house), NC2Layout::MapMigPointOffset::Coordinates);
                 Logic_EntryPoint_House_Remove(House_GetMapPositionRef(house));
                 Logic_EntryPoint_House_Set(player, engineType, p[1], &point, true, p[0]);
             }
@@ -1035,14 +1036,14 @@ namespace NC2Logic
             for (auto id = animals.GetFirstAnimalId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[4])); id != -1; id = animals.GetNextAnimalId()) Animal_ChangePlayerId(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, p[1]);
             for (auto id = guides.GetFirstGuideId(p[0], &point, p[4]); id != -1; id = guides.GetNextGuideId())
             {
-                Write(CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize, 4, p[1]);
+                Write(CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize, NC2Layout::GuideOffset::PlayerId, p[1]);
                 GuideManager_RecalculateGuideConnections(gGuideManager, id);
             }
             break;
         }
         case SwitchIds::MissionResult::SetDiplomacyNotChangeableFlag:
-            Write<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + 0x4958u, p[2] != 0);
-            Write<std::uint8_t>(gGameControl, p[1] * NC2Layout::RecordSize::GameControlPlayer + p[0] + 0x4958u, p[2] != 0);
+            Write<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned, p[2] != 0);
+            Write<std::uint8_t>(gGameControl, p[1] * NC2Layout::RecordSize::GameControlPlayer + p[0] + NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned, p[2] != 0);
             break;
         case SwitchIds::MissionResult::RemoveFXWaveLandscapeInArea:
         case SwitchIds::MissionResult::RemoveFXSmokeLandscapeInArea:
@@ -1143,9 +1144,9 @@ namespace NC2Logic
         }
         case SwitchIds::MissionResult::StopHumanByPlayerId:
         {
-            alignas(4) std::byte walk[20]{}, work[20]{};
-            Write<std::uint8_t>(walk, 0, 4); Write<std::uint8_t>(work, 0, 0x11);
-            Write<std::uint8_t>(walk, 1, static_cast<std::uint8_t>(p[0])); Write<std::uint8_t>(work, 1, static_cast<std::uint8_t>(p[0]));
+            alignas(4) std::byte walk[NC2Layout::RecordSize::UserNetworkCommandSigned]{}, work[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+            Write<std::uint8_t>(walk, NC2Layout::UserNetworkCommandOffset::Opcode, SwitchIds::UserCommand::GotoAndWait); Write<std::uint8_t>(work, NC2Layout::UserNetworkCommandOffset::Opcode, SwitchIds::UserCommand::SetWorkCenter);
+            Write<std::uint8_t>(walk, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(p[0])); Write<std::uint8_t>(work, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(p[0]));
             CHumanIterator humans;
             for (auto id = humans.GetFirstHumanId(p[0]); id != -1; id = humans.GetNextHumanId())
             {
@@ -1154,12 +1155,12 @@ namespace NC2Logic
                 MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &point);
                 if (Human_IsWalking(human))
                 {
-                    Write(walk, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(walk, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write(walk, 12, point);
+                    Write(walk, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(walk, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write(walk, NC2Layout::UserNetworkCommandOffset::Parameter1, point);
                     Human_DoAddNewUserCommand(human, walk);
                 }
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter) != point)
                 {
-                    Write(work, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(work, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write(work, 12, point);
+                    Write(work, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(work, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write(work, NC2Layout::UserNetworkCommandOffset::Parameter1, point);
                     Human_DoAddNewUserCommand(human, work);
                 }
             }
@@ -1197,7 +1198,7 @@ namespace NC2Logic
             }
             break;
         }
-        case SwitchIds::MissionResult::ClearTribute: Write<std::uint8_t>(gTributeManager, p[0] * 0x3Cu, 0); break;
+        case SwitchIds::MissionResult::ClearTribute: Write<std::uint8_t>(gTributeManager, p[0] * NC2Layout::RecordSize::TributeUnsigned, 0); break;
         case SwitchIds::MissionResult::SetGuiMarker:
         {
             std::uint32_t point;
@@ -1284,11 +1285,11 @@ namespace NC2Logic
             for (std::int32_t index = 0; index < count; ++index)
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(ids[index]) * CVehicleArray::ElementSize;
-                redraw(Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0), 4);
+                redraw(Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapMigPointOffset::Coordinates), 4);
                 MapMoveable_Attachment_AttachToMap(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &target);
-                alignas(4) std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 0x65); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)); Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); Write(command, 12, target);
+                alignas(4) std::byte command[NC2Layout::RecordSize::UserNetworkCommandSigned]{};
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, SwitchIds::UserCommand::VehicleGotoAndWait); Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, target);
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 GameMap_Exploration_DoExplore(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId), &target, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::ExplorationRadius));
                 redraw(target, 4);
@@ -1318,7 +1319,7 @@ namespace NC2Logic
             {
                 const void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
                 if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) != p[1]) continue;
-                const auto position = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0);
+                const auto position = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), NC2Layout::MapMigPointOffset::Coordinates);
                 if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(static_cast<std::int16_t>(point), static_cast<std::int16_t>(point >> 16), static_cast<std::int16_t>(position), static_cast<std::int16_t>(position >> 16))) > p[4]) continue;
                 ids[count++] = id;
                 if (count == 50 || (p[5] != 0 && count >= NXBasics::Runtime_TimeSigned32(p[5]))) break;
@@ -1408,9 +1409,9 @@ namespace NC2Logic
                         const void* human = GetHumanPtr(HumanReference_GetHumanId(reference, nullptr));
                         Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId));
                     }
-                    if (Vehicle_Passengers_IsCommanderAttached(vehicle, nullptr)) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(GetHumanPtr(Vehicle_Passengers_GetAttachedCommanderId(vehicle)), 0x0C));
+                    if (Vehicle_Passengers_IsCommanderAttached(vehicle, nullptr)) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(GetHumanPtr(Vehicle_Passengers_GetAttachedCommanderId(vehicle)), NC2Layout::HumanOffset::MapMoveableId));
                 }
-                redraw(Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0), 2);
+                redraw(Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapMigPointOffset::Coordinates), 2);
                 Logic_EntryPoint_FreeMapMoveable(Vehicle_GetMapMoveableId(vehicle, nullptr));
             }
             Game_SetSuppressDeathStatisticsFlag(deathStatistics); Game_SetSuppressVehicleWreckFlag(wreck);
@@ -1438,8 +1439,8 @@ namespace NC2Logic
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 if (Vehicle_Attachment_IsInsideVehicle(vehicle)) continue;
-                auto position = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
-                if (Vehicle_IsDocked(vehicle, nullptr)) position = Read<std::uint32_t>(Vehicle_GetConstMapMicroPointPtr(vehicle), 0);
+                auto position = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapMigPointOffset::Coordinates);
+                if (Vehicle_IsDocked(vehicle, nullptr)) position = Read<std::uint32_t>(Vehicle_GetConstMapMicroPointPtr(vehicle), NC2Layout::MapMigPointOffset::Coordinates);
                 if (MapMigPoint_IsInsideMap(&position) && MapMicroPoint_GetContinent(GameMap_GetConstMapMicroPointPtr(&position), nullptr) == continent) Vehicle_SetMissionCheckId(vehicle, nullptr, mission);
             }
             break;

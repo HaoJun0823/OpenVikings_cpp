@@ -344,4 +344,11 @@ namespace NC2Runtime
         inline constexpr auto PacketCommandsUnsigned = 9u;
     }
 
+    namespace MissionTiming
+    {
+        inline constexpr auto TicksPerSecondUnsigned = 12u;
+
+        inline constexpr auto EvaluationIntervalTicksUnsigned = 36u;
+    }
+
 }

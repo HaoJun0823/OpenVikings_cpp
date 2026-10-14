@@ -6,6 +6,13 @@ namespace NXBasics { class CIniFileReader; struct SToken; }
 
 namespace NC2Logic
 {
+    // Physical fragments of the Windows player record; they do not model its other regions.
+    struct SPlayerKillStatisticsStorage { std::uint32_t soldiersKilled, civiliansKilled, vehiclesDestroyed, housesDestroyed; };
+    struct SPlayerRelationshipFlagsStorage
+    {
+        std::uint8_t attackedByPlayers[20], diplomacyLocked[20], hideDiplomacyChanges[20], hideDiplomacyDetails[20], suppressPlayerSeenMessages[20];
+    };
+    struct SPlayerTradeStatisticsStorage { std::uint32_t goodsReceivedFromPlayers[20]; };
     // Physical flag region of the Windows player record, starting at +0x18.
     // Raw equipment writes use stride 56 even when iterating 66 flags.
     struct SPlayerAllowedThingsStorage

@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiDiplomacyWindow.h"
@@ -177,9 +179,9 @@ namespace NC2InGameGuiMiscWindows
         const auto player = Player(), playerBase = player * NC2Layout::RecordSize::GameControlPlayer;
         for (std::uint32_t other = 0; other < 20; ++other)
         {
-            if (Read<std::uint8_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer) == 0 || (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x45F8u + other) == 0 && player != other) || Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x496Cu + other) != 0) continue;
+            if (Read<std::uint8_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer) == 0 || (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + other) == 0 && player != other) || Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::HideDiplomacyChangesUnsigned + other) != 0) continue;
             const auto count = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerCount);
-            const auto hidden = Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x4980u + other);
+            const auto hidden = Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::HideDiplomacyDetailsUnsigned + other);
             Write(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + count * 4u, other);
             Write(window, NC2Layout::DiplomacyWindowOffset::HiddenPlayerFlagsUnsigned + count, hidden);
             Write(window, NC2Layout::DiplomacyWindowOffset::PlayerCount, count + 1);
@@ -229,7 +231,7 @@ namespace NC2InGameGuiMiscWindows
         else if (OtherPlayer(window) != player)
         {
             const auto other = OtherPlayer(window);
-            if (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + 0x4958u + other) == 0)
+            if (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned + other) == 0)
             {
                 NXBasics::SRectangle choice(4, 122, 162, 16);
                 NC2Logic::Logic_EntryPoint_GetDiplomacyState(other, player);
@@ -331,7 +333,7 @@ namespace NC2InGameGuiMiscWindows
         }
         bitmap->Text_PrintV(resources.font08, color, 4, y, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(358), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(theirState));
         bitmap->Text_PrintV(resources.font08, color, 4, y + 18, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(359), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(ourState));
-        if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other * 4u + 0x4A30u));
+        if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned));
     }
     // Original function: FUN_004afcea; player names and diplomacy labels overlay the overview.
     static void __fastcall DiplomacyWindow_DrawOverlays(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)

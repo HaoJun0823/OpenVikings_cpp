@@ -517,6 +517,34 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto CiviliansKilled = 0x4618;
+
+        inline constexpr auto SoldiersKilled = 0x4614;
+
+        inline constexpr auto SuppressPlayerSeenMessagesUnsigned = 0x4994u;
+
+        inline constexpr auto HideDiplomacyDetailsUnsigned = 0x4980u;
+
+        inline constexpr auto HideDiplomacyChangesUnsigned = 0x496Cu;
+
+        inline constexpr auto HousesDestroyed = 0x4620;
+
+        inline constexpr auto VehiclesDestroyed = 0x461C;
+
+        inline constexpr auto Type = 4;
+
+        inline constexpr auto DeadFlagUnsigned = 8u;
+
+        inline constexpr auto GoodsReceivedFromPlayersUnsigned = 0x4A30u;
+
+        inline constexpr auto DiplomacyLockedUnsigned = 0x4958u;
+
+        inline constexpr auto AttackedByPlayersUnsigned = 0x4944u;
+
+        inline constexpr auto CiviliansKilledUnsigned = 0x4618u;
+
+        inline constexpr auto SoldiersKilledUnsigned = 0x4614u;
+
         inline constexpr auto DeadFlag = 8;
 
         inline constexpr auto PlayerSeenFlags = 0x45F8;
@@ -1564,6 +1592,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MissionResultParameterUnsigned = 4u;
+
+        inline constexpr auto PlayerTradeCounterUnsigned = 4u;
+
         inline constexpr auto UserNetworkCommandState = 2404;
 
         inline constexpr auto TributeUnsigned = 0x3Cu;

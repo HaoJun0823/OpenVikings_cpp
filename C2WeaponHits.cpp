@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2MilitaryDamage.h"
@@ -85,7 +87,7 @@ namespace NC2Logic
         const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(0u - damage));
-        if (Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) <= 0) RecordKill(attacker, 0x4620);
+        if (Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) <= 0) RecordKill(attacker, NC2Layout::GameControlPlayerOffset::HousesDestroyed);
         HappinessManager_Messages_HouseAttacked(gHappinessManager, house);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
@@ -118,7 +120,7 @@ namespace NC2Logic
         damage = HalfForDifficulty(damage, player);
         if (data.soundTypesHit[6] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[6], MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle)), 0);
         Write(vehicle, NC2Layout::VehicleOffset::Hitpoints, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) - damage);
-        if (Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) <= 0) RecordKill(attacker, 0x461C);
+        if (Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) <= 0) RecordKill(attacker, NC2Layout::GameControlPlayerOffset::VehiclesDestroyed);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != attackerRevision) return false;
@@ -159,7 +161,7 @@ namespace NC2Logic
         if (NXBasics::Runtime_TimeSigned32(damage) > 0)
         {
             if (NXBasics::Runtime_TimeSigned32(0u - damage) > 0 || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 8u) == 0) Write(human, NC2Layout::HumanOffset::Hitpoints, Read<std::uint32_t>(human, NC2Layout::HumanOffset::Hitpoints) - damage);
-            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? 0x4614u : 0x4618u);
+            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? NC2Layout::GameControlPlayerOffset::SoldiersKilledUnsigned : NC2Layout::GameControlPlayerOffset::CiviliansKilledUnsigned);
             // Windows 0041AE3E initializes the two positions only; other fields are assigned by this caller.
             alignas(4) std::byte effect[28];
             Write(effect, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)));

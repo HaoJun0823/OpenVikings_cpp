@@ -412,7 +412,7 @@ namespace NC2Logic
             auto recordIncoming = [human, current, merchant]()
             {
                 Write(merchant, NC2Layout::MerchantOffset::GoodsReceived, Read<std::uint32_t>(merchant, NC2Layout::MerchantOffset::GoodsReceived) + 1u);
-                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + 0x4A30u;
+                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned;
                 Write(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
             };
             if (circulation == 4)

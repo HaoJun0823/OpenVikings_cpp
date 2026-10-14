@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2UserNetworkCommandAccess.h"
@@ -194,7 +195,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(gameControl, offset) == state) return true;
         Write(gameControl, offset, state);
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1A, true, player, otherPlayer, state);
-        if (Read<std::uint8_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + otherPlayer + 0x496Cu) == 0)
+        if (Read<std::uint8_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + otherPlayer + NC2Layout::GameControlPlayerOffset::HideDiplomacyChangesUnsigned) == 0)
         {
             std::byte message[772];
             ToUserMessage_Construct(message);
