@@ -155,11 +155,11 @@ namespace NC2InGameGuiManager
                     if (humanAction != 0)
                     {
                         char text[200]{};
-                        if (Read<std::uint32_t>(input, 4) == 1) { const auto* name = HumanName(NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input)); if (name != nullptr) { std::strcpy(text, name); std::strcat(text, " "); } }
+                        if (Read<std::uint32_t>(input, 4) == 1) { const auto* name = HumanName(NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input)); if (name != nullptr) { std::strcpy(text, name); std::strcat(text, " - "); } }
                         std::strcat(text, NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHumanTypeNamePtr(humanAction));
                         if (humanAction == 24 && Read<std::uint8_t>(world, 0x1CC) == 21 && Read<std::uint8_t>(world, 0x1E0) == 28)
                         {
-                            std::strcat(text, " "); std::strcat(text, NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(world, 0x1D8), 1)); std::strcat(text, " "); std::strcat(text, NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHumanTypeNamePtr(16));
+                            std::strcat(text, " - "); std::strcat(text, NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(world, 0x1D8), 1)); std::strcat(text, " - "); std::strcat(text, NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHumanTypeNamePtr(16));
                         }
                         ls_PrintString(bitmap, point, text, true); showHovered = false;
                     }

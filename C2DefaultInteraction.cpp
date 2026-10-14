@@ -143,7 +143,7 @@ namespace NC2Logic
             if (available.IsCommandAllowed(24) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))
             {
                 const auto job = House_JobMisc_GetPrimaryWorkerJobType(house);
-                if (job != 0 && job != Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) && Human_DoesEducationAllowJobChange(human, job) && House_JobMisc_CanJobBeAttachedAsWorker(house, job) && Human_UserControl_GetNextJobType(human) != 25)
+                if (job != 0 && job != Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) && Human_IsAbleToDoJob(human, job) && House_JobMisc_CanJobBeAttachedAsWorker(house, job) && Human_UserControl_GetNextJobType(human) != 25)
                 {
                     Prepare(command, 21, human, job); Prepare(secondary, 28, human, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return 24;
                 }
