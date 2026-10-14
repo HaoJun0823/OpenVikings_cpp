@@ -465,8 +465,8 @@ namespace NC2Logic
         if (macro == nullptr || MapMagPoint_IsBorderPoint(point)) return;
         if (height < 0) height = 0;
         if (static_cast<std::uint32_t>(height) > 250u) height = 250;
-        if (NC2Lifetime::Read<std::uint8_t>(macro, 2) == height) return;
-        NC2Lifetime::Write<std::uint8_t>(macro, 2, static_cast<std::uint8_t>(height));
+        if (NC2Lifetime::Read<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::Height) == height) return;
+        NC2Lifetime::Write<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::Height, static_cast<std::uint8_t>(height));
         GameMapModifyManager_GameMapModifiedMacro(13, point, 0);
     }
     // Original function: FUN_00423F4C; wrapped DWORD addition is interpreted as signed before clipping.
@@ -474,12 +474,12 @@ namespace NC2Logic
     {
         auto* macro = GameMap_GetMapMacroPointPtr(point);
         if (macro == nullptr || MapMagPoint_IsBorderPoint(point)) return;
-        const auto previous = NC2Lifetime::Read<std::uint8_t>(macro, 2);
+        const auto previous = NC2Lifetime::Read<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::Height);
         auto height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + static_cast<std::uint32_t>(delta));
         if (height < 0) height = 0;
         if (static_cast<std::uint32_t>(height) > 250u) height = 250;
         if (previous == height) return;
-        NC2Lifetime::Write<std::uint8_t>(macro, 2, static_cast<std::uint8_t>(height));
+        NC2Lifetime::Write<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::Height, static_cast<std::uint8_t>(height));
         GameMapModifyManager_GameMapModifiedMacro(13, point, 0);
     }
 

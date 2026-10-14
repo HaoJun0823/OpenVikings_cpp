@@ -1,9 +1,22 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace NC2E2
 {
+    // Physical Windows map buffers and complete static owner region.
+    struct SEngineMapMacroPointStorage { std::uint16_t patternA, patternB; std::uint8_t brightness, vertexColor, flags, transitions[4]; std::byte unresolved0B; };
+    struct SEngineMapMicroPointStorage { std::uint16_t landscapeId; std::uint8_t flags; std::byte unresolved03; };
+    struct SEngineMapDirtyBoundsStorage { std::int16_t first[2], last[2]; };
+    struct SEngineMapStaticStorage
+    {
+        SEngineMapMacroPointStorage* macroPoints;
+        SEngineMapMicroPointStorage* microPoints;
+        SEngineMapDirtyBoundsStorage heightDirtyBounds, transitionDirtyBounds;
+        std::uint8_t missingResource;
+        std::byte unresolved19[3];
+    };
     void EngineMap_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern);
     void EngineMap_Highlighting_Clear();
     const void* Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(const void* packedMacroPoint, bool firstTriangle);

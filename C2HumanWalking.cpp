@@ -373,8 +373,8 @@ namespace NC2Logic
             std::uint32_t macroPoint = 0;
             MapMagPoint_ConstructFromMig(&macroPoint, position, false);
             const void* macro = GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(&macroPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&macroPoint, NC2Layout::MapCoordinatePairOffset::Y));
-            const auto kind = Read<std::uint8_t>(macro, 0);
-            if (kind == 7 || (kind == 8 && Read<std::uint8_t>(macro, 1) == 8)) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x26, true, kind == 7 ? 2u : 3u, MapMigPoint_GetLong(position), MapMigPoint_GetLong(&next));
+            const auto kind = Read<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::PatternA);
+            if (kind == 7 || (kind == 8 && Read<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::PatternB) == 8)) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x26, true, kind == 7 ? 2u : 3u, MapMigPoint_GetLong(position), MapMigPoint_GetLong(&next));
             else if (kind == 4) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(position), 5, 100);
         }
         if (Human_IsJobScout(human)) Map_AnimalTool_ChangePlayerId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates), 3);

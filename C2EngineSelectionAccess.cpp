@@ -83,14 +83,14 @@ namespace NC2E2
                 S2DEngineDisplaySearchObjectBobData bobs;
                 const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
                 const auto phase = static_cast<std::uint32_t>(x + y * 2);
-                if (type == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
+                if (type == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId)), 0x38) != 1)
                 {
-                    DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, 0)), Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency), phase, &bobs);
+                    DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId)), Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency), phase, &bobs);
                     if (IsHit(bobs, mouse, base))
                     {
                         Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::Type, SwitchIds::MapObjectUnderCursor::Landscape);
                         Write(output, NC2Layout::DisplayObjectReferenceOffset::MapPosition, point);
-                        Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeId, Read<std::uint16_t>(engineMicro, 0));
+                        Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeId, Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId));
                         Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency));
                         Write<std::int32_t>(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId));
                         std::memcpy(static_cast<std::byte*>(output) + NC2Layout::DisplayObjectReferenceOffset::BobData, &bobs, sizeof(bobs));

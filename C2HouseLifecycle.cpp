@@ -352,7 +352,7 @@ namespace NC2Logic
         const auto* base = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
         std::uint32_t macro;
         MapMagPoint_ConstructFromMig(&macro, base, false);
-        const auto height = Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), 2);
+        const auto height = Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), NC2Layout::MapMacroPointOffset::Height);
         const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x1C);
         for (std::uint32_t row = 0; row < area->rowCount; ++row)
         {
@@ -364,11 +364,11 @@ namespace NC2Logic
                 {
                     MapMagPoint_ConstructFromMig(&macro, &point, false);
                     void* data = GameMap_GetMapMacroPointPtr(&macro);
-                    const auto previous = Read<std::uint8_t>(data, 2);
+                    const auto previous = Read<std::uint8_t>(data, NC2Layout::MapMacroPointOffset::Height);
                     auto delta = static_cast<std::int32_t>(height) - previous;
                     if (delta < -10) delta = -10;
                     if (delta > 10) delta = 10;
-                    Write<std::uint8_t>(data, 2, static_cast<std::uint8_t>(previous + delta));
+                    Write<std::uint8_t>(data, NC2Layout::MapMacroPointOffset::Height, static_cast<std::uint8_t>(previous + delta));
                     GameMapModifyManager_GameMapModified(13, &point, 0);
                 }
                 Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));

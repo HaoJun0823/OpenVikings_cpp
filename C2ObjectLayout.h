@@ -1606,6 +1606,14 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto EngineDirtyBoundsPair = 16;
+
+        inline constexpr auto EngineMapCoordinate = 2;
+
+        inline constexpr auto EngineMapMicroPointUnsigned = 4u;
+
+        inline constexpr auto EngineMapMacroPointUnsigned = 12u;
+
         inline constexpr auto MacroMapPointer = 4;
 
         inline constexpr auto MacroMapSection = 8;
@@ -3561,6 +3569,8 @@ namespace NC2Layout
 
     namespace EngineMapMicroPointOffset
     {
+        inline constexpr auto Flags = 2;
+
         inline constexpr auto LandscapeId = 0;
 
         inline constexpr auto HighlightFlags = 2;
@@ -4151,9 +4161,43 @@ namespace NC2Layout
 
     namespace EngineMapMacroPointOffset
     {
+        inline constexpr auto PatternB = 2;
+
+        inline constexpr auto PatternA = 0;
+
+        inline constexpr auto Flags = 6;
+
+        inline constexpr auto Brightness = 4;
+
+        inline constexpr auto TransitionB = 8;
+
+        inline constexpr auto Transitions = 7;
+
         inline constexpr auto VertexColorIndex = 5;
 
         inline constexpr auto TransitionsUnsigned = 7u;
+    }
+
+    namespace EngineMapStaticOffset
+    {
+        inline constexpr auto TransitionDirtyBounds = 16;
+
+        inline constexpr auto HeightDirtyBounds = 8;
+
+        inline constexpr auto MissingResourceFlag = 0x18;
+
+        inline constexpr auto MacroPoints = 0;
+
+        inline constexpr auto MicroPoints = 4;
+    }
+
+    namespace EngineDirtyBoundsOffset
+    {
+        inline constexpr auto FirstY = 2;
+
+        inline constexpr auto LastPoint = 4;
+
+        inline constexpr auto LastY = 6;
     }
 
 }

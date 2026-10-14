@@ -489,6 +489,8 @@ namespace NC2Runtime
 
     namespace EngineMapEncoding
     {
+        inline constexpr auto TrianglesPerLayer = 2;
+
         inline constexpr auto TrianglesPerLayerUnsigned = 2u;
     }
 
@@ -499,6 +501,11 @@ namespace NC2Runtime
         inline constexpr auto Add = 1;
 
         inline constexpr auto Set = 0;
+    }
+
+    namespace EngineMapDirtyBounds
+    {
+        inline constexpr auto EmptyMinimum = 32000;
     }
 
 }

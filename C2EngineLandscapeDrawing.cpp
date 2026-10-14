@@ -153,7 +153,7 @@ namespace NC2E2
             if (micro == nullptr) return 0;
             const std::int32_t brightness = static_cast<std::int32_t>(EngineMap_Brightness_Get(point));
             if (brightness == 0) return 0;
-            const auto flags = Read<std::uint8_t>(micro, 2);
+            const auto flags = Read<std::uint8_t>(micro, NC2Layout::EngineMapMicroPointOffset::Flags);
             if ((flags & 1u) == 0) return brightness;
             return (flags & 2u) != 0 ? std::clamp(brightness * 3 / 2, 160, 255) : std::clamp(brightness * 2 / 5, 1, 100);
         }
@@ -283,7 +283,7 @@ namespace NC2E2
                 if ((flags & 1u) == 0 || (flags & NXBasics::BitMask::Bit18) != 0 || !staticPart || Read<std::uint8_t>(logic, 0) != 4) continue;
                 Point origin{static_cast<std::int16_t>(point[0] + Read<std::int8_t>(logic, 2)), static_cast<std::int16_t>(point[1] + Read<std::int8_t>(logic, 3))};
                 if (NC2Logic::MapMigPoint_IsInside(origin, rectangle)) continue;
-                const auto* graphic = Landscape(Read<std::uint16_t>(EngineMap_GetConstMapMicroPointPtr(origin), 0));
+                const auto* graphic = Landscape(Read<std::uint16_t>(EngineMap_GetConstMapMicroPointPtr(origin), NC2Layout::EngineMapMicroPointOffset::LandscapeId));
                 if (graphic->isStatic == 0) continue;
                 const void* originLogic = NC2Logic::GameMap_GetConstMapMicroPointPtr(origin);
                 const auto playerId = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);

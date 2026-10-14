@@ -69,13 +69,13 @@ namespace NC2E2
             NC2Logic::MapMigPoint_ConstructFromMag(micro, packedPoint, false);
             const auto* engineMicro = EngineMap_GetConstMapMicroPointPtr(micro);
             if (engineMicro == nullptr) return 0;
-            const I brightness = Read<std::uint8_t>(macro, 4);
+            const I brightness = Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Brightness);
             if (brightness == 0) return 0;
-            const auto flags = Read<std::uint8_t>(engineMicro, 2);
+            const auto flags = Read<std::uint8_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::Flags);
             if ((flags & 1) == 0) return brightness;
             return (flags & 2) != 0 ? std::clamp(brightness * 3 / 2, 160, 255) : std::clamp(brightness * 2 / 5, 0, 100);
         }
-        return macro != nullptr ? Read<std::uint8_t>(macro, 4) : 0;
+        return macro != nullptr ? Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Brightness) : 0;
     }
     // Original function: FUN_0047cda2.
     I Display_l_DE_Hightlighting_GetMapBrightness(void* display, U x, U y)
@@ -87,14 +87,14 @@ namespace NC2E2
     I Ground_GetMacroHeight(U x, U y)
     {
         const auto* macro = NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
-        return macro != nullptr ? Read<std::uint8_t>(macro, 2) : 0;
+        return macro != nullptr ? Read<std::uint8_t>(macro, NC2Layout::MapMacroPointOffset::Height) : 0;
     }
     // Original function: FUN_00493447.
     I Ground_GetMacroVertexColor(U x, U y)
     {
         const std::int16_t point[2] = {static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
         const auto* macro = EngineMap_GetConstMapMacroPointPtr(point);
-        return macro != nullptr ? Read<std::uint8_t>(macro, 5) : 0;
+        return macro != nullptr ? Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::VertexColorIndex) : 0;
     }
 
     // Original function: FUN_00492f26.
@@ -163,11 +163,11 @@ namespace NC2E2
         const U x = Read<std::uint16_t>(packedPoint, 0), y = Read<std::uint16_t>(packedPoint, 2);
         const U left = static_cast<std::uint16_t>(x - ((y & 1) == 0 ? 1 : 0)), right = static_cast<std::uint16_t>(left + 1), bottom = static_cast<std::uint16_t>(y + 1), east = static_cast<std::uint16_t>(x + 1);
         const auto* mapMacro = NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
-        const I h0 = mapMacro != nullptr ? Read<std::uint8_t>(mapMacro, 2) : 0;
+        const I h0 = mapMacro != nullptr ? Read<std::uint8_t>(mapMacro, NC2Layout::MapMacroPointOffset::Height) : 0;
         const I h1 = Ground_GetMacroHeight(east, y);
         const I b0 = Display_l_DE_Hightlighting_GetMapBrightness(display, x, y), b1 = Display_l_DE_Hightlighting_GetMapBrightness(display, east, y);
         const auto* colorMacro = EngineMap_GetConstMapMacroPointPtr(packedPoint);
-        const U c0 = colorMacro != nullptr ? Read<std::uint8_t>(colorMacro, 5) : 0, c1 = Ground_GetMacroVertexColor(east, y);
+        const U c0 = colorMacro != nullptr ? Read<std::uint8_t>(colorMacro, NC2Layout::EngineMapMacroPointOffset::VertexColorIndex) : 0, c1 = Ground_GetMacroVertexColor(east, y);
         const I h2 = Ground_GetMacroHeight(left, bottom), h3 = Ground_GetMacroHeight(right, bottom);
         const I b2 = Display_l_DE_Hightlighting_GetMapBrightness(display, left, bottom), b3 = Display_l_DE_Hightlighting_GetMapBrightness(display, right, bottom);
         const U c2 = Ground_GetMacroVertexColor(left, bottom), c3 = Ground_GetMacroVertexColor(right, bottom);
@@ -210,28 +210,28 @@ namespace NC2E2
             }
         }
         const auto drawOverlay = [&](bool a, const SCorner& p, U mp, const SCorner& q, U mq, const SCorner& r, U mr) { Display_l_DE_DrawSingleQuadrangle_DrawOverlayPattern(display, bitmap, a, p.x, p.y, p.brightness, mp, q.x, q.y, q.brightness, mq, r.x, r.y, r.brightness, mr); };
-        if (visibleA && (Read<std::uint8_t>(macro, 6) & 1) != 0)
+        if (visibleA && (Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Flags) & 1) != 0)
         {
             std::int16_t cursor[2];
             NC2Logic::MapMigPoint_ConstructFromMag(cursor, packedPoint, false);
             U masks[6];
-            masks[0] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2);
+            masks[0] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), NC2Layout::EngineMapMicroPointOffset::Flags);
             const U directions[5] = {1, 3, 2, 0, 0};
-            for (unsigned i = 0; i != 5; ++i) { NC2Logic::MapMigPoint_MoveCursorWrapped(cursor, directions[i]); masks[i + 1] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2); }
+            for (unsigned i = 0; i != 5; ++i) { NC2Logic::MapMigPoint_MoveCursorWrapped(cursor, directions[i]); masks[i + 1] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), NC2Layout::EngineMapMicroPointOffset::Flags); }
             const auto midOL = Midpoint(origin, lowerLeft), midOB = Midpoint(origin, lowerRight), midLB = Midpoint(lowerLeft, lowerRight);
             drawOverlay(true, origin, masks[0], midOB, masks[1], midOL, masks[2]);
             drawOverlay(true, midOL, masks[2], midLB, masks[4], lowerLeft, masks[3]);
             drawOverlay(false, midOL, masks[2], midOB, masks[1], midLB, masks[4]);
             drawOverlay(true, midOB, masks[1], lowerRight, masks[5], midLB, masks[4]);
         }
-        if (visibleB && (Read<std::uint8_t>(macro, 6) & 2) != 0)
+        if (visibleB && (Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Flags) & 2) != 0)
         {
             std::int16_t cursor[2];
             NC2Logic::MapMigPoint_ConstructFromMag(cursor, packedPoint, false);
             U masks[6];
-            masks[0] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2);
+            masks[0] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), NC2Layout::EngineMapMicroPointOffset::Flags);
             const U directions[5] = {0, 0, 2, 3, 1};
-            for (unsigned i = 0; i != 5; ++i) { NC2Logic::MapMigPoint_MoveCursorWrapped(cursor, directions[i]); masks[i + 1] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), 2); }
+            for (unsigned i = 0; i != 5; ++i) { NC2Logic::MapMigPoint_MoveCursorWrapped(cursor, directions[i]); masks[i + 1] = Read<std::uint8_t>(EngineMap_GetConstMapMicroPointPtr(cursor), NC2Layout::EngineMapMicroPointOffset::Flags); }
             const auto midOR = Midpoint(origin, eastCorner), midOB = Midpoint(origin, lowerRight), midRB = Midpoint(eastCorner, lowerRight);
             drawOverlay(false, origin, masks[0], midOR, masks[1], midOB, masks[4]);
             drawOverlay(true, midOR, masks[1], midRB, masks[3], midOB, masks[4]);

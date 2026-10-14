@@ -973,8 +973,8 @@ namespace NC2E2
     {
         Unregister(EngineMap_l_Transitions_Callback, 0, {0x33, 0x32, 0x31});
         Unregister(EngineMap_l_HeightChanged_Callback, 0, {0x33, 0x32, 0x31});
-        FreeAndClearField(gEngineMapStaticStorage, 0);
-        FreeAndClearField(gEngineMapStaticStorage, 4);
+        FreeAndClearField(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MacroPoints);
+        FreeAndClearField(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MicroPoints);
         gEngineMap = nullptr;
     }
     // Original function: FUN_0047e679, CE2Manager::sl_Callback_SomethingInLogicXtructed.

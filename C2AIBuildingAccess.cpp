@@ -95,7 +95,7 @@ namespace NC2Logic
             const auto check = [](const void* position)
             {
                 const void* terrain = GameMap_GetConstMapMacroPointPtr(position);
-                return Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, 0)], 3) != 0 && Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, 1)], 3) != 0;
+                return Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternA)], 3) != 0 && Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternB)], 3) != 0;
             };
             if (!check(&macro)) return false;
             MapMagPoint_MoveCursorUnwrapped(&macro, 4);

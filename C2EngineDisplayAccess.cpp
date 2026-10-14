@@ -67,7 +67,7 @@ namespace NC2E2
         {
             const void* data = EngineMap_GetConstMapMicroPointPtr(point);
             if (data == nullptr) return 0;
-            const auto flags = NC2Lifetime::Read<std::uint8_t>(data, 2);
+            const auto flags = NC2Lifetime::Read<std::uint8_t>(data, NC2Layout::EngineMapMicroPointOffset::Flags);
             if ((flags & 1u) != 0) return ((flags & 2u) | 1u) << 6;
         }
         return 128;
@@ -100,13 +100,13 @@ namespace NC2E2
     const void* EngineMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y)
     {
         if (x < 0 || x >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth()) || y < 0 || y >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) return nullptr;
-        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, 0)) + (static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u);
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MacroPoints)) + (static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * NC2Layout::RecordSize::EngineMapMacroPointUnsigned);
     }
     // Original function: FUN_004824a5.
     const void* EngineMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y)
     {
         if (x < 0 || x >= NC2Logic::GameMap_GetWidth() || y < 0 || y >= NC2Logic::GameMap_GetHeight()) return nullptr;
-        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, 4)) + (static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 4u);
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MicroPoints)) + (static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * NC2Layout::RecordSize::EngineMapMicroPointUnsigned);
     }
 
     // Original function: FUN_00483f80.
@@ -245,7 +245,7 @@ namespace NC2E2
         std::memcpy(coordinates, point, sizeof(coordinates));
         const auto index = static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(coordinates[1]) + static_cast<std::uint32_t>(coordinates[0]);
         void* entries;
-        std::memcpy(&entries, gEngineMapStaticStorage + 4, sizeof(entries));
+        std::memcpy(&entries, gEngineMapStaticStorage + NC2Layout::EngineMapStaticOffset::MicroPoints, sizeof(entries));
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + index * 4u);
     }
     // Original function: FUN_00481198.

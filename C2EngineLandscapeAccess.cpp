@@ -159,7 +159,7 @@ namespace NC2LogicExternals
         const auto engine = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
         const auto logic = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
         const auto valency = NC2Lifetime::Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? NC2Lifetime::Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
-        return External_Landscape_GetAreaPtr(NC2Lifetime::Read<std::uint16_t>(engine, 0), valency, areaKind);
+        return External_Landscape_GetAreaPtr(NC2Lifetime::Read<std::uint16_t>(engine, NC2Layout::EngineMapMicroPointOffset::LandscapeId), valency, areaKind);
     }
     // Original function: FUN_00480893.
     std::int32_t External_Landscape_GetLandscapeIdByNamePtr(const char* name) { return NC2E2::Engine2d_EntryPoint_GetLandscapeIdByNamePtr(name); }
@@ -196,10 +196,10 @@ namespace NC2LogicExternals
     void External_Landscape_Clear(const void* point)
     {
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-        const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
+        const auto id = NC2Lifetime::Read<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId);
         if (id == NXBasics::IntegerRange::UInt16Maximum) return;
         const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * 0x8Cu + 0x79u);
-        NC2Lifetime::Write<std::uint16_t>(micro, 0, NXBasics::IntegerRange::UInt16Maximum);
+        NC2Lifetime::Write<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId, NXBasics::IntegerRange::UInt16Maximum);
         NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, parameter);
     }
 
@@ -207,8 +207,8 @@ namespace NC2LogicExternals
     void External_Landscape_InternallySetData(const void* point, std::int32_t engineId)
     {
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-        if (NC2Lifetime::Read<std::uint16_t>(micro, 0) == static_cast<std::uint32_t>(engineId)) return;
-        NC2Lifetime::Write<std::uint16_t>(micro, 0, static_cast<std::uint16_t>(engineId));
+        if (NC2Lifetime::Read<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId) == static_cast<std::uint32_t>(engineId)) return;
+        NC2Lifetime::Write<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId, static_cast<std::uint16_t>(engineId));
         NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x79u));
     }
 
@@ -238,7 +238,7 @@ namespace NC2LogicExternals
     {
         const auto* micro = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
         if (micro == nullptr) return -1;
-        const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
+        const auto id = NC2Lifetime::Read<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId);
         return id == NXBasics::IntegerRange::UInt16Maximum ? -1 : static_cast<std::int32_t>(id);
     }
 

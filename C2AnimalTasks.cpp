@@ -396,7 +396,7 @@ namespace NC2Logic
             const auto* position = Animal_GetMapPositionRef(animal);
             std::uint32_t macro = 0;
             MapMagPoint_ConstructFromMig(&macro, position, false);
-            if (Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), 0) == 2)
+            if (Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), NC2Layout::MapMacroPointOffset::PatternA) == 2)
             {
                 const auto food = Game_Random_GetNumber() % 400u + 100u;
                 Write(animal, NC2Layout::AnimalOffset::Food, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Food) + food);

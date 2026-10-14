@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -32,8 +33,8 @@ namespace NC2E2
         std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer); }
         std::uint32_t MacroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MacroPointCount); }
         std::uint32_t MicroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointCount); }
-        std::byte* EngineMacro() { return Read<std::byte*>(gEngineMapStaticStorage, 0); }
-        std::byte* EngineMicro() { return Read<std::byte*>(gEngineMapStaticStorage, 4); }
+        std::byte* EngineMacro() { return Read<std::byte*>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MacroPoints); }
+        std::byte* EngineMicro() { return Read<std::byte*>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MicroPoints); }
 
         void WritePlane(CIoHelper* io, std::uint32_t marker, bool micro, std::uint32_t offset, bool words)
         {
@@ -87,7 +88,7 @@ namespace NC2E2
                 const auto stored = Read<std::uint16_t>(scratch, i * 2u);
                 std::int32_t id = borderId;
                 if (stored < mapping.count && mapping.ids[stored] != -1) id = mapping.ids[stored];
-                else Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 1);
+                else Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 1);
                 Write<std::uint16_t>(EngineMacro(), i * 12u + offset, static_cast<std::uint16_t>(id));
             }
         }
@@ -118,7 +119,7 @@ namespace NC2E2
                 Write(EngineMicro(), i * 4u, id);
                 if (missing)
                 {
-                    Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 1);
+                    Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 1);
                     auto* logic = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage) + i * 14u;
                     if (Read<std::uint8_t>(logic, 0) <= 1) Write<std::uint8_t>(logic, 0, 0);
                 }
@@ -148,7 +149,7 @@ namespace NC2E2
     void EngineMap_IO_Cleanmap_Load(CIoHelper* io)
     {
         if (!io->IO_File_Chunk_CheckMarkerAndVersion(NC2DataIds::EngineMapChunk::MapHeader, 0)) return;
-        Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 0);
+        Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 0);
         const auto borderId = gStaticPatternStorage.borderIds[1];
         SNameMap patterns, transitions, landscapes;
         while (io->IO_File_Chunk_ReadHeader())
@@ -175,12 +176,12 @@ namespace NC2E2
         NXBasics::Runtime_Free(transitions.ids);
         NXBasics::Runtime_Free(landscapes.ids);
         NXBasics::Runtime_Free(patterns.ids);
-        if (Read<std::uint8_t>(gEngineMapStaticStorage, 0x18) != 0)
+        if (Read<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag) != 0)
         {
             const char* message = NC2GuiToolsBase::StringTool_GetOdin001StringPtr(10);
             auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
             if (gui != nullptr) gui->MiscWindows_StringOutputWindow_PrintString(message);
-            Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 0);
+            Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 0);
         }
     }
 

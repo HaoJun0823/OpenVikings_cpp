@@ -123,7 +123,7 @@ namespace NC2Logic
         if (DelayedActionManager_HitTargetsInList(manager, weapon.damageType == 2 ? targets.count : 1u, action, &targets) || MapMigPoint_IsBorderPoint(&originalPosition)) return;
         std::uint32_t macro = 0;
         MapMagPoint_ConstructFromMig(&macro, &originalPosition, false);
-        const auto sound = weapon.soundTypesNoHit[Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), 0)];
+        const auto sound = weapon.soundTypesNoHit[Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), NC2Layout::MapMacroPointOffset::PatternA)];
         if (sound != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, sound, originalPosition, 0);
     }
 

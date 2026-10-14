@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #pragma once
 #include "C2MapPathfinderSectorSearch.h"
 #include "C2ObjectMemberConstructors.h"
@@ -111,7 +114,7 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_0048221c.
-        std::memset(gEngineMapStaticStorage + 8, 0, 16);
+        std::memset(gEngineMapStaticStorage + NC2Layout::EngineMapStaticOffset::HeightDirtyBounds, 0, NC2Layout::RecordSize::EngineDirtyBoundsPair);
     },
 
         // Original function: FUN_0048acd4
