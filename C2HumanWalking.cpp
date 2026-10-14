@@ -351,7 +351,7 @@ namespace NC2Logic
             Write<std::uint32_t>(message, 0, 0x3C);
             Write(message, 8, other);
             Write(message, 0x0C, player);
-            Write(message, 0x28, Read<std::uint32_t>(point, 0));
+            Write(message, 0x28, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }
@@ -368,16 +368,16 @@ namespace NC2Logic
         if (Human_IsAgeAdult(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 5 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) == 0)
         {
             const void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-            auto next = Read<std::uint32_t>(position, 0);
+            auto next = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(next, Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u);
             std::uint32_t macroPoint = 0;
             MapMagPoint_ConstructFromMig(&macroPoint, position, false);
-            const void* macro = GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(&macroPoint, 0), Read<std::int16_t>(&macroPoint, 2));
+            const void* macro = GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(&macroPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&macroPoint, NC2Layout::MapCoordinatePairOffset::Y));
             const auto kind = Read<std::uint8_t>(macro, 0);
             if (kind == 7 || (kind == 8 && Read<std::uint8_t>(macro, 1) == 8)) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x26, true, kind == 7 ? 2u : 3u, MapMigPoint_GetLong(position), MapMigPoint_GetLong(&next));
             else if (kind == 4) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(position), 5, 100);
         }
-        if (Human_IsJobScout(human)) Map_AnimalTool_ChangePlayerId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(position, 0), 3);
+        if (Human_IsJobScout(human)) Map_AnimalTool_ChangePlayerId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates), 3);
         auto resistance = (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) >> 3) & 15u;
         Human_WalkSpeed_Update(human, resistance);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) resistance *= 2u;
@@ -439,7 +439,7 @@ namespace NC2Logic
             auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
             auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
             if (TargetData_IsValid(secondary)) TargetData_GetMapPosition(secondary, &point);
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)));
             if (distance > 40) { Write<std::uint32_t>(secondary, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return false; }
         }
         return true;

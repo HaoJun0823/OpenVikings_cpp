@@ -489,7 +489,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0) continue;
             const void* position = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12;
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-            auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+            auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
             const auto tribe = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType);
             if (tribe != 16 && tribe != 17) distance *= 2u;
             if (distance < nearest) { selected = animal; nearest = distance; }

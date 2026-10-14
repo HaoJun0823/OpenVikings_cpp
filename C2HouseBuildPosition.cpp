@@ -65,7 +65,7 @@ namespace NC2Logic
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
                     if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) { Write(workPoint, 0, candidate); return true; }
                 }
-                Write<std::uint16_t>(&candidate, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, 0) + 1u));
+                Write<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
         }
         return false;

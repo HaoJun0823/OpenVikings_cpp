@@ -311,7 +311,7 @@ namespace NC2Logic
         if (MapMigPoint_IsBorderPoint(point)) return false;
         if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(point)) == 0) return false;
         Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierPositionEnabled, 1);
-        Write(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierPosition, Read<std::uint32_t>(point, 0));
+        Write(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierPosition, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierRadius, radius);
         return true;
     }

@@ -18,7 +18,7 @@ namespace NC2Logic
     {
         // Original function: FUN_0043e84b; constructor-only embedded point initialization.
         void PathfinderWallRoadElement_ConstructPoints(void* element) { Write<std::uint32_t>(element, 0x20, 0); Write<std::uint32_t>(element, 0x24, 0); }
-        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
+        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y))); }
         std::uint16_t Calculation(std::uint32_t point) { return static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&point)); }
         void SetCalculation(std::uint32_t point, std::uint32_t value) { GameMap_CalculationMap_SetValue(&point, static_cast<std::int16_t>(value)); }
     }
@@ -233,7 +233,7 @@ namespace NC2Logic
         if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId)) != 1 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) == 0 || !Map_GoodTool_CanBePutOnMap(isRoad ? 3u : 5u, point)) return false;
         if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 1) return false;
         if (isRoad) return true;
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         for (std::uint32_t ring = 1; ring <= 2; ++ring)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);

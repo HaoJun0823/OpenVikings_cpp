@@ -4,6 +4,9 @@
 
 namespace NC2Logic
 {
+    // Shared physical coordinate pair; this model does not convert between grids.
+    struct SMapCoordinatePairStorage { std::int16_t x, y; };
+
     void* MapMigPoint_ConstructZero(void* packedMigPoint);
     bool MapMigPoint_MoveCursorWrappedEast(void* point);
     bool MapMigPoint_MoveCursorWrappedWest(void* point);

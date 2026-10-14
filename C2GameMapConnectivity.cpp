@@ -157,7 +157,7 @@ namespace NC2Logic
     void GameMap_l_WalkFlagSet_Update(const void* point)
     {
         if (!MapMigPoint_IsInsideMap(point)) return;
-        GameMap_l_WalkFlagSet_ClearConnections(Read<std::uint32_t>(point, 0));
+        GameMap_l_WalkFlagSet_ClearConnections(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         GameMap_l_WalkFlagSet_CalculateConnections(point);
     }
 

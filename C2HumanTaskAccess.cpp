@@ -431,7 +431,7 @@ namespace NC2Logic
         {
             std::uint32_t point = 0;
             TargetData_GetMapPosition(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget, &point);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2));
             if (distance < 50) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14); return; } // Game.exe 004F4300.
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
         }

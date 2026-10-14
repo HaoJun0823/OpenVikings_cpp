@@ -24,7 +24,7 @@ namespace NC2Logic
     {
         void* Guide(std::int32_t id) { return CGuideArray::mStaticVars + static_cast<std::intptr_t>(id) * CGuideArray::ElementSize; }
         const void* Position(const void* guide) { return static_cast<const std::byte*>(guide) + NC2Layout::GuideOffset::MapPosition; }
-        std::int32_t Distance(const void* a, const void* b) { return VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2)); }
+        std::int32_t Distance(const void* a, const void* b) { return VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y)); }
         void AddGood(void* guide, std::uint32_t good, std::uint32_t amount) { Write(guide, NC2Layout::GuideOffset::GoodsCountsUnsigned + good * 4u, Read<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCountsUnsigned + good * 4u) + amount); }
 
         // Original function: FUN_0041b137.

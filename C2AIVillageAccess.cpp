@@ -300,7 +300,7 @@ namespace NC2Logic
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsJobSoldier(human) || Human_IsSexFemale(human) || !Human_IsAgeAdult(human) || (Human_IsJobBuilder(human) && Human_IsAttachedToBuildSite(human))) continue;
             const auto* position = Human_GetMapPositionRef(human);
-            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)));
             if (candidate >= distance) continue;
             std::uint32_t target[3] = {1, static_cast<std::uint32_t>(id), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)};
             if (AIHighLevelHandler_IsObjectUsed(handler, target)) continue;
@@ -412,12 +412,12 @@ namespace NC2Logic
                             if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32) == 0 || !Human_IsAttachedToWorkHouse(human)) continue;
                             const auto* workPoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))) + 36;
                             if (!AIVillage_IsPointInside(village, workPoint)) continue;
-                            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY)));
+                            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(workPoint, NC2Layout::MapCoordinatePairOffset::Y), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY)));
                             if (Human_IsAttachedToHomeHouse(human))
                             {
                                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)) continue;
                                 const auto* homePoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, NC2Layout::HumanOffset::HomeHouseId))) + 36;
-                                const auto oldDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(homePoint, 0), Read<std::uint16_t>(homePoint, 2)));
+                                const auto oldDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(workPoint, NC2Layout::MapCoordinatePairOffset::Y), Read<std::uint16_t>(homePoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(homePoint, NC2Layout::MapCoordinatePairOffset::Y)));
                                 if (candidate >= oldDistance) continue;
                             }
                             if (candidate < distance) { distance = candidate; best = human; }

@@ -26,7 +26,7 @@ namespace NC2Logic
     {
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         void* Animal(std::uint32_t id) { return CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize; }
-        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::Y))); }
         void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
         struct SBreederAnimalCandidates
         {

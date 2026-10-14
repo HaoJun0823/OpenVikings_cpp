@@ -17,7 +17,7 @@ namespace NC2Logic
     namespace
     {
         void* Guide(std::int32_t id) { return CGuideArray::mStaticVars + static_cast<std::intptr_t>(id) * CGuideArray::ElementSize; }
-        std::int32_t Distance(const void* a, const void* b) { return VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2)); }
+        std::int32_t Distance(const void* a, const void* b) { return VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y)); }
 
         // Original function: FUN_0041B360. The search stops at its second owned, strictly nearby guide.
         bool __cdecl slGuideSearch(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)

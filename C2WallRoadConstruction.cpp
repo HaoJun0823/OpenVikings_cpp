@@ -220,7 +220,7 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::PointCount);)
         {
             auto point = Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(center, 0), Read<std::int16_t>(center, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(center, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(center, NC2Layout::MapCoordinatePairOffset::Y));
             if (static_cast<std::uint32_t>(distance) <= radius) { WallBuildManager_ClearWallBuildFlag(manager, player, &point); i = 0; }
             else ++i;
         }
@@ -358,7 +358,7 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::PointCount);)
         {
             auto point = Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(center, 0), Read<std::int16_t>(center, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(center, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(center, NC2Layout::MapCoordinatePairOffset::Y));
             if (static_cast<std::uint32_t>(distance) <= radius) { RoadBuildManager_ClearRoadBuildFlag(manager, player, &point); i = 0; }
             else ++i;
         }

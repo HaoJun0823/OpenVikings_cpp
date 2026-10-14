@@ -200,7 +200,7 @@ namespace NC2Logic
                     RoadBuildManager_ClearRoadBuildFlagForAnyPlayer(gRoadBuildManager, &point);
                     if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 3) GuideManager_RemoveGuide(gGuideManager, nullptr, Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::GuideId));
                 }
-                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+                Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
         }
     }

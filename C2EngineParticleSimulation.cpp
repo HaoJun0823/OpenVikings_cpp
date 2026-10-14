@@ -356,8 +356,8 @@ namespace NC2E2
     {
         const auto id = Read<std::uint32_t>(gStaticParticelEffects, effectId * NC2Layout::RecordSize::ParticleEffectUnsigned);
         const auto maximum = Read<std::uint32_t>(StaticParticle(id), NC2Layout::StaticParticleOffset::MaximumValency);
-        const auto angle = static_cast<std::uint32_t>(NC2Logic::VE_HexagonDirection_GetDirectionFromPositions360Degrees(Read<std::int16_t>(sourcePoint, 0), Read<std::int16_t>(sourcePoint, 2), Read<std::int16_t>(targetPoint, 0), Read<std::int16_t>(targetPoint, 2)));
-        E2ParticelManager_l_CreateEffectParticel(manager, effectId, Read<std::uint32_t>(sourcePoint, 0), angle * maximum / 360u, player);
+        const auto angle = static_cast<std::uint32_t>(NC2Logic::VE_HexagonDirection_GetDirectionFromPositions360Degrees(Read<std::int16_t>(sourcePoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(sourcePoint, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(targetPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(targetPoint, NC2Layout::MapCoordinatePairOffset::Y)));
+        E2ParticelManager_l_CreateEffectParticel(manager, effectId, Read<std::uint32_t>(sourcePoint, NC2Layout::MapCoordinatePairOffset::Coordinates), angle * maximum / 360u, player);
     }
 
     // Original function: FUN_00486779; the native wind-before-movement assignment is deliberate.

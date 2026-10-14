@@ -76,7 +76,7 @@ namespace NC2Logic
                     const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                     if (ignoreHidden && Human_Misc_IsHidden(human)) continue;
                     const void* position = Human_GetMapPositionRef(human);
-                    const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+                    const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
                     if (distance > maximumDistance || distance < minimumDistance || !Human_IsAgeAdult(human) || distance >= cutoff) continue;
                     insert(id, distance);
                 }
@@ -91,7 +91,7 @@ namespace NC2Logic
                 {
                     const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                     const void* position = Vehicle_GetMapPositionRef(vehicle);
-                    const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+                    const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
                     if (distance > maximumDistance || distance < minimumDistance || distance >= cutoff) continue;
                     insert(id, distance);
                 }
@@ -175,7 +175,7 @@ namespace NC2Logic
             {
                 const void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
                 const void* position = Animal_GetMapPositionRef(animal);
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
                 if (distance > maximumDistance || distance < minimumDistance || distance >= cutoff) continue;
                 insert(id, distance);
             }
@@ -256,7 +256,7 @@ namespace NC2Logic
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
                 const void* position = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
                 if (distance > maximumDistance || distance < minimumDistance || distance >= cutoff) continue;
                 insert(id, distance);
             }

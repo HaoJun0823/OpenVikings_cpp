@@ -57,7 +57,7 @@ namespace NC2E2
                             NC2Logic::MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
                         }
                     }
-                    NC2Lifetime::Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+                    NC2Lifetime::Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
                 }
             }
             std::int16_t rectangle[4];

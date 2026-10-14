@@ -51,7 +51,7 @@ namespace NC2Logic
             Write(gGameControl, field, Read<std::uint32_t>(gGameControl, field) + 1u);
         }
 
-        std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))); }
+        std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::Y))); }
     }
 
     // Original function: FUN_00462316.
@@ -147,7 +147,7 @@ namespace NC2Logic
         auto facing = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u;
         if (facing == 7) facing = 2;
         else if (facing == 6) facing = 5;
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), false);
         auto difference = NXBasics::Runtime_TimeSigned32(direction - facing);
         if (difference < 0) difference = -difference;
         if (difference > 2) damage = damage * 150u / 100u;

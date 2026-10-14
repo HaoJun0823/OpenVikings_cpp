@@ -141,7 +141,7 @@ namespace NC2Logic
         auto point = Read<std::uint32_t>(destination, 0);
         if (!Tool_Map_GetNotBlockedPosition(&point, Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::TaskDescription) == 1)) return false;
         const auto* position = Human_GetMapPositionRef(human);
-        if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(position[0], position[1], Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2))) >= radius)
+        if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(position[0], position[1], Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y))) >= radius)
         {
             Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, MapMigPoint_GetLong(&point), 0);
             Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Moving);
@@ -222,7 +222,7 @@ namespace NC2Logic
     {
         std::uint32_t Distance(const void* a, const void* b)
         {
-            return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2)));
+            return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y)));
         }
     }
     // Original function: FUN_0045a832.

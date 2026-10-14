@@ -495,14 +495,14 @@ namespace NC2Logic
         auto* vehicle = Vehicle(human);
         const auto* position = Vehicle_GetMapPositionRef(vehicle);
         const auto* work = static_cast<std::byte*>(house) + 0x24;
-        if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(work, 0), Read<std::int16_t>(work, 2)) <= 5) return false;
+        if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(work, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(work, NC2Layout::MapCoordinatePairOffset::Y)) <= 5) return false;
         if (Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? 1u : 21u);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
             return true;
         }
-        auto point = Read<std::uint32_t>(position, 0);
+        auto point = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates);
         const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
         if (Tool_Vehicle_GetNextMovePointNearPosition(type, work, &point, 20, 2))
         {

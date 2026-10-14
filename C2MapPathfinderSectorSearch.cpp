@@ -16,7 +16,7 @@ namespace NC2Logic
     {
         std::int32_t PathfinderDistance(const void* source, const void* destination)
         {
-            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(destination, 0), Read<std::int16_t>(destination, 2));
+            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(destination, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(destination, NC2Layout::MapCoordinatePairOffset::Y));
         }
     }
 
@@ -86,7 +86,7 @@ namespace NC2Logic
             MapMigPoint_MoveCursorUnwrapped(source, VE_HexagonDirection_OppositeDirection(direction), 1);
             return stop();
         }
-        if (Read<std::uint32_t>(source, 0) == Read<std::uint32_t>(destination, 0)) Write<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
+        if (Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(destination, 0)) Write<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Arrived);
         return direction;
     }
 
@@ -222,7 +222,7 @@ namespace NC2Logic
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -285,7 +285,7 @@ namespace NC2Logic
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -347,7 +347,7 @@ namespace NC2Logic
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;
@@ -410,7 +410,7 @@ namespace NC2Logic
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, 0);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
         GameMap_CalculationMap_SetValue(destination, static_cast<std::int16_t>(budget));
         std::uint32_t current = 0;
         std::uint32_t queued = 1;

@@ -98,7 +98,7 @@ namespace NC2Logic
             }
             else if (type == 5 && (Human_IsSexMale(human) || Human_IsAttachedToHomeHouse(human))) continue;
             const auto* point = Human_GetMapPositionRef(human);
-            const auto distance = VE_HexagonDirection_GetDistance(point[0], point[1], Read<std::int16_t>(&gAISearchHumanPoint, 0), Read<std::int16_t>(&gAISearchHumanPoint, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(point[0], point[1], Read<std::int16_t>(&gAISearchHumanPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&gAISearchHumanPoint, NC2Layout::MapCoordinatePairOffset::Y));
             if (distance < bestDistance) { bestDistance = distance; result = id; }
         }
         if (result != -1 || (type != 2 && type != 3 && type != 4)) return result;
@@ -109,7 +109,7 @@ namespace NC2Logic
             if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) continue;
             if (Human_IsJobScout(human) || Human_IsJobTrader(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id) || Human_IsSexFemale(human) || Human_UserControl_IsPriorityCommandInQueue(human)) continue;
             const auto* point = Human_GetMapPositionRef(human);
-            const auto distance = VE_HexagonDirection_GetDistance(point[0], point[1], Read<std::int16_t>(&gAISearchHumanPoint, 0), Read<std::int16_t>(&gAISearchHumanPoint, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(point[0], point[1], Read<std::int16_t>(&gAISearchHumanPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&gAISearchHumanPoint, NC2Layout::MapCoordinatePairOffset::Y));
             if (distance < bestDistance) { bestDistance = distance; result = id; }
         }
         return result;

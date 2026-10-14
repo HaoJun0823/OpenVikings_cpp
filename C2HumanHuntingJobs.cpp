@@ -35,7 +35,7 @@ namespace NC2Logic
             if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0) continue;
             const void* point = Animal_GetMapPositionRef(animal);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2))) + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints);
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y))) + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints);
             if (distance >= bestDistance) continue;
             best = animal;
             bestDistance = distance;

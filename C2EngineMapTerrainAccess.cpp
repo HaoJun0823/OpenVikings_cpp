@@ -39,7 +39,7 @@ namespace
         NC2Logic::MapMagPoint_ConstructFromMig(point, micro, false);
         if (!NC2Logic::MapMagPoint_IsInsideMap(point)) return false;
         std::int16_t x, y;
-        NC2Logic::VE_MapCoords_GetMicroGridMapOffset(Read<std::int16_t>(micro, 0), Read<std::int16_t>(micro, 2), &x, &y);
+        NC2Logic::VE_MapCoords_GetMicroGridMapOffset(Read<std::int16_t>(micro, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(micro, NC2Layout::MapCoordinatePairOffset::Y), &x, &y);
         const int offset = x | (y << 1);
         using namespace NC2Logic;
         switch (offset)

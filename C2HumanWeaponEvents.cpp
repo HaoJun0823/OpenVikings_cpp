@@ -39,7 +39,7 @@ namespace NC2Logic
         // Original function: FUN_0046ba2c; registered Windows static exit callback has an empty body.
         int __cdecl HumanArrowCallback_OnExit() { return 0; }
         SArrowCallbackStorage gHumanArrowCallbackStorage{};
-        std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))); }
+        std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::Y))); }
     }
 
     // Original function: FUN_00469b78; primary target precedes secondary target, and invalid targets fail immediately.

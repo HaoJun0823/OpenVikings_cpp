@@ -132,7 +132,7 @@ namespace NC2Logic
         auto* targets = static_cast<LandscapeTargetList*>(list);
         if (targets->count == targets->capacity) return false;
         if (!Tool_IsEnemyLandscapeOnPoint(player, point)) return true;
-        const std::uint32_t entry[2] = { Read<std::uint32_t>(point, 0), static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2))) };
+        const std::uint32_t entry[2] = { Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y))) };
         return LandscapeTargetList_Add(targets, entry);
     }
 }

@@ -48,7 +48,7 @@ namespace NC2Logic
         {
             const auto& swarm = static_cast<CMapFishManager*>(gMapFishManager)->mSwarms[index];
             if ((mMode & 1u) != 0 && swarm.fishCount == 0) { index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u); continue; }
-            if ((mMode & 2u) == 0 || static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(&mPoint, 0), Read<std::int16_t>(&mPoint, 2))) <= mRadius) return index;
+            if ((mMode & 2u) == 0 || static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(&mPoint, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&mPoint, NC2Layout::MapCoordinatePairOffset::Y))) <= mRadius) return index;
             index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u);
         }
         return -1;
@@ -450,7 +450,7 @@ namespace NC2Logic
             auto& swarm = mSwarms[index];
             if (swarm.continentId == continent)
             {
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)));
                 if (distance < maximumDistance)
                 {
                     if (distance < nearestDistance)
@@ -523,7 +523,7 @@ namespace NC2Logic
         {
             const auto& swarm = mSwarms[index];
             if (swarm.continentId != continent) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)));
             if (distance < maximumDistance && distance < nearestDistance && static_cast<std::int32_t>(swarm.fishCount) > 0) { nearest = index; nearestDistance = distance; }
         }
         if (nearest >= mSwarmCount) return false;

@@ -36,7 +36,7 @@ namespace NC2Logic
     {
         const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
         const SStaticWeaponTypeData& Weapon(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)])[Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon)]; }
-        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::Y))); }
         void* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
         const void* Moveable(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(id) * NC2Layout::RecordSize::MapMoveableSigned; }
         bool HasAttackingHuman(const void* human, const void* point, bool soldiersOnly, bool includeHeroes)
@@ -136,7 +136,7 @@ namespace NC2Logic
     // Original function: FUN_00461dda.
     bool TargetData_MapPos_StartCheckForAttackPoint(void* target, const void* point)
     {
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(target, 4), Read<std::int16_t>(target, 6), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(target, 4), Read<std::int16_t>(target, 6), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), false);
         Write(target, 8, static_cast<std::int16_t>((static_cast<std::int16_t>(direction) + 5) % 6));
         Write<std::uint16_t>(target, 10, 0);
         return TargetData_MapPos_NextAttackPoint(target);
@@ -217,7 +217,7 @@ namespace NC2Logic
     void Human_l_AttackTarget(void* human, const void* point)
     {
         const auto& weapon = Weapon(human);
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), false);
         Human_l_StartAtomicAnimation(human, static_cast<std::uint32_t>(weapon.atomicActionType), static_cast<std::int32_t>(direction));
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
     }

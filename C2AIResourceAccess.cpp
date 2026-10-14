@@ -22,7 +22,7 @@ namespace NC2Logic
         }
         const std::byte* Resource(const void* manager, std::int32_t index) { return static_cast<const std::byte*>(manager) + index * NC2Layout::RecordSize::AIResourcePoint; }
         std::byte* Resource(void* manager, std::int32_t index) { return static_cast<std::byte*>(manager) + index * NC2Layout::RecordSize::AIResourcePoint; }
-        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(first, 0), Read<std::uint16_t>(first, 2), Read<std::uint16_t>(second, 0), Read<std::uint16_t>(second, 2))); }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(first, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(first, NC2Layout::MapCoordinatePairOffset::Y), Read<std::uint16_t>(second, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(second, NC2Layout::MapCoordinatePairOffset::Y))); }
     }
 
     // Original function: FUN_004537c9.

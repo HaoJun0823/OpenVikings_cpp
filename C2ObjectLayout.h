@@ -4102,4 +4102,14 @@ namespace NC2Layout
         inline constexpr auto HumanId = 0;
     }
 
+    // Shared two-WORD map-coordinate storage; grid units belong to the owning API.
+    namespace MapCoordinatePairOffset
+    {
+        inline constexpr auto Coordinates = 0;
+
+        inline constexpr auto X = 0;
+
+        inline constexpr auto Y = 2;
+    }
+
 }

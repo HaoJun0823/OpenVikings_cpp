@@ -112,7 +112,7 @@ namespace NC2Logic
             for (std::uint32_t column = 0; column < area->rows[row].width; ++column)
             {
                 if (MapMigPoint_IsInsideMap(&point) && Tool_IsAnyNotMovingVehicleInsidePoint(&point)) return 1;
-                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+                Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
         }
         Write(realPosition, 0, Read<std::uint32_t>(candidate, 0));

@@ -26,7 +26,7 @@ namespace NC2Logic
         struct SBuildSearch { void* village; std::int32_t engineType; std::uint32_t stage; std::uint8_t checkTerrain; std::byte padding[3]; void* output; std::uint32_t userData; };
         static_assert(sizeof(SBuildSearch) == 24);
         void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
-        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
+        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y))); }
     }
 
     // Original function: FUN_00453bd4; the inlined original method name remains unresolved.

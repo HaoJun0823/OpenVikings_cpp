@@ -101,7 +101,7 @@ namespace NC2Logic
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
             const auto* position = Human_GetMapPositionRef(human);
-            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::Coordinates), Read<std::int16_t>(point, 2)));
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::Coordinates), Read<std::int16_t>(point, 2)));
             if (candidate < distance) { distance = candidate; best = human; }
         }
         return best;
@@ -134,7 +134,7 @@ namespace NC2Logic
         int __cdecl NoWayMessagePoint_OnExit() { return 0; }
         void* Soldier(void* handler, std::uint32_t slot) { return static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldiersUnsigned + slot * NC2Layout::RecordSize::AISoldierUnsigned; }
         const void* Soldier(const void* handler, std::uint32_t slot) { return static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldiersUnsigned + slot * NC2Layout::RecordSize::AISoldierUnsigned; }
-        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
+        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(a, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(b, NC2Layout::MapCoordinatePairOffset::Y))); }
     }
 
     // Original function: FUN_0045B02A; only the single-soldier leader id is searched.

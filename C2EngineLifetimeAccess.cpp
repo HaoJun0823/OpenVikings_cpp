@@ -267,8 +267,8 @@ namespace NC2E2
     std::int32_t E2MapWeatherManagerSectorManager_Snow_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
         const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
         const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
@@ -292,8 +292,8 @@ namespace NC2E2
     std::int32_t E2MapWeatherManagerSectorManager_Rain_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
         const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
         const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
@@ -317,8 +317,8 @@ namespace NC2E2
     std::int32_t E2MapWeatherManagerSectorManager_Sand_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
         const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
         const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
@@ -1398,8 +1398,8 @@ namespace NC2E2
             {
                 std::uint32_t point = param1;
                 NC2Logic::MapMigPoint_AssignLong(&point, param2);
-                const std::int16_t x = Read<std::int16_t>(&point, 0);
-                const std::int16_t y = Read<std::int16_t>(&point, 2);
+                const std::int16_t x = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X);
+                const std::int16_t y = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y);
                 if (x < Read<std::int16_t>(&gAmbientSoundChangeState, 0)) Write<std::int16_t>(&gAmbientSoundChangeState, 0, x);
                 if (x > Read<std::int16_t>(&gAmbientSoundChangeState, 4)) Write<std::int16_t>(&gAmbientSoundChangeState, 4, x);
                 if (y < Read<std::int16_t>(&gAmbientSoundChangeState, 2)) Write<std::int16_t>(&gAmbientSoundChangeState, 2, y);

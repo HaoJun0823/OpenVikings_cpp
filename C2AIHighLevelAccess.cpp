@@ -148,7 +148,7 @@ namespace NC2Logic
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1) { chosen = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint); break; }
             if (House_GetHouseMainType(house) != 1) continue;
-            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(&chosen, 0), Read<std::uint16_t>(&chosen, 2)));
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(&chosen, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(&chosen, NC2Layout::MapCoordinatePairOffset::Y)));
             if (candidate < distance) { chosen = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint); distance = candidate; }
         }
         for (; count < 4; ++count)

@@ -113,13 +113,13 @@ namespace NC2Logic
             offsetY = Read<std::uint32_t>(graphics, 0x1B8u + selected * 12u);
         }
         const auto divisor = Game_Random_GetNumber() % 30u + 1u;
-        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(&source, 0), Read<std::int16_t>(&source, 2)));
+        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::Y)));
         const auto spread = (distance >> 2) / divisor;
         const auto scatterDivisor = NXBasics::Runtime_TimeSigned32(spread + 1u), half = NXBasics::Runtime_TimeSigned32(spread) / 2;
         const auto y = static_cast<std::int16_t>(Game_Random_GetNumber()) % scatterDivisor - half;
         const auto x = static_cast<std::int16_t>(Game_Random_GetNumber()) % scatterDivisor - half;
         MapMigPoint_AddOffset(&point, static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
-        const auto flightTicks = (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(&source, 0), Read<std::int16_t>(&source, 2))) << 3) / static_cast<std::uint32_t>(weapon.speed);
+        const auto flightTicks = (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::Y))) << 3) / static_cast<std::uint32_t>(weapon.speed);
         // Complete native 0x24-byte stack callback record; its original type name remains unresolved.
         const std::uint32_t arrow[9] = {source, point, height, offsetX, offsetY, 20, 20, static_cast<std::uint32_t>(weapon.munitionType), flightTicks};
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x23, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(arrow)), 0, 0);
@@ -176,7 +176,7 @@ namespace NC2Logic
                         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 7 || Human_UserControl_GetNextJobType(human) != 7 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0 || Human_IsAttachedToBuildSite(human) || Human_IsAttachedToVehicle(human)) continue;
                         const void* position = Human_GetMapPositionRef(human);
                         if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(base, 0), Read<std::int16_t>(base, 2)));
+                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(base, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(base, NC2Layout::MapCoordinatePairOffset::Y)));
                         if (selected != nullptr && distance >= bestDistance) continue;
                         selected = human;
                         bestDistance = distance;
@@ -237,14 +237,14 @@ namespace NC2Logic
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             const void* position = Human_GetMapPositionRef(human);
-            if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, 0) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) continue;
+            if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, NC2Layout::MapCoordinatePairOffset::Coordinates) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) continue;
             if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) { ++count; continue; }
             if (Human_IsDefendingHouse(human, -1))
             {
                 const auto oldId = Human_GetDefenseHouseId(human);
                 const void* oldHouse = oldId == -1 ? nullptr : CHouseArray::mStaticVars + static_cast<std::uint32_t>(oldId) * CHouseArray::ElementSize;
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(door, 0), Read<std::int16_t>(door, 2)));
-                const auto previousDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointY)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(door, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(door, NC2Layout::MapCoordinatePairOffset::Y)));
+                const auto previousDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointY)));
                 if (distance >= previousDistance) continue;
             }
             else if (Human_UserControl_IsExecutingUserCommand(human)) continue;

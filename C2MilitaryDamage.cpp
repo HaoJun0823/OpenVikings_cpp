@@ -61,7 +61,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsBorderPoint(&point)) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
                 if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) != continent || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) continue;
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::Y)));
                 if (distance <= maximum) continue;
                 maximum = distance;
                 Write(result, 0, point);

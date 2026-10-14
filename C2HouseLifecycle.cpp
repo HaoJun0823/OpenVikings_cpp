@@ -371,7 +371,7 @@ namespace NC2Logic
                     Write<std::uint8_t>(data, 2, static_cast<std::uint8_t>(previous + delta));
                     GameMapModifyManager_GameMapModified(13, &point, 0);
                 }
-                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+                Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
         }
     }

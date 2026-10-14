@@ -28,7 +28,7 @@ namespace NC2Logic
     {
         const SStaticWeaponTypeData* Weapon(const void* animal) { return reinterpret_cast<const SStaticWeaponTypeData*>(reinterpret_cast<std::uintptr_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType)]) + 0xC4u); }
         void* Animal(std::uint32_t id) { return CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize; }
-        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::Y))); }
 
         // Original function: FUN_00446f48.
         bool __cdecl slAnimalSearchNextFreeMilitaryMapPointFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
@@ -152,7 +152,7 @@ namespace NC2Logic
     void Animal_l_Military_AttackTarget(void* animal, const void* point)
     {
         const auto* source = Animal_GetMapPositionRef(animal);
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), false);
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, Animal_l_StartAtomicAnimation(animal, Weapon(animal)->atomicActionType, direction) ? 1u : 3u);
     }
 }

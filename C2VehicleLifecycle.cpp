@@ -55,7 +55,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 3) continue;
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CVehicleArray::ElementSize;
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY)));
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY)));
             if (gStaticVehicleTypeStorage.records[Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)].logicSize >= distance) return true;
         }
         return false;
@@ -66,7 +66,7 @@ namespace NC2Logic
         void* Vehicle(std::int32_t id) { return CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; }
         void* Moveable(const void* vehicle) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId)) * NC2Layout::RecordSize::MapMoveableSigned; }
         const void* Slot(const void* vehicle, std::uint32_t offset, std::uint32_t index) { return static_cast<const std::byte*>(vehicle) + offset + index * NC2Layout::RecordSize::VehiclePassenger; }
-        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(second, NC2Layout::MapCoordinatePairOffset::Y))); }
 
         // The callback retains the initial output point.
         struct SVehiclePointSearch

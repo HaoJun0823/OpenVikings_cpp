@@ -622,7 +622,7 @@ namespace NC2Logic
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY)));
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY)));
                 if (distance > nearest) continue;
                 nearest = distance;
                 selected = house;

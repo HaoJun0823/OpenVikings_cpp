@@ -578,7 +578,7 @@ namespace NC2Logic
                     const auto* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
                     if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent)
                     {
-                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(&candidate, 0), Read<std::int16_t>(&candidate, 2)));
+                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::Y)));
                         if (distance < best)
                         {
                             bool occupied = false;
@@ -598,7 +598,7 @@ namespace NC2Logic
                         }
                     }
                 }
-                Write<std::uint16_t>(&candidate, 0, Read<std::uint16_t>(&candidate, 0) + 1u);
+                Write<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X, Read<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X) + 1u);
             }
         }
         return best != 1000000;
@@ -693,11 +693,11 @@ namespace NC2Logic
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
                     if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent)
                     {
-                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(&candidate, 0), Read<std::int16_t>(&candidate, 2)));
+                        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(source, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::Y)));
                         if (distance < best) { Write(point, 0, candidate); best = distance; }
                     }
                 }
-                Write<std::uint16_t>(&candidate, 0, Read<std::uint16_t>(&candidate, 0) + 1u);
+                Write<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X, Read<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X) + 1u);
             }
         }
         return best != 1000000;

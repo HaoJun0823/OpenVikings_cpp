@@ -149,7 +149,7 @@ namespace NC2Logic
             const auto* animalPosition = Animal_GetMapPositionRef(animal);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(animalPosition),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
             const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(animalPosition, player);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(animalPosition, 0), Read<std::uint16_t>(animalPosition, 2), Read<std::uint16_t>(position, 0), Read<std::uint16_t>(position, 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(animalPosition, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(animalPosition, NC2Layout::MapCoordinatePairOffset::Y), Read<std::uint16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::uint16_t>(position, NC2Layout::MapCoordinatePairOffset::Y));
             const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(danger) + static_cast<std::uint32_t>(distance / 5));
             if (score > bestScore) continue;
             bestScore = score; best = animal;
