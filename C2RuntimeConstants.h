@@ -396,4 +396,25 @@ namespace NC2Runtime
         inline constexpr auto VehicleSizeMaskUnsigned = 7u;
     }
 
+    namespace ObjectGroupLimits
+    {
+        inline constexpr auto Objects = 100;
+
+        inline constexpr auto Groups = 10;
+    }
+
+    namespace DeadHumanLimits
+    {
+        inline constexpr auto Capacity = 50;
+
+        inline constexpr auto NameBytes = 40;
+    }
+
+    namespace GuiCallbackPriority
+    {
+        inline constexpr auto InputManager = 20;
+
+        inline constexpr auto StateManagers = 10;
+    }
+
 }

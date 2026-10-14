@@ -912,6 +912,8 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto ObjectGroupManager = 12044;
+
         inline constexpr auto InputManager = 3964;
         inline constexpr auto EmbeddedSavegameManager = 0x8;
         inline constexpr auto MacroMapManager = 0x8;
@@ -1592,6 +1594,30 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuiMessagePointerRegion = 12;
+
+        inline constexpr auto GuiMessageStatePrefix = 12;
+
+        inline constexpr auto MapMigPointUnsigned = 4u;
+
+        inline constexpr auto HumanUnsigned = 0xC58u;
+
+        inline constexpr auto DeadHumanPool = 0xBB8;
+
+        inline constexpr auto DeadHumanRecordPointer = 4;
+
+        inline constexpr auto DeadHumanStatePrefix = 8;
+
+        inline constexpr auto DeadHumanRecord = 60;
+
+        inline constexpr auto DeadHumanRecordUnsigned = 0x3Cu;
+
+        inline constexpr auto ObjectGroupPool = 12040;
+
+        inline constexpr auto ObjectGroupUnsigned = 0x4B4u;
+
+        inline constexpr auto ObjectGroupObjectUnsigned = 12u;
+
         inline constexpr auto MissionResultParameterUnsigned = 4u;
 
         inline constexpr auto PlayerTradeCounterUnsigned = 4u;
@@ -2568,6 +2594,8 @@ namespace NC2Layout
 
     namespace GuiMessageEnvelopeOffset
     {
+        inline constexpr auto MessageUnsigned = 8u;
+
         inline constexpr auto Type = 8;
 
         inline constexpr auto PlayerId = 0x10;
@@ -3080,6 +3108,8 @@ namespace NC2Layout
 
     namespace MapMigPointOffset
     {
+        inline constexpr auto MapYUnsigned = 2u;
+
         inline constexpr auto MapX = 0;
 
         inline constexpr auto MapY = 2;
@@ -3677,6 +3707,67 @@ namespace NC2Layout
         inline constexpr auto UniqueId = 8;
 
         inline constexpr auto AllocatedFlag = 0;
+    }
+
+    namespace ObjectGroupOffset
+    {
+        inline constexpr auto SecondObjectTypeUnsigned = 16u;
+
+        inline constexpr auto FirstObjectUniqueId = 12;
+
+        inline constexpr auto FirstObjectId = 8;
+
+        inline constexpr auto FirstObjectUniqueIdUnsigned = 12u;
+
+        inline constexpr auto FirstObjectType = 4;
+
+        inline constexpr auto FirstObjectTypeUnsigned = 4u;
+
+        inline constexpr auto FirstObjectIdUnsigned = 8u;
+
+        inline constexpr auto Count = 0;
+    }
+
+    namespace ObjectGroupObjectOffset
+    {
+        inline constexpr auto UniqueId = 8;
+
+        inline constexpr auto Type = 0;
+
+        inline constexpr auto ObjectId = 4;
+    }
+
+    namespace ObjectGroupManagerOffset
+    {
+        inline constexpr auto Groups = 4;
+
+        inline constexpr auto GroupsUnsigned = 4u;
+    }
+
+    namespace DeadHumanManagerOffset
+    {
+        inline constexpr auto NextRecordIndex = 4;
+
+        inline constexpr auto Records = 8;
+
+        inline constexpr auto Count = 0;
+    }
+
+    namespace DeadHumanRecordOffset
+    {
+        inline constexpr auto Name = 4;
+
+        inline constexpr auto MapX = 0x38;
+
+        inline constexpr auto MapY = 0x3A;
+
+        inline constexpr auto MapPosition = 0x38;
+
+        inline constexpr auto JobType = 0x34;
+
+        inline constexpr auto DeathTick = 0x30;
+
+        inline constexpr auto HumanUniqueId = 0;
     }
 
 }

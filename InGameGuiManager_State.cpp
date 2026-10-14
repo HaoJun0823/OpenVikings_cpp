@@ -169,7 +169,7 @@ namespace NInGameGuiManager
         if (allocation != nullptr) new (allocation) CInputManager;
         allocation = NXBasics::Runtime_AllocateWithNewHandler(24, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiMessages::CMessageManager;
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(12044, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::ObjectGroupManager, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiGroups::CObjectGroupManager;
         allocation = NXBasics::Runtime_AllocateWithNewHandler(12, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager;

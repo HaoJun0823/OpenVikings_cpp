@@ -37,7 +37,7 @@ namespace NC2InGameGuiMessages
             if (Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::Type) == 0x3B)
             {
                 const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HumanUniqueId));
-                if (dead != nullptr) { *point = Read<std::uint32_t>(dead, 0x38); return true; }
+                if (dead != nullptr) { *point = Read<std::uint32_t>(dead, NC2Layout::DeadHumanRecordOffset::MapPosition); return true; }
             }
             if (!NC2Logic::MapMigPoint_IsInsideMap(static_cast<const std::byte*>(record) + NC2Layout::GuiMessageEnvelopeOffset::MapPoint)) return false;
             *point = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::MapPoint);

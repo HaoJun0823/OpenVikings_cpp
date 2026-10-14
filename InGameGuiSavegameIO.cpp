@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
@@ -105,7 +106,7 @@ namespace NC2InGameGuiGroups
     void CObjectGroupManager::IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::ObjectGroups, 2);
-        io->IO_Memory_WriteBinary(this, 0x2F0C);
+        io->IO_Memory_WriteBinary(this, NC2Layout::ObjectSize::ObjectGroupManager);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
@@ -114,8 +115,8 @@ namespace NC2InGameGuiGroups
     {
         if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::ObjectGroups && io->mReadHeader.version == 2)
         {
-            if (NC2Logic::gGameStaticVars.networkGame == 0) { io->IO_File_ReadBinary(this, 0x2F0C); return; }
-            std::memset(this, 0, 12044);
+            if (NC2Logic::gGameStaticVars.networkGame == 0) { io->IO_File_ReadBinary(this, NC2Layout::ObjectSize::ObjectGroupManager); return; }
+            std::memset(this, 0, NC2Layout::ObjectSize::ObjectGroupManager);
         }
         io->IO_File_Chunk_Skip();
     }
@@ -127,8 +128,8 @@ namespace NC2InGameGuiDeadHumanDataManager
     void CDeadHumanDataManager::IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DeadHumanData, 1);
-        io->IO_Memory_WriteBinary(this, 8);
-        io->IO_Memory_WriteBinary(NC2Lifetime::Read<void*>(this, 8), 0xBB8);
+        io->IO_Memory_WriteBinary(this, NC2Layout::RecordSize::DeadHumanStatePrefix);
+        io->IO_Memory_WriteBinary(NC2Lifetime::Read<void*>(this, NC2Layout::DeadHumanManagerOffset::Records), NC2Layout::RecordSize::DeadHumanPool);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
@@ -137,10 +138,10 @@ namespace NC2InGameGuiDeadHumanDataManager
     {
         if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::DeadHumanData && io->mReadHeader.version == 1)
         {
-            io->IO_File_ReadBinary(this, 8);
-            io->IO_File_ReadBinary(NC2Lifetime::Read<void*>(this, 8), 0xBB8);
+            io->IO_File_ReadBinary(this, NC2Layout::RecordSize::DeadHumanStatePrefix);
+            io->IO_File_ReadBinary(NC2Lifetime::Read<void*>(this, NC2Layout::DeadHumanManagerOffset::Records), NC2Layout::RecordSize::DeadHumanPool);
         }
-        else { io->IO_File_Chunk_Skip(); std::memset(this, 0, 8); }
+        else { io->IO_File_Chunk_Skip(); std::memset(this, 0, NC2Layout::RecordSize::DeadHumanStatePrefix); }
     }
 }
 

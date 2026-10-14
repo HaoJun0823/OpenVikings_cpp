@@ -84,6 +84,10 @@ namespace NC2InGameGuiMessages
 
 namespace NC2InGameGuiGroups
 {
+    // Physical Windows group storage; the four-byte manager prefix remains unresolved.
+    struct SObjectGroupObjectStorage { std::uint32_t type, objectId, uniqueId; };
+    struct SObjectGroupStorage { std::uint32_t count; SObjectGroupObjectStorage objects[100]; };
+    struct SObjectGroupManagerStorage { std::byte unresolvedPrefix[4]; SObjectGroupStorage groups[10]; };
     inline void* gObjectGroupManager = nullptr; // 005690D8
     class CObjectGroupManager
     {
@@ -119,6 +123,9 @@ namespace NC2InGameGuiGroups
 
 namespace NC2InGameGuiDeadHumanDataManager
 {
+    // Owned ring records; the original save format omits the manager's pointer.
+    struct SDeadHumanRecordStorage { std::uint32_t humanUniqueId; char name[40]; std::byte unresolved2C[4]; std::uint32_t deathTick, jobType, mapPosition; };
+    struct SDeadHumanManagerStorage { std::uint32_t count, nextRecordIndex; SDeadHumanRecordStorage* records; };
     inline void* gDeadHumanDataManager = nullptr; // 00569404
     class CDeadHumanDataManager
     {

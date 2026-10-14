@@ -89,7 +89,7 @@ namespace NC2InGameGuiMessages
         case SwitchIds::UserMessage::HeroDied:
         {
             const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(message, 0x14));
-            if (dead != nullptr) Runtime_PrintString(output, "%s %s", static_cast<const char*>(dead) + 4, text(120));
+            if (dead != nullptr) Runtime_PrintString(output, "%s %s", static_cast<const char*>(dead) + NC2Layout::DeadHumanRecordOffset::Name, text(120));
             else std::strcpy(output, text(121));
             return;
         }
