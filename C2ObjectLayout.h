@@ -916,6 +916,24 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto GuiListBoxController = 60;
+
+        inline constexpr auto GuiListBox = 116;
+
+        inline constexpr auto GuiWindowCloser = 84;
+
+        inline constexpr auto GuiWindowMover = 248;
+
+        inline constexpr auto GuiTextElement = 256;
+
+        inline constexpr auto WorldGuiElement = 580;
+
+        inline constexpr auto GuiTextButton = 96;
+
+        inline constexpr auto GuiGfxButton = 84;
+
+        inline constexpr auto TraderConfigWindow = 692;
+
         inline constexpr auto AIHighLevelHandler = 43580;
 
         inline constexpr auto AISinglePlayerHandler = 0xB068;
@@ -1628,6 +1646,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuiGfxElementVars = 12;
+
+        inline constexpr auto GuiGfxButtonVars = 40;
+
+        inline constexpr auto GoodId = 4;
+
+        inline constexpr auto TraderConfigWindowVars = 580;
+
+        inline constexpr auto TraderImportButtonPointerUnsigned = 4u;
+
         inline constexpr auto AISinglePlayerVersion3Prefix = 0xA5B8;
 
         inline constexpr auto HypertextGuiElementVars = 28;
@@ -4574,6 +4602,74 @@ namespace NC2Layout
         inline constexpr auto HighLevelHandlers = 0x50;
 
         inline constexpr auto HighLevelHandlersUnsigned = 0x50u;
+    }
+
+    namespace TraderConfigWindowOffset
+    {
+        inline constexpr auto RightPreviewElement = 0x2B0;
+
+        inline constexpr auto LeftPreviewElement = 0x29C;
+
+        inline constexpr auto RightPreviewRectangleUnsigned = 0x2A0u;
+
+        inline constexpr auto RightPreviewRectangle = 0x2A0;
+
+        inline constexpr auto LeftPreviewRectangleUnsigned = 0x28Cu;
+
+        inline constexpr auto LeftPreviewRectangle = 0x28C;
+
+        inline constexpr auto RightImportControlsUnsigned = 0x180u;
+
+        inline constexpr auto LeftImportControlsUnsigned = 0x78u;
+
+        inline constexpr auto ClearImportsButton = 0x288;
+
+        inline constexpr auto CloseCommand = 0x74;
+
+        inline constexpr auto Owner = 0x70;
+    }
+
+    namespace GuiGfxButtonOffset
+    {
+        inline constexpr auto ImmediateTooltip = 0x44;
+
+        inline constexpr auto Disabled = 0x50;
+
+        inline constexpr auto Tooltip = 0x40;
+
+        inline constexpr auto Receiver = 0x3C;
+
+        inline constexpr auto Command = 0x38;
+
+        inline constexpr auto Palette = 0x30;
+
+        inline constexpr auto Centered = 0x34;
+
+        inline constexpr auto GraphicsId = 0x2C;
+
+        inline constexpr auto Selected = 0x36;
+
+        inline constexpr auto RectangularStyle = 0x35;
+
+        inline constexpr auto MessageParameter2 = 0x4C;
+
+        inline constexpr auto MessageParameter1 = 0x48;
+    }
+
+    namespace RectangleStorageOffset
+    {
+        inline constexpr auto Height = 12;
+
+        inline constexpr auto Width = 8;
+
+        inline constexpr auto Y = 4;
+    }
+
+    namespace MouseManagerPositionOffset
+    {
+        inline constexpr auto Y = 4;
+
+        inline constexpr auto X = 0;
     }
 
 }

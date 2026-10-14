@@ -460,7 +460,7 @@ namespace NC2InGameGuiSelection
             } break;
         case SwitchIds::VehicleWindowCommand::OpenTraderConfiguration: if (Read<void*>(window,NC2Layout::SingleVehicleWindowOffset::TraderConfigWindow) == nullptr)
         {
-            auto* memory = NXBasics::Runtime_AllocateWithNewHandler(692,1);
+            auto* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::TraderConfigWindow,1);
                 auto* popup = memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedTraderConfigWindow_Construct(memory,window,10023);
                 Write(window,NC2Layout::SingleVehicleWindowOffset::TraderConfigWindow,popup);
                 BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(popup),false);

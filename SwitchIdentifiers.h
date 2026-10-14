@@ -2442,4 +2442,19 @@ namespace SwitchIds
         inline constexpr auto Papyrus = 1;
     }
 
+    namespace TraderConfigCommand
+    {
+        inline constexpr auto FrameUpdate = 2030;
+
+        inline constexpr auto CenterOnSecondHouse = 10301;
+
+        inline constexpr auto CenterOnFirstHouse = 10300;
+
+        inline constexpr auto SelectAgreement = 10200;
+
+        inline constexpr auto ToggleGoodImport = 10100;
+
+        inline constexpr auto ClearImports = 10000;
+    }
+
 }

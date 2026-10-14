@@ -621,4 +621,18 @@ namespace NC2Runtime
         inline constexpr auto CycleTicks = 60;
     }
 
+    namespace TraderCommandBits
+    {
+        inline constexpr auto GoodTypeShiftUnsigned = 16u;
+
+        inline constexpr auto ImportEnabledUnsigned = 0x1000000u;
+    }
+
+    namespace TraderConfigLimits
+    {
+        inline constexpr auto VisibleGoods = 55;
+
+        inline constexpr auto RouteHouses = 2;
+    }
+
 }

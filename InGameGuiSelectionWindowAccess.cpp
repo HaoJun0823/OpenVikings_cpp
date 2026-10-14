@@ -961,7 +961,7 @@ namespace NC2InGameGuiSelection
             {
                 if (Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigWindow) == nullptr)
                 {
-                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(692, 1);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::TraderConfigWindow, 1);
                     void* popup = allocation == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedTraderConfigWindow_Construct(allocation, window, 10043);
                     Write(window, NC2Layout::SingleHumanWindowOffset::TraderConfigWindow, popup);
                     NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(popup), false);
