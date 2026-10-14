@@ -40,7 +40,7 @@ namespace
 
     void SendGuiMessage(void* element, std::uint32_t command, std::uint32_t param1)
     {
-        TMessage* methods = Read<TMessage*>(element, 0);
+        TMessage* methods = Read<TMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable);
         methods[2](element, 0x800, command, param1, 0, 0);
     }
 

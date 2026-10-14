@@ -765,7 +765,7 @@ namespace NC2InGameGuiSelection
         SelectionHouseWindow_Vars_Construct(static_cast<std::byte*>(window) + NC2Layout::SelectionHouseWindowOffset::TabEnabledFlags);
         new (static_cast<std::byte*>(window) + NC2Layout::SelectionHouseWindowOffset::DynamicButtons) CDynamicSubButtonsHandler;
         std::memset(static_cast<std::byte*>(window) + NC2Layout::SelectionHouseWindowOffset::TabEnabledFlags,0,NC2Layout::RecordSize::SelectionHouseWindowVars);
-        Write(window,0,gHouseWindowTable.data());
+        Write(window,NC2Layout::GuiBaseElementOffset::VirtualTable,gHouseWindowTable.data());
         Buttons(window).SetWindow(window);
         auto* house = l_Misc_GetSelectedHousePtr();
         if (house != nullptr)

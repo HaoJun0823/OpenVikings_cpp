@@ -228,7 +228,7 @@ namespace NC2InGameGuiMiscWindows
             std::strcat(caption, text);
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &row, caption, 10100, window);
-            Write<std::uint8_t>(element, 0x54, 0); Write(element, 0x4C, entry.type); Write(element, 0x50, entry.stage);
+            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, entry.type); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, entry.stage);
             BaseListBoxElement_Element_Add(list, nullptr, element);
             NXBasics::SRectangle control(row.width, row.y + 2, 0, 28);
             NC2Logic::SHouseConstructionGoods goods{};
@@ -242,8 +242,8 @@ namespace NC2InGameGuiMiscWindows
                 control.x -= 30; control.width = 28;
                 allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &control, graphic, 10102, window);
-                Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x54, 0); Write(element, 0x4C, good);
-                BaseToolTextButton_SetToolTipString(element, tooltip); Write<std::uint8_t>(element, 0x48, 1);
+                Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, good);
+                BaseToolTextButton_SetToolTipString(element, tooltip); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::ImmediateTooltipFlag, 1);
                 BaseListBoxElement_Element_Add(list, nullptr, element);
             }
             control.x -= 22; control.width = 20;

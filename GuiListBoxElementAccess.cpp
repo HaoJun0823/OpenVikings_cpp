@@ -520,8 +520,8 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
         void* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, caption, command, handler);
         Write(button, NC2Layout::ToolTextButtonOffset::CommandData1, savegame->uniqueId);
         Write<std::uint32_t>(button, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
-        if (savegame->uniqueId == selectedId) Write<std::uint8_t>(button, 0x55, 1);
-        Write<std::uint8_t>(button, 0x57, 1);
+        if (savegame->uniqueId == selectedId) Write<std::uint8_t>(button, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
+        Write<std::uint8_t>(button, NC2Layout::GuiTextButtonOffset::SmallFontFlag, 1);
         BaseListBoxElement_Element_Add(list, nullptr, button);
         rectangle.y = Add(Add(rectangle.y, rectangle.height), 2);
         previousType = type;

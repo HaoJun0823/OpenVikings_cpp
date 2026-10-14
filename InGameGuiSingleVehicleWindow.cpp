@@ -708,7 +708,7 @@ namespace NC2InGameGuiSelection
         SelectionSingleVehicleWindow_Vars_Construct(static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags);
         new (static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::DynamicButtons) CDynamicSubButtonsHandler;
         std::memset(static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags,0,NC2Layout::RecordSize::SingleVehicleWindowVars);
-        Write(window,0,gSingleVehicleTable.data());
+        Write(window,NC2Layout::GuiBaseElementOffset::VirtualTable,gSingleVehicleTable.data());
         Buttons(window).SetWindow(window);
         if (auto* vehicle = l_Misc_GetSelectedVehiclePtr())
         {

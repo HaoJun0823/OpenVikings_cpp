@@ -597,8 +597,8 @@ namespace NC2InGameGuiMiscWindows
             NXBasics::Runtime_PrintString(caption, "%s - %s", StringAccess_GetJobNamePtr(job, 1), StringAccess_GetTribeNamePtr(pairs[index * 2 + 1], 0));
             allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &row, caption, 10000, window);
-            Write(element, 0x4C, job);
-            Write<std::uint32_t>(element, 0x50, 0);
+            Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, job);
+            Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0);
             BaseListBoxElement_Element_Add(list, nullptr, element);
             row.y += row.height;
         }

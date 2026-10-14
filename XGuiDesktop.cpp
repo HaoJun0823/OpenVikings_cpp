@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -561,7 +562,7 @@ namespace NXBaseGui
     using TDesktopMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     static bool SendDesktopElementMessage(void* element, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
     {
-        return Read<TDesktopMessage*>(element, 0)[2](element, message, param1, param2, param3, param4);
+        return Read<TDesktopMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](element, message, param1, param2, param3, param4);
     }
 
     // Original function: FUN_0047796a.

@@ -73,7 +73,7 @@ namespace NC2InGameGuiSelectedAction
         {
             void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
             void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &rectangle, caption, 10000, window);
-            if (element != nullptr) { Write(element, 0x4C, job); Write(element, 0x50, good); if (pressed) Write<std::uint8_t>(element, 0x55, 1); }
+            if (element != nullptr) { Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, job); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, good); if (pressed) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1); }
             BaseListBoxElement_Element_Add(list, nullptr, element);
             rectangle.y += 24;
         }

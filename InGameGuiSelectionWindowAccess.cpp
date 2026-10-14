@@ -414,7 +414,7 @@ namespace NC2InGameGuiSelection
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
                 allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 void* nameElement = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &nameRect, name, HumanString(103), 10006, window);
-                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, 0x56, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit7) != 0);
+                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, NC2Layout::GuiTextButtonOffset::DisabledFlag, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit7) != 0);
                 Write(window, NC2Layout::SingleHumanWindowOffset::NameElement, nameElement);
                 NXBaseGui::BaseWindow_Element_Add(window, nameElement);
             }

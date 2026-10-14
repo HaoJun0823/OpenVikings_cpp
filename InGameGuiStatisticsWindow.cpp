@@ -209,13 +209,13 @@ namespace NC2InGameGuiMiscWindows
             void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, entity->GetNamePtr(), 10100, window);
             Write(element, NC2Layout::ToolTextButtonOffset::CommandData1, entity);
             Write<std::uint32_t>(element, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
-            Write<std::uint8_t>(element, 0x57, 1);
-            Write(element, 0x55, entity->enabled);
+            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SmallFontFlag, 1);
+            Write(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, entity->enabled);
             if (Page() == 4)
             {
-                Write<std::uint8_t>(element, 0x54, 0);
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0);
                 NC2InGameGuiBase::BaseToolTextButton_SetToolTipString(element, StringAccess_GetGoodNamePtr(entity->good, 1));
-                Write<std::uint8_t>(element, 0x48, 1);
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::ImmediateTooltipFlag, 1);
                 char caption[200];
                 NXBasics::Runtime_PrintString(caption, "{setx:50}{gfxgood:%d,1}", entity->good);
                 NC2InGameGuiBase::BaseToolTextButton_SetCaptionString(element, caption);
@@ -234,7 +234,7 @@ namespace NC2InGameGuiMiscWindows
                 void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &area, caption, 10200, window);
                 Write(element, NC2Layout::ToolTextButtonOffset::CommandData1, scale);
                 Write<std::uint32_t>(element, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
-                Write<std::uint8_t>(element, 0x55, scale == Read<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::TimeScaleHours));
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, scale == Read<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::TimeScaleHours));
                 NXBaseGui::BaseWindow_Element_Add(window, element);
                 area.x += area.width + 3;
             }
