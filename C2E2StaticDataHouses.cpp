@@ -283,7 +283,7 @@ namespace NC2E2
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
                         const bool open = reader.GetInt() != 0;
                         Write(entry, (open ? 0x250u : 0x254u) + stage * 12, reader.GetInt());
-                        Write<std::uint8_t>(entry, 0x258 + stage * 12, 1);
+                        Write<std::uint8_t>(entry, 0x24C + stage * 12, 1);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Gfxbobconstructionlayer:
