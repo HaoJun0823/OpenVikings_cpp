@@ -71,11 +71,11 @@ namespace NC2Logic
         bool __cdecl ls_BioRegrow_PathfinderCallback(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0) return false;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0) return false;
             const void* patterns[6];
             if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns)) return false;
             for (std::uint32_t i = 0; i < 6; ++i) if (Read<std::uint8_t>(patterns[i], 2) == 0 || Read<std::uint8_t>(patterns[i], 3) == 0) return false;
-            if ((Read<std::uint8_t>(micro, 13) & 2u) != 0) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) != 0) return false;
             auto cursor = Read<std::uint32_t>(point, 0);
             for (std::uint32_t radius = 1; radius <= 2; ++radius)
             {
@@ -83,18 +83,18 @@ namespace NC2Logic
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                     for (std::uint32_t step = 0; step < radius; ++step)
                     {
-                        if (!MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 13) & 2u) != 0) return false;
+                        if (!MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor),NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) != 0) return false;
                         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     }
             }
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 13) & 1u) != 0) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0) return false;
             cursor = Read<std::uint32_t>(point, 0);
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
                 if (!MapMigPoint_IsInsideMap(&cursor)) return false;
                 const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
-                if ((Read<std::uint8_t>(neighbor, 12) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(neighbor, 13) & 1u) != 0) return false;
+                if ((Read<std::uint8_t>(neighbor,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(neighbor,NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0) return false;
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
             }
             cursor = Read<std::uint32_t>(point, 0);
@@ -107,7 +107,7 @@ namespace NC2Logic
                     {
                         if (!MapMigPoint_IsInsideMap(&cursor)) return false;
                         const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
-                        if (Read<std::uint8_t>(neighbor, 0) == 1 && Read<std::uint8_t>(neighbor, 2) == 4) ++trees;
+                        if (Read<std::uint8_t>(neighbor,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(neighbor,NC2Layout::MapMicroPointOffset::ObjectData) == 4) ++trees;
                         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     }
             }
@@ -230,7 +230,7 @@ namespace NC2Logic
     void CMapBioRegrowManager::l_BioRegrow_Execute(const void* point, std::uint32_t engineId)
     {
         if (Game_Random_GetNumber() % 100u < 10u) return;
-        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6)) != 1) return;
+        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId)) != 1) return;
         SBioRegrowSearch data;
         std::memset(&data, 0, sizeof(data));
         CMapPathfinderElement::SearchOverMap(point, 12, false, ls_BioRegrow_PathfinderCallback, &data, false, -1);
@@ -267,8 +267,8 @@ namespace NC2Logic
             {
                 const std::int16_t point[2] = { static_cast<std::int16_t>(x), static_cast<std::int16_t>(y) };
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-                if (Read<std::uint8_t>(micro, 0) != 1) continue;
-                const auto landscape = Read<std::uint8_t>(micro, 2);
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1) continue;
+                const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
                 if (landscape != 0 && (gStaticLandscapeTypeStorage.records[landscape].transitionMask & NXBasics::BitMask::Bit7) != 0) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 7);
             }
         GameMapModifyManager_StopGameMapModify();
@@ -308,7 +308,7 @@ namespace NC2Logic
     {
         const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point);
         const auto* micro = GameMap_GetMapMicroPointPtr(point);
-        const auto type = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+        const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
         const auto* data = gStaticLandscapeTypeStorage.records + type;
         auto id = AutoTransition_GetDataId(point);
         if (id == NXBasics::IntegerRange::UInt32Maximum)
@@ -438,9 +438,9 @@ namespace NC2Logic
         if (!MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point))
             return false;
         const void* microPoint = GameMap_GetConstMapMicroPointPtr(point);
-        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(microPoint, 6)) != 2u)
+        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(microPoint,NC2Layout::MapMicroPointOffset::ContinentId)) != 2u)
             return false;
-        const std::uint32_t continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        const std::uint32_t continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId);
         std::int32_t nearest = mSwarmCount;
         std::uint32_t nearestDistance = 1000;
         std::int32_t empty = 500;
@@ -502,7 +502,7 @@ namespace NC2Logic
     bool CMapFishManager::IsFishNearMapPosition(const void* point, std::uint32_t maximumDistance) const
     {
         if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(point)) != 2u) return false;
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId);
         for (std::int32_t index = 0; index < mSwarmCount; ++index)
         {
             const auto& swarm = mSwarms[index];
@@ -516,7 +516,7 @@ namespace NC2Logic
     bool CMapFishManager::GetOneFishFromNearestSwarm(const void* point, std::uint32_t maximumDistance, void* swarmPosition)
     {
         if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(point)) != 2u) return false;
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId);
         auto nearest = mSwarmCount;
         std::uint32_t nearestDistance = 1000;
         for (std::int32_t index = 0; index < mSwarmCount; ++index)
@@ -589,7 +589,7 @@ namespace NC2Logic
         for (std::int32_t index = 0; index < mSwarmCount; ++index)
         {
             const void* point = GameMap_GetConstMapMicroPointPtr(&mSwarms[index].x);
-            if ((Read<std::uint8_t>(point, 0x0C) & 7u) >= 7u && GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(point, 6)) == 2u)
+            if ((Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) >= 7u && GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ContinentId)) == 2u)
                 continue;
             ClearSwarmAtPosition(&mSwarms[index].x);
             --index;

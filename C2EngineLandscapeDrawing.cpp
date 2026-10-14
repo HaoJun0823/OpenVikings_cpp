@@ -169,7 +169,7 @@ namespace NC2E2
         if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0)
         {
             const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-            if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return 0;
+            if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return 0;
         }
         return brightness;
     }
@@ -180,7 +180,7 @@ namespace NC2E2
         using NC2Lifetime::Read;
         const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
         const auto brightness = Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point);
-        const std::int32_t valency = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0;
+        const std::int32_t valency = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
         std::uint32_t nextPhase = phase + 1u;
         EngineGraphic_DrawData(Landscape(static_cast<std::uint32_t>(gStaticLandscapeStorage.wallIds[phase % 5u])), static_cast<std::uint32_t>(valency), bitmap, x, y, 0, brightness, player, false);
         constexpr std::uint32_t directions[3] = {2, 1, 0};
@@ -190,9 +190,9 @@ namespace NC2E2
             NC2Logic::MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
             if (!NC2Logic::MapMigPoint_IsInsideMap(&neighbor)) continue;
             const void* nextMicro = NC2Logic::GameMap_GetConstMapMicroPointPtr(&neighbor);
-            if (Read<std::uint8_t>(nextMicro, 0) != 1 || Read<std::uint8_t>(nextMicro, 2) != 82) continue;
+            if (Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::ObjectData) != 82) continue;
             const auto nextBrightness = Display_DE_Hightlighting_GetMapLandscapeBrightness(display, &neighbor);
-            const auto nextValency = Read<std::uint8_t>(nextMicro, 0) == 1 ? Read<std::uint8_t>(nextMicro, 3) : 0;
+            const auto nextValency = Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
             std::int32_t origin[2], destination[2];
             DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, 0), origin, true);
             DisplayDescription_MapMigToWorldPixelCoordinates(display, neighbor, destination, true);
@@ -287,14 +287,14 @@ namespace NC2E2
                 if (graphic->isStatic == 0) continue;
                 const void* originLogic = NC2Logic::GameMap_GetConstMapMicroPointPtr(origin);
                 const auto playerId = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-                if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && playerId < 16u && (Read<std::uint16_t>(originLogic, 8) & (1u << playerId)) == 0) continue;
+                if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && playerId < 16u && (Read<std::uint16_t>(originLogic,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << playerId)) == 0) continue;
                 std::int32_t sourcePixel[2], originPixel[2];
                 Display_MapMigToLocalDisplayPixelCoordinates(display, point, sourcePixel, false);
                 Display_MapMigToLocalDisplayPixelCoordinates(display, origin, originPixel, false);
-                const bool landscape = Read<std::uint8_t>(originLogic, 0) == 1;
+                const bool landscape = Read<std::uint8_t>(originLogic,NC2Layout::MapMicroPointOffset::ObjectType) == 1;
                 const auto phase = static_cast<std::uint32_t>(static_cast<std::int32_t>(origin[0]) + static_cast<std::int32_t>(origin[1]) * 2);
-                const auto player = landscape ? static_cast<std::int32_t>(Read<std::int8_t>(originLogic, 4)) : -1;
-                EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic, 3) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
+                const auto player = landscape ? static_cast<std::int32_t>(Read<std::int8_t>(originLogic,NC2Layout::MapMicroPointOffset::LandscapePlayerId)) : -1;
+                EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
             }
         }
         if (foregroundPart && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr)

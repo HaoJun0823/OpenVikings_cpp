@@ -158,7 +158,7 @@ namespace NC2E2
         const auto left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY), width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
         if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
         const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), 8) & (1u << player)) == 0) return true;
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return true;
         const auto pan = (x - width / 2 - left) * 128 / width, vertical = (y - height / 2 - top) * 128 / height;
         const auto distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
         if (distance > 64) return true;
@@ -306,7 +306,7 @@ namespace NC2E2
             if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0)
             {
                 const std::uint32_t player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-                if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return;
+                if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return;
             }
         }
         // The Windows routine requires a nonzero display width and height.

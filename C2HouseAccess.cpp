@@ -386,7 +386,7 @@ namespace NC2Logic
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) return false;
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-        return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6);
+        return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ContinentId);
     }
 
     // Original function: FUN_004326e5.
@@ -576,7 +576,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&candidate))
                 {
                     const auto* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
-                    if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro, 6) == continent)
+                    if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent)
                     {
                         const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(&candidate, 0), Read<std::int16_t>(&candidate, 2)));
                         if (distance < best)
@@ -691,7 +691,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&candidate))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
-                    if ((Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro, 6) == continent)
+                    if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent)
                     {
                         const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(&candidate, 0), Read<std::int16_t>(&candidate, 2)));
                         if (distance < best) { Write(point, 0, candidate); best = distance; }

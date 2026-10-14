@@ -101,12 +101,12 @@ namespace NC2Logic
         auto* door = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
         area->Tool_CountGoods(base, amounts);
         const void* micro = GameMap_GetConstMapMicroPointPtr(door);
-        const auto landscape = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0;
+        const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0;
         const auto good = gStaticDependencyGoodByLandscape[landscape];
         if (good != 0)
         {
             micro = GameMap_GetConstMapMicroPointPtr(door);
-            amounts[good] += Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0;
+            amounts[good] += Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
         }
         GameMap_MapMicroPoint_Landscape_Clear(base);
         GameMap_MapMicroPoint_Landscape_Clear(door);
@@ -155,7 +155,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) return;
         House_l_ActionOverlay_StopAll(house);
         House_Inhabitants_DetachAllHumans(house);
-        auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint), 0x0A));
+        auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint),NC2Layout::MapMicroPointOffset::FirstMapMoveableId));
         while (id != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
@@ -191,7 +191,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) return;
         House_l_ActionOverlay_StopAll(house);
         House_Inhabitants_DetachAllHumans(house);
-        auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint), 0x0A));
+        auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint),NC2Layout::MapMicroPointOffset::FirstMapMoveableId));
         while (id != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
@@ -203,9 +203,9 @@ namespace NC2Logic
             GameMapModifyManager_StartGameMapModify();
             auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
             void* micro = GameMap_GetMapMicroPointPtr(base);
-            if (Read<std::uint8_t>(micro, 0) == 2) Write<std::uint8_t>(micro, 0, 0);
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType, 0);
             micro = GameMap_GetMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint);
-            if (Read<std::uint8_t>(micro, 0) == 2) Write<std::uint8_t>(micro, 0, 0);
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType, 0);
             House_Misc_Blocks_ClearAndRebuild(house);
             GameMapModifyManager_StopGameMapModify();
             House_l_DetachFromSector(house);

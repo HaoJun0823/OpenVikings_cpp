@@ -117,9 +117,9 @@ namespace NC2Logic
     {
         auto* micro = GameMap_GetMapMicroPointPtr(point);
         if (micro == nullptr || MapMigPoint_IsBorderPoint(point)) return false;
-        const auto flags = Read<std::uint8_t>(micro, 13);
+        const auto flags = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags);
         if (((flags >> 1) & 1u) == static_cast<std::uint8_t>(enabled)) return false;
-        Write<std::uint8_t>(micro, 13, (flags & NXBasics::BitMask::ByteExceptBit1) | (static_cast<std::uint8_t>(enabled) << 1));
+        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags, (flags & NXBasics::BitMask::ByteExceptBit1) | (static_cast<std::uint8_t>(enabled) << 1));
         GameMapModifyManager_GameMapModified(12, point, static_cast<std::uint32_t>(enabled));
         return true;
     }
@@ -136,7 +136,7 @@ namespace NC2Logic
     {
         if (player >= 16) return true;
         if (!MapMigPoint_IsInsideMap(micro)) return false;
-        return (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(micro), 8) & (1u << player)) != 0;
+        return (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(micro),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0;
     }
     // Original function: FUN_00411c48.
     void GameMapModifyManager_GameMapModified(std::uint32_t type, const void* micro, std::uint32_t parameter)
@@ -499,7 +499,7 @@ namespace NC2E2
                 if (MapMagPoint_IsBorderPoint(&point)) return;
                 std::uint32_t micro;
                 MapMigPoint_ConstructFromMag(&micro, &point, false);
-                if (NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&micro), 0) != 1) return;
+                if (NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&micro),NC2Layout::MapMicroPointOffset::ObjectType) != 1) return;
             }
             EngineMap_VertexColorIndex_Set(&point, color);
         };

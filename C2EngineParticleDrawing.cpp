@@ -207,7 +207,7 @@ namespace NC2E2
 			// Deferred movement can carry a previously visible particle outside the map.
 			// Use the original checked accessor before visibility and brightness lookups.
 			const auto* micro = NC2Logic::GameMap_GetMapMicroPointPtr(point);
-			if (micro == nullptr || ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, 8) & (1u << player)) == 0))
+			if (micro == nullptr || ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0))
 			{
 				previous = index; continue;
 			}
@@ -336,7 +336,7 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
         std::uint32_t centerPoint = 0;
         DisplayDescription_WorldPixelToMapMigCoordinates(display, centerPixel, &centerPoint);
         if (NC2Logic::MapMigPoint_IsBorderPoint(&centerPoint)) continue;
-        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&centerPoint), 8) & (1u << player)) == 0) continue;
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&centerPoint),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) continue;
         auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + gStaticPalettes.fishPaletteId, DE_Hightlighting_GetHighlightBrightness(display, &centerPoint));
         for (std::int32_t index = 0; index < Read<std::int32_t>(swarm, 4); ++index)
         {

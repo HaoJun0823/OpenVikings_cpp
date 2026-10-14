@@ -26,7 +26,7 @@ namespace NC2Logic
         bool HasUnsharedPosition(const void* human)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-            const auto moveable = Read<std::int16_t>(micro, 10);
+            const auto moveable = Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
             return moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) == -1;
         }
         void TargetHuman(void* human, const void* other)

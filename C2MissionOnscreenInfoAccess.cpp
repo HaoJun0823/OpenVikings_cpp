@@ -43,8 +43,8 @@ namespace NC2Logic
     std::uint32_t Tool_CountGoodsOnMap(std::uint32_t good, const void* point)
     {
         if (!MapMigPoint_IsInsideMap(point)) return 0; const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 1) return 0; const auto landscape = Read<std::uint8_t>(micro, 2);
-        return landscape != 0 && static_cast<std::uint32_t>(gStaticDependencyGoodByLandscape[landscape]) == good ? Read<std::uint8_t>(micro, 3) : 0;
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1) return 0; const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
+        return landscape != 0 && static_cast<std::uint32_t>(gStaticDependencyGoodByLandscape[landscape]) == good ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
     }
     // Original function: FUN_0043b46b; unwrapped hexagonal rings preserve the native border behavior.
     std::uint32_t Tool_CountGoodsOnMap(std::uint32_t good, std::uint32_t point, std::uint32_t radius)

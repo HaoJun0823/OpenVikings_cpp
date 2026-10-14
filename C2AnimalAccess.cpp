@@ -250,12 +250,12 @@ namespace NC2Logic
         const auto player = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
         if (player != 20)
         {
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 6);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)),NC2Layout::MapMicroPointOffset::ContinentId);
             CHouseIterator iterator;
             for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
+                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                 Write(animal, NC2Layout::AnimalOffset::AttachedObjectId, id);
                 Write(animal, NC2Layout::AnimalOffset::AttachedObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 4);

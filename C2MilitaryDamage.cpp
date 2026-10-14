@@ -50,7 +50,7 @@ namespace NC2Logic
     // Original function: FUN_0043a059; the cumulative ring keeps the first strict maximum.
     bool Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(const void* source, const void* target, void* result, std::uint32_t radius)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId);
         auto point = Read<std::uint32_t>(source, 0);
         MapMigPoint_MoveCursorUnwrapped(&point, 4, radius);
         std::uint32_t maximum = 0;
@@ -60,7 +60,7 @@ namespace NC2Logic
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
                 if (MapMigPoint_IsBorderPoint(&point)) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent || Read<std::uint8_t>(micro, 0) == 2) continue;
+                if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) != continent || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) continue;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2)));
                 if (distance <= maximum) continue;
                 maximum = distance;

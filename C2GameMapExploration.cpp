@@ -29,10 +29,10 @@ namespace NC2Logic
                     if (player < 16)
                     {
                         const auto mask = static_cast<std::uint16_t>(1u << player);
-                        const auto seen = NC2Lifetime::Read<std::uint16_t>(micro, 8);
+                        const auto seen = NC2Lifetime::Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask);
                         if ((seen & mask) == 0)
                         {
-                            NC2Lifetime::Write<std::uint16_t>(micro, 8, seen | mask);
+                            NC2Lifetime::Write<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask, seen | mask);
                             changed = true;
                         }
                     }
@@ -48,7 +48,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto* micro = GameMap_GetMapMicroPointPtr(point);
-        const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? Read<std::uint16_t>(micro, 4) : NXBasics::IntegerRange::UInt32Maximum;
+        const auto houseId = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId) : NXBasics::IntegerRange::UInt32Maximum;
         const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
         const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         return ls_Exploration_ExploreArea(player, point, Read<const CMapArea*>(definition, 0x1C));
@@ -66,24 +66,24 @@ namespace NC2Logic
             if (!MapMigPoint_IsInsideMap(current)) return;
             auto* micro = GameMap_GetMapMicroPointPtr(current);
             const auto mask = static_cast<std::uint16_t>(1u << player);
-            const auto seen = Read<std::uint16_t>(micro, 8);
+            const auto seen = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask);
             if ((seen & mask) == 0)
             {
-                Write<std::uint16_t>(micro, 8, seen | mask);
+                Write<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask, seen | mask);
                 changed = true;
             }
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 1u) != 0)
             {
                 changed |= Exploration_ExploreHouseFootprint(player, current);
                 extraExtent = 5;
             }
-            if (Read<std::uint8_t>(micro, 0) == 4)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 4)
             {
-                const auto x = static_cast<std::uint16_t>(Read<std::int16_t>(current, 0) + Read<std::int8_t>(micro, 2));
-                const auto y = static_cast<std::uint16_t>(Read<std::int16_t>(current, 2) + Read<std::int8_t>(micro, 3));
+                const auto x = static_cast<std::uint16_t>(Read<std::int16_t>(current, 0) + Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData));
+                const auto y = static_cast<std::uint16_t>(Read<std::int16_t>(current, 2) + Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency));
                 const std::uint32_t origin = x | (static_cast<std::uint32_t>(y) << 16);
                 const auto* landscape = GameMap_GetConstMapMicroPointPtr(&origin);
-                const auto valency = Read<std::uint8_t>(landscape, 0) == 1 ? Read<std::uint8_t>(landscape, 3) : 0;
+                const auto valency = Read<std::uint8_t>(landscape,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(landscape,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
                 const auto engineId = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(&origin);
                 const auto* area = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, valency, 1);
                 changed |= ls_Exploration_ExploreArea(player, &origin, area);
@@ -129,10 +129,10 @@ namespace NC2Logic
             {
                 const auto point = static_cast<std::uint16_t>(x) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(y)) << 16);
                 auto* micro = GameMap_GetMapMicroPointPtr(&point);
-                const auto seen = Read<std::uint16_t>(micro, 8);
+                const auto seen = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask);
                 if ((seen & mask) == 0)
                 {
-                    Write<std::uint16_t>(micro, 8, seen | mask);
+                    Write<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask, seen | mask);
                     changed = true;
                 }
             }

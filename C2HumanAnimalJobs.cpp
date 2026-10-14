@@ -147,7 +147,7 @@ namespace NC2Logic
                 {
                     CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(slaughter, 4));
                     const auto* micro = GameMap_GetConstMapMicroPointPtr(&slaughterPosition);
-                    if (Read<std::uint8_t>(micro, 0) == 1 && (Read<std::uint8_t>(micro, 2) == 79 || Read<std::uint8_t>(micro, 2) == 80))
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 79 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 80))
                     {
                         Logic_EntryPoint_Edit_Start();
                         Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&slaughterPosition, 0, 0, -1, false, -1);

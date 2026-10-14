@@ -108,9 +108,9 @@ namespace NC2Logic
         const auto save = [&](bool checkCapacity)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-            if (Read<std::uint8_t>(micro, 0) != 1) return;
-            const auto landscape = Read<std::uint8_t>(micro, 2);
-            if (landscape == 82 && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)))
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1) return;
+            const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
+            if (landscape == 82 && Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) == static_cast<std::int32_t>(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)))
             {
                 const auto count = Read<std::uint32_t>(handler, 0x43A8);
                 if (checkCapacity && count == 1000) return;
@@ -152,7 +152,7 @@ namespace NC2Logic
         {
             auto* point = static_cast<std::byte*>(handler) + 0x43AE + i * 6;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const bool build = (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7Signed) == 0;
+            const bool build = (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7Signed) == 0;
             if (!build && !IsDamagedOwnedLandscape(micro, player)) continue;
             if (AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(handler, point) || !HasHumanNearby(player, point)) continue;
             Write<std::uint8_t>(handler, 0x43A4, 1);
@@ -204,7 +204,7 @@ namespace NC2Logic
         {
             auto* point = static_cast<std::byte*>(handler) + 0x5B26 + i * 8;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) continue;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != static_cast<std::int32_t>(player)) continue;
             const bool enemy = AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(handler, point);
             const auto flag = Read<std::uint8_t>(handler, 0x5B2A + i * 8);
             if ((enemy && flag == 1) || (!enemy && flag == 0))

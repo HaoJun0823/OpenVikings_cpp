@@ -25,7 +25,7 @@ namespace NC2Logic
     {
         std::uint32_t point = 0;
         Vehicle_Door_GetEntryPoint(vehicle, &point, requiredSpace);
-        return MapMigPoint_IsInsideMap(&point) && GameMap_Continent_GetContinentTyp(NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6)) == 1;
+        return MapMigPoint_IsInsideMap(&point) && GameMap_Continent_GetContinentTyp(NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId)) == 1;
     }
 
     // Original function: FUN_00462ac1.
@@ -181,8 +181,8 @@ namespace NC2Logic
     static bool Vehicle_Door_ValidateEntryPoint(void* point, std::uint32_t requiredSpace)
     {
         const auto* cell = GameMap_GetConstMapMicroPointPtr(point);
-        const auto continent = Read<std::uint8_t>(cell, 6);
-        if ((Read<std::uint8_t>(cell, 12) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+        const auto continent = Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::ContinentId);
+        if ((Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
         auto cursor = Read<std::uint32_t>(point, 0);
         MapMigPoint_MoveCursorUnwrapped(cursor, 4);
         NC2Lifetime::Write(point, 0, cursor);
@@ -192,7 +192,7 @@ namespace NC2Logic
             NC2Lifetime::Write(point, 0, cursor);
             if (!MapMigPoint_IsInsideMap(point)) continue;
             cell = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(cell, 6) == continent && (Read<std::uint8_t>(cell, 12) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+            if (Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
         }
         return false;
     }

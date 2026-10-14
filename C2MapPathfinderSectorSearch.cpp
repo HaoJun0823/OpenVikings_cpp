@@ -63,7 +63,7 @@ namespace NC2Logic
                 Write<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Stopped);
                 return NC2Runtime::PathfinderDirectionResult::Arrived;
             }
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 6)) return stop();
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination),NC2Layout::MapMicroPointOffset::ContinentId)) return stop();
             if (!l_FindWayAndBuildVectorList(pathfinder, source, destination, Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::SearchRadius))) return stop();
             Write<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::RouteAvailable);
         }
@@ -81,7 +81,7 @@ namespace NC2Logic
         MapMigPoint_MoveCursorUnwrapped(source, direction, 1);
         const auto blocked = Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::BlockedAreaSteps);
         if (blocked != 0) Write(pathfinder, NC2Layout::SectorPathfinderOffset::BlockedAreaSteps, blocked - 1u);
-        else if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C) & NXBasics::BitMask::Bit7) != 0)
+        else if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
         {
             MapMigPoint_MoveCursorUnwrapped(source, VE_HexagonDirection_OppositeDirection(direction), 1);
             return stop();
@@ -93,7 +93,7 @@ namespace NC2Logic
     // Original function: FUN_00470535.
     bool CMapPathfinderSpecialSectorSearchElement::l_FindWayAndBuildVectorList(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination),NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) return false;
         bool found;
         if (Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance) != 0)
@@ -172,11 +172,11 @@ namespace NC2Logic
                 const void* microPoint = GameMap_GetConstMapMicroPointPtr(source.points + index);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint,NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = source.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if ((GameMap_CalculationMap_GetValue(&next) & NXBasics::BitMask::Bit9) != 0) continue;
-                    const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next),NC2Layout::MapMicroPointOffset::WalkingFlags);
                     if ((flags & NXBasics::BitMask::Bit7) == 0) continue;
                     if (destination.count == 4000u) continue;
                     destination.points[destination.count++] = next;
@@ -218,7 +218,7 @@ namespace NC2Logic
         std::uint32_t budget = radius * 4u;
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
@@ -237,11 +237,11 @@ namespace NC2Logic
                 l_GetPreferedDirections(pathfinder, queue.points + index, source);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint,NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next),NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if (((nextFlags & NXBasics::BitMask::Bit7) != 0) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = 0;
@@ -276,12 +276,12 @@ namespace NC2Logic
         if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
         const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(pathfinder) + NC2Layout::SectorPathfinderOffset::SearchRectangle);
         if (!MapMigPoint_IsInside(source, rectangle) || !MapMigPoint_IsInside(destination, rectangle)) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
         std::uint32_t budget = radius * 4u;
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 12; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
@@ -303,7 +303,7 @@ namespace NC2Logic
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInsideMap(&next)) continue;
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next),NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if ((nextFlags & NXBasics::BitMask::Bit7) != 0 && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     if ((nextFlags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) continue;
@@ -343,7 +343,7 @@ namespace NC2Logic
         std::uint32_t budget = radius * 8u;
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
@@ -362,11 +362,11 @@ namespace NC2Logic
                 l_GetPreferedDirections(pathfinder, queue.points + index, source);
                 for (std::uint32_t direction = 0; direction < 6; ++direction)
                 {
-                    if ((Read<std::uint8_t>(microPoint, 7) & (1u << direction)) == 0) continue;
+                    if ((Read<std::uint8_t>(microPoint,NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                     auto next = queue.points[index];
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next),NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if (((nextFlags & NXBasics::BitMask::Bit7) != 0) && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     std::uint32_t cost = (nextFlags >> 3) & 15u;
@@ -401,12 +401,12 @@ namespace NC2Logic
         if (static_cast<std::uint32_t>(PathfinderDistance(source, destination)) > radius || radius > 511u) return false;
         const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(pathfinder) + NC2Layout::SectorPathfinderOffset::SearchRectangle);
         if (!MapMigPoint_IsInside(source, rectangle) || !MapMigPoint_IsInside(destination, rectangle)) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) return false;
         GameMap_CalculationMap_Clear(destination, static_cast<std::int32_t>(radius * 2u));
         std::uint32_t budget = radius * 8u;
         if (budget > 511u) return false;
         GameMap_CalculationMap_SetValue(source, 0);
-        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 0x0C);
+        const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::WalkingFlags);
         if ((flags & NXBasics::BitMask::Bit7) != 0) l_UnblockArea(pathfinder, source);
         for (std::uint32_t index = 0; index < 16; ++index) sMapPathfinderStaticVariables[index].count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
@@ -428,7 +428,7 @@ namespace NC2Logic
                     MapMigPoint_MoveCursorUnwrapped(next, direction);
                     if (!MapMigPoint_IsInsideMap(&next)) continue;
                     if (!MapMigPoint_IsInside(&next, rectangle)) continue;
-                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next), 0x0C);
+                    const auto nextFlags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&next),NC2Layout::MapMicroPointOffset::WalkingFlags);
                     const auto value = static_cast<std::uint16_t>(GameMap_CalculationMap_GetValue(&next));
                     if ((nextFlags & NXBasics::BitMask::Bit7) != 0 && (value & NXBasics::BitMask::Bit9Unsigned) == 0) continue;
                     if ((nextFlags & 7u) < Read<std::uint32_t>(pathfinder, NC2Layout::SectorPathfinderOffset::RequiredClearance)) continue;

@@ -632,8 +632,8 @@ namespace NC2E2
                 Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapX, static_cast<std::uint16_t>(x - microMinX));
                 Write<std::uint16_t>(entry, NC2Layout::MacroMapLandscapeOffset::MapY, static_cast<std::uint16_t>(y - microMinY));
                 Write(entry, NC2Layout::MacroMapLandscapeOffset::NameIndex, Read<std::uint32_t>(landscapeUsage, id * 8u + 4u));
-                Write<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::Valency, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::uint8_t>(logic, 3) : 0);
-                Write<std::int32_t>(entry, NC2Layout::MacroMapLandscapeOffset::PlayerId, Read<std::uint8_t>(logic, 0) == 1 ? Read<std::int8_t>(logic, 4) : -1);
+                Write<std::uint32_t>(entry, NC2Layout::MacroMapLandscapeOffset::Valency, Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0);
+                Write<std::int32_t>(entry, NC2Layout::MacroMapLandscapeOffset::PlayerId, Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::int8_t>(logic,NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1);
             }
             mirrorPoints(NC2Layout::MacroMapOffset::LandscapesCount, 16, 0, true);
         }
@@ -673,14 +673,14 @@ namespace NC2E2
             mirrorPoints(NC2Layout::MacroMapOffset::VertexColorsCount, 6, 0, false);
         }
         for (std::int32_t y = microMinY; y < microMaxY; ++y) for (std::int32_t x = microMinX; x < microMaxX; ++x)
-            if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 13) & 2u) != 0) increment(NC2Layout::MacroMapOffset::RoadsCount);
+            if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)),NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) != 0) increment(NC2Layout::MacroMapOffset::RoadsCount);
         if (Read<std::uint32_t>(map, NC2Layout::MacroMapOffset::RoadsCount) != 0)
         {
             allocateSection(NC2Layout::MacroMapOffset::RoadsCount, NC2Layout::RecordSize::MacroMapRoad, true);
             std::uint32_t index = 0;
             for (std::int32_t y = microMinY; y < microMaxY; ++y) for (std::int32_t x = microMinX; x < microMaxX; ++x)
             {
-                if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)), 13) & 2u) == 0) continue;
+                if ((Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)),NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) == 0) continue;
                 auto* entry = entryAt(NC2Layout::MacroMapOffset::RoadsCount, index++, NC2Layout::RecordSize::MacroMapRoad);
                 Write<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapX, static_cast<std::uint16_t>(x - microMinX));
                 Write<std::uint16_t>(entry, NC2Layout::MacroMapRoadOffset::MapY, static_cast<std::uint16_t>(y - microMinY));

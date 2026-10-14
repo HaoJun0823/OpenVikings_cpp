@@ -42,7 +42,7 @@ namespace NC2Logic
         if (type == SwitchIds::TargetType::Landscape)
         {
             const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + NC2Layout::TargetDataOffset::ObjectIdOrMapPosition);
-            return Read<std::uint8_t>(point, 0) == 1 && Read<std::uint8_t>(point, 2) != 0;
+            return Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectData) != 0;
         }
         if (type < SwitchIds::TargetType::Human || type > SwitchIds::TargetType::House) return false;
         const auto id = TargetData_GetObjectId(target);
@@ -59,7 +59,7 @@ namespace NC2Logic
         if (type == SwitchIds::TargetType::Landscape)
         {
             const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + NC2Layout::TargetDataOffset::ObjectIdOrMapPosition);
-            return Read<std::uint8_t>(point, 0) == 1 && Read<std::uint8_t>(point, 2) != 0;
+            return Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectData) != 0;
         }
         if (type < SwitchIds::TargetType::Human || type > SwitchIds::TargetType::House) return false;
         const auto id = Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition);
@@ -87,7 +87,7 @@ namespace NC2Logic
         if (type == SwitchIds::TargetType::Landscape)
         {
             const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + NC2Layout::TargetDataOffset::ObjectIdOrMapPosition);
-            return Read<std::uint8_t>(point, 0) == 1 ? Read<std::int8_t>(point, 4) : -1;
+            return Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::int8_t>(point,NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;
         }
         if (type < SwitchIds::TargetType::Human || type > SwitchIds::TargetType::House) return -1;
         return Read<std::int32_t>(TargetObject(type, TargetData_GetObjectId(target)), type == SwitchIds::TargetType::House ? 0x0Cu : type == SwitchIds::TargetType::Vehicle ? 0x1E0u : 0x10u);
@@ -121,7 +121,7 @@ namespace NC2Logic
                 if (HiddenHumanIsInAttachedHouse(human))
                 {
                     const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-                    return Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : NXBasics::IntegerRange::UInt32Maximum;
+                    return Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? Read<std::uint16_t>(point,NC2Layout::MapMicroPointOffset::HouseId) : NXBasics::IntegerRange::UInt32Maximum;
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace NC2Logic
                 if (HiddenHumanIsInAttachedHouse(human))
                 {
                     const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-                    const auto id = Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : NXBasics::IntegerRange::UInt32Maximum;
+                    const auto id = Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? Read<std::uint16_t>(point,NC2Layout::MapMicroPointOffset::HouseId) : NXBasics::IntegerRange::UInt32Maximum;
                     return Read<std::uint32_t>(TargetObject(SwitchIds::TargetType::House, id), 8);
                 }
             }
@@ -172,7 +172,7 @@ namespace NC2Logic
         {
             if (!MapMigPoint_IsInsideMap(bytes + NC2Layout::InteractionTargetDataOffset::RealPosition) || !MapMigPoint_IsInsideMap(bytes + NC2Layout::InteractionTargetDataOffset::WorkPosition)) return false;
             const auto* cell = GameMap_GetConstMapMicroPointPtr(bytes + NC2Layout::InteractionTargetDataOffset::RealPosition);
-            const auto pattern = Read<std::uint8_t>(cell, 0) == 1 ? static_cast<std::uint32_t>(Read<std::uint8_t>(cell, 2)) : 0u;
+            const auto pattern = Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? static_cast<std::uint32_t>(Read<std::uint8_t>(cell,NC2Layout::MapMicroPointOffset::ObjectData)) : 0u;
             return pattern == Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::LandscapeType);
         }
         case SwitchIds::InteractionTargetType::RoadBuildPlace: case SwitchIds::InteractionTargetType::WallBuildPlace:

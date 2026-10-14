@@ -89,7 +89,7 @@ namespace NC2Logic
                     for (std::uint32_t direction = 0; direction < 6; ++direction)
                     {
                         MapMigPoint_MoveCursorUnwrapped(edge, direction);
-                        if (!MapMigPoint_IsInsideMap(&edge) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & NXBasics::BitMask::Bit7) != 0) continue;
+                        if (!MapMigPoint_IsInsideMap(&edge) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) continue;
                         if (outside && HasAttackingHuman(human, &edge, true, false)) continue;
                         Write(point, 0, outside ? edge : cursor);
                         best = distance;
@@ -118,14 +118,14 @@ namespace NC2Logic
             {
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                 const auto distance = Distance(&cursor, source);
-                if (distance >= best || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 12) & NXBasics::BitMask::Bit7) != 0) continue;
+                if (distance >= best || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) continue;
                 if (!outside) { best = distance; Write(point, 0, cursor); continue; }
                 auto edge = cursor;
                 MapMigPoint_MoveCursorUnwrapped(edge, 4);
                 for (std::uint32_t neighbor = 0; neighbor < 6; ++neighbor)
                 {
                     MapMigPoint_MoveCursorUnwrapped(edge, neighbor);
-                    if (Distance(&edge, center) <= radius || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge), 12) & NXBasics::BitMask::Bit7) != 0 || HasAttackingHuman(human, &edge, true, true)) continue;
+                    if (Distance(&edge, center) <= radius || !MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&edge),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || HasAttackingHuman(human, &edge, true, true)) continue;
                     best = distance;
                     Write(point, 0, edge);
                 }
@@ -145,7 +145,7 @@ namespace NC2Logic
     // Original function: FUN_00461e24; return the first unblocked same-continent neighbor.
     bool TargetData_MapPos_NextAttackPoint(void* target)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + 4), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + 4),NC2Layout::MapMicroPointOffset::ContinentId);
         auto attempts = static_cast<std::int16_t>(Read<std::uint16_t>(target, 10) + 1u);
         Write(target, 10, attempts);
         auto direction = (Read<std::int16_t>(target, 8) + attempts) % 6;
@@ -156,7 +156,7 @@ namespace NC2Logic
             if (MapMigPoint_IsInsideMap(&point))
             {
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) == 0) return true;
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) return true;
             }
             attempts = static_cast<std::int16_t>(static_cast<std::uint16_t>(attempts) + 1u);
             Write(target, 10, attempts);
@@ -194,7 +194,7 @@ namespace NC2Logic
     // Original function: FUN_0046b703; retain strict best-distance ties and the 1000000 sentinel.
     bool Human_l_GetDistancePointFromTarget(const void*, const void* source, const void* target, void* point, std::uint32_t radius)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId);
         auto cursor = Read<std::uint32_t>(target, 0);
         MapMigPoint_MoveCursorUnwrapped(&cursor, 4, radius);
         std::uint32_t best = 1000000;
@@ -204,7 +204,7 @@ namespace NC2Logic
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                 if (MapMigPoint_IsBorderPoint(&cursor)) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&cursor);
-                if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent) continue;
+                if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                 const auto distance = Distance(source, &cursor);
                 if (distance >= best) continue;
                 best = distance;
@@ -312,8 +312,8 @@ namespace NC2Logic
             }
             if (distance > static_cast<std::uint32_t>(weapon.maximumRange))
             {
-                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6);
-                if (continent == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6))
+                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId);
+                if (continent == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId))
                 {
                     if (type == 6 || type == 4)
                     {

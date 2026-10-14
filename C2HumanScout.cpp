@@ -43,7 +43,7 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SNotExploredPointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) != 0 || data.player >= 16 || (Read<std::uint16_t>(micro, 8) & (1u << data.player)) != 0) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || data.player >= 16 || (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << data.player)) != 0) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 8;
         }

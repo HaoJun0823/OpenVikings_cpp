@@ -260,7 +260,7 @@ namespace NC2Logic
             else if (House_Construction_IsNeedingGood(house, good))
             {
                 const auto* position = Human_GetMapPositionRef(human);
-                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
                 std::uint32_t work = 0;
                 if (!(House_Construction_GetNextWorkPoint(house, position, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) || House_Construction_GetNextWorkPoint(house, position, &work, false, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent)) || !Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + 0x1C, &work)) Fail(human, 7);
                 return;

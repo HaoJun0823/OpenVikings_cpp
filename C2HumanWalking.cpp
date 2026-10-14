@@ -42,8 +42,8 @@ namespace NC2Logic
         bool IsFreeForStationaryMoveables(const void* point)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) return false;
-            for (auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro, 10)); id != -1;)
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+            for (auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId)); id != -1;)
             {
                 const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                 const auto state = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
@@ -313,8 +313,8 @@ namespace NC2Logic
     bool Tool_Map_GetNotBlockedPosition(void* point, bool avoidHouses)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if ((Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 && (!avoidHouses || Read<std::uint8_t>(micro, 0) != 2)) return true;
-        const auto continent = Read<std::uint8_t>(micro, 6);
+        if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && (!avoidHouses || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2)) return true;
+        const auto continent = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId);
         bool found = false;
         for (std::uint32_t ring = 1; ring < 10 && !found; ++ring)
         {
@@ -324,7 +324,7 @@ namespace NC2Logic
                 for (std::uint32_t step = 0; step < ring; ++step)
                 {
                     micro = GameMap_GetConstMapMicroPointPtr(point);
-                    if ((Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro, 6) == continent && (!avoidHouses || Read<std::uint8_t>(micro, 0) != 2)) { found = true; break; }
+                    if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (!avoidHouses || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2)) { found = true; break; }
                     MapMigPoint_MoveCursorUnwrapped(point, direction, 1);
                 }
             }
@@ -336,7 +336,7 @@ namespace NC2Logic
     void Tool_Map_CheckUserInformationAboutEnemies(std::uint32_t player, const void* point)
     {
         if (player >= 16) return;
-        const auto seen = Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8);
+        const auto seen = Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask);
         for (std::uint32_t other = 0; other < 10; ++other)
         {
             if (other == player || (seen & (1u << other)) == 0) continue;
@@ -365,7 +365,7 @@ namespace NC2Logic
         const void* micro = GameMap_GetConstMapMicroPointPtr(position);
         GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), position, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius));
         if (Human_HasEquippedShoes(human)) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(position), 5, 100);
-        if (Human_IsAgeAdult(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 5 && (Read<std::uint8_t>(micro, 0x0D) & 2u) == 0)
+        if (Human_IsAgeAdult(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 5 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) == 0)
         {
             const void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
             auto next = Read<std::uint32_t>(position, 0);
@@ -378,7 +378,7 @@ namespace NC2Logic
             else if (kind == 4) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(position), 5, 100);
         }
         if (Human_IsJobScout(human)) Map_AnimalTool_ChangePlayerId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(position, 0), 3);
-        auto resistance = (Read<std::uint8_t>(micro, 0x0C) >> 3) & 15u;
+        auto resistance = (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) >> 3) & 15u;
         Human_WalkSpeed_Update(human, resistance);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) resistance *= 2u;
         const auto shoes = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition);

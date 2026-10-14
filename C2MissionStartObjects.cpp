@@ -76,8 +76,8 @@ namespace NC2Logic
     std::int32_t Logic_EntryPoint_House_GetOnPosition(const void* point)
     {
         const void* micro = GameMap_GetMapMicroPointPtr(point);
-        if (micro == nullptr || Read<std::uint8_t>(micro, 0) != 2) return -1;
-        return Read<std::uint16_t>(micro, 4);
+        if (micro == nullptr || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2) return -1;
+        return Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
     }
 
     // Original function: FUN_0040ae9a.

@@ -97,7 +97,7 @@ namespace NC2Logic
         auto cursor = Read<std::uint32_t>(point, 0);
         if (minimumDistance != 0) MapMigPoint_MoveCursorUnwrapped(&cursor, 4, minimumDistance - 1u);
         else ++minimumDistance;
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId);
         for (auto ring = minimumDistance; ring < maximumDistance + 1u; ++ring)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
@@ -108,7 +108,7 @@ namespace NC2Logic
                 {
                     MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     if (!MapMigPoint_IsInsideMap(&cursor)) continue;
-                    if (sameContinent && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 6) != continent) continue;
+                    if (sameContinent && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                     if (!Tool_FillArrayFromPoint(NXBasics::Runtime_TimeSigned32(player), point, &cursor, list)) return Read<std::uint32_t>(list, 0) != 0;
                 }
             }
@@ -120,8 +120,8 @@ namespace NC2Logic
     bool Tool_IsEnemyLandscapeOnPoint(std::int32_t player, const void* point)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) return false;
-        const auto owner = Read<std::int8_t>(micro, 4);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) return false;
+        const auto owner = Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId);
         if (owner == -1) return false;
         return player == -1 || GameControl_Diplomacy_GetState(gGameControl, static_cast<std::uint32_t>(player), static_cast<std::uint32_t>(owner)) == 3;
     }

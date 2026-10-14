@@ -127,7 +127,7 @@ namespace NC2Logic
         GameMapModifyManager_StartGameMapModify();
         void* door = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
         void* micro = GameMap_GetMapMicroPointPtr(door);
-        if (Read<std::uint8_t>(micro, 0) == 2) Write<std::uint8_t>(micro, 0, 0);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType, 0);
         Write(house, NC2Layout::HouseOffset::DevelopmentStage, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u);
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(definition, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u));
@@ -140,11 +140,11 @@ namespace NC2Logic
         GameMap_MapMicroPoint_Landscape_Clear(door);
         micro = GameMap_GetMapMicroPointPtr(door);
         // Original outlined function 00431DC6; preserve the lower flag bit and other micro-point data.
-        if (Read<std::uint8_t>(micro, 0) == 0)
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 0)
         {
-            Write<std::uint8_t>(micro, 2, (Read<std::uint8_t>(micro, 2) & NXBasics::BitMask::ByteExceptBit0) | 2u);
-            Write<std::uint8_t>(micro, 0, 2);
-            Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)));
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData, (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & NXBasics::BitMask::ByteExceptBit0) | 2u);
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType, 2);
+            Write<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId, static_cast<std::uint16_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)));
         }
         House_Misc_Blocks_SetToMap(house);
         House_Misc_ClearLandscapesAndGuides(house);
@@ -196,9 +196,9 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&point))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                    if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0) GameMap_MapMicroPoint_Landscape_Clear(&point);
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0) GameMap_MapMicroPoint_Landscape_Clear(&point);
                     RoadBuildManager_ClearRoadBuildFlagForAnyPlayer(gRoadBuildManager, &point);
-                    if (Read<std::uint8_t>(micro, 0) == 3) GuideManager_RemoveGuide(gGuideManager, nullptr, Read<std::uint16_t>(micro, 2));
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 3) GuideManager_RemoveGuide(gGuideManager, nullptr, Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::GuideId));
                 }
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }

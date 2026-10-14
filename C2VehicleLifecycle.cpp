@@ -100,7 +100,7 @@ namespace NC2Logic
             if (callback->distance == 0) return false;
             auto& data = *static_cast<SVehiclePointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint16_t>(micro, 10) != NXBasics::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
+            if (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != NXBasics::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
             const auto distance = Distance(point, &data.initialPoint);
             const auto fromSource = Distance(data.source, point);
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
@@ -117,7 +117,7 @@ namespace NC2Logic
             if (callback->distance == 0) return false;
             auto& data = *static_cast<SVehiclePointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint16_t>(micro, 10) != NXBasics::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
+            if (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != NXBasics::IntegerRange::UInt16Maximum || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(data.type->logicSize)) return false;
             const auto distance = Distance(point, &data.initialPoint);
             const auto fromSource = Distance(data.source, point);
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
@@ -129,7 +129,7 @@ namespace NC2Logic
                 for (std::uint32_t step = 0; step < radius; ++step)
                 {
                     MapMigPoint_MoveCursorUnwrapped(cursor, direction);
-                    if (MapMigPoint_IsInsideMap(&cursor) && GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 6)) == 1) { land = true; break; }
+                    if (MapMigPoint_IsInsideMap(&cursor) && GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor),NC2Layout::MapMicroPointOffset::ContinentId)) == 1) { land = true; break; }
                 }
             if (!land) return false;
             if (data.sourceDistance == 0) data.sourceDistance = fromSource;
@@ -144,7 +144,7 @@ namespace NC2Logic
         bool __cdecl slVehicle_SearchVehicleFreePos(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto& data = *static_cast<SVehicleFreePositionSearch*>(callback->userData);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 12) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(data.vehicle)->logicSize) || Vehicle_GoAway_HitByVehicle(data.vehicle, point)) return false;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(data.vehicle)->logicSize) || Vehicle_GoAway_HitByVehicle(data.vehicle, point)) return false;
             Write(data.output, 0, Read<std::uint32_t>(point, 0));
             return true;
         }
@@ -228,7 +228,7 @@ namespace NC2Logic
             for (std::int32_t step = 0; step < distance; ++step)
             {
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
-                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) == continent) { Write(vehicle, NC2Layout::VehicleOffset::DoorEntryPoint, point); return; }
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId) == continent) { Write(vehicle, NC2Layout::VehicleOffset::DoorEntryPoint, point); return; }
             }
     }
 
@@ -242,8 +242,8 @@ namespace NC2Logic
             {
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                const auto continent = Read<std::uint8_t>(micro, 6);
-                if (GameMap_Continent_GetContinentTyp(continent) == 1 && (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) == 0) return continent;
+                const auto continent = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId);
+                if (GameMap_Continent_GetContinentTyp(continent) == 1 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) return continent;
             }
         return -1;
     }
@@ -571,7 +571,7 @@ namespace NC2Logic
         if (!Vehicle_Attachment_IsInsideVehicle(vehicle))
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Vehicle_GetMapPositionRef(vehicle));
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 12) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize))
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize))
             {
                 auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
                 std::uint32_t output = 0;

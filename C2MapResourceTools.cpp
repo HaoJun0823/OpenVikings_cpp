@@ -34,13 +34,13 @@ namespace NC2Logic
     std::int32_t Tool_AddGoodsToMapPoint(std::uint32_t good, std::int32_t amount, const void* point, bool useHouses, std::uint32_t player)
     {
         if (!MapMigPoint_IsInsideMap(point)) return amount;
-        if (useHouses && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0) == 2)
+        if (useHouses && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ObjectType) == 2)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : NXBasics::IntegerRange::UInt32Maximum;
+                const auto id = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId)) : NXBasics::IntegerRange::UInt32Maximum;
                 auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == player && (House_Stock_CanStoreGoodType(house, good, false) || House_Stock_CanStoreGoodType(house, good, true)))
                 {
@@ -84,13 +84,13 @@ namespace NC2Logic
     std::int32_t Tool_RemoveGoodsFromMapPoint(std::uint32_t good, std::int32_t amount, const void* point, bool useHouses, std::uint32_t player)
     {
         if (!MapMigPoint_IsInsideMap(point)) return amount;
-        if (useHouses && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0) == 2)
+        if (useHouses && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ObjectType) == 2)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                const auto id = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : NXBasics::IntegerRange::UInt32Maximum;
+                const auto id = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId)) : NXBasics::IntegerRange::UInt32Maximum;
                 auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == player && House_Stock_CanStoreGoodType(house, good, true))
                 {
@@ -106,8 +106,8 @@ namespace NC2Logic
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
         do
         {
-            if (Read<std::uint8_t>(micro, 0) != 1) return amount;
-            const auto landscape = Read<std::uint8_t>(micro, 2);
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1) return amount;
+            const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
             if (landscape == 0 || gStaticDependencyGoodByLandscape[landscape] != good || GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 3) == -1) return amount;
             amount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(amount) - 1u);
         } while (amount != 0);

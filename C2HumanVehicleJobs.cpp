@@ -56,8 +56,8 @@ namespace NC2Logic
     bool Human_l_IsHouseTypeOnPoint(const void* human, const void* point, std::uint32_t type)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 2u) != 0) return false;
-        const void* house = House(Read<std::uint16_t>(micro, 4));
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) return false;
+        const void* house = House(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId));
         return Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == type && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3;
     }
 
@@ -69,7 +69,7 @@ namespace NC2Logic
         std::uint32_t macro, candidate;
         MapMagPoint_ConstructFromMig(&macro, WorkCenter(human), false);
         MapMigPoint_ConstructFromMag(&candidate, &macro, false);
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidate), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidate),NC2Layout::MapMicroPointOffset::ContinentId);
         const auto& houseData = gStaticHouseTypeStorage.records[type];
         const auto size = gStaticVehicleTypeStorage.records[houseData.vehicleType].logicSize;
         MapMigPoint_ConstructFromMag(&candidate, &macro, false);
@@ -100,9 +100,9 @@ namespace NC2Logic
     std::uint32_t Human_l_FindVehicleBuildPointNearWorkCenter(const void* human, std::int32_t engineType, std::uint32_t stage, bool ignoreContinents, std::uint32_t continent, void* realPosition, void* workPosition, const void* candidate, std::uint32_t size)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(candidate);
-        if ((Read<std::uint8_t>(micro, 12) & 7u) < size || !Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), engineType, stage, Read<std::uint32_t>(candidate, 0), ignoreContinents, false)) return 0;
+        if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < size || !Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), engineType, stage, Read<std::uint32_t>(candidate, 0), ignoreContinents, false)) return 0;
         Write(workPosition, 0, Read<std::uint32_t>(candidate, 0));
-        if (ignoreContinents && (Read<std::uint8_t>(micro, 6) == continent || !Tool_House_IsWorkPointOnContinent(candidate, engineType, stage, continent, workPosition))) return 0;
+        if (ignoreContinents && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent || !Tool_House_IsWorkPointOnContinent(candidate, engineType, stage, continent, workPosition))) return 0;
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
         const auto* area = Read<const CMapArea*>(definition, 0x20u + stage * 4u);
         for (std::uint32_t row = 0; row < area->rowCount; ++row)
@@ -125,7 +125,7 @@ namespace NC2Logic
         std::uint32_t stage = 0;
         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), type, &stage);
         auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId);
         if (Human_l_IsHouseTypeOnPoint(human, &point, type)) return House(static_cast<std::uint32_t>(Logic_EntryPoint_House_GetOnPosition(&point)));
         for (std::int32_t radius = 1; radius < WorkRadius(human); ++radius)
         {
@@ -136,7 +136,7 @@ namespace NC2Logic
                     MapMigPoint_MoveCursorUnwrapped(point, direction);
                     if (!MapMigPoint_IsInsideMap(&point) || !Human_l_IsHouseTypeOnPoint(human, &point, type)) continue;
                     std::uint32_t work = 0;
-                    if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) == continent || Tool_House_IsWorkPointOnContinent(&point, engineType, stage, continent, &work)) return House(static_cast<std::uint32_t>(Logic_EntryPoint_House_GetOnPosition(&point)));
+                    if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId) == continent || Tool_House_IsWorkPointOnContinent(&point, engineType, stage, continent, &work)) return House(static_cast<std::uint32_t>(Logic_EntryPoint_House_GetOnPosition(&point)));
                 }
         }
         return nullptr;
@@ -251,7 +251,7 @@ namespace NC2Logic
     // Original function: FUN_00474c3e; occupied builder positions are retried before the unrestricted search.
     void Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_BuildVehicle(void* human)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId);
         const bool atTarget = Human_IsAtTargetPoint(human);
         void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) * CHouseArray::ElementSize;
         std::uint32_t work = 0;

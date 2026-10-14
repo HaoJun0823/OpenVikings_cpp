@@ -197,9 +197,9 @@ namespace NC2Logic
                 {
                     const auto* human = Human(id);
                     if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 6 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) != NXBasics::IntegerRange::UInt32Maximum) continue;
-                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId);
                     std::uint32_t b = 0;
-                    while (b < barrackCount && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House(barracks[b]) + 28), 6) != continent) ++b;
+                    while (b < barrackCount && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House(barracks[b]) + 28),NC2Layout::MapMicroPointOffset::ContinentId) != continent) ++b;
                     if (b == barrackCount) continue;
                     candidates[count++] = id; if (count == 50) break;
                 }
@@ -208,12 +208,12 @@ namespace NC2Logic
                 for (std::uint32_t i = 0; i < count; ++i)
                 {
                     const auto* position = Human_GetMapPositionRef(Human(candidates[i]));
-                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
                     std::int32_t best = 10000000, house = -1;
                     for (std::uint32_t b = 0; b < barrackCount; ++b)
                     {
                         const auto* door = House(barracks[b]) + 36;
-                        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(door), 6) != continent) continue;
+                        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(door),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                         const auto distance = Distance(position, door);
                         if (distance <= best) { best = distance; house = barracks[b]; }
                     }

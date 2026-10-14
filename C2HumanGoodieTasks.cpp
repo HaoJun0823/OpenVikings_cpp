@@ -86,9 +86,9 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SDamagedWallSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != data.player) return false;
-            const auto landscape = Read<std::uint8_t>(micro, 2);
-            if (landscape < 82 || landscape > 84 || Read<std::uint8_t>(micro, 3) >= 100) return false;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != data.player) return false;
+            const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
+            if (landscape < 82 || landscape > 84 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) >= 100) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 10;
         }
@@ -133,7 +133,7 @@ namespace NC2Logic
         {
             auto* candidates = static_cast<SleepLandscapes*>(data->userData);
             const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+            const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
             if (type != candidates->landscapeType) return false;
             candidates->points[candidates->count++] = Read<std::uint32_t>(point, 0);
             return candidates->count == 10;
@@ -144,7 +144,7 @@ namespace NC2Logic
         {
             auto* candidates = static_cast<NearbyPoints*>(data->userData);
             const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, 0x0A) != -1) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1) return false;
             candidates->points[candidates->count++] = Read<std::uint32_t>(point, 0);
             return candidates->count == 8;
         }
@@ -276,7 +276,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             return true;
         }
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(workPosition), 0x0C) & NXBasics::BitMask::Bit7) != 0) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(workPosition),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
         const auto useSectors = Human_UsesExtendedPathfinder(human);
         // Windows 004F4300/004F4304: normal/carrier search radii 50/63.
         if (!MapMoveable_Pathfinder_Start(Moveable(human), workPosition, Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
@@ -286,7 +286,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         Human_Target_SetTargetPositions(human, realPosition, workPosition);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) Human_HouseMisc_Leave(human);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) Human_HouseMisc_Leave(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount, 0);
         return true;
     }
@@ -308,7 +308,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 2);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) Human_HouseMisc_Leave(human);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) Human_HouseMisc_Leave(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::MapPositionReachedCount, 0);
         return true;
     }
@@ -479,7 +479,7 @@ namespace NC2Logic
     // Original function: FUN_0045e498; strict weighted-distance comparison retains the first tie.
     void* Human_FindAnimalForPlaying(const void* human)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)),NC2Layout::MapMicroPointOffset::ContinentId);
         CAnimalIterator iterator;
         void* selected = nullptr;
         std::uint32_t nearest = 10000;
@@ -488,7 +488,7 @@ namespace NC2Logic
             void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0) continue;
             const void* position = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12;
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent) continue;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
             auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
             const auto tribe = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType);
             if (tribe != 16 && tribe != 17) distance *= 2u;

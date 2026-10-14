@@ -36,8 +36,8 @@ namespace NC2Logic
     {
         if (!Human_l_IsAtomicInterruptable(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) return 0;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 1) return 1;
-        const auto landscape = Read<std::uint8_t>(micro, 2);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1) return 1;
+        const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
         if ((landscape != 85 && landscape != 86) || !Human_IsAgeAdult(human)) return 1;
         std::uint32_t work = 0;
         if (!GameMap_Misc_GetLandscapeWorkPosition(point, &work)) return 1;
@@ -89,10 +89,10 @@ namespace NC2Logic
     {
         auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        const bool large = Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 86;
+        const bool large = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 86;
         if (large && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 30 && !Human_IsJobHero(human)) return false;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, large ? 57 : 56, MapMigPoint_GetLong(point), 0);
-        const auto reward = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        const auto reward = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
         const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const auto goods = [&](std::uint32_t good, std::uint32_t amount)
         {
@@ -221,7 +221,7 @@ namespace NC2Logic
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
                 MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
-                if (!MapMigPoint_IsInsideMap(&neighbor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&neighbor), 0xC) & NXBasics::BitMask::Bit7) != 0) valid = false;
+                if (!MapMigPoint_IsInsideMap(&neighbor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&neighbor),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) valid = false;
             }
             if (!valid) continue;
             Logic_EntryPoint_Edit_Start();

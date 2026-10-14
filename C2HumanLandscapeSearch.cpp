@@ -35,11 +35,11 @@ namespace NC2Logic
             auto& data = *static_cast<SHumanSearchLandscapesData*>(callback->userData);
             if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) return false;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) return false;
             for (std::uint32_t index = 0; index < data.typeCount; ++index)
             {
                 auto& entry = data.entries[index];
-                if (entry.landscape != Read<std::uint8_t>(micro, 2) || (entry.minimumValency > 1u && entry.minimumValency > Read<std::uint8_t>(micro, 3))) continue;
+                if (entry.landscape != Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) || (entry.minimumValency > 1u && entry.minimumValency > Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency))) continue;
                 std::uint32_t work = 0;
                 if (!GameMap_Misc_GetLandscapeWorkPosition(point, &work) || entry.count >= 10u) return false;
                 entry.points[entry.count++] = Read<std::uint32_t>(point, 0);
@@ -70,7 +70,7 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SHumanSearchBioLandscapeData*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto landscape = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+            const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
             if (landscape != data.landscape) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 10u;
@@ -116,8 +116,8 @@ namespace NC2Logic
         bool __cdecl slHumanSearchShorePointFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) return false;
-            auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro, 10));
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+            auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId));
             while (id != -1)
             {
                 const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
@@ -125,7 +125,7 @@ namespace NC2Logic
                 if (type == 0 || type == 3) return false;
                 id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
             }
-            const auto ways = Read<std::uint8_t>(micro, 7);
+            const auto ways = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections);
             if ((ways & NXBasics::BitMask::Low6Bits) == 0x3Fu) return false;
             auto& data = *static_cast<SHumanSearchShorePointData*>(callback->userData);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
@@ -146,9 +146,9 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SHumanSearchGrowLandscapeData*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto kind = Read<std::uint8_t>(micro, 0);
-            if ((kind == 1 ? Read<std::uint8_t>(micro, 2) : 0u) != data.landscape) return false;
-            const auto valency = kind == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+            const auto kind = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
+            if ((kind == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u) != data.landscape) return false;
+            const auto valency = kind == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
             if (kind == 1 && valency >= 5) data.mature[data.matureCount++] = Read<std::uint32_t>(point, 0);
             else if (valency <= data.minimumValency)
             {
@@ -163,8 +163,8 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SHumanSearchBioLandscapeData*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
-            if (type != data.landscape || Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 3) < 3) return false;
+            const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
+            if (type != data.landscape || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) < 3) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 10u;
         }
@@ -184,9 +184,9 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SHumanSearchPilePointData*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 0xC) & NXBasics::BitMask::Bit7) != 0) return false;
-            const auto kind = Read<std::uint8_t>(micro, 0);
-            if (kind == 2 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::uint8_t>(micro, 2) != 1)) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+            const auto kind = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
+            if (kind == 2 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 1)) return false;
             data.point = Read<std::uint32_t>(point, 0);
             return ++data.count == 1u;
         }
@@ -314,7 +314,7 @@ namespace NC2Logic
         auto cursor = Read<std::uint32_t>(work, 0);
         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
         Write(work, 0, cursor);
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real), 7) & (1u << direction)) != 0) return true;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) != 0) return true;
         const auto start = direction + 2u >= 6u ? direction - 3u : direction + 2u;
         for (direction = start; direction < 6u; ++direction)
         {
@@ -322,7 +322,7 @@ namespace NC2Logic
             Write(work, 0, cursor);
             if (!MapMigPoint_IsInsideMap(work)) continue;
             const auto bit = (direction + 4u) % 6u;
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real), 7) & (1u << bit)) != 0) return true;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << bit)) != 0) return true;
         }
         for (direction = 0; direction < start; ++direction)
         {
@@ -330,7 +330,7 @@ namespace NC2Logic
             Write(work, 0, cursor);
             if (!MapMigPoint_IsInsideMap(work)) continue;
             const auto bit = (direction + 4u) % 6u;
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real), 7) & (1u << bit)) != 0) return true;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << bit)) != 0) return true;
         }
         Write(work, 0, Read<std::uint32_t>(real, 0));
         return true;

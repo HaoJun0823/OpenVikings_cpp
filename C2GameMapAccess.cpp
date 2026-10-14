@@ -38,7 +38,7 @@ namespace NC2Logic
     bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
-        return (NC2Lifetime::Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 && NC2Lifetime::Read<std::uint8_t>(micro, 7) != 0;
+        return (NC2Lifetime::Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && NC2Lifetime::Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) != 0;
     }
 
     // Original function: FUN_004248ed; try five independently selected area positions.
@@ -50,7 +50,7 @@ namespace NC2Logic
         if (micro == nullptr) return false;
         const auto engineId = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(realPosition);
         if (engineId == -1) return false;
-        const auto valency = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        const auto valency = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
         const auto* area = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, valency, 2);
         if (area == nullptr)
         {

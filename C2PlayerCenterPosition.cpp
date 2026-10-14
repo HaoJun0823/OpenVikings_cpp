@@ -49,7 +49,7 @@ namespace NC2Logic
             ++count;
             if (firstHouse)
             {
-                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
                 firstHouse = false;
             }
         }
@@ -66,7 +66,7 @@ namespace NC2Logic
             ++count;
             if (firstHuman)
             {
-                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
                 firstHuman = false;
             }
         }
@@ -76,7 +76,7 @@ namespace NC2Logic
         const auto acceptable = [&](const void* point)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            return (Read<std::uint8_t>(micro, 0x0C) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro, 6) == continent;
+            return (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent;
         };
         if (acceptable(mapPoint)) return true;
         const auto limit = static_cast<std::uint32_t>(GameMap_GetWidth() > GameMap_GetHeight() ? GameMap_GetWidth() : GameMap_GetHeight());

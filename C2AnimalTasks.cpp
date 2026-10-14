@@ -72,7 +72,7 @@ namespace NC2Logic
                 Animal_l_DetachLeader(animal);
             }
             if (Animal_IsAttachedToVehicle(animal)) { Animal_SetLeaderId(animal, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId)); return; }
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 6);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)),NC2Layout::MapMicroPointOffset::ContinentId);
             CAnimalIterator iterator;
             const bool attached = Animal_IsAttachedToHouse(animal);
             auto id = attached ? iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId)) : -1;
@@ -80,7 +80,7 @@ namespace NC2Logic
             for (; id != -1; id = iterator.GetNextAnimalId())
             {
                 auto* other = Animal(static_cast<std::uint32_t>(id));
-                if (Read<std::uint32_t>(other, NC2Layout::AnimalOffset::TribeType) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(other)), 6) != continent || !Animal_l_IsLeaderValid(other)) continue;
+                if (Read<std::uint32_t>(other, NC2Layout::AnimalOffset::TribeType) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(other)),NC2Layout::MapMicroPointOffset::ContinentId) != continent || !Animal_l_IsLeaderValid(other)) continue;
                 auto* leader = Animal(Read<std::uint32_t>(other, NC2Layout::AnimalOffset::LeaderId));
                 if (attached && (!Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + NC2Layout::AnimalOffset::AttachmentTarget) != TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget))) continue;
                 if (Animal_l_AttachLeader(animal, leader)) return;
@@ -110,7 +110,7 @@ namespace NC2Logic
         {
             auto& candidates = *static_cast<SNearbyPoints*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, 10) != -1) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1) return false;
             candidates.points[candidates.count++] = Read<std::uint32_t>(point, 0);
             return candidates.count == 8;
         }
@@ -121,7 +121,7 @@ namespace NC2Logic
             auto& data = *static_cast<SLandPoints*>(callback->userData);
             if (callback->distance < data.minimumDistance) return false;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, 10) != -1) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 1;
         }
@@ -130,7 +130,7 @@ namespace NC2Logic
         bool __cdecl slAnimalSearchFoodPatterns(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, 10) != -1 || Read<std::uint8_t>(Macro(point), 0) != 2) return false;
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1 || Read<std::uint8_t>(Macro(point), 0) != 2) return false;
             Write(callback->userData, 0, Read<std::uint32_t>(point, 0));
             return true;
         }
@@ -138,7 +138,7 @@ namespace NC2Logic
         // Original function: FUN_00461308.
         bool __cdecl CalculateFoodPattern(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 12) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), 0) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), 0) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
             return false;
         }
 
@@ -147,8 +147,8 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SNearbyPoints*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto id = Read<std::int16_t>(micro, 10);
-            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || id == -1) return false;
+            const auto id = Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
+            if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || id == -1) return false;
             const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
             if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1 || Human_IsJobSoldier(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize)) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
@@ -193,7 +193,7 @@ namespace NC2Logic
             const auto direction = Game_Random_GetNumber() % 6u;
             for (std::uint32_t step = 0; step < 5; ++step)
             {
-                if ((Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 7) & (1u << direction)) == 0) break;
+                if ((Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) break;
                 MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
             }
             CMapPathfinderElement::SearchOverMap(&point, 40, true, slAnimalSearchLandMapPoint, &data, false, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId));
@@ -205,7 +205,7 @@ namespace NC2Logic
         // Original function: FUN_00461698; the ring cursor is deliberately not reset.
         bool FindBirthPoint(const void* current, const void* center, void* result, std::uint32_t radius)
         {
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(current), 6);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(current),NC2Layout::MapMicroPointOffset::ContinentId);
             auto point = Read<std::uint32_t>(center, 0);
             MapMigPoint_MoveCursorUnwrapped(&point, 4, radius);
             std::uint32_t minimum = 1000000;
@@ -216,7 +216,7 @@ namespace NC2Logic
                     MapMigPoint_MoveCursorUnwrapped(point, direction);
                     if (MapMigPoint_IsBorderPoint(&point)) continue;
                     const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                    if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent || (minimum != 1000000 && Read<std::uint8_t>(Macro(&point), 0) != 2)) continue;
+                    if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) != continent || (minimum != 1000000 && Read<std::uint8_t>(Macro(&point), 0) != 2)) continue;
                     const auto distance = Distance(&point, current);
                     if (distance >= minimum) continue;
                     minimum = distance;
@@ -255,7 +255,7 @@ namespace NC2Logic
             std::uint32_t count = 0;
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
-                if ((Read<std::uint8_t>(micro, 7) & (1u << direction)) == 0) continue;
+                if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
                 auto& candidate = gAnimalBirthCandidates.points[count];
                 candidate = Read<std::uint32_t>(birth, 0);
                 MapMigPoint_MoveCursorUnwrapped(candidate, direction);
@@ -311,7 +311,7 @@ namespace NC2Logic
             if (Distance(Animal_GetMapPositionRef(Animal(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId))), Animal_GetMapPositionRef(animal)) > LeaderDistance(animal)) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 3); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); return; }
             auto* moveable = Moveable(animal);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
-            if (Read<std::int16_t>(micro, 10) != Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) || Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) != -1)
+            if (Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) || Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) != -1)
             {
                 if (Animal_l_StartTask_GoAway(animal)) return;
             }
@@ -469,7 +469,7 @@ namespace NC2Logic
                     auto* moveable = Moveable(animal);
                     auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
                     MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u);
-                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) == 0) { MapMoveable_Attachment_DetachFromMap(moveable); MapMoveable_Attachment_AttachToMap(moveable, &point); }
+                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) { MapMoveable_Attachment_DetachFromMap(moveable); MapMoveable_Attachment_AttachToMap(moveable, &point); }
                 }
                 else if (event.type == SwitchIds::AtomicAnimationEvent::PlaySoundFX) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, event.parameter, MapMigPoint_GetLong(Animal_GetMapPositionRef(animal)), 0);
             }
@@ -553,7 +553,7 @@ namespace NC2Logic
         }
         auto point = Read<std::uint32_t>(destination, 0);
         MapMigPoint_MoveCursorUnwrapped(point, VE_HexagonDirection_OppositeDirection(2));
-        if (MapMigPoint_IsBorderPoint(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 2);
+        if (MapMigPoint_IsBorderPoint(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 2);
         Animal_l_StartAtomicWalk(animal, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0) == point ? destination : &point);
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 9);
     }
@@ -576,7 +576,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) == 0)
             {
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
-                if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId)) Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag, 1);
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId)) Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag, 1);
             }
             const auto task = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::CurrentTask);
             if (task > 0 && task <= 10) Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 2);
@@ -618,7 +618,7 @@ namespace NC2Logic
         if (!Animal_IsAttachedToVehicle(animal) && !Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) != 20) Animal_l_MoveWorkCenterPoint(animal);
         Animal_l_CheckForValidLeader(animal);
         if (!Animal_l_CurrentTask_DoPerform(animal) || !Animal_l_IsAtomicInterruptable(animal)) return;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 12) & NXBasics::BitMask::Bit7) != 0) Animal_l_StartTask_GoAway(animal);
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) Animal_l_StartTask_GoAway(animal);
         if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId) && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask) != 3 && Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId)), NC2Layout::AnimalOffset::CurrentTask) == 4) { Animal_l_Speed_Fast(animal); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 3); }
         for (;;)
         {

@@ -25,7 +25,7 @@ namespace NC2Logic
     void* Human_FindAnimalForHunting(const void* human)
     {
         const void* position = Human_GetMapPositionRef(human);
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
         CAnimalIterator iterator;
         void* best = nullptr;
         std::uint32_t bestDistance = 10000;
@@ -34,7 +34,7 @@ namespace NC2Logic
             void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
             if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0) continue;
             const void* point = Animal_GetMapPositionRef(animal);
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6) != continent) continue;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
             const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2))) + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints);
             if (distance >= bestDistance) continue;
             best = animal;
@@ -91,8 +91,8 @@ namespace NC2Logic
         {
             const void* real = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetPosition;
             const void* micro = GameMap_GetConstMapMicroPointPtr(real);
-            const auto landscape = Read<std::uint8_t>(micro, 2);
-            if (Read<std::uint8_t>(micro, 0) == 1 && (landscape == 79 || landscape == 80))
+            const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && (landscape == 79 || landscape == 80))
             {
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, landscape == 79 ? 9 : 21);
                 if (Human_l_StartAtomicWalkAndFetch(human, real, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetWorkPosition, false)) return;

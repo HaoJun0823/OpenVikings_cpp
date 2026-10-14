@@ -57,8 +57,8 @@ namespace NC2Logic
     bool Human_CanPrayAtMapRealPosition(const void* human, const void* point)
     {
         const void* micro = GameMap_GetMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
-        const auto id = Read<std::uint16_t>(micro, 4);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 1u) == 0) return false;
+        const auto id = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
         const void* house = House(id);
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
         if (id != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) && House_GetHouseMainType(house) == 2) return false;
@@ -81,9 +81,9 @@ namespace NC2Logic
     std::int32_t Human_GetDefenseHouseId(const void* human)
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        if (Read<std::uint8_t>(micro, 0) == 2)
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2)
         {
-            const auto id = Read<std::uint16_t>(micro, 4);
+            const auto id = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
             if (Read<std::uint8_t>(House(id), NC2Layout::HouseOffset::DefenceModeFlag) != 0) return id;
         }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 5 && Human_Target_IsValid(human))
@@ -582,7 +582,7 @@ namespace NC2Logic
         }
         const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
         std::uint32_t work = 0;
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId);
         House_Religion_GetNextPrayPoint(house, Human_GetMapPositionRef(human), &work, false, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent);
         if (!Human_l_StartAtomicWalk(human, &real, &work)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
@@ -609,7 +609,7 @@ namespace NC2Logic
     bool Human_FindTempleForPraying(void* human, void* real, void* work)
     {
         const void* position = Human_GetMapPositionRef(human);
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId);
         std::uint32_t nearest = 50000;
         const void* selected = nullptr;
         CHouseIterator iterator;
@@ -621,7 +621,7 @@ namespace NC2Logic
                 const void* house = House(static_cast<std::uint32_t>(id));
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
-                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY)));
                 if (distance > nearest) continue;
                 nearest = distance;

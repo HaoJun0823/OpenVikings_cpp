@@ -76,30 +76,30 @@ namespace NC2E2
             {
                 const auto point = static_cast<std::uint32_t>(static_cast<std::uint16_t>(x)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(y)) << 16);
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(&point);
-                if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, 8) & (1u << player)) == 0) continue;
+                if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) continue;
                 const auto* engineMicro = EngineMap_GetConstMapMicroPointPtr(&point);
                 std::int32_t base[2];
                 DisplayDescription_MapMigToWorldPixelCoordinates(display, point, base, true);
                 S2DEngineDisplaySearchObjectBobData bobs;
-                const auto type = Read<std::uint8_t>(micro, 0);
+                const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
                 const auto phase = static_cast<std::uint32_t>(x + y * 2);
-                if (type == 1 && Read<std::uint8_t>(micro, 2) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
+                if (type == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
                 {
-                    DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, 0)), Read<std::uint8_t>(micro, 3), phase, &bobs);
+                    DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, 0)), Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency), phase, &bobs);
                     if (IsHit(bobs, mouse, base))
                     {
                         Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::Type, SwitchIds::MapObjectUnderCursor::Landscape);
                         Write(output, NC2Layout::DisplayObjectReferenceOffset::MapPosition, point);
                         Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeId, Read<std::uint16_t>(engineMicro, 0));
-                        Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant, Read<std::uint8_t>(micro, 3));
-                        Write<std::int32_t>(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int8_t>(micro, 4));
+                        Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency));
+                        Write<std::int32_t>(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId));
                         std::memcpy(static_cast<std::byte*>(output) + NC2Layout::DisplayObjectReferenceOffset::BobData, &bobs, sizeof(bobs));
                         priority = 20;
                     }
                 }
-                if (type == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
+                if (type == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 1u) != 0)
                 {
-                    const auto houseId = Read<std::uint16_t>(micro, 4);
+                    const auto houseId = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
                     if (priority <= 50)
                     {
                         S2DEngineDrawAtomHouseSignData signs;
@@ -132,7 +132,7 @@ namespace NC2E2
                 }
                 if (type == 3 && priority <= 25)
                 {
-                    const auto guideId = Read<std::uint16_t>(micro, 2);
+                    const auto guideId = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::GuideId);
                     DrawAtom_Guide_GetBobData(guideId, display, &bobs);
                     if (IsHit(bobs, mouse, base))
                     {
@@ -183,7 +183,7 @@ namespace NC2E2
             DisplayDescription_WorldPixelToMapMigCoordinates(display, mouse, &point); Write(output, NC2Layout::DisplayObjectReferenceOffset::MapPosition, point);
             if (NC2Logic::MapMigPoint_IsInsideMap(&point))
             {
-                const auto flags = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), 0xD);
+                const auto flags = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::TerrainFlags);
                 if ((flags & 12u) != 0)
                 {
                     const auto* manager = (flags & 4u) != 0 ? NC2Logic::gRoadBuildManager : NC2Logic::gWallBuildManager;

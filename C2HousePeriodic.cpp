@@ -167,7 +167,7 @@ namespace NC2Logic
                     Write<std::uint32_t>(house, NC2Layout::HouseOffset::BuilderRecruitmentCounter, 5);
                     CHumanIterator iterator;
                     auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
-                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(base), 6);
+                    const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(base),NC2Layout::MapMicroPointOffset::ContinentId);
                     void* selected = nullptr;
                     std::uint32_t bestDistance = 20000;
                     for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint), 10000, false); id != -1; id = iterator.GetNextSectorHumanId())
@@ -175,7 +175,7 @@ namespace NC2Logic
                         void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 7 || Human_UserControl_GetNextJobType(human) != 7 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0 || Human_IsAttachedToBuildSite(human) || Human_IsAttachedToVehicle(human)) continue;
                         const void* position = Human_GetMapPositionRef(human);
-                        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent) continue;
+                        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                         const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(base, 0), Read<std::int16_t>(base, 2)));
                         if (selected != nullptr && distance >= bestDistance) continue;
                         selected = human;

@@ -61,8 +61,8 @@ namespace NC2Logic
             const auto oldDistance = Distance(&oldPosition, Human_GetMapPositionRef(human));
             if (oldDistance <= Distance(&candidatePosition, Human_GetMapPositionRef(human))) return false;
         }
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidatePosition), 6);
-        if (continent != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) && Distance(point, &candidatePosition) > static_cast<std::uint32_t>(weapon->maximumRange)) return false;
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidatePosition),NC2Layout::MapMicroPointOffset::ContinentId);
+        if (continent != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId) && Distance(point, &candidatePosition) > static_cast<std::uint32_t>(weapon->maximumRange)) return false;
         std::memcpy(target, candidate, NC2Layout::RecordSize::TargetDataSigned);
         return true;
     }

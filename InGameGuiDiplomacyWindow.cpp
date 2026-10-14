@@ -283,7 +283,7 @@ namespace NC2InGameGuiMiscWindows
                     const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
                     if (type != 7 && type != 8 && type != 9 && type != 1) continue;
                     if (NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId), player) != 1) continue;
-                    if (player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(house + NC2Layout::HouseOffset::MapPosition), 8) & (1u << player)) == 0) continue;
+                    if (player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(house + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) continue;
                     for (auto offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, NXBasics::IntegerRange::UInt32Maximum); offer != NXBasics::IntegerRange::UInt32Maximum; offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, offer))
                     {
                         const auto* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + offer * 24u;

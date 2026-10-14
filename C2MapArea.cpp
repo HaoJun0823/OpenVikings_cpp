@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2MapArea.h"
 #include "C2GameState.h"
@@ -26,11 +27,11 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&point))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                    const auto landscape = Read<std::uint8_t>(micro, 2);
-                    if (Read<std::uint8_t>(micro, 0) == 1 && landscape != 0)
+                    const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && landscape != 0)
                     {
                         const auto good = gStaticDependencyGoodByLandscape[landscape];
-                        if (good != 0) amounts[good] += Read<std::uint8_t>(micro, 3);
+                        if (good != 0) amounts[good] += Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency);
                     }
                 }
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
@@ -50,10 +51,10 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&point))
                 {
                     auto* micro = GameMap_GetMapMicroPointPtr(&point);
-                    const auto value = Read<std::uint8_t>(micro, 12);
+                    const auto value = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags);
                     if (((value >> 7) != 0) != blocked)
                     {
-                        Write<std::uint8_t>(micro, 12, static_cast<std::uint8_t>((value & NXBasics::IntegerRange::Int8Maximum) | (blocked ? 0x80u : 0u)));
+                        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags, static_cast<std::uint8_t>((value & NXBasics::IntegerRange::Int8Maximum) | (blocked ? 0x80u : 0u)));
                         GameMapModifyManager_GameMapModified(14, &point, 0);
                     }
                 }
@@ -71,7 +72,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) != 0) return false;
+                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -90,7 +91,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&point))
                 {
                     auto* micro = GameMap_GetMapMicroPointPtr(&point);
-                    Write<std::uint8_t>(micro, 13, static_cast<std::uint8_t>((Read<std::uint8_t>(micro, 13) & NXBasics::BitMask::ByteExceptBit0) | (blocked ? 1u : 0u)));
+                    Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags, static_cast<std::uint8_t>((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::ByteExceptBit0) | (blocked ? 1u : 0u)));
                 }
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
@@ -106,7 +107,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & 1u) != 0) return false;
+                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -149,14 +150,14 @@ namespace NC2Logic
     {
         const void* micro = GameMap_GetMapMicroPointPtr(source);
         if (MapMicroPointData_Continent_GetContinentTyp(micro) != 1) return false;
-        const auto continent = Read<std::uint8_t>(micro, 6);
+        const auto continent = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId);
         for (std::uint32_t row = 0; row < rowCount; ++row)
         {
             std::uint32_t point;
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 6) != continent) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId) != continent) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -210,7 +211,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0) == 3) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ObjectType) == 3) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -226,7 +227,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & NXBasics::BitMask::Bit5) != 0) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::Bit5) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -243,7 +244,7 @@ namespace NC2Logic
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
                 if (!MapMigPoint_IsInsideMap(&point)) return false;
-                const auto type = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0);
+                const auto type = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ObjectType);
                 if (type != 0 && type != 1) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
@@ -263,11 +264,11 @@ namespace NC2Logic
             {
                 if (!MapMigPoint_IsInsideMap(&point)) return;
                 auto* micro = GameMap_GetMapMicroPointPtr(&point);
-                if (Read<std::uint8_t>(micro, 0) == 0)
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 0)
                 {
-                    Write<std::uint8_t>(micro, 0, 4);
-                    Write<std::uint8_t>(micro, 2, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 0) - Read<std::int16_t>(&point, 0)));
-                    Write<std::uint8_t>(micro, 3, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 2) - Read<std::int16_t>(&point, 2)));
+                    Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType, 4);
+                    Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 0) - Read<std::int16_t>(&point, 0)));
+                    Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 2) - Read<std::int16_t>(&point, 2)));
                 }
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
@@ -284,7 +285,7 @@ namespace NC2Logic
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
                 if (!MapMigPoint_IsInsideMap(&point)) return;
-                Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 0, 0);
+                Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ObjectType, 0);
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }

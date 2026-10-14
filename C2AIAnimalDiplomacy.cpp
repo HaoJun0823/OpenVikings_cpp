@@ -134,7 +134,7 @@ namespace NC2Logic
             else AIScout_MoveToPos(catcher, &destination);
             return;
         }
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(center), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(center),NC2Layout::MapMicroPointOffset::ContinentId);
         for (std::int32_t i = 0; i < Read<std::int32_t>(counts, 0); ++i) Write<std::uint8_t>(counts, 12 + i * 12, 0);
         const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(catcher, 0) * CHumanArray::ElementSize;
         const auto* position = Human_GetMapPositionRef(human);
@@ -147,7 +147,7 @@ namespace NC2Logic
             if (owner != 20 && GameControl_Diplomacy_GetState(gGameControl, player, owner) != 3) continue;
             if (!AIAnimalTypeCounts_MarkRequested(counts, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType))) continue;
             const auto* animalPosition = Animal_GetMapPositionRef(animal);
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(animalPosition), 6) != continent) continue;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(animalPosition),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
             const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(animalPosition, player);
             const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(animalPosition, 0), Read<std::uint16_t>(animalPosition, 2), Read<std::uint16_t>(position, 0), Read<std::uint16_t>(position, 2));
             const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(danger) + static_cast<std::uint32_t>(distance / 5));

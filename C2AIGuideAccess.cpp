@@ -55,7 +55,7 @@ namespace NC2Logic
             auto* search = static_cast<SGuideBuildSearch*>(data->userData);
             if (data->distance < 16) return false;
             const auto distance = Distance(point, search->destination);
-            const auto terrain = (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 12) >> 3) & 15;
+            const auto terrain = (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::WalkingFlags) >> 3) & 15;
             const auto score = distance + terrain * terrain;
             if (score > search->distance || !Tool_Guide_IsAllowedToBeBuild(search->player, point, true)) return false;
             const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(point, search->player);
@@ -166,7 +166,7 @@ namespace NC2Logic
             for (std::uint32_t j = i + 1; j < sGuideCandidates.count; ++j)
             {
                 auto* first = &sGuideCandidates.points[i]; auto* second = &sGuideCandidates.points[j];
-                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(first), 6) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(second), 6)) continue;
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(first),NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(second),NC2Layout::MapMicroPointOffset::ContinentId)) continue;
                 auto distance = Distance(first, second);
                 CGuideIterator guides;
                 for (auto id = guides.GetFirstGuideId(player); id != -1; id = guides.GetNextGuideId())
@@ -211,10 +211,10 @@ namespace NC2Logic
                 const auto* entry = static_cast<const std::byte*>(Read<void*>(manager, 32)) + (row * SSectorGridCursor::sGridWidth + column) * 12;
                 if (Read<std::uint8_t>(entry, 0) == 0 || Read<std::uint8_t>(entry, 1) != 0) continue;
                 const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(entry, 8) * CHouseArray::ElementSize;
-                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(house + NC2Layout::HouseOffset::MapPosition), 6);
+                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(house + NC2Layout::HouseOffset::MapPosition),NC2Layout::MapMicroPointOffset::ContinentId);
                 const auto x = column * 20, y = row * 20;
                 std::uint32_t point = 0; MapMigPoint_Construct(&point, static_cast<std::int16_t>(x + 10), static_cast<std::int16_t>(y + 10), false);
-                if (MapMigPoint_IsInsideMap(&point) && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) == continent && Tool_Guide_IsAllowedToBeBuild(player, &point, true)) { Write(manager, 16, point); return; }
+                if (MapMigPoint_IsInsideMap(&point) && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId) == continent && Tool_Guide_IsAllowedToBeBuild(player, &point, true)) { Write(manager, 16, point); return; }
                 for (std::uint32_t radius = 1; radius < 20; ++radius)
                 {
                     MapMigPoint_MoveCursorUnwrapped(point, 4);
@@ -225,7 +225,7 @@ namespace NC2Logic
                             if (!MapMigPoint_IsInsideMap(&point)) continue;
                             const auto px = Read<std::int16_t>(&point, 0), py = Read<std::int16_t>(&point, 2);
                             if (px < x || px > x + 20 || py < y || py > y + 20) continue;
-                            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) == continent && Tool_Guide_IsAllowedToBeBuild(player, &point, true)) { Write(manager, 16, point); return; }
+                            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId) == continent && Tool_Guide_IsAllowedToBeBuild(player, &point, true)) { Write(manager, 16, point); return; }
                         }
                 }
             }

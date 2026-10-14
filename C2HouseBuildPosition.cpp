@@ -24,7 +24,7 @@ namespace NC2Logic
         {
             if (!MapMigPoint_IsInsideMap(&point)) return;
             void* micro = GameMap_GetMapMicroPointPtr(&point);
-            Write<std::uint8_t>(micro, 0x0D, (Read<std::uint8_t>(micro, 0x0D) & NXBasics::BitMask::ByteExceptBit5) | ((forbidden & 1u) << 5));
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags, (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::ByteExceptBit5) | ((forbidden & 1u) << 5));
         };
         setPoint();
         for (std::int32_t ring = 1; ring <= radius; ring = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(ring) + 1u))
@@ -63,7 +63,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&candidate))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
-                    if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) == 0) { Write(workPoint, 0, candidate); return true; }
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) { Write(workPoint, 0, candidate); return true; }
                 }
                 Write<std::uint16_t>(&candidate, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, 0) + 1u));
             }
@@ -94,8 +94,8 @@ namespace NC2Logic
     {
         if (engineType == -1 || !MapMigPoint_IsInsideMap(&point) || MapMigPoint_IsBorderPoint(&point)) return false;
         if (!ignoreTerrain && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&point)) != 1) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0) == 2) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0) == 3) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ObjectType) == 2) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ObjectType) == 3) return false;
         MapMigPoint_MakeMacroGridAligned(&point);
         if (!MapMigPoint_IsOnMacroGrid(&point)) return false;
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
@@ -103,7 +103,7 @@ namespace NC2Logic
         const auto* maximumArea = Read<const CMapArea*>(definition, 0x1Cu + maximumStage * 4u);
         if (!maximumArea->BuildBlock_Check(&point)) return false;
         if (!ignoreTerrain && !maximumArea->Check_AreAllPointsAroundOnBuildAllowedPattern(&point)) return false;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & NXBasics::BitMask::Bit5) != 0) return false;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::Bit5) != 0) return false;
         const auto* baseArea = Read<const CMapArea*>(definition, 0x1C);
         if (!baseArea->WalkBlock_Check(&point)) return false;
         if (!ignoreTerrain && !baseArea->Check_AreAllPointsOnSameLandContinent(&point)) return false;
@@ -114,8 +114,8 @@ namespace NC2Logic
         MapMigPoint_ConstructOffset(&workPoint, &point, Read<std::int16_t>(definition, 0x188u + stage * 4u), Read<std::int16_t>(definition, 0x18Au + stage * 4u), false);
         if (!MapMigPoint_IsInsideMap(&workPoint)) return false;
         if (!ignoreTerrain && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&workPoint)) != 1) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&workPoint), 0) == 2) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&workPoint), 0) == 3) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&workPoint),NC2Layout::MapMicroPointOffset::ObjectType) == 2) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&workPoint),NC2Layout::MapMicroPointOffset::ObjectType) == 3) return false;
         return true;
     }
 }

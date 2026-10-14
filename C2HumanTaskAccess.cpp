@@ -446,14 +446,14 @@ namespace NC2Logic
             const auto soldierAtWork = Human_IsJobSoldier(human) && Human_IsAttachedToWorkHouse(human) && Human_IsInWorkHouse(human);
             if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag) == 0 && !soldierAtWork)
             {
-                if (Read<std::uint8_t>(micro, 0) == 2 && Read<std::uint8_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::DefenceModeFlag) != 0)
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && Read<std::uint8_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::DefenceModeFlag) != 0)
                 {
                     if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
                     Human_l_StartAtomicAnimation(human, 5, -1);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
                     return;
                 }
-                const auto occupant = Read<std::int16_t>(micro, 0x0A);
+                const auto occupant = Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
                 if (occupant != Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) != -1)
                 {
                     CMapMoveableIterator iterator;
@@ -470,7 +470,7 @@ namespace NC2Logic
                 }
             }
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-            if (idleCount > 2u && Read<std::uint8_t>(micro, 0) == 2 && !soldierAtWork) { Human_l_StartTask_GoAway(human, 0, 0); return; }
+            if (idleCount > 2u && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && !soldierAtWork) { Human_l_StartTask_GoAway(human, 0, 0); return; }
         }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0 && Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
@@ -662,12 +662,12 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, target == 1 ? 1 : target == 2 ? 3 : target == 3 || target == 4 ? 7 : target == 7 ? 6 : 0);
         }
         void* moveable = Moveable(human);
-        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 0x0C) & NXBasics::BitMask::Bit7) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
         {
             Human_CurrentTask_DoInterrupt(human);
             Human_l_StartTask_GoAway(human, 0, 0);
         }
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter), 0x0C) & NXBasics::BitMask::Bit7) != 0 && !Human_IsAttachedToWallPoint(human))
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 && !Human_IsAttachedToWallPoint(human))
         {
             auto workCenter = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
             if (Tool_Map_GetNotBlockedPosition(&workCenter, false))

@@ -89,7 +89,7 @@ namespace NC2Logic
     // Original function: FUN_00474a0d; occupied builder positions are retried before the unrestricted search.
     void Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(void* human)
     {
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId);
         const bool atTarget = Human_IsAtTargetPoint(human);
         void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
         std::uint32_t work = 0;
@@ -125,7 +125,7 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Tool_RoadBuilder(void* human)
     {
         if (!Human_IsAttachedToRoadPoint(human)) { Fail(human, 2); return; }
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(WorkCenter(human)), 0) == 2) { RoadBuildManager_ClearRoadBuildFlagForAnyPlayer(gRoadBuildManager, WorkCenter(human)); return; }
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(WorkCenter(human)),NC2Layout::MapMicroPointOffset::ObjectType) == 2) { RoadBuildManager_ClearRoadBuildFlagForAnyPlayer(gRoadBuildManager, WorkCenter(human)); return; }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) Human_l_StartTask_ExecuteJob_Tool_RoadBuilder_TryToCollect(human);
         else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_RoadBuilder_BringAway(human);
         else Human_l_StartTask_ExecuteJob_Tool_RoadBuilder_Collect(human);
@@ -136,14 +136,14 @@ namespace NC2Logic
     {
         if (!Human_IsAttachedToWallPoint(human)) { Fail(human, 2); return; }
         const auto* micro = GameMap_GetConstMapMicroPointPtr(WorkCenter(human));
-        if (Read<std::uint8_t>(micro, 0) == 2) { WallBuildManager_ClearWallBuildFlagForAnyPlayer(gWallBuildManager, WorkCenter(human)); return; }
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2) { WallBuildManager_ClearWallBuildFlagForAnyPlayer(gWallBuildManager, WorkCenter(human)); return; }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0)
         {
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_WallBuilder_BringAway(human);
             else Human_l_StartTask_ExecuteJob_Tool_WallBuilder_Collect(human);
             return;
         }
-        if ((Read<std::uint8_t>(micro, 13) & 8u) != 0) { Human_l_StartTask_ExecuteJob_Tool_WallBuilder_TryToCollect(human); return; }
+        if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 8u) != 0) { Human_l_StartTask_ExecuteJob_Tool_WallBuilder_TryToCollect(human); return; }
         auto work = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
         if (!GameMap_Misc_GetLandscapeWorkPosition(WorkCenter(human), &work)) { Fail(human, 7); return; }
         Human_l_StartTask_ExecuteJob_Tool_WallBuilder_Repair(human);

@@ -153,19 +153,19 @@ namespace NC2Logic
             default: return;
             }
         }
-        if (Read<std::uint8_t>(micro, 0) == 2)
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2)
         {
-            const auto* house = House(Read<std::uint16_t>(micro, 4));
+            const auto* house = House(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId));
             if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == action->player && weapon.hitSelf == 0) return;
             const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
             if (!Contains(targets, 4, id)) Add(targets, 4, id);
             return;
         }
-        if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0)
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0)
         {
-            if (Read<std::uint8_t>(micro, 2) == 4 && action->weapon == 21)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 4 && action->weapon == 21)
             {
-                if (Read<std::uint8_t>(micro, 3) >= 3)
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) >= 3)
                 {
                     GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 11);
                     CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, 10, MapMigPoint_GetLong(point), 0);
@@ -176,7 +176,7 @@ namespace NC2Logic
             if (Tool_IsEnemyLandscapeOnPoint(weapon.hitSelf != 0 ? -1 : static_cast<std::int32_t>(action->player), point)) Add(targets, 5, MapMigPoint_GetLong(point));
             return;
         }
-        if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0)
+        if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
         {
             for (std::uint32_t radius = 1; radius < 5; ++radius)
             {
@@ -188,8 +188,8 @@ namespace NC2Logic
                         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                         if (!MapMigPoint_IsInsideMap(&cursor)) continue;
                         const auto* nearby = GameMap_GetConstMapMicroPointPtr(&cursor);
-                        if (Read<std::uint8_t>(nearby, 0) != 2) continue;
-                        const auto* house = House(Read<std::uint16_t>(nearby, 4));
+                        if (Read<std::uint8_t>(nearby,NC2Layout::MapMicroPointOffset::ObjectType) != 2) continue;
+                        const auto* house = House(Read<std::uint16_t>(nearby,NC2Layout::MapMicroPointOffset::HouseId));
                         if ((Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == action->player && weapon.hitSelf == 0) || !House_IsPositionInHouse(house, point)) continue;
                         const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
                         if (!Contains(targets, 4, id) && !Add(targets, 4, id)) return;
@@ -272,15 +272,15 @@ namespace NC2Logic
     bool Tool_HitLandscapeOnPoint(std::uint32_t player, std::uint32_t tribe, std::uint32_t weapon, const void* point)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) return false;
-        const auto owner = Read<std::int8_t>(micro, 4);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) return false;
+        const auto owner = Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId);
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         const auto increments = static_cast<std::uint32_t>(data.damageValues[7]) / 100u;
         bool hit = false;
         for (std::uint32_t index = 0; index < increments; ++index)
         {
             micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) break;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) break;
             if (GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 10) != -1) hit = true;
         }
         if (hit)

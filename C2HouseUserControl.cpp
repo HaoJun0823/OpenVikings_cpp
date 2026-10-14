@@ -39,8 +39,8 @@ namespace NC2Logic
                         MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
                         if (!MapMigPoint_IsInsideMap(&point)) continue;
                         const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) continue;
-                        const auto type = Read<std::uint8_t>(micro, 2);
+                        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != static_cast<std::int32_t>(player)) continue;
+                        const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
                         if (type == 84 || type == 83) MapTool_WallGate_SetState(player, &point, false);
                     }
             }
@@ -72,8 +72,8 @@ namespace NC2Logic
                         MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
                         if (!MapMigPoint_IsInsideMap(&point)) continue;
                         const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) continue;
-                        const auto type = Read<std::uint8_t>(micro, 2);
+                        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != static_cast<std::int32_t>(player)) continue;
+                        const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
                         if (type == 84 || type == 83) MapTool_WallGate_SetState(player, &point, true);
                     }
             }

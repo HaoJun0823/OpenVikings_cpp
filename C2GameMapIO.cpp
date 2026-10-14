@@ -52,7 +52,7 @@ namespace NC2Logic
                     if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
                     {
                         ++count.attached;
-                        if (player < 16u && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(moveable + NC2Layout::MapMoveableOffset::MapPosition), 8) & (1u << player)) != 0) ++count.explored;
+                        if (player < 16u && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(moveable + NC2Layout::MapMoveableOffset::MapPosition),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0) ++count.explored;
                     }
                 }
                 if (NC2E2::gDynamicDataHumans.entries != nullptr)

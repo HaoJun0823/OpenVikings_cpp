@@ -43,9 +43,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto* target = GameMap_GetConstMapMicroPointPtr(point);
         const auto* source = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
-        if (Read<std::uint8_t>(target, 6) != Read<std::uint8_t>(source, 6)) return 0;
+        if (Read<std::uint8_t>(target,NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(source,NC2Layout::MapMicroPointOffset::ContinentId)) return 0;
         const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
-        if (player < 16 && (Read<std::uint16_t>(target, 8) & (1u << player)) == 0) return 0;
+        if (player < 16 && (Read<std::uint16_t>(target,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return 0;
         std::memset(command, 0, 20);
         Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 4); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(point));
         return 2;
@@ -227,7 +227,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const void* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition);
-        return Read<std::uint8_t>(point, 0) == 1 ? Read<std::uint8_t>(point, 2) : 0;
+        return Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(point,NC2Layout::MapMicroPointOffset::ObjectData) : 0;
     }
 
     // Original function: FUN_0042d45a.
@@ -578,7 +578,7 @@ namespace NC2Logic
         if (!direct)
         {
             auto fallback = Read<std::uint32_t>(point, 0);
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6)) return 1;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId)) return 1;
             if (!Tool_Map_GetNotBlockedPosition(&fallback, false) || !Human_l_StartAtomicWalkAndWait(human, &fallback)) return 1;
         }
         if (Human_IsAttachedToLearnHouse(human)) Human_DoExecuteUserCommand_DetachLearnHouse(human);
@@ -997,7 +997,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0)
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 7);
@@ -1031,7 +1031,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
+        if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
     }

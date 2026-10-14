@@ -507,7 +507,7 @@ namespace NC2E2
                 {
                     // An expired projectile may have crossed the map boundary on its last movement tick.
                     const void* micro = NC2Logic::GameMap_GetMapMicroPointPtr(At(particle, NC2Layout::ParticleOffset::MapPoint));
-                    if (micro != nullptr && (Read<std::uint8_t>(micro, 0xC) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint16_t>(micro, 0xA) == NXBasics::IntegerRange::UInt16Maximum && !(Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::int8_t>(micro, 4) != -1))
+                    if (micro != nullptr && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) == NXBasics::IntegerRange::UInt16Maximum && !(Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != -1))
                     {
                         // The original clears only the low DWORD of the pixel-Y double.
                         Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::PositionPixelY, 0);

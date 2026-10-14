@@ -59,7 +59,7 @@ namespace NC2Logic
         bool __cdecl slWalkSectorBasePointSearch(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SBasePointSearch*>(callback->userData);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0D) & NXBasics::BitMask::Bit4) == 0) return false;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::Bit4) == 0) return false;
             auto* sector = Sector(SSectorGridCursor(Read<std::uint32_t>(point, 0)), data.land != 0);
             for (std::uint32_t direction = 0; direction < 8; ++direction)
             {
@@ -214,9 +214,9 @@ namespace NC2Logic
         if (!CMapPathfinderElement::SearchOverMap(source, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
         const SSectorGridCursor sourceSector(data.point);
         auto* sourceData = Sector(sourceSector, land);
-        if (sourceData->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6) != sourceData->continentId) return false;
+        if (sourceData->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId) != sourceData->continentId) return false;
         if (!CMapPathfinderElement::SearchOverMap(destination, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point), 6) != sourceData->continentId) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point),NC2Layout::MapMicroPointOffset::ContinentId) != sourceData->continentId) return false;
         const SSectorGridCursor targetSector(data.point);
         if (sourceSector.x == targetSector.x && sourceSector.y == targetSector.y) return false;
         if (Sector(targetSector, land)->continentId != sourceData->continentId) return false;
@@ -303,9 +303,9 @@ namespace NC2Logic
         if (!CMapPathfinderElement::SearchOverMap(source, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
         const SSectorGridCursor from(data.point);
         auto* sourceSector = GetLandSectorDataPtr(from);
-        if (sourceSector->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6) != sourceSector->continentId) return false;
+        if (sourceSector->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId) != sourceSector->continentId) return false;
         if (!CMapPathfinderElement::SearchOverMap(destination, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
-        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point), 6) != sourceSector->continentId) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point),NC2Layout::MapMicroPointOffset::ContinentId) != sourceSector->continentId) return false;
         const SSectorGridCursor target(data.point);
         if ((target.x == from.x && target.y == from.y) || GetLandSectorDataPtr(target)->continentId != sourceSector->continentId) return false;
         if (!WayPossible(from, target, 0, true, player)) return false;

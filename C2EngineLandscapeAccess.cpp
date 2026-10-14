@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineLandscapeAccess.h"
@@ -157,7 +158,7 @@ namespace NC2LogicExternals
     {
         const auto engine = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
         const auto logic = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-        const auto valency = NC2Lifetime::Read<std::uint8_t>(logic, 0) == 1 ? NC2Lifetime::Read<std::uint8_t>(logic, 3) : 0;
+        const auto valency = NC2Lifetime::Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? NC2Lifetime::Read<std::uint8_t>(logic,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
         return External_Landscape_GetAreaPtr(NC2Lifetime::Read<std::uint16_t>(engine, 0), valency, areaKind);
     }
     // Original function: FUN_00480893.

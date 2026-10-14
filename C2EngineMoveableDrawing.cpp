@@ -572,13 +572,13 @@ namespace NC2E2
         {
             const auto* moveablePoint = static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition;
             const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(moveablePoint);
-            if (Read<std::uint8_t>(micro, 0) != 2) return;
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 2) return;
             std::int32_t anchorX = 0, anchorY = 0;
             if (display != nullptr)
             {
                 std::int32_t moveablePixel[2], housePixel[2];
                 Display_MapMigToLocalDisplayPixelCoordinates(display, moveablePoint, moveablePixel, false);
-                const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : NXBasics::IntegerRange::UInt32Maximum;
+                const auto houseId = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId)) : NXBasics::IntegerRange::UInt32Maximum;
                 const auto* housePoint = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize + 0x1C;
                 Display_MapMigToLocalDisplayPixelCoordinates(display, housePoint, housePixel, false);
                 anchorX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(housePixel[0]) - static_cast<std::uint32_t>(moveablePixel[0]));
@@ -594,7 +594,7 @@ namespace NC2E2
                     EngineGraphic_Draw(static_cast<std::uint32_t>(part.overlayLandscapeId), 1, bitmap, overlayX, overlayY, NC2Logic::gGameTime.tick, overlayBrightness, -1, false);
                 else if (part.type == NC2Runtime::MoveableAnimationPartType::HouseBobOverlay)
                 {
-                    const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, 4)) : -1;
+                    const auto houseId = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId)) : -1;
                     DrawAtom_House_Tool_DoDrawBob(houseId, bitmap, overlayX, overlayY, overlayBrightness, static_cast<std::uint32_t>(part.overlayBobId));
                 }
             }
@@ -734,9 +734,9 @@ namespace NC2E2
         {
             const auto* point = static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition;
             const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                const auto houseId = Read<std::uint16_t>(micro, 4);
+                const auto houseId = Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::HouseId);
                 const auto* housePoint = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize + 0x1C;
                 std::int32_t moveablePixel[2], housePixel[2];
                 Display_MapMigToLocalDisplayPixelCoordinates(display, point, moveablePixel, false);

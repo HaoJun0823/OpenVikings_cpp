@@ -64,15 +64,15 @@ namespace NC2Logic
             VisitChangedArea(gLandscapeValidationChangedArea, [](const void* position)
             {
                 void* micro = GameMap_GetMapMicroPointPtr(position);
-                if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0) return;
+                if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0) return;
                 const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(position);
-                const auto valency = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+                const auto valency = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
                 const auto* area = NC2LogicExternals::External_Landscape_GetAreaPtr(engine, valency, 1);
-                const auto landscape = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+                const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
                 if (!GameMap_Misc_IsLandscapeAllowedOnPattern(position, landscape)) GameMap_MapMicroPoint_Landscape_Clear(position);
                 else if (area != nullptr)
                 {
-                    const auto currentLandscape = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+                    const auto currentLandscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
                     if (!area->Check_CanLandscapeBeSetOnPattern(position, currentLandscape)) GameMap_MapMicroPoint_Landscape_Clear(position);
                 }
             });
@@ -99,8 +99,8 @@ namespace NC2Logic
         if (MapMigPoint_IsBorderPoint(position)) return;
         auto* micro = GameMap_GetMapMicroPointPtr(position);
         std::uint32_t size = 0;
-        const auto continent = Read<std::uint8_t>(micro, 6);
-        if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) == 0 && continent != 0)
+        const auto continent = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId);
+        if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && continent != 0)
         {
             size = 1;
             auto neighbor = Read<std::uint32_t>(position, 0);
@@ -109,7 +109,7 @@ namespace NC2Logic
             for (std::uint32_t count = 0; count < 6; ++count)
                 if (MapMigPoint_IsInsideMap(&neighbor))
                 {
-                    const auto candidate = Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&neighbor), 12) & 7u;
+                    const auto candidate = Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&neighbor),NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u;
                     if (candidate > size) size = candidate;
                 }
             --size;
@@ -119,7 +119,7 @@ namespace NC2Logic
                 size = candidate;
             }
         }
-        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::ByteExceptBits0Through2) | (size & 7u));
+        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags, (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::ByteExceptBits0Through2) | (size & 7u));
     }
 
     // Original function: FUN_00450E08; the continent-type load has no effect on the predicate in Windows.
@@ -134,7 +134,7 @@ namespace NC2Logic
             {
                 if (!MapMigPoint_IsInsideMap(&point)) return false;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-                if ((Read<std::uint8_t>(micro, 7) & (1u << direction)) == 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 6) != continent) return false;
+                if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) != continent) return false;
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
             }
         return true;
@@ -165,14 +165,14 @@ namespace NC2Logic
     void GameMap_l_WalkFlagSet_ClearConnections(std::uint32_t point)
     {
         if (MapMigPoint_IsBorderPoint(&point)) return;
-        Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 7, 0);
+        Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::WalkingDirections, 0);
         MapMigPoint_MoveCursorUnwrapped(point, 4);
         for (std::uint32_t direction = 0; direction < 6; ++direction)
         {
             // An outside-map cursor does not advance in this native loop.
             if (!MapMigPoint_IsInsideMap(&point)) continue;
             auto* micro = GameMap_GetMapMicroPointPtr(&point);
-            Write<std::uint8_t>(micro, 7, Read<std::uint8_t>(micro, 7) & ~(1u << ((direction + 1u) % 6u)));
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) & ~(1u << ((direction + 1u) % 6u)));
             MapMigPoint_MoveCursorUnwrapped(point, direction);
         }
     }
@@ -206,10 +206,10 @@ namespace NC2Logic
     void GameMap_l_WalkFlagSet_SetConnection(std::uint32_t point, std::uint32_t direction)
     {
         auto* micro = GameMap_GetMapMicroPointPtr(&point);
-        Write<std::uint8_t>(micro, 7, Read<std::uint8_t>(micro, 7) | (1u << direction));
+        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) | (1u << direction));
         MapMigPoint_MoveCursorUnwrapped(point, direction);
         micro = GameMap_GetMapMicroPointPtr(&point);
-        Write<std::uint8_t>(micro, 7, Read<std::uint8_t>(micro, 7) | (1u << VE_HexagonDirection_OppositeDirection(direction)));
+        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingDirections) | (1u << VE_HexagonDirection_OppositeDirection(direction)));
     }
 
     // Original function: FUN_004511C5.
@@ -230,17 +230,17 @@ namespace NC2Logic
     {
         if (!MapMigPoint_IsInsideMap(point)) return;
         auto* micro = GameMap_GetMapMicroPointPtr(point);
-        const auto continent = Read<std::uint8_t>(micro, 6);
-        if (continent != 0 && (Read<std::uint8_t>(micro, 13) & 2u) != 0)
+        const auto continent = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId);
+        if (continent != 0 && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags) & 2u) != 0)
         {
-            Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::ByteExceptBits4Through6) | 8u);
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags, (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::ByteExceptBits4Through6) | 8u);
             return;
         }
         const auto continentType = continent == 0 ? 0u : ContinentTypeUnchecked(continent);
         const void* patterns[6];
         if (continent == 0 || !GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns))
         {
-            Write<std::uint8_t>(micro, 12, Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::ByteExceptBits3Through6);
+            Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags, Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::ByteExceptBits3Through6);
             return;
         }
         const bool land = continentType == 1;
@@ -252,7 +252,7 @@ namespace NC2Logic
             Write<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u, 0);
             return;
         }
-        Write<std::uint8_t>(micro, 12, (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::ByteExceptBits3Through6) | (((sum / count) & 15u) << 3));
+        Write<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags, (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::ByteExceptBits3Through6) | (((sum / count) & 15u) << 3));
     }
 
     // Original function: FUN_004513C1.

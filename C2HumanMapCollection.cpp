@@ -53,19 +53,19 @@ namespace NC2Logic
     std::uint32_t Human_GetLandscapeTypeAtActiveMapPosition(const void* human)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        return Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+        return Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
     }
     // Original function: FUN_0042d172.
     std::uint32_t Human_GetLandscapeValencyAtActiveMapPosition(const void* human)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        return Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        return Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
     }
     // Original function: FUN_0042d1a5.
     std::uint32_t Human_GetLandscapeValencyAtTargetPosition(const void* human)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Real(human));
-        return Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        return Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
     }
 
     // Original function: FUN_0042d1bf.
@@ -76,8 +76,8 @@ namespace NC2Logic
     {
         if (!MapMigPoint_IsInsideMap(point)) return false;
         const auto* micro = GameMap_GetMapMicroPointPtr(point);
-        const auto flags = Read<std::uint8_t>(micro, 13), kind = Read<std::uint8_t>(micro, 0);
-        if ((flags & 3u) != 0 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro, 2) != 0)) return false;
+        const auto flags = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::TerrainFlags), kind = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
+        if ((flags & 3u) != 0 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0)) return false;
         const void* descriptions[6];
         NC2E2::Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(point, descriptions);
         for (const auto* description : descriptions)
@@ -137,7 +137,7 @@ namespace NC2Logic
         }
         if (Human_IsAtTargetPoint(human))
         {
-            const auto moveable = Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 10);
+            const auto moveable = Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::FirstMapMoveableId);
             if (moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
             else Human_l_StartTask_GoAway(human, 0, 0);
             return;
@@ -224,7 +224,7 @@ namespace NC2Logic
             {
                 if (!Human_FindLandscapesNearPos_Random(human, data, &real, &work, Center(human))) continue;
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&real);
-                good = gStaticDependencyGoodByLandscape[Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u];
+                good = gStaticDependencyGoodByLandscape[Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u];
                 found = true;
                 break;
             }

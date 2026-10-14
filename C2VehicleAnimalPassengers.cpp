@@ -44,7 +44,7 @@ namespace NC2Logic
         }
         std::uint32_t point = 0;
         Vehicle_GetMapPosition(vehicle, &point);
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point),NC2Layout::MapMicroPointOffset::ContinentId);
         const auto* data = Vehicle_GetVehicleTypeDataPtr(vehicle);
         std::uint32_t best = 10000, count = 0;
         void* candidate = nullptr;
@@ -54,7 +54,7 @@ namespace NC2Logic
             auto* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animalId) * CAnimalArray::ElementSize;
             if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0 || Read<std::int32_t>(animal, NC2Layout::AnimalOffset::TribeType) != data->draggingAnimalTribe || Animal_IsAttachedToVehicle(animal)) continue;
             const auto* position = Animal_GetMapPositionRef(animal);
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent || ++count <= 2) continue;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent || ++count <= 2) continue;
             const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
             if (distance >= best) continue;
             best = distance;

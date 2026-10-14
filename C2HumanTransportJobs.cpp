@@ -31,7 +31,7 @@ namespace NC2Logic
         std::uint32_t PickupAnimation(const void* house) { const auto type = Read<std::uint32_t>(house, 0x14); return type == 10 ? 44u : type == 11 ? 45u : 22u; }
         bool WalkToConsumer(void* human) { std::uint32_t real = 0, work = 0; return Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work); }
         bool WalkToPile(void* human, const void* source) { std::uint32_t real = 0, work = 0; return Human_FindPilePointNearPosition(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), source, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work); }
-        bool SameContinent(const void* human, const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6); }
+        bool SameContinent(const void* human, const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId); }
     }
 
     // Original function: FUN_00445e98.

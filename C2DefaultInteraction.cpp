@@ -32,7 +32,7 @@ namespace NC2Logic
         std::byte* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         const std::byte* Vehicle(std::uint32_t id) { return CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize; }
         const std::byte* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * NC2Layout::RecordSize::MapMoveable; }
-        std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6); }
+        std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId); }
         void Prepare(void* command, std::uint8_t opcode, const void* actor, std::uint32_t first, std::uint32_t second = 0)
         {
             std::memset(command, 0, 20); Write(command, 0, opcode); Write(command, 4, Read<std::uint32_t>(actor, 4)); Write(command, 8, Read<std::uint32_t>(actor, 8)); Write(command, 0xC, first); Write(command, 0x10, second);
@@ -180,10 +180,10 @@ namespace NC2Logic
             {
                 Prepare(command, 18, human, MapMigPoint_GetLong(point));
                 auto destination = MapMigPoint_GetLong(point); MapMigPoint_MoveCursorUnwrapped(destination, 2);
-                if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), 0xC) & NXBasics::BitMask::Bit7) != 0)
+                if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0)
                 {
                     MapMigPoint_MoveCursorUnwrapped(destination, 0);
-                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), 0xC) & NXBasics::BitMask::Bit7) != 0) destination = MapMigPoint_GetLong(point);
+                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination),NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) destination = MapMigPoint_GetLong(point);
                 }
                 Prepare(secondary, 4, human, destination); return 30;
             }
@@ -205,9 +205,9 @@ namespace NC2Logic
             if (Continent(point) != continent) return 0;
             if (modifier)
             {
-                if (available.IsCommandAllowed(28) && Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && Continent(point) == Continent(Moveable(human) + 0x12) && (player >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) != 0)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+                if (available.IsCommandAllowed(28) && Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && Continent(point) == Continent(Moveable(human) + 0x12) && (player >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) != 0)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             }
-            else if (available.IsCommandAllowed(32) && player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) { Prepare(command, 20, human, MapMigPoint_GetLong(point)); return 32; }
+            else if (available.IsCommandAllowed(32) && player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) { Prepare(command, 20, human, MapMigPoint_GetLong(point)); return 32; }
             return sendTo();
         }
         default: return 0;
@@ -360,7 +360,7 @@ namespace NC2Logic
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
-        if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return 0;
+        if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return 0;
         if (modifier && commands->IsCommandAllowed(8)) { Prepare(command, 108, vehicle, MapMigPoint_GetLong(point)); return 8; }
         if (Continent(point) != Continent(moveable + NC2Layout::MapMoveableOffset::MapPosition)) return 0;
         Prepare(command, 101, vehicle, MapMigPoint_GetLong(point)); return 2;
