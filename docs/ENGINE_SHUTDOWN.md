@@ -106,7 +106,7 @@ The README register records OA035–OA040 and FP013. These include conditional A
 | `00426E9B` | `MapFishManager_Destruct` |
 | `00427343` | `WallBuildManager_Destruct` |
 | `00427FB8` | `RoadBuildManager_Destruct` |
-| `00429546` | `AIMember00429546_Destruct` |
+| `00429546` | `AIGuideManager_Destruct` |
 | `0044E65B` | `MapLandscapeAutoTransitionManager_Destruct` |
 
 ### C2EngineLifetimeAccess.cpp

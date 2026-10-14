@@ -1,5 +1,32 @@
 # Reverse-Engineering State
 
+## Whole-source readability continuation — 2026-10-14
+
+The request to finish the remaining roughly five thousand sites remains open. Eleven further blocks are committed after `432bbe2`; this is a partial readability and Windows-layout review, not a claim of complete behavioral equivalence.
+
+| Block / commit | Value/type comparisons | Physical relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| [Main-menu network/lobby records](MAIN_MENU_NETWORK_RECORDS_REVIEW.md) / `907e31d` | 79 | 33 | 2384 | 244 |
+| [First map moveable identity](FIRST_MAP_MOVEABLE_NAMES_REVIEW.md) / `a129ac2` | 4 | 2 | 90 | 8 |
+| [Typed logic micro-cell consumers](PROVEN_LOGIC_MICRO_CONSUMERS_REVIEW.md) / `345a431` | 18 | 8 | 994 | 508 |
+| [House inhabitants widget](HOUSE_INHABITANTS_WIDGET_REVIEW.md) / `a2a134c` | 28 | 18 | 732 | 77 |
+| [Typed actor consumers](PROVEN_ACTOR_CONSUMERS_REVIEW.md) / `4a3ee7f` | 29 | 0 | 7255 | 161 |
+| [Text widgets/buttons](GUI_TEXT_RECORDS_REVIEW.md) / `81845c3` | 36 | 29 | 774 | 81 |
+| [AI guides/scouts/grid/lifetime](AI_GUIDE_RECORDS_REVIEW.md) / `0449466` | 46 | 21 | 1138 | 135 |
+| [Proven coordinate consumers](PROVEN_MAP_COORDINATES_REVIEW.md) / `b0c235f` | 3 | 4 | 70 | 253 |
+| [GUI widget consumers](GUI_WIDGET_CONSUMERS_REVIEW.md) / `243dd85` | 8 | 0 | 1505 | 64 |
+| [Remaining macro-map storage](MACRO_MAP_REMAINING_RECORDS_REVIEW.md) / `ca476a5` | 26 | 36 | 3288 | 94 |
+| [Engine map owner/cells](ENGINE_MAP_STATIC_RECORDS_REVIEW.md) / `4a4532e` | 29 | 21 | 1792 | 117 |
+
+Fresh registered-source scan: **595 files (307 CPP / 288 headers), 152,507 lines, 4,061 raw numeric access operands, 74 heuristic unknown-member mentions and 1,084 long compound lines**. The current continuation removed **1,366 / 5,427 numeric-access candidates (25.17%)**. Dynamic array-index operands also contribute to this scan. The count is neither a reviewed-function denominator nor a gameplay-completion percentage. Explicit unclassified fields are retained even where the heuristic does not count their spelling.
+
+Windows evidence corrected a prior semantic error: logic micro-cell WORD `0x0A` is the first map-moveable list ID, not a fog mask. Its iterator, linkage and save-chunk identities are synchronized; visibility behavior is unchanged. The fixed text terminator at `0xF7` is likewise identified from the 199-character Windows copy. The guide-manager destructor at `00429546` now has its confirmed owner name, and the function-name/shutdown inventories are synchronized. Mac material supplies names only.
+
+All **307 production units and 26 private compiler assertion units** pass Win32 `/Zs` without errors or warnings. Project/filter registration remains **307 CPP / 288 headers** and the function-name map retains **3,151 unique addresses**. Per-block frozen-stage/value/type/layout checks pass; native byte comparisons establish evidence provenance, not full runtime equivalence. No build, tests or game execution occurred.
+
+Remaining high-count owner blocks: engine lifetime (62 candidates), global AI goods (58), mission-info GUI (57), AI production (56), trader configuration GUI (56), title screen (55), single-player AI / animal diplomacy / options GUI / military target search (54 each), selection windows (52) and mission starting objects (50). Continue complete owner blocks and then their proven consumers; do not replace uncertain offsets with guessed names. A per-function Windows behavioral review ledger is still absent.
+
+
 ## Network, missions, vehicles, GUI support and pathfinder continuation - 2026-10-14
 
 Five further owning blocks are completed and committed: network commands/checksum queues (`1308184`), mission fixed-field consumers/player statistics (`ca6f7cf`), vehicle simulation/passenger and target records (`98bde8e`), selection groups/retained-human records and their save/message consumers (`b6fbc38`), and pathfinder fields/search budgets/directions (`03c1074`). Evidence: [NETWORK_COMMAND_RECORDS_REVIEW.md](NETWORK_COMMAND_RECORDS_REVIEW.md), [MISSION_CONSUMER_FIELDS_REVIEW.md](MISSION_CONSUMER_FIELDS_REVIEW.md), [VEHICLE_SIMULATION_FIELDS_REVIEW.md](VEHICLE_SIMULATION_FIELDS_REVIEW.md), [GUI_SUPPORT_RECORDS_REVIEW.md](GUI_SUPPORT_RECORDS_REVIEW.md), and [PATHFINDER_SEARCH_FIELDS_REVIEW.md](PATHFINDER_SEARCH_FIELDS_REVIEW.md). The wider whole-source readability and Windows behavior review remains incomplete.
