@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2GameState.h"
@@ -566,7 +568,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_MissionInfoWindow_Toggle(std::uint32_t briefingId, bool goalsPage)
     {
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
-        auto* window = desktop->Message_SendToAllWindows(0x7E6, briefingId, goalsPage ? 1u : 0u, 0);
+        auto* window = desktop->Message_SendToAllWindows(SwitchIds::MissionInfoCommand::FindMissionInfoWindow, briefingId, goalsPage ? 1u : 0u, 0);
         if (window != nullptr) desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
         else MiscWindows_MissionInfoWindow_Open(briefingId, goalsPage);
     }
@@ -575,15 +577,15 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage)
     {
         l_Selection_RemoveAllGuiElements();
-        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E6, 0, 0, 0);
+        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(SwitchIds::MissionInfoCommand::FindMissionInfoWindow, 0, 0, 0);
         if (window != nullptr)
         {
             using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-            NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 50000, briefingId, goalsPage ? 1u : 0u, 0);
+            NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, SwitchIds::TextButtonMessage::Command, SwitchIds::MissionInfoCommand::SetBriefing, briefingId, goalsPage ? 1u : 0u, 0);
             return;
         }
         MiscWindows_CloseAllLargeOnes(true);
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(952, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::MissionInfoWindow, 1);
         void* created = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::MissionInfoWindow_Construct(allocation, briefingId, goalsPage);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(created), false);
     }
@@ -591,10 +593,10 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2171.
     void CInGameGuiManager::MiscWindows_MissionInfoWindow_ReloadStrings()
     {
-        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E6, 0, 0, 0);
+        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(SwitchIds::MissionInfoCommand::FindMissionInfoWindow, 0, 0, 0);
         if (window == nullptr) return;
         using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-        NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 50001, 0, 0, 0);
+        NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, SwitchIds::TextButtonMessage::Command, SwitchIds::MissionInfoCommand::ClearBriefing, 0, 0, 0);
     }
 
     // Original function: FUN_004a28a6.

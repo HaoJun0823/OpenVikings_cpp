@@ -1,4 +1,5 @@
 #include "C2ObjectLayout.h"
+#include "SwitchIdentifiers.h"
 #include "XGuiWindowAccess.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -38,7 +39,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b8d42.
     void __fastcall BaseToolWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        if (Read<std::uint32_t>(window, 0x6C) != 1)
+        if (Read<std::uint32_t>(window, NC2Layout::BaseToolWindowOffset::BackgroundStyle) != SwitchIds::ToolWindowBackgroundStyle::Papyrus)
         {
             NC2GuiToolsBase::DrawTool_FillArea(window, bitmap, rectangle, 1);
             NC2GuiToolsBase::DrawTool_DrawFrame(window, bitmap, rectangle, 1);
@@ -131,8 +132,8 @@ namespace NC2InGameGuiBase
     {
         NXBaseGui::BaseWindow_Construct(window, nullptr, rectangle, 0, 0);
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 4);
-        Write<std::uint32_t>(window, 0x6C, 0);
+        std::memset(static_cast<std::byte*>(window) + NC2Layout::BaseToolWindowOffset::BackgroundStyle, 0, 4);
+        Write<std::uint32_t>(window, NC2Layout::BaseToolWindowOffset::BackgroundStyle, SwitchIds::ToolWindowBackgroundStyle::Framed);
         return window;
     }
 }

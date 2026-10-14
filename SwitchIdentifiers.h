@@ -2379,4 +2379,67 @@ namespace SwitchIds
         inline constexpr auto GetCommandParameters = 0x7F0;
     }
 
+    namespace MissionInfoCommand
+    {
+        inline constexpr auto ClearBriefing = 50001;
+
+        inline constexpr auto SetBriefing = 50000;
+
+        inline constexpr auto PageTabLimitUnsigned = 10100u;
+
+        inline constexpr auto FirstPageTabUnsigned = 10000u;
+
+        inline constexpr auto NextBriefing = 0x2775;
+
+        inline constexpr auto PreviousBriefing = 0x2774;
+
+        inline constexpr auto ScrollDown = 0x277F;
+
+        inline constexpr auto ScrollUp = 0x277E;
+
+        inline constexpr auto FindMissionInfoWindow = 0x7E6;
+
+        inline constexpr auto ClearBriefingUnsigned = 50001u;
+
+        inline constexpr auto SetBriefingUnsigned = 50000u;
+    }
+
+    namespace MissionInfoMessage
+    {
+        inline constexpr auto WindowQuery = 0x1000;
+    }
+
+    namespace MissionInfoCallbackCommand
+    {
+        inline constexpr auto CenterOnHouses = 1003;
+
+        inline constexpr auto CenterOnVehicles = 1002;
+
+        inline constexpr auto CenterOnHumans = 1001;
+
+        inline constexpr auto CenterOnCoordinates = 1000;
+
+        inline constexpr auto PlayVoice = 2000;
+    }
+
+    namespace MissionInfoPage
+    {
+        inline constexpr auto History = 2;
+
+        inline constexpr auto Goals = 1;
+
+        inline constexpr auto Briefing = 0;
+
+        inline constexpr auto BriefingUnsigned = 0u;
+
+        inline constexpr auto GoalsUnsigned = 1u;
+    }
+
+    namespace ToolWindowBackgroundStyle
+    {
+        inline constexpr auto Framed = 0;
+
+        inline constexpr auto Papyrus = 1;
+    }
+
 }

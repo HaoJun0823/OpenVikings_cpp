@@ -411,6 +411,8 @@ namespace NC2Layout
 
     namespace PaletteOffset
     {
+        inline constexpr auto InactiveGoalColor = 0x2E8;
+
         inline constexpr auto LastColor = 0x400;
 
         inline constexpr auto Colors = 4;
@@ -914,6 +916,14 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto MissionInfoWindow = 952;
+
+        inline constexpr auto HypertextGuiElement = 72;
+
+        inline constexpr auto EngineDisplay = 2452;
+
+        inline constexpr auto Bitmap = 84;
+
         inline constexpr auto ObjectGroupManager = 12044;
 
         inline constexpr auto InputManager = 3964;
@@ -1610,6 +1620,12 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HypertextGuiElementVars = 28;
+
+        inline constexpr auto MissionBriefingHistory = 0xCC;
+
+        inline constexpr auto MissionInfoWindowVars = 840;
+
         inline constexpr auto EnginePatternIdUnsigned = 2u;
 
         inline constexpr auto StaticAmbientWaveUnsigned = 0x88u;
@@ -4475,6 +4491,72 @@ namespace NC2Layout
     namespace DirectSoundManagerOffset
     {
         inline constexpr auto Initialized = 4;
+    }
+
+    namespace MissionInfoWindowOffset
+    {
+        inline constexpr auto BriefingFilename = 0x288;
+
+        inline constexpr auto BriefingDirectory = 0x184;
+
+        inline constexpr auto MapRoot = 0x75;
+
+        inline constexpr auto CallbackArgument2 = 0x398;
+
+        inline constexpr auto HasCenteredMainDisplay = 0x179;
+
+        inline constexpr auto CallbackArgument1 = 0x394;
+
+        inline constexpr auto CallbackCommand = 0x390;
+
+        inline constexpr auto HistoryFrame = 0x3A4;
+
+        inline constexpr auto CallbackCalled = 0x38C;
+
+        inline constexpr auto HypertextElement = 0x3B4;
+
+        inline constexpr auto HasBriefingFile = 0x17C;
+
+        inline constexpr auto HasMapRoot = 0x74;
+
+        inline constexpr auto GoalStrings = 0x3A0;
+
+        inline constexpr auto OwnsGoalStrings = 0x39C;
+
+        inline constexpr auto BriefingId = 0x180;
+
+        inline constexpr auto Page = 0x70;
+    }
+
+    namespace BaseToolWindowOffset
+    {
+        inline constexpr auto BackgroundStyle = 0x6C;
+    }
+
+    namespace HypertextGuiElementOffset
+    {
+        inline constexpr auto LastJumpSucceeded = 0x39;
+
+        inline constexpr auto AutoScrollStartTime = 0x40;
+
+        inline constexpr auto AutoScrollDelay = 0x44;
+
+        inline constexpr auto AutoScrollSpeed = 0x3C;
+
+        inline constexpr auto Resources = 0x2C;
+
+        inline constexpr auto Entities = 0x30;
+
+        inline constexpr auto WheelScrollingEnabled = 0x38;
+
+        inline constexpr auto FillBackground = 0x3A;
+
+        inline constexpr auto Display = 0x34;
+    }
+
+    namespace BitmapViewOffset
+    {
+        inline constexpr auto Rectangle = 8;
     }
 
 }

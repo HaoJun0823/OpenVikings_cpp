@@ -581,4 +581,32 @@ namespace NC2Runtime
         inline constexpr auto MacroRoundUp = 9;
     }
 
+    namespace MissionBriefingHistoryLimits
+    {
+        inline constexpr auto LastEntry = 49;
+
+        inline constexpr auto LastEntryUnsigned = 49u;
+
+        inline constexpr auto Capacity = 50;
+    }
+
+    namespace MissionInfoGeometry
+    {
+        inline constexpr auto MapPreviewHeight = 220;
+
+        inline constexpr auto MapPreviewWidth = 280;
+
+        inline constexpr auto PortraitHeight = 80;
+
+        inline constexpr auto PortraitWidth = 50;
+
+        inline constexpr auto Height = 420;
+
+        inline constexpr auto Width = 500;
+
+        inline constexpr auto HeightUnsigned = 420u;
+
+        inline constexpr auto WidthUnsigned = 500u;
+    }
+
 }

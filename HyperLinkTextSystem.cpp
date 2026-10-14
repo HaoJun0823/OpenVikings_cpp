@@ -1,3 +1,5 @@
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "C2DataIds.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -659,11 +661,11 @@ namespace
     // Original function: FUN_004cbddb.
     void HyperLinkTextGuiElementBase_Destruct(void* element)
     {
-        Write(element, 0, gHypertextVirtualTable);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gHypertextVirtualTable);
         CFile::FileSystem_SystemPathName_Clear("$local$");
-        DestroyOriginal(Read<CDisplayManager*>(element, 0x34));
-        DestroyOriginal(Read<CEntityManager*>(element, 0x30));
-        DestroyOriginal(Read<CDataContainer*>(element, 0x2C));
+        DestroyOriginal(Read<CDisplayManager*>(element, NC2Layout::HypertextGuiElementOffset::Display));
+        DestroyOriginal(Read<CEntityManager*>(element, NC2Layout::HypertextGuiElementOffset::Entities));
+        DestroyOriginal(Read<CDataContainer*>(element, NC2Layout::HypertextGuiElementOffset::Resources));
         NXBaseGui::BaseElement_Destruct(element);
     }
     // Original function: FUN_004cbdbf.
@@ -676,23 +678,23 @@ namespace
     // Original function: FUN_004cbe39.
     void __fastcall HyperLinkTextGuiElementBase_Draw_Background(void* element, void*, CBitmap* bitmap)
     {
-        if (Read<std::uint8_t>(element, 0x3A) != 0) bitmap->Fill(SColorRGB(0, 0, 0));
+        if (Read<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::FillBackground) != 0) bitmap->Fill(SColorRGB(0, 0, 0));
     }
     // Original function: FUN_004cbe5c.
     void __fastcall HyperLinkTextGuiElementBase_XGui_BE_Element_Draw(void* element, void*, CBitmap* bitmap, const SRectangle*)
     {
-        auto* display = Read<CDisplayManager*>(element, 0x34);
-        const float speed = Read<float>(element, 0x3C);
+        auto* display = Read<CDisplayManager*>(element, NC2Layout::HypertextGuiElementOffset::Display);
+        const float speed = Read<float>(element, NC2Layout::HypertextGuiElementOffset::AutoScrollSpeed);
         if (speed > 0)
         {
-            const auto elapsed = Runtime_TimeSigned32(::timeGetTime() - Read<std::uint32_t>(element, 0x44) - Read<std::uint32_t>(element, 0x40));
+            const auto elapsed = Runtime_TimeSigned32(::timeGetTime() - Read<std::uint32_t>(element, NC2Layout::HypertextGuiElementOffset::AutoScrollDelay) - Read<std::uint32_t>(element, NC2Layout::HypertextGuiElementOffset::AutoScrollStartTime));
             const double distance = static_cast<double>(elapsed < 0 ? 0 : elapsed) * speed * static_cast<double>(0.001f);
             display->SetY(static_cast<std::int32_t>(Runtime_TruncateDoubleToInt64(distance)));
         }
         using TBackground = void(__thiscall*)(void*, CBitmap*);
-        Read<TBackground*>(element, 0)[18](element, bitmap);
+        Read<TBackground*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[18](element, bitmap);
         display->Draw(bitmap);
-        if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8Signed) != 0)
+        if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8Signed) != 0)
         {
             std::int32_t point[2];
             std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
@@ -703,10 +705,10 @@ namespace
     // Original function: FUN_004cbef5.
     bool __fastcall HyperLinkTextGuiElementBase_XGui_BE_Message_Handle(void* element, void*, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
     {
-        if (Read<std::uint8_t>(element, 0x38) != 0 && (message & NXBasics::BitMask::Bit8Signed) != 0)
+        if (Read<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::WheelScrollingEnabled) != 0 && (message & NXBasics::BitMask::Bit8Signed) != 0)
         {
-            Write<float>(element, 0x3C, 0);
-            Read<CDisplayManager*>(element, 0x34)->ScrollY(Runtime_TimeSigned32(param3) / -4);
+            Write<float>(element, NC2Layout::HypertextGuiElementOffset::AutoScrollSpeed, 0);
+            Read<CDisplayManager*>(element, NC2Layout::HypertextGuiElementOffset::Display)->ScrollY(Runtime_TimeSigned32(param3) / -4);
             return true;
         }
         return NXBaseGui::BaseElement_Message_Handle(element, nullptr, message, param1, param2, param3, param4);
@@ -717,7 +719,7 @@ namespace
         std::int32_t point[2];
         std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
         NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
-        Write<std::uint8_t>(element, 0x39, Read<CDisplayManager*>(element, 0x34)->ExecuteJumpFromPoint(point));
+        Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::LastJumpSucceeded, Read<CDisplayManager*>(element, NC2Layout::HypertextGuiElementOffset::Display)->ExecuteJumpFromPoint(point));
     }
     // Complete nineteen-slot table 004F795C..004F79A7.
     const std::uintptr_t gHypertextVirtualTable[19] = {
@@ -738,30 +740,30 @@ namespace
 void* __fastcall HyperLinkTextGuiElementBase_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageMask, const char* directory, const char* filename, void* callbacks, void* bitmapCallback)
 {
     NXBaseGui::BaseElement_Construct(element, rectangle, flags, messageMask);
-    NC2Lifetime::Write(element, 0, gHypertextVirtualTable);
-    std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 28);
+    NC2Lifetime::Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gHypertextVirtualTable);
+    std::memset(static_cast<std::byte*>(element) + NC2Layout::HypertextGuiElementOffset::Resources, 0, NC2Layout::RecordSize::HypertextGuiElementVars);
     NXBasics::CFile::FileSystem_SystemPathName_Set("$local$", directory);
     auto* resources = NHyperLinkTextSystem::AllocateOriginal<NHyperLinkTextSystem::CDataContainer>();
-    NC2Lifetime::Write(element, 0x2C, resources);
+    NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::Resources, resources);
     auto* entities = NHyperLinkTextSystem::AllocateOriginal<NHyperLinkTextSystem::CEntityManager>(resources);
-    NC2Lifetime::Write(element, 0x30, entities);
+    NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::Entities, entities);
     char path[260];
     std::strcpy(path, "$local$\\");
     std::strcat(path, filename);
     entities->AddTextFile(path, "", false);
     auto* display = NHyperLinkTextSystem::AllocateOriginal<NHyperLinkTextSystem::CDisplayManager>(entities, resources, rectangle->width, rectangle->height, static_cast<NHyperLinkTextSystem::SDisplayManagerCallbackData*>(callbacks), reinterpret_cast<NHyperLinkTextSystem::TUserBitmapCallback>(bitmapCallback));
-    NC2Lifetime::Write(element, 0x34, display);
-    NC2Lifetime::Write<std::uint8_t>(element, 0x38, 1);
-    NC2Lifetime::Write<std::uint8_t>(element, 0x3A, 1);
+    NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::Display, display);
+    NC2Lifetime::Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::WheelScrollingEnabled, 1);
+    NC2Lifetime::Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::FillBackground, 1);
     return element;
 }
 // Original function: FUN_004cbf6c; unordered x87 comparison takes the zero branch.
 void __fastcall HyperLinkTextGuiElementBase_SetAutoScrollSpeed(void* element, void*, float speed, std::uint32_t delay)
 {
-    NC2Lifetime::Write(element, 0x3C, speed);
+    NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::AutoScrollSpeed, speed);
     if (speed < 0 || speed > 0)
     {
-        NC2Lifetime::Write(element, 0x40, ::timeGetTime());
-        NC2Lifetime::Write(element, 0x44, delay);
+        NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::AutoScrollStartTime, ::timeGetTime());
+        NC2Lifetime::Write(element, NC2Layout::HypertextGuiElementOffset::AutoScrollDelay, delay);
     }
 }

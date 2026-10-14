@@ -8,6 +8,19 @@ namespace NXBasics { class CBitmap; class CFont; class CPalette; }
 namespace NHyperLinkTextSystem
 {
     using TUserBitmapCallback = NXBasics::CBitmap*(__cdecl*)(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    // Complete Windows element suffix; pointers retain their constructor-established ownership.
+    struct SHypertextGuiElementStorage
+    {
+        std::byte inheritedElement[44];
+        void* resources;
+        void* entities;
+        void* display;
+        std::uint8_t wheelScrollingEnabled, lastJumpSucceeded, fillBackground;
+        std::byte padding3B;
+        float autoScrollSpeed;
+        std::uint32_t autoScrollStartTime, autoScrollDelay;
+    };
+
     struct SDisplayManagerCallbackData
     {
         std::uint8_t called;
