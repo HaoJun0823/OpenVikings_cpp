@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2AIBuildingAccess.h"
 #include "C2EngineDisplayAccess.h"
@@ -44,15 +46,15 @@ namespace NC2Logic
     // Original function: FUN_0045742d; need counters increase recursively even after a failed input.
     bool AIGoodManager_IsProducingGood(void* manager, std::uint32_t good, bool includeInputs)
     {
-        auto* entry = static_cast<std::byte*>(manager) + good * 0x28u;
-        if (!includeInputs) return Read<std::uint8_t>(entry, 0) != 0;
-        Write(entry, 0xC, Read<std::uint32_t>(entry, 0xC) + 1u);
+        auto* entry = static_cast<std::byte*>(manager) + good * NC2Layout::RecordSize::AIGoodUnsigned;
+        if (!includeInputs) return Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ProducingFlag) != 0;
+        Write(entry, NC2Layout::AIGoodOffset::NeedCount, Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::NeedCount) + 1u);
         const auto* definition = StaticGoodTypeData_GetPtr(good);
         bool available = true;
         for (std::uint32_t index = 0; index < definition->distinctProductionInputCount; ++index)
             if (!AIGoodManager_IsProducingGood(manager, static_cast<std::uint32_t>(definition->distinctProductionInputs[index]), true)) available = false;
         if (!available) return false;
-        return Read<std::uint8_t>(entry, 0) != 0;
+        return Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ProducingFlag) != 0;
     }
 
     // Original function: FUN_00471cf6; the five distinct status codes are retained.

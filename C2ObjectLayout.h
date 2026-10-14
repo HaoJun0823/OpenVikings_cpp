@@ -1606,6 +1606,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AIGoodUnsigned = 0x28u;
+
+        inline constexpr auto AIGoodProducer = 20;
+
+        inline constexpr auto AIGood = 0x28;
+
+        inline constexpr auto AIGlobalGood = 0x50;
+
+        inline constexpr auto AIVillageId = 4;
+
         inline constexpr auto EngineDirtyBoundsPair = 16;
 
         inline constexpr auto EngineMapCoordinate = 2;
@@ -2353,6 +2363,10 @@ namespace NC2Layout
 
     namespace AIVillageSlotViewOffset
     {
+        inline constexpr auto HouseBuildAllowedFlags = 0x31;
+
+        inline constexpr auto Goods = 0x280;
+
         inline constexpr auto Active = 8;
         inline constexpr auto Village = 12;
         inline constexpr auto VillageId = 16;
@@ -4198,6 +4212,58 @@ namespace NC2Layout
         inline constexpr auto LastPoint = 4;
 
         inline constexpr auto LastY = 6;
+    }
+
+    namespace AIGlobalGoodOffset
+    {
+        inline constexpr auto ImportVillageIds = 8;
+
+        inline constexpr auto CandidateVillageIds = 0x30;
+
+        inline constexpr auto CandidateVillageCount = 0x2C;
+
+        inline constexpr auto HasProducer = 0x28;
+
+        inline constexpr auto ImportVillageCount = 4;
+
+        inline constexpr auto SelectedVillageId = 0;
+    }
+
+    namespace AIGoodOffset
+    {
+        inline constexpr auto ProductionConfirmationCount = 4;
+
+        inline constexpr auto ForceProducingFlag = 8;
+
+        inline constexpr auto TraderBringFlag = 10;
+
+        inline constexpr auto ProducingFlag = 0;
+
+        inline constexpr auto ProducerCount = 16;
+
+        inline constexpr auto ProducerHouseId = 28;
+
+        inline constexpr auto Producer = 20;
+
+        inline constexpr auto NeedCount = 12;
+
+        inline constexpr auto ImportingFlag = 9;
+    }
+
+    namespace AIVillagesGoodsViewOffset
+    {
+        inline constexpr auto FirstForceProducingFlag = 0x288;
+    }
+
+    namespace AIGoodProducerOffset
+    {
+        inline constexpr auto HumanRevision = 4;
+
+        inline constexpr auto HouseRevision = 12;
+
+        inline constexpr auto HouseId = 8;
+
+        inline constexpr auto HumanId = 0;
     }
 
 }

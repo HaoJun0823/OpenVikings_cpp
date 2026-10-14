@@ -508,4 +508,20 @@ namespace NC2Runtime
         inline constexpr auto EmptyMinimum = 32000;
     }
 
+    namespace AIGoodsLimits
+    {
+        inline constexpr auto Goods = 66;
+
+        inline constexpr auto Villages = 8;
+
+        inline constexpr auto VillageIds = 8;
+    }
+
+    namespace AIGoodsProducerAddressing
+    {
+        inline constexpr auto WorkerRequirementIndexBias = 48;
+
+        inline constexpr auto GoodIndexScale = 2;
+    }
+
 }

@@ -17,7 +17,7 @@ namespace NC2Logic
     namespace
     {
         void* Human(const void* record) { return CHumanArray::mStaticVars + Read<std::uint32_t>(record, 0) * CHumanArray::ElementSize; }
-        void* Good(void* manager, std::uint32_t good) { return static_cast<std::byte*>(manager) + good * 0x28u; }
+        void* Good(void* manager, std::uint32_t good) { return static_cast<std::byte*>(manager) + good * NC2Layout::RecordSize::AIGoodUnsigned; }
     }
 
     // Original function: FUN_00428b63.
@@ -105,14 +105,14 @@ namespace NC2Logic
     // Original function: FUN_0045739b; every non-human target uses the house fields.
     bool AIGoodManager_IsObjectUsed(const void* manager, const void* target)
     {
-        const auto offset = Read<std::uint32_t>(target, 0) == 1 ? 0u : 8u;
-        for (std::uint32_t good = 0; good < 66; ++good)
+        const auto offset = Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) == 1 ? 0u : 8u;
+        for (std::uint32_t good = 0; good < NC2Runtime::AIGoodsLimits::Goods; ++good)
         {
-            const auto* entry = static_cast<const std::byte*>(manager) + good * 0x28u;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, 16); ++i)
+            const auto* entry = static_cast<const std::byte*>(manager) + good * NC2Layout::RecordSize::AIGoodUnsigned;
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount); ++i)
             {
-                const auto* producer = entry + 20 + i * 20;
-                if (Read<std::uint32_t>(producer, offset) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(producer, offset + 4) == Read<std::uint32_t>(target, 8)) return true;
+                const auto* producer = entry + NC2Layout::AIGoodOffset::Producer + i * NC2Layout::RecordSize::AIGoodProducer;
+                if (Read<std::uint32_t>(producer, offset) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(producer, offset + 4) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
             }
         }
         return false;
@@ -124,39 +124,39 @@ namespace NC2Logic
     // Original function: FUN_004574ac.
     std::uint8_t AIGoodManager_IsProducingGoodRealy(const void* manager, std::uint32_t good)
     {
-        const auto* entry = static_cast<const std::byte*>(manager) + good * 0x28u;
-        if (Read<std::uint8_t>(entry, 9) != 0 && Read<std::uint8_t>(entry, 10) != 0) return 0;
-        return Read<std::uint8_t>(entry, 0);
+        const auto* entry = static_cast<const std::byte*>(manager) + good * NC2Layout::RecordSize::AIGoodUnsigned;
+        if (Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ImportingFlag) != 0 && Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::TraderBringFlag) != 0) return 0;
+        return Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ProducingFlag);
     }
 
     // Original function: FUN_004574cc.
     bool AIGoodManager_Producer_IsHouseValid(void* producer)
     {
-        const auto id = Read<std::uint32_t>(producer, 8);
+        const auto id = Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HouseId);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(producer, 12) && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0) return true;
-        Write<std::uint32_t>(producer, 8, NXBasics::IntegerRange::UInt32Maximum);
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HouseRevision) && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0) return true;
+        Write<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HouseId, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }
 
     // Original function: FUN_00457500.
     bool AIGoodManager_Producer_IsHumanValid(void* producer)
     {
-        const auto id = Read<std::uint32_t>(producer, 0);
+        const auto id = Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanId);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
-        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, 4)) return true;
-        Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanRevision)) return true;
+        Write<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }
 
     // Original function: FUN_00457529.
     bool AIGoodManager_Producer_IsHumanValidCheck(const void* producer)
     {
-        if (Read<std::uint32_t>(producer, 0) == NXBasics::IntegerRange::UInt32Maximum) return false;
+        if (Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanId) == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
-        return Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, 4);
+        return Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanRevision);
     }
 
     // Windows shares the producer validity entries at 00457500 and 00457529 with scout records.
@@ -167,45 +167,45 @@ namespace NC2Logic
     void AIGoodManager_StopProduction(void* manager, std::uint32_t good)
     {
         auto* entry = Good(manager, good);
-        Write<std::uint32_t>(entry, 12, 0);
-        Write<std::uint8_t>(entry, 0, 0);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, 16); ++i) AIGoodManager_Producer_Clear(static_cast<std::byte*>(entry) + 20 + i * 20);
-        Write<std::uint32_t>(entry, 16, 0);
+        Write<std::uint32_t>(entry, NC2Layout::AIGoodOffset::NeedCount, 0);
+        Write<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ProducingFlag, 0);
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount); ++i) AIGoodManager_Producer_Clear(static_cast<std::byte*>(entry) + NC2Layout::AIGoodOffset::Producer + i * NC2Layout::RecordSize::AIGoodProducer);
+        Write<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount, 0);
     }
 
     // Original function: FUN_00457992.
     void AIGoodManager_Producer_Clear(void* producer)
     {
-        Write<std::uint32_t>(producer, 8, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HouseId, NXBasics::IntegerRange::UInt32Maximum);
         if (AIGoodManager_Producer_IsHumanValid(producer))
         {
             auto* human = Human(producer);
             if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
         }
-        Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_004579d8.
     void AIGoodManager_ImportThisGoodType(void* manager, std::uint32_t good)
     {
         auto* entry = Good(manager, good);
-        Write<std::uint8_t>(entry, 9, 1);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, 16); ++i) AIGoodManager_Producer_Clear(static_cast<std::byte*>(entry) + 20 + i * 20);
-        Write<std::uint32_t>(entry, 16, 0);
+        Write<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ImportingFlag, 1);
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount); ++i) AIGoodManager_Producer_Clear(static_cast<std::byte*>(entry) + NC2Layout::AIGoodOffset::Producer + i * NC2Layout::RecordSize::AIGoodProducer);
+        Write<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount, 0);
     }
 
     // Original function: FUN_00457a0d.
-    void AIGoodManager_SetTraderBringFlag(void* manager, std::uint32_t good, bool active) { Write<std::uint8_t>(manager, good * 0x28u + 10, active); }
+    void AIGoodManager_SetTraderBringFlag(void* manager, std::uint32_t good, bool active) { Write<std::uint8_t>(manager, good * NC2Layout::RecordSize::AIGoodUnsigned + NC2Layout::AIGoodOffset::TraderBringFlag, active); }
 
     // Original function: FUN_00457a1f.
     std::uint32_t AIGoodManager_GetNumberOfUsedHumans(const void* manager)
     {
         std::uint32_t count = 0;
-        for (std::uint32_t good = 0; good < 66; ++good)
+        for (std::uint32_t good = 0; good < NC2Runtime::AIGoodsLimits::Goods; ++good)
         {
-            const auto* entry = static_cast<const std::byte*>(manager) + good * 0x28u;
-            if (Read<std::uint8_t>(entry, 0) == 0) continue;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, 16); ++i) if (AIGoodManager_Producer_IsHumanValidCheck(entry + 20 + i * 20)) ++count;
+            const auto* entry = static_cast<const std::byte*>(manager) + good * NC2Layout::RecordSize::AIGoodUnsigned;
+            if (Read<std::uint8_t>(entry, NC2Layout::AIGoodOffset::ProducingFlag) == 0) continue;
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount); ++i) if (AIGoodManager_Producer_IsHumanValidCheck(entry + NC2Layout::AIGoodOffset::Producer + i * NC2Layout::RecordSize::AIGoodProducer)) ++count;
         }
         return count;
     }
