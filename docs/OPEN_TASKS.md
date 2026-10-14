@@ -1,5 +1,22 @@
 # Open Tasks
 
+## Trader GUI and title-screen continuation — 2026-10-14
+
+Two further naming/layout blocks are committed after `0301fc6`: [trader configuration and graphic buttons](TRADER_WINDOW_RECORDS_REVIEW.md) (`36cdb27`) and [title-screen FMV/picture/resource state](TITLE_SCREEN_RECORDS_REVIEW.md) (`06c3b4e`). A separately confirmed Windows translation mismatch was corrected in `120e8de`: [the title palette now uses equal RGB channels](TITLE_PALETTE_TRANSLATION_FIX.md), preserving the original grayscale values and fourth bytes. This is not attributed to the user's earlier GUI color reports.
+
+| Block | Value/type comparisons | Layout relationships | Byte-verified instruction instances | Named references |
+| --- | ---: | ---: | ---: | ---: |
+| Trader configuration / graphic buttons | 86 | 35 | 2169 | 179 |
+| Title-screen owner / ABI consumers | 35 | 22 | 712 | 70 |
+
+Current scan: **595 registered files (307 CPP / 288 headers), 153,703 lines, 3,505 raw numeric access operands, 74 heuristic unknown-member mentions, 1,087 long compound lines and 5,014 original-address annotations**. These two blocks removed 140 further raw candidates; all six blocks in this continuation removed 332. Cumulative reduction from the 5,427-candidate checkpoint is **1,922 / 5,427 (35.42%)**, across twenty named/reviewed blocks. This remains a refactoring heuristic, not a missing-function count, exhaustive unresolved-field inventory or runtime-completion percentage. The whole-source review remains open and lacks a complete per-function behavioral ledger.
+
+The trader owner's two import regions retain explicit unclassified tails; only observed goods 1–55 receive button-slot identities. Graphic/text buttons keep distinct parameter layouts and tooltip ownership. Network packing, route-slot lookup, agreement direction, parent notification and per-frame validation are preserved. The complete 232-byte title owner has named FMV flags, picture timing/resources and verified application/display/font fields. Existing requested DataX/TrueColor/post-sequence adaptations remain as HEAD and are explicitly distinguished from native Windows behavior. The unused cleared byte in the shared title region remains unclassified.
+
+Frozen comparisons prove unchanged naming-stage operations against their respective baselines; the palette correction has a separate exact one-line/native-argument audit. Windows assembly and `Game.exe` establish behavior/layout evidence; Mac supplies names only. The latest source passes Win32 `/Zs` for **all 307 production units and 35 private compiler assertion units**, without errors or warnings. No build, test project or game run was performed; no production files were added.
+
+Next owning block: options/settings GUI and its safety/pause helpers. Largest raw categories: options GUI and military target search (54 each), single-player AI (53), selection GUI (52), mission-start/mouse cursor (50 each), game-control startup/human attacks (49 each), human job windows (48), multiplayer goals (47). Assistant-only material remains ignored under `.codex-work/`; independent pending documentation is preserved.
+
 ## Graphics lifetimes, mission GUI and central AI continuation — 2026-10-14
 
 Four additional naming/layout blocks are committed: [Bob-manager cache](BOB_CACHE_RECORDS_REVIEW.md) (`91612af`), [ambient sound sectors and weighted waves](AMBIENT_STORAGE_RECORDS_REVIEW.md) (`44fc596`), [mission information window and hyperlink adapter](MISSION_WINDOW_RECORDS_REVIEW.md) (`bb116e1`), and [central AI-manager ownership](AI_MANAGER_ROOT_RECORDS_REVIEW.md) (`10eefac`). This brings the ongoing source review to eighteen completed blocks; the broad request to review all remaining sites is still open.
