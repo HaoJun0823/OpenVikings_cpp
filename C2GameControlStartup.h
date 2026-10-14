@@ -6,6 +6,20 @@ namespace NXBasics { class CIniFileReader; struct SToken; }
 
 namespace NC2Logic
 {
+    // Documentary prefix and name-region views of the Windows player record.
+    struct SGameControlPlayerPrefixStorage
+    {
+        std::uint8_t active; std::byte unclassified01[3];
+        std::uint32_t type;
+        std::uint8_t dead; std::byte unclassified09[3];
+        std::uint32_t tribeType, colorId, networkPlayerId;
+    };
+    struct SGameControlPlayerNamesStorage
+    {
+        std::uint8_t neverDies; std::byte unclassified01[3];
+        char tribeName[50]; std::byte unclassified36[2];
+        char tribeShortName[50]; std::byte unclassified6A[2];
+    };
     // Physical fragments of the Windows player record; they do not model its other regions.
     struct SPlayerKillStatisticsStorage { std::uint32_t soldiersKilled, civiliansKilled, vehiclesDestroyed, housesDestroyed; };
     struct SPlayerRelationshipFlagsStorage

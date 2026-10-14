@@ -42,16 +42,34 @@ namespace
     static_assert(sizeof(gSpecialItemTokens) == 16);
 
     // Original function: FUN_00409a9d.
-    int __cdecl DestroyPlayerTokenList() { return 0; }
+    int __cdecl DestroyPlayerTokenList()
+    {
+        return 0;
+    }
     // Original function: FUN_00409a9c.
-    int __cdecl DestroyMiscTokenList() { return 0; }
+    int __cdecl DestroyMiscTokenList()
+    {
+        return 0;
+    }
     // Original function: FUN_00409a9b.
-    int __cdecl DestroyAllowedTokenList() { return 0; }
+    int __cdecl DestroyAllowedTokenList()
+    {
+        return 0;
+    }
     // Original function: FUN_00409a9a.
-    int __cdecl DestroySpecialItemTokenList() { return 0; }
+    int __cdecl DestroySpecialItemTokenList()
+    {
+        return 0;
+    }
 
-    bool IsPlayerIndex(std::int32_t player) { return player >= 0 && player < 20; }
-    std::byte* PlayerData(void* gameControl, std::uint32_t player) { return static_cast<std::byte*>(gameControl) + player * NC2Layout::RecordSize::GameControlPlayer; }
+    bool IsPlayerIndex(std::int32_t player)
+{
+    return player >= 0 && player < NC2Runtime::GameControlLimits::Players;
+    }
+    std::byte* PlayerData(void* gameControl, std::uint32_t player)
+    {
+        return static_cast<std::byte*>(gameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
+    }
 }
 
 namespace NC2Logic
@@ -60,23 +78,23 @@ namespace NC2Logic
     bool GameControl_Wealth_ChangeAmount(void* gameControl, std::int32_t player, std::int32_t amount)
     {
         using namespace NC2Lifetime;
-        if (player >= 20) return false;
+        if (player >= NC2Runtime::GameControlLimits::Players) return false;
         auto* data = static_cast<std::byte*>(gameControl) + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
-        if (Read<std::uint8_t>(data, 0) == 0) return false;
-        const auto changed = Read<std::uint32_t>(data, 0x460C) + static_cast<std::uint32_t>(amount);
+        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return false;
+        const auto changed = Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Wealth) + static_cast<std::uint32_t>(amount);
         if (NXBasics::Runtime_TimeSigned32(changed) < 0) return false;
-        Write(data, 0x460C, changed);
+        Write(data, NC2Layout::GameControlPlayerOffset::Wealth, changed);
         return true;
     }
 
     // Original function: FUN_00409CE7. The original rejects exactly two, not every value above two.
     bool GameControl_System_PathfinderLimit_IsSearchAllowed(void* gameControl, std::int32_t playerId)
     {
-        if (playerId == -1 || playerId == 20) return true;
-        if (playerId < 0 || playerId >= 20) return false;
-        const auto offset = static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer + 0x4A20u;
+        if (playerId == -1 || playerId == NC2Runtime::GameControlLimits::Players) return true;
+        if (playerId < 0 || playerId >= NC2Runtime::GameControlLimits::Players) return false;
+        const auto offset = static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::PathfinderStartsThisTickUnsigned;
         const auto count = NC2Lifetime::Read<std::uint32_t>(gameControl, offset);
-        if (count == 2u) return false;
+        if (count == NC2Runtime::GameControlLimits::RejectedPathfinderStartCountUnsigned) return false;
         NC2Lifetime::Write(gameControl, offset, count + 1u);
         return true;
     }
@@ -85,12 +103,12 @@ namespace NC2Logic
     void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* /*unusedEdx*/, std::uint32_t tick)
     {
         using namespace NC2Lifetime;
-        for (std::uint32_t player = 0; player < 20; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x4A20u, 0);
-        if (tick < 720u || tick % 125u != 0) return;
-        for (std::uint32_t player = 0; player < 20; ++player)
+        for (std::uint32_t player = 0; player < NC2Runtime::GameControlLimits::Players; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::PathfinderStartsThisTickUnsigned, 0);
+        if (tick < NC2Runtime::GameControlTiming::PlayerDeathFirstCheckTickUnsigned || tick % NC2Runtime::GameControlTiming::PlayerDeathCheckIntervalUnsigned != 0) return;
+        for (std::uint32_t player = 0; player < NC2Runtime::GameControlLimits::Players; ++player)
         {
             auto* data = PlayerData(gameControl, player);
-            if (Read<std::uint8_t>(data, 0) == 0 || Read<std::uint8_t>(data, 8) != 0 || Read<std::uint8_t>(data, 0x49A8) != 0) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::DeadFlag) != 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::NeverDiesFlag) != 0) continue;
             CHumanIterator iterator;
             auto id = iterator.GetFirstHumanId();
             for (; id != -1; id = iterator.GetNextHumanId())
@@ -99,13 +117,13 @@ namespace NC2Logic
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == player && Human_IsSexMale(human) && Human_IsAgeAdult(human)) break;
             }
             if (id != -1) continue;
-            Write<std::uint8_t>(data, 8, 1);
-            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2A, true, player, 0, 0);
-            std::byte message[772];
+            Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::DeadFlag, 1);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(SwitchIds::CallbackType::PlayerDied, true, player, 0, 0);
+            std::byte message[NC2Layout::RecordSize::ToUserMessage];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 0x3E);
-            Write<std::uint32_t>(message, 8, NXBasics::IntegerRange::UInt32Maximum);
-            Write(message, 0x0C, player);
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, SwitchIds::UserMessage::PlayerDied);
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::PlayerId, NXBasics::IntegerRange::UInt32Maximum);
+            Write(message, NC2Layout::ToUserMessageOffset::RelatedPlayerId, player);
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }
@@ -133,7 +151,7 @@ namespace NC2Logic
     void* __fastcall GameControl_Construct(void* gameControl, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)
     {
         gGameControl = gameControl;
-        std::memset(gameControl, 0, 381444);
+        std::memset(gameControl, 0, NC2Layout::ObjectSize::GameControl);
         auto& runtime = gGameControlRuntimeStorage;
         if (reader != nullptr)
         {
@@ -157,10 +175,10 @@ namespace NC2Logic
                         const auto color = reader->GetInt();
                         if (!IsPlayerIndex(player) || type <= 0 || type >= 3 || tribe <= 0 || tribe >= 8 || color < 0 || color >= 10) continue;
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
-                        Write<std::uint8_t>(data, 0, 1);
-                        Write(data, 4, type);
-                        Write(data, 0x0C, tribe);
-                        Write(data, 0x10, color);
+                        Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag, 1);
+                        Write(data, NC2Layout::GameControlPlayerOffset::Type, type);
+                        Write(data, NC2Layout::GameControlPlayerOffset::TribeType, tribe);
+                        Write(data, NC2Layout::GameControlPlayerOffset::ColorId, color);
                     }
                     else if (command == NC2DataIds::GameControlToken::Diplomacy)
                     {
@@ -169,8 +187,8 @@ namespace NC2Logic
                         const auto state = reader->GetInt();
                         if (!IsPlayerIndex(player) || !IsPlayerIndex(other) || state < 1 || state > 3) continue;
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
-                        if (Read<std::uint8_t>(data, 0) == 0 || Read<std::uint8_t>(PlayerData(gameControl, static_cast<std::uint32_t>(other)), 0) == 0) continue;
-                        Write(data, 0x45A8u + static_cast<std::uint32_t>(other) * 4u, state);
+                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0 || Read<std::uint8_t>(PlayerData(gameControl, static_cast<std::uint32_t>(other)), NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
+                        Write(data, NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned + static_cast<std::uint32_t>(other) * NC2Layout::RecordSize::PlayerDiplomacyStateUnsigned, state);
                     }
                 }
             }
@@ -195,16 +213,16 @@ namespace NC2Logic
                         const auto player = reader->GetInt();
                         if (!IsPlayerIndex(player)) continue;
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
-                        if (Read<std::uint8_t>(data, 0) == 0) continue;
+                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
                         const char* name = strings->GetStringPtr(static_cast<std::uint32_t>(reader->GetInt()));
-                        if (name != nullptr) std::strncpy(reinterpret_cast<char*>(data + (command == NC2DataIds::GameControlToken::NameTribe ? 0x49AC : 0x49E0)), name, 50);
+                        if (name != nullptr) std::strncpy(reinterpret_cast<char*>(data + (command == NC2DataIds::GameControlToken::NameTribe ? NC2Layout::GameControlPlayerOffset::TribeName : NC2Layout::GameControlPlayerOffset::TribeShortName)), name, NC2Runtime::GameControlLimits::NameCopyCharacters);
                     }
                     else if (command == NC2DataIds::GameControlToken::PlayerNeverDies)
                     {
                         const auto player = reader->GetInt();
                         if (!IsPlayerIndex(player)) continue;
                         auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
-                        if (Read<std::uint8_t>(data, 0) != 0) Write<std::uint8_t>(data, 0x49A8, 1);
+                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::NeverDiesFlag, 1);
                     }
                     else if (command == NC2DataIds::GameControlToken::RelationNotChangeable || command == NC2DataIds::GameControlToken::RelationHide || command == NC2DataIds::GameControlToken::RelationHideDetails || command == NC2DataIds::GameControlToken::NoSeenFirstMessage)
                     {
@@ -213,7 +231,7 @@ namespace NC2Logic
                         if (!IsPlayerIndex(player) || !IsPlayerIndex(other)) continue;
                         auto* first = PlayerData(gameControl, static_cast<std::uint32_t>(player));
                         auto* second = PlayerData(gameControl, static_cast<std::uint32_t>(other));
-                        if (Read<std::uint8_t>(first, 0) == 0 || Read<std::uint8_t>(second, 0) == 0) continue;
+                        if (Read<std::uint8_t>(first, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0 || Read<std::uint8_t>(second, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
                         const std::uint32_t offset = command == NC2DataIds::GameControlToken::RelationNotChangeable ? NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned : command == NC2DataIds::GameControlToken::RelationHide ? NC2Layout::GameControlPlayerOffset::HideDiplomacyChangesUnsigned : command == NC2DataIds::GameControlToken::RelationHideDetails ? NC2Layout::GameControlPlayerOffset::HideDiplomacyDetailsUnsigned : NC2Layout::GameControlPlayerOffset::SuppressPlayerSeenMessagesUnsigned;
                         Write<std::uint8_t>(first, offset + static_cast<std::uint32_t>(other), 1);
                         Write<std::uint8_t>(second, offset + static_cast<std::uint32_t>(player), 1);
@@ -229,42 +247,42 @@ namespace NC2Logic
         }
         else
         {
-            Write<std::uint8_t>(gameControl, 0, 1);
-            Write<std::uint32_t>(gameControl, 4, 1);
-            Write<std::uint32_t>(gameControl, 0x0C, 1);
-            Write<std::uint32_t>(gameControl, 0x10, 0);
+            Write<std::uint8_t>(gameControl, NC2Layout::GameControlPlayerOffset::ActiveFlag, 1);
+            Write<std::uint32_t>(gameControl, NC2Layout::GameControlPlayerOffset::Type, 1);
+            Write<std::uint32_t>(gameControl, NC2Layout::GameControlPlayerOffset::TribeType, 1);
+            Write<std::uint32_t>(gameControl, NC2Layout::GameControlPlayerOffset::ColorId, 0);
         }
 
-        const auto startupMode = Read<std::uint32_t>(&gGameControlStartupData, 0);
-        if (startupMode != 0)
+        const auto startupMode = Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::Mode);
+        if (startupMode != SwitchIds::GameStartupMode::None)
         {
-            if (startupMode == 3 || startupMode == 4)
+            if (startupMode == SwitchIds::GameStartupMode::MultiplayerMap || startupMode == SwitchIds::GameStartupMode::MultiplayerContinue)
             {
-                for (std::uint32_t player = 0; player < 20; ++player)
+                for (std::uint32_t player = 0; player < NC2Runtime::GameControlLimits::Players; ++player)
                 {
                     auto* data = PlayerData(gameControl, player);
-                    const auto type = Read<std::uint32_t>(&gGameControlStartupData, 0x2Cu + player * 12u);
-                    Write(data, 4, type);
-                    Write(data, 0x10, Read<std::uint32_t>(&gGameControlStartupData, 0x30u + player * 12u));
-                    Write(data, 0x14, Read<std::uint32_t>(&gGameControlStartupData, 0x34u + player * 12u));
-                    Write<std::uint8_t>(data, 0, type == 1 || type == 2);
+                    const auto type = Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerTypeUnsigned + player * NC2Layout::RecordSize::GameControlStartupPlayerUnsigned);
+                    Write(data, NC2Layout::GameControlPlayerOffset::Type, type);
+                    Write(data, NC2Layout::GameControlPlayerOffset::ColorId, Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerColorUnsigned + player * NC2Layout::RecordSize::GameControlStartupPlayerUnsigned));
+                    Write(data, NC2Layout::GameControlPlayerOffset::NetworkPlayerId, Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerNetworkIdUnsigned + player * NC2Layout::RecordSize::GameControlStartupPlayerUnsigned));
+                    Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag, type == 1 || type == 2);
                 }
             }
-            Write(gameControl, NC2Layout::GameControlOffset::DifficultyLevel, Read<std::uint32_t>(&gGameControlStartupData, 0x11C));
+            Write(gameControl, NC2Layout::GameControlOffset::DifficultyLevel, Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::DifficultyLevel));
         }
         if (runtime.pathfinderLimitOverridePending != 0)
         {
             Write(gameControl, NC2Layout::GameControlOffset::DifficultyLevel, runtime.pathfinderLimitOverride);
             runtime.pathfinderLimitOverridePending = 0;
         }
-        for (std::uint32_t player = 0; player < 20; ++player)
+        for (std::uint32_t player = 0; player < NC2Runtime::GameControlLimits::Players; ++player)
         {
             auto* data = PlayerData(gameControl, player);
-            if (Read<std::uint8_t>(data, 0) == 0) continue;
-            for (std::uint32_t other = 0; other < 20; ++other)
+            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
+            for (std::uint32_t other = 0; other < NC2Runtime::GameControlLimits::Players; ++other)
             {
-                if (Read<std::uint8_t>(PlayerData(gameControl, other), 0) == 0) continue;
-                if (Read<std::uint32_t>(data, 0x45A8u + other * 4u) == 0) Write<std::uint32_t>(data, 0x45A8u + other * 4u, player == other ? 4u : 2u);
+                if (Read<std::uint8_t>(PlayerData(gameControl, other), NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
+                if (Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned + other * NC2Layout::RecordSize::PlayerDiplomacyStateUnsigned) == 0) Write<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned + other * NC2Layout::RecordSize::PlayerDiplomacyStateUnsigned, player == other ? 4u : 2u);
             }
         }
         GameControl_MiscSystem_PlayerDynamicData_InitStructures(gameControl);
@@ -291,7 +309,7 @@ namespace NC2Logic
                     const bool job = command == NC2DataIds::GameControlToken::AllowJob || command == NC2DataIds::GameControlToken::ForbidJob;
                     if (!IsPlayerIndex(player) || tribe <= 0 || tribe >= 8 || item < (house ? 1 : 0) || item >= (house ? 55 : job ? 56 : 66)) continue;
                     auto* data = PlayerData(gameControl, static_cast<std::uint32_t>(player));
-                    if (Read<std::uint8_t>(data, 0) == 0) continue;
+                    if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
                     if (house && command == NC2DataIds::GameControlToken::AllowHouse)
                     {
                         PlayerAllowedThings_MarkHouseAvailable(data + NC2Layout::GameControlPlayerOffset::AllowedThings, static_cast<std::uint32_t>(tribe), static_cast<std::uint32_t>(item));
@@ -329,45 +347,45 @@ namespace NC2Logic
                 }
             }
         }
-        CCallbackManager::sTheObjectPtr->RegisterCallback(0x28, GameControl_ls_LogicCallback, 0, 10);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(SwitchIds::CallbackType::PlayerAttackedByPlayer, GameControl_ls_LogicCallback, 0, 10);
         return gameControl;
     }
 
     // Original function: FUN_00409d42; named Mac initialization method.
     void GameControl_MiscSystem_PlayerDynamicData_InitStructures(void* gameControl)
     {
-        for (std::uint32_t player = 0; player < 20; ++player)
+        for (std::uint32_t player = 0; player < NC2Runtime::GameControlLimits::Players; ++player)
         {
             auto* data = PlayerData(gameControl, player);
-            if (Read<std::uint8_t>(data, 0) == 0) continue;
-            const auto playerTribe = Read<std::uint32_t>(data, 0x0C);
+            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
+            const auto playerTribe = Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::TribeType);
             for (std::uint32_t tribe = 1; tribe < NC2Runtime::PlayerAllowanceSlots::Tribes; ++tribe)
             {
                 if (!Tool_AllowedItems_IsTribeTypeAllowed(tribe)) continue;
                 const auto& definition = gStaticTribeTypeData[tribe];
-                for (std::uint32_t job = 0; job < 56; ++job)
+                for (std::uint32_t job = 0; job < NC2Runtime::GameControlLimits::Jobs; ++job)
                     if (definition.allowedJobs[job] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job, 1);
-                for (std::uint32_t good = 0; good < 66; ++good)
+                for (std::uint32_t good = 0; good < NC2Runtime::GameControlLimits::GoodsAndEquipment; ++good)
                     if (definition.allowedGoods[good] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good, 1);
                 // Windows uses a 56-byte tribe stride for 66 equipment flags.
-                for (std::uint32_t equipment = 0; equipment < 66; ++equipment)
+                for (std::uint32_t equipment = 0; equipment < NC2Runtime::GameControlLimits::GoodsAndEquipment; ++equipment)
                     if (definition.allowedEquipment[equipment] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + equipment, 1);
-                for (std::uint32_t house = 0; house < 55; ++house)
+                for (std::uint32_t house = 0; house < NC2Runtime::GameControlLimits::Houses; ++house)
                     if (definition.allowedHouses[house] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house, 1);
-                for (std::uint32_t vehicle = 0; vehicle < 7; ++vehicle)
+                for (std::uint32_t vehicle = 0; vehicle < NC2Runtime::GameControlLimits::Vehicles; ++vehicle)
                     if (definition.allowedVehicles[vehicle] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedVehiclesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::VehiclesUnsigned + vehicle, 1);
                 if (tribe != playerTribe) continue;
-                for (std::uint32_t job = 0; job < 56; ++job)
+                for (std::uint32_t job = 0; job < NC2Runtime::GameControlLimits::Jobs; ++job)
                 {
                     const auto index = tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job;
                     if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + index) == 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + index) != 0) continue;
                     STribeExperienceRequirement requirement;
                     std::memcpy(&requirement, &definition.jobNeeds[job], sizeof(requirement));
                     bool needsExperience = requirement.requiredExperience != 0 || requirement.jobCount != 0;
-                    if ((job >= 31 && job <= 41) || Read<std::uint32_t>(data, 4) == 2) needsExperience = false;
+                    if ((job >= 31 && job <= 41) || Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Type) == 2) needsExperience = false;
                     if (!needsExperience) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + index, 1);
                 }
-                for (std::uint32_t house = 0; house < 55; ++house)
+                for (std::uint32_t house = 0; house < NC2Runtime::GameControlLimits::Houses; ++house)
                 {
                     const auto index = tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house;
                     if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + index) == 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + index) != 0) continue;
@@ -375,11 +393,19 @@ namespace NC2Logic
                     std::memcpy(&requirement, &definition.houseBuildNeeds[house], sizeof(requirement));
                     bool available = true;
                     for (std::uint32_t needed = 0; needed < requirement.jobCount; ++needed)
-                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::JobsUnsigned + needed * 4u))) == 0) { available = false; break; }
+                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::JobsUnsigned + needed * NC2Layout::RecordSize::TribeBuildRequirementItemUnsigned))) == 0)
+                        {
+                            available = false;
+                        break;
+                    }
                     if (available)
                         for (std::uint32_t needed = 0; needed < requirement.goodCount; ++needed)
-                            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::GoodsUnsigned + needed * 4u))) == 0) { available = false; break; }
-                    if (Read<std::uint32_t>(data, 4) == 2) available = true;
+                            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::GoodsUnsigned + needed * NC2Layout::RecordSize::TribeBuildRequirementItemUnsigned))) == 0)
+                            {
+                                available = false;
+                        break;
+                    }
+                    if (Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Type) == 2) available = true;
                     if (available) PlayerAllowedThings_MarkHouseAvailable(data + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
                 }
                 if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::Good16AllowedFlagUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned) != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::Good16AvailableFlagUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
@@ -390,7 +416,7 @@ namespace NC2Logic
     // Original function: FUN_0040a612; CGameControl::ls_LogicCallback.
     bool __cdecl GameControl_ls_LogicCallback(TCallbackTypes type, std::uint32_t /*userData*/, std::uint32_t player, std::uint32_t other, std::uint32_t /*param3*/)
     {
-        if (type == 0x28 && player != 20 && other != 20)
+        if (type == SwitchIds::CallbackType::PlayerAttackedByPlayer && player != NC2Runtime::GameControlLimits::Players && other != NC2Runtime::GameControlLimits::Players)
         {
             if (GameControl_Diplomacy_GetState(gGameControl, static_cast<std::int32_t>(other), static_cast<std::int32_t>(player)) == 3)
             {

@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Game-control startup record continuation — 2026-10-15
+
+Completed the [game-control startup records review](GAME_CONTROL_STARTUP_RECORDS_REVIEW.md), following mission-start records (`b10fa39`). Replaced the unknown 288-byte startup block with verified fields; named player identity, diplomacy, death/message state, wealth, path counters, modes and availability counts. Windows call order, unchecked bounds, equality checks, name-copy lengths and equipment stride remain unchanged. Nineteen tokens plus four terminators match Game.exe. **50 value/type comparisons, 23 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 154,836 lines, 3,072 raw numeric-access operands, 74 heuristic unknown mentions, 1,057 long compound lines and 5,014 original-address annotations**. This block removes 67 candidates; together with mission-start, this continuation removes 117. Cumulative reduction **2,355 / 5,427 (43.39%)**, twenty-seven completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning block: human attack tasks (49 raw operands), then human job windows (48).
+
 ## Mission-start record continuation — 2026-10-14
 
 Completed the [mission-start records review](MISSION_START_RECORDS_REVIEW.md): family/home/vehicle fields, age and production state, experience stride/limit, current-object kind/IDs and token identifiers. All **50** raw numeric accesses in the owning file are now named. Windows stores, unchecked indices, unsigned wrap, tie behavior and parser consumption remain unchanged. Seventeen tokens plus three terminators match the Windows PE. **50 value/type comparisons, 12 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

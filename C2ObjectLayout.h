@@ -523,6 +523,24 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto TribeShortName = 0x49E0;
+
+        inline constexpr auto TribeName = 0x49AC;
+
+        inline constexpr auto PathfinderStartsThisTickUnsigned = 0x4A20u;
+
+        inline constexpr auto DiplomacyStatesUnsigned = 0x45A8u;
+
+        inline constexpr auto NetworkPlayerId = 0x14;
+
+        inline constexpr auto ColorId = 0x10;
+
+        inline constexpr auto NeverDiesFlag = 0x49A8;
+
+        inline constexpr auto Wealth = 0x460C;
+
+        inline constexpr auto ActiveFlag = 0;
+
         inline constexpr auto CiviliansKilled = 0x4618;
 
         inline constexpr auto SoldiersKilled = 0x4614;
@@ -1686,6 +1704,14 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GameControlStartupPlayer = 0x0C;
+
+        inline constexpr auto TribeBuildRequirementItemUnsigned = 4u;
+
+        inline constexpr auto PlayerDiplomacyStateUnsigned = 4u;
+
+        inline constexpr auto GameControlStartupPlayerUnsigned = 12u;
+
         inline constexpr auto HumanProductionCounterUnsigned = 4u;
 
         inline constexpr auto GuiMousePointerVariables = 16;
@@ -2438,6 +2464,8 @@ namespace NC2Layout
 
     namespace ToUserMessageOffset
     {
+        inline constexpr auto RelatedPlayerId = 0x0C;
+
         inline constexpr auto EquipmentItems = 0x2E0;
 
         inline constexpr auto Type = 0;
@@ -4160,6 +4188,26 @@ namespace NC2Layout
 
     namespace GameControlStartupOffset
     {
+        inline constexpr auto MultiplayerMapGuidUnsigned = 0x18u;
+
+        inline constexpr auto SingleMapGuidUnsigned = 4u;
+
+        inline constexpr auto LocalNetworkPlayerId = 0x28;
+
+        inline constexpr auto FirstPlayerNetworkId = 0x34;
+
+        inline constexpr auto FirstPlayerColor = 0x30;
+
+        inline constexpr auto FirstPlayerType = 0x2C;
+
+        inline constexpr auto DifficultyLevel = 0x11C;
+
+        inline constexpr auto FirstPlayerNetworkIdUnsigned = 0x34u;
+
+        inline constexpr auto FirstPlayerColorUnsigned = 0x30u;
+
+        inline constexpr auto FirstPlayerTypeUnsigned = 0x2Cu;
+
         inline constexpr auto SingleMapGuid = 4;
 
         inline constexpr auto SavegameId = 0x14;

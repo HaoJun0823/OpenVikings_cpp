@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2ObjectLayout.h"
 #include "C2RuntimeConstants.h"
 #include "C2E2AmbientSoundManagerAccess.h"
@@ -66,21 +67,21 @@ namespace NC2Logic
     // Original function: FUN_0040743A.
     void Game_WorkOnStartUpData()
     {
-        const auto type = Read<std::uint32_t>(&gGameControlStartupData, 0);
-        if (type == 1 || type == 3)
+        const auto type = Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::Mode);
+        if (type == SwitchIds::GameStartupMode::SingleMap || type == SwitchIds::GameStartupMode::MultiplayerMap)
         {
-            const auto guid = Read<SCleanMapGuid>(&gGameControlStartupData, type == 1 ? 4u : 0x18u);
+            const auto guid = Read<SCleanMapGuid>(&gGameControlStartupData, type == SwitchIds::GameStartupMode::SingleMap ? NC2Layout::GameControlStartupOffset::SingleMapGuidUnsigned : NC2Layout::GameControlStartupOffset::MultiplayerMapGuidUnsigned);
             const auto* map = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(guid);
             if (map == nullptr) return;
-            if (map->archiveFilename[0] == '\0') GameIO_Cleanmap_Load(map->mapRoot, true, true, type == 3);
-            else GameIO_Cleanmap_LoadX(nullptr, map->archiveFilename, true, true, type == 3);
+            if (map->archiveFilename[0] == '\0') GameIO_Cleanmap_Load(map->mapRoot, true, true, type == SwitchIds::GameStartupMode::MultiplayerMap);
+            else GameIO_Cleanmap_LoadX(nullptr, map->archiveFilename, true, true, type == SwitchIds::GameStartupMode::MultiplayerMap);
         }
-        else if (type == 2)
+        else if (type == SwitchIds::GameStartupMode::Savegame)
         {
-            const auto* savegame = gSavegamesManager->GetSavegameInfoPtrByUniqueId(Read<std::uint32_t>(&gGameControlStartupData, 0x14));
+            const auto* savegame = gSavegamesManager->GetSavegameInfoPtrByUniqueId(Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::SavegameId));
             if (savegame != nullptr) GameIO_Savegame_Load(savegame->filename, false);
         }
-        else if (type == 4) GameIO_Savegame_Load("sys_continue", true);
+        else if (type == SwitchIds::GameStartupMode::MultiplayerContinue) GameIO_Savegame_Load("sys_continue", true);
     }
 
     // Unreconstructed original subconstructors. No replacement bodies are supplied.

@@ -831,4 +831,28 @@ namespace NC2Runtime
         inline constexpr auto MaximumUnsigned = 10000u;
     }
 
+    namespace GameControlLimits
+    {
+        inline constexpr auto Vehicles = 7;
+
+        inline constexpr auto Houses = 55;
+
+        inline constexpr auto GoodsAndEquipment = 66;
+
+        inline constexpr auto Jobs = 56;
+
+        inline constexpr auto Players = 20;
+
+        inline constexpr auto RejectedPathfinderStartCountUnsigned = 2u;
+
+        inline constexpr auto NameCopyCharacters = 50;
+    }
+
+    namespace GameControlTiming
+    {
+        inline constexpr auto PlayerDeathCheckIntervalUnsigned = 125u;
+
+        inline constexpr auto PlayerDeathFirstCheckTickUnsigned = 720u;
+    }
+
 }

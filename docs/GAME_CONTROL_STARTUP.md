@@ -1,5 +1,7 @@
 # GameControl startup and player statistics
 
+Current naming/layout follow-up: [2026-10-15 records review](GAME_CONTROL_STARTUP_RECORDS_REVIEW.md). Counts and remaining-work notes below describe the historical snapshot; consult PROJECT_STATE.md and HEAD for current state.
+
 Snapshot: 2026-10-03, working tree after `4220d37`. Windows x86 instructions and PE data establish behavior. The Mac export supplies names and parameter identity.
 
 ## Reported crash and owner initialization

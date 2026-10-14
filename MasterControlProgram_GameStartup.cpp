@@ -67,9 +67,9 @@ namespace NMasterControlProgram
             return;
         }
 
-        const bool suppressCentering = Read<std::uint32_t>(&mGameControlStartupData, 0) == 2;
+        const bool suppressCentering = Read<std::uint32_t>(&mGameControlStartupData, NC2Layout::GameControlStartupOffset::Mode) == 2;
         NC2Logic::gGameControlStartupData.Reset();
-        if (Read<std::uint32_t>(&mGameControlStartupData, 0) != 0)
+        if (Read<std::uint32_t>(&mGameControlStartupData, NC2Layout::GameControlStartupOffset::Mode) != 0)
         {
             std::memcpy(&NC2Logic::gGameControlStartupData, &mGameControlStartupData, sizeof(mGameControlStartupData));
             mGameControlStartupData.Reset();
@@ -81,13 +81,13 @@ namespace NMasterControlProgram
         std::memcpy(&NC2Logic::gGameControlStartupData, savedStartupData, sizeof(savedStartupData));
 
         std::int32_t controllingPlayer = 0;
-        const std::uint32_t startupType = Read<std::uint32_t>(savedStartupData, 0);
-        if (startupType == 3)
+        const std::uint32_t startupType = Read<std::uint32_t>(savedStartupData, NC2Layout::GameControlStartupOffset::Mode);
+        if (startupType == SwitchIds::GameStartupMode::MultiplayerMap)
         {
-            const std::uint32_t localId = Read<std::uint32_t>(savedStartupData, 0x28);
+            const std::uint32_t localId = Read<std::uint32_t>(savedStartupData, NC2Layout::GameControlStartupOffset::LocalNetworkPlayerId);
             for (std::uint32_t player = 0; player < 20; ++player)
             {
-                if (Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x34 + player * 0x0C) == localId)
+                if (Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerNetworkId + player * NC2Layout::RecordSize::GameControlStartupPlayer) == localId)
                 {
                     controllingPlayer = static_cast<std::int32_t>(player);
                     break;
@@ -95,29 +95,29 @@ namespace NMasterControlProgram
             }
         }
 
-        if (startupType == 4)
+        if (startupType == SwitchIds::GameStartupMode::MultiplayerContinue)
         {
             for (std::uint32_t player = 0; player < 20; ++player)
             {
-                const std::uint32_t type = Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x2C + player * 0x0C);
+                const std::uint32_t type = Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerType + player * NC2Layout::RecordSize::GameControlStartupPlayer);
                 if (type == 0) continue;
                 void* playerData = static_cast<std::byte*>(NC2Logic::gGameControl) + player * NC2Layout::RecordSize::GameControlPlayerSigned;
                 if (type == 1)
                 {
-                    Write<std::uint32_t>(playerData, 0x14, Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x34 + player * 0x0C));
-                    Write<std::uint32_t>(playerData, 4, 1);
+                    Write<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::NetworkPlayerId, Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerNetworkId + player * NC2Layout::RecordSize::GameControlStartupPlayer));
+                    Write<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Type, 1);
                 }
-                else if (Read<std::uint32_t>(playerData, 4) == 1)
+                else if (Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Type) == 1)
                 {
-                    Write<std::uint32_t>(playerData, 0x14, 0);
-                    Write<std::uint32_t>(playerData, 4, 2);
+                    Write<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::NetworkPlayerId, 0);
+                    Write<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Type, 2);
                     NC2Logic::AIManager_EnableAI(NC2Logic::gAIManager, static_cast<std::int32_t>(player));
                 }
             }
             NC2Logic::GameTime_ResetNetworkSynchronization();
             for (std::uint32_t player = 0; player < 20; ++player)
             {
-                if (Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x34 + player * 0x0C) == Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x28))
+                if (Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, NC2Layout::GameControlStartupOffset::FirstPlayerNetworkId + player * NC2Layout::RecordSize::GameControlStartupPlayer) == Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, NC2Layout::GameControlStartupOffset::LocalNetworkPlayerId))
                 {
                     controllingPlayer = static_cast<std::int32_t>(player);
                     break;

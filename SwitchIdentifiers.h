@@ -247,6 +247,8 @@ namespace SwitchIds
 
     namespace CallbackType
     {
+        inline constexpr auto PlayerDied = 0x2A;
+
         inline constexpr auto GameTick = 1;
         inline constexpr auto MapLifetime = 2;
         inline constexpr auto HumanManagerLifetime = 3;
@@ -2551,6 +2553,19 @@ namespace SwitchIds
         inline constexpr auto Vehicle = 2;
 
         inline constexpr auto Human = 1;
+
+        inline constexpr auto None = 0;
+    }
+
+    namespace GameStartupMode
+    {
+        inline constexpr auto Savegame = 2;
+
+        inline constexpr auto SingleMap = 1;
+
+        inline constexpr auto MultiplayerContinue = 4;
+
+        inline constexpr auto MultiplayerMap = 3;
 
         inline constexpr auto None = 0;
     }

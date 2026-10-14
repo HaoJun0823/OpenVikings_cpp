@@ -168,7 +168,7 @@ namespace NC2Logic
         sample->values114[0] = Read<std::uint32_t>(playerData, 0x4A14);
         sample->values114[1] = Read<std::uint32_t>(playerData, 0x4A18);
         sample->values114[2] = Read<std::uint32_t>(playerData, 0x4A1C);
-        sample->values130[0] = Read<std::uint32_t>(playerData, 0x460C);
+        sample->values130[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Wealth);
         sample->values130[1] = Read<std::uint32_t>(playerData, 0x4610);
     }
     // Original function: FUN_0041ad6f.
