@@ -285,7 +285,7 @@ namespace NC2MainMenuGuiManager
 
 		NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryMessageHandler));
 
-		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
+		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiManagerMousePointer, 1);
 
 		if (mousePointer != nullptr)
 			mousePointer = MousePointer_Construct(mousePointer);

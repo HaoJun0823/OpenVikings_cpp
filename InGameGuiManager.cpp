@@ -278,7 +278,7 @@ namespace NInGameGuiManager
         allocation = NXBasics::Runtime_AllocateWithNewHandler(44, 1);
         void* primaryHandler = allocation == nullptr ? nullptr : InGameGuiManagerPrimaryMessageHandlerElement_Construct(allocation);
         NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryHandler));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(20, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiManagerMousePointer, 1);
         void* mousePointer = allocation == nullptr ? nullptr : InGameGuiManagerMousePointer_Construct(allocation);
         NXBaseGui::CDesktop::sTheObjectPtr->SetMousePointerStorage(mousePointer);
 

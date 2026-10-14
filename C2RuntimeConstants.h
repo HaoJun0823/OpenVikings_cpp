@@ -475,6 +475,10 @@ namespace NC2Runtime
 
     namespace GuiVirtualSlot
     {
+        inline constexpr auto ImmediateTooltip = 14;
+
+        inline constexpr auto TooltipAvailable = 13;
+
         inline constexpr auto DoPressedAction = 17;
 
         inline constexpr auto MessageHandle = 2;
@@ -788,6 +792,27 @@ namespace NC2Runtime
         inline constexpr auto CopiedTextBytes = 100;
 
         inline constexpr auto Entries = 100;
+    }
+
+    namespace GuiMouseTiming
+    {
+        inline constexpr auto MarkerFrameMillisecondsUnsigned = 150u;
+
+        inline constexpr auto TooltipDelayMillisecondsUnsigned = 500u;
+    }
+
+    namespace GuiMouseTooltipLimits
+    {
+        inline constexpr auto MultilineTerminator = 399;
+
+        inline constexpr auto MultilineBufferBytes = 400;
+    }
+
+    namespace GuiMouseWorldCursorLimits
+    {
+        inline constexpr auto MarkerFramesUnsigned = 6u;
+
+        inline constexpr auto Markers = 10;
     }
 
 }

@@ -2523,4 +2523,18 @@ namespace SwitchIds
         inline constexpr auto SelectSpouse = 10022;
     }
 
+    namespace SoftwareMouseGraphic
+    {
+        inline constexpr auto PositionOverrideUnsigned = 183u;
+
+        inline constexpr auto LeftButtonDownUnsigned = 182u;
+
+        inline constexpr auto NormalUnsigned = 181u;
+    }
+
+    namespace WorldCursorGraphic
+    {
+        inline constexpr auto MarkerFirstFrameUnsigned = 0xBAu;
+    }
+
 }

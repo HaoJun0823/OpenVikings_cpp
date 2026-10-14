@@ -705,6 +705,8 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto ProducedGood = 0x1C;
+
         inline constexpr auto ChildIdUnsigned = 0xB24u;
 
         inline constexpr auto WaitingHumanIdUnsigned = 0xB1Cu;
@@ -918,6 +920,8 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto GuiManagerMousePointer = 20;
+
         inline constexpr auto WorldDisplayElement = 580;
 
         inline constexpr auto GameSafetyBoxWindow = 116;
@@ -1682,6 +1686,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuiMousePointerVariables = 16;
+
         inline constexpr auto SingleHumanExperienceJobId = 4;
 
         inline constexpr auto SingleHumanExperienceJobIdUnsigned = 4u;
@@ -2746,6 +2752,8 @@ namespace NC2Layout
 
     namespace WorldGuiElementOffset
     {
+        inline constexpr auto PrimaryCommandParameter1 = 0x1D8;
+
         inline constexpr auto Bitmap = 0x2C;
         inline constexpr auto Display = 0x30;
         inline constexpr auto InputEnabledFlag = 0x34;
@@ -4830,6 +4838,8 @@ namespace NC2Layout
 
     namespace MasterControlOffset
     {
+        inline constexpr auto HardwareMouseCursorEnabled = 0x14C;
+
         inline constexpr auto ExitRequested = 9;
     }
 
@@ -4915,6 +4925,26 @@ namespace NC2Layout
     namespace EngineLandscapeTypeOffset
     {
         inline constexpr auto LogicTypeUnsigned = 0x38u;
+    }
+
+    namespace GuiMousePointerOffset
+    {
+        inline constexpr auto MethodTable = 0;
+
+        inline constexpr auto TooltipDeadlineTick = 4;
+
+        inline constexpr auto TooltipMouseY = 0x10;
+
+        inline constexpr auto TooltipMouseX = 0xC;
+
+        inline constexpr auto TooltipText = 8;
+    }
+
+    namespace MouseManagerOffset
+    {
+        inline constexpr auto LeftButtonDown = 8;
+
+        inline constexpr auto PositionOverrideCallback = 0x4C;
     }
 
 }

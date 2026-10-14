@@ -123,8 +123,8 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004dae2f.
     void* MousePointer_Construct(void* pointer)
     {
-        Write(pointer, 0, gMousePointerVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(pointer) + 4, 0, 16);
+        Write(pointer, NC2Layout::GuiMousePointerOffset::MethodTable, gMousePointerVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(pointer) + NC2Layout::GuiMousePointerOffset::TooltipDeadlineTick, 0, NC2Layout::RecordSize::GuiMousePointerVariables);
         return pointer;
     }
 
@@ -132,7 +132,7 @@ namespace NC2MainMenuGuiManager
     static void* __fastcall MousePointer_Delete(void* pointer, void* unusedEdx, std::uint32_t flags)
     {
         (void)unusedEdx;
-        Write(pointer, 0, gMousePointerVirtualTable + 0);
+        Write(pointer, NC2Layout::GuiMousePointerOffset::MethodTable, gMousePointerVirtualTable + 0);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(pointer);
         return pointer;
     }

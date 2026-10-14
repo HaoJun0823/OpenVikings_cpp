@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Mouse/world cursor continuation — 2026-10-14
+
+Completed the [mouse and world cursor records block](MOUSE_CURSOR_RECORDS_REVIEW.md), following single-player AI (`30d3e9f`) and character selection (`e2e0469`). Named tooltip cache, mouse callback/button state, hardware enable, hovered-object/command fields, marker limits, frames and timing. In-game/main-menu routines keep their different hover-cache behavior and repeated callback evaluation. **51 value/type comparisons, 19 physical assertions and incremental Win32 syntax checking** pass.
+
+Fresh scan: **595 registered files (307 CPP / 288 headers), 154,621 lines, 3,189 raw numeric-access operands, 74 heuristic unknown mentions, 1,061 long compound lines and 5,014 original-address annotations**. Three blocks this continuation remove **187** candidates; cumulative reduction **2,238 / 5,427 (41.24%)**, twenty-five naming/layout blocks. These counts are refactoring heuristics, not unfinished functions or gameplay percentages. The broad request and full per-function behavioral-review ledger remain open. This continuation's eleven changed production units and three new private assertion units pass syntax checks. No build/test/game run; independent pending documentation is preserved. Next owning block: mission-start objects (50), then game-control startup/human attacks (49 each).
+
 ## Character selection record continuation — 2026-10-14
 
 Completed the [character selection window records block](SELECTION_WINDOW_RECORDS_REVIEW.md): trader route rows, experience pages, graphic/text control fields, tooltip limits, family selection, world reference and command payloads. The source keeps the Windows calls, arithmetic, branch order and ownership. **60 value/type comparisons, 44 physical assertions and Win32 syntax checking** pass. The preceding [single-player AI block](SINGLE_AI_RECORDS_REVIEW.md) is committed as `30d3e9f`.
