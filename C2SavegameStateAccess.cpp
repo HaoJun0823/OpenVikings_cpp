@@ -261,11 +261,11 @@ namespace NC2Logic
 		if (records != nullptr)
 			for (std::uint32_t index = 0; NXBasics::Runtime_TimeSigned32(index) < NXBasics::Runtime_TimeSigned32(capacity); ++index)
 			{
-				auto* record = records + index * 0x58 + 0x10;
-				Write<std::uint16_t>(record, 0x14, 0);
-				Write<std::uint16_t>(record, 0x12, 0);
-				Write<std::uint32_t>(record, 0x18, 0);
-				Write<std::uint32_t>(record, 0x1C, 0);
+				auto* record = records + index * NC2Layout::RecordSize::MapMoveableSigned;
+				Write<std::uint16_t>(record, NC2Layout::MapMoveableOffset::MapPositionY, 0);
+				Write<std::uint16_t>(record, NC2Layout::MapMoveableOffset::MapPosition, 0);
+				Write<std::uint32_t>(record, NC2Layout::MapMoveableOffset::SectorPosition, 0);
+				Write<std::uint32_t>(record, NC2Layout::MapMoveableOffset::SectorPositionY, 0);
 			}
 		gMapMoveableArrayStorage.entries = records;
 		std::memset(records, 0, bytes);

@@ -11,8 +11,8 @@ namespace NC2Logic
 	{
 		for (std::uint32_t index = 0; index < 250; ++index)
 		{
-			Write<std::uint16_t>(data, index * 16u + 10u, 0);
-			Write<std::uint16_t>(data, index * 16u + 8u, 0);
+			Write<std::uint16_t>(data, index * NC2Layout::RecordSize::GameMapContinentUnsigned + NC2Layout::GameMapContinentArrayViewOffset::FirstSeedPointYUnsigned, 0);
+			Write<std::uint16_t>(data, index * NC2Layout::RecordSize::GameMapContinentUnsigned + NC2Layout::GameMapContinentArrayViewOffset::FirstSeedPointXUnsigned, 0);
 		}
 		return data;
 	}

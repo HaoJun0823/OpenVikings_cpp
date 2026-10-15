@@ -3077,6 +3077,7 @@ namespace NC2Layout
 
 	namespace GuiBaseWindowOffset
 	{
+		inline constexpr auto DesktopListFlags = 104;
 		inline constexpr auto ClippingRectangle = 0x2C;
 		inline constexpr auto DrawChildren = 0x3C;
 		inline constexpr auto InputChildren = 0x50;
@@ -4151,6 +4152,7 @@ namespace NC2Layout
 
 	namespace InGameGuiManagerOffset
 	{
+		inline constexpr auto MissionOnscreenInfoWindow = 8;
 		inline constexpr auto NetworkInfoButton = 56;
 		inline constexpr auto MeasuredFrameRate = 0x190;
 		inline constexpr auto ActionButtonsOriginY = 0xD4;
@@ -4477,6 +4479,7 @@ namespace NC2Layout
 
 	namespace MainMenuManagerOffset
 	{
+		inline constexpr auto SuppressPreviewDarkening = 0x5C;
 		inline constexpr auto PlayerButtons = 48;
 		inline constexpr auto WorldDisplayElement = 4;
 		inline constexpr auto LobbyMode = 0xF10;
@@ -6427,6 +6430,17 @@ namespace NC2Layout
 	{
 		inline constexpr auto DefaultPositionX = 16838;
 		inline constexpr auto DefaultPositionY = 16840;
+	}
+
+	namespace DynamicSelectionStateOffset
+	{
+		inline constexpr auto HighlightedDisplacement = 1;
+	}
+
+	namespace GameMapContinentArrayViewOffset
+	{
+		inline constexpr auto FirstSeedPointYUnsigned = 10u;
+		inline constexpr auto FirstSeedPointXUnsigned = 8u;
 	}
 
 }

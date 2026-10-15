@@ -126,7 +126,7 @@ namespace NC2InGameGuiBase
 			desktop->Window_HideAll(nullptr);
 			desktop->Element_HideAll(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)));
 			desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(manager->MiscWindows_OverviewWindow_GetPtr()));
-			desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 8)));
+			desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::MissionOnscreenInfoWindow)));
 			desktop->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)));
 		}
 		else

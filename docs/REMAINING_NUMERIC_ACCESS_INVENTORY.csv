@@ -4,7 +4,6 @@ C2HumanIterator.cpp,72,manager->GetSectorData(),(index * NC2Layout::SectorLimits
 C2E2AmbientSoundManagerAccess.cpp,142,sectorData,NC2Layout::AmbientSectorOffset::PatternEntriesUnsigned + static_cast<std::uint32_t>(destination - 1) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2E2AmbientSoundManagerAccess.cpp,198,sectorData,NC2Layout::AmbientSectorOffset::LandscapeEntriesUnsigned + static_cast<std::uint32_t>(destination - 1) * NC2Layout::RecordSize::AmbientLoopEntryUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2EngineLandscapeDrawing.cpp,277,NC2Logic::gStaticLandscapeTypeData + type,NC2Layout::LandscapeLogicTypeOffset::TransitionMask + 1,known-relative-field,BYTE 1 of the named transitionMask DWORD; width and mask are retained.
-C2EngineMoveableDrawing.cpp,201,dynamic,selectedOffset + 1,unresolved,The adjacent brightness-override byte is used through a caller-selected view; original member identity remains open.
 C2IoHelper.cpp,52,&packed,1,io-size,"Second argument is a file-read byte count, not an object-member offset."
 C2IoHelper.cpp,56,&packedBytes,4,io-size,"Second argument is a file-read byte count, not an object-member offset."
 C2IoHelper.cpp,64,&byteCount,4,io-size,"Second argument is a file-read byte count, not an object-member offset."
@@ -38,10 +37,6 @@ C2MissionExecution.cpp,899,gGameControl,p[0] * NC2Layout::RecordSize::GameContro
 C2MissionExecution.cpp,1063,gGameControl,p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] + NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2MissionExecution.cpp,1064,gGameControl,p[1] * NC2Layout::RecordSize::GameControlPlayer + p[0] + NC2Layout::GameControlPlayerOffset::DiplomacyLockedUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2MissionExecution.cpp,1234,gTributeManager,p[0] * NC2Layout::RecordSize::TributeUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
-C2SavegameStateAccess.cpp,265,record,0x14,unresolved,The constructor uses record +0x10 before its WORD/DWORD clears; complete folded view attribution is unresolved.
-C2SavegameStateAccess.cpp,266,record,0x12,unresolved,The constructor uses record +0x10 before its WORD/DWORD clears; complete folded view attribution is unresolved.
-C2SavegameStateAccess.cpp,267,record,0x18,unresolved,The constructor uses record +0x10 before its WORD/DWORD clears; complete folded view attribution is unresolved.
-C2SavegameStateAccess.cpp,268,record,0x1C,unresolved,The constructor uses record +0x10 before its WORD/DWORD clears; complete folded view attribution is unresolved.
 C2SavegameStateAccess.cpp,383,manager,(table == 0 ? NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer : NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer) + index * NC2Layout::RecordSize::StatisticPlayerPointer,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2SavegameStateAccess.cpp,406,manager,(table == 0 ? NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer : NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer) + index * NC2Layout::RecordSize::StatisticPlayerPointer,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2AIConditions.cpp,83,condition,active != 0 ? NC2Layout::AIConditionOffset::ActivatedTickUnsigned : NC2Layout::AIConditionOffset::DeactivatedTickUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
@@ -56,16 +51,11 @@ C2AIProduction.cpp,78,manager,NC2Layout::RecordSize::AIGood * 42 + NC2Layout::AI
 C2AIProduction.cpp,82,manager,NC2Layout::RecordSize::AIGood * 39 + NC2Layout::AIGoodOffset::ForceProducingFlag,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2AIProduction.cpp,83,manager,NC2Layout::RecordSize::AIGood * 41 + NC2Layout::AIGoodOffset::ForceProducingFlag,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 C2AIMilitaryAccess.cpp,42,manager,0x1454,unresolved,Military-manager DWORD +0x1454 is initialized but remains unclassified.
-C2AIManagerAccess.cpp,106,task,28,unresolved,Type-5 task payload byte +28 needs a proven semantic identity.
-XGuiDesktop_Attachment.cpp,64,window,0x68,unresolved,Window +0x68 bit 0 is set during attachment; remaining flags/field identity are unresolved.
-XGuiDesktop_Attachment.cpp,64,window,0x68,unresolved,Window +0x68 bit 0 is set during attachment; remaining flags/field identity are unresolved.
 GuiTextToolElementAccess.cpp,76,element,0x2C,unresolved,Text element +0x2C is cleared at construction; original field identity is unresolved.
 GuiTextToolElementAccess.cpp,122,element,0x2C,unresolved,Text element +0x2C is cleared at construction; original field identity is unresolved.
 GuiTextToolElementAccess.cpp,260,reinterpret_cast<void*>(param2),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 GuiTextToolElementAccess.cpp,261,reinterpret_cast<void*>(param3),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 GuiTextToolElementAccess.cpp,262,reinterpret_cast<void*>(param4),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
-InGameGuiBaseAccess.cpp,129,manager,8,unresolved,Manager +8 is used as a window in selection visibility; concrete window role remains unresolved.
-MainMenuWorldDisplayElement.cpp,136,CGuiManager::sTheObjectPtr,0x5C,unresolved,Menu manager +0x5C controls preview darkening; field ownership and complete meaning remain open.
 MainMenuWorldDisplayElement.cpp,214,&param1,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 MainMenuWorldDisplayElement.cpp,214,&param2,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 MainMenuWorldDisplayElement.cpp,214,&param3,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
@@ -85,8 +75,6 @@ InGameGuiTraderConfigWindow.cpp,142,window,row == 0 ? NC2Layout::TraderConfigWin
 InGameGuiTraderConfigWindow.cpp,145,window,row == 0 ? NC2Layout::TraderConfigWindowOffset::LeftPreviewElement : NC2Layout::TraderConfigWindowOffset::RightPreviewElement,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 InGameGuiTraderConfigWindow.cpp,174,window,(row == 0 ? NC2Layout::TraderConfigWindowOffset::LeftImportControlsUnsigned : NC2Layout::TraderConfigWindowOffset::RightImportControlsUnsigned) + good * NC2Layout::RecordSize::TraderImportButtonPointerUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
 InGameGuiTraderConfigWindow.cpp,291,window,(row == 0 ? NC2Layout::TraderConfigWindowOffset::LeftImportControlsUnsigned : NC2Layout::TraderConfigWindowOffset::RightImportControlsUnsigned) + good * NC2Layout::RecordSize::TraderImportButtonPointerUnsigned,index-or-selector,"Only ordinary array indices, range arithmetic, or selector operands remain; record fields and strides are named."
-C2ObjectMemberConstructors.cpp,14,data,index * 16u + 10u,unresolved,Folded constructor initializes points in a biased map-static view; do not label these as physical continent members.
-C2ObjectMemberConstructors.cpp,15,data,index * 16u + 8u,unresolved,Folded constructor initializes points in a biased map-static view; do not label these as physical continent members.
 InGameGuiWallRoadWindows.cpp,117,window,0x70,unresolved,"Constructor-only +0x70 byte, no proven semantic identity."
 InGameGuiWallRoadWindows.cpp,135,window,0x70,unresolved,"Constructor-only +0x70 byte, no proven semantic identity."
 C2TributeAccess.cpp,103,tribute,offset - 4,known-relative-field,Reads the good ID immediately preceding its amount in the native pair.

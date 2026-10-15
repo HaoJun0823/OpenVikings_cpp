@@ -1,5 +1,7 @@
 # Remaining numeric-access naming review — 2026-10-15
 
+Current continuation: [12 of the 26 unresolved sites resolved; 14 remain](UNCLASSIFIED_ACCESS_REVIEW.md). Counts below describe the earlier checkpoint; the linked inventory now reflects the continuation.
+
 This continuation replaces **587 distinct access operands across 132 C++ files and two existing headers**. The [direct delta](REMAINING_NUMERIC_ACCESS_DELTA.csv) records each changed operand. The raw-access heuristic falls from **694 to 134**, a reduction of **560**; the other changed expressions still contain ordinary indices or selector values. No production files were added, so the Visual Studio project/filter lists require no change.
 
 The pass names actor references, packed coordinates, command payloads and cached command slots, static house/tribe/vehicle/weapon records, statistics arrays, merchant and sector records, GUI resources and selection state, font height, textures, particles and AI planning views. Existing raw reads/writes, widths, calling conventions and allocation ownership are retained. Static-stock indexing now expresses the stock base, record stride and output flag directly. Statistics accesses expose their array base and element index instead of folded byte offsets.

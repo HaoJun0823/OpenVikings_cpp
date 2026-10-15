@@ -273,7 +273,7 @@ namespace NXBaseGui
 
 		const auto* windowBytes = reinterpret_cast<const unsigned char*>(window);
 
-		if ((windowBytes[0x68] & 1u) != 0)
+		if ((windowBytes[NC2Layout::GuiBaseWindowOffset::DesktopListFlags] & 1u) != 0)
 		{
 			elementListAt(0x8C)->l_Base_RemoveElement(window);
 			elementListAt(0xA0)->l_Base_RemoveElement(window);

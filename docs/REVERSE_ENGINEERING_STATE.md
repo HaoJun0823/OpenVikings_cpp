@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Unclassified-access follow-up — 2026-10-15
+
+Resolved [12 of the previous 26 access sites](UNCLASSIFIED_ACCESS_REVIEW.md), including selection flags, desktop lists, mission information, spawn-task completion and biased constructor views. Raw scan: **134 → 122**; the [current inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) retains **14 unresolved sites in nine files** and 108 ordinary indices/selectors, dereferences, I/O sizes or established relative fields. A duplicate base offset in the savegame moveable constructor is corrected separately; subsequent full-array zeroing means this does not establish an observed gameplay fix. **12 value/type pairs, 15 layout/address assertions and all ten affected Win32 syntax checks pass** (one existing DirectPlay macro warning). No build, tests or game run. Independent user changes are preserved. Earlier checkpoints below describe their historical state.
+
 ## Remaining numeric-access naming — 2026-10-15
 
 Completed [587 distinct access-operand replacements](REMAINING_NUMERIC_ACCESS_REVIEW.md) across **132 C++ files and two existing headers**. Raw scan: **694 → 134** (**560 removed**). The [remaining inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) classifies the residual matches: **108 ordinary indices/selectors, pointer dereferences, I/O sizes or established relative fields; 26 unresolved member/view accesses in 16 files** remain explicit. This is naming progress, not complete gameplay/function reconstruction. **365 value/type pairs, 85 layout/arithmetic assertions and Win32 syntax checks of all 132 affected C++ units pass**; ten existing DirectPlay macro warnings. No build, tests or game run. The user confirms pottery smoke now works; pottery fire and other runtime reports remain separate. Independent user source/documentation edits are preserved.

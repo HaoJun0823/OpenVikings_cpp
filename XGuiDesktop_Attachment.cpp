@@ -61,7 +61,7 @@ namespace NXBaseGui
 		if (window == nullptr) return;
 		const auto flags = Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Flags);
 		if ((flags & NXBasics::BitMask::Bit11) != 0) return;
-		Write<std::uint8_t>(window, 0x68, static_cast<std::uint8_t>(Read<std::uint8_t>(window, 0x68) | 1u));
+		Write<std::uint8_t>(window, NC2Layout::GuiBaseWindowOffset::DesktopListFlags, static_cast<std::uint8_t>(Read<std::uint8_t>(window, NC2Layout::GuiBaseWindowOffset::DesktopListFlags) | 1u));
 		Write(window, NC2Layout::GuiBaseElementOffset::Flags, flags | NXBasics::BitMask::Bit11);
 		std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(window) + 4))->PlaceInside(mRectangle);
 		auto* bytes = reinterpret_cast<std::byte*>(this);

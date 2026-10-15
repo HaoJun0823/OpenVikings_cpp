@@ -380,12 +380,12 @@ namespace NInGameGuiManager
 		MiscWindows_OverviewWindow_Open();
 
 		void* window;
-		std::memcpy(&window, mLegacyState + 0x08, sizeof(window));
+		std::memcpy(&window, mLegacyState + NC2Layout::InGameGuiManagerOffset::MissionOnscreenInfoWindow, sizeof(window));
 		if (window == nullptr)
 		{
 			allocation = NXBasics::Runtime_AllocateWithNewHandler(10160, 1);
 			window = allocation == nullptr ? nullptr : MissionOnscreenInfoStaticGuiWindow_Construct(allocation);
-			std::memcpy(mLegacyState + 0x08, &window, sizeof(window));
+			std::memcpy(mLegacyState + NC2Layout::InGameGuiManagerOffset::MissionOnscreenInfoWindow, &window, sizeof(window));
 			NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
 		}
 		mStaticVars.desktopInitialized = true;

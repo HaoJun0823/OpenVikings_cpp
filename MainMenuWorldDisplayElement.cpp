@@ -133,7 +133,7 @@ void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void* element, 
 	void* display = Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display);
 	NC2E2::Display_UpdateDisplay(display);
 	NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
-	if (Read<std::uint8_t>(CGuiManager::sTheObjectPtr, 0x5C) == 0) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, bitmap);
+	if (Read<std::uint8_t>(CGuiManager::sTheObjectPtr, NC2Layout::MainMenuManagerOffset::SuppressPreviewDarkening) == 0) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, bitmap);
 	if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0) return;
 	NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
 	const auto& resources = CGuiManager::mStaticVars.resources;

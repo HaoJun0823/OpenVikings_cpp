@@ -237,7 +237,7 @@ namespace NC2MainMenuGuiManager
 
 		const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
 
-		if (currentScreen == 1 && objectBytes[0x5C] == std::byte{ 0 })
+		if (currentScreen == 1 && objectBytes[NC2Layout::MainMenuManagerOffset::SuppressPreviewDarkening] == std::byte{ 0 })
 		{
 			char text[348];
 

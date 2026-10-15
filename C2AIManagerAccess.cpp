@@ -103,7 +103,7 @@ namespace NC2Logic
 							else if (type == 5)
 							{
 								integer(16); integer(20); coordinate(12); coordinate(14); integer(32); integer(24);
-								Write<std::uint8_t>(task, 28, reader->GetInt() != 0);
+								Write<std::uint8_t>(task, NC2Layout::AISpawnHumansTaskOffset::DisableAfterSpawn, reader->GetInt() != 0);
 							}
 							AIManager_EntryPoint_MainTask_Add(manager, player, task);
 							break;

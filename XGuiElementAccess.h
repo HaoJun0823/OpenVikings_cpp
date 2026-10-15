@@ -26,7 +26,8 @@ namespace NXBaseGui
 		std::byte drawChildren[20];
 		std::byte inputChildren[20];
 		void* activeChild;
-		std::byte unresolved68[4];
+		std::uint8_t desktopListFlags;
+		std::byte unresolved69[3];
 	};
 
 	extern const std::uintptr_t gBaseElementVirtualTable[18];

@@ -198,7 +198,7 @@ namespace NC2E2
 		std::int32_t DynamicBrightness(const void* dynamic, std::uint32_t selectedOffset, std::int32_t brightness)
 		{
 			if (Read<std::uint8_t>(dynamic, selectedOffset) != 0) brightness = static_cast<std::int32_t>(DrawAtom_Tool_GetSelectedBrightness() >> 1);
-			if (Read<std::uint8_t>(dynamic, selectedOffset + 1) != 0) brightness = 256;
+			if (Read<std::uint8_t>(dynamic, selectedOffset + NC2Layout::DynamicSelectionStateOffset::HighlightedDisplacement) != 0) brightness = 256;
 			return brightness;
 		}
 		std::uint32_t HealthBob(std::uint32_t hitpoints, std::uint32_t maximum)
