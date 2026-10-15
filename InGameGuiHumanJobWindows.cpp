@@ -443,7 +443,7 @@ namespace NC2InGameGuiSelectedAction
                         Row(window, list, row, caption, job, good, false);
                     }
                 }
-                else Row(window, list, row, NC2Logic::StringAccess_GetJobNamePtr(job, 1), job, Read<std::uint32_t>(human, 0x330), false);
+                else Row(window, list, row, NC2Logic::StringAccess_GetJobNamePtr(job, 1), job, static_cast<std::uint32_t>(enables.defaultGood), false);
             }
         }
         AddList(window, list, SRectangle(296, 22, 20, 256)); return window;

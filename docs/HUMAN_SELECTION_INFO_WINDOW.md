@@ -1,5 +1,7 @@
 # Human selection information window - 2026-10-08
 
+Correction 2026-10-15: the [school chooser default-good review](SCHOOL_DEFAULT_GOOD_CORRECTION.md) replaces the former human-offset fallback with the Windows tribe/job-enables `defaultGood`. The historical desired-good description below was a reconstruction mistake.
+
 ## Current audit checkpoint - 2026-10-09
 
 The constructor 004AB7F1, message dispatcher 004ABA34, six-section draw 004AC26D and layout 004AE2A2 are connected and removed from the partial inventory. Complete Windows code and both command tables were audited. Observer 10004, following 10005, equipment 10029..10036 and good help 10041 use their native IDs. Scratch-bitmap lifetime, constructor/reset order, initial selection snapshot, two production-counter reads, section-derived bar widths, unlimited-production symbol position and empty special-job text are corrected. All selection window families and the context/action/rename/job/school/trader popup families are connected in the menu work; earlier boundary notes below record historical states. Downstream vehicle/combat/house task execution and specialized input branches retain independent gaps. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md) and current source/inventories. Win32 `/Zs` passed; no build, tests or game run occurred.
