@@ -1,5 +1,7 @@
 # House layout and readability review
 
+Current access/stride follow-up: [2026-10-15 house access records review](HOUSE_ACCESS_RECORDS_REVIEW.md). Earlier snapshots below may predate the established `maximumWorkers` and `isOutputStock` names; current source and HOUSE_LAYOUT_REVIEW.md take precedence.
+
 The Windows house layout block names 710 scalar/base expressions across 72 source files, including KI, GUI, human tasks and direct `CHouseArray` expressions. Relative good/attachment accesses use 88 named subrecord fields; 30 row-stride occurrences use the established 20-, 16- and 8-byte sizes. The construction-required column at 0x40 is also named separately. These occurrence counts describe this review block, not complete whole-project functional equivalence.
 
 ## Established meaning

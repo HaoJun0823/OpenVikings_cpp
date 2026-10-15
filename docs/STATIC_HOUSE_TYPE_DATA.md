@@ -1,5 +1,7 @@
 # Static-house type loading and lookup
 
+Current access/stride follow-up: [2026-10-15 house access records review](HOUSE_ACCESS_RECORDS_REVIEW.md). Earlier snapshots below may predate the established `maximumWorkers` and `isOutputStock` names; current source and HOUSE_LAYOUT_REVIEW.md take precedence.
+
 Windows x86 assembly defines behavior. Mac symbols supply `CStaticHouseTypeDataManager`, `GetHouseType(TJobTypes, long)` and `GetHouseType_NoStock(long)` names/parameter identities. Native record names are reconstructed from Windows tokens and indexing. Worker +04 and stock +08 have established widths/access patterns but no sufficiently established semantic names; both remain explicitly unknown.
 
 ## Entries

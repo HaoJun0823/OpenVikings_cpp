@@ -1031,4 +1031,37 @@ namespace NC2Runtime
         inline constexpr auto RegistrationTag = 0x65;
     }
 
+    namespace HouseStockLimits
+    {
+        inline constexpr auto BorrowRoundingBiasUnsigned = 9u;
+
+        inline constexpr auto FractionsPerUnit = 10;
+
+        inline constexpr auto FractionsPerUnitUnsigned = 10u;
+
+        inline constexpr auto AmountCap = 1000;
+    }
+
+    namespace HouseConstructionLimits
+    {
+        inline constexpr auto IncomingAmountCapUnsigned = 254u;
+
+        inline constexpr auto MinimumBuilders = 5;
+
+        inline constexpr auto WorkStepsPerGoodUnsigned = 30u;
+
+        inline constexpr auto DistinctGoods = 10;
+    }
+
+    namespace HouseOverlayLimits
+    {
+        inline constexpr auto TicksPerIntervalUnsigned = 12u;
+
+        inline constexpr auto TickRoundingBiasUnsigned = 11u;
+
+        inline constexpr auto ActionCount = 5;
+
+        inline constexpr auto LandscapeCount = 10;
+    }
+
 }

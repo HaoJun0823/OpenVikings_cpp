@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## House access record continuation — 2026-10-15
+
+Completed the [house access records review](HOUSE_ACCESS_RECORDS_REVIEW.md): engine logic-view fields, static stock definitions, whole/fraction/future/request/minimum stock strides, construction rows, attachments, family references and overlay limits. All 43 raw access operands in the owning source are named. Windows signed/unsigned checks, wrapping, base-ten fractions, delivery/attachment order and search/blocking behavior remain unchanged. **40 value/type comparisons, 33 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 156,076 lines, 2,802 raw numeric-access operands, 74 heuristic unknown mentions, 990 long compound lines and 5,014 original-address annotations**. This block removes 43 candidates; cumulative reduction **2,625 / 5,427 (48.37%)**, thirty-two completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning blocks: construction selection and human needs (43 raw operands each).
+
 ## Map resource record continuation — 2026-10-15
 
 Completed the [map resource records review](MAP_RESOURCE_RECORDS_REVIEW.md): regrow/automatic-transition timer entries, pattern growth/planting flags, packed coordinates, fish limits/iterator modes, timing and serialization widths. All 44 raw accesses in the owning source are named; the map-area consumer removes another two. Windows allocation/lifetime, scan bounds, RNG, wrap, edge behavior and empty-swarm reuse remain intact. The broader static transition `unknown10` remains explicitly unresolved. **60 value/type comparisons, 29 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

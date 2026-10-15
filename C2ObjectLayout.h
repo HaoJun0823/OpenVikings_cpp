@@ -1712,6 +1712,22 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HouseGoodStockIndexUnsigned = 4u;
+
+        inline constexpr auto StaticHouseStockUnsigned = 12u;
+
+        inline constexpr auto StaticHouseTypeUnsigned = 0x624u;
+
+        inline constexpr auto HouseActionOverlayCounterUnsigned = 4u;
+
+        inline constexpr auto HouseStockValueUnsigned = 4u;
+
+        inline constexpr auto HouseConstructionGoodIdUnsigned = 4u;
+
+        inline constexpr auto HouseStageValueUnsigned = 4u;
+
+        inline constexpr auto HouseConstructionGoodsUnsigned = 0x40u;
+
         inline constexpr auto FishSwarmCount = 4;
 
         inline constexpr auto LegacyFishSwarms = 0x4B0;
@@ -3565,6 +3581,16 @@ namespace NC2Layout
 
     namespace EngineHouseLogicViewOffset
     {
+        inline constexpr auto BuildArea = 0x1C;
+
+        inline constexpr auto WorkAreasUnsigned = 0x34u;
+
+        inline constexpr auto FirstConstructionGoodUnsigned = 0x4Cu;
+
+        inline constexpr auto ConstructionGoodsUnsigned = 0x48u;
+
+        inline constexpr auto MaximumHitpointsUnsigned = 0x19Cu;
+
         inline constexpr auto WalkAreasUnsigned = 0x20u;
 
         inline constexpr auto ConstructionGoods = 0x48;
@@ -4999,6 +5025,14 @@ namespace NC2Layout
 
     namespace StaticHouseTypeOffset
     {
+        inline constexpr auto FirstStockMaximumAmountUnsigned = 0x68u;
+
+        inline constexpr auto MainType = 0;
+
+        inline constexpr auto StockIndicesUnsigned = 0x37Cu;
+
+        inline constexpr auto FirstStockOutputFlagUnsigned = 0x6Cu;
+
         inline constexpr auto Stocks = 0x64;
     }
 
