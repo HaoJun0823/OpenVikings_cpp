@@ -22,6 +22,4 @@ namespace NC2Logic
 	void* MarkerArray_GetExistingObjectPtr();
 	std::uint32_t __fastcall Human_GetExplorationRange(const void* human, void* unusedEdx);
 	std::uint32_t __fastcall ArrayObject_GetId(const void* object, void* unusedEdx);
-	std::uint32_t __fastcall Object_GetField10(const void* object, void* unusedEdx);
-	std::uint32_t __fastcall Object_GetField08(const void* object, void* unusedEdx);
 }

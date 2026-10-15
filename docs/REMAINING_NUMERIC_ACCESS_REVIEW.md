@@ -1,6 +1,6 @@
 # Remaining numeric-access naming review — 2026-10-15
 
-Current continuation: [12 of the 26 unresolved sites resolved; 14 remain](UNCLASSIFIED_ACCESS_REVIEW.md). Counts below describe the earlier checkpoint; the linked inventory now reflects the continuation.
+Current continuation: [14 of the original 26 unresolved sites resolved; 12 remain](SHARED_GETTER_ACCESS_REFACTOR.md). Counts below describe the earlier checkpoint; the linked inventory now reflects the continuation.
 
 This continuation replaces **587 distinct access operands across 132 C++ files and two existing headers**. The [direct delta](REMAINING_NUMERIC_ACCESS_DELTA.csv) records each changed operand. The raw-access heuristic falls from **694 to 134**, a reduction of **560**; the other changed expressions still contain ordinary indices or selector values. No production files were added, so the Visual Studio project/filter lists require no change.
 

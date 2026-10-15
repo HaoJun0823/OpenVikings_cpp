@@ -1,5 +1,7 @@
 # Unclassified-access follow-up — 2026-10-15
 
+Current continuation: [the two shared getter bodies now use receiver-specific reads; twelve sites remain](SHARED_GETTER_ACCESS_REFACTOR.md). Counts and source descriptions below record the earlier checkpoint.
+
 This follows the [earlier naming checkpoint](REMAINING_NUMERIC_ACCESS_REVIEW.md). **12 of its 26 unresolved access sites are now resolved** in ten C++ units and two existing headers. The raw-access scan decreases from **134 to 122**. The [current inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) contains **14 unresolved sites in nine files**, plus the same 108 ordinary indices/selectors, pointer dereferences, I/O sizes and established relative fields. The [follow-up delta](UNCLASSIFIED_ACCESS_DELTA.csv) records the twelve changed access expressions. Associated indexed accesses are updated consistently.
 
 ## Windows evidence and receiver views

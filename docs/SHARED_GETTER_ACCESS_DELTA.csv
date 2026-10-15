@@ -1,0 +1,11 @@
+file,line,beforeExpression,afterExpression
+C2MissionExecution.cpp,618,"Object_GetField08(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)"
+C2MissionExecution.cpp,618,"Object_GetField10(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)"
+C2MissionExecution.cpp,619,"Object_GetField10(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)"
+C2MissionExecution.cpp,632,"Object_GetField08(moveable, nullptr)","Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType)"
+C2MissionExecution.cpp,632,"Object_GetField10(MapMoveable_GetMarkerPtr(moveable, nullptr), nullptr)","Read<std::uint32_t>(MapMoveable_GetMarkerPtr(moveable, nullptr), NC2Layout::MarkerOffset::Type)"
+C2MissionExecution.cpp,1390,"Object_GetField08(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)"
+C2MissionExecution.cpp,1390,"Object_GetField08(vehicle, nullptr)","Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)"
+C2MissionExecution.cpp,1390,"Object_GetField10(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)"
+C2MissionExecution.cpp,1402,"Object_GetField08(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)"
+C2MissionExecution.cpp,1402,"Object_GetField10(human, nullptr)","Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)"

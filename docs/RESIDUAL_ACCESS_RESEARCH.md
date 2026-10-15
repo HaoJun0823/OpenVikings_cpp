@@ -1,5 +1,7 @@
 # Research into the fourteen residual access sites — 2026-10-15
 
+Implementation follow-up: [receiver-specific reads replace the shared generic getters](SHARED_GETTER_ACCESS_REFACTOR.md). Twelve numeric sites now remain; the fourteen-site baseline below records the research state before that refactor.
+
 Baseline: `cae2781`. This is an investigation, not another naming-completion claim. **All fourteen explicit numeric access sites remain in production code.** Their status separates into two shared getter bodies, eight GUI initialization sites and four opaque animal/AI fields.
 
 The investigation adds two concrete findings: getter `00471F57` also serves the AI village's player ID, and all four opaque animal/AI fields participate in bulk serialization and checksumming. None of these four fields can be treated as unread or removed merely because a direct gameplay reader has not been identified.

@@ -609,15 +609,17 @@ namespace NC2Logic
 					}
 			}
 		};
+		// Windows 004230EA/00471F57 share getter bodies; these reads retain the human receiver.
 		auto moveHuman = [&] (std::int32_t id, std::uint32_t target)
 		{
 			void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
 			redraw(Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates), 1);
 			MapMoveable_Attachment_AttachToMap(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &target);
-			Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Object_GetField10(human, nullptr)), ArrayObject_GetId(human, nullptr), Object_GetField08(human, nullptr), target, 0);
-			GameMap_Exploration_DoExplore(Object_GetField10(human, nullptr), &target, Human_GetExplorationRange(human, nullptr));
+			Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), ArrayObject_GetId(human, nullptr), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), target, 0);
+			GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), &target, Human_GetExplorationRange(human, nullptr));
 			redraw(target, 1);
 		};
+		// The same Windows getters read moveable object type and marker type in this loop.
 		auto removeMarkers = [] (std::uint32_t point, std::uint32_t type)
 		{
 			for (;;)
@@ -627,7 +629,7 @@ namespace NC2Logic
 				for (; id != -1; id = iterator.GetNextMapMoveableId())
 				{
 					const void* moveable = GetMapMoveablePtr(id);
-					if (Object_GetField08(moveable, nullptr) == 4 && Object_GetField10(MapMoveable_GetMarkerPtr(moveable, nullptr), nullptr) == type) break;
+					if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 4 && Read<std::uint32_t>(MapMoveable_GetMarkerPtr(moveable, nullptr), NC2Layout::MarkerOffset::Type) == type) break;
 				}
 				if (id == -1) break;
 				Logic_EntryPoint_FreeMapMoveable(id);
@@ -1385,7 +1387,7 @@ namespace NC2Logic
 						void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
 						SUserCommandsForHumanHandler commands;
 						Human_UserControl_GetCommands(human, &commands, false, false);
-						if (commands.IsCommandAllowed(0x0C) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::AttachVehicle, static_cast<std::uint8_t>(Object_GetField10(human, nullptr)), ArrayObject_GetId(human, nullptr), Object_GetField08(human, nullptr), ArrayObject_GetId(vehicle, nullptr), Object_GetField08(vehicle, nullptr));
+						if (commands.IsCommandAllowed(0x0C) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::AttachVehicle, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), ArrayObject_GetId(human, nullptr), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), ArrayObject_GetId(vehicle, nullptr), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
 					}
 					break;
 				}
@@ -1397,7 +1399,7 @@ namespace NC2Logic
 						void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
 						SUserCommandsForHumanHandler commands;
 						Human_UserControl_GetCommands(human, &commands, false, false);
-						if (commands.IsCommandAllowed(0x0D)) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::DetachVehicle, static_cast<std::uint8_t>(Object_GetField10(human, nullptr)), ArrayObject_GetId(human, nullptr), Object_GetField08(human, nullptr), 0, 0);
+						if (commands.IsCommandAllowed(0x0D)) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::DetachVehicle, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), ArrayObject_GetId(human, nullptr), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
 					}
 					break;
 				}

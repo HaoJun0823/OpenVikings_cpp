@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Shared getter field access — 2026-10-15
+
+The two shared native getter bodies are now [represented by caller-specific named DWORD reads](SHARED_GETTER_ACCESS_REFACTOR.md). Ten C++ calls use human player/revision, vehicle revision, moveable object type and marker type fields; obsolete generic wrappers are removed. Raw scan: **122 → 120**. The [current inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) retains **12 unresolved sites in eight files**, plus 108 ordinary indices/selectors, dereferences, I/O sizes or established relative fields. Exact getter expansion preserves operation tokens; five field/value/type pairs and DWORD width pass eleven assertions. Both affected Win32 units and the private assertion unit pass syntax checks without diagnostics. No build, tests or game run. Earlier checkpoints below retain their historical counts. User changes are preserved.
+
 ## Unclassified-access follow-up — 2026-10-15
 
 Resolved [12 of the previous 26 access sites](UNCLASSIFIED_ACCESS_REVIEW.md), including selection flags, desktop lists, mission information, spawn-task completion and biased constructor views. Raw scan: **134 → 122**; the [current inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) retains **14 unresolved sites in nine files** and 108 ordinary indices/selectors, dereferences, I/O sizes or established relative fields. A duplicate base offset in the savegame moveable constructor is corrected separately; subsequent full-array zeroing means this does not establish an observed gameplay fix. **12 value/type pairs, 15 layout/address assertions and all ten affected Win32 syntax checks pass** (one existing DirectPlay macro warning). No build, tests or game run. Independent user changes are preserved. Earlier checkpoints below describe their historical state.

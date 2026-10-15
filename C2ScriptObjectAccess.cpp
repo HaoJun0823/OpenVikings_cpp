@@ -102,14 +102,4 @@ namespace NC2Logic
 	{
 		return Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::Id);
 	}
-	// Original function: FUN_004230ea; folded player-ID and marker-type access, no unique original name established.
-	std::uint32_t __fastcall Object_GetField10(const void* object, void*)
-	{
-		return Read<std::uint32_t>(object, 0x10);
-	}
-	// Original function: FUN_00471f57; folded array revision and moveable type access; no unique original name established.
-	std::uint32_t __fastcall Object_GetField08(const void* object, void*)
-	{
-		return Read<std::uint32_t>(object, 8);
-	}
 }
