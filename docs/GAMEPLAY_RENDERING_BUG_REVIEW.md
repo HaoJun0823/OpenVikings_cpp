@@ -1,6 +1,6 @@
 # Gameplay and rendering bug review — 2026-10-15
 
-Review baseline: `1144166`. Behavior evidence is the Windows assembly export and the original Windows `Game.exe`. The Mac reference was searched only for sound-helper names. No gameplay execution was performed.
+Review baseline: `1144166`. Behavior evidence is the Windows assembly export and the original Windows `Game.exe`. The Mac reference was searched only for sound-helper names. No gameplay execution was performed by the assistant; subsequent user play-test confirmation is recorded below.
 
 ## Changes in this block
 
@@ -18,7 +18,7 @@ The arrow correction addresses the verified post-flight reactivation defect, whi
 
 **Pottery smoke and fire:** `1144166` fixes the smoke callback's graphics-record base. Windows 0047EE42..0047EE6F reads overlays at +0x490/+0x494 from the full house record; the old C++ used a logic view already shifted by +0x3C. This was a pre-existing translation error discovered during naming/layout review. The current production path starts overlays 3 and 4 (00475F5B..00475FB5); `House_ActionOverlay_Start` activates the counters and sends callback 0x1C (00434148). The smoke callback now uses the full record. The animated house-overlay renderer also uses the full record, checks the required active state and selects a tick-based frame, matching 00495DB2..00495E37. No additional proven deviation was found in these inspected branches. The exact in-game pottery result, including fire artwork, still needs a live check; the smoke correction alone does not prove that both reported effects are resolved.
 
-The reported preceding source state did not yet contain the house-particle base correction. A subsequent static follow-up also inspected resource sprite-hit selection (00484061, landscape branch 0048418B..00484293), the work-marker eligibility predicate (00436AAD) and execution of command 17 (0043D297). No further confirmed mismatch was found in these inspected branches. The remaining diagnostic distinction is whether hovering produces a resource-assignment action or only ordinary movement, followed by the actual prepared command/actor state if needed. No additional gameplay code was changed on the basis of this follow-up.
+The reported preceding source state did not yet contain the house-particle base correction. A subsequent static follow-up also inspected resource sprite-hit selection (00484061, landscape branch 0048418B..00484293), the work-marker eligibility predicate (00436AAD) and execution of command 17 (0043D297). No further confirmed mismatch was found in these inspected branches. No additional gameplay code was changed on the basis of this follow-up. **The user then retested the current version on 2026-10-15 and confirmed that resource assignment for miners works. The reported assignment issue is closed on that user play-test evidence; the pending hover-action question is superseded.** This does not independently identify which earlier executable contained the failure.
 
 ## Marriage thought bubble
 
@@ -33,5 +33,5 @@ Windows 004369E1 returns true for marriage task 5, or queued commands 13/14. The
 - Incremental Win32 MSVC `/Zs` passes for the three changed C++ units and the current default-interaction/house-particle callback units. One existing DirectPlay `INTERFACE` macro-redefinition warning; no errors.
 - Private read-only evidence extraction verifies 2,051 selected Windows disassembly rows against the original PE bytes, along with visibility constants and the confirmation WAV path. This establishes evidence provenance, not exhaustive behavioral equivalence.
 - `git diff --check` passes. No build, added tests, test project or game run.
-- Live checks remain: ground-item removal, landed arrows, keyboard feedback, resource assignment and pottery smoke/fire using a build containing the corrections. If arrows still deviate before landing, inspect that separate case; if resource assignment or pottery effects still fail on the corrected baseline, continue from the prepared-command and overlay paths above.
+- Resource assignment is confirmed working by the user's current-version play test. Live checks remain for ground-item removal, landed arrows, keyboard feedback and pottery smoke/fire using a build containing the corrections. If arrows still deviate before landing, inspect that separate case; if pottery effects still fail on the corrected baseline, continue from the overlay paths above.
 - Scratch evidence, syntax logs and the read-only analysis script remain in ignored `.codex-work/`.
