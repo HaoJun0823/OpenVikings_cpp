@@ -1,6 +1,0 @@
-Address,CurrentName,Status,WindowsEvidence
-0047B633,NXSys2DApp::CWindow::~CWindow,Explicit native forwarding entry,Native JMP 47B868; application startup failure and shutdown call this entry
-0047B868,NXSys2DApp::CWindow::l_DeleteDisplay,Existing implementation boundary; corrected ownership,Capture display pointer; if nonzero call display destructor then 4E5E48 then clear pointer
-0047B9B4,NXSys2DApp::CDDDisplay::GetWindowOffsetX,Explicit existing getter,Fullscreen byte +34 nonzero returns zero; otherwise return DWORD +38
-0047B9C1,NXSys2DApp::CDDDisplay::GetWindowOffsetY,Explicit existing getter,Fullscreen byte +34 nonzero returns zero; otherwise return DWORD +3C
-0047C309,DDDisplay_AllocatePaletteData,Implemented,"Allocate 0x408 via 4E85FC, then WORD stores 0x300 at +0 and 0x100 at +2; no allocation-null guard"

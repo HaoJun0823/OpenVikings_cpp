@@ -1,0 +1,705 @@
+Address,Source,WindowsEvidence,NamingEvidence
+00407DBD,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407DBD; complete source body and integration callers,
+00407DD4,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407DD4; complete source body and integration callers,
+00407E28,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407E28; complete source body and integration callers,
+00407E5B,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407E5B; complete source body and integration callers,
+00407E73,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407E73; complete source body and integration callers,
+00407E8D,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407E8D; complete source body and integration callers,
+00407EA5,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407EA5; complete source body and integration callers,
+00407EC7,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407EC7; complete source body and integration callers,
+00407EDF,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407EDF; complete source body and integration callers,
+00407F03,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407F03; complete source body and integration callers,
+00407F23,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407F23; complete source body and integration callers,
+00407F3E,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00407F3E; complete source body and integration callers,
+0040822E,C2AIManagerAccess.cpp,Windows ASM and original Game.exe; entry 0040822E; complete source body and integration callers,
+00408F49,C2AIManagerAccess.cpp,Windows ASM and original Game.exe; entry 00408F49; complete source body and integration callers,
+00408F7B,C2AIManagerAccess.cpp,Windows ASM and original Game.exe; entry 00408F7B; complete source body and integration callers,
+00408FA6,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00408FA6; complete source body and integration callers,
+00408FBB,C2AIConstruction.cpp,"Windows shared vector-constructor loop; signed count check, thiscall callbacks, stride and stdcall cleanup",
+004176C8,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 004176C8; complete source body and integration callers,
+00418CED,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 00418CED; complete source body and integration callers,
+00418D3B,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 00418D3B; complete source body and integration callers,
+00418D79,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 00418D79; complete source body and integration callers,
+00418F65,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 00418F65; complete source body and integration callers,
+00418FAF,C2AIAssistantAccess.cpp,Windows ASM and original Game.exe; entry 00418FAF; complete source body and integration callers,
+00428982,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00428982; complete source body and integration callers,
+004289CD,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 004289CD; complete source body and integration callers,
+00428A07,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00428A07; complete source body and integration callers,
+00428A46,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00428A46; complete source body and integration callers,
+00428A61,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00428A61; complete source body and integration callers,
+00428A7A,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00428A7A; complete source body and integration callers,
+00428B63,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00428B63; complete source body and integration callers,
+00428BB2,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428BB2; complete source body and integration callers,
+00428D5A,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428D5A; complete source body and integration callers,
+00428DF8,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428DF8; complete source body and integration callers,
+00428F0E,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428F0E; complete source body and integration callers,
+00428F26,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428F26; complete source body and integration callers,
+00428FEC,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00428FEC; complete source body and integration callers,
+0042905A,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0042905A; complete source body and integration callers,
+00429191,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00429191; complete source body and integration callers,
+004292E8,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 004292E8; complete source body and integration callers,
+00429301,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00429301; complete source body and integration callers,
+00429328,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 00429328; complete source body and integration callers,
+00429340,C2AIHighLevelAccess.cpp,Windows ASM and original Game.exe; entry 00429340; complete source body and integration callers,
+004293FC,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004293FC; complete source body and integration callers,
+0042940E,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 0042940E; complete source body and integration callers,
+0042942C,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 0042942C; complete source body and integration callers,
+00429453,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 00429453; complete source body and integration callers,
+0042948E,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 0042948E; complete source body and integration callers,
+0042951B,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 0042951B; complete source body and integration callers,
+00429613,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429613; complete source body and integration callers,
+004298AE,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 004298AE; complete source body and integration callers,
+00429D9C,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429D9C; complete source body and integration callers,
+00429DDB,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429DDB; complete source body and integration callers,
+00429E61,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429E61; complete source body and integration callers,
+00429E79,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429E79; complete source body and integration callers,
+00429E7A,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429E7A; complete source body and integration callers,
+00429EA5,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429EA5; complete source body and integration callers,
+00429EF8,C2AIGuideAccess.cpp,Windows ASM and original Game.exe; entry 00429EF8; complete source body and integration callers,
+0042B41E,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B41E; complete source body and integration callers,
+0042B450,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B450; complete source body and integration callers,
+0042B489,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B489; complete source body and integration callers,
+0042B4C7,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B4C7; complete source body and integration callers,
+0042B543,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B543; complete source body and integration callers,
+0042B5D3,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0042B5D3; complete source body and integration callers,
+0042B6BE,C2AIManagerAccess.cpp,Windows ASM and original Game.exe; entry 0042B6BE; complete source body and integration callers,
+0042B6DD,C2AIManagerAccess.cpp,Windows ASM and original Game.exe; entry 0042B6DD; complete source body and integration callers,
+0044DD7F,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0044DD7F; complete source body and integration callers,
+0044E09A,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0044E09A; complete source body and integration callers,
+0044E26D,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0044E26D; complete source body and integration callers,
+0044E2C9,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0044E2C9; complete source body and integration callers,
+0044E433,C2AITaskAccess.cpp,Windows ASM and original Game.exe; entry 0044E433; complete source body and integration callers,
+0044E49A,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0044E49A; complete source body and integration callers,
+0044E640,C2AIConstruction.cpp,Windows fish-manager member construction; 500 twelve-byte point records; connected to both fish-manager constructors,
+004535F7,C2AIConstruction.cpp,Windows ASM and original Game.exe; entry 004535F7; complete source body and integration callers,
+0045360E,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 0045360E; complete source body and integration callers,
+00453648,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453648; complete source body and integration callers,
+004536DF,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 004536DF; complete source body and integration callers,
+00453712,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453712; complete source body and integration callers,
+004537C9,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 004537C9; complete source body and integration callers,
+00453809,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453809; complete source body and integration callers,
+0045384B,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0045384B; complete source body and integration callers,
+00453878,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453878; complete source body and integration callers,
+004538B5,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 004538B5; complete source body and integration callers,
+004538E6,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004538E6; complete source body and integration callers,
+00453A07,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453A07; complete source body and integration callers,
+00453B68,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00453B68; complete source body and integration callers,
+00453B97,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00453B97; complete source body and integration callers,
+00453C07,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00453C07; complete source body and integration callers,
+00453C3A,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453C3A; complete source body and integration callers,
+00453C90,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00453C90; complete source body and integration callers,
+00453CC3,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453CC3; complete source body and integration callers,
+00453CCB,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453CCB; complete source body and integration callers,
+00453CEB,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453CEB; complete source body and integration callers,
+00453D0C,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453D0C; complete source body and integration callers,
+00453D3C,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453D3C; complete source body and integration callers,
+00453D71,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453D71; complete source body and integration callers,
+00453DC5,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00453DC5; complete source body and integration callers,
+00453DFF,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 00453DFF; complete source body and integration callers,
+00453EFB,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00453EFB; complete source body and integration callers,
+00454578,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00454578; complete source body and integration callers,
+004545D4,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004545D4; complete source body and integration callers,
+00454687,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00454687; complete source body and integration callers,
+0045479C,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 0045479C; complete source body and integration callers,
+004548AA,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004548AA; complete source body and integration callers,
+00454958,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00454958; complete source body and integration callers,
+00454A3E,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00454A3E; complete source body and integration callers,
+0045522F,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 0045522F; complete source body and integration callers,
+004552F1,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004552F1; complete source body and integration callers,
+00455398,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455398; complete source body and integration callers,
+004553C4,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004553C4; complete source body and integration callers,
+00455449,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455449; complete source body and integration callers,
+004557ED,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004557ED; complete source body and integration callers,
+00455860,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455860; complete source body and integration callers,
+004559DE,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 004559DE; complete source body and integration callers,
+00455C0C,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455C0C; complete source body and integration callers,
+00455CC2,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455CC2; complete source body and integration callers,
+00455CF4,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455CF4; complete source body and integration callers,
+00455DA5,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00455DA5; complete source body and integration callers,
+00455E20,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 00455E20; complete source body and integration callers,
+00455E47,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 00455E47; complete source body and integration callers,
+00455E72,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 00455E72; complete source body and integration callers,
+0045618A,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 0045618A; complete source body and integration callers,
+004561B5,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 004561B5; complete source body and integration callers,
+004561D6,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 004561D6; complete source body and integration callers,
+004561FF,C2AIAnimalDiplomacy.cpp,Windows ASM and original Game.exe; entry 004561FF; complete source body and integration callers,
+00456241,C2AIRoadAccess.cpp,Windows ASM and original Game.exe; entry 00456241; complete source body and integration callers,
+00456245,C2AIRoadAccess.cpp,Windows ASM and original Game.exe; entry 00456245; complete source body and integration callers,
+00456449,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456449; complete source body and integration callers,
+00456861,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456861; complete source body and integration callers,
+004568B4,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 004568B4; complete source body and integration callers,
+004569B4,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 004569B4; complete source body and integration callers,
+00456A74,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456A74; complete source body and integration callers,
+00456AC8,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456AC8; complete source body and integration callers,
+00456B23,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456B23; complete source body and integration callers,
+00456BA3,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456BA3; complete source body and integration callers,
+00456BE8,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456BE8; complete source body and integration callers,
+00456CDC,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456CDC; complete source body and integration callers,
+00456D19,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456D19; complete source body and integration callers,
+00456D4D,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456D4D; complete source body and integration callers,
+00456D6C,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 00456D6C; complete source body and integration callers,
+00456DA5,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00456DA5; complete source body and integration callers,
+00456DC0,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00456DC0; complete source body and integration callers,
+00456FB8,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00456FB8; complete source body and integration callers,
+00456FE0,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00456FE0; complete source body and integration callers,
+0045704B,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 0045704B; complete source body and integration callers,
+00457110,C2AIGlobalGoods.cpp,Windows ASM and original Game.exe; entry 00457110; complete source body and integration callers,
+0045715A,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 0045715A; complete source body and integration callers,
+0045717F,C2AIResourceAccess.cpp,Windows ASM and original Game.exe; entry 0045717F; complete source body and integration callers,
+004571CE,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 004571CE; complete source body and integration callers,
+0045739B,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 0045739B; complete source body and integration callers,
+004574AC,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 004574AC; complete source body and integration callers,
+004574CC,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 004574CC; complete source body and integration callers,
+00457500,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457500; complete source body and integration callers,
+00457529,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457529; complete source body and integration callers,
+0045754F,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 0045754F; complete source body and integration callers,
+004576B4,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 004576B4; complete source body and integration callers,
+0045771E,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 0045771E; complete source body and integration callers,
+0045778B,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 0045778B; complete source body and integration callers,
+004578A3,C2AIProduction.cpp,Windows ASM and original Game.exe; entry 004578A3; complete source body and integration callers,
+00457958,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457958; complete source body and integration callers,
+00457992,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457992; complete source body and integration callers,
+004579D8,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 004579D8; complete source body and integration callers,
+00457A0D,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457A0D; complete source body and integration callers,
+00457A1F,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 00457A1F; complete source body and integration callers,
+00457A65,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00457A65; complete source body and integration callers,
+00457A7E,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00457A7E; complete source body and integration callers,
+00457AA3,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00457AA3; complete source body and integration callers,
+00457AC3,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00457AC3; complete source body and integration callers,
+00457AEB,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00457AEB; complete source body and integration callers,
+00458167,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 00458167; complete source body and integration callers,
+004581F3,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 004581F3; complete source body and integration callers,
+004584C6,C2AIHumanRequests.cpp,Windows ASM and original Game.exe; entry 004584C6; complete source body and integration callers,
+004593ED,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 004593ED; complete source body and integration callers,
+00459422,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00459422; complete source body and integration callers,
+0045969F,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045969F; complete source body and integration callers,
+00459765,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00459765; complete source body and integration callers,
+0045998E,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045998E; complete source body and integration callers,
+0045A2D4,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045A2D4; complete source body and integration callers,
+0045A832,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045A832; complete source body and integration callers,
+0045AAC6,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045AAC6; complete source body and integration callers,
+0045AEE6,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 0045AEE6; complete source body and integration callers,
+0045B058,C2AIMovementMessages.cpp,Windows ASM and original Game.exe; entry 0045B058; complete source body and integration callers,
+0045B0ED,C2AIMovementMessages.cpp,Windows ASM and original Game.exe; entry 0045B0ED; complete source body and integration callers,
+0045B295,C2AIMovementMessages.cpp,Windows ASM and original Game.exe; entry 0045B295; complete source body and integration callers,
+0045B4F4,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045B4F4; complete source body and integration callers,
+0045B612,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045B612; complete source body and integration callers,
+0045B6AB,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045B6AB; complete source body and integration callers,
+0045B7EA,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045B7EA; complete source body and integration callers,
+0045B88C,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045B88C; complete source body and integration callers,
+0045BA65,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045BA65; complete source body and integration callers,
+0045BB8C,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045BB8C; complete source body and integration callers,
+0045BC60,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045BC60; complete source body and integration callers,
+0045BD18,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045BD18; complete source body and integration callers,
+0045BD63,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 0045BD63; complete source body and integration callers,
+00471418,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00471418; complete source body and integration callers,
+0047149A,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0047149A; complete source body and integration callers,
+0047154E,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0047154E; complete source body and integration callers,
+004715C4,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004715C4; complete source body and integration callers,
+004715FE,C2AIObjectAccess.cpp,Windows ASM and original Game.exe; entry 004715FE; complete source body and integration callers,
+0047161D,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0047161D; complete source body and integration callers,
+00471938,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00471938; complete source body and integration callers,
+00471988,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00471988; complete source body and integration callers,
+004719AC,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004719AC; complete source body and integration callers,
+00471E40,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00471E40; complete source body and integration callers,
+00471FD3,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00471FD3; complete source body and integration callers,
+004720A6,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004720A6; complete source body and integration callers,
+00472157,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00472157; complete source body and integration callers,
+0047215B,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0047215B; complete source body and integration callers,
+0047245F,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 0047245F; complete source body and integration callers,
+004726BF,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004726BF; complete source body and integration callers,
+004726EB,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004726EB; complete source body and integration callers,
+004728CE,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004728CE; complete source body and integration callers,
+004728E1,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 004728E1; complete source body and integration callers,
+00472929,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00472929; complete source body and integration callers,
+00472A6A,C2AIVillageAccess.cpp,Windows ASM and original Game.exe; entry 00472A6A; complete source body and integration callers,
+00472A8E,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00472A8E; complete source body and integration callers,
+00472A97,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00472A97; complete source body and integration callers,
+00472AE7,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00472AE7; complete source body and integration callers,
+00472BD7,C2AIMilitaryAccess.cpp,Windows ASM and original Game.exe; entry 00472BD7; complete source body and integration callers,
+00472C02,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00472C02; complete source body and integration callers,
+00472C55,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00472C55; complete source body and integration callers,
+00473070,C2AISinglePlayerAccess.cpp,Windows ASM and original Game.exe; entry 00473070; complete source body and integration callers,
+00473102,C2AIMovementMessages.cpp,Windows ASM and original Game.exe; entry 00473102; complete source body and integration callers,
+00473377,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00473377; complete source body and integration callers,
+00473383,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 00473383; complete source body and integration callers,
+004734DE,C2AISoldierAccess.cpp,Windows ASM and original Game.exe; entry 004734DE; complete source body and integration callers,
+0040C5E5,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::~CBitmap
+0040C682,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::CBitmap
+0040D1F8,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::CopyIntoBitmap_HalfSize
+0040D3F8,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized
+0040EEFA,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::ZoomIn
+0040F522,XBitmap.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::CBitmap::GetUnclippedPixelPtr
+00410601,XBasicTypes.cpp,Complete Windows ASM/Game.exe range; see XBitmap.cpp,NXBasics::SRectangle::IsInside
+0040F7C6,XBasicTypes.cpp,Windows ASM and original Game.exe; entry 0040F7C6; source body and callers audited,
+0040F924,XBasicTypes.cpp,Windows ASM and original Game.exe; entry 0040F924; source body and callers audited,
+0040F994,XPalette.cpp,Windows ASM and original Game.exe; entry 0040F994; source body and callers audited,
+0040FBBB,XPalette.cpp,Windows ASM and original Game.exe; entry 0040FBBB; source body and callers audited,
+004103D8,XBasicTypes.cpp,Windows ASM and original Game.exe; entry 004103D8; source body and callers audited,
+004104D6,XBasicTypes.cpp,Windows ASM and original Game.exe; entry 004104D6; source body and callers audited,
+00410654,XBasicTypes.cpp,Windows ASM and original Game.exe; entry 00410654; source body and callers audited,
+00410B46,XStringMemory.h,Windows ASM and original Game.exe; entry 00410B46; source body and callers audited,
+00410C1F,XStringMemory.h,Windows ASM and original Game.exe; entry 00410C1F; source body and callers audited,
+0047C6FB,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 0047C6FB; source body and callers audited,
+0047CC5B,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 0047CC5B; source body and callers audited,
+0047CE8E,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 0047CE8E; source body and callers audited,
+0047DBCB,C2MapMoveableAccess.cpp,Windows ASM and original Game.exe; entry 0047DBCB; source body and callers audited,
+0047DC9D,C2EngineDisplayAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0047EC5B,C2E2HumanSoundAccess.cpp,Windows ASM and original Game.exe; entry 0047EC5B; source body and callers audited,
+00480727,C2EngineLandscapeAccess.cpp,Windows ASM and original Game.exe; entry 00480727; source body and callers audited,
+004808D3,C2E2StaticDataHouses.cpp,Windows ASM and original Game.exe; entry 004808D3; source body and callers audited,
+00480FE3,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00480FE3; source body and callers audited,
+00480FF1,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00480FF1; source body and callers audited,
+00481036,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00481036; source body and callers audited,
+004813E8,C2EngineDisplayManager.cpp,Windows ASM and original Game.exe; entry 004813E8; source body and callers audited,
+00481420,C2EngineDisplayManager.cpp,Windows ASM and original Game.exe; entry 00481420; source body and callers audited,
+00481A47,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00481A47; source body and callers audited,
+004821B3,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 004821B3; source body and callers audited,
+0048245D,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 0048245D; source body and callers audited,
+004824A5,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 004824A5; source body and callers audited,
+00482551,C2EngineMapTerrainAccess.cpp,Windows ASM and original Game.exe; entry 00482551; source body and callers audited,
+004832DC,C2EngineMapTerrainAccess.cpp,Windows ASM and original Game.exe; entry 004832DC; source body and callers audited,
+00483E58,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00483E58; source body and callers audited,
+00483F80,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00483F80; source body and callers audited,
+00483FAD,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00483FAD; source body and callers audited,
+00483FDA,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00483FDA; source body and callers audited,
+00484007,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484007; source body and callers audited,
+00484034,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484034; source body and callers audited,
+00484B95,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484B95; source body and callers audited,
+00484BA1,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484BA1; source body and callers audited,
+00484BAD,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484BAD; source body and callers audited,
+00484BB9,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484BB9; source body and callers audited,
+00484BC5,C2EngineDisplayAccess.cpp,Windows ASM and original Game.exe; entry 00484BC5; source body and callers audited,
+004863B7,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 004863B7; source body and callers audited,
+004863E9,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 004863E9; source body and callers audited,
+004873DB,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 004873DB; source body and callers audited,
+00487508,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00487508; source body and callers audited,
+00487551,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00487551; source body and callers audited,
+004875FA,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 004875FA; source body and callers audited,
+0048823D,C2EngineMacroMaps.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048823E,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 0048823E; source body and callers audited,
+0048963E,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 0048963E; source body and callers audited,
+004896FC,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 004896FC; source body and callers audited,
+004897BD,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 004897BD; source body and callers audited,
+0048988A,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 0048988A; source body and callers audited,
+00489998,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489998; source body and callers audited,
+00489A80,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489A80; source body and callers audited,
+00489B28,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489B28; source body and callers audited,
+00489BD9,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489BD9; source body and callers audited,
+00489C84,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489C84; source body and callers audited,
+00489D46,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489D46; source body and callers audited,
+00489DE0,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489DE0; source body and callers audited,
+00489E0E,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00489E0E; source body and callers audited,
+0048A7FA,C2EngineLandscapeAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048A7FB,C2EngineLandscapeAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048AB5C,C2E2StaticDataHumanMisc.cpp,Windows ASM and original Game.exe; entry 0048AB5C; source body and callers audited,
+0048ACAF,C2E2StaticDataHumanMisc.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048B213,C2E2StaticDataHumanMisc.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048B440,C2EngineDisplayAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048B441,C2EngineDisplayAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048BACC,C2E2StaticDataHumanMisc.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048BACD,C2E2StaticDataHumanMisc.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048BD65,C2E2StaticDataHumanMisc.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CC8B,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CC8C,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CC8D,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CC8E,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CC8F,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048CCE2,C2E2StaticDataMapMoveables.cpp,Windows ASM and original Game.exe; entry 0048CCE2; source body and callers audited,
+0048CCFD,C2E2StaticDataMapMoveables.cpp,Windows ASM and original Game.exe; entry 0048CCFD; source body and callers audited,
+0048D026,C2E2StaticDataMapMoveables.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0048D15C,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 0048D15C; source body and callers audited,
+0048D178,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 0048D178; source body and callers audited,
+0048DB89,C2E2StaticDataTransitions.cpp,Windows ASM and original Game.exe; entry 0048DB89; source body and callers audited,
+0048F73E,C2E2StaticDataHouses.cpp,Windows ASM and original Game.exe; entry 0048F73E; source body and callers audited,
+0049059D,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 0049059D; source body and callers audited,
+0049071F,C2EngineLifetimeAccess.cpp,Windows ASM and original Game.exe; entry 0049071F; source body and callers audited,
+004911D5,C2EngineLandscapeDrawing.cpp,Full enclosing Windows entry 004911D5..00491C0F and Game.exe; all static/background/foreground branches plus repair sound and generic human sound,
+00493472,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 00493472; source body and callers audited,
+004935BA,C2EngineMacroMaps.cpp,Windows ASM and original Game.exe; entry 004935BA; source body and callers audited,
+004951A2,C2EngineMoveableDrawing.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+004951A3,C2EngineMoveableDrawing.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00498F28,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00498F29,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00498F6C,C2EngineTooltipAccess.cpp,Windows ASM and original Game.exe; entry 00498F6C; source body and callers audited,
+004990E4,C2EngineTooltipAccess.cpp,Windows ASM and original Game.exe; entry 004990E4; source body and callers audited,
+004995D8,C2EngineTooltipAccess.cpp,Windows ASM and original Game.exe; entry 004995D8; source body and callers audited,
+00499A5D,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00499A5E,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00499A5F,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00499A60,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00499A61,C2EngineTooltipAccess.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+00499A62,C2EngineTooltipAccess.cpp,Windows ASM and original Game.exe; entry 00499A62; source body and callers audited,
+00499AD5,C2EngineParticleDrawing.cpp,Windows ASM and original Game.exe; entry 00499AD5; source body and callers audited,
+0049B3EB,C2EngineMoveableDrawing.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0049B3EC,C2EngineMoveableDrawing.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0049B3ED,C2EngineMoveableDrawing.cpp,Windows ASM/Game.exe confirm one-byte RET; native atexit xref and owning lazy initializer audited; distinct empty original destructor,
+0049EB44,C2MapResourceManagers.cpp,Windows ASM and original Game.exe; entry 0049EB44; source body and callers audited,
+0049EB55,C2MapResourceManagers.cpp,Windows ASM and original Game.exe; entry 0049EB55; source body and callers audited,
+0049EB75,C2MapResourceManagers.cpp,Windows ASM and original Game.exe; entry 0049EB75; source body and callers audited,
+0049EB91,C2MapResourceManagers.cpp,Windows ASM and original Game.exe; entry 0049EB91; source body and callers audited,
+00410C2D,XRandom.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NXBasics::CRandom::CRandom
+00410C3F,XRandom.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NXBasics::CRandom::SetSeed
+0047D37B,C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw
+0047D64A,C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw
+0047D918,C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw
+00484D77,C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Snow_GetDensity
+00484E80,C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Rain_GetDensity
+00484F85,C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Sand_GetDensity
+0048534A,C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorXPercentage
+0048538F,C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorYPercentage
+00476BE4,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476C43,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476D4B,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476D89,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476DC5,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476E5D,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00476EA4,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00478398,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004783C6,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004783E3,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004783FF,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+0047867A,XGuiWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004789EB,XGuiElementAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+00478A3B,XGuiElementAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00478A4F,XGuiElementAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+004A0BC5,InGameGuiObservationWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A1F8E,InGameGuiHumanListWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A2997,InGameGuiObservationWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A2EE2,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A2EFF,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A2F1C,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A2F38,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A70E8,InGameGuiHouseWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A91E6,InGameGuiBaseAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A91EC,InGameGuiBaseAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A91F2,InGameGuiBaseAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004A98C9,InGameGuiSingleVehicleWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004AB989,InGameGuiSelectionWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004AB9A5,InGameGuiSelectionWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004AB9B7,InGameGuiSelectionWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B1758,InGameGuiHumanListWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B1D91,InGameGuiStatisticsWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B2F88,InGameGuiStatisticsWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B3757,InGameGuiMousePointer.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B3758,InGameGuiMousePointer.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B428B,InGameGuiMessageWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B4A4C,InGameGuiSelectionAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B66E5,InGameGuiSelectionAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B84B4,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B84D1,XGuiLists.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B86AB,InGameGuiMissionOnscreenInfoWindow.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9C5F,GuiClockToolElementAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9C60,GuiClockToolElementAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9C61,GuiClockToolElementAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9C62,GuiClockToolElementAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9D23,InGameGuiSelectionWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004B9D73,InGameGuiSelectionWindowAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+004BAB58,InGameGuiInputAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004BB8FB,InGameGuiMousePointer.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CA427,InGameGuiSelectionAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CAB5F,InGameGuiSelectionAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CBC49,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CBC64,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CBC80,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CBC9D,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CBCB9,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CEF5F,InGameGuiOverviewDisplayAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CEF60,InGameGuiOverviewDisplayAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CF4E6,InGameGuiOverviewDisplayAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CF4E7,InGameGuiOverviewDisplayAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004CF4E8,InGameGuiOverviewDisplayAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D09AA,InGameGuiMessageWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D0AB0,InGameGuiMessageWindowAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D1C37,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D1C5D,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D1C79,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D1CAF,HyperLinkTextSystemLifetime.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+004D1DD0,HyperLinkTextSystemLifetime.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+004D20FA,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D2117,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D2134,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D2151,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D216E,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D218A,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D21A6,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D21C2,HyperLinkTextSystemLifetime.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004D31AF,MainMenuGuiManager_Access.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00453BD4,C2AIBuildingAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+004544FB,C2AIBuildingAccess.cpp,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved,
+0045742D,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00471CF6,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00471E59,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00471F5B,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+0047261F,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+004729FF,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+00472A5A,C2AIBuildingAccess.cpp,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only",
+0042C584,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C5B4,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C5C8,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C66C,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C865,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C86E,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C88B,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C8CF,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C8FD,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042C96C,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042CB74,C2HumanNeeds.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042CEC4,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042CF47,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042CF4E,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D271,C2HumanNeeds.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D31A,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D33C,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D3FF,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D453,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D461,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D469,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D48B,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D6E8,C2HumanEquipment.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0042D709,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0043BD97,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043BE40,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043BE95,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043BED3,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043C646,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043C674,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043C6BE,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043C6FE,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043C73D,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043C77C,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E051,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E12B,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E1FC,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E2C9,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E39A,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0043E436,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+00443134,C2InteractionTargetAccess.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0044314A,C2HumanCommandAccess.cpp,,Mac naming correspondence; Windows atomic/event progression; current source includes event dispatch
+004433D1,C2HumanTaskAccess.cpp,,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence
+00445414,C2HumanCommandAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+004464A9,C2HumanTransportJobs.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0045BFEF,C2HumanMessageAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045C608,C2HumanMessageAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045C667,C2HumanMessageAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045C6B5,C2HumanMessageAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045C714,C2HumanMessageAccess.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045D3E1,C2ObjectMemberConstructors.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0045D622,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0045D6A3,C2HumanGoods.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0045E014,C2HumanGoodieTasks.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045E0DD,C2HumanGoodieTasks.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+0045EB8C,C2ObjectMemberConstructors.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+00460320,C2HumanJobAccess.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+00462CD5,C2HumanWalking.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00463362,C2HumanTaskAccess.cpp,,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence
+00463678,C2HumanNeeds.cpp,,x86-64-mac.h name only; behavior established from Windows ASM and Game.exe PE; see C2HumanNeeds.cpp
+00463AD2,C2HumanNeeds.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+00468678,C2HumanAtomicEvents.cpp,,x86-64-mac.h name only; behavior established from Windows ASM and Game.exe PE; see C2HumanNeeds.cpp
+0046BA2C,C2HumanWeaponEvents.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+0046C39E,C2HumanTaskAccess.cpp,,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence
+0047033C,C2HumanNeeds.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+00470358,C2HumanNeeds.cpp,,Windows ASM/Game.exe establish behavior; semantic name inferred from native access and callers; no corresponding Mac export established
+004736E2,C2AIMovementMessages.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+00473788,C2AIMovementMessages.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+00473833,C2AIMovementMessages.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+004738DD,C2AIMovementMessages.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+00473944,C2AIMovementMessages.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+004757A6,C2HumanSocialJobs.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+004759AB,C2HumanSocialJobs.cpp,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+004237F3,C2GameMapAccess.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042388D,C2GameMapAccess.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00423EEC,C2GameMapAccess.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00423F4C,C2GameMapAccess.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00424AE9,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00426E15,C2MapResourceManagers.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042ABAC,C2MapGeometry.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042ABC5,C2MapGeometry.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042AE54,C2MapGeometry.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042AE68,C2MapGeometry.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042AF72,C2MapGeometry.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0042B41E,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B450,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B489,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B4C7,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B543,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B5D3,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B5ED,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B60C,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B63E,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B6BE,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0042B6DD,,Windows entry/control flow and xrefs individually inspected; AI task/condition record or manager update chain,
+0044DD7F,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044DF73,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044DF9A,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E09A,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E26D,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E2C9,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E433,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E49A,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044E640,,Windows entry/control flow and xrefs individually inspected; single-player AI task/building update or embedded no-way search workspace,
+0044F14C,C2MapPathfinderSectorSearch.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0044FA93,C2MapSectorGridCursor.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450A4D,C2MapSectorRouting.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450C1D,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450D4F,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450E08,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450E8C,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450FBE,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00450FEE,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00451059,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00451183,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004511C5,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004512F7,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004513C1,C2GameMapConnectivity.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00451559,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004521F3,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+00452241,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004523A7,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004523E4,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+0045253D,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004526F0,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004528CF,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004529D7,C2GameMapContinents.cpp,"Windows entry/control flow and xrefs individually inspected; native map callback, geometry, access or search workspace",
+004535F7,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+0045360E,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453648,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+004536DF,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453712,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+004537C9,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453809,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+0045384B,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453878,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+004538B5,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+004538E6,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453A07,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453B68,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453B97,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453C07,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453C3A,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453C90,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453CC3,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453CCB,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453CEB,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453D0C,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453D3C,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453D71,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453DC5,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453DFF,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00453EFB,,"Windows entry/control flow and xrefs individually inspected; high-level AI embedded manager, village/scout or diplomacy chain",
+00454192,C2MapSectorRouting.cpp,Windows entry/control flow and xrefs individually inspected; military danger query needed by map-sector formation search,
+00454218,C2MapSectorRouting.cpp,Windows entry/control flow and xrefs individually inspected; military danger query needed by map-sector formation search,
+00454367,C2MapSectorRouting.cpp,Windows entry/control flow and xrefs individually inspected; military danger query needed by map-sector formation search,
+00471418,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+0047149A,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+0047154E,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+004715C4,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+004715FE,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+0047161D,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+00471938,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+00471988,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+004719AC,,Windows entry/control flow and xrefs individually inspected; AI village/house manager chain or its bounded candidate list helper,
+0042A520,,Select unchecked player handler; absent returns false; forward index and record to 459290,CAIManager::EntryPoint_Condition_Set
+0042A564,,Select unchecked player handler; absent false; store DWORD +AD38 then true,CAIManager::EntryPoint_SetUnitLimit
+0042A582,,Select unchecked player handler; absent false; store DWORD +AD3C then true,CAIManager::EntryPoint_SetMaxUnitLimit
+0042B5ED,,Operation 3 needs one reference; operation 4 needs two; other operations return true,SAIConditionToConditionCheck::Tool_CheckNumberOfConditions
+0042B60C,,"Clear 0x48; type+C, flag+10, DWORD +4/+8=-1, initialization tick+14",SAICondition::Init
+0042B63E,,Compare raw bytes; unchanged or active with +10 flag returns false; otherwise update byte and activation/deactivation tick,SAICondition::SetCondition
+00458DC4,,100000 true; 100001 or >=100 false; absent type false; otherwise raw active BYTE,C2AISinglePlayerHandler::Condition_IsActive
+00458DF6,,Up to ten passes; slots 0 through live highest index inclusive; type frequency via whole Game.exe table 500F44..500F7B; tick0 bypasses division; repeat only while changes occur,C2AISinglePlayerHandler::Condition_RecheckAll
+00458E5F,,"All twelve Game.exe targets at 459260; preserve predicates, iterators, strict distances, unsigned tick wrap, branch returns and SetCondition call",C2AISinglePlayerHandler::l_Condition_CheckForConditionChange
+00459290,,"Index<100, reference/count/player validation, occupied slot reject; invalid parameters Init type13; valid forward eighteen-DWORD copy; raise highest index; success true",C2AISinglePlayerHandler::Condition_Set
+0047B633,,Native JMP 47B868; application startup failure and shutdown call this entry,
+0047B868,,Capture display pointer; if nonzero call display destructor then 4E5E48 then clear pointer,
+0047B9B4,,Fullscreen byte +34 nonzero returns zero; otherwise return DWORD +38,
+0047B9C1,,Fullscreen byte +34 nonzero returns zero; otherwise return DWORD +3C,
+0047C309,,"Allocate 0x408 via 4E85FC, then WORD stores 0x300 at +0 and 0x100 at +2; no allocation-null guard",
+0042F2AC,,Native RET-only atexit callback; first initialization of six birth points at 42F039 registers via 4E6040,
+0042F6A2,,Clear BYTE +94 only; 4312DD invokes this animal exit,NC2Logic::CAnimal::HouseMisc_Exit
+00440CAD,,Game.exe 8B C1 33 C9 66 89 48 0A 66 89 48 08; zero point WORDs high then low and six sector DWORDs; leave +0/+4/+C/+28; return this; constructor 4402A3 adds ID -1,
+00441A63,,"If atomic +AB8 !=1: 45CCA7 reset, 44320E interrupt, set +A61/+A60, 463362 task update, moveable +20=2; always clear +B50; house callers 4312F3 and 4313E6",NC2Logic::CHuman::HouseMisc_Exit
+00405EB8,,Close via distinct ordinary destructor 405EDA; flags&1 frees through 4E5E48; return captured this,NXBasics::CFile::~CFile
+00440240,,"Clear stack 0x434; GetFirstMatchingFile, count while success and GetNextMatchingFile, Stop, return DWORD-wrapped count",NXBasics::CDirectoryScanner::GetNumberOfMatchingFiles
+004E7BEF,,"Compiler pure virtual function slot calls Runtime_FatalExit at 4E71A6 with code 0x19; preserve configured fatal callback, not direct ExitProcess",
+004EC65C,,cdecl four args; ExceptionFlags+4 &6 absent return1; otherwise dispatcher context receives establisher frame and return3; arg3 unused,
+004396AD,,"Three zero fills: eight bytes at +4, four at +C, eight at +10; called before font stream reads",NXBasics::CFont::l_InitObject
+00439855,,Compare x then y DWORDs; return 1 or 0,"NXBasics::operator==(SPoint,SPoint)"
+00439872,,Signed near-edge clamps precede inclusive wrapped right and bottom clamps,NXBasics::SPoint::PlaceInside
+004398AF,,Signed inclusive x/y bounds; far edges use DWORD addition minus one,NXBasics::SPoint::IsInside
+00439E51,,Count zero returns null; otherwise return data at last node +4,NXBasics::CListBase::l_Base_GetEndElement
+0041037F,,Existing four-DWORD equality body agrees with native comparisons; newly recognized operator signature,"NXBasics::operator==(SRectangle,SRectangle)"
+004F288C,,Existing unsigned index increment and scan of forty 0x3C-byte records; active/source/target filters; newly recognized operator signature,NC2Logic::CTributeIterator::operator++
+0044057D,,Clear 0xD0 bytes then set enabled byte +0 to 1,NC2Logic::SGameAssistantSingleHumanData::System_Init
+00440595,,Validate first; first free slot or strictly earliest unsigned wrapped expiry; preserve -1 sentinel; store command/parameters/tick/duration*0x2D0; set history flag,NC2Logic::SGameAssistantSingleHumanData::CommandHistory_Add
+0044061A,,Validate before flag check; scan ten nonzero command types,NC2Logic::SGameAssistantSingleHumanData::CommandHistory_IsInArray
+0044064C,,Validate before flag check; command then two parameter comparisons across ten slots,NC2Logic::SGameAssistantSingleHumanData::CommandHistory_IsInArray
+004EA3B4,,Separate normal cleanup calls unlock 9; unwind entry 4EA3AC restores parent ESI/EBX before this tail,
+004EA502,,Separate normal cleanup calls unlock 9 and zeroes EDI comparison register; enclosing C++ uses literal zero; unwind entry 4EA4FC restores ESI/EBX,
+004EA5C2,,Separate unlock 9 tail; parent allocation size persists in C++ local; unwind entry 4EA5BF restores ESI,
+004EA63D,,Separate unlock 9 tail; parent allocation size persists in C++ local; unwind entry 4EA63A restores ESI,
+004EF03E,,Forward text/end pointer/base to ParseInteger32 with unsigned flag 1,_strtoul
+004EF445,,Separate unlock 9 tail; unwind entry 4EF440 restores ESI/EBX; C++ compares allocation against null,
+004EF4CE,,Separate unlock 9 tail; unwind entry 4EF4C9 restores ESI/EBX; C++ compares allocation against null,
+004E8320,,Native low-64-bit product; high/low DWORD cross-products; callee pops 16 bytes,
+004EEC30,,Unsigned division: low-divisor fast branch or right normalization; quotient estimate and carry/comparison correction; callee pops 16 bytes,
+004EECA0,,Unsigned remainder: normalized quotient estimate; product correction and DWORD borrow subtraction; callee pops 16 bytes,
+004F18E0,,Initial terminator scan then backward low-byte search including NUL; original pointer or null,_strrchr
+004F1930,,Pure DWORD/WORD inspection: positive infinity 1; negative infinity 2; quiet NaN 3; signaling NaN 4; other values 0,
+004F07CC,,Copy three DWORDs in forward order; retain sequential overlap semantics,
+004F07E7,,Three ordered DWORD zero stores,
+004F07F3,,"Return 0 at first nonzero DWORD, otherwise 1",
+004F0C9A,,Forward character and masks 0/4 to byte classifier,
+004F0CAB,,Truncate character/multibyte mask to bytes; check multibyte table first; optional mask of fixed WORD table; return 1/0,
+004F1FB9,,"Signed error type 1 sets runtime errno 0x21, types 2/3 set 0x22, all others leave it unchanged",
+004F1FE1,,"Native xor EAX,EAX and RET; ignore exception record and return 0",
+004F209B,,Existing low/middle/high DWORD carry sequence agrees with 4F207A calls; now has missing original-address marker,
+00479E17,,Call 4E5E48 on stored value; no payload destructor; native RET 4,
+004EB7C8,,"Read input high DWORD; return exponent bits 7FF00000 unless all set, then return original high DWORD; no x87 instructions",
+004ED0B7,,"ParseExtended12 then status-aware binary64 conversion; flags 200 invalid, 80 overflow, 100 underflow; flags/value/consumed writes, return destination",
+004259D6,,Distinct INI definition-list destructor; flag+10 invokes 439E24 then base 439C3F,NXBasics::CList<NXBasics::SIniFileReaderDefine>::~CList
+00425A19,,"INI scalar deleting entry: distinct destructor 4259D6, flags&1 Runtime_Free, return captured this",
+0042F82F,,Call ordinary destructor 42F8F4 then flags&1 Runtime_Free; return captured this,NXBasics::CMemory::~CMemory
+00439674,,Call ordinary destructor 439690 then flags&1 Runtime_Free; return captured this,NXBasics::CFont::~CFont
+004398E9,,Call ordinary destructor 439905 then flags&1 Runtime_Free; return captured this,NXBasics::CBobManager::~CBobManager
+00479E24,,Key list scalar deleting entry: destructor 479DFA then flags&1 Runtime_Free; return captured this,
+004E1D1D,,Property list scalar deleting entry: destructor 4E1D00 then flags&1 Runtime_Free; return captured this,
+004E5FB7,,Forward to the native long decimal conversion; retain separate int wrapper,_atoi
+004E7081,,UTF-16 terminator scan; wrapping pointer difference and arithmetic-shift result,_wcslen
+004E7CBC,,Multibyte classifier or native WORD flags masked with 0x103; return mask before normalization,
+004E7CEA,,Multibyte classifier or native low flags byte masked with 4,
+004E857D,,Free mode-3 finally callback; release CRT lock 9,
+004E85D5,,Free mode-2 finally callback; release CRT lock 9,
+004E86A1,,Allocate mode-3 finally callback; release CRT lock 9,
+004E8700,,Allocate mode-2 normal cleanup entry; release CRT lock 9; unwind enters at 004E86FD,
+004E8D80,,Forward mode 1 to the flush dispatcher; return successful flush count,
+004E8FF2,,Separate signed int wrapper; decimal negatives request minus prefix,
+004E901F,,Optional minus; unsigned wrapping NEG; radix division; lowercase digits; terminate and reverse,
+004E90A5,,Unsigned wrapper calls digit conversion with minus flag zero,
+004EA1FD,,Acquire CRT lock 13; on-exit registration and process-exit callers,
+004EA206,,Release CRT lock 13; failure/returning cleanup callers,
+0040272B,,Native RET-only cleanup registered for the progress-bar static color; hosted onexit result ignored,
+00403487,,Native RET 0x10; allocation 0x168 via 4E5DDD; constructor 401000; global reloads in loop; destructor 4015FB then Runtime_Free; release mutex and return 0,
+004E2656,,Return white-font-palette pointer plus 0x194,NC2GuiToolsBase::DrawTool_GetDarkFontColorRef
+004E2B45,,"Format into 1000-byte local buffer, force byte 999 to zero, call wrapping renderer; preserve EAX height used at 4D0CF8",NC2GuiToolsBase::DrawTool_PrintStringWrappingV
+004E5C20,,Source-alignment byte prefix; shared native copy tail; return original destination,_strcpy
+004E5C30,,Destination terminator scan before the shared copy tail; return original destination,_strcat
+004E5D10,,Byte prefix to DWORD alignment; native zero-byte detector and byte-position selection,_strlen
+004E5E70,,Search the low byte; compare requested byte before the NUL test; aligned word scanning,_strchr
+004E6170,,Windows overlap direction branch; destination alignment; DWORD and byte tails; destination return,_memcpy
+004E66A0,,Bounded byte/DWORD copy with zero padding after NUL; no access for zero bound,_strncpy
+004E71F0,,Separate Windows direction/alignment/copy entry; preserve overlapping range contents,_memmove
+004E7A70,,Pre-scan first string through NUL or bound; unsigned comparison sign -1/0/+1,_strncmp
+004E7BF8,,Signed test and wrapping 32-bit NEG including INT32_MIN,
+004E7C10,,"Unsigned lexicographic byte comparison; native result is -1/0/+1, not subtraction",_memcmp
+004E8010,,Empty pattern returns original input; one-byte pattern enters strchr; longer-pattern search,_strstr
+004E8960,,Unsigned byte comparison; first-source alignment then DWORDs; native sign result,_strcmp
+004E8A12,,Native 16-bit destination NUL scan then source copy including terminator,
+004E8A3C,,Native 16-bit source copy including terminator; original destination return,_wcscpy
+004E8A70,,Zero bound leaves destination untouched; bounded append guarantees terminator without padding,
+004E90C0,,Bound counts 16-bit units; copy then zero padding; zero bound performs no access,_wcsncpy
+0042A53F,,"Unchecked handler lookup, NULL false, call 44DF9A, success when returned slot is not FFFFFFFF",NC2Logic::CAIManager::EntryPoint_MainTask_Add
+0042A5BF,,"Unchecked handler lookup, NULL false, forward packed point and radius to 45AFE1",NC2Logic::CAIManager::EntryPoint_SingleSoldier_SetDefaultPosition
+0044DF73,,Scan 50 type DWORDs at 1C38+44*i; update highest slot 1C2C before later validation; exhausted FFFFFFFF,NC2Logic::C2AISinglePlayerHandler::l_MainTask_GetFreeArraySlot
+0044DF9A,,"Allocate slot first; types 1/2/3/5 reject primary border point, type 2 also secondary; forward-copy 17 DWORDs into 1C30+44*i; mark handler byte+6",NC2Logic::C2AISinglePlayerHandler::MainTask_Add
+0045AFE1,,"Reject border point or continent type zero; write active byte A32C, packed DWORD A32E, radius A334 in native order",NC2Logic::C2AISinglePlayerHandler::EntryPoint_SingleSoldier_SetDefaultPosition
+004EB923,,"Distinct callable wrapper: ControlFloatingPoint(10000,30000), return helper EAX; original 4E6EFC startup caller connected",

@@ -1,9 +1,0 @@
-# Windows text elements and text buttons — 2026-10-14
-
-Baseline `4a3ee7f`. The owning text widget and its caption, background-color and tooltip setters now describe their proven fields. Physical storage records document the 256-byte fixed-text element and 96-byte button without changing the runtime constructors. The inherited byte at 2C remains unresolved. The font height access at 8 is not renamed without reviewing its owning font record.
-
-Windows `004B8B51..004B93AC` establishes fixed caption initialization, four button constructors, destruction, rendering, messages, actions and tooltips. The shared immediate-tooltip getter is `004A5AC6..004A5AC9`; the white-palette color getter is `004E264B..004E2655`. The fixed caption starts at 30, copies 199 characters and writes its terminating byte at F7. The former comment describing cached wrapping state was incorrect and is corrected. Mac declarations corroborate class/method names only.
-
-Preserved: constructor and color-object call order, exact cleared ranges, string duplication/free family, borrowed receiver ownership, CR/LF line counting, temporary separator mutation/restoration, wrapping and centering arithmetic, disabled/selected rendering, message outputs and click-confirm order. No new guards or fallback behavior are introduced. The native constructor clear ends at FE; the aligned tail is documented as padding. Existing Windows equipment-window calls allocate 100 hex bytes for fixed text and 60 hex bytes for buttons.
-
-Frozen stages retain identical normalized operations, literal values and types. All 36 value/type pairs and 29 physical relationships pass. The audit byte-verifies 774 instructions and records 81 references in `GUI_TEXT_RECORDS_FIELDS.csv`. Both production units and the private assertion unit pass Win32 `/Zs`. No build, tests or game execution occurred.

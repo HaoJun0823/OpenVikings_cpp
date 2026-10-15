@@ -1,6 +1,0 @@
-Address,CurrentName,MacSymbol,MacHeaderLine,Status,WindowsEvidence
-004E8320,NXBasics::Runtime_MultiplyUInt64,,,Implemented,Native low-64-bit product; high/low DWORD cross-products; callee pops 16 bytes
-004EEC30,NXBasics::Runtime_DivideUInt64,,,Implemented,Unsigned division: low-divisor fast branch or right normalization; quotient estimate and carry/comparison correction; callee pops 16 bytes
-004EECA0,NXBasics::Runtime_RemainderUInt64,,,Implemented,Unsigned remainder: normalized quotient estimate; product correction and DWORD borrow subtraction; callee pops 16 bytes
-004F18E0,NXBasics::Runtime_FindLastCharacter,_strrchr,16014,Implemented,Initial terminator scan then backward low-byte search including NUL; original pointer or null
-004F1930,NXBasics::Runtime_ClassifySpecialDouble,,,Implemented,Pure DWORD/WORD inspection: positive infinity 1; negative infinity 2; quiet NaN 3; signaling NaN 4; other values 0

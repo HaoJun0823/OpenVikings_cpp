@@ -1,5 +1,0 @@
-Address,CurrentName,MacSymbol,MacHeaderLine,Status,WindowsEvidence
-0040272B,NMasterControlProgram::ProgressBarBackgroundColor_Destruct,,,Explicit existing callback,Native RET-only cleanup registered for the progress-bar static color; hosted onexit result ignored
-00403487,WindowsApplicationEntry,,,Corrected and explicit existing entry,Native RET 0x10; allocation 0x168 via 4E5DDD; constructor 401000; global reloads in loop; destructor 4015FB then Runtime_Free; release mutex and return 0
-004E2656,NC2GuiToolsBase::DrawTool_GetDarkFontColorRef,NC2GuiToolsBase::DrawTool_GetDarkFontColorRef,4131,Implemented,Return white-font-palette pointer plus 0x194
-004E2B45,NC2GuiToolsBase::DrawTool_PrintStringWrappingV,NC2GuiToolsBase::DrawTool_PrintStringWrappingV,4135,Implemented,"Format into 1000-byte local buffer, force byte 999 to zero, call wrapping renderer; preserve EAX height used at 4D0CF8"

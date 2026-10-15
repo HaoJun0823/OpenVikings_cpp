@@ -1,8 +1,0 @@
-WindowsAddress,InspectedDllAddress,Bytes,Block,Evidence,NormalizedFNV64
-004F1A4B,100ABD70,23,round,Same FP operations/order; compiler prologue and private stack slots differ,0453BFDA7A5EE609
-004F2024,100A9040,91,raise,Same FP operations/order; compiler prologue and private stack slots differ,7B7E6B993AEA8C4A
-004EB501,100A6AB0,52,parity,Identical after constant relocation,4A8F49B0FAF77C1C
-004EB76C,100A55EC,25,nan,Identical after constant relocation,C9FF2C2E19B8F1DB
-004EB785,100A5605,67,pointer loader,Identical after constant relocation,60D884D753C9CED5
-004ED41E,100A62F4,60,argument loader,Identical after constant relocation,2642E1EFCB473E66
-004ED1AC,100A6050,9,half pi,Identical after constant relocation,281BA1C2F47CE355

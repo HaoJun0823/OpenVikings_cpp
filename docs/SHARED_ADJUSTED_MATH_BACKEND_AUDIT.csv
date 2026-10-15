@@ -1,9 +1,0 @@
-WindowsAddress,InspectedDllAddress,Bytes,Block,Evidence
-004EF6E0,1009D9F0,279,divide kernel,Identical after absolute data/call relocation
-004EFC96,1009DFA6,19,forward wrapper,Identical after absolute data/call relocation
-004EFCA9,1009DFB9,19,reverse wrapper,Identical after absolute data/call relocation
-004EFED1,1009E1E1,21,preserved reverse wrapper,Identical after absolute data/call relocation
-004EFEE6,1009E1F6,518,remainder kernel,Identical after absolute data/call relocation
-004F00EC,1009E3FC,178,remainder wrapper,Identical after absolute data/call relocation
-004F019E,1009E4AE,518,nearest kernel,Identical after absolute data/call relocation
-004F03A4,1009E6B4,181,nearest wrapper,Identical after absolute data/call relocation

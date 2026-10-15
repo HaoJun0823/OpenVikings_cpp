@@ -1,39 +1,29 @@
-# Gameplay and rendering bug review — 2026-10-15
+# Gameplay and rendering issues
 
-**User confirmation, 2026-10-15:** The pottery building now emits smoke correctly. The reported missing-smoke observation is closed. This confirmation does not establish pottery fire or the other pending runtime observations. No additional gameplay change was made for this confirmation.
+Reviewed October 16, 2026. Windows evidence establishes the source corrections below; runtime status is recorded separately. No game was run for this documentation cleanup.
 
-Review baseline: `1144166`. Behavior evidence is the Windows assembly export and the original Windows `Game.exe`. The Mac reference was searched only for sound-helper names. No gameplay execution was performed by the assistant; subsequent user play-test confirmation is recorded below.
+| Report | Source finding/correction | Runtime status |
+| --- | --- | --- |
+| Ground items disappear late | `0047EB38..0047EB4D`: static landscape event 0x32 invalidates dirty bounds when parameter 3 is nonzero; inverted C++ condition corrected | Retest pickup/removal timing |
+| Landed arrows slide away | `00486E03..00486E15`: clear particle movement mode +0x90 and pending ticks +0x110, rather than corrupting +0x48/+0x118; retain resting-image lifetime | Retest after landing; an initial-flight deviation is not established |
+| Keyboard A/S feedback sounds wrong | `004BD3B4`/`004BC4E8` call confirmation sound, not chat; C++ now uses `click_confirm.wav` helper | Retest sound; silence would also differ from Windows |
+| Miners cannot receive resource assignments | `00435D50` reads production allowance +0x195, distinct from equipment +0x1E0; duplicate-name regression corrected in `36eb5b0` | **Closed by user retest, October 15** |
+| Pottery smoke/fire missing | `0047EE42..0047EE6F` uses full house graphics record for overlays +0x490/+0x494; biased-base correction in `1144166` | **Smoke confirmed October 15**; fire still needs confirmation |
+| School chooser default good wrong | `004C8D07..004C8E51` uses tribe job-enables `defaultGood` +0x330, not human +0x330; corrected | Source correction; not proof of the separate school-experience observation |
+| Scout hat absent after job change | Job/armor callbacks `00480576`/`00480676` connected, including body/head/palette ordering | Runtime confirmation still needed |
+| “Trostloses Erwachen” stalls through breeder goods search | `0046CB2C` uses fetch dispatchers `004753CB`/`00475A3A`, not direct pickup/cargo leaves; three calls corrected | Reported pause stack identified the branch; sustained retest still needed |
 
-## Changes in this block
+The marriage bubble follows Windows task/queued-command predicate `004369E1`. Completion `00445469` establishes spouse links, then animation 20 retains task 5 until `00445628..0044562F`. It can outlast the spouse link; the reported two seconds were not independently timed. No spouse-based early hide was added.
 
-| Report | Confirmed Windows difference | Correction | History |
-| --- | --- | --- | --- |
-| Picked-up ground items remain visible | `E2Manager_sl_Callback_MapEdited`, 0047EB38..0047EB4D: event 0x32 enters the dirty-bounds branch when parameter 3 is **nonzero**. C++ had the opposite condition. | Invalidate the cached static image when a static landscape changes or is removed. Dynamic-landscape changes do not require this static-cache invalidation. | Wrong condition already present in `885cc57`, before the recent naming passes. |
-| Arrows slide away after their flight | `E2ParticelManager_DoOneGameTick`, 00486E03..00486E15: EBP points to particle +0x90. `[ebp]` is movement mode; `[ebp+0x80]` is pending movement ticks. C++ instead cleared particle +0x48 and +0x118. | Stop the landed arrow and clear deferred movement before reactivating its resting image for 120/119 lifetime ticks. Preserve its pixel-Y double and valency mode, as Windows does. | Both wrong fields already present in `0ff4e71`. They were not introduced by replacing numeric offsets with names. |
-| A/S and other shortcuts play a “blob” | The common keyboard success exit at 004BD3B4 calls 004E2B8D (`click_confirm.wav`), as does the hidden-command match at 004BC4E8. C++ called the chat sound. | Both paths now call the existing confirmation-sound helper. Actual network chat still uses the chat sound. | Wrong chat-sound calls already present in `50d4819`. Windows has confirmation feedback on these paths; making them silent would change its behavior. |
+Particle drawing/expired-arrow placement deliberately use a checked map accessor after movement. Windows uses an unchecked accessor there. This is an explicit safety extension, not a proved original bounds check or proof of the earlier crash's sole cause. The user could not reproduce that crash again.
 
-The arrow correction addresses the verified post-flight reactivation defect, which explains a projectile image continuing to move after landing. A distinct deviation during the initial flight has not been established. The existing start/target, duration-vector and parabolic movement paths were inspected against Windows 0048664C, 0049786C and 00497A29; no speculative trajectory adjustment was made.
+## Exploration radius
 
-## Previously corrected and rechecked
+[Human_SetupCurrentJobType](../C2HumanJobAccess.cpp) writes `ExplorationRadius` (+0xB7C); [walking](../C2HumanWalking.cpp) passes it to map exploration. Windows `0044AC97..0044ACD3` selects values at `004F3B8C/90/94/98`: scout **20**, hero **20**, other adult **10**, child **5**. These are map-point radii, not screen pixels or attack ranges. The current working tree has a user edit setting scouts to **500**; this is distinct from native/HEAD behavior and remains untouched.
 
-**Resource right-click assignment:** `36eb5b0` restores production allowances at human +0x195 in `C2DefaultInteraction.cpp`. Windows 00435D50 reads this BYTE array, not equipment allowances at +0x1E0. The earlier duplicate `AllowedEquipmentFlagsSigned` introduced during the readability work could cause a resource-selection regression after its +0x195 duplicate was commented out in `4fa0790`. Current code uses `AllowedProductionGoodFlagsSigned` (+0x195). The current single-human landscape branch prepares a work-center command for the selected production good, or a change-produced-good command followed by a work-center command when switching resources. The world element queues the prepared primary and secondary commands in that order. The user subsequently identified the tested source state as one commit before `1144166`, whose parent is **`36eb5b0`**. Therefore the allowance correction alone does **not** establish resolution of the reported assignment failure; the exact executable contents have not been independently verified.
+## Original/data observations
 
-**Pottery smoke and fire:** `1144166` fixes the smoke callback's graphics-record base. Windows 0047EE42..0047EE6F reads overlays at +0x490/+0x494 from the full house record; the old C++ used a logic view already shifted by +0x3C. This was a pre-existing translation error discovered during naming/layout review. The current production path starts overlays 3 and 4 (00475F5B..00475FB5); `House_ActionOverlay_Start` activates the counters and sends callback 0x1C (00434148). The smoke callback now uses the full record. The animated house-overlay renderer also uses the full record, checks the required active state and selects a tick-based frame, matching 00495DB2..00495E37. No additional proven deviation was found in these inspected branches. The exact in-game pottery result, including fire artwork, still needs a live check; the smoke correction alone does not prove that both reported effects are resolved.
-
-The reported preceding source state did not yet contain the house-particle base correction. A subsequent static follow-up also inspected resource sprite-hit selection (00484061, landscape branch 0048418B..00484293), the work-marker eligibility predicate (00436AAD) and execution of command 17 (0043D297). No further confirmed mismatch was found in these inspected branches. No additional gameplay code was changed on the basis of this follow-up. **The user then retested the current version on 2026-10-15 and confirmed that resource assignment for miners works. The reported assignment issue is closed on that user play-test evidence; the pending hover-action question is superseded.** This does not independently identify which earlier executable contained the failure.
-
-## Marriage thought bubble
-
-Windows 004369E1 returns true for marriage task 5, or queued commands 13/14. The rendering branch at 00494225..0049423B uses this predicate without checking the spouse link. Completion 00445469 establishes the spouse links, then starts animation 20 at 00445554..0044555D while retaining task 5. The later completion branch resets the task at 00445628..0044562F. Thus a bubble can outlast the establishment of the marriage until the final animation completes. Current C++ preserves these rules. No arbitrary delay removal or new spouse-based rendering condition was added. The exact observed two-second interval was not measured.
-
-## Human visibility radius
-
-`Human_SetupCurrentJobType` in `C2HumanJobAccess.cpp` assigns `HumanOffset::ExplorationRadius` (+0xB7C): scout 20, hero 20, other adult 10, child 5. Windows 0044AC97..0044ACD3 selects the DWORDs at 004F3B8C/90/94/98, whose values in `Game.exe` are 10/5/20/20. `Human_AI_DoNewMapPositionReached` passes this field to `GameMap_Exploration_DoExplore` in `C2HumanWalking.cpp`. These are map-point exploration radii, not screen pixels or weapon attack ranges. No radius was changed.
-
-## Validation and remaining work
-
-- Incremental Win32 MSVC `/Zs` passes for the three changed C++ units and the current default-interaction/house-particle callback units. One existing DirectPlay `INTERFACE` macro-redefinition warning; no errors.
-- Private read-only evidence extraction verifies 2,051 selected Windows disassembly rows against the original PE bytes, along with visibility constants and the confirmation WAV path. This establishes evidence provenance, not exhaustive behavioral equivalence.
-- `git diff --check` passes. No build, added tests, test project or game run.
-- Resource assignment is confirmed working by the user's current-version play test. Live checks remain for ground-item removal, landed arrows, keyboard feedback and pottery smoke/fire using a build containing the corrections. If arrows still deviate before landing, inspect that separate case; if pottery effects still fail on the corrected baseline, continue from the overlay paths above.
-- Scratch evidence, syntax logs and the read-only analysis script remain in ignored `.codex-work/`.
+- “Die Rebellion” hostile music is confirmed by the user to match the original. Preserve original player/map data; see [missions](MISSIONS.md).
+- Green road pixels came from a manipulated PCX; the original texture has no such pixels. No renderer fix is justified by that report.
+- Fullscreen green/magenta corruption after Alt-Tab was also reported in the original. Cause and restoration fixes remain [future work](OPEN_TASKS.md), not a verified reconstruction correction.
+- School working-experience side effects remain a [separate original observation](SCHOOL_EXPERIENCE_OBSERVATION.md), with unverified animation schedule and exact unlock examples.

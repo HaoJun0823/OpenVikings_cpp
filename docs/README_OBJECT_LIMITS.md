@@ -1,6 +1,6 @@
 # OpenVikings: Object Limits and Capacity Management
 
-Review date: October 14, 2026.
+Reviewed October 16, 2026; capacities rechecked in current declarations/constructors.
 
 This document summarizes the default object capacities identified in the current OpenVikings C++ implementation and the original Windows version of **Cultures: 8th Wonder of the World**. The limits apply to the entire map and are shared by all players; they are not separate allowances for each player.
 

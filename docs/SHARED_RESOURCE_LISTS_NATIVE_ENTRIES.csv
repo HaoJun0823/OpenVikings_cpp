@@ -1,8 +1,0 @@
-Address,CurrentName,MacName,WindowsEvidence
-004259D6,NXBasics::CList<SIniFileReaderDefine>::~CList,NXBasics::CList<NXBasics::SIniFileReaderDefine>::~CList,Distinct INI definition-list destructor; flag+10 invokes 439E24 then base 439C3F
-00425A19,NXBasics::CList<SIniFileReaderDefine>::Delete,,"INI scalar deleting entry: distinct destructor 4259D6, flags&1 Runtime_Free, return captured this"
-0042F82F,NXBasics::CMemory::Delete,NXBasics::CMemory::~CMemory,Call ordinary destructor 42F8F4 then flags&1 Runtime_Free; return captured this
-00439674,NXBasics::CFont::Delete,NXBasics::CFont::~CFont,Call ordinary destructor 439690 then flags&1 Runtime_Free; return captured this
-004398E9,NXBasics::CBobManager::Delete,NXBasics::CBobManager::~CBobManager,Call ordinary destructor 439905 then flags&1 Runtime_Free; return captured this
-00479E24,NXSysKeyManager::CKeyEntryList::Delete,,Key list scalar deleting entry: destructor 479DFA then flags&1 Runtime_Free; return captured this
-004E1D1D,NXMasterPropertyManager::CPropertyManager::SObjectVars::Delete,,Property list scalar deleting entry: destructor 4E1D00 then flags&1 Runtime_Free; return captured this

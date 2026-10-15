@@ -1,6 +1,6 @@
 # School experience observation - 2026-10-11
 
-README finding: OA163. The user reports that school attendance also gains experience in the pupil's current job, independently of the selected learning target: a miller can unlock baker while studying another job, and a collector can unlock several collector-related professions such as smith and carpenter.
+[Original-behavior finding: OA163](RECONSTRUCTION_NOTES.md#oa163). The user reports that school attendance also gains experience in the pupil's current job, independently of the selected learning target: a miller can unlock baker while studying another job, and a collector can unlock several collector-related professions such as smith and carpenter.
 
 ## Confirmed Windows behavior
 
@@ -11,7 +11,7 @@ README finding: OA163. The user reports that school attendance also gains experi
 - Choosing a learning job through `0043DE68` updates the student slot and resets `+0x158`; it does not immediately change the current job at `+0x18`.
 - `0042D798` sums the experience categories specified by the tribe's job requirement and compares that sum against its threshold. Shared categories can therefore satisfy multiple job requirements, subject to the game's capability/allowance checks.
 
-The cited instruction bytes and event-table targets were checked against the local original Windows `Game.exe`, not just the assembly export. The current C++ paths preserve these operations in `C2HumanAtomicEvents.cpp`, `C2HumanJobAccess.cpp`, `C2HumanProduction.cpp` and `C2HumanWorkCommands.cpp`. Earlier reconstruction notes already mention events 28/29 in [HUMAN_FREEZE_RECOVERY.md](HUMAN_FREEZE_RECOVERY.md), but did not classify the school side effect separately. Git history identifies `49d8515` as the latest relevant human-routine checkpoint.
+The cited instruction bytes and event-table targets were checked against the local original Windows `Game.exe`, not just the assembly export. The current C++ paths preserve these operations in `C2HumanAtomicEvents.cpp`, `C2HumanJobAccess.cpp`, `C2HumanProduction.cpp` and `C2HumanWorkCommands.cpp`.
 
 The Mac header supplies the matching names `CHuman::l_JobExperience_Gain`, `CHuman::l_JobTraining_Train`, `CHuman::l_JobTraining_Exercise` and `Tool_Human_GetExperienceType_GainedViaWorking`; it was used for naming only.
 
@@ -23,4 +23,4 @@ The Mac header supplies the matching names `CHuman::l_JobExperience_Gain`, `CHum
 
 The animation definitions are loaded from `data\logic\atomicanimations\atomicanimations.ini`; their original contents were not found in the inspected workspaces. The smallest follow-up is the animation-89 definition and the relevant job-experience/tribe prerequisite records, or a focused original-game reproduction. Do not claim that every collector-related job unlocks immediately or regardless of thresholds and player allowances.
 
-Status: **Preserved / original observation; school trigger and exact unlock examples reported by the user, not independently reproduced. Renewed: open.** Keep the confirmed Windows behavior during faithful reconstruction. After 100%, verify the original data/trigger and decide whether school should grant working experience; any correction belongs to the subsequent Renewed phase.
+Status: **Preserved / original observation; school trigger and exact unlock examples reported by the user, not independently reproduced. Renewed: open.** Keep the confirmed Windows behavior during faithful reconstruction. Before a Renewed change, verify the original data/trigger and decide whether school should grant working experience; any correction belongs to the subsequent Renewed phase.

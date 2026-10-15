@@ -1,44 +1,35 @@
-# Further investigation of the twelve unresolved sites — 2026-10-15
+# Twelve unresolved numeric access sites
 
-Baseline `32fb2be`. **The twelve member identities remain unresolved.** The extended analysis below does not justify assigning gameplay names, treating GUI bytes as proven padding, or claiming that the opaque animal/AI fields are dead. It strengthens the receiver/use inventory and identifies the missing information needed for original member identification.
+Reviewed October 16, 2026. [The source inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) contains 122 numeric operands: **12 unresolved sites and 110 established indexing/selector/relative/I/O/dereference operations**. The unresolved identities below have not been recovered.
 
-## GUI: the complete virtual interfaces were included
+## Eight GUI initialization sites
 
-The original Windows executable supplies these tables:
+| Classes | Byte | Windows initialization | Vtable / slots |
+| --- | --- | --- | --- |
+| Base tool text element/button | +0x2C | `004B8B65`, `004B8DB7`, `004B8E43`, `004B8EC3`, `004B8F33` | `004F6DA0`, `004F6DE8`; 18 each |
+| Wall/road selection windows | +0x70 | `004BDACF`, `004BDCD6` | `004F70CC`, `004F7118`; 19 each |
+| House-type / multiple-vehicle windows | +0x70 | `004BEA1E`, `004BEB18` | `004F71FC`, `004F7290`; 19 each |
+| Single-animal / multiple-human windows | +0x70 | `004BEFAE`, `004BF0D3` | `004F72DC`, `004F7328`; 19 each |
 
-| Class | Windows vtable | Slots | Unclassified byte |
-| --- | --- | ---: | --- |
-| Base tool text element | `004F6DA0` | 18 | +`0x2C` |
-| Base tool text button | `004F6DE8` | 18 | +`0x2C` |
-| Wall-build selection window | `004F70CC` | 19 | +`0x70` |
-| Road-build selection window | `004F7118` | 19 | +`0x70` |
-| House-type selection window | `004F71FC` | 19 | +`0x70` |
-| Multiple-vehicle selection window | `004F7290` | 19 | +`0x70` |
-| Single-animal selection window | `004F72DC` | 19 | +`0x70` |
-| Multiple-human selection window | `004F7328` | 19 | +`0x70` |
+Each initialization passes one byte for zero fill at `004E5DF0`. The eight C++ sites represent eleven native sequences. All 150 virtual slots (41 distinct targets), selected direct callees and 215 receiver contexts were investigated. No field-specific reader was identified in that bounded analysis. The child tail at `004787A6` dispatches through the active child, not an established parent-byte read.
 
-All **150 slots**, comprising **41 distinct target addresses**, were read from `Game.exe`. Tracking each class receiver separately gives 143 distinct class/entry combinations. Two levels of direct receiver-call follow-ups add 72 combinations, for **215 investigated receiver contexts**. No field-specific reader or writer of the eight bytes was found through those virtual-interface paths; the eleven constructor zeroing sequences remain the established writes.
+An empty state member plus alignment is plausible; an unused flag can explain the same instructions. Neither original declaration nor padding is proved. Keep the writes/allocation sizes. Other classes' active fields at the same offsets do not establish these receivers' meanings.
 
-The six unexpanded indirect tails all refer to the same native instruction, `004787A6`. `0047879D` first replaces ECX with the window's active child from +`0x64`, then jumps through the child's vtable slot +`0x1C`. These are child dispatches, not an identified read of the parent's byte +`0x70`. Their arbitrary child/callback effects have not been proven globally irrelevant.
+## Four opaque animal/AI fields
 
-The empty-state-member interpretation remains **an inference**. An unused flag can occupy the same byte, receive the same zero fill and lead to the same aligned allocation size. The instructions do not uniquely distinguish those source declarations. A name such as `SelectionValid`, `FontFlags` or `Padding` would claim information not recovered here.
+| Field | Confirmed initialization | Confirmed bulk use |
+| --- | --- | --- |
+| Animal DWORD +0x30 | `0042DE0F`, random modulo 3 | Whole 0x98-byte animal records serialized/checksummed via `0041C076`, `0041C1A3`, `00430E18`, `00430FB8` |
+| AI village DWORD +0x14 | `00471435`, -1 | Handler prefix save/load/checksum |
+| AI goods producer byte +0x24 | `004571E2`, zero through a biased view | Same prefix |
+| AI military DWORD +0x1454 | `00453F1B`, -1 | Same prefix |
 
-## Animal: accesses outside the animal methods were investigated
+AI entries `00428A97`, `00428B0A`, `00428B2F` read/write/checksum the enclosing 0xAA18-byte prefix. These values are not proven dead. Preserve the animal random call and its order even if the field-specific gameplay meaning remains unknown.
 
-The whole-section disassembly contains **118 references to storage-pointer global `00511554`**. Four assign that global; the other **114** were used as independent analysis seeds. The analysis follows record-pointer arithmetic modulo the established `0x98` stride, selected register/local aliases and two direct receiver-call levels. It covers **146 seed/callee contexts** and rediscovers the known DWORD write at `0042DE0F`, but no additional field-specific reader of animal +`0x30`.
+Animal-global analysis seeded 114 non-assignment references to `00511554`, followed selected aliases modulo stride 0x98 and investigated 146 contexts. It found the known write, not another specific reader. Pointer escapes, arbitrary returns/indexed aliases, callbacks and wrapping arithmetic were not exhaustively modeled; this is not a proof of absence.
 
-This includes callers in engine, GUI, weapon and mission regions, rather than assuming that animal methods are its only possible consumers. The analysis remains bounded: arbitrary pointer returns, indexed aliases, pointer escapes, callbacks, virtual dispatch and arithmetic wrapping are not exhaustively modeled. A negative result is not proof that no other reader exists.
+## Resolved folded getters and missing evidence
 
-The four opaque fields retain the confirmed bulk consumers from the [earlier research](RESIDUAL_ACCESS_RESEARCH.md): animal records are serialized and checksummed in full; village +`0x14`, goods-row +`0x24` and military +`0x1454` lie inside the AI handler's serialized/checksummed prefix. Their original field-specific gameplay purpose is still not established. The misleading C++ local name `delay` has therefore been changed to the factual `initialRandomValue`; no countdown or timing behavior is implied. Its random call, modulus, write address, width and order are unchanged.
+The former generic getters `004230EA` (+0x10) and `00471F57` (+8) are resolved as receiver-specific reads. Windows direct calls establish human player ID/marker type and human-or-vehicle generation/moveable type/AI village player ID respectively. They are not among the twelve unresolved sites and should not be renamed as one universal property.
 
-## Original type/debug information is absent from the supplied binaries
-
-The supplied Windows `Game.exe` has zero COFF symbol-table pointer/count and a zero debug-directory RVA/size. No `RSDS` or `NB10` CodeView signature was found. There is no embedded original member/type declaration to recover from this image.
-
-The Mac executable was inspected **only for naming/debug-metadata availability**. It has no `__debug*` sections and no `N_LSYM` local/type STABS entries. It contains 638 object-file debug-map references and useful mangled class/method names, but those references are not the original object files or embedded member declarations. No Mac instruction, member layout, offset or behavior was used as evidence for Windows behavior.
-
-Consequently, the currently supplied files do not establish unique original member names for these twelve sites. A targeted additional source would be the original **Windows member/type declarations**, or a matching Windows PDB containing them, for `CBaseToolElement`, the six selection-window classes, `CAnimal`, `CAIVillageManager`, `CAIMilitaryManager`, and `CAIGoodManager::SVars::SGoodData::SProducerData`. Only the relevant member/type records are needed; a further unannotated assembly dump would not by itself recover names of initializer-only storage.
-
-## Preservation and validation
-
-No unknown field or initialization was removed, relabeled as a known gameplay concept, or counted as completed. The raw-access count remains **120**, including **12 unresolved sites**. The current inventory only updates the animal source line after the clarifying comment. The local-variable rename has identical operation tokens after alpha-renaming and comment removal. The affected C++ unit passes Win32 `/Zs`; no Debug/Release build, tests, test project or game execution was performed. Private analysis tools, metadata snapshots and vtable/receiver inventories remain in gitignored `.codex-work/`. Independent user edits are preserved.
+The inspected Windows Game.exe has no COFF symbols or debug directory/CodeView records. Mac inspection found naming symbols/debug-map references, not original member/type declarations, and supplies no Windows layout evidence. A matching Windows PDB or original member/type declarations for the affected GUI, animal and AI classes would be targeted new evidence. Further unannotated initialization dumps alone do not distinguish equivalent source declarations.

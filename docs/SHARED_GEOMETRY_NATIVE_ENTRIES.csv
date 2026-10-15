@@ -1,8 +1,0 @@
-Address,CurrentName,MacSymbol,MacHeaderLine,Status,WindowsEvidence
-004396AD,NXBasics::CFont::l_InitObject,NXBasics::CFont::l_InitObject,4528,Implemented,"Three zero fills: eight bytes at +4, four at +C, eight at +10; called before font stream reads"
-00439855,"NXBasics::operator==(SPoint,SPoint)","NXBasics::operator==(SPoint,SPoint)",4669,Implemented,Compare x then y DWORDs; return 1 or 0
-00439872,NXBasics::SPoint::PlaceInside,NXBasics::SPoint::PlaceInside,4670,Implemented,Signed near-edge clamps precede inclusive wrapped right and bottom clamps
-004398AF,NXBasics::SPoint::IsInside,NXBasics::SPoint::IsInside,4671,Implemented,Signed inclusive x/y bounds; far edges use DWORD addition minus one
-00439E51,NXBasics::CListBase::l_Base_GetEndElement,NXBasics::CListBase::l_Base_GetEndElement,4610,Implemented,Count zero returns null; otherwise return data at last node +4
-0041037F,"NXBasics::operator==(SRectangle,SRectangle)","NXBasics::operator==(SRectangle,SRectangle)",4689,Existing implementation; inventory correction,Existing four-DWORD equality body agrees with native comparisons; newly recognized operator signature
-004F288C,NC2Logic::CTributeIterator::operator++,NC2Logic::CTributeIterator::operator++,9274,Existing implementation; inventory correction,Existing unsigned index increment and scan of forty 0x3C-byte records; active/source/target filters; newly recognized operator signature

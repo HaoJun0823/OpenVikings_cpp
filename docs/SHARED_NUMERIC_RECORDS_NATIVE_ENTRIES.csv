@@ -1,3 +1,0 @@
-Address,CurrentName,MacName,WindowsEvidence
-004EB7C8,NXBasics::Runtime_GetMathArgumentTag,,"Read input high DWORD; return exponent bits 7FF00000 unless all set, then return original high DWORD; no x87 instructions"
-004ED0B7,NXBasics::Runtime_ParseDoubleResult,,"ParseExtended12 then status-aware binary64 conversion; flags 200 invalid, 80 overflow, 100 underflow; flags/value/consumed writes, return destination"

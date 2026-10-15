@@ -1,5 +1,5 @@
 Address,CurrentName,WidthBytes,Owner,Status,WindowsEvidence
-0050F250,NXBasics::gRuntimeMathErrorArgumentsAndHookBypass,4,CRT math dispatch,Renamed descriptive,"Three read-only xrefs at 004ED202/004ED23F/004F051A bypass argument capture or hook; Game.exe initial DWORD 0x2694; original CRT policy identity unresolved"
+0050F250,NXBasics::gRuntimeMathErrorArgumentsAndHookBypass,4,CRT math dispatch,Renamed descriptive,Three read-only xrefs at 004ED202/004ED23F/004F051A bypass argument capture or hook; Game.exe initial DWORD 0x2694; original CRT policy identity unresolved
 0050F620,,1,Master program initialization,Removed by user request,Only individual reference 0040102D passes one byte to zeroing; no purpose established; storage and clear removed at user request 2026-10-12
 00510838,NC2Logic::gGameTime.tick,4,Game static variables,Alias removed,Clock DWORD updated by game ticks and saved/loaded; callers now address existing field directly
 00510848,NC2Logic::gGameTime.speed,8,Game static variables,Alias removed,Binary64 game speed used by clock/control and savegame paths; callers now address existing field directly
