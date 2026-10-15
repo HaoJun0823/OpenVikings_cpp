@@ -1,4 +1,5 @@
 #include "C2LifetimeAccess.h"
+#include "C2ObjectLayout.h"
 #include "InGameGuiKeyAssignmentManager.h"
 #include "X2DApplication.h"
 #include "XMKeyManager.h"
@@ -132,16 +133,16 @@ namespace NC2InGameGuiKeyAssignmentManager
 	bool CKeyAssignmentManager::CheckKey(std::int32_t assignment, std::uint32_t virtualKey, std::uint8_t auxiliaryCode) const
 	{
 		if (assignment >= 71) return false;
-		const auto offset = static_cast<std::uint32_t>(assignment) * 36u;
+		const auto offset = static_cast<std::uint32_t>(assignment) * NC2Layout::RecordSize::KeyAssignmentUnsigned;
 		const auto count = Read<std::int32_t>(mStorage, offset);
 		if (count <= 0) return false;
 		const auto* keyManager = NXSysKeyManager::CKeyManager::sTheObjectPtr;
 		for (std::int32_t index = 0; index < count; ++index)
 		{
-			const auto entry = offset + static_cast<std::uint32_t>(index) * 8u;
-			if (Read<std::uint32_t>(mStorage, entry + 4u) != virtualKey || Read<std::uint8_t>(mStorage, entry + 8u) != auxiliaryCode) continue;
-			if (Read<std::uint8_t>(mStorage, entry + 9u) != (Read<std::uint8_t>(keyManager, 0) & 1u)) continue;
-			if (Read<std::uint8_t>(mStorage, entry + 10u) == ((Read<std::uint32_t>(keyManager, 0) >> 1) & 1u)) return true;
+			const auto entry = offset + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::KeyBindingUnsigned;
+			if (Read<std::uint32_t>(mStorage, entry + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned) != virtualKey || Read<std::uint8_t>(mStorage, entry + NC2Layout::KeyAssignmentViewOffset::FirstAuxiliaryCodeUnsigned) != auxiliaryCode) continue;
+			if (Read<std::uint8_t>(mStorage, entry + NC2Layout::KeyAssignmentViewOffset::FirstShiftFlagUnsigned) != (Read<std::uint8_t>(keyManager, NC2Layout::KeyManagerOffset::ModifierFlags) & 1u)) continue;
+			if (Read<std::uint8_t>(mStorage, entry + NC2Layout::KeyAssignmentViewOffset::FirstControlFlagUnsigned) == ((Read<std::uint32_t>(keyManager, NC2Layout::KeyManagerOffset::ModifierFlags) >> 1) & 1u)) return true;
 		}
 		return false;
 	}
@@ -150,11 +151,11 @@ namespace NC2InGameGuiKeyAssignmentManager
 	bool CKeyAssignmentManager::CheckDirectKeyVirtualOnly(std::int32_t assignment) const
 	{
 		if (!NXSys2DApp::CApplication::sTheObjectPtr->IsApplicationActive() || assignment >= 71) return false;
-		const auto offset = static_cast<std::uint32_t>(assignment) * 36u;
+		const auto offset = static_cast<std::uint32_t>(assignment) * NC2Layout::RecordSize::KeyAssignmentUnsigned;
 		if (Read<std::int32_t>(mStorage, offset) <= 0) return false;
 		for (std::int32_t index = 0; index < Read<std::int32_t>(mStorage, offset); ++index)
 		{
-			const auto key = Read<std::uint32_t>(mStorage, offset + 4u + static_cast<std::uint32_t>(index) * 8u);
+			const auto key = Read<std::uint32_t>(mStorage, offset + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::KeyBindingUnsigned);
 			if (key != 0 && (GetKeyState(static_cast<int>(key)) & NXBasics::BitMask::Bit15Signed) != 0) return true;
 		}
 		return false;
@@ -164,15 +165,15 @@ namespace NC2InGameGuiKeyAssignmentManager
 	bool CKeyAssignmentManager::AddKey(std::int32_t assignment, std::uint32_t virtualKey, std::uint8_t auxiliaryCode, std::uint8_t shift, std::uint8_t control)
 	{
 		if (assignment >= 71) return false;
-		const auto offset = static_cast<std::uint32_t>(assignment) * 36u;
+		const auto offset = static_cast<std::uint32_t>(assignment) * NC2Layout::RecordSize::KeyAssignmentUnsigned;
 		const auto count = Read<std::uint32_t>(mStorage, offset);
 		if (count == 4) return false;
 		if (virtualKey != 0 || auxiliaryCode != 0)
 		{
-			Write(mStorage, offset + 4u + count * 8u, virtualKey);
-			Write(mStorage, offset + 8u + Read<std::uint32_t>(mStorage, offset) * 8u, auxiliaryCode);
-			Write(mStorage, offset + 9u + Read<std::uint32_t>(mStorage, offset) * 8u, shift);
-			Write(mStorage, offset + 10u + Read<std::uint32_t>(mStorage, offset) * 8u, control);
+			Write(mStorage, offset + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned + count * NC2Layout::RecordSize::KeyBindingUnsigned, virtualKey);
+			Write(mStorage, offset + NC2Layout::KeyAssignmentViewOffset::FirstAuxiliaryCodeUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned, auxiliaryCode);
+			Write(mStorage, offset + NC2Layout::KeyAssignmentViewOffset::FirstShiftFlagUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned, shift);
+			Write(mStorage, offset + NC2Layout::KeyAssignmentViewOffset::FirstControlFlagUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned, control);
 			Write(mStorage, offset, Read<std::uint32_t>(mStorage, offset) + 1u);
 		}
 		return true;

@@ -169,15 +169,15 @@ namespace NC2Logic
 		bool __cdecl slAnimalSearchFoodPatterns(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
 		{
 			const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-			if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1 || Read<std::uint8_t>(Macro(point), 0) != 2) return false;
-			Write(callback->userData, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+			if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro, NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1 || Read<std::uint8_t>(Macro(point), NC2Layout::MapMacroPointOffset::PatternA) != 2) return false;
+			Write(callback->userData, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 			return true;
 		}
 
 		// Original function: FUN_00461308.
 		bool __cdecl CalculateFoodPattern(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
 		{
-			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), 0) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
+			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), NC2Layout::MapMacroPointOffset::PatternA) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
 			return false;
 		}
 
@@ -237,7 +237,7 @@ namespace NC2Logic
 			}
 			CMapPathfinderElement::SearchOverMap(&point, 40, true, slAnimalSearchLandMapPoint, &data, false, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId));
 			if (data.count == 0) return false;
-			Write(result, 0, data.points[0]);
+			Write(result, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[0]);
 			return true;
 		}
 
@@ -255,11 +255,11 @@ namespace NC2Logic
 					MapMigPoint_MoveCursorUnwrapped(point, direction);
 					if (MapMigPoint_IsBorderPoint(&point)) continue;
 					const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
-					if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) != continent || (minimum != 1000000 && Read<std::uint8_t>(Macro(&point), 0) != 2)) continue;
+					if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) != continent || (minimum != 1000000 && Read<std::uint8_t>(Macro(&point), NC2Layout::MapMacroPointOffset::PatternA) != 2)) continue;
 					const auto distance = Distance(&point, current);
 					if (distance >= minimum) continue;
 					minimum = distance;
-					Write(result, 0, point);
+					Write(result, NC2Layout::MapCoordinatePairOffset::Coordinates, point);
 				}
 			}
 			return minimum != 1000000;
@@ -308,7 +308,7 @@ namespace NC2Logic
 			{
 				if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) == 0) continue;
 				auto& candidate = gAnimalBirthCandidates.points[count];
-				candidate = Read<std::uint32_t>(birth, 0);
+				candidate = Read<std::uint32_t>(birth, NC2Layout::MapCoordinatePairOffset::Coordinates);
 				MapMigPoint_MoveCursorUnwrapped(candidate, direction);
 				std::uint32_t player = 0;
 				for (; player < 20; ++player)
@@ -317,10 +317,10 @@ namespace NC2Logic
 					CHouseIterator iterator;
 					if (iterator.GetFirstSectorHouseId(player, &candidate, stayRadius + leaderRadius, false) != -1 || iterator.GetFirstSectorHouseId(player, &candidate, stayRadius + leaderRadius, true) != -1) break;
 				}
-				if (player != 20 || Distance(&candidate, work) >= birthRadius || Distance(&candidate, current) >= 30 || Read<std::uint8_t>(Macro(&candidate), 0) != 2) continue;
+				if (player != 20 || Distance(&candidate, work) >= birthRadius || Distance(&candidate, current) >= 30 || Read<std::uint8_t>(Macro(&candidate), NC2Layout::MapMacroPointOffset::PatternA) != 2) continue;
 				++count;
 			}
-			if (count != 0) Write(birth, 0, gAnimalBirthCandidates.points[Game_Random_GetNumber() % count]);
+			if (count != 0) Write(birth, NC2Layout::MapCoordinatePairOffset::Coordinates, gAnimalBirthCandidates.points[Game_Random_GetNumber() % count]);
 			else FindBirthPoint(current, work, birth, 30);
 		}
 

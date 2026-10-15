@@ -1,0 +1,520 @@
+file,line,receiver,before,after,nearest_original_source_marker,raw_operand_resolved
+C2AIAssistantAccess.cpp,153,data,NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4,NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * NC2Layout::RecordSize::AssistantRequestValue,004176C8,True
+C2AIAssistantAccess.cpp,157,data,NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4,NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * NC2Layout::RecordSize::AssistantRequestValue,004176C8,True
+C2AIBuildingAccess.cpp,86,definition,0x48u + level * 0x40u,NC2Layout::EngineHouseLogicViewOffset::ConstructionGoodsUnsigned + level * NC2Layout::RecordSize::HouseConstructionGoodListUnsigned,00471CF6,True
+C2AIBuildingAccess.cpp,87,definition,0x4Cu + level * 0x40u + index * 4u,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGoodUnsigned + level * NC2Layout::RecordSize::HouseConstructionGoodListUnsigned + index * NC2Layout::RecordSize::HouseStageValueUnsigned,00471CF6,True
+C2AIBuildingAccess.cpp,145,definition,0x48u + level * 0x40u,NC2Layout::EngineHouseLogicViewOffset::ConstructionGoodsUnsigned + level * NC2Layout::RecordSize::HouseConstructionGoodListUnsigned,0047261F,True
+C2AIBuildingAccess.cpp,146,definition,0x4Cu + level * 0x40u + index * 4u,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGoodUnsigned + level * NC2Layout::RecordSize::HouseConstructionGoodListUnsigned + index * NC2Layout::RecordSize::HouseStageValueUnsigned,0047261F,True
+C2AIRoadAccess.cpp,21,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456241,True
+C2AIRoadAccess.cpp,26,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456245,True
+C2AIRoadAccess.cpp,27,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456245,True
+C2AIRoadAccess.cpp,32,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456245,True
+C2AIRoadAccess.cpp,35,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456245,True
+C2AIRoadAccess.cpp,41,resources,0x71C + type * 4,NC2Layout::AIResourceManagerOffset::HouseGoods + type * NC2Layout::RecordSize::AIResourceIndexValue,00456245,True
+C2AIRoadAccess.cpp,42,resources,0x308 + good * 16,NC2Layout::AIResourceManagerOffset::FirstGoodCheckTerrainFlag + good * NC2Layout::RecordSize::AIResourceGood,00456245,True
+C2AIRoadAccess.cpp,56,pathfinder,0x42,NC2Layout::MapPathfinderOffset::CurrentPositionY,00456245,True
+C2AIRoadAccess.cpp,56,pathfinder,0x40,NC2Layout::MapPathfinderOffset::CurrentPosition,00456245,True
+C2AIRoadAccess.cpp,56,pathfinder,0x46,NC2Layout::MapPathfinderOffset::DestinationPositionY,00456245,True
+C2AIRoadAccess.cpp,56,pathfinder,0x44,NC2Layout::MapPathfinderOffset::DestinationPosition,00456245,True
+C2AIRoadAccess.cpp,68,manager,0,NC2Layout::AIRoadManagerOffset::PreviousHouseId,00456245,True
+C2AIVillageAccess.cpp,271,definition,0x48 + level * 64,NC2Layout::EngineHouseLogicViewOffset::ConstructionGoods + level * NC2Layout::RecordSize::HouseConstructionGoodList,004719AC,True
+C2AIVillageAccess.cpp,272,definition,0x4C + level * 64 + i * 4,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * 4,004719AC,False
+C2AnimalTasks.cpp,172,Macro(point),0,NC2Layout::MapMacroPointOffset::PatternA,0046128F,True
+C2AnimalTasks.cpp,173,callback->userData,0,NC2Layout::MapCoordinatePairOffset::Coordinates,0046128F,True
+C2AnimalTasks.cpp,180,Macro(point),0,NC2Layout::MapMacroPointOffset::PatternA,00461308,True
+C2AnimalTasks.cpp,240,result,0,NC2Layout::MapCoordinatePairOffset::Coordinates,004615A4,True
+C2AnimalTasks.cpp,258,Macro(&point),0,NC2Layout::MapMacroPointOffset::PatternA,00461698,True
+C2AnimalTasks.cpp,262,result,0,NC2Layout::MapCoordinatePairOffset::Coordinates,00461698,True
+C2AnimalTasks.cpp,311,birth,0,NC2Layout::MapCoordinatePairOffset::Coordinates,0042EF98,True
+C2AnimalTasks.cpp,320,Macro(&candidate),0,NC2Layout::MapMacroPointOffset::PatternA,0042EF98,True
+C2AnimalTasks.cpp,323,birth,0,NC2Layout::MapCoordinatePairOffset::Coordinates,0042EF98,True
+C2DefaultInteraction.cpp,53,command,0,NC2Layout::UserNetworkCommandOffset::Opcode,,True
+C2DefaultInteraction.cpp,53,command,4,NC2Layout::UserNetworkCommandOffset::ObjectId,,True
+C2DefaultInteraction.cpp,53,actor,4,NC2Layout::ActorIdentityOffset::Id,,True
+C2DefaultInteraction.cpp,53,command,8,NC2Layout::UserNetworkCommandOffset::ObjectRevision,,True
+C2DefaultInteraction.cpp,53,actor,8,NC2Layout::ActorIdentityOffset::UniqueId,,True
+C2DefaultInteraction.cpp,53,command,0xC,NC2Layout::UserNetworkCommandOffset::Parameter1,,True
+C2DefaultInteraction.cpp,53,command,0x10,NC2Layout::UserNetworkCommandOffset::Parameter2,,True
+C2DefaultInteraction.cpp,213,human,0x195 + good,NC2Layout::HumanOffset::AllowedProductionGoodFlagsSigned + good,00435605,True
+C2DefaultInteraction.cpp,288,command,0,NC2Layout::UserNetworkCommandOffset::Opcode,004362E9,True
+C2DefaultInteraction.cpp,288,command,0xC,NC2Layout::UserNetworkCommandOffset::Parameter1,004362E9,True
+C2DefaultInteraction.cpp,289,other,8,NC2Layout::HumanOffset::UniqueId,004362E9,True
+C2DefaultInteraction.cpp,475,command,0,NC2Layout::UserNetworkCommandOffset::Opcode,00437D9F,True
+C2DefaultInteraction.cpp,475,command,0xC,NC2Layout::UserNetworkCommandOffset::Parameter1,00437D9F,True
+C2DefaultInteraction.cpp,476,other,8,NC2Layout::HumanOffset::UniqueId,00437D9F,True
+C2E2HumanSoundAccess.cpp,125,data,0x490,NC2Layout::EngineHouseTypeOffset::ActionOverlayCount,0047EC5B,True
+C2E2HumanSoundAccess.cpp,127,data,0x494,NC2Layout::EngineHouseTypeOffset::ActionOverlays,0047EC5B,True
+C2E2HumanSoundAccess.cpp,128,entry,4,NC2Layout::EngineHouseActionOverlayOffset::Action,0047EC5B,True
+C2E2HumanSoundAccess.cpp,128,entry,0,NC2Layout::EngineHouseActionOverlayOffset::DevelopmentStage,0047EC5B,True
+C2E2HumanSoundAccess.cpp,131,entry,0xC,NC2Layout::EngineHouseActionOverlayOffset::OffsetX,0047EC5B,True
+C2E2HumanSoundAccess.cpp,131,entry,0x10,NC2Layout::EngineHouseActionOverlayOffset::OffsetY,0047EC5B,True
+C2E2HumanSoundAccess.cpp,220,NDSManager::CManager::sTheObjectPtr,4,NC2Layout::DirectSoundManagerOffset::Initialized,0048575F,True
+C2E2HumanSoundAccess.cpp,276,NDSManager::CManager::sTheObjectPtr,4,NC2Layout::DirectSoundManagerOffset::Initialized,00485931,True
+C2E2HumanSoundAccess.cpp,308,NDSManager::CManager::sTheObjectPtr,4,NC2Layout::DirectSoundManagerOffset::Initialized,00490EEA,True
+C2E2StaticDataHouses.cpp,115,record,item * 4u,item * NC2Layout::RecordSize::HouseStageValueUnsigned,0048F73E,True
+C2E2StaticDataHouses.cpp,192,entry,offset + 4,offset + NC2Layout::CountedArrayOffset::Entries,0048E651,True
+C2E2StaticDataHouses.cpp,228,entry,offset + stage * 4,offset + stage * NC2Layout::RecordSize::HouseStageValue,0048E651,True
+C2E2StaticDataHouses.cpp,250,entry,offset + 4 + count * 4,offset + NC2Layout::CountedArrayOffset::Entries + count * NC2Layout::RecordSize::HouseConstructionGoodId,0048E651,True
+C2E2StaticDataHouses.cpp,269,entry,offset + 4,offset + NC2Layout::HouseArrowSlotOffset::Y,0048E651,True
+C2E2StaticDataHouses.cpp,270,entry,offset + 8,offset + NC2Layout::HouseArrowSlotOffset::Parameter,0048E651,True
+C2E2StaticDataHouses.cpp,318,entry,layer + 4,layer + NC2Layout::EngineHouseConstructionListViewOffset::FirstUpgradeFlag,0048E651,True
+C2E2StaticDataHouses.cpp,319,entry,layer + 8,layer + NC2Layout::EngineHouseConstructionListViewOffset::FirstBobId,0048E651,True
+C2E2StaticDataHouses.cpp,320,entry,layer + 12,layer + NC2Layout::EngineHouseConstructionListViewOffset::FirstShadowBobId,0048E651,True
+C2E2StaticDataHouses.cpp,321,entry,layer + 16,layer + NC2Layout::EngineHouseConstructionListViewOffset::FirstPercentage,0048E651,True
+C2E2StaticDataHouses.cpp,322,entry,layer + 20,layer + NC2Layout::EngineHouseConstructionListViewOffset::LastPercentage,0048E651,True
+C2E2StaticDataHouses.cpp,357,entry,offset + 4,offset + NC2Layout::EngineHouseLandscapeOverlayOffset::OffsetX,0048E651,True
+C2E2StaticDataHouses.cpp,358,entry,offset + 8,offset + NC2Layout::EngineHouseLandscapeOverlayOffset::OffsetY,0048E651,True
+C2E2StaticDataHouses.cpp,359,entry,offset + 12,offset + NC2Layout::EngineHouseLandscapeOverlayOffset::LandscapeId,0048E651,True
+C2E2StaticDataHouses.cpp,367,entry,0x7E0 + stage * NC2Layout::RecordSize::EngineHouseStagePoints,NC2Layout::EngineHouseStageViewOffset::SoldierFlagEnabled + stage * NC2Layout::RecordSize::EngineHouseStagePoints,0048E651,True
+C2E2StaticDataHouses.cpp,369,entry,offset + 4,offset + NC2Layout::PixelPointOffset::Y,0048E651,True
+C2E2StaticDataHouses.cpp,380,entry,offset + 4,offset + NC2Layout::CountedArrayOffset::Entries,0048E651,True
+C2E2StaticDataHouses.cpp,381,points,index * 8,index * NC2Layout::RecordSize::PixelPoint,0048E651,True
+C2E2StaticDataHouses.cpp,382,points,index * 8 + 4,index * NC2Layout::RecordSize::PixelPoint + NC2Layout::PixelPointOffset::Y,0048E651,True
+C2E2StaticDataHouses.cpp,396,entry,offset + 4,offset + NC2Layout::CountedArrayOffset::Entries,0048E651,True
+C2E2StaticDataHouses.cpp,397,points,index * 8,index * NC2Layout::RecordSize::PixelPoint,0048E651,True
+C2E2StaticDataHouses.cpp,398,points,index * 8 + 4,index * NC2Layout::RecordSize::PixelPoint + NC2Layout::PixelPointOffset::Y,0048E651,True
+C2EngineDisplayAccess.cpp,89,destination,0,NC2Layout::EngineDisplayRectangleOffset::WorldX,00481A47,True
+C2EngineDisplayAccess.cpp,89,source,0,NC2Layout::EngineDisplayRectangleOffset::WorldX,00481A47,True
+C2EngineDisplayAccess.cpp,90,destination,4,NC2Layout::EngineDisplayRectangleOffset::WorldY,00481A47,True
+C2EngineDisplayAccess.cpp,90,source,4,NC2Layout::EngineDisplayRectangleOffset::WorldY,00481A47,True
+C2EngineDisplayAccess.cpp,91,destination,8,NC2Layout::EngineDisplayRectangleOffset::BitmapX,00481A47,True
+C2EngineDisplayAccess.cpp,91,source,8,NC2Layout::EngineDisplayRectangleOffset::BitmapX,00481A47,True
+C2EngineDisplayAccess.cpp,92,destination,12,NC2Layout::EngineDisplayRectangleOffset::BitmapY,00481A47,True
+C2EngineDisplayAccess.cpp,92,source,12,NC2Layout::EngineDisplayRectangleOffset::BitmapY,00481A47,True
+C2EngineDisplayAccess.cpp,93,destination,16,NC2Layout::EngineDisplayRectangleOffset::Width,00481A47,True
+C2EngineDisplayAccess.cpp,93,source,16,NC2Layout::EngineDisplayRectangleOffset::Width,00481A47,True
+C2EngineDisplayAccess.cpp,94,destination,20,NC2Layout::EngineDisplayRectangleOffset::Height,00481A47,True
+C2EngineDisplayAccess.cpp,94,source,20,NC2Layout::EngineDisplayRectangleOffset::Height,00481A47,True
+C2EngineDisplayAccess.cpp,120,NC2Logic::CHouseArray::mStaticVars,id * NC2Logic::CHouseArray::ElementSize + 8u,id * NC2Logic::CHouseArray::ElementSize + NC2Layout::HouseOffset::UniqueIdUnsigned,00483F80,True
+C2EngineDisplayAccess.cpp,125,NC2Logic::CHumanArray::mStaticVars,id * NC2Logic::CHumanArray::ElementSize + 8u,id * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::UniqueIdUnsigned,00483FAD,True
+C2EngineDisplayAccess.cpp,130,NC2Logic::CAnimalArray::mStaticVars,id * NC2Logic::CAnimalArray::ElementSize + 8u,id * NC2Logic::CAnimalArray::ElementSize + NC2Layout::AnimalOffset::UniqueIdUnsigned,00483FDA,True
+C2EngineDisplayAccess.cpp,135,NC2Logic::CVehicleArray::mStaticVars,id * NC2Logic::CVehicleArray::ElementSize + 8u,id * NC2Logic::CVehicleArray::ElementSize + NC2Layout::VehicleOffset::UniqueIdUnsigned,00484007,True
+C2EngineDisplayAccess.cpp,140,NC2Logic::CGuideArray::mStaticVars,id * NC2Logic::CGuideArray::ElementSize + 0x10u,id * NC2Logic::CGuideArray::ElementSize + NC2Layout::GuideOffset::UniqueIdUnsigned,00484034,True
+C2EngineDrawingAccess.cpp,29,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,0048B4E6,True
+C2EngineDrawingAccess.cpp,30,player,0x10,NC2Layout::GameControlPlayerOffset::ColorId,0048B4E6,True
+C2EngineDrawingAccess.cpp,42,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,0048B532,True
+C2EngineDrawingAccess.cpp,43,player,0x10,NC2Layout::GameControlPlayerOffset::ColorId,0048B532,True
+C2EngineDrawingAccess.cpp,54,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,0048B574,True
+C2EngineDrawingAccess.cpp,55,player,0x10,NC2Layout::GameControlPlayerOffset::ColorId,0048B574,True
+C2EngineDrawingAccess.cpp,157,graphic,0x21C,NC2Layout::EngineHouseTypeOffset::PaletteCount,004966DA,True
+C2EngineDrawingAccess.cpp,158,graphic,0x214,NC2Layout::EngineHouseTypeOffset::BobManager,004966DA,True
+C2EngineDrawingAccess.cpp,158,graphic,0x220u + variant * 4u,NC2Layout::EngineHouseTypeOffset::PaletteIdsUnsigned + variant * NC2Layout::RecordSize::HouseStageValueUnsigned,004966DA,True
+C2EngineDrawingAccess.cpp,441,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,0048B5C1,True
+C2EngineDrawingAccess.cpp,442,player,0x10,NC2Layout::GameControlPlayerOffset::ColorId,0048B5C1,True
+C2EngineDrawingAccess.cpp,452,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,0048B5FB,True
+C2EngineDrawingAccess.cpp,453,player,0x10,NC2Layout::GameControlPlayerOffset::ColorId,0048B5FB,True
+C2EngineGuideDrawing.cpp,68,guide,0x78,NC2Layout::GuideOffset::ConnectionCount,004958FB,True
+C2EngineGuideDrawing.cpp,70,guide,0x3Cu + static_cast<std::uint32_t>(i) * 8u,NC2Layout::GuideOffset::ConnectionGuideIdsUnsigned + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::GuideConnectionUnsigned,004958FB,True
+C2EngineGuideDrawing.cpp,81,guide,0x14,NC2Layout::GuideOffset::MapPositionX,004958FB,True
+C2EngineGuideDrawing.cpp,82,guide,0x16,NC2Layout::GuideOffset::MapPositionY,004958FB,True
+C2EngineGuideDrawing.cpp,103,guide,4,NC2Layout::GuideOffset::PlayerId,004956B7,True
+C2EngineGuideDrawing.cpp,107,guide,0x78,NC2Layout::GuideOffset::ConnectionCount,004956B7,True
+C2EngineGuideDrawing.cpp,109,guide,0x3Cu + static_cast<std::uint32_t>(i) * 8u,NC2Layout::GuideOffset::ConnectionGuideIdsUnsigned + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::GuideConnectionUnsigned,004956B7,True
+C2EngineGuideDrawing.cpp,118,guide,4,NC2Layout::GuideOffset::PlayerId,004956B7,True
+C2EngineGuideDrawing.cpp,136,guide,0x78,NC2Layout::GuideOffset::ConnectionCount,00495A77,True
+C2EngineGuideDrawing.cpp,138,guide,0x3Cu + i * 8u,NC2Layout::GuideOffset::ConnectionGuideIdsUnsigned + i * NC2Layout::RecordSize::GuideConnectionUnsigned,00495A77,True
+C2EngineLifetimeAccess.cpp,124,NDSManager::CManager::sTheObjectPtr,4,NC2Layout::DirectSoundManagerOffset::Initialized,00485453,True
+C2EngineLifetimeAccess.cpp,442,generator,4,NC2Layout::ParticleGeneratorManagerOffset::Entries,004973C8,True
+C2EngineLifetimeAccess.cpp,744,"Read<void*>(entry, offset + NC2Layout::StaticLandscapeAreaListOffset::Entries)",item * 8 + 4,item * NC2Layout::RecordSize::StaticLandscapeArea + NC2Layout::StaticLandscapeAreaOffset::Area,00490277,True
+C2EngineLifetimeAccess.cpp,744,entry,offset + 4,offset + NC2Layout::StaticLandscapeAreaListOffset::Entries,00490277,True
+C2EngineLifetimeAccess.cpp,749,entry,0x84,NC2Layout::StaticLandscapeOffset::FrameGroupCount,00490277,True
+C2EngineLifetimeAccess.cpp,751,entry,0x88,NC2Layout::StaticLandscapeOffset::FrameGroups,00490277,True
+C2EngineMapTerrainAccess.cpp,526,gStaticMapModifiedBounds,0,NC2Layout::MapDirtyBoundsOffset::MinimumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,527,gStaticMapModifiedBounds,2,NC2Layout::MapDirtyBoundsOffset::MinimumY,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,528,gStaticMapModifiedBounds,4,NC2Layout::MapDirtyBoundsOffset::MaximumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,529,gStaticMapModifiedBounds,6,NC2Layout::MapDirtyBoundsOffset::MaximumY,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,539,gStaticMapModifiedBounds,axis * 2,axis * NC2Layout::RecordSize::DirtyBoundsCoordinate,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,539,gStaticMapModifiedBounds,axis * 2,axis * NC2Layout::RecordSize::DirtyBoundsCoordinate,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,540,gStaticMapModifiedBounds,axis * 2 + 4,axis * NC2Layout::RecordSize::DirtyBoundsCoordinate + NC2Layout::MapDirtyBoundsOffset::MaximumPoint,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,540,gStaticMapModifiedBounds,axis * 2 + 4,axis * NC2Layout::RecordSize::DirtyBoundsCoordinate + NC2Layout::MapDirtyBoundsOffset::MaximumPoint,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,545,gStaticMapModifiedBounds,0,NC2Layout::MapDirtyBoundsOffset::MinimumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,547,gStaticMapModifiedBounds,0,NC2Layout::MapDirtyBoundsOffset::MinimumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,548,gStaticMapModifiedBounds,2,NC2Layout::MapDirtyBoundsOffset::MinimumY,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,549,gStaticMapModifiedBounds,4,NC2Layout::MapDirtyBoundsOffset::MaximumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,549,gStaticMapModifiedBounds,0,NC2Layout::MapDirtyBoundsOffset::MinimumX,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,550,gStaticMapModifiedBounds,6,NC2Layout::MapDirtyBoundsOffset::MaximumY,0047EAF3,True
+C2EngineMapTerrainAccess.cpp,550,gStaticMapModifiedBounds,2,NC2Layout::MapDirtyBoundsOffset::MinimumY,0047EAF3,True
+C2EngineMoveableDrawing.cpp,159,NC2Logic::gStaticAtomicAnimationData,"Read<std::uint32_t>(object, typeOffset) * 0x138u + 0x34","Read<std::uint32_t>(object, typeOffset) * NC2Layout::RecordSize::AtomicAnimation + NC2Layout::AtomicAnimationOffset::LengthInTicks",0049B30B,True
+C2EngineMoveableDrawing.cpp,226,graphic->frameGroups,static_cast<std::uint32_t>(group) * 12u,static_cast<std::uint32_t>(group) * NC2Layout::RecordSize::StaticLandscapeFramesUnsigned,004972DE,True
+C2EngineMoveableDrawing.cpp,231,frames,8,NC2Layout::StaticLandscapeFramesOffset::Frames,004972DE,True
+C2EngineMoveableDrawing.cpp,232,frames,4,NC2Layout::StaticLandscapeFramesOffset::Count,004972DE,True
+C2EngineMoveableDrawing.cpp,267,marker,0x10,NC2Layout::MarkerOffset::Type,004951A4,True
+C2EngineMoveableDrawing.cpp,299,marker,0x10,NC2Layout::MarkerOffset::Type,00493656,True
+C2EngineMoveableDrawing.cpp,327,marker,0x14,NC2Layout::MarkerOffset::HumanId,00493656,True
+C2EngineMoveableDrawing.cpp,344,commander,0xB51,NC2Layout::HumanOffset::InsideVehicleFlag,00493656,True
+C2EngineMoveableDrawing.cpp,346,commander,0xB48,NC2Layout::HumanOffset::WorkAttachmentVehicleId,00493656,True
+C2EngineMoveableDrawing.cpp,353,commander,0x14,NC2Layout::HumanOffset::TribeType,00493656,True
+C2EngineMoveableDrawing.cpp,353,commander,0x10,NC2Layout::HumanOffset::PlayerId,00493656,True
+C2GameMapContinents.cpp,61,first,0,NC2Layout::MapCoordinatePairOffset::X,,True
+C2GameMapContinents.cpp,61,first,2,NC2Layout::MapCoordinatePairOffset::Y,,True
+C2GameMapContinents.cpp,77,pattern,4,NC2Layout::TrianglePatternTypeOffset::IsLand,00451503,True
+C2GameMapContinents.cpp,78,pattern,5,NC2Layout::TrianglePatternTypeOffset::IsWater,00451503,True
+C2GameMapContinents.cpp,185,patterns[0],4,NC2Layout::TrianglePatternTypeOffset::IsLand,004528CF,True
+C2GameMapContinents.cpp,185,patterns[1],4,NC2Layout::TrianglePatternTypeOffset::IsLand,004528CF,True
+C2GameMapContinents.cpp,222,pattern,5,NC2Layout::TrianglePatternTypeOffset::IsWater,004529D7,True
+C2GameMapContinents.cpp,286,first,axis * 2u,axis * NC2Layout::RecordSize::MapCoordinateComponentUnsigned,00452241,True
+C2GameMapContinents.cpp,286,end,axis * 2u,axis * NC2Layout::RecordSize::MapCoordinateComponentUnsigned,00452241,True
+C2GameMapContinents.cpp,333,first,2,NC2Layout::MapCoordinatePairOffset::Y,00451559,True
+C2GameMapContinents.cpp,335,first,0,NC2Layout::MapCoordinatePairOffset::X,00451559,True
+C2GameMapSaving.cpp,36,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,0043045A,True
+C2GameMapSaving.cpp,51,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,004304B8,True
+C2GameMapSaving.cpp,66,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430513,True
+C2GameMapSaving.cpp,81,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,0043056F,True
+C2GameMapSaving.cpp,96,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,004305E2,True
+C2GameMapSaving.cpp,111,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430653,True
+C2GameMapSaving.cpp,126,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,004306C5,True
+C2GameMapSaving.cpp,141,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430723,True
+C2GameMapSaving.cpp,156,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430781,True
+C2GameMapSaving.cpp,171,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,004307E2,True
+C2GameMapSaving.cpp,186,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430846,True
+C2GameMapSaving.cpp,201,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,004308A7,True
+C2GameMapSaving.cpp,216,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430908,True
+C2GameMapSaving.cpp,231,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,0043096B,True
+C2GameMapSaving.cpp,246,scratch,index * 2u,index * NC2Layout::RecordSize::MapPlaneWordUnsigned,004309CF,True
+C2GameMapSaving.cpp,261,scratch,index * 1u,index * NC2Layout::RecordSize::MapPlaneByteUnsigned,00430A3B,True
+C2GameMapSaving.cpp,276,scratch,index * 2u,index * NC2Layout::RecordSize::MapPlaneWordUnsigned,00430ACC,True
+C2GameMapSaving.cpp,291,scratch,index * 2u,index * NC2Layout::RecordSize::MapPlaneWordUnsigned,00430B63,True
+C2GameMapSaving.cpp,306,scratch,index * 2u,index * NC2Layout::RecordSize::MapPlaneWordUnsigned,00430BCE,True
+C2GameMapSaving.cpp,321,scratch,index * 2u,index * NC2Layout::RecordSize::MapPlaneWordUnsigned,00430C2F,True
+C2GuideRouting.cpp,191,manager,NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * 0x7Cu,NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * NC2Layout::RecordSize::GuideDistanceBucketUnsigned,0041B90D,True
+C2HouseBuildPosition.cpp,56,definition,0x34u + stage * 4u,NC2Layout::EngineHouseLogicViewOffset::WorkAreasUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned,00441151,True
+C2HouseBuildPosition.cpp,105,definition,0x18,NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount,00440F70,True
+C2HouseBuildPosition.cpp,106,definition,0x1Cu + maximumStage * 4u,NC2Layout::EngineHouseLogicViewOffset::BuildAreaUnsigned + maximumStage * NC2Layout::RecordSize::HouseStageValueUnsigned,00440F70,True
+C2HouseBuildPosition.cpp,110,definition,0x1C,NC2Layout::EngineHouseLogicViewOffset::BuildArea,00440F70,True
+C2HouseBuildPosition.cpp,115,definition,stage * 4u,stage * NC2Layout::RecordSize::HouseStageValueUnsigned,00440F70,True
+C2HouseBuildPosition.cpp,117,definition,0x188u + stage * 4u,NC2Layout::EngineHouseLogicViewOffset::DoorPointsUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned,00440F70,True
+C2HouseBuildPosition.cpp,117,definition,0x18Au + stage * 4u,NC2Layout::EngineHouseLogicViewOffset::FirstDoorPointYUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned,00440F70,True
+C2HouseConstruction.cpp,124,definition,"0x19Cu + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::MaximumHitpointsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",00432EA5,True
+C2HouseConstruction.cpp,141,definition,"0x19Cu + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::MaximumHitpointsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",00432EA5,True
+C2HouseConstruction.cpp,198,definition,"0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",0043435A,True
+C2HouseConstruction.cpp,221,definition,"0x19Cu + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::MaximumHitpointsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",00434763,True
+C2HouseLifecycle.cpp,89,NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType),stage * 4u,stage * NC2Layout::RecordSize::HouseStageValueUnsigned,00430FCE,True
+C2HouseLifecycle.cpp,90,NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType),0x14,NC2Layout::EngineHouseLogicViewOffset::TribeType,00430FCE,True
+C2HouseLifecycle.cpp,98,"NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType))","0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",00430FCE,True
+C2HouseLifecycle.cpp,218,"NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType))","0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",00431390,True
+C2HouseLifecycle.cpp,314,house,NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u,NC2Layout::HouseOffset::AttachmentHumanIds + slot * NC2Layout::RecordSize::HouseAttachment,004328F8,True
+C2HouseLifecycle.cpp,322,house,NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u,NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * NC2Layout::RecordSize::HouseCounterUnsigned,00434197,True
+C2HouseLifecycle.cpp,331,house,NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u,NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * NC2Layout::RecordSize::HouseCounterUnsigned,004341DE,True
+C2HouseLifecycle.cpp,340,definition,"0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned",004342AE,True
+C2HouseLifecycle.cpp,342,definition,0x1C,NC2Layout::EngineHouseLogicViewOffset::BuildArea,004342AE,True
+C2HouseLifecycle.cpp,344,base,0,NC2Layout::MapCoordinatePairOffset::X,004342AE,True
+C2HouseLifecycle.cpp,344,base,2,NC2Layout::MapCoordinatePairOffset::Y,004342AE,True
+C2HouseLifecycle.cpp,356,"NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType))",0x1C,NC2Layout::EngineHouseLogicViewOffset::BuildArea,0043442C,True
+C2HouseLifecycle.cpp,391,sector,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00434519,True
+C2HouseLifecycle.cpp,391,sector,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00434519,True
+C2HouseLifecycle.cpp,423,sector,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00434611,True
+C2HouseLifecycle.cpp,423,sector,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00434611,True
+C2HousePeriodic.cpp,78,door,0,NC2Layout::MapCoordinatePairOffset::Coordinates,00433694,True
+C2HousePeriodic.cpp,131,graphics,0x1B0,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotCount,00433A9D,True
+C2HousePeriodic.cpp,135,graphics,0x1BCu + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotParameterUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned,00433A9D,True
+C2HousePeriodic.cpp,136,graphics,0x1B4u + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotXUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned,00433A9D,True
+C2HousePeriodic.cpp,137,graphics,0x1B8u + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotYUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned,00433A9D,True
+C2HousePeriodic.cpp,209,selected,4,NC2Layout::HumanOffset::HumanId,00433BF9,True
+C2HousePeriodic.cpp,212,selected,0x38C,NC2Layout::HumanOffset::WorkRetryCount,00433BF9,True
+C2HousePeriodic.cpp,213,selected,0xB30,NC2Layout::HumanOffset::WorkCenter,00433BF9,True
+C2HousePeriodic.cpp,235,house,NC2Layout::HouseOffset::StockAmounts + index * 4u,NC2Layout::HouseOffset::StockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned,00433BF9,True
+C2HousePeriodic.cpp,236,house,NC2Layout::HouseOffset::FutureStockAmounts + index * 4u,NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned,00433BF9,True
+C2HousePeriodic.cpp,237,house,NC2Layout::HouseOffset::FutureStockAmounts + index * 4u,NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned,00433BF9,True
+C2HousePeriodic.cpp,238,house,NC2Layout::HouseOffset::FutureStockAmounts + index * 4u,NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned,00433BF9,True
+C2HumanCommandAccess.cpp,468,gStaticAtomicAnimationData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId) * 0x138u + 0x38u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId) * NC2Layout::RecordSize::AtomicAnimation + NC2Layout::AtomicAnimationOffset::InterruptableUnsigned",0045CC64,True
+C2HumanCommandAccess.cpp,502,human,offset + 1,offset + NC2Layout::UserNetworkCommandOffset::PlayerId,0043BB4E,True
+C2HumanCommandAccess.cpp,503,human,offset + 4,offset + NC2Layout::UserNetworkCommandOffset::ObjectId,0043BB4E,True
+C2HumanCommandAccess.cpp,504,human,offset + 8,offset + NC2Layout::UserNetworkCommandOffset::ObjectRevision,0043BB4E,True
+C2HumanCommandAccess.cpp,505,human,offset + 12,offset + NC2Layout::UserNetworkCommandOffset::Parameter1,0043BB4E,True
+C2HumanCommandAccess.cpp,506,human,offset + 16,offset + NC2Layout::UserNetworkCommandOffset::Parameter2,0043BB4E,True
+C2HumanFamily.cpp,121,partner,0xB28,NC2Layout::HumanOffset::HomeHouseId,0043C8EA,True
+C2HumanFamily.cpp,122,partner,0xB2C,NC2Layout::HumanOffset::HomeHouseRevision,0043C8EA,True
+C2HumanFamily.cpp,125,partner,0xB30,NC2Layout::HumanOffset::WorkCenter,0043C8EA,True
+C2HumanFamily.cpp,125,partner,0x38C,NC2Layout::HumanOffset::WorkRetryCount,0043C8EA,True
+C2HumanFamily.cpp,172,partner,4,NC2Layout::HumanOffset::HumanId,00443DEB,True
+C2HumanFamily.cpp,175,partner,4,NC2Layout::HumanOffset::HumanId,00443DEB,True
+C2HumanFamily.cpp,176,partner,8,NC2Layout::HumanOffset::UniqueId,00443DEB,True
+C2HumanFamily.cpp,214,partner,12,NC2Layout::HumanOffset::MapMoveableId,00444BA8,True
+C2HumanFamily.cpp,216,partner,4,NC2Layout::HumanOffset::HumanId,00444BA8,True
+C2HumanFamily.cpp,217,partner,0xB1C,NC2Layout::HumanOffset::WaitingHumanId,00444BA8,True
+C2HumanFamily.cpp,316,partner,0xB28,NC2Layout::HumanOffset::HomeHouseId,0044563A,True
+C2HumanFamily.cpp,322,man,0xB34,NC2Layout::HumanOffset::WorkAttachmentHouseId,0044563A,True
+C2HumanFamily.cpp,335,partner,4,NC2Layout::HumanOffset::HumanId,0044563A,True
+C2HumanFamily.cpp,339,partner,0xB28,NC2Layout::HumanOffset::HomeHouseId,0044563A,True
+C2HumanFamily.cpp,341,partner,0xB28,NC2Layout::HumanOffset::HomeHouseId,0044563A,True
+C2HumanFamily.cpp,383,Spouse(human),0xB24,NC2Layout::HumanOffset::ChildId,00469A16,True
+C2HumanGoodieTasks.cpp,186,other,4,NC2Layout::HumanOffset::HumanId,0045D533,True
+C2HumanGoodieTasks.cpp,187,other,8,NC2Layout::HumanOffset::UniqueId,0045D533,True
+C2HumanSocialJobs.cpp,41,other,4,NC2Layout::HumanOffset::HumanId,,True
+C2HumanSocialJobs.cpp,42,other,8,NC2Layout::HumanOffset::UniqueId,,True
+C2HumanVehicleJobs.cpp,122,definition,0x20u + stage * 4u,NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned,0045DC3F,True
+C2LogicLifetimeAccess.cpp,56,manager,base + 0x18,base + NC2Layout::GameAssistantPlayerOffset::EquipCivilianShoes,00418AE1,True
+C2LogicLifetimeAccess.cpp,57,manager,base + 0x19,base + NC2Layout::GameAssistantPlayerOffset::EquipCivilianWoodenTools,00418AE1,True
+C2LogicLifetimeAccess.cpp,58,manager,base + 0x1A,base + NC2Layout::GameAssistantPlayerOffset::EquipCivilianIronTools,00418AE1,True
+C2LogicLifetimeAccess.cpp,59,manager,base + 0x1B,base + NC2Layout::GameAssistantPlayerOffset::EquipCivilianMead,00418AE1,True
+C2LogicLifetimeAccess.cpp,60,manager,base + 0x1C,base + NC2Layout::GameAssistantPlayerOffset::EquipSoldierShoes,00418AE1,True
+C2LogicLifetimeAccess.cpp,61,manager,base + 0x1D,base + NC2Layout::GameAssistantPlayerOffset::EquipSoldierMead,00418AE1,True
+C2LogicLifetimeAccess.cpp,72,manager,base + 0x24,base + NC2Layout::GameAssistantPlayerOffset::GirlRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,72,manager,base + 0x24,base + NC2Layout::GameAssistantPlayerOffset::GirlRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,75,manager,base + 0x20,base + NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,75,manager,base + 0x20,base + NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,77,manager,base + 0x28,base + NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,77,manager,base + 0x28,base + NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget,00418AE1,True
+C2LogicLifetimeAccess.cpp,78,manager,base + 0x2Cu + static_cast<std::uint32_t>(command - 21) * 4u,base + NC2Layout::GameAssistantPlayerOffset::SpearmanRequestBudgetUnsigned + static_cast<std::uint32_t>(command - SwitchIds::GameAssistantCommand::RequestSpearmen) * NC2Layout::RecordSize::AssistantRequestValueUnsigned,00418AE1,True
+C2LogicLifetimeAccess.cpp,78,manager,base + 0x2Cu + static_cast<std::uint32_t>(command - 21) * 4u,base + NC2Layout::GameAssistantPlayerOffset::SpearmanRequestBudgetUnsigned + static_cast<std::uint32_t>(command - SwitchIds::GameAssistantCommand::RequestSpearmen) * NC2Layout::RecordSize::AssistantRequestValueUnsigned,00418AE1,True
+C2LogicLifetimeAccess.cpp,240,manager,0x30,NC2Layout::OwnedArrayHandlerOffset::OwnedEntries,00419F41,True
+C2LogicLifetimeAccess.cpp,264,entry,0x42,NC2Layout::MapPathfinderOffset::CurrentPositionY,0041CDCC,True
+C2LogicLifetimeAccess.cpp,265,entry,0x40,NC2Layout::MapPathfinderOffset::CurrentPosition,0041CDCC,True
+C2LogicLifetimeAccess.cpp,266,entry,0x46,NC2Layout::MapPathfinderOffset::DestinationPositionY,0041CDCC,True
+C2LogicLifetimeAccess.cpp,267,entry,0x44,NC2Layout::MapPathfinderOffset::DestinationPosition,0041CDCC,True
+C2MapMoveableAccess.cpp,515,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,0042EA28,True
+C2MapMoveableAccess.cpp,515,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,0042EA28,True
+C2MapMoveableAccess.cpp,528,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,0042EAC4,True
+C2MapMoveableAccess.cpp,528,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,0042EAC4,True
+C2MapMoveableAccess.cpp,560,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,004375B9,True
+C2MapMoveableAccess.cpp,560,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,004375B9,True
+C2MapMoveableAccess.cpp,589,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00437689,True
+C2MapMoveableAccess.cpp,589,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00437689,True
+C2MapMoveableAccess.cpp,603,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00441AC3,True
+C2MapMoveableAccess.cpp,603,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00441AC3,True
+C2MapMoveableAccess.cpp,632,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00441B9A,True
+C2MapMoveableAccess.cpp,632,data,offset + 4,offset + NC2Layout::SectorObjectListOffset::Count,00441B9A,True
+C2MapSectorRouting.cpp,85,sector,0x53C,NC2Layout::SectorAttachmentOffset::NeutralAggressiveAnimalCount,00454405,True
+C2MapSectorRouting.cpp,89,data,0x24,NC2Layout::SectorPlayerOffset::MilitaryVehicleCount,00454405,True
+C2MapSectorRouting.cpp,89,data,0x2C,NC2Layout::SectorPlayerOffset::MilitaryHouseCount,00454405,True
+C2MapSectorRouting.cpp,91,data,4,NC2Layout::SectorPlayerOffset::CivilianCount,00454405,True
+C2MapSectorRouting.cpp,91,data,0x1C,NC2Layout::SectorPlayerOffset::MilitaryHumanCount,00454405,True
+C2MapSectorRouting.cpp,92,data,4,NC2Layout::SectorPlayerOffset::CivilianCount,00454405,True
+C2MapSectorRouting.cpp,92,data,0x14,NC2Layout::SectorPlayerOffset::CivilianHouseCount,00454405,True
+C2MapSectorRouting.cpp,92,data,0x3C,NC2Layout::SectorPlayerOffset::AggressiveAnimalCount,00454405,True
+C2MapSectorRouting.cpp,92,data,0x1C,NC2Layout::SectorPlayerOffset::MilitaryHumanCount,00454405,True
+C2MapSectorRouting.cpp,93,data,0x14,NC2Layout::SectorPlayerOffset::CivilianHouseCount,00454405,True
+C2MapSectorRouting.cpp,93,data,0x3C,NC2Layout::SectorPlayerOffset::AggressiveAnimalCount,00454405,True
+C2MapSectorRouting.cpp,93,data,0x1C,NC2Layout::SectorPlayerOffset::MilitaryHumanCount,00454405,True
+C2MapSectorRouting.cpp,145,workspace,0x0D,NC2Layout::SectorPathfinderOffset::AllowVerticalDirectionsFlag,0044FD3E,True
+C2MapSectorRouting.cpp,150,workspace,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,0044FD3E,True
+C2MapSectorRouting.cpp,336,output,0,NC2Layout::MapCoordinatePairOffset::Coordinates,00450A4D,True
+C2MapSectorRouting.cpp,369,sector,0x53C,NC2Layout::SectorAttachmentOffset::NeutralAggressiveAnimalCount,00454218,True
+C2MapSectorRouting.cpp,376,data,0x14,NC2Layout::SectorPlayerOffset::CivilianHouseCount,00454218,True
+C2MapSectorRouting.cpp,376,data,0x2C,NC2Layout::SectorPlayerOffset::MilitaryHouseCount,00454218,True
+C2MapSectorRouting.cpp,376,data,4,NC2Layout::SectorPlayerOffset::CivilianCount,00454218,True
+C2MapSectorRouting.cpp,377,data,0x18,NC2Layout::SectorPlayerOffset::MilitaryHumanHead,00454218,True
+C2MapSectorRouting.cpp,388,data,0x20,NC2Layout::SectorPlayerOffset::MilitaryVehicleHead,00454218,True
+C2MapSectorRouting.cpp,397,data,0x24,NC2Layout::SectorPlayerOffset::MilitaryVehicleCount,00454218,True
+C2MapSectorRouting.cpp,397,data,0x2C,NC2Layout::SectorPlayerOffset::MilitaryHouseCount,00454218,True
+C2MapSectorRouting.cpp,397,data,0x3C,NC2Layout::SectorPlayerOffset::AggressiveAnimalCount,00454218,True
+C2MapSectorRouting.cpp,397,data,0x1C,NC2Layout::SectorPlayerOffset::MilitaryHumanCount,00454218,True
+C2MapSectorRouting.cpp,397,data,0x14,NC2Layout::SectorPlayerOffset::CivilianHouseCount,00454218,True
+C2MissionOnscreenInfoAccess.cpp,28,entry,field * 4u,field * NC2Layout::RecordSize::MissionInfoArgumentUnsigned,004171E7,True
+C2MissionOnscreenInfoAccess.cpp,40,info,0,NC2Layout::MissionOnscreenInfoOffset::Type,00417323,True
+C2MissionOnscreenInfoAccess.cpp,90,info,4,NC2Layout::MissionOnscreenInfoOffset::StringId,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,90,info,0,NC2Layout::MissionOnscreenInfoOffset::Type,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,93,info,8,NC2Layout::MissionTypedAreaInfoOffset::ObjectType,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,93,info,0xC,NC2Layout::MissionTypedAreaInfoOffset::CenterX,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,93,info,0x10,NC2Layout::MissionTypedAreaInfoOffset::CenterY,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,93,info,0x14,NC2Layout::MissionTypedAreaInfoOffset::Radius,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,94,info,0x18,NC2Layout::MissionTypedAreaInfoOffset::TargetCount,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,98,info,8,NC2Layout::MissionHumanAreaInfoOffset::CenterX,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,98,info,0xC,NC2Layout::MissionHumanAreaInfoOffset::CenterY,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,98,info,0x10,NC2Layout::MissionHumanAreaInfoOffset::Radius,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,103,info,0x14,NC2Layout::MissionHumanAreaInfoOffset::TargetCount,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,107,info,8,NC2Layout::MissionTypedAreaInfoOffset::ObjectType,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,107,info,0xC,NC2Layout::MissionTypedAreaInfoOffset::CenterX,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,107,info,0x10,NC2Layout::MissionTypedAreaInfoOffset::CenterY,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,108,info,0x14,NC2Layout::MissionTypedAreaInfoOffset::Radius,0041736D,True
+C2MissionOnscreenInfoAccess.cpp,109,info,0x18,NC2Layout::MissionTypedAreaInfoOffset::TargetCount,0041736D,True
+C2SavegameStateAccess.cpp,189,manager,index * 0x3C,index * NC2Layout::RecordSize::Tribute,00419E3D,True
+C2SavegameStateAccess.cpp,215,manager,4,NC2Layout::ArrayHandlerOffset::Capacity,0040B9D5,True
+C2SavegameStateAccess.cpp,243,manager,4,NC2Layout::ArrayHandlerOffset::Capacity,0040BBE3,True
+C2SavegameStateAccess.cpp,280,manager,4,NC2Layout::ArrayHandlerOffset::Capacity,0041CE07,True
+C2SavegameStateAccess.cpp,314,manager,4,NC2Layout::ArrayHandlerOffset::Capacity,00419FB6,True
+C2SavegameStateAccess.cpp,332,manager,0x30,NC2Layout::OwnedArrayHandlerOffset::OwnedEntries,00419FEA,True
+GouraudShader.cpp,121,NXBasics::g16BitPixelConverter,0x3A,NC2Layout::HighColorConverterOffset::UsesRgb565,,True
+GouraudShader.cpp,128,converter,0x0C + channel * 2,NC2Layout::HighColorConverterOffset::RedMask + channel * NC2Layout::RecordSize::PixelChannelMask16,,True
+GouraudShader.cpp,128,converter,4 + channel * 4,NC2Layout::TrueColorConverterOffset::RedMask + channel * NC2Layout::RecordSize::PixelChannelValue32,,True
+GouraudShader.cpp,129,converter,0x14 + channel * 4,NC2Layout::HighColorConverterOffset::RedRightShift + channel * NC2Layout::RecordSize::PixelChannelValue32,,True
+GouraudShader.cpp,130,converter,0x20 + channel * 4,NC2Layout::HighColorConverterOffset::RedLeftShift + channel * NC2Layout::RecordSize::PixelChannelValue32,,True
+GouraudShader.cpp,130,converter,0x1C + channel * 4,NC2Layout::TrueColorConverterOffset::RedLeftShift + channel * NC2Layout::RecordSize::PixelChannelValue32,,True
+GouraudShader.cpp,131,converter,0x2C + channel * 4,NC2Layout::HighColorConverterOffset::RedAdjustment + channel * NC2Layout::RecordSize::PixelChannelValue32,,True
+GouraudShader.cpp,133,shader.bitmap,highColor ? 0x28 : 0x2C,highColor ? NC2Layout::BitmapStorageOffset::HighColorMemory : NC2Layout::BitmapStorageOffset::TrueColorMemory,,True
+GouraudShader.cpp,134,shader.bitmap,0x30,NC2Layout::BitmapStorageOffset::RowPixelCount,,True
+GuiBitmapToolElementAccess.cpp,326,handler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004B974C,True
+GuiBitmapToolElementAccess.cpp,354,handler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004B982A,True
+InGameGuiDiplomacyWindow.cpp,217,overview,0x806C,NC2Layout::OverviewElementOffset::DrawCivilians,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,218,overview,0x806D,NC2Layout::OverviewElementOffset::DrawMilitaryHumans,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,219,overview,0x806E,NC2Layout::OverviewElementOffset::DrawAnimals,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,220,overview,0x806F,NC2Layout::OverviewElementOffset::DrawVehicles,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,221,overview,0x8070,NC2Layout::OverviewElementOffset::DrawHouses,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,222,overview,0x8072,NC2Layout::OverviewElementOffset::DrawGuides,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,224,overview,0x8044,NC2Layout::OverviewElementOffset::FullRedrawRequested,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,225,overview,0x8075,NC2Layout::OverviewElementOffset::UsePatternDebugColors,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,226,overview,0x8044,NC2Layout::OverviewElementOffset::FullRedrawRequested,004AF29C,True
+InGameGuiDiplomacyWindow.cpp,227,overview,0x807B,NC2Layout::OverviewElementOffset::MouseWheelZoomEnabled,004AF29C,True
+InGameGuiGlobalGameSettingsWindow.cpp,48,window,0x70,NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime,004C1BF3,True
+InGameGuiGlobalGameSettingsWindow.cpp,101,window,0x70,NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime,004C1CD9,True
+InGameGuiGlobalGameSettingsWindow.cpp,202,NC2Logic::gGameAssistantManager,static_cast<std::uint32_t>(player) * 0x38u + offset,static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameAssistantPlayerUnsigned + offset,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,218,list,0xC,NC2Layout::GuiBaseElementOffset::Width,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,228,element,0x4C,NC2Layout::GuiTextButtonOffset::MessageParameter1,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,228,element,0x50,NC2Layout::GuiTextButtonOffset::MessageParameter2,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,229,element,0x56,NC2Layout::GuiTextButtonOffset::DisabledFlag,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,239,window,0x70,NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime,004C2502,True
+InGameGuiGlobalGameSettingsWindow.cpp,253,NC2Logic::gGameAssistantManager,static_cast<std::uint32_t>(player) * 0x38u + offset,static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameAssistantPlayerUnsigned + offset,004C2F2B,True
+InGameGuiGroupSelectionWindows.cpp,160,receiver,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004BEE45,True
+InGameGuiGroupSelectionWindows.cpp,215,receiver,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004BF326,True
+InGameGuiHelpWindow.cpp,73,window,0x6C,NC2Layout::BaseToolWindowOffset::BackgroundStyle,004C31CA,True
+InGameGuiHelpWindow.cpp,87,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C31CA,True
+InGameGuiHelpWindow.cpp,106,window,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned,004C31CA,True
+InGameGuiHelpWindow.cpp,163,element,0x34,NC2Layout::HypertextGuiElementOffset::Display,004C34A8,True
+InGameGuiHelpWindow.cpp,185,window,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned,004C34A8,True
+InGameGuiHelpWindow.cpp,217,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C34A8,True
+InGameGuiHelpWindow.cpp,300,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C3FA2,True
+InGameGuiHelpWindow.cpp,300,window,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u,NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned,004C3FA2,True
+InGameGuiHelpWindow.cpp,324,element,0x3A,NC2Layout::HypertextGuiElementOffset::FillBackground,004C3FA2,True
+InGameGuiHelpWindow.cpp,371,window,NC2Layout::HelpWindowOffset::GoodsUnsigned + static_cast<std::uint32_t>(index) * 4u,NC2Layout::HelpWindowOffset::GoodsUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpGoodIdUnsigned,004C3730,True
+InGameGuiHelpWindow.cpp,383,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C3730,True
+InGameGuiHelpWindow.cpp,401,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C3730,True
+InGameGuiHelpWindow.cpp,412,window,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * 8u,NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpHouseEntryUnsigned,004C3730,True
+InGameGuiHouseGoodTypeElement.cpp,45,receiver,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004A95A9,True
+InGameGuiHouseGoodTypeElement.cpp,66,receiver,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004A9714,True
+InGameGuiHumanActionButtons.cpp,93,manager,0xD0,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX,004A10CB,True
+InGameGuiHumanActionButtons.cpp,93,manager,0xD4,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY,004A10CB,True
+InGameGuiHumanActionButtons.cpp,98,manager,0xCC,NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum,004A10CB,True
+InGameGuiHumanActionButtons.cpp,102,manager,0xCC,NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum,004A10CB,True
+InGameGuiHumanActionButtons.cpp,138,manager,0xD0,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX,004A10CB,True
+InGameGuiHumanActionButtons.cpp,138,manager,0xD4,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY,004A10CB,True
+InGameGuiHumanActionButtons.cpp,171,element,0x34,NC2Layout::GuiGfxButtonOffset::Centered,004A10CB,True
+InGameGuiHumanActionButtons.cpp,171,element,0x44,NC2Layout::GuiGfxButtonOffset::ImmediateTooltip,004A10CB,True
+InGameGuiHumanActionButtons.cpp,178,manager,0xCC,NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum,004A10CB,True
+InGameGuiHumanActionButtons.cpp,187,this,0xD0,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX,004A10A4,True
+InGameGuiHumanActionButtons.cpp,187,mouse,0,NC2Layout::MouseManagerPositionOffset::X,004A10A4,True
+InGameGuiHumanActionButtons.cpp,187,this,0xD4,NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY,004A10A4,True
+InGameGuiHumanActionButtons.cpp,187,mouse,4,NC2Layout::MouseManagerPositionOffset::Y,004A10A4,True
+InGameGuiHumanListWindow.cpp,324,parent,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004B1691,True
+InGameGuiHumanListWindow.cpp,332,handler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004B1691,True
+InGameGuiHumanListWindow.cpp,344,handler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004B16F7,True
+InGameGuiKeyAssignmentManager.cpp,143,mStorage,entry + 4u,entry + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,143,mStorage,entry + 8u,entry + NC2Layout::KeyAssignmentViewOffset::FirstAuxiliaryCodeUnsigned,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,144,mStorage,entry + 9u,entry + NC2Layout::KeyAssignmentViewOffset::FirstShiftFlagUnsigned,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,144,keyManager,0,NC2Layout::KeyManagerOffset::ModifierFlags,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,145,mStorage,entry + 10u,entry + NC2Layout::KeyAssignmentViewOffset::FirstControlFlagUnsigned,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,145,keyManager,0,NC2Layout::KeyManagerOffset::ModifierFlags,004A3DA2,True
+InGameGuiKeyAssignmentManager.cpp,158,mStorage,offset + 4u + static_cast<std::uint32_t>(index) * 8u,offset + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::KeyBindingUnsigned,004A3E03,True
+InGameGuiKeyAssignmentManager.cpp,173,mStorage,offset + 4u + count * 8u,offset + NC2Layout::KeyAssignmentViewOffset::FirstVirtualKeyUnsigned + count * NC2Layout::RecordSize::KeyBindingUnsigned,004A3E5B,True
+InGameGuiKeyAssignmentManager.cpp,174,mStorage,"offset + 8u + Read<std::uint32_t>(mStorage, offset) * 8u","offset + NC2Layout::KeyAssignmentViewOffset::FirstAuxiliaryCodeUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned",004A3E5B,True
+InGameGuiKeyAssignmentManager.cpp,175,mStorage,"offset + 9u + Read<std::uint32_t>(mStorage, offset) * 8u","offset + NC2Layout::KeyAssignmentViewOffset::FirstShiftFlagUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned",004A3E5B,True
+InGameGuiKeyAssignmentManager.cpp,176,mStorage,"offset + 10u + Read<std::uint32_t>(mStorage, offset) * 8u","offset + NC2Layout::KeyAssignmentViewOffset::FirstControlFlagUnsigned + Read<std::uint32_t>(mStorage, offset) * NC2Layout::RecordSize::KeyBindingUnsigned",004A3E5B,True
+InGameGuiManager_MessageHandlers.cpp,376,handler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004A1B29,True
+InGameGuiManager_State.cpp,51,calculator,0,NC2Layout::FrameRateCalculatorOffset::PreviousTick,00479975,True
+InGameGuiManager_State.cpp,53,calculator,0x7C,NC2Layout::FrameRateCalculatorOffset::NextIntervalIndex,00479975,True
+InGameGuiManager_State.cpp,54,calculator,4u + position * 4u,NC2Layout::FrameRateCalculatorOffset::FrameIntervalsUnsigned + position * NC2Layout::RecordSize::FrameIntervalUnsigned,00479975,True
+InGameGuiManager_State.cpp,56,calculator,0x7C,NC2Layout::FrameRateCalculatorOffset::NextIntervalIndex,00479975,True
+InGameGuiManager_State.cpp,57,calculator,0,NC2Layout::FrameRateCalculatorOffset::PreviousTick,00479975,True
+InGameGuiManager_State.cpp,59,calculator,4u + index * 4u,NC2Layout::FrameRateCalculatorOffset::FrameIntervalsUnsigned + index * NC2Layout::RecordSize::FrameIntervalUnsigned,00479975,True
+InGameGuiManager_State.cpp,63,calculator,0x80,NC2Layout::FrameRateCalculatorOffset::FrameRate,00479975,True
+InGameGuiManager_State.cpp,150,world,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004A2C0B,True
+InGameGuiManager_State.cpp,185,this,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement,004A0184,True
+InGameGuiManager_State.cpp,186,this,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement,004A0184,True
+InGameGuiManager_State.cpp,245,this,0xCC,NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum,004A1BC3,True
+InGameGuiManager_State.cpp,247,this,0xCC,NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum,004A1BC3,True
+InGameGuiManager_State.cpp,324,this,0xE8 + index * 4u,NC2Layout::InGameGuiManagerOffset::GuiMarkers + index * NC2Layout::RecordSize::PackedMapPointUnsigned,004A2EA7,True
+InGameGuiManager_State.cpp,329,this,0xE8 + index * 4u,NC2Layout::InGameGuiManagerOffset::GuiMarkers + index * NC2Layout::RecordSize::PackedMapPointUnsigned,004A2EC0,True
+InGameGuiMessageMiniButtonAccess.cpp,30,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D10E4,True
+InGameGuiMessageMiniButtonAccess.cpp,49,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D110A,True
+InGameGuiMessageMiniButtonAccess.cpp,64,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,69,NC2Logic::CHumanArray::mStaticVars,SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + 0x18,SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,70,record,8,NC2Layout::GuiMessageEnvelopeOffset::Type,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,76,record,0x18,NC2Layout::GuiMessageEnvelopeOffset::HumanId,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,79,record,8,NC2Layout::GuiMessageEnvelopeOffset::Type,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,80,NC2Logic::CHumanArray::mStaticVars,human * NC2Logic::CHumanArray::ElementSize + 0x0C,human * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::MapMoveableId,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,83,record,0x28,NC2Layout::GuiMessageEnvelopeOffset::VehicleId,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,86,NC2Logic::CVehicleArray::mStaticVars,vehicle * NC2Logic::CVehicleArray::ElementSize + 0x1E8,vehicle * NC2Logic::CVehicleArray::ElementSize + NC2Layout::VehicleOffset::LogicType,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,94,record,8,NC2Layout::GuiMessageEnvelopeOffset::Type,004D1152,True
+InGameGuiMessageMiniButtonAccess.cpp,107,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D1291,True
+InGameGuiMessageMiniButtonAccess.cpp,114,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D12A4,True
+InGameGuiMessageMiniButtonAccess.cpp,158,button,0x30,NC2Layout::MessageMiniButtonOffset::MessageId,004D107B,True
+InGameGuiMessageWindowAccess.cpp,42,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,50,message,0x18,NC2Layout::GuiMessageEnvelopeOffset::HumanId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,50,message,0x18,NC2Layout::GuiMessageEnvelopeOffset::HumanId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,51,message,0x20,NC2Layout::GuiMessageEnvelopeOffset::HouseId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,51,message,0x20,NC2Layout::GuiMessageEnvelopeOffset::HouseId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,52,message,0x28,NC2Layout::GuiMessageEnvelopeOffset::VehicleId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,52,message,0x28,NC2Layout::GuiMessageEnvelopeOffset::VehicleId,004D0FF3,True
+InGameGuiMessageWindowAccess.cpp,71,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D09C3,True
+InGameGuiMessageWindowAccess.cpp,89,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0AB0,True
+InGameGuiMessageWindowAccess.cpp,91,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0AB0,True
+InGameGuiMessageWindowAccess.cpp,112,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0ACF,True
+InGameGuiMessageWindowAccess.cpp,117,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0ACF,True
+InGameGuiMessageWindowAccess.cpp,135,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,141,message,0x18,NC2Layout::GuiMessageEnvelopeOffset::HumanId,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,150,message,8,NC2Layout::GuiMessageEnvelopeOffset::Type,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,153,message,0x38,NC2Layout::GuiMessageEnvelopeOffset::FirstGood,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,153,message,0x208,NC2Layout::GuiMessageEnvelopeOffset::FirstHouse,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,173,message,offset + 4u + i * 4u,offset + NC2Layout::CountedDwordListOffset::ItemsUnsigned + i * NC2Layout::RecordSize::MessagePayloadItemUnsigned,004D0B5E,True
+InGameGuiMessageWindowAccess.cpp,234,window,0x70,NC2Layout::MessagePresentationWindowOffset::MessageId,004D08EB,True
+InGameGuiMissionOnscreenInfoWindow.cpp,58,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B867A,True
+InGameGuiMissionOnscreenInfoWindow.cpp,60,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B867A,True
+InGameGuiMissionOnscreenInfoWindow.cpp,76,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B8A0A,True
+InGameGuiMissionOnscreenInfoWindow.cpp,78,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B8A0A,True
+InGameGuiMissionOnscreenInfoWindow.cpp,79,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B8A0A,True
+InGameGuiMissionOnscreenInfoWindow.cpp,86,window,0x80,NC2Layout::MissionOnscreenWindowOffset::LastRefreshTime,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,92,window,0x84 + row * 0x191u,NC2Layout::MissionOnscreenWindowOffset::TextRows + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,93,window,0x214 + row * 0x191u,NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,96,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,126,window,0x214 + row * 0x191u,NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,129,window,0x80,NC2Layout::MissionOnscreenWindowOffset::LastRefreshTime,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,131,window,0x7C,NC2Layout::MissionOnscreenWindowOffset::MissionStrings,004B86C8,True
+InGameGuiMissionOnscreenInfoWindow.cpp,140,window,0x214 + row * 0x191u,NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned,004B86C8,True
+InGameGuiNetworkInfoWindow.cpp,103,window,0x70,NC2Layout::NetworkInfoWindowOffset::Page,004C52CA,True
+InGameGuiNetworkInfoWindow.cpp,145,window,0x70,NC2Layout::NetworkInfoWindowOffset::Page,004C5FD5,True
+InGameGuiNetworkInfoWindow.cpp,284,window,0x70,NC2Layout::NetworkInfoWindowOffset::Page,004C53C0,True
+InGameGuiNetworkInfoWindow.cpp,308,control,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,004C53C0,True
+InGameGuiNetworkInfoWindow.cpp,308,control,4,NC2Layout::GameControlPlayerOffset::Type,004C53C0,True
+InGameGuiNetworkInfoWindow.cpp,360,control,0,NC2Layout::GameControlPlayerOffset::ActiveFlag,004C53C0,True
+InGameGuiNetworkInfoWindow.cpp,360,control,0x14,NC2Layout::GameControlPlayerOffset::NetworkPlayerId,004C53C0,True
+InGameGuiSimpleSelectionWindows.cpp,45,guide,0,NC2Layout::GuideOffset::AllocatedFlag,,True
+InGameGuiSimpleSelectionWindows.cpp,92,guide,4,NC2Layout::GuideOffset::PlayerId,004BE786,True
+InGameGuiSimpleSelectionWindows.cpp,92,guide,0x10,NC2Layout::GuideOffset::UniqueId,004BE786,True
+InGameGuiSimpleSelectionWindows.cpp,102,guide,0x7C + good * 4u,NC2Layout::GuideOffset::GoodsCounts + good * 4u,004BE83F,False
+InGameGuiStatisticsWindow.cpp,206,element,0x36,NC2Layout::GuiGfxButtonOffset::Selected,004B1FBA,True
+InGameGuiStatisticsWindow.cpp,207,element,0x35,NC2Layout::GuiGfxButtonOffset::RectangularStyle,004B1FBA,True
+InGameGuiStatisticsWindow.cpp,258,element,0x36,NC2Layout::GuiGfxButtonOffset::Selected,004B1FBA,True
+InGameGuiStatisticsWindow.cpp,259,element,0x35,NC2Layout::GuiGfxButtonOffset::RectangularStyle,004B1FBA,True
+InGameGuiStatisticsWindow.cpp,260,element,0x44,NC2Layout::GuiGfxButtonOffset::ImmediateTooltip,004B1FBA,True
+InGameGuiStatisticsWindow.cpp,345,element,0xF9,NC2Layout::GuiTextElementOffset::FillBackgroundFlag,004B28C8,True
+InGameGuiStatisticsWindow.cpp,370,element,0xF9,NC2Layout::GuiTextElementOffset::FillBackgroundFlag,004B2A49,True
+InGameGuiTechTreeWindow.cpp,187,palette,0x400,NC2Layout::TechTreeFontPaletteOffset::NormalColor,004A5AEC,True
+InGameGuiTechTreeWindow.cpp,188,palette,0x2D4,NC2Layout::TechTreeFontPaletteOffset::UnavailableColor,004A5AEC,True
+InGameGuiTechTreeWindow.cpp,189,palette,0x194,NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor,004A5AEC,True
+InGameGuiTechTreeWindow.cpp,190,element,0x30,NC2Layout::GuiTextButtonOffset::Caption,004A5AEC,True
+InGameGuiTechTreeWindow.cpp,221,resources.fontWhitePalette,0x400,NC2Layout::TechTreeFontPaletteOffset::NormalColor,004A5C38,True
+InGameGuiTechTreeWindow.cpp,227,resources.fontWhitePalette,0x194,NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor,004A5C38,True
+InGameGuiTechTreeWindow.cpp,232,resources.fontWhitePalette,0x2D4,NC2Layout::TechTreeFontPaletteOffset::UnavailableColor,004A5C38,True
+InGameGuiTechTreeWindow.cpp,273,resources.fontWhitePalette,0x400,NC2Layout::TechTreeFontPaletteOffset::NormalColor,004A5D87,True
+InGameGuiTechTreeWindow.cpp,274,resources.fontWhitePalette,0x2D4,NC2Layout::TechTreeFontPaletteOffset::UnavailableColor,004A5D87,True
+InGameGuiTechTreeWindow.cpp,275,resources.fontWhitePalette,0x194,NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor,004A5D87,True
+InGameGuiTechTreeWindow.cpp,276,element,0x30,NC2Layout::GuiTextButtonOffset::Caption,004A5D87,True
+InGameGuiTechTreeWindow.cpp,317,window,0x6C,NC2Layout::BaseToolWindowOffset::BackgroundStyle,004A5F3B,True
+InGameGuiTechTreeWindow.cpp,554,element,0x36,NC2Layout::GuiGfxButtonOffset::Selected,004A6A8D,True
+InGameGuiTechTreeWindow.cpp,555,element,0x35,NC2Layout::GuiGfxButtonOffset::RectangularStyle,004A6A8D,True
+InGameGuiTechTreeWindow.cpp,556,element,0x44,NC2Layout::GuiGfxButtonOffset::ImmediateTooltip,004A6A8D,True
+MainMenuGuiManager_Screens.cpp,569,element,0x3A,NC2Layout::HypertextGuiElementOffset::FillBackground,004D3A6D,True
+MainMenuGuiManager_Screens.cpp,569,element,0x38,NC2Layout::HypertextGuiElementOffset::WheelScrollingEnabled,004D3A6D,True
+MainMenuWorldDisplayElement.cpp,245,converter,NC2Layout::HighColorConverterOffset::RedShift,NC2Layout::HighColorConverterOffset::RedAdjustment,004DAB77,False
+MainMenuWorldDisplayElement.cpp,246,converter,NC2Layout::HighColorConverterOffset::GreenShift,NC2Layout::HighColorConverterOffset::GreenAdjustment,004DAB77,False
+MainMenuWorldDisplayElement.cpp,247,converter,NC2Layout::HighColorConverterOffset::BlueShift,NC2Layout::HighColorConverterOffset::BlueAdjustment,004DAB77,False
+WorldDisplayElementAccess.cpp,112,slot,0,NC2Layout::HouseAttachmentOffset::RoleMask,004BABE0,True
+WorldDisplayElementAccess.cpp,112,slot,4,NC2Layout::HouseAttachmentOffset::HumanId,004BABE0,True
+WorldDisplayElementAccess.cpp,257,NC2Logic::CHumanArray::mStaticVars,"Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId) * NC2Logic::CHumanArray::ElementSize + 0x10","Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::PlayerId",004BB2F2,True
+WorldDisplayElementAccess.cpp,258,NC2Logic::CVehicleArray::mStaticVars,"Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId) * NC2Logic::CVehicleArray::ElementSize + 0x1E0","Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId) * NC2Logic::CVehicleArray::ElementSize + NC2Layout::VehicleOffset::PlayerId",004BB2F2,True
+WorldDisplayElementAccess.cpp,259,NC2Logic::CHouseArray::mStaticVars,"Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId) * NC2Logic::CHouseArray::ElementSize + 0x0C","Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId) * NC2Logic::CHouseArray::ElementSize + NC2Layout::HouseOffset::PlayerId",004BB2F2,True
+WorldDisplayElementAccess.cpp,275,manager,0x190,NC2Layout::InGameGuiManagerOffset::MeasuredFrameRate,004BB035,True
+WorldDisplayElementAccess.cpp,290,NInGameGuiManager::CInGameGuiManager::sTheObjectPtr,0xDC,NC2Layout::InGameGuiManagerOffset::MainMode,004BA3BE,True
+WorldDisplayElementAccess.cpp,304,overrideHandler,0,NC2Layout::GuiBaseElementOffset::VirtualTable,004BA3BE,True
+WorldDisplayElementAccess.cpp,305,element,offset + 4,offset + NC2Layout::WorldClickHandlerOffset::Command,004BA3BE,True
+WorldDisplayElementAccess.cpp,392,mouse,0x4C,NC2Layout::MouseManagerOffset::PositionOverrideCallback,004BA3BE,True
+WorldDisplayElementAccess.cpp,410,manager,0xE3,NC2Layout::InGameGuiManagerOffset::BorderScroll,004BA3BE,True
+WorldDisplayElementAccess.cpp,689,"Read<void*>(element, NC2Layout::WorldGuiElementOffset::Bitmap)",4,NC2Layout::BitmapStorageOffset::Depth,004BB57B,True
+WorldDisplayElementAccess.cpp,696,converter,NC2Layout::HighColorConverterOffset::RedShift,NC2Layout::HighColorConverterOffset::RedAdjustment,004BB57B,False
+WorldDisplayElementAccess.cpp,697,converter,NC2Layout::HighColorConverterOffset::GreenShift,NC2Layout::HighColorConverterOffset::GreenAdjustment,004BB57B,False
+WorldDisplayElementAccess.cpp,698,converter,NC2Layout::HighColorConverterOffset::BlueShift,NC2Layout::HighColorConverterOffset::BlueAdjustment,004BB57B,False
+XBitmapFileBMP.cpp,42,info,0,NC2Layout::BitmapInfoHeaderOffset::Size,004985C1,True
+XBitmapFileBMP.cpp,42,info,4,NC2Layout::BitmapInfoHeaderOffset::Width,004985C1,True
+XBitmapFileBMP.cpp,42,info,8,NC2Layout::BitmapInfoHeaderOffset::Height,004985C1,True
+XBitmapFileBMP.cpp,43,info,12,NC2Layout::BitmapInfoHeaderOffset::Planes,004985C1,True
+XBitmapFileBMP.cpp,43,info,14,NC2Layout::BitmapInfoHeaderOffset::BitCount,004985C1,True
+XBitmapFileBMP.cpp,46,info,20,NC2Layout::BitmapInfoHeaderOffset::ImageSize,004985C1,True

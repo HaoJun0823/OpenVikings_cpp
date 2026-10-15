@@ -214,17 +214,17 @@ namespace NC2InGameGuiMiscWindows
 			auto* overview = memory == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewElement_Construct(memory, &area, 2);
 			Write(window, NC2Layout::DiplomacyWindowOffset::OverviewElement, overview);
 			Add(window, overview);
-			Write<std::uint8_t>(overview, 0x806C, 1);
-			Write<std::uint8_t>(overview, 0x806D, 1);
-			Write<std::uint8_t>(overview, 0x806E, 0);
-			Write<std::uint8_t>(overview, 0x806F, 1);
-			Write<std::uint8_t>(overview, 0x8070, 1);
-			Write<std::uint8_t>(overview, 0x8072, 0);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawCivilians, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawMilitaryHumans, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawAnimals, 0);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawVehicles, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawHouses, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawGuides, 0);
 			Write<std::uint8_t>(overview, 0x8074, 1);
-			Write<std::uint8_t>(overview, 0x8044, 1);
-			Write<std::uint8_t>(overview, 0x8075, 0);
-			Write<std::uint8_t>(overview, 0x8044, 1);
-			Write<std::uint8_t>(overview, 0x807B, 0);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::FullRedrawRequested, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::UsePatternDebugColors, 0);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::FullRedrawRequested, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::MouseWheelZoomEnabled, 0);
 		}
 		else if (OtherPlayer(window) != player)
 		{

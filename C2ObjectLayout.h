@@ -6,6 +6,7 @@ namespace NC2Layout
 {
 	namespace AnimalOffset
 	{
+		inline constexpr auto UniqueIdUnsigned = 8u;
 		inline constexpr auto ConstructedState = 0x18;
 		inline constexpr auto AllocatedFlag = 0;
 		inline constexpr auto AnimalId = 4;
@@ -675,6 +676,7 @@ namespace NC2Layout
 
 	namespace HouseOffset
 	{
+		inline constexpr auto UniqueIdUnsigned = 8u;
 		inline constexpr auto AllocatedFlag = 0;
 		inline constexpr auto HouseId = 4;
 		inline constexpr auto UniqueId = 8;
@@ -735,6 +737,8 @@ namespace NC2Layout
 
 	namespace HumanOffset
 	{
+		inline constexpr auto WorkAttachmentVehicleId = 0xB48;
+		inline constexpr auto UniqueIdUnsigned = 8u;
 		inline constexpr auto AllowedProductionGoodFlagsSigned = 0x195;
 
 		inline constexpr auto ProducedGood = 0x1C;
@@ -1635,6 +1639,7 @@ namespace NC2Layout
 	// Windows goods search, guide network and job-experience records.
 	namespace GuideOffset
 	{
+		inline constexpr auto UniqueIdUnsigned = 0x10u;
 		inline constexpr auto MapPositionY = 0x16;
 
 		inline constexpr auto MapPositionX = 0x14;
@@ -1742,6 +1747,17 @@ namespace NC2Layout
 
 	namespace RecordSize
 	{
+		inline constexpr auto KeyAssignmentUnsigned = 36u;
+		inline constexpr auto KeyBindingUnsigned = 8u;
+		inline constexpr auto AssistantRequestValue = 4;
+		inline constexpr auto MapCoordinateComponentUnsigned = 2u;
+		inline constexpr auto HouseArrowSlotUnsigned = 12u;
+		inline constexpr auto Tribute = 0x3C;
+		inline constexpr auto StaticLandscapeFramesUnsigned = 12u;
+		inline constexpr auto PixelChannelValue32 = 4;
+		inline constexpr auto PixelChannelMask16 = 2;
+		inline constexpr auto MissionOnscreenTextRowUnsigned = 0x191u;
+		inline constexpr auto HelpGoodIdUnsigned = 4u;
 		inline constexpr auto MissionInfoArgumentUnsigned = 4u;
 
 		inline constexpr auto StaticLandscapeArea = 8;
@@ -2425,6 +2441,7 @@ namespace NC2Layout
 
 	namespace VehicleOffset
 	{
+		inline constexpr auto UniqueIdUnsigned = 8u;
 		inline constexpr auto PrimaryMilitaryTargetRevisionHighWord = 0x52A;
 
 		inline constexpr auto AllocatedFlag = 0;
@@ -2504,6 +2521,7 @@ namespace NC2Layout
 
 	namespace AtomicAnimationOffset
 	{
+		inline constexpr auto InterruptableUnsigned = 0x38u;
 		inline constexpr auto LengthInTicks = 0x34;
 	}
 
@@ -2823,6 +2841,7 @@ namespace NC2Layout
 
 	namespace AIResourceManagerOffset
 	{
+		inline constexpr auto FirstGoodCheckTerrainFlag = 0x308;
 		inline constexpr auto PlayerId = 0;
 		inline constexpr auto ResourcePoints = 4;
 		inline constexpr auto FirstResourceGood = 12;
@@ -3742,9 +3761,11 @@ namespace NC2Layout
 
 	namespace EngineHouseLogicViewOffset
 	{
-		inline constexpr auto ActionOverlays = 0x494;
+		inline constexpr auto ArrowSlotYUnsigned = 0x1B8u;
+		inline constexpr auto ArrowSlotXUnsigned = 0x1B4u;
+		inline constexpr auto ArrowSlotParameterUnsigned = 0x1BCu;
+		inline constexpr auto ArrowSlotCount = 0x1B0;
 
-		inline constexpr auto ActionOverlayCount = 0x490;
 
 		inline constexpr auto FirstConstructionGood = 0x4C;
 
@@ -4061,6 +4082,9 @@ namespace NC2Layout
 
 	namespace InGameGuiManagerOffset
 	{
+		inline constexpr auto MeasuredFrameRate = 0x190;
+		inline constexpr auto ActionButtonsOriginY = 0xD4;
+		inline constexpr auto ActionButtonsOriginX = 0xD0;
 		inline constexpr auto GuiMarkers = 0xE8;
 
 		inline constexpr auto ActionButtonsChecksum = 0xCC;
@@ -5403,6 +5427,8 @@ namespace NC2Layout
 
 	namespace TrianglePatternTypeOffset
 	{
+		inline constexpr auto IsWater = 5;
+		inline constexpr auto IsLand = 4;
 		inline constexpr auto BioCanPlantOn = 3;
 
 		inline constexpr auto BioCanGrowOn = 2;
@@ -5502,15 +5528,18 @@ namespace NC2Layout
 
 	namespace HighColorConverterOffset
 	{
-		inline constexpr auto BlueShift = 0x34;
+		inline constexpr auto GreenAdjustment = 0x30;
+		inline constexpr auto BlueAdjustment = 0x34;
+		inline constexpr auto RedAdjustment = 0x2C;
+		inline constexpr auto RedLeftShift = 0x20;
+		inline constexpr auto RedRightShift = 0x14;
+		inline constexpr auto UsesRgb565 = 0x3A;
 
 		inline constexpr auto BlueMask = 0x10;
 
-		inline constexpr auto GreenShift = 0x30;
 
 		inline constexpr auto GreenMask = 0x0E;
 
-		inline constexpr auto RedShift = 0x2C;
 
 		inline constexpr auto RedMask = 0x0C;
 	}
@@ -5931,6 +5960,79 @@ namespace NC2Layout
 		inline constexpr auto CenterY = 0xC;
 
 		inline constexpr auto CenterX = 8;
+	}
+
+	namespace TechTreeFontPaletteOffset
+	{
+		inline constexpr auto ForbiddenColor = 0x194;
+		inline constexpr auto UnavailableColor = 0x2D4;
+		inline constexpr auto NormalColor = 0x400;
+	}
+
+	namespace MessageMiniButtonOffset
+	{
+		inline constexpr auto MessageId = 0x30;
+	}
+
+	namespace MissionOnscreenWindowOffset
+	{
+		inline constexpr auto FirstCompactFontFlag = 0x214;
+		inline constexpr auto TextRows = 0x84;
+		inline constexpr auto LastRefreshTime = 0x80;
+		inline constexpr auto MissionStrings = 0x7C;
+	}
+
+	namespace OverviewElementOffset
+	{
+		inline constexpr auto MouseWheelZoomEnabled = 0x807B;
+		inline constexpr auto UsePatternDebugColors = 0x8075;
+		inline constexpr auto FullRedrawRequested = 0x8044;
+		inline constexpr auto DrawGuides = 0x8072;
+		inline constexpr auto DrawHouses = 0x8070;
+		inline constexpr auto DrawVehicles = 0x806F;
+		inline constexpr auto DrawAnimals = 0x806E;
+		inline constexpr auto DrawMilitaryHumans = 0x806D;
+		inline constexpr auto DrawCivilians = 0x806C;
+	}
+
+	namespace WorldClickHandlerOffset
+	{
+		inline constexpr auto Command = 4;
+	}
+
+	namespace TrueColorConverterOffset
+	{
+		inline constexpr auto RedLeftShift = 0x1C;
+		inline constexpr auto RedMask = 4;
+	}
+
+	namespace StaticLandscapeFramesOffset
+	{
+		inline constexpr auto Count = 4;
+		inline constexpr auto Frames = 8;
+	}
+
+	namespace AIRoadManagerOffset
+	{
+		inline constexpr auto PreviousHouseId = 0;
+	}
+
+	namespace GlobalGameSettingsWindowOffset
+	{
+		inline constexpr auto LastRefreshTime = 0x70;
+	}
+
+	namespace NetworkInfoWindowOffset
+	{
+		inline constexpr auto Page = 0x70;
+	}
+
+	namespace KeyAssignmentViewOffset
+	{
+		inline constexpr auto FirstControlFlagUnsigned = 10u;
+		inline constexpr auto FirstShiftFlagUnsigned = 9u;
+		inline constexpr auto FirstAuxiliaryCodeUnsigned = 8u;
+		inline constexpr auto FirstVirtualKeyUnsigned = 4u;
 	}
 
 }

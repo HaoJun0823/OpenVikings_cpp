@@ -18,28 +18,28 @@ namespace NC2Logic
 	// Original function: FUN_00456241.
 	void AIRoadManager_Init(void* manager)
 	{
-		Write<std::int32_t>(manager, 0, -1);
+		Write<std::int32_t>(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId, -1);
 	}
 	// Original function: FUN_00456245; process one production house after outstanding roads finish.
 	void AIRoadManager_DoOneLogicTick(void* manager, std::uint32_t player, const void* resources)
 	{
-		const auto previous = Read<std::int32_t>(manager, 0);
-		if (previous != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) == 0) Write<std::int32_t>(manager, 0, -1);
+		const auto previous = Read<std::int32_t>(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId);
+		if (previous != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) == 0) Write<std::int32_t>(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId, -1);
 		if (Read<std::uint32_t>(RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, player), NC2Layout::BuildPlayerOffset::PointCount) != 0) return;
 		CHouseIterator houses;
 		for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
 		{
-			const auto cursor = Read<std::int32_t>(manager, 0);
+			const auto cursor = Read<std::int32_t>(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId);
 			if (cursor != -1)
 			{
-				if (cursor <= id) Write<std::int32_t>(manager, 0, -1); continue;
+				if (cursor <= id) Write<std::int32_t>(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId, -1); continue;
 			}
 			const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
 			if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
 			const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
 			if (type == 1 || type == 7 || type == 8 || type == 9) continue;
-			const auto good = Read<std::uint32_t>(resources, 0x71C + type * 4);
-			if (Read<std::uint8_t>(resources, 0x308 + good * 16) != 0) continue;
+			const auto good = Read<std::uint32_t>(resources, NC2Layout::AIResourceManagerOffset::HouseGoods + type * NC2Layout::RecordSize::AIResourceIndexValue);
+			if (Read<std::uint8_t>(resources, NC2Layout::AIResourceManagerOffset::FirstGoodCheckTerrainFlag + good * NC2Layout::RecordSize::AIResourceGood) != 0) continue;
 			const auto* source = house + NC2Layout::HouseOffset::DoorEntryPoint;
 			CHouseIterator nearby;
 			for (auto otherId = nearby.GetFirstHouseId(player, source, 20); otherId != -1; otherId = nearby.GetNextHouseId())
@@ -53,7 +53,7 @@ namespace NC2Logic
 					if (otherType != 1 && otherType != 7 && otherType != 8 && otherType != 9 && (static_cast<std::uint32_t>(data.stock[stock].goodType) != good || data.stock[stock].isOutputStock == 0)) continue;
 					std::byte pathfinder[132];
 					// The original point-only constructor is followed by a complete initialization.
-					Write<std::uint16_t>(pathfinder, 0x42, 0); Write<std::uint16_t>(pathfinder, 0x40, 0); Write<std::uint16_t>(pathfinder, 0x46, 0); Write<std::uint16_t>(pathfinder, 0x44, 0);
+					Write<std::uint16_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPositionY, 0); Write<std::uint16_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentPosition, 0); Write<std::uint16_t>(pathfinder, NC2Layout::MapPathfinderOffset::DestinationPositionY, 0); Write<std::uint16_t>(pathfinder, NC2Layout::MapPathfinderOffset::DestinationPosition, 0);
 					MapPathfinderElement_Init(pathfinder);
 					RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, source);
 					MapPathfinderElement_StartPathfinder(pathfinder, source, other + NC2Layout::HouseOffset::DoorEntryPoint, 20, true, false, false, true);
@@ -65,7 +65,7 @@ namespace NC2Logic
 					}
 				}
 			}
-			Write(manager, 0, id); return;
+			Write(manager, NC2Layout::AIRoadManagerOffset::PreviousHouseId, id); return;
 		}
 	}
 }

@@ -100,7 +100,7 @@ namespace NC2InGameGuiMiscWindows
 		if (message != 0x800) return message == 0x1000 && command == 0x7EC;
 		if (command >= 10000 && command < 10100)
 		{
-			Write(window, 0x70, command - 10000);
+			Write(window, NC2Layout::NetworkInfoWindowOffset::Page, command - 10000);
 			NXBaseGui::BaseWindow_Element_DeleteAll(window);
 			NetworkInfoWindow_l_GuiButtons_Add(window);
 		}
@@ -142,7 +142,7 @@ namespace NC2InGameGuiMiscWindows
 		area = NXBasics::SRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
 		memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 		NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &area));
-		const auto page = Read<std::uint32_t>(window, 0x70);
+		const auto page = Read<std::uint32_t>(window, NC2Layout::NetworkInfoWindowOffset::Page);
 		area = NXBasics::SRectangle(4, 22, 121, 22);
 		for (std::uint32_t index = 0; index < 4; ++index)
 		{
@@ -281,7 +281,7 @@ namespace NC2InGameGuiMiscWindows
 		BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
 		auto* tips = Tooltips(window);
 		tips->ClearAll();
-		const auto page = Read<std::uint32_t>(window, 0x70);
+		const auto page = Read<std::uint32_t>(window, NC2Layout::NetworkInfoWindowOffset::Page);
 		auto* font = CGuiBaseDataManager::mStaticVars.resources.font08;
 		auto* large = CGuiBaseDataManager::mStaticVars.resources.font10;
 		if (page == 0)
@@ -305,7 +305,7 @@ namespace NC2InGameGuiMiscWindows
 			for (std::uint32_t player = 0; player < 20; ++player)
 			{
 				const auto* control = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-				if (Read<std::uint8_t>(control, 0) == 0 || Read<std::uint32_t>(control, 4) != 1) continue;
+				if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0 || Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::Type) != 1) continue;
 				char name[200];
 				GameControl_Misc_GetPlayerName(gGameControl, player, true, name);
 				bitmap->Text_PrintV(large, White(), 4, y, name);
@@ -357,7 +357,7 @@ namespace NC2InGameGuiMiscWindows
 			for (std::int32_t candidate = 0; candidate < 20; ++candidate)
 			{
 				const auto* control = static_cast<const std::byte*>(gGameControl) + static_cast<std::uint32_t>(candidate) * NC2Layout::RecordSize::GameControlPlayer;
-				if (Read<std::uint8_t>(control, 0) != 0 && Read<std::uint32_t>(control, 0x14) == player.playerId)
+				if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::ActiveFlag) != 0 && Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::NetworkPlayerId) == player.playerId)
 				{
 					gamePlayer = candidate;
 					break;

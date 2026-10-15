@@ -566,7 +566,7 @@ namespace NC2MainMenuGuiManager
 					char directory[260]; NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\credits", directory, "index.hlt");
 					void* allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
 					void* element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
-					Write<std::uint8_t>(element, 0x3A, 0); HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, 0x38, 0); add(element);
+					Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::FillBackground, 0); HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::WheelScrollingEnabled, 0); add(element);
 					button(back, 0x14, 0x15, 0x138A);
 					break;
 				}

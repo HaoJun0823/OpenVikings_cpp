@@ -90,16 +90,16 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
 				} if (vehicle.count == 0) return;
 			} count = vehicle.count; commands = vehicle.commands;
 		}
-		NXBasics::SRectangle area(Read<std::int32_t>(manager, 0xD0) - 260, Read<std::int32_t>(manager, 0xD4) - count * 22 / 2, 240, count * 22); NXBasics::SRectangle bounds(0, 0, 0, 0); std::memcpy(&bounds, NXBaseGui::CDesktop::sTheObjectPtr, sizeof(bounds)); area.PlaceInside(bounds); area.height = 22;
+		NXBasics::SRectangle area(Read<std::int32_t>(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX) - 260, Read<std::int32_t>(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY) - count * 22 / 2, 240, count * 22); NXBasics::SRectangle bounds(0, 0, 0, 0); std::memcpy(&bounds, NXBaseGui::CDesktop::sTheObjectPtr, sizeof(bounds)); area.PlaceInside(bounds); area.height = 22;
 		for (std::int32_t index = 0; index < count; ++index)
 		{
 			const auto action = commands[index]; const auto* caption = selection == 6 ? NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHouseTypeNamePtr(action) : NC2GuiToolsBase::StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(action); void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &area, caption, (selection == 6 ? 3300u : 3600u) + action, static_cast<std::byte*>(manager) + 0x1A8); NC2InGameGuiBase::BaseToolDesktop_AddOverlayElement(static_cast<NXBaseGui::CBaseElement*>(element)); reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0xB8)->InsertAtEnd(element); area.y += 22;
 		}
-		Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
+		Write(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
 	}
 	if (selection != 1 && selection != 2)
 	{
-		Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
+		Write(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
 	}
 	NC2Logic::SUserCommandsForHumanHandler commands;
 	if (selection == 1)
@@ -135,7 +135,7 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
 	commands.SortCommandsByPriority();
 	std::uint32_t groups[5]{ };
 	for (std::int32_t index = 0; index < commands.count; ++index) ++groups[NC2Logic::Tool_UserHumanCommandTypes_GetGroupType(commands.commands[index])];
-	NXBasics::SRectangle area(Read<std::int32_t>(manager, 0xD0) - 116, Read<std::int32_t>(manager, 0xD4) - 116, 232, 232);
+	NXBasics::SRectangle area(Read<std::int32_t>(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX) - 116, Read<std::int32_t>(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY) - 116, 232, 232);
 	NXBasics::SRectangle desktopBounds(0, 0, 0, 0);
 	// CDesktop stores its rectangle at +0, unlike CBaseElement's rectangle at +4.
 	std::memcpy(&desktopBounds, NXBaseGui::CDesktop::sTheObjectPtr, sizeof(desktopBounds)); area.PlaceInside(desktopBounds);
@@ -168,14 +168,14 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
 			}
 			void* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 			void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(memory, nullptr, &rectangle, graphic, tooltip, 3000 + action, static_cast<std::byte*>(manager) + 0x1A8);
-			Write<std::uint8_t>(element, 0x34, 1); Write<std::uint8_t>(element, 0x44, 1);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Centered, 1); Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::ImmediateTooltip, 1);
 			NC2InGameGuiBase::ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.contextPalette);
 			NC2InGameGuiBase::BaseToolDesktop_AddOverlayElement(static_cast<NXBaseGui::CBaseElement*>(element));
 			reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0xB8)->InsertAtEnd(element);
 			x += dx; y += dy; ++ordinal;
 		}
 	}
-	Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager));
+	Write(manager, NC2Layout::InGameGuiManagerOffset::ActionButtonsChecksum, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager));
 }
 namespace NInGameGuiManager
 {
@@ -184,7 +184,7 @@ namespace NInGameGuiManager
 	{
 		l_Selection_RemoveAllGuiElements();
 		auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
-		Write(this, 0xD0, Read<std::int32_t>(mouse, 0)); Write(this, 0xD4, Read<std::int32_t>(mouse, 4));
+		Write(this, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginX, Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::X)); Write(this, NC2Layout::InGameGuiManagerOffset::ActionButtonsOriginY, Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::Y));
 		InGameGuiManager_l_Selection_ActionButtons_BringUp(this);
 	}
 }

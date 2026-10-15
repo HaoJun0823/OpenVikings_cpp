@@ -150,11 +150,11 @@ namespace NC2Logic
 		const std::int32_t caps[6] = { 100, 20, 80, 20, 20, 20 };
 		for (std::uint32_t i = 0; i < 6; ++i)
 		{
-			auto value = Read<std::int32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4);
+			auto value = Read<std::int32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * NC2Layout::RecordSize::AssistantRequestValue);
 			if (value >= static_cast<std::int32_t>(targets[i])) value = static_cast<std::int32_t>(targets[i]);
 			if (value <= 0) value = 0;
 			if (value >= caps[i]) value = caps[i];
-			Write(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4, value);
+			Write(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * NC2Layout::RecordSize::AssistantRequestValue, value);
 		}
 		if (tick % 15 == 0)
 		{

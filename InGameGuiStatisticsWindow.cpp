@@ -203,8 +203,8 @@ namespace NC2InGameGuiMiscWindows
 		{
 			allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 			void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, graphics[index], StringTool_GetGameGuiMiscWindowStringPtr(181 + index), 10000 + index, window);
-			Write<std::uint8_t>(element, 0x36, Page() == index);
-			Write<std::uint8_t>(element, 0x35, 1);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Selected, Page() == index);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
 			NXBaseGui::BaseWindow_Element_Add(window, element);
 			area.x += area.width + 2;
 		}
@@ -255,9 +255,9 @@ namespace NC2InGameGuiMiscWindows
 			{
 				allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 				void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &area, goodGraphics[group], CGuiBaseStringsManager::GetStringPtr(8, 31 + group), 10010 + group, window);
-				Write<std::uint8_t>(element, 0x36, Read<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::GoodGroup) == group);
-				Write<std::uint8_t>(element, 0x35, 1);
-				Write<std::uint8_t>(element, 0x44, 1);
+				Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Selected, Read<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::GoodGroup) == group);
+				Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
+				Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::ImmediateTooltip, 1);
 				NXBaseGui::BaseWindow_Element_Add(window, element);
 				area.x += area.width + 2;
 			}
@@ -342,7 +342,7 @@ namespace NC2InGameGuiMiscWindows
 			std::strcat(caption, StringAccess_GetHouseNamePtr(types[index], total + unfinished));
 			auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
 			void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false);
-			Write<std::uint8_t>(element, 0xF9, 0);
+			Write<std::uint8_t>(element, NC2Layout::GuiTextElementOffset::FillBackgroundFlag, 0);
 			BaseListBoxElement_Element_Add(list, nullptr, element);
 			row.y += row.height + 2;
 		}
@@ -367,7 +367,7 @@ namespace NC2InGameGuiMiscWindows
 			NXBasics::Runtime_PrintString(caption, "%s - %s", reinterpret_cast<const char*>(record + 4), StringAccess_GetJobNamePtr(Read<std::uint32_t>(record, 0x34), 1));
 			auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
 			void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false);
-			Write<std::uint8_t>(element, 0xF9, 0);
+			Write<std::uint8_t>(element, NC2Layout::GuiTextElementOffset::FillBackgroundFlag, 0);
 			BaseListBoxElement_Element_Add(list, nullptr, element);
 			row.y += row.height + 2;
 		}

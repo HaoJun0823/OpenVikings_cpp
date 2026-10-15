@@ -70,7 +70,7 @@ namespace NC2InGameGuiMiscWindows
 		Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHyperLinkTextWindowVirtualTable.data());
 		Write<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex, -1);
 		buttons->SetWindow(window);
-		Write<std::uint32_t>(window, 0x6C, 1);
+		Write<std::uint32_t>(window, NC2Layout::BaseToolWindowOffset::BackgroundStyle, 1);
 		const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
 		const auto tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeType);
 		bool full = false;
@@ -84,7 +84,7 @@ namespace NC2InGameGuiMiscWindows
 				if (NC2Logic::gStaticHouseTypeStorage.records[logic].mainType == 6) continue;
 				const auto index = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
 				Write(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned, type);
-				Write(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u, stage);
+				Write(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned, stage);
 				Write(window, NC2Layout::HelpWindowOffset::HouseCount, index + 1);
 				if (index + 1 == 100)
 				{
@@ -103,7 +103,7 @@ namespace NC2InGameGuiMiscWindows
 		{
 			if (good == 17 || good == 23) continue;
 			const auto index = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount);
-			Write(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u, good);
+			Write(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned, good);
 			Write(window, NC2Layout::HelpWindowOffset::GoodCount, index + 1);
 			if (index + 1 == 100) break;
 		}
@@ -160,7 +160,7 @@ namespace NC2InGameGuiMiscWindows
 			if (void* element = Read<void*>(window, NC2Layout::HelpWindowOffset::HyperTextElement))
 			{
 				HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 0.0f, 0);
-				Read<NHyperLinkTextSystem::CDisplayManager*>(element, 0x34)->ScrollY(command == 10024 ? -60 : 60);
+				Read<NHyperLinkTextSystem::CDisplayManager*>(element, NC2Layout::HypertextGuiElementOffset::Display)->ScrollY(command == 10024 ? -60 : 60);
 			}
 			return true;
 		}
@@ -182,7 +182,7 @@ namespace NC2InGameGuiMiscWindows
 				{
 					Write<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page, 2);
 					std::int32_t slot = -1;
-					for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u) == param2)
+					for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned) == param2)
 					{
 						slot = index;
 						break;
@@ -214,7 +214,7 @@ namespace NC2InGameGuiMiscWindows
 				{
 					Write<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page, 1);
 					std::int32_t slot = -1;
-					for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned) == param2 && Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u) == param3)
+					for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned) == param2 && Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned) == param3)
 					{
 						slot = index;
 						break;
@@ -297,7 +297,7 @@ namespace NC2InGameGuiMiscWindows
 			NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22);
 			for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, counts[page - 1]); ++index)
 			{
-				const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned), Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u), 1) : Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings)->GetStringPtr(index * 2u);
+				const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned), Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * NC2Layout::RecordSize::HelpGoodIdUnsigned), 1) : Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings)->GetStringPtr(index * 2u);
 				element = button(row, caption, selectCommands[page - 1], false);
 				Write(element, NC2Layout::ToolTextButtonOffset::CommandData1, index);
 				Write<std::uint32_t>(element, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
@@ -321,7 +321,7 @@ namespace NC2InGameGuiMiscWindows
 			allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
 			element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, reinterpret_cast<void*>(&ls_GetUserBitmapCallback));
 			Write(window, NC2Layout::HelpWindowOffset::HyperTextElement, element);
-			Write<std::uint8_t>(element, 0x3A, 0);
+			Write<std::uint8_t>(element, NC2Layout::HypertextGuiElementOffset::FillBackground, 0);
 			NXBaseGui::BaseWindow_Element_Add(window, element);
 			const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
 			for (std::uint32_t index = 0; index < 2; ++index)
@@ -368,7 +368,7 @@ namespace NC2InGameGuiMiscWindows
 		{
 			const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedGoodIndex);
 			if (index == -1) return;
-			const auto good = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + static_cast<std::uint32_t>(index) * 4u);
+			const auto good = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpGoodIdUnsigned);
 			const auto* name = NC2Logic::StringAccess_GetGoodNamePtr(good, 1);
 			NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, 60, fontMedium, color, "{gfxgood:%d,1}  %s", good, name);
 			std::int32_t y = 90;
@@ -380,7 +380,7 @@ namespace NC2InGameGuiMiscWindows
 			std::uint32_t producers[10]{ }, producerCount = 0;
 			for (std::uint32_t houseIndex = 0; houseIndex < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++houseIndex)
 			{
-				const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + houseIndex * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * 8u);
+				const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + houseIndex * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * NC2Layout::RecordSize::HelpHouseEntryUnsigned);
 				const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
 				const auto& house = NC2Logic::gStaticHouseTypeStorage.records[Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned)];
 				for (std::uint32_t production = 0; production < house.productionCount; ++production)
@@ -398,7 +398,7 @@ namespace NC2InGameGuiMiscWindows
 			for (std::uint32_t producer = 0; producer < producerCount; ++producer)
 			{
 				const auto slot = producers[producer];
-				const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + slot * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * 8u);
+				const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + slot * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * NC2Layout::RecordSize::HelpHouseEntryUnsigned);
 				const auto height = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, y, 500, resources.font12, color, NC2Logic::StringAccess_GetHouseNamePtr(type, stage, 1));
 				buttons->UpdateGfxButton(20000, producer, 478, y, 143, nullptr);
 				buttons->SetButtonMiscCommandData(20000, producer, type, stage);
@@ -409,7 +409,7 @@ namespace NC2InGameGuiMiscWindows
 		if (page != 1) return;
 		const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex);
 		if (index == -1) return;
-		const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * 8u);
+		const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpHouseEntryUnsigned);
 		const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
 		const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
 		const auto& house = NC2Logic::gStaticHouseTypeStorage.records[logic];

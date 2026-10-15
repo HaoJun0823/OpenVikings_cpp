@@ -184,10 +184,10 @@ namespace NC2InGameGuiMiscWindows
 		DrawTool_DrawFrame(element, bitmap, rectangle, mode);
 		auto* font = DrawTool_GetFont10Ptr();
 		const auto* palette = CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette;
-		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(palette, 0x400);
-		if (!TechTreeWindow_IsHouseTypeFree(id)) color = Read<NXBasics::SColorRGB>(palette, 0x2D4);
-		if (TechTreeWindow_IsHouseTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(palette, 0x194);
-		const auto* text = Read<const char*>(element, 0x30);
+		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(palette, NC2Layout::TechTreeFontPaletteOffset::NormalColor);
+		if (!TechTreeWindow_IsHouseTypeFree(id)) color = Read<NXBasics::SColorRGB>(palette, NC2Layout::TechTreeFontPaletteOffset::UnavailableColor);
+		if (TechTreeWindow_IsHouseTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(palette, NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor);
+		const auto* text = Read<const char*>(element, NC2Layout::GuiTextButtonOffset::Caption);
 		bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 12) / 2 - rectangle->y - 3, text);
 	}
 	// Original function: FUN_004a5bc0.
@@ -218,18 +218,18 @@ namespace NC2InGameGuiMiscWindows
 		DrawTool_FillArea(element, bitmap, rectangle, mode);
 		DrawTool_DrawFrame(element, bitmap, rectangle, mode);
 		const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
-		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
+		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::NormalColor);
 		const char* format = "{gfxgood:%d,1}";
 		if (!TechTreeWindow_IsGoodTypeFree(id))
 		{
 			if (TechTreeWindow_IsGoodTypeForbidden(id))
 			{
-				color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x194);
+				color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor);
 				format = "{setx:-4}[{gfxgood:%d,1}]";
 			}
 			else
 			{
-				color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x2D4);
+				color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::UnavailableColor);
 				format = "{setx:-4}({gfxgood:%d,1})";
 			}
 		}
@@ -270,10 +270,10 @@ namespace NC2InGameGuiMiscWindows
 		DrawTool_DrawFrame(element, bitmap, rectangle, mode);
 		const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
 		auto* font = resources.font08;
-		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
-		if (!TechTreeWindow_IsJobTypeFree(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x2D4);
-		if (TechTreeWindow_IsJobTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x194);
-		const auto* text = Read<const char*>(element, 0x30);
+		NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::NormalColor);
+		if (!TechTreeWindow_IsJobTypeFree(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::UnavailableColor);
+		if (TechTreeWindow_IsJobTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, NC2Layout::TechTreeFontPaletteOffset::ForbiddenColor);
+		const auto* text = Read<const char*>(element, NC2Layout::GuiTextButtonOffset::Caption);
 		bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 12) / 2 - rectangle->y - 3, text);
 	}
 	// Original function: FUN_004a5e5a.
@@ -314,7 +314,7 @@ namespace NC2InGameGuiMiscWindows
 		auto* buttons = new (static_cast<std::byte*>(window) + NC2Layout::TechTreeWindowOffset::DynamicButtons) CDynamicSubButtonsHandler();
 		std::memset(static_cast<std::byte*>(window) + NC2Layout::TechTreeWindowOffset::DynamicButtons, 0, 2804);
 		Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeWindowVirtualTable.data());
-		Write<std::uint32_t>(window, 0x6C, 1);
+		Write<std::uint32_t>(window, NC2Layout::BaseToolWindowOffset::BackgroundStyle, 1);
 		buttons->SetWindow(window);
 		TechTreeWindow_l_GuiButtons_Add(window);
 		NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Stop_LargeWindowOpened();
@@ -551,9 +551,9 @@ namespace NC2InGameGuiMiscWindows
 			const NXBasics::SRectangle rectangle(4 + index * 49, 22, 47, 30);
 			allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 			void* element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, gTechTreeTabs[index].graphic, StringTool_GetGameGuiMiscWindowStringPtr(gTechTreeTabs[index].tooltip), 10000 + index, window);
-			Write<std::uint8_t>(element, 0x36, index == page);
-			Write<std::uint8_t>(element, 0x35, 1);
-			Write<std::uint8_t>(element, 0x44, 1);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Selected, index == page);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::ImmediateTooltip, 1);
 			NXBaseGui::BaseWindow_Element_Add(window, element);
 		}
 		if (page > 9) return;

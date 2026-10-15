@@ -86,8 +86,8 @@ namespace NC2Logic
 		Write(house, NC2Layout::HouseOffset::DevelopmentStage, stage);
 		Write(house, NC2Layout::HouseOffset::EngineType, engineType);
 		Write(house, NC2Layout::HouseOffset::MapPosition, point);
-		Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), stage * 4u));
-		Write(house, NC2Layout::HouseOffset::TribeType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), 0x14));
+		Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), stage * NC2Layout::RecordSize::HouseStageValueUnsigned));
+		Write(house, NC2Layout::HouseOffset::TribeType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), NC2Layout::EngineHouseLogicViewOffset::TribeType));
 		if (!Tool_House_IsAllowedToBeBuild(player, engineType, stage, point, House_GetHouseTypeDataPtr(house)->ignoreContinents != 0, false)) return false;
 		Write(house, NC2Layout::HouseOffset::UniqueId, Game_UniqueId_Generate());
 		if (finished) House_HitPoints_Reset(house);
@@ -95,7 +95,7 @@ namespace NC2Logic
 		House_l_Inhabitants_Reset(house);
 		House_l_DoorPoint_Calculate(house);
 		GameMapModifyManager_StartGameMapModify();
-		const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
+		const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned);
 		std::uint32_t amounts[66];
 		auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
 		auto* door = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
@@ -215,7 +215,7 @@ namespace NC2Logic
 				// Original unresolved control bytes 005109C9/005109C8 retain their storage offsets.
 				if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag) == 0)
 				{
-					const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
+					const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned);
 					for (std::uint32_t index = 0; index < (area->pointCount >> 1); ++index)
 					{
 						std::uint32_t point = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
@@ -311,7 +311,7 @@ namespace NC2Logic
 		for (std::uint32_t slot = 0; slot < 20; ++slot)
 		{
 			Write<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment, 0);
-			Write<std::int32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u, -1);
+			Write<std::int32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * NC2Layout::RecordSize::HouseAttachment, -1);
 		}
 	}
 
@@ -341,7 +341,7 @@ namespace NC2Logic
 		definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
 		const auto* area = Read<const CMapArea*>(definition, NC2Layout::EngineHouseLogicViewOffset::BuildArea);
 		area->BuildBlock_Set(base, false);
-		std::int16_t rectangle[4] = { static_cast<std::int16_t>(Read<std::uint16_t>(base, 0) + area->minX - 15), static_cast<std::int16_t>(Read<std::uint16_t>(base, 2) + area->minY - 15), static_cast<std::int16_t>(area->maxX - area->minX + 30), static_cast<std::int16_t>(area->maxY - area->minY + 30) };
+		std::int16_t rectangle[4] = { static_cast<std::int16_t>(Read<std::uint16_t>(base, NC2Layout::MapCoordinatePairOffset::X) + area->minX - 15), static_cast<std::int16_t>(Read<std::uint16_t>(base, NC2Layout::MapCoordinatePairOffset::Y) + area->minY - 15), static_cast<std::int16_t>(area->maxX - area->minX + 30), static_cast<std::int16_t>(area->maxY - area->minY + 30) };
 		MapMigRectangle_CutInsideMap(rectangle);
 		GameMap_Misc_LetBlocksBeReDrawn(rectangle);
 	}
@@ -353,7 +353,7 @@ namespace NC2Logic
 		std::uint32_t macro;
 		MapMagPoint_ConstructFromMig(&macro, base, false);
 		const auto height = Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), NC2Layout::MapMacroPointOffset::Height);
-		const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x1C);
+		const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), NC2Layout::EngineHouseLogicViewOffset::BuildArea);
 		for (std::uint32_t row = 0; row < area->rowCount; ++row)
 		{
 			std::uint32_t point;
@@ -388,7 +388,7 @@ namespace NC2Logic
 		Write(house, NC2Layout::HouseOffset::NextSectorHouseId, previous);
 		if (previous != -1) Write(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PreviousSectorHouseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
 		Write<std::int32_t>(house, NC2Layout::HouseOffset::PreviousSectorHouseId, -1);
-		Write(sector, offset + 4, Read<std::uint32_t>(sector, offset + 4) + 1u);
+		Write(sector, offset + NC2Layout::SectorObjectListOffset::Count, Read<std::uint32_t>(sector, offset + NC2Layout::SectorObjectListOffset::Count) + 1u);
 	}
 
 	// Original function: FUN_00434611; native non-head removal only updates the predecessor's next link.
@@ -420,6 +420,6 @@ namespace NC2Logic
 				previous = next;
 			}
 		}
-		Write(sector, offset + 4, Read<std::uint32_t>(sector, offset + 4) - 1u);
+		Write(sector, offset + NC2Layout::SectorObjectListOffset::Count, Read<std::uint32_t>(sector, offset + NC2Layout::SectorObjectListOffset::Count) - 1u);
 	}
 }

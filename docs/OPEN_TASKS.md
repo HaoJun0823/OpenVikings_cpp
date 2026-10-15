@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Five-hundred-access readability continuation — 2026-10-15
+
+Completed the [511-access readability pass](FIVEHUNDRED_RECORDS_REVIEW.md) across 54 C++ files: family/actor references, sector caches, house graphics/logic records, messages, mission displays, converter channels, AI roads, serialization and keyboard bindings. The user's `4fa0790` formatting/import cleanup includes the first 276 replacements; another 235 follow it. The reported production/equipment constant collision was corrected separately in **`36eb5b0`**. The native-proven house-particle record-base error is also corrected. All other own operations remain identical after constant normalization. **280 value/type comparisons, 73 physical assertions and incremental Win32 syntax checks pass**; five DirectPlay macro warnings, no errors. No build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 163,554 lines, 694 raw numeric-access operands, 74 heuristic unknown mentions, 720 long compound lines and 5,014 original-address annotations**. This turn removes 511 candidates; cumulative reduction **4,733 / 5,427 (87.21%)**, thirty-six naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. The user's formatting and documentation additions are preserved. Next: happiness recalculation (16 raw operands), mission execution (15), engine lifetime (14). See [direct access delta](FIVEHUNDRED_ACCESS_DELTA.csv).
+
 ## Thousand-access readability continuation — 2026-10-15
 
 Completed the [1,007-access readability pass](THOUSAND_READABILITY_RECORDS_REVIEW.md) across 90 C++ files: human/house/GUI/message/command fields, proven array strides, observation and menu windows, AI requests and assistant budgets, FMV, happiness/events, statistics, tribute and landscape records. **335 value/type comparisons, 104 physical assertions and incremental Win32 syntax checks of all 90 affected units** pass. C++ operation tokens remain identical after constant normalization; no build/test/game run. The [direct delta](THOUSAND_READABILITY_ACCESS_DELTA.csv) records 1,030 changed expressions, of which exactly 1,007 cease to contain raw numeric operands.

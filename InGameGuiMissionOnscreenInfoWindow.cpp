@@ -55,9 +55,9 @@ namespace NC2InGameGuiMiscWindows
 	static void MissionOnscreenInfoStaticGuiWindow_Destruct(void* window)
 	{
 		Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMissionOnscreenInfoVirtualTable.data());
-		auto* strings = Read<NXBasics::CStringArray*>(window, 0x7C);
+		auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings);
 		if (strings != nullptr) delete strings;
-		Write<void*>(window, 0x7C, nullptr);
+		Write<void*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings, nullptr);
 		std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 16);
 		NXBaseGui::BaseWindow_Destruct(window);
 	}
@@ -73,27 +73,27 @@ namespace NC2InGameGuiMiscWindows
 	{
 		auto* guid = reinterpret_cast<SCleanMapGuid*>(static_cast<std::byte*>(window) + 0x6C);
 		if (gGameStaticVars.mapGuid.IsEqualTo(*guid)) return;
-		auto* strings = Read<NXBasics::CStringArray*>(window, 0x7C);
+		auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings);
 		if (strings != nullptr) delete strings;
-		Write<void*>(window, 0x7C, nullptr);
-		Write(window, 0x7C, StringIO_GetMissionStringArrayPtr());
+		Write<void*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings, nullptr);
+		Write(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings, StringIO_GetMissionStringArrayPtr());
 		*guid = gGameStaticVars.mapGuid;
 	}
 	// Original function: FUN_004b86c8; Windows stores 25 text rows of 400 bytes plus one font flag each.
 	static void __fastcall MissionOnscreenInfoStaticGuiWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)
 	{
 		const auto now = timeGetTime();
-		const auto previous = Read<std::uint32_t>(window, 0x80);
+		const auto previous = Read<std::uint32_t>(window, NC2Layout::MissionOnscreenWindowOffset::LastRefreshTime);
 		if (previous == 0 || now > previous + 2000u)
 		{
 			MissionOnscreenInfoStaticGuiWindow_l_CurrentMapStrings_Update(window);
 			for (std::uint32_t row = 0; row < 25; ++row)
 			{
-				Write<std::uint8_t>(window, 0x84 + row * 0x191u, 0);
-				Write<std::uint8_t>(window, 0x214 + row * 0x191u, 0);
+				Write<std::uint8_t>(window, NC2Layout::MissionOnscreenWindowOffset::TextRows + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned, 0);
+				Write<std::uint8_t>(window, NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned, 0);
 			}
 			std::uint32_t row = 0;
-			auto* strings = Read<NXBasics::CStringArray*>(window, 0x7C);
+			auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings);
 			const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
 			if (gMissionOnscreenInfoManager != nullptr && strings != nullptr) for (std::int32_t index = 0; index < 5; ++index) if (MissionOnscreenInfoManager_Info_StringCreate(gMissionOnscreenInfoManager, player, index, strings, reinterpret_cast<char*>(static_cast<std::byte*>(window) + 0x84 + row * 0x191u), 400)) ++row;
 			if (Read<std::uint8_t>(gMultiPlayerGoalManager, NC2Layout::MultiPlayerGoalManagerOffset::Enabled) != 0) for (std::uint32_t index = 0; index < Read<std::uint32_t>(gMultiPlayerGoalManager, NC2Layout::MultiPlayerGoalManagerOffset::GoalCount); ++index)
@@ -123,12 +123,12 @@ namespace NC2InGameGuiMiscWindows
 					}
 				}
 				else continue;
-				Write<std::uint8_t>(window, 0x214 + row * 0x191u, 1);
+				Write<std::uint8_t>(window, NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned, 1);
 				++row;
 			}
-			Write<std::uint32_t>(window, 0x80, now);
+			Write<std::uint32_t>(window, NC2Layout::MissionOnscreenWindowOffset::LastRefreshTime, now);
 		}
-		if (gMissionOnscreenInfoManager == nullptr || Read<void*>(window, 0x7C) == nullptr) return;
+		if (gMissionOnscreenInfoManager == nullptr || Read<void*>(window, NC2Layout::MissionOnscreenWindowOffset::MissionStrings) == nullptr) return;
 		const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
 		const auto* white = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
 		const auto* shadow = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 4);
@@ -137,7 +137,7 @@ namespace NC2InGameGuiMiscWindows
 		{
 			const auto* caption = reinterpret_cast<const char*>(static_cast<const std::byte*>(window) + 0x84 + row * 0x191u);
 			if (*caption == 0) continue;
-			const bool compact = Read<std::uint8_t>(window, 0x214 + row * 0x191u) != 0;
+			const bool compact = Read<std::uint8_t>(window, NC2Layout::MissionOnscreenWindowOffset::FirstCompactFontFlag + row * NC2Layout::RecordSize::MissionOnscreenTextRowUnsigned) != 0;
 			auto* font = compact ? resources.font08 : resources.font10;
 			const auto x = bitmap->GetRectangle().width - 8 - NXBasics::Font_GetPixelWidth(font, caption);
 			bitmap->Text_Print(font, shadow, x - 1, y, caption);

@@ -186,7 +186,7 @@ namespace NC2Logic
 	// Original function: FUN_00419e3d.
 	void* __fastcall TributeManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
 	{
-		for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * 0x3C, 0);
+		for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * NC2Layout::RecordSize::Tribute, 0);
 		gTributeManager = manager;
 		std::memset(manager, 0, 2400);
 		if (io->mReadHeader.version == 2)
@@ -212,7 +212,7 @@ namespace NC2Logic
 	void __fastcall MarkerArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
 	{
 		io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Markers, 1);
-		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
+		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, NC2Layout::ArrayHandlerOffset::Capacity));
 		static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
 		io->IO_Tool_Chunk_FinishAndWrite();
 	}
@@ -240,7 +240,7 @@ namespace NC2Logic
 	void __fastcall MapMoveableArray_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
 	{
 		io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MapMoveables, 1);
-		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
+		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, NC2Layout::ArrayHandlerOffset::Capacity));
 		static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
 		io->IO_Tool_Chunk_FinishAndWrite();
 	}
@@ -277,7 +277,7 @@ namespace NC2Logic
 	void __fastcall MapPathfinderManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
 	{
 		io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Pathfinders, 1);
-		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
+		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, NC2Layout::ArrayHandlerOffset::Capacity));
 		static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
 		io->IO_Tool_Chunk_FinishAndWrite();
 	}
@@ -311,7 +311,7 @@ namespace NC2Logic
 	void __fastcall DelayedActionManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
 	{
 		io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::DelayedActions, 1);
-		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, 4));
+		io->IO_Memory_WriteLong(Read<std::uint32_t>(manager, NC2Layout::ArrayHandlerOffset::Capacity));
 		static_cast<CArrayHandler*>(manager)->IO_SaveArray(io);
 		io->IO_Tool_Chunk_FinishAndWrite();
 	}
@@ -329,7 +329,7 @@ namespace NC2Logic
 		const std::uint32_t capacity = io->IO_File_ReadLong();
 		const std::uint32_t bytes = capacity * 0x30u;
 		auto* records = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
-		Write(manager, 0x30, records);
+		Write(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries, records);
 		std::memset(records, 0, bytes);
 		array->IO_InitAndLoadArray(records, io, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
 		return manager;

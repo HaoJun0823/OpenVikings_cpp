@@ -118,13 +118,13 @@ namespace NC2E2
 				{
 					const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
 					NC2Logic::House_GetHouseTypeDataPtr(house);
-					const void* data = Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+					const void* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
 					bool found = false;
 					if (parameter3 != 0)
 					{
-						for (std::uint32_t index = 0; index < Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ActionOverlayCount); ++index)
+						for (std::uint32_t index = 0; index < Read<std::uint32_t>(data, NC2Layout::EngineHouseTypeOffset::ActionOverlayCount); ++index)
 						{
-							const void* entry = static_cast<const std::byte*>(Read<void*>(data, NC2Layout::EngineHouseLogicViewOffset::ActionOverlays)) + index * 0xE4u;
+							const void* entry = static_cast<const std::byte*>(Read<void*>(data, NC2Layout::EngineHouseTypeOffset::ActionOverlays)) + index * 0xE4u;
 							if (Read<std::uint32_t>(entry, NC2Layout::EngineHouseActionOverlayOffset::Action) != 3 || Read<std::uint32_t>(entry, NC2Layout::EngineHouseActionOverlayOffset::DevelopmentStage) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage)) continue;
 							auto position = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
 							NC2Logic::MapMigPoint_MoveCursorUnwrapped(position, 2);

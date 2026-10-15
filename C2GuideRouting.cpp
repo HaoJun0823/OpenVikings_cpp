@@ -188,6 +188,6 @@ namespace NC2Logic
 	void GuideManager_l_InitializeScan(void* manager)
 	{
 		std::memset(Read<void*>(manager, NC2Layout::GuideManagerOffset::VisitedGuides), 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
-		for (std::uint32_t bucket = 0; bucket < NC2Runtime::GuideRoutingLimits::DistanceBuckets; ++bucket) Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * 0x7Cu, 0);
+		for (std::uint32_t bucket = 0; bucket < NC2Runtime::GuideRoutingLimits::DistanceBuckets; ++bucket) Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * NC2Layout::RecordSize::GuideDistanceBucketUnsigned, 0);
 	}
 }

@@ -156,7 +156,7 @@ namespace NC2E2
 	{
 		std::uint32_t AtomicLength(const void* object, std::uint32_t typeOffset)
 		{
-			return Read<std::uint32_t>(NC2Logic::gStaticAtomicAnimationData, Read<std::uint32_t>(object, typeOffset) * 0x138u + 0x34);
+			return Read<std::uint32_t>(NC2Logic::gStaticAtomicAnimationData, Read<std::uint32_t>(object, typeOffset) * NC2Layout::RecordSize::AtomicAnimation + NC2Layout::AtomicAnimationOffset::LengthInTicks);
 		}
 		std::byte* HumanDynamic(const void* human)
 		{
@@ -223,13 +223,13 @@ namespace NC2E2
 		const auto* graphic = static_cast<const SE2StaticDataLandscape*>(graphicData);
 		if (graphic->frameGroupCount == 0) return;
 		std::int32_t group = static_cast<std::int32_t>(graphic->frameGroupCount) - 1;
-		while (group >= 0 && Read<std::uint32_t>(graphic->frameGroups, static_cast<std::uint32_t>(group) * 12u) > variant) --group;
+		while (group >= 0 && Read<std::uint32_t>(graphic->frameGroups, static_cast<std::uint32_t>(group) * NC2Layout::RecordSize::StaticLandscapeFramesUnsigned) > variant) --group;
 		if (group < 0) return;
-		const auto* frames = reinterpret_cast<const std::byte*>(graphic->frameGroups) + static_cast<std::uint32_t>(group) * 12u;
+		const auto* frames = reinterpret_cast<const std::byte*>(graphic->frameGroups) + static_cast<std::uint32_t>(group) * NC2Layout::RecordSize::StaticLandscapeFramesUnsigned;
 		std::uint32_t value = graphic->loopAnimation != 0 ? phase + NC2Logic::gGameTime.tick : 0;
 		if (graphic->loopAnimation != 0 && gE2ParticelGeneratorStorage.unresolved00 != 0) value = ::timeGetTime() / 83u + phase;
-		const auto* ids = Read<const std::uint32_t*>(frames, 8);
-		output->AddBob(graphic->bobManagers[0], ids[value % Read<std::uint32_t>(frames, 4)], 0, 0);
+		const auto* ids = Read<const std::uint32_t*>(frames, NC2Layout::StaticLandscapeFramesOffset::Frames);
+		output->AddBob(graphic->bobManagers[0], ids[value % Read<std::uint32_t>(frames, NC2Layout::StaticLandscapeFramesOffset::Count)], 0, 0);
 	}
 
 	// Original function: FUN_004951a4; only body/head sprites contribute to sort data.
@@ -264,7 +264,7 @@ namespace NC2E2
 		else if (type == 4)
 		{
 			const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
-			if (Read<std::uint32_t>(marker, 0x10) != 1 || NC2Logic::Marker_PlayerId_Get(marker) == -1 || NC2Logic::Marker_PlayerId_Get(marker) != playerId) return;
+			if (Read<std::uint32_t>(marker, NC2Layout::MarkerOffset::Type) != 1 || NC2Logic::Marker_PlayerId_Get(marker) == -1 || NC2Logic::Marker_PlayerId_Get(marker) != playerId) return;
 			const auto landscapeId = StaticHumanMisc_InhabitantSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
 			if (landscapeId != -1) DrawAtom_Landscape_GetBobData(static_cast<const SE2StaticDataLandscape*>(gStaticLandscapeEntries) + landscapeId, 1, NC2Logic::gGameTime.tick, output);
 			return;
@@ -296,7 +296,7 @@ namespace NC2E2
 		if (type == 4)
 		{
 			const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + objectId * 0x18u;
-			const auto markerType = Read<std::uint32_t>(marker, 0x10);
+			const auto markerType = Read<std::uint32_t>(marker, NC2Layout::MarkerOffset::Type);
 			auto drawGraphic = [&] (std::int32_t id, std::int32_t offsetY)
 			{
 				if (id != -1) EngineGraphic_Draw(static_cast<std::uint32_t>(id), 1, bitmap, x, AddOffset(y, offsetY), NC2Logic::gGameTime.tick, AddOffset(brightness, brightness), -1, false);
@@ -324,7 +324,7 @@ namespace NC2E2
 			}
 			else if (markerType == 1)
 			{
-				const auto humanId = Read<std::int32_t>(marker, 0x14);
+				const auto humanId = Read<std::int32_t>(marker, NC2Layout::MarkerOffset::HumanId);
 				if (humanId != -1) brightness = DynamicBrightness(gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * NC2Layout::RecordSize::DynamicHumanUnsigned, NC2Layout::DynamicHumanOffset::SelectedFlag, brightness);
 				if (NC2Logic::Marker_PlayerId_Get(marker) != -1 && NC2Logic::Marker_PlayerId_Get(marker) == playerId)
 				{
@@ -341,16 +341,16 @@ namespace NC2E2
 			brightness = DynamicBrightness(dynamic, NC2Layout::DynamicAnimalVehicleOffset::SelectedFlag, brightness);
 			const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Vehicle_GetMarkType(display, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)) : 0u;
 			const auto* commander = NC2Logic::Vehicle_Passengers_GetAttachedCommanderPtr(vehicle);
-			if (commander != nullptr && (NC2Logic::Human_IsJobTrader(commander) || NC2Logic::Human_IsJobCarrier(commander)) && Read<std::uint8_t>(commander, 0xB51) != 0)
+			if (commander != nullptr && (NC2Logic::Human_IsJobTrader(commander) || NC2Logic::Human_IsJobCarrier(commander)) && Read<std::uint8_t>(commander, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
 			{
-				const auto attachedType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(commander, 0xB48)), NC2Layout::VehicleOffset::LogicType);
+				const auto attachedType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(commander, NC2Layout::HumanOffset::WorkAttachmentVehicleId)), NC2Layout::VehicleOffset::LogicType);
 				if (attachedType == 1 || attachedType == 2)
 				{
 					auto* humanDynamic = HumanDynamic(commander);
 					Write<void*>(humanDynamic, NC2Layout::DisplayAtomInformationOffset::Animation, nullptr);
 					Write<void*>(humanDynamic, NC2Layout::DisplayAtomInformationOffset::Walk, nullptr);
 					const bool atomic = Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) != 0;
-					sl_DoDrawMapMoveable(moveable, humanDynamic, Read<std::uint32_t>(commander, 0x14), 25, attachedType == 1 ? 59u : 60u, atomic, atomic ? (attachedType == 1 ? 2u : 3u) : 1u, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), HumanBody(humanDynamic), HumanHead(humanDynamic), bitmap, x, y, brightness, marking, Read<std::int32_t>(commander, 0x10), false, centered, false, nullptr, -1, -1, display, true);
+					sl_DoDrawMapMoveable(moveable, humanDynamic, Read<std::uint32_t>(commander, NC2Layout::HumanOffset::TribeType), 25, attachedType == 1 ? 59u : 60u, atomic, atomic ? (attachedType == 1 ? 2u : 3u) : 1u, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), HumanBody(humanDynamic), HumanHead(humanDynamic), bitmap, x, y, brightness, marking, Read<std::int32_t>(commander, NC2Layout::HumanOffset::PlayerId), false, centered, false, nullptr, -1, -1, display, true);
 					return;
 				}
 			}

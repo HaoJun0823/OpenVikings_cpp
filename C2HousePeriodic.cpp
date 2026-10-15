@@ -75,7 +75,7 @@ namespace NC2Logic
 		std::uint32_t defenders = 0;
 		const auto* door = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
 		const auto player = Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId);
-		for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(door, 0), 0, false); id != -1; id = iterator.GetNextSectorHumanId()) ++defenders;
+		for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(door, NC2Layout::MapCoordinatePairOffset::Coordinates), 0, false); id != -1; id = iterator.GetNextSectorHumanId()) ++defenders;
 		auto remaining = defenders / 24u;
 		if (defenders % 24u > gGameTime.tick % 24u) ++remaining;
 		const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType)])[20];
@@ -128,13 +128,13 @@ namespace NC2Logic
 		const auto source = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
 		const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
 		std::uint32_t height = 0, offsetX = 20, offsetY = 20;
-		const auto launchPoints = Read<std::uint32_t>(graphics, 0x1B0);
+		const auto launchPoints = Read<std::uint32_t>(graphics, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotCount);
 		if (launchPoints != 0)
 		{
 			const auto selected = Game_Random_GetNumber() % launchPoints;
-			height = Read<std::uint32_t>(graphics, 0x1BCu + selected * 12u);
-			offsetX = Read<std::uint32_t>(graphics, 0x1B4u + selected * 12u);
-			offsetY = Read<std::uint32_t>(graphics, 0x1B8u + selected * 12u);
+			height = Read<std::uint32_t>(graphics, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotParameterUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
+			offsetX = Read<std::uint32_t>(graphics, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotXUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
+			offsetY = Read<std::uint32_t>(graphics, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotYUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
 		}
 		const auto divisor = Game_Random_GetNumber() % 30u + 1u;
 		const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&source, NC2Layout::MapCoordinatePairOffset::Y)));
@@ -206,11 +206,11 @@ namespace NC2Logic
 						bestDistance = distance;
 						if (distance < 15) break;
 					}
-					if (selected != nullptr && House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(selected, 4), 4))
+					if (selected != nullptr && House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(selected, NC2Layout::HumanOffset::HumanId), 4))
 					{
 						Human_l_AssignWorkHouse(selected, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
-						Write<std::uint32_t>(selected, 0x38C, 0);
-						Write(selected, 0xB30, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
+						Write<std::uint32_t>(selected, NC2Layout::HumanOffset::WorkRetryCount, 0);
+						Write(selected, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
 						Human_WorkCenterMarker_Update(selected);
 					}
 				}
@@ -232,10 +232,10 @@ namespace NC2Logic
 		}
 		for (std::uint32_t index = 0; index < 66; ++index)
 		{
-			const auto stock = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u);
-			const auto recent = Read<std::uint32_t>(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u);
-			if (stock > recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u, recent + 1u);
-			else if (stock < recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u, recent - 1u);
+			const auto stock = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned);
+			const auto recent = Read<std::uint32_t>(house, NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned);
+			if (stock > recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned, recent + 1u);
+			else if (stock < recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * NC2Layout::RecordSize::HouseCounterUnsigned, recent - 1u);
 		}
 		for (std::uint32_t index = 0; index < 66; ++index)
 		{

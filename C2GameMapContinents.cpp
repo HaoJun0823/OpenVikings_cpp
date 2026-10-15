@@ -58,7 +58,7 @@ namespace NC2Logic
 		}
 		bool InChangedArea(const void* point, const void* first, const void* end)
 		{
-			return Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) >= Read<std::int16_t>(first, 0) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) >= Read<std::int16_t>(first, 2) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y);
+			return Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) >= Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) >= Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y);
 		}
 		// Original function: FUN_004521F3; only embedded point constructors run here.
 		SContinentChangeWork::SContinentChangeWork()
@@ -74,8 +74,8 @@ namespace NC2Logic
 	{
 		const void* patterns[6];
 		if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns)) return 0;
-		for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 4) != 0) return 1;
-		for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 5) == 0) return 0;
+		for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsLand) != 0) return 1;
+		for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsWater) == 0) return 0;
 		return 2;
 	}
 
@@ -182,7 +182,7 @@ namespace NC2Logic
 					if (PointContinent(&point) != 255) continue;
 					const void* patterns[2];
 					if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundWay(&queues[from].points[index], direction, patterns)) continue;
-					if (Read<std::uint8_t>(patterns[0], 4) == 0 && Read<std::uint8_t>(patterns[1], 4) == 0) continue;
+					if (Read<std::uint8_t>(patterns[0], NC2Layout::TrianglePatternTypeOffset::IsLand) == 0 && Read<std::uint8_t>(patterns[1], NC2Layout::TrianglePatternTypeOffset::IsLand) == 0) continue;
 					queues[to].points[queues[to].count] = point;
 					if (PointContinent(&point) == 255)
 					{
@@ -219,7 +219,7 @@ namespace NC2Logic
 					const void* patterns[6];
 					if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&point, patterns)) continue;
 					bool water = true;
-					for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 5) == 0) water = false;
+					for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsWater) == 0) water = false;
 					if (!water) continue;
 					queues[to].points[queues[to].count] = point;
 					if (PointContinent(&point) == 255)
@@ -283,7 +283,7 @@ namespace NC2Logic
 	static void GameMap_l_Continents_FillUpFast(const std::uint32_t* replacements, const void* first, const void* end)
 	{
 		std::int16_t center[2];
-		for (std::uint32_t axis = 0; axis < 2; ++axis) center[axis] = static_cast<std::int16_t>((Read<std::int16_t>(first, axis * 2u) + Read<std::int16_t>(end, axis * 2u)) / 2);
+		for (std::uint32_t axis = 0; axis < 2; ++axis) center[axis] = static_cast<std::int16_t>((Read<std::int16_t>(first, axis * NC2Layout::RecordSize::MapCoordinateComponentUnsigned) + Read<std::int16_t>(end, axis * NC2Layout::RecordSize::MapCoordinateComponentUnsigned)) / 2);
 		std::uint32_t remaining = 0;
 		for (std::uint32_t id = 0; id < 250; ++id) if (replacements[id] != 0 && Read<std::uint32_t>(Continent(id), NC2Layout::MapContinentOffset::PointCount) != 0) ++remaining;
 		const auto replace = [&] (const void* point)
@@ -330,9 +330,9 @@ namespace NC2Logic
 				MapMigPoint_Construct(&work.samePoints[id], -1, -1, false);
 				MapMigPoint_Construct(&work.differentPoints[id], -1, -1, false);
 			}
-			std::int16_t point[2] = { 0, Read<std::int16_t>(first, 2) };
+			std::int16_t point[2] = { 0, Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::Y) };
 			for (; point[1] < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y); ++point[1])
-				for (point[0] = Read<std::int16_t>(first, 0); point[0] < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X); ++point[0])
+				for (point[0] = Read<std::int16_t>(first, NC2Layout::MapCoordinatePairOffset::X); point[0] < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X); ++point[0])
 				{
 					const auto oldId = PointContinent(point);
 					if (oldId >= ContinentCount()) continue;

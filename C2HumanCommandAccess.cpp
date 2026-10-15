@@ -465,7 +465,7 @@ namespace NC2Logic
 			return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) == 0;
 		}
 		if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) == 0) return true;
-		return Read<std::uint8_t>(gStaticAtomicAnimationData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId) * 0x138u + 0x38u) != 0;
+		return Read<std::uint8_t>(gStaticAtomicAnimationData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId) * NC2Layout::RecordSize::AtomicAnimation + NC2Layout::AtomicAnimationOffset::InterruptableUnsigned) != 0;
 	}
 
 	// Original function: FUN_0043bb2d; the structured-command overload delegates.
@@ -499,11 +499,11 @@ namespace NC2Logic
 		}
 		const auto offset = NC2Layout::HumanOffset::UserCommandQueue + (static_cast<std::uint32_t>(opcode) - 2u) * NC2Layout::RecordSize::UserNetworkCommand;
 		Write(human, offset, opcode);
-		Write(human, offset + 1, player);
-		Write(human, offset + 4, id);
-		Write(human, offset + 8, revision);
-		Write(human, offset + 12, parameter1);
-		Write(human, offset + 16, parameter2);
+		Write(human, offset + NC2Layout::UserNetworkCommandOffset::PlayerId, player);
+		Write(human, offset + NC2Layout::UserNetworkCommandOffset::ObjectId, id);
+		Write(human, offset + NC2Layout::UserNetworkCommandOffset::ObjectRevision, revision);
+		Write(human, offset + NC2Layout::UserNetworkCommandOffset::Parameter1, parameter1);
+		Write(human, offset + NC2Layout::UserNetworkCommandOffset::Parameter2, parameter2);
 		if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
 		return true;
 	}

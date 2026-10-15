@@ -45,7 +45,7 @@ namespace NC2InGameGuiMiscWindows
 		const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
 		const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
 		NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-		Write<std::uint32_t>(window, 0x70, 0);
+		Write<std::uint32_t>(window, NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime, 0);
 		Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gGlobalGameSettingsWindowVirtualTable.data());
 		if (specialItemsPage) gGlobalGameSettingsPage = 0;
 		if (assistantPage) gGlobalGameSettingsPage = 1;
@@ -98,7 +98,7 @@ namespace NC2InGameGuiMiscWindows
 		if (message != 0x800) return false;
 		if (command == 0x7EE)
 		{
-			if (timeGetTime() > Read<std::uint32_t>(window, 0x70) + 3000u) update();
+			if (timeGetTime() > Read<std::uint32_t>(window, NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime) + 3000u) update();
 			return true;
 		}
 		if (command == 10000 || command == 10002)
@@ -199,7 +199,7 @@ namespace NC2InGameGuiMiscWindows
 			};
 			const auto flag = [&] (std::int32_t y, std::uint32_t command, std::uint32_t offset)
 			{
-				const bool selected = NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) && Read<std::uint8_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) != 0;
+				const bool selected = NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) && Read<std::uint8_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameAssistantPlayerUnsigned + offset) != 0;
 				rectangle = NXBasics::SRectangle(330, y, 48, 18);
 				NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(24), command, true, !selected, true));
 				rectangle.x += rectangle.width + 2;
@@ -215,7 +215,7 @@ namespace NC2InGameGuiMiscWindows
 			rectangle = NXBasics::SRectangle(4, 76, 468, 336);
 			allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
 			void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
-			NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 26);
+			NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 26);
 			const auto base = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x4624u;
 			for (std::uint32_t index = 0; index < 100; ++index)
 			{
@@ -225,8 +225,8 @@ namespace NC2InGameGuiMiscWindows
 				char caption[200];
 				NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(type, static_cast<std::int32_t>(item), caption);
 				element = button(row, caption, 10100, true, false, false);
-				Write(element, 0x4C, type); Write(element, 0x50, item);
-				Write<std::uint8_t>(element, 0x56, type != 2 && type != 3 && type != 4);
+				Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, type); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, item);
+				Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, type != 2 && type != 3 && type != 4);
 				BaseListBoxElement_Element_Add(list, nullptr, element);
 				row.y += row.height + 2;
 			}
@@ -236,7 +236,7 @@ namespace NC2InGameGuiMiscWindows
 			element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
 			NXBaseGui::BaseWindow_Element_Add(window, element);
 		}
-		Write<std::uint32_t>(window, 0x70, timeGetTime());
+		Write<std::uint32_t>(window, NC2Layout::GlobalGameSettingsWindowOffset::LastRefreshTime, timeGetTime());
 	}
 
 	// Original function: FUN_004c2f2b; assistant captions are drawn over the native base.
@@ -250,7 +250,7 @@ namespace NC2InGameGuiMiscWindows
 		const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
 		const auto amount = [&] (std::uint32_t offset)
 		{
-			return NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) ? Read<std::uint32_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) : 0u;
+			return NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) ? Read<std::uint32_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameAssistantPlayerUnsigned + offset) : 0u;
 		};
 		bitmap->Text_PrintV(font, color, 10, 72, "%s %d", NC2GuiToolsBase::StringTool_GetWonders001StringPtr(11), amount(0));
 		bitmap->Text_PrintV(font, color, 10, 92, "%s %d", NC2GuiToolsBase::StringTool_GetWonders001StringPtr(12), amount(4));

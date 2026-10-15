@@ -242,9 +242,9 @@ void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void* eleme
 	const void* converter = NXBasics::g16BitPixelConverter;
 	for (std::uint32_t value = 0; value < 0x10000; ++value)
 	{
-		const std::uint32_t red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedShift) & 31u)) << 3;
-		const std::uint32_t green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenShift) & 31u)) << 3;
-		const std::uint32_t blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueShift) & 31u)) << 3;
+		const std::uint32_t red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedAdjustment) & 31u)) << 3;
+		const std::uint32_t green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenAdjustment) & 31u)) << 3;
+		const std::uint32_t blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueAdjustment) & 31u)) << 3;
 		const std::uint32_t maximum = red > green ? red : green;
 		table[value] = paletteTable[maximum > blue ? maximum : blue];
 	}

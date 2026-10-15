@@ -27,7 +27,7 @@ namespace NC2InGameGuiMessages
 		void MessageMiniButton_Destruct(void* button)
 		{
 			Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessageMiniButtonVirtualTable + 0);
-			static_cast<CMessageManager*>(gMessageManager)->MiniButton_Removed(Read<std::uint32_t>(button, 0x30));
+			static_cast<CMessageManager*>(gMessageManager)->MiniButton_Removed(Read<std::uint32_t>(button, NC2Layout::MessageMiniButtonOffset::MessageId));
 			Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolElementVirtualTable + 0);
 			BaseElement_Destruct(button);
 		}
@@ -46,7 +46,7 @@ namespace NC2InGameGuiMessages
 			if (message != 0x20) return false;
 			auto* manager = static_cast<CMessageManager*>(gMessageManager);
 			if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) != 0) manager->Message_RemoveAll(true);
-			else manager->Message_Remove(Read<std::uint32_t>(button, 0x30), true);
+			else manager->Message_Remove(Read<std::uint32_t>(button, NC2Layout::MessageMiniButtonOffset::MessageId), true);
 			return true;
 		}
 
@@ -61,29 +61,29 @@ namespace NC2InGameGuiMessages
 		// Original function: FUN_004d1152; rectangle parameter is unused by Windows.
 		void __fastcall MessageMiniButton_Draw(void* button, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)
 		{
-			const auto* record = static_cast<CMessageManager*>(gMessageManager)->Message_GetPtr(Read<std::uint32_t>(button, 0x30));
+			const auto* record = static_cast<CMessageManager*>(gMessageManager)->Message_GetPtr(Read<std::uint32_t>(button, NC2Layout::MessageMiniButtonOffset::MessageId));
 			std::uint32_t icon = 0x43;
 			if (record != nullptr)
 			{
 				std::uint32_t job = 0;
-				if (SingleMessageDisplayed_GetValidHumanId(record) != NXBasics::IntegerRange::UInt32Maximum) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + 0x18);
-				const auto priority = CMessageManager::MessagePriority_Calculate(Read<std::uint32_t>(record, 8), job);
+				if (SingleMessageDisplayed_GetValidHumanId(record) != NXBasics::IntegerRange::UInt32Maximum) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType);
+				const auto priority = CMessageManager::MessagePriority_Calculate(Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::Type), job);
 				if (priority == 1) icon = 0x44;
 				else if (priority == 2) icon = 0x45;
 			}
 			MessageMiniButton_IconPrint(button, bitmap, icon);
 			if (record == nullptr) return;
-			const auto human = Read<std::uint32_t>(record, 0x18);
+			const auto human = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HumanId);
 			if (human != NXBasics::IntegerRange::UInt32Maximum)
 			{
-				if (Read<std::uint32_t>(record, 8) == 0x2E) MessageMiniButton_IconPrint(button, bitmap, 0x5A);
-				else NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x0C), bitmap, 0x1B, 0x33, nullptr, true, -1);
+				if (Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::Type) == 0x2E) MessageMiniButton_IconPrint(button, bitmap, 0x5A);
+				else NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::MapMoveableId), bitmap, 0x1B, 0x33, nullptr, true, -1);
 				return;
 			}
-			const auto vehicle = Read<std::uint32_t>(record, 0x28);
+			const auto vehicle = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::VehicleId);
 			if (vehicle != NXBasics::IntegerRange::UInt32Maximum)
 			{
-				switch (Read<std::int32_t>(NC2Logic::CVehicleArray::mStaticVars, vehicle * NC2Logic::CVehicleArray::ElementSize + 0x1E8))
+				switch (Read<std::int32_t>(NC2Logic::CVehicleArray::mStaticVars, vehicle * NC2Logic::CVehicleArray::ElementSize + NC2Layout::VehicleOffset::LogicType))
 				{
 					case SwitchIds::VehicleType::Handcart: MessageMiniButton_IconPrint(button, bitmap, 0x5D); return;
 					case SwitchIds::VehicleType::Oxcart: case SwitchIds::VehicleType::OxcartFrame: MessageMiniButton_IconPrint(button, bitmap, 0x5E); return;
@@ -91,7 +91,7 @@ namespace NC2InGameGuiMessages
 					case SwitchIds::VehicleType::Catapult: MessageMiniButton_IconPrint(button, bitmap, 0x5F); return;
 				}
 			}
-			switch (Read<std::uint32_t>(record, 8))
+			switch (Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::Type))
 			{
 				case SwitchIds::UserMessage::HouseFinished: case SwitchIds::UserMessage::HouseUpgradeFinished: MessageMiniButton_IconPrint(button, bitmap, 0x59); break;
 				case SwitchIds::UserMessage::HouseAttacked: MessageMiniButton_IconPrint(button, bitmap, 0x5A); break;
@@ -104,14 +104,14 @@ namespace NC2InGameGuiMessages
 		// Original function: FUN_004d1291.
 		void __fastcall MessageMiniButton_DoPressedAction(void* button)
 		{
-			static_cast<CMessageManager*>(gMessageManager)->PresentationWindow_Open(Read<std::uint32_t>(button, 0x30));
+			static_cast<CMessageManager*>(gMessageManager)->PresentationWindow_Open(Read<std::uint32_t>(button, NC2Layout::MessageMiniButtonOffset::MessageId));
 			NC2GuiToolsBase::FXTool_ClickConfirm();
 		}
 
 		// Original function: FUN_004d12a4; failed lookup leaves the output reference untouched.
 		bool __fastcall MessageMiniButton_ToolTipAvailable(void* button, void*, const char** output)
 		{
-			const auto* record = static_cast<CMessageManager*>(gMessageManager)->Message_GetPtr(Read<std::uint32_t>(button, 0x30));
+			const auto* record = static_cast<CMessageManager*>(gMessageManager)->Message_GetPtr(Read<std::uint32_t>(button, NC2Layout::MessageMiniButtonOffset::MessageId));
 			if (record == nullptr) return false;
 			auto* text = static_cast<char*>(button) + 0x34;
 			Tool_CreateMessageString(static_cast<const std::byte*>(record) + 8, text, 1000);
@@ -155,7 +155,7 @@ namespace NC2InGameGuiMessages
 		NC2InGameGuiBase::BaseToolElement_Construct(button, &rectangle, 2, 0x20);
 		NC2Lifetime::Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessageMiniButtonVirtualTable + 0);
 		std::memset(static_cast<std::byte*>(button) + 0x30, 0, 1004);
-		NC2Lifetime::Write(button, 0x30, uniqueId);
+		NC2Lifetime::Write(button, NC2Layout::MessageMiniButtonOffset::MessageId, uniqueId);
 		return button;
 	}
 }

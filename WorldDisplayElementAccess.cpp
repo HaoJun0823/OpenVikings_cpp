@@ -109,7 +109,7 @@ namespace NC2InGameGuiWorldElement
 				for (std::uint32_t i = 0; i < 20; ++i)
 				{
 					const auto* slot = house + NC2Layout::HouseOffset::Attachments + i * 0x10u;
-					if (Read<std::uint8_t>(slot, 0) != 0) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, Read<std::uint32_t>(slot, 4));
+					if (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) != 0) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::HumanId));
 				}
 		}
 		Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HumanInteractionAction, 0); Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::VehicleInteractionAction, 0);
@@ -254,9 +254,9 @@ namespace NC2InGameGuiWorldElement
 		auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 		const auto type = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse);
 		std::uint32_t player;
-		if (type == 1) player = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId) * NC2Logic::CHumanArray::ElementSize + 0x10);
-		else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId) * NC2Logic::CVehicleArray::ElementSize + 0x1E0);
-		else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId) * NC2Logic::CHouseArray::ElementSize + 0x0C);
+		if (type == 1) player = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::PlayerId);
+		else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId) * NC2Logic::CVehicleArray::ElementSize + NC2Layout::VehicleOffset::PlayerId);
+		else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId) * NC2Logic::CHouseArray::ElementSize + NC2Layout::HouseOffset::PlayerId);
 		else return false;
 		if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::GetInputManagerPtr(), static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse, true, false, false)) return false;
 		manager->Selection_ActionButtons_BringUp(); NC2GuiToolsBase::FXTool_ClickConfirm(); return true;
@@ -272,7 +272,7 @@ namespace NC2InGameGuiWorldElement
 		else if (direction == 2) y = speed;
 		else if (direction == 3) x = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(speed));
 		else if (direction == 4) y = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(speed));
-		const auto rate = Read<float>(manager, 0x190);
+		const auto rate = Read<float>(manager, NC2Layout::InGameGuiManagerOffset::MeasuredFrameRate);
 		const auto factor = 1.0 / (rate >= 1.0f ? static_cast<double>(rate) : 1.0);
 		NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(x * factor)), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(y * factor)));
 		WorldDisplayElement_FollowMode_End(element);
@@ -287,7 +287,7 @@ namespace NC2InGameGuiWorldElement
 		auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
 		const auto keys = Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags);
 		auto* target = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse;
-		const auto mainMode = Read<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xDC);
+		const auto mainMode = Read<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, NC2Layout::InGameGuiManagerOffset::MainMode);
 		if (message == 1 || message == 2)
 		{
 			// Use the modern adapter's event time for the native 250 ms gate.
@@ -301,8 +301,8 @@ namespace NC2InGameGuiWorldElement
 			if (overrideHandler != nullptr)
 			{
 				using THandle = bool(__fastcall*)(void*, void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-				const auto handle = Read<THandle>(Read<void*>(overrideHandler, 0), 8);
-				if (handle(overrideHandler, nullptr, 0x800, Read<std::int32_t>(element, offset + 4), 0, 0, 0)) return true;
+				const auto handle = Read<THandle>(Read<void*>(overrideHandler, NC2Layout::GuiBaseElementOffset::VirtualTable), 8);
+				if (handle(overrideHandler, nullptr, 0x800, Read<std::int32_t>(element, offset + NC2Layout::WorldClickHandlerOffset::Command), 0, 0, 0)) return true;
 			}
 		}
 		if (message == 1)
@@ -389,7 +389,7 @@ namespace NC2InGameGuiWorldElement
 		{
 			if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0) return true;
 			const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
-			const auto callback = Read<bool(__cdecl*)()>(mouse, 0x4C);
+			const auto callback = Read<bool(__cdecl*)()>(mouse, NC2Layout::MouseManagerOffset::PositionOverrideCallback);
 			if (callback != nullptr && callback())
 			{
 				const auto speed = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Options_ScrollSpeed_GetInPixelPerSecond();
@@ -407,7 +407,7 @@ namespace NC2InGameGuiWorldElement
 				if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0)
 				{
 					auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-					if (Read<std::uint8_t>(manager, 0xE3) != 0)
+					if (Read<std::uint8_t>(manager, NC2Layout::InGameGuiManagerOffset::BorderScroll) != 0)
 					{
 						auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
 						const auto x = Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::X), y = Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::Y);
@@ -686,16 +686,16 @@ namespace NC2InGameGuiWorldElement
 		NXBasics::Runtime_PrintString(path, "data\\gui\\palettes\\ingame_remap_%2.2d.pcx", variant);
 		auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture(path);
 		Write(element, NC2Layout::WorldGuiElementOffset::DarkenPalette, palette);
-		if (Read<std::uint32_t>(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Bitmap), 4) != 1) return;
+		if (Read<std::uint32_t>(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Bitmap), NC2Layout::BitmapStorageOffset::Depth) != 1) return;
 		auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(131072));
 		Write(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable, table);
 		const auto* colours = NXBasics::Palette_GetHighColorTablePtr(palette);
 		const auto* converter = NXBasics::g16BitPixelConverter;
 		for (std::uint32_t value = 0; value < 0x10000; ++value)
 		{
-			const auto red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedShift) & 31u)) << 3;
-			const auto green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenShift) & 31u)) << 3;
-			const auto blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueShift) & 31u)) << 3;
+			const auto red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedAdjustment) & 31u)) << 3;
+			const auto green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenAdjustment) & 31u)) << 3;
+			const auto blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueAdjustment) & 31u)) << 3;
 			const auto brightness = red > green ? (red > blue ? red : blue) : (green > blue ? green : blue);
 			table[value] = colours[brightness];
 		}

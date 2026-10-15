@@ -118,20 +118,20 @@ namespace NToolGouraudShader
 		template<bool highColor, bool vertexColor, bool alpha, bool mmx> void Shade(CGouraudShader& shader)
 		{
 			const U* trueColors = mmx && alpha && highColor ? NXBasics::g16BitPixelConverter->GetTrueColorConvertTablePtr() : nullptr;
-			const bool rgb565 = mmx && highColor ? Read<std::uint8_t>(NXBasics::g16BitPixelConverter, 0x3A) != 0 : false;
+			const bool rgb565 = mmx && highColor ? Read<std::uint8_t>(NXBasics::g16BitPixelConverter, NC2Layout::HighColorConverterOffset::UsesRgb565) != 0 : false;
 			const void* converter = highColor ? static_cast<void*>(NXBasics::g16BitPixelConverter) : static_cast<void*>(NXBasics::g32BitPixelConverter);
 			U masks[3], rightShifts[3], leftShifts[3], adjustments[3];
 			if constexpr (!mmx) for (int i = 0; i != 3; ++i)
 			{
 				// BGR order; scalar 32-bit Windows routines leave blue unshifted.
 				const U channel = 2 - i;
-				masks[i] = highColor ? Read<std::uint16_t>(converter, 0x0C + channel * 2) : Read<U>(converter, 4 + channel * 4);
-				rightShifts[i] = highColor ? Read<U>(converter, 0x14 + channel * 4) : 0;
-				leftShifts[i] = highColor ? Read<U>(converter, 0x20 + channel * 4) : i == 0 ? 0 : Read<U>(converter, 0x1C + channel * 4);
-				adjustments[i] = highColor ? Read<U>(converter, 0x2C + channel * 4) : leftShifts[i];
+				masks[i] = highColor ? Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask + channel * NC2Layout::RecordSize::PixelChannelMask16) : Read<U>(converter, NC2Layout::TrueColorConverterOffset::RedMask + channel * NC2Layout::RecordSize::PixelChannelValue32);
+				rightShifts[i] = highColor ? Read<U>(converter, NC2Layout::HighColorConverterOffset::RedRightShift + channel * NC2Layout::RecordSize::PixelChannelValue32) : 0;
+				leftShifts[i] = highColor ? Read<U>(converter, NC2Layout::HighColorConverterOffset::RedLeftShift + channel * NC2Layout::RecordSize::PixelChannelValue32) : i == 0 ? 0 : Read<U>(converter, NC2Layout::TrueColorConverterOffset::RedLeftShift + channel * NC2Layout::RecordSize::PixelChannelValue32);
+				adjustments[i] = highColor ? Read<U>(converter, NC2Layout::HighColorConverterOffset::RedAdjustment + channel * NC2Layout::RecordSize::PixelChannelValue32) : leftShifts[i];
 			}
-			auto* storage = Read<std::byte*>(shader.bitmap, highColor ? 0x28 : 0x2C);
-			const I pitch = Read<I>(shader.bitmap, 0x30);
+			auto* storage = Read<std::byte*>(shader.bitmap, highColor ? NC2Layout::BitmapStorageOffset::HighColorMemory : NC2Layout::BitmapStorageOffset::TrueColorMemory);
+			const I pitch = Read<I>(shader.bitmap, NC2Layout::BitmapStorageOffset::RowPixelCount);
 			const auto* colors = reinterpret_cast<const std::uint8_t*>(shader.palette) + 4;
 			for (I index = shader.skipRows; index < shader.height; ++index)
 			{

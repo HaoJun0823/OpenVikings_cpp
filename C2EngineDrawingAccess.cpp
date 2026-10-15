@@ -26,8 +26,8 @@ namespace NC2E2
 		using NC2Lifetime::Read;
 		if (playerId < 0 || playerId >= 20) return nullptr;
 		const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
-		if (Read<std::uint8_t>(player, 0) == 0) return nullptr;
-		auto color = Read<std::int32_t>(player, 0x10);
+		if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return nullptr;
+		auto color = Read<std::int32_t>(player, NC2Layout::GameControlPlayerOffset::ColorId);
 		if (color < 0 || color >= 10) color = 9;
 		const auto paletteId = Read<std::uint32_t>(gStaticHumanColors + color * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::ShipPaletteId);
 		return gStaticPalettes.palettes256[paletteId].palette;
@@ -39,8 +39,8 @@ namespace NC2E2
 		using NC2Lifetime::Read;
 		if (playerId < 0 || playerId >= 20) return -1;
 		const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
-		if (Read<std::uint8_t>(player, 0) == 0) return -1;
-		auto color = Read<std::int32_t>(player, 0x10);
+		if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return -1;
+		auto color = Read<std::int32_t>(player, NC2Layout::GameControlPlayerOffset::ColorId);
 		if (color < 0 || color >= 10) color = 9;
 		return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * NC2Layout::RecordSize::HumanSignGraphicsIdUnsigned);
 	}
@@ -51,8 +51,8 @@ namespace NC2E2
 		using NC2Lifetime::Read;
 		if (count == 0 || playerId >= 20) return -1;
 		const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
-		if (Read<std::uint8_t>(player, 0) == 0) return -1;
-		auto color = Read<std::int32_t>(player, 0x10);
+		if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return -1;
+		auto color = Read<std::int32_t>(player, NC2Layout::GameControlPlayerOffset::ColorId);
 		if (color < 0 || color >= 10) color = 9;
 		auto index = count - 1u;
 		if (index >= 5) index = 4;
@@ -154,8 +154,8 @@ namespace NC2E2
 		NC2Logic::House_GetHouseTypeDataPtr(house);
 		const auto houseType = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType);
 		const auto* graphic = static_cast<const std::byte*>(gStaticHouseEntries) + houseType * 0x8BCu;
-		const auto variant = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) % NC2Lifetime::Read<std::uint32_t>(graphic, 0x21C);
-		ls_DrawAtom_House_DoDraw_PrintImageBob(NC2Lifetime::Read<void*>(graphic, 0x214), bobId, NC2Lifetime::Read<std::uint32_t>(graphic, 0x220u + variant * 4u), brightness, bitmap, x, y, false);
+		const auto variant = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) % NC2Lifetime::Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::PaletteCount);
+		ls_DrawAtom_House_DoDraw_PrintImageBob(NC2Lifetime::Read<void*>(graphic, NC2Layout::EngineHouseTypeOffset::BobManager), bobId, NC2Lifetime::Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::PaletteIdsUnsigned + variant * NC2Layout::RecordSize::HouseStageValueUnsigned), brightness, bitmap, x, y, false);
 	}
 
 	// Original function: FUN_00496c8b
@@ -438,8 +438,8 @@ namespace NC2E2
 		using NC2Lifetime::Read;
 		if (playerId >= 20) return -1;
 		const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
-		if (Read<std::uint8_t>(player, 0) == 0) return -1;
-		auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
+		if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return -1;
+		auto color = Read<std::int32_t>(player, NC2Layout::GameControlPlayerOffset::ColorId); if (color < 0 || color >= 10) color = 9;
 		// Windows 0048B5F4 reads 00568630, color record +0x48, not its RGB value.
 		return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId);
 	}
@@ -449,8 +449,8 @@ namespace NC2E2
 		using NC2Lifetime::Read;
 		if (playerId >= 20) return -1;
 		const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
-		if (Read<std::uint8_t>(player, 0) == 0) return -1;
-		auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
+		if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) return -1;
+		auto color = Read<std::int32_t>(player, NC2Layout::GameControlPlayerOffset::ColorId); if (color < 0 || color >= 10) color = 9;
 		// Windows 0048B62E reads 00568634, color record +0x4C, not its palette patch.
 		return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId);
 	}
