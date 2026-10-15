@@ -399,7 +399,7 @@ namespace NC2MainMenuGuiManager
 			const auto offset = NC2Layout::MainMenuManagerOffset::LobbyPlayerRows + slot * NC2Layout::RecordSize::MenuLobbyPlayerRowUnsigned;
 			Write(this, offset + NC2Layout::MenuLobbyPlayerOffset::Color, Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) != 0 ? FixedPlayerColor(slot) : 0u);
 			if (saved->header.multiplayer == 0) continue;
-			const auto type = saved->header.players[slot].value;
+			const auto type = saved->header.players[slot].playerType;
 			if (type == 1 || type == 2)
 			{
 				Write<std::uint32_t>(this, offset + NC2Layout::MenuLobbyPlayerOffset::Type, 2);
@@ -412,7 +412,7 @@ namespace NC2MainMenuGuiManager
 			for (std::uint32_t slot = 0; slot < 20; ++slot)
 			{
 				const auto& player = saved->header.players[slot];
-				if (player.value != 1 || std::strlen(player.name) == 0) continue;
+				if (player.playerType != 1 || std::strlen(player.name) == 0) continue;
 				for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::PlayerCount); ++index)
 				{
 					if (NXBasics::Runtime_CompareStringsIgnoreCase(reinterpret_cast<const char*>(this) + NC2Layout::MainMenuManagerOffset::PlayerRows + index * NC2Layout::MainMenuManagerOffset::ProviderRowsUnsigned, player.name) != 0) continue;

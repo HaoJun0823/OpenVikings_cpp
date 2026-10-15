@@ -47,3 +47,12 @@ XGuiDesktop.h,NXBaseGui::CDesktop,mUnknown012C,mLeftButtonDown,0x12c,1,Windows 0
 XGuiDesktop.h,NXBaseGui::CDesktop,mUnknown012C,mRightButtonDown,0x12d,1,Windows 00477AC4/00477B9E left press/release; 00477C11/00477C46 right press/release; 0047710B/00477159 clears/returns DWORD +130.
 XGuiDesktop.h,NXBaseGui::CDesktop,mUnknown012C,mWorkResult,0x130,4,Windows 00477AC4/00477B9E left press/release; 00477C11/00477C46 right press/release; 0047710B/00477159 clears/returns DWORD +130.
 XGuiDesktop.h,NXBaseGui::CDesktop,mUnknown0138,mSkipOrdinaryHitTestLists,0x138,1,Windows 00477EE7/00477F1A skip hit-test lists +50/+28 when byte +138 is nonzero; original writer/name unresolved.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,walkFlagChangedArea,0xfe0,8,Windows 00450E8C walk-flag change callback; min/max coordinates at 00512550..00512557.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,maxMoveableSizeChangedArea,0xfe8,8,Windows 00450C1D moveable-size change callback; min/max coordinates at 00512558..0051255F.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,continentChangedArea,0xff0,8,Windows 004513C1 continent change callback; min/max coordinates at 00512560..00512567.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,continentsNeedUpdate,0xff8,1,Windows 004513C1 clears byte 00512568 at start; sets it for modification 11; tests it before recomputation.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,resistanceChangedArea,0xffa,8,Windows 004511C5 resistance change callback; min/max coordinates at 0051256A..00512571.
+C2GameMapAccess.h,NC2Logic::SLogicMapStorage,unresolvedFE0,landscapeValidationChangedArea,0x1002,8,Windows 00424AE9 landscape-validation callback; min/max coordinates at 00512572..00512579.
+C2SavegamesManager.h,NC2Logic::SSavegamePlayerInfoData,value (vague name),playerType,0x0,4,Windows 00426229 saves GameControl player type; 004264A7 reads that same stream word into player-info row +0.
+XGuiDesktop.h,NXBaseGui::CDesktop,mElement010C (vague name),mKeyboardTargetRoot,0x10c,4,Windows 0047772F selects active root when element flag 04 is set; 00477D80 uses it for keyboard message routing; 004777A0 clears it on deactivation.
+XGuiDesktop.h,NXBaseGui::CDesktop,mOwnedObject0114 (vague name),mFallbackMessageHandler,0x114,4,Windows 00477D80/00477E06/004781C0 dispatch unhandled messages to +114; 00477010 destroys the owned element. Original member spelling remains unresolved.

@@ -89,9 +89,9 @@ namespace NXBaseGui
 		std::byte mListStorage0014[240];       // +0x014; twelve GUI lists, each 0x14 bytes.
 		CBaseElement* mActiveElement;           // +0x104
 		CBaseElement* mMouseOverElement;        // +0x108
-		CBaseElement* mElement010C;             // +0x10C; root selected by element flag 0x04.
+		CBaseElement* mKeyboardTargetRoot;             // +0x10C; root selected by element flag 0x04.
 		CBaseElement* mPrimaryMessageHandler;   // +0x110
-		void* mOwnedObject0114;                 // +0x114; owned object, precise role unresolved.
+		void* mFallbackMessageHandler;                 // +0x114; owned fallback element for unhandled messages.
 		std::byte mWindowListStorage0118[20]; // +0x118; window list.
 		std::uint8_t mLeftButtonDown;          // +0x12C
 		std::uint8_t mRightButtonDown;         // +0x12D

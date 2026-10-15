@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Unknown member follow-up — 2026-10-15
+
+[Further field naming](UNKNOWN_MEMBER_REVIEW.md) identifies six map-change fields / 41 formerly unknown bytes and three vague savegame/desktop members, bringing the recovered-field inventory to **57 fields**. Two residual map-tail gaps stay explicit; splitting one large unknown span into two makes the declaration count **132 → 133**, without introducing new unknown behavior. 20 private and nine added production assertions, five implementation-unit Win32 syntax checks plus the assertion unit, and native evidence checks pass. No build/tests/game run. Independent user changes are preserved. Earlier counts describe their historical checkpoints.
+
 ## Unknown member inventory and naming — 2026-10-15
 
 The [scope-aware member review](UNKNOWN_MEMBER_REVIEW.md) searches all 595 registered C++ files/headers: **137 explicit unknown member declarations → 132**, with 182 existing padding/reserved declarations counted separately. **48 semantic fields / 795 bytes** are identified in ten regions (six complete, four partial): GUI pointers/lists/buttons/timestamps, retained map-root string, desktop input/result state, landscape draw/clock flags and the transition result parameter. Five residual spans remain explicit. [All remaining members](UNKNOWN_MEMBER_INVENTORY.csv) and [recovered fields with Windows evidence](RECOVERED_MEMBER_FIELDS.csv) are listed. 116 private and 29 added production assertions, native byte-prefix verification and Win32 syntax checks pass. No build, tests or game run; seven independent user files are preserved. This is naming/layout progress, not gameplay/function completion. Earlier checkpoints retain historical counts.

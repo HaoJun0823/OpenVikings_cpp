@@ -88,9 +88,9 @@ namespace NXBaseGui
 		static_assert(offsetof(CDesktop, mDisplayBitmap) == 0x010);
 		static_assert(offsetof(CDesktop, mActiveElement) == 0x104);
 		static_assert(offsetof(CDesktop, mMouseOverElement) == 0x108);
-		static_assert(offsetof(CDesktop, mElement010C) == 0x10C);
+		static_assert(offsetof(CDesktop, mKeyboardTargetRoot) == 0x10C);
 		static_assert(offsetof(CDesktop, mPrimaryMessageHandler) == 0x110);
-		static_assert(offsetof(CDesktop, mOwnedObject0114) == 0x114);
+		static_assert(offsetof(CDesktop, mFallbackMessageHandler) == 0x114);
 		static_assert(offsetof(CDesktop, mMousePointerStorage) == 0x134);
 		static_assert(offsetof(CDesktop, mLeftButtonDown) == 0x12C);
 		static_assert(offsetof(CDesktop, mRightButtonDown) == 0x12D);
@@ -146,7 +146,7 @@ namespace NXBaseGui
 		Element_DeleteAll();
 
 		DestroyDesktopOwnedElement(mPrimaryMessageHandler);
-		DestroyDesktopOwnedElement(mOwnedObject0114);
+		DestroyDesktopOwnedElement(mFallbackMessageHandler);
 
 		if (mDisplayBitmap != nullptr)
 		{
@@ -410,7 +410,7 @@ namespace NXBaseGui
 		const auto* bytes = reinterpret_cast<const std::byte*>(rootElement);
 		std::memcpy(&flags, bytes + 0x18, sizeof(flags));
 
-		mElement010C = (flags & NXBasics::BitMask::Bit2) != 0 ? rootElement : nullptr;
+		mKeyboardTargetRoot = (flags & NXBasics::BitMask::Bit2) != 0 ? rootElement : nullptr;
 	}
 
 	// Original function: FUN_004777a0
@@ -428,14 +428,14 @@ namespace NXBaseGui
 			mMouseOverElement = nullptr;
 		}
 
-		if (mElement010C == element)
-			mElement010C = nullptr;
+		if (mKeyboardTargetRoot == element)
+			mKeyboardTargetRoot = nullptr;
 
 		if (mPrimaryMessageHandler == element)
 			mPrimaryMessageHandler = nullptr;
 
-		if (mOwnedObject0114 == element)
-			mOwnedObject0114 = nullptr;
+		if (mFallbackMessageHandler == element)
+			mFallbackMessageHandler = nullptr;
 	}
 
 	// Original function: FUN_00477646
@@ -503,7 +503,7 @@ namespace NXBaseGui
 				if (offset == 0xC8 || offset == 0x78) if (void* child = BaseWindow_Message_SendToChildElements(element, command, param1, param2, param3)) return static_cast<CBaseElement*>(child); if (send(element)) return static_cast<CBaseElement*>(element);
 			}
 		}
-		if (mOwnedObject0114 != nullptr && send(mOwnedObject0114)) return static_cast<CBaseElement*>(mOwnedObject0114); return nullptr;
+		if (mFallbackMessageHandler != nullptr && send(mFallbackMessageHandler)) return static_cast<CBaseElement*>(mFallbackMessageHandler); return nullptr;
 	}
 	// Original function: FUN_004782fa; searches both original window lists.
 	CBaseElement* CDesktop::Message_SendToAllWindows(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
@@ -694,8 +694,8 @@ namespace NXBaseGui
 		}
 		if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
 			if (SendDesktopElementMessage(mActiveElement, message, param1, param2, param3, param4)) return;
-		if (mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
-			SendDesktopElementMessage(mOwnedObject0114, message, param1, param2, param3, param4);
+		if (mFallbackMessageHandler != nullptr && (Read<std::uint32_t>(mFallbackMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
+			SendDesktopElementMessage(mFallbackMessageHandler, message, param1, param2, param3, param4);
 	}
 
 	// Original function: FUN_00477d80.
@@ -714,10 +714,10 @@ namespace NXBaseGui
 			bool handled = false;
 			if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::Flags) & 4u) != 0 && (Read<std::uint32_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
 				handled = SendDesktopElementMessage(mPrimaryMessageHandler, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
-			if (!handled && mElement010C != nullptr && (Read<std::uint32_t>(mElement010C, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
-				handled = SendDesktopElementMessage(mElement010C, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
-			if (!handled && mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::Flags) & 4u) != 0 && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
-				SendDesktopElementMessage(mOwnedObject0114, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
+			if (!handled && mKeyboardTargetRoot != nullptr && (Read<std::uint32_t>(mKeyboardTargetRoot, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
+				handled = SendDesktopElementMessage(mKeyboardTargetRoot, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
+			if (!handled && mFallbackMessageHandler != nullptr && (Read<std::uint32_t>(mFallbackMessageHandler, NC2Layout::GuiBaseElementOffset::Flags) & 4u) != 0 && (Read<std::uint32_t>(mFallbackMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
+				SendDesktopElementMessage(mFallbackMessageHandler, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
 			keyboard = NXSysKeyManager::CKeyManager::sTheObjectPtr;
 		}
 	}

@@ -31,8 +31,25 @@ namespace NC2Logic
 		void* macroPoints; void* microPoints; void* packingScratch;
 		std::uint32_t continentCount;
 		SLogicMapContinentStorage continents[250];
-		std::byte unresolvedFE0[44];
+		// Windows map-change callback state at 00512550..00512579.
+		std::int16_t walkFlagChangedArea[4];
+		std::int16_t maxMoveableSizeChangedArea[4];
+		std::int16_t continentChangedArea[4];
+		std::uint8_t continentsNeedUpdate;
+		std::byte unclassifiedFF9;
+		std::int16_t resistanceChangedArea[4];
+		std::int16_t landscapeValidationChangedArea[4];
+		std::byte unclassified100A[2];
 	};
+	static_assert(sizeof(SLogicMapStorage) == 4108);
+	static_assert(offsetof(SLogicMapStorage, walkFlagChangedArea) == 0xFE0);
+	static_assert(offsetof(SLogicMapStorage, maxMoveableSizeChangedArea) == 0xFE8);
+	static_assert(offsetof(SLogicMapStorage, continentChangedArea) == 0xFF0);
+	static_assert(offsetof(SLogicMapStorage, continentsNeedUpdate) == 0xFF8);
+	static_assert(offsetof(SLogicMapStorage, resistanceChangedArea) == 0xFFA);
+	static_assert(offsetof(SLogicMapStorage, landscapeValidationChangedArea) == 0x1002);
+	static_assert(offsetof(SLogicMapStorage, unclassified100A) == 0x100A);
+
 	// Original storage: signed word at DAT_00511570.
 	std::int16_t GameMap_GetWidth();
 

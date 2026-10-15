@@ -79,7 +79,7 @@ namespace NC2Logic
 						for (std::int32_t index = static_cast<std::int32_t>(io.IO_File_ReadLong()); index >= 0; index = static_cast<std::int32_t>(io.IO_File_ReadLong()))
 						{
 							auto& player = header->players[index];
-							player.value = io.IO_File_ReadLong();
+							player.playerType = io.IO_File_ReadLong();
 							std::strncpy(player.name, io.IO_File_ReadString(), 40);
 							player.colorId = io.IO_File_ReadLong();
 						}
