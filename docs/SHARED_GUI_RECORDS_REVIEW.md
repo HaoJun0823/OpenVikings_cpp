@@ -1,5 +1,7 @@
 # Shared Windows GUI prefixes
 
+Naming correction: [2026-10-15 large readability review](LARGE_READABILITY_RECORDS_REVIEW.md) establishes the +0x1C DWORD as MessageMask (formerly ElementId); the +0x28 serial is separate. Current source and the updated field inventory reflect that correction.
+
 Named base-element and base-window fields in the original base implementations and their established GUI descendants. Candidate files are read before propagation; inheritance anchors include calls to original GUI constructors and inherited virtual-table references. Files without those anchors are excluded. Access widths restrict propagation to appropriate scalar, pointer, rectangle and flag-byte views. Widget-specific offsets beyond the common prefixes are not treated as inherited fields.
 
 The 44-byte element prefix contains virtual table at zero, rectangle at four, interaction state at `0x14`, flags at `0x18`, element ID at `0x1C`, parent window at `0x20`, message handler at `0x24` and serial at `0x28`. A separate name describes byte one of the flags. The 108-byte window prefix adds a clipping rectangle at `0x2C`, drawing-order child list at `0x3C`, input-order child list at `0x50` and active child at `0x64`. The final DWORD at `0x68` remains unresolved. Physical models describe the prefixes and retain list storage as opaque bytes; they do not change ownership or construction.

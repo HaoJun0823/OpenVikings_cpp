@@ -96,7 +96,7 @@ namespace NC2Logic
         const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const auto goods = [&](std::uint32_t good, std::uint32_t amount)
         {
-            auto drop = Read<std::uint32_t>(point, 0);
+            auto drop = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorWrapped(&drop, 1);
             Map_GoodTool_PutOnMap(good, amount, drop, 5, false);
         };
@@ -169,7 +169,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             if (Human_IsJobHero(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0)
             {
-                Map_GoodTool_PutOnMap(Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 5, false);
+                Map_GoodTool_PutOnMap(Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates), 5, false);
                 Human_ClearCarriedGood(human);
             }
         }
@@ -239,7 +239,7 @@ namespace NC2Logic
         if (chest == 0) return;
         for (std::int32_t attempt = 0; attempt < 4; ++attempt)
         {
-            auto point = Read<std::uint32_t>(source, 0);
+            auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
             if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&point)) != 1 || !Tool_Map_GetNotBlockedPosition(&point, true)) continue;
             Logic_EntryPoint_Edit_Start();
             Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 85, chest, engine, 1, -1);

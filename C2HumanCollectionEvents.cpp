@@ -119,7 +119,7 @@ namespace NC2Logic
     {
         if (!ValidateEventTarget(human)) return;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
-        auto cursor = Read<std::uint32_t>(Real(human), 0);
+        auto cursor = Read<std::uint32_t>(Real(human), NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(cursor, 4);
         bool changed = false;
         for (std::uint32_t direction = 0; direction < 6; ++direction)

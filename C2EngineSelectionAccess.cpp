@@ -162,7 +162,7 @@ namespace NC2E2
                         const auto* data = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
                         if (Read<std::uint32_t>(data, 0x10) != 1 || Read<std::int32_t>(data, 0x14) == -1) continue;
                         id = Read<std::uint32_t>(data, 0x14); object = Human(id); objectType = 1;
-                        objectPoint = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(object), 0); objectMoveable = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MapMoveableId);
+                        objectPoint = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(object), NC2Layout::MapCoordinatePairOffset::Coordinates); objectMoveable = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MapMoveableId);
                     }
                     else continue;
                     const auto objectPriority = objectType == 2 ? 40u : 50u;

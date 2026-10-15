@@ -58,7 +58,7 @@ namespace NC2Logic
         {
             if (!IsFreeForStationaryMoveables(point)) return false;
             auto& candidates = *static_cast<FreeMapPoints*>(callback->userData);
-            candidates.points[candidates.count++] = Read<std::uint32_t>(point, 0);
+            candidates.points[candidates.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return candidates.count > 1;
         }
 
@@ -67,7 +67,7 @@ namespace NC2Logic
         {
             auto& data = *static_cast<VehicleFreeMapPoints*>(callback->userData);
             if (callback->distance < data.minimumDistance || !IsFreeForStationaryMoveables(point)) return false;
-            data.candidates.points[data.candidates.count++] = Read<std::uint32_t>(point, 0);
+            data.candidates.points[data.candidates.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.candidates.count > 1;
         }
     }
@@ -78,7 +78,7 @@ namespace NC2Logic
         FreeMapPoints data;
         CMapPathfinderElement::SearchOverMap(Human_GetMapPositionRef(human), 40, false, slHumanSearchNextFreeMapPointFunction, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (data.count == 0) return false;
-        Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
         return true;
     }
 
@@ -88,7 +88,7 @@ namespace NC2Logic
         VehicleFreeMapPoints data{minimumDistance, {}};
         CMapPathfinderElement::SearchOverMap(Human_GetMapPositionRef(human), 40, true, slHumanSearchNextVehicleFreeMapPointFunction, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (data.candidates.count == 0) return false;
-        Write(point, 0, data.candidates.points[Game_Random_GetNumber() % data.candidates.count]);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, data.candidates.points[Game_Random_GetNumber() % data.candidates.count]);
         return true;
     }
 

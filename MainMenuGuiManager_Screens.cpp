@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineDisplayAccess.h"
@@ -48,7 +49,7 @@ namespace NC2MainMenuGuiManager
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
         void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, getText(), false, false);
         // The Windows title paths write this even when allocation failed.
-        if (headline) Write<std::uint8_t>(element, 0xF8, 0);
+        if (headline) Write<std::uint8_t>(element, NC2Layout::GuiTextElementOffset::CenteredFlag, 0);
         return element;
     }
 
@@ -82,8 +83,8 @@ namespace NC2MainMenuGuiManager
 
     static void SetButtonValue(void* button, std::uint32_t value)
     {
-        Write(button, 0x4C, value);
-        Write<std::uint32_t>(button, 0x50, 0);
+        Write(button, NC2Layout::GuiTextButtonOffset::MessageParameter1, value);
+        Write<std::uint32_t>(button, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0);
     }
 
     // Original function: FUN_004d3a6d.
@@ -116,7 +117,7 @@ namespace NC2MainMenuGuiManager
         {
             auto rectangle = content;
             void* element = CreateButton(rectangle, 0, 1, 0x138B, owner, StringTool_GetMainMenuStringPtr);
-            Write<std::uint8_t>(element, 0x56, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0]));
+            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0]));
             add(element);
             AdvanceRow(rectangle, 20); button(rectangle, 2, 3, 0x138C);
             AdvanceRow(rectangle, 30); button(rectangle, 6, 7, 0x138D);
@@ -149,7 +150,7 @@ namespace NC2MainMenuGuiManager
                 SRectangle rectangle = content;
                 rectangle.width = 350; rectangle.height = 280;
                 void* list = CreateListBox(rectangle);
-                SRectangle row{0, 0, Read<std::int32_t>(list, 0xC), 22};
+                SRectangle row{0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22};
                 NC2Logic::gCleanMapsManager->CleanMapList_Tool_SortByNames();
                 NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
                 auto mapButton = [&](NC2Logic::SCleanMapInfoData* map, std::uint32_t command)
@@ -211,7 +212,7 @@ namespace NC2MainMenuGuiManager
                         SRectangle rectangle{AddCoordinate(x, -10), AddCoordinate(y, -10), 20, 20};
                         element = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, 0x29, name, 0x1397, owner);
                     }
-                    Write(element, 0x48, &map->guid); Write<std::uint32_t>(element, 0x4C, 0); Write<std::uint8_t>(element, 0x44, 1);
+                    Write(element, NC2Layout::GuiGfxButtonOffset::MessageParameter1, &map->guid); Write<std::uint32_t>(element, NC2Layout::GuiGfxButtonOffset::MessageParameter2, 0); Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::ImmediateTooltip, 1);
                     add(element);
                 }
             }
@@ -284,7 +285,7 @@ namespace NC2MainMenuGuiManager
             heading(title, 0x4B);
             auto rectangle = content;
             void* element = CreateButton(rectangle, 0x4C, 0x4D, 0x13A3, owner, StringTool_GetMainMenuStringPtr);
-            Write<std::uint8_t>(element, 0x56, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0])); add(element);
+            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0])); add(element);
             AdvanceRow(rectangle, 10); button(rectangle, 0x4E, 0x4F, 0x13A4);
             networkBack();
             break;
@@ -337,7 +338,7 @@ namespace NC2MainMenuGuiManager
                 if (NC2Logic::gCleanMapsManager != nullptr)
                 {
                     NC2Logic::gCleanMapsManager->CleanMapList_Tool_SortByNames();
-                    SRectangle row{0, 0, Read<std::int32_t>(list, 0xC), 22};
+                    SRectangle row{0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22};
                     NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
                     for (std::uint32_t group = 0; group < 2; ++group)
                     {
@@ -352,7 +353,7 @@ namespace NC2MainMenuGuiManager
                             char name[200]; map->Tool_GetMapName(name);
                             void* element = CreateSimpleButton(row, [&] { return name; }, 0x13AA, owner);
                             SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
-                            if (reinterpret_cast<const NC2Logic::SCleanMapGuid*>(lobbyData + 4)->IsEqualTo(map->guid)) Write<std::uint8_t>(element, 0x55, 1);
+                            if (reinterpret_cast<const NC2Logic::SCleanMapGuid*>(lobbyData + 4)->IsEqualTo(map->guid)) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
                             BaseListBoxElement_Element_Add(list, nullptr, element); AdvanceRow(row, 2);
                         }
                     }
@@ -390,8 +391,8 @@ namespace NC2MainMenuGuiManager
                 Write(this, 0x30 + index * 4, element);
                 const auto id = Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu);
                 SetButtonValue(element, id);
-                if (id == Read<std::uint32_t>(this, 0xEE4)) Write<std::uint8_t>(element, 0x55, 1);
-                Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost());
+                if (id == Read<std::uint32_t>(this, 0xEE4)) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, !NNetwork::Network_IsHost());
                 add(element); AdvanceRow(players, 5);
             }
             if (NNetwork::Network_IsHost())
@@ -399,7 +400,7 @@ namespace NC2MainMenuGuiManager
                 players.y = AddCoordinate(players.y, 5);
                 void* element = CreateButton(players, 0x66, 0x67, 0x13B2, owner, StringTool_GetMainMenuStringPtr);
                 const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, 0xEE4));
-                if (index == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
+                if (index == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
                 add(element); AdvanceRow(players, 5);
             }
             auto slots = players;
@@ -422,10 +423,10 @@ namespace NC2MainMenuGuiManager
                     element = CreateSimpleButton(slots, [&] { return label; }, 0x13B3, owner);
                 }
                 else element = CreateSimpleButton(slots, [=] { return StringTool_GetMainMenuStringPtr(kind == 2 ? 0x6B : 0x6C); }, 0x13B3, owner);
-                SetButtonValue(element, index); Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost()); add(element);
+                SetButtonValue(element, index); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, !NNetwork::Network_IsHost()); add(element);
                 auto change = slots; change.x = AddCoordinate(AddCoordinate(change.x, change.width), 10); change.width = 50;
                 element = CreateSimpleButton(change, [] { return StringTool_GetMainMenuStringPtr(0x6D); }, 0x13B4, owner);
-                SetButtonValue(element, index); Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost()); add(element);
+                SetButtonValue(element, index); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, !NNetwork::Network_IsHost()); add(element);
                 if (kind == 1 || kind == 2)
                 {
                     auto color = slots; color.x = AddCoordinate(AddCoordinate(color.x, color.width), 70); color.width = 50;
@@ -434,7 +435,7 @@ namespace NC2MainMenuGuiManager
                     NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(element, NC2E2::StaticHumanMisc_ColorIds_GetColorRef(Read<std::uint32_t>(this, offset + 12)));
                     bool disabled = true;
                     if (Read<std::uint32_t>(this, 0xF24) == 0 && Read<std::uint8_t>(this, 0x1068) == 0 && NNetwork::Network_IsHost()) disabled = false;
-                    Write<std::uint8_t>(element, 0x56, disabled); add(element);
+                    Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, disabled); add(element);
                 }
                 AdvanceRow(slots, 5);
             }
@@ -452,13 +453,13 @@ namespace NC2MainMenuGuiManager
                 AdvanceRow(players, 15); heading(players, 0x70); players.y = AddCoordinate(players.y, players.height);
                 const auto allowed = Network_AllowsConnections();
                 void* element = CreateButton(players, allowed ? 0x73 : 0x71, allowed ? 0x74 : 0x72, 0x13AF, owner, StringTool_GetMainMenuStringPtr);
-                if (allowed) Write<std::uint8_t>(element, 0x55, 1);
+                if (allowed) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
                 add(element); AdvanceRow(players, 10);
                 element = CreateSimpleButton(players, [] { return StringTool_GetMainMenuStringPtr(0x75); }, 0x13B0, owner); add(element);
                 char error[200];
                 if (!sTheObjectPtr->Network_CanStartGame(error))
                 {
-                    Write<std::uint8_t>(element, 0x56, 1);
+                    Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
                     NC2InGameGuiBase::BaseToolTextButton_SetToolTipString(element, error);
                 }
             }

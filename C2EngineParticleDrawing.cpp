@@ -65,8 +65,8 @@ namespace NC2E2
 	// Original function: FUN_0049805a; original helper name unresolved.
 	void ParticelPosition_ToMapPoint(const void* position, void* point)
 	{
-		Write<std::uint16_t>(point, 0, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 0.5)));
-		Write<std::uint16_t>(point, 2, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapY) + 0.5)));
+		Write<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 0.5)));
+		Write<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::Y, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapY) + 0.5)));
 	}
 
 	// Original function: FUN_004980a7; original helper name unresolved.
@@ -214,7 +214,7 @@ namespace NC2E2
 			if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::DrawBottom) != 0) E2ParticelManager_l_DrawParticel(manager, display, particle);
 			else
 			{
-				const auto y = Read<std::int16_t>(point, 2);
+				const auto y = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y);
 				const auto count = Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRowCount);
 				std::uint32_t group = 0;
 				while (group < count && Read<std::int32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRows + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned) != y) ++group;

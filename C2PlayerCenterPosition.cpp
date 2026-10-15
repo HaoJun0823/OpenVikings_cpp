@@ -44,8 +44,8 @@ namespace NC2Logic
         for (auto id = houses.GetFirstHouseId(playerId); id != -1; id = houses.GetNextHouseId())
         {
             const auto* position = houseAt(id) + 0x1C;
-            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, 0));
-            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, 2));
+            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X));
+            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y));
             ++count;
             if (firstHouse)
             {
@@ -61,8 +61,8 @@ namespace NC2Logic
             const auto* moveable = static_cast<const std::byte*>(gMapMoveableArrayStorage.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
             if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
             const auto* position = moveable + 0x12;
-            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, 0));
-            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, 2));
+            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X));
+            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y));
             ++count;
             if (firstHuman)
             {

@@ -60,11 +60,11 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SBasePointSearch*>(callback->userData);
             if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::Bit4) == 0) return false;
-            auto* sector = Sector(SSectorGridCursor(Read<std::uint32_t>(point, 0)), data.land != 0);
+            auto* sector = Sector(SSectorGridCursor(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)), data.land != 0);
             for (std::uint32_t direction = 0; direction < 8; ++direction)
             {
                 if ((sector->connectionFlags & (1u << direction)) == 0 || sector->connectionValues[direction] < data.clearance) continue;
-                data.point = Read<std::uint32_t>(point, 0);
+                data.point = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
                 return true;
             }
             return false;
@@ -95,7 +95,7 @@ namespace NC2Logic
     // Original function: FUN_0045437A. The ring walks four even directions with two steps per radius.
     std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player, std::uint32_t radius)
     {
-        SSectorGridCursor cursor(Read<std::uint32_t>(point, 0));
+        SSectorGridCursor cursor(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         std::uint32_t total = static_cast<std::uint32_t>(AIMilitaryManager_Military_GetCivilianDangerValueForSector(cursor, player));
         for (std::int32_t ring = 1; ring < NXBasics::Runtime_TimeSigned32(radius); ++ring)
         {
@@ -225,18 +225,18 @@ namespace NC2Logic
         if (first == nullptr) return false;
         if (second != nullptr)
         {
-            Write(secondPoint, 0, second->basePoints[Game_Random_GetNumber() % second->basePointCount]);
+            Write(secondPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, second->basePoints[Game_Random_GetNumber() % second->basePointCount]);
             if (Distance(secondPoint, source) > radius)
             {
-                Write(secondPoint, 0, first->basePoints[0]);
-                if (Distance(secondPoint, source) > radius) Write(secondPoint, 0, sourceData->basePoints[0]);
+                Write(secondPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, first->basePoints[0]);
+                if (Distance(secondPoint, source) > radius) Write(secondPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, sourceData->basePoints[0]);
             }
         }
-        Write(firstPoint, 0, first->basePoints[Game_Random_GetNumber() % first->basePointCount]);
+        Write(firstPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, first->basePoints[Game_Random_GetNumber() % first->basePointCount]);
         if (Distance(firstPoint, source) > radius)
         {
-            Write(firstPoint, 0, first->basePoints[0]);
-            if (Distance(firstPoint, source) > radius) Write(firstPoint, 0, sourceData->basePoints[0]);
+            Write(firstPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, first->basePoints[0]);
+            if (Distance(firstPoint, source) > radius) Write(firstPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, sourceData->basePoints[0]);
         }
         return true;
     }
@@ -331,7 +331,7 @@ namespace NC2Logic
     // Original function: FUN_00454192; four square-sector rings, with signed division by radius squared.
     std::int32_t AIMilitaryManager_Military_GetDangerValueForPosition(const void* point, std::int32_t player)
     {
-        SSectorGridCursor cursor(Read<std::uint32_t>(point, 0));
+        SSectorGridCursor cursor(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         auto total = static_cast<std::uint32_t>(AIMilitaryManager_Military_GetDangerValueForSector(cursor, player));
         for (std::uint32_t radius = 1; radius < 5; ++radius)
         {

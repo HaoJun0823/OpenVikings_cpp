@@ -385,7 +385,7 @@ namespace NC2Logic
             {
                 if (!Human_IsAttachedToWorkHouse(human))
                 {
-                    Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Position(human), 0));
+                    Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
                     Human_WorkCenterMarker_Update(human);
                 }
@@ -431,7 +431,7 @@ namespace NC2Logic
         {
             std::uint32_t point = 0;
             TargetData_GetMapPosition(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget, &point);
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Y));
             if (distance < 50) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14); return; } // Game.exe 004F4300.
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
         }
@@ -494,7 +494,7 @@ namespace NC2Logic
         if ((atomic == 0 || atomic == 1) && idleCount >= 10u && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 2u) == 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget) == 0 && !Human_IsAttachedToVehicle(human))
         {
             // Empty eligible queues were checked by the startup dispatcher.
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY));
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY));
             if (distance >= 5)
             {
                 auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);

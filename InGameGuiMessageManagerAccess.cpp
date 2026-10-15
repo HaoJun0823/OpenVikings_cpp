@@ -29,11 +29,11 @@ namespace NC2InGameGuiMessages
         bool SingleMessageDisplayed_GetMapPositionImpl(const void* record, std::uint32_t* point)
         {
             const auto human = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HumanId);
-            if (human != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
+            if (human != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates); return true; }
             const auto house = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HouseId);
             if (house != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true; }
             const auto vehicle = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::VehicleId);
-            if (vehicle != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), 0); return true; }
+            if (vehicle != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates); return true; }
             if (Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::Type) == 0x3B)
             {
                 const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HumanUniqueId));

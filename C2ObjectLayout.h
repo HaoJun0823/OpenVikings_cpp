@@ -2828,6 +2828,8 @@ namespace NC2Layout
 
     namespace GuiBaseElementOffset
     {
+        inline constexpr auto MessageMask = 0x1C;
+
         inline constexpr auto Serial = 0x28;
 
         inline constexpr auto VirtualTable = 0;
@@ -2839,7 +2841,6 @@ namespace NC2Layout
         inline constexpr auto InteractionState = 0x14;
         inline constexpr auto Flags = 0x18;
         inline constexpr auto FlagsByte1 = 0x19;
-        inline constexpr auto ElementId = 0x1C;
         inline constexpr auto ParentWindow = 0x20;
         inline constexpr auto MessageHandler = 0x24;
     }

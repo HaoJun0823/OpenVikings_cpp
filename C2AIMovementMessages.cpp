@@ -101,7 +101,7 @@ namespace NC2Logic
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
             const auto* position = Human_GetMapPositionRef(human);
-            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::Coordinates), Read<std::int16_t>(point, 2)));
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(point, NC2Layout::MapMigPointOffset::Coordinates), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)));
             if (candidate < distance) { distance = candidate; best = human; }
         }
         return best;

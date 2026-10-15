@@ -101,7 +101,7 @@ namespace NC2Logic
     {
         const void* micro = GameMap_GetConstMapMicroPointPtr(candidate);
         if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < size || !Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), engineType, stage, Read<std::uint32_t>(candidate, 0), ignoreContinents, false)) return 0;
-        Write(workPosition, 0, Read<std::uint32_t>(candidate, 0));
+        Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, 0));
         if (ignoreContinents && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent || !Tool_House_IsWorkPointOnContinent(candidate, engineType, stage, continent, workPosition))) return 0;
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
         const auto* area = Read<const CMapArea*>(definition, 0x20u + stage * 4u);
@@ -115,7 +115,7 @@ namespace NC2Logic
                 Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
         }
-        Write(realPosition, 0, Read<std::uint32_t>(candidate, 0));
+        Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, 0));
         return 2;
     }
 
@@ -258,10 +258,10 @@ namespace NC2Logic
         if (atTarget)
         {
             const void* realTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
-            if (Read<std::uint32_t>(realTarget, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_BuildVehicle(human); return; }
+            if (Read<std::uint32_t>(realTarget, NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_BuildVehicle(human); return; }
             const void* workTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
             if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(workTarget, 0) != work)
+            if (Read<std::uint32_t>(workTarget, NC2Layout::MapCoordinatePairOffset::Coordinates) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, realTarget, &work)) { Fail(human, 0); Human_Target_Reset(human); }
                 return;
@@ -272,7 +272,7 @@ namespace NC2Logic
         {
             const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, &real, &work)) Fail(human, 0);
                 return;

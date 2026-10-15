@@ -51,7 +51,7 @@ namespace NC2Logic
                     MapPathfinderElement_Init(pathfinder);
                     RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, source);
                     MapPathfinderElement_StartPathfinder(pathfinder, source, other + NC2Layout::HouseOffset::DoorEntryPoint, 20, true, false, false, true);
-                    auto point = Read<std::uint32_t>(source, 0);
+                    auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
                     for (auto direction = MapPathfinderElement_GetNextDirection(pathfinder); direction >= 0; direction = MapPathfinderElement_GetNextDirection(pathfinder))
                     {
                         MapMigPoint_MoveCursorUnwrapped(point, direction);

@@ -57,7 +57,7 @@ namespace NC2Logic
                 if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human))) == 1)
                 {
                     createAnimal = true;
-                    position = Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
+                    position = Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates);
                 }
                 CHumanArray::sTheObjectPtr->FreeHuman(id);
                 if (createAnimal) CAnimalArray::sTheObjectPtr->AllocateAnimal(20, 0x1E, 0x31, &position, 0, 0);
@@ -129,7 +129,7 @@ namespace NC2Logic
             Write(message, 8, player);
             Write(message, 0x2FC, type);
             Write(message, 0x300, item);
-            if (position != nullptr) Write(message, 0x28, Read<std::uint32_t>(position, 0));
+            if (position != nullptr) Write(message, 0x28, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
             return true;

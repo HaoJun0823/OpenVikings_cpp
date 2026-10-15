@@ -38,7 +38,7 @@ namespace NXBaseGui
     static std::uint32_t gNextElementSerial = 1;
 
     // Original function: FUN_00478936; serial assignment follows state/flags.
-    static void BaseElement_ConstructState(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
+    static void BaseElement_ConstructState(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageMask)
     {
         std::memset(static_cast<std::byte*>(element) + NC2Layout::GuiBaseElementOffset::Rectangle, 0, 40);
         Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 0);
@@ -46,16 +46,16 @@ namespace NXBaseGui
         flags |= NXBasics::BitMask::Bit5;
         if ((flags & 2u) != 0) flags |= 1u;
         Write(element, NC2Layout::GuiBaseElementOffset::Flags, flags);
-        Write(element, NC2Layout::GuiBaseElementOffset::ElementId, elementId);
+        Write(element, NC2Layout::GuiBaseElementOffset::MessageMask, messageMask);
         Write(element, NC2Layout::GuiBaseElementOffset::Serial, gNextElementSerial);
         ++gNextElementSerial;
     }
 
     // Original function: FUN_004788c6.
-    void* BaseElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
+    void* BaseElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageMask)
     {
         Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseElementVirtualTable + 0);
-        BaseElement_ConstructState(element, rectangle, flags, elementId);
+        BaseElement_ConstructState(element, rectangle, flags, messageMask);
         return element;
     }
 

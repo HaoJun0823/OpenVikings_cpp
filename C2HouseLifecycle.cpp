@@ -42,7 +42,7 @@ namespace NC2Logic
     {
         const auto id = Element_Allocate();
         if (id == -1) return -1;
-        if (!House_Init(mStaticVars + static_cast<std::uint32_t>(id) * ElementSize, id, player, engineType, stage, Read<std::uint32_t>(point, 0), finished, flags))
+        if (!House_Init(mStaticVars + static_cast<std::uint32_t>(id) * ElementSize, id, player, engineType, stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), finished, flags))
         {
             FreeHouse(id);
             return -1;

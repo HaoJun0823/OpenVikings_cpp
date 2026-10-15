@@ -160,7 +160,7 @@ namespace NC2E2
         const auto soundType = parameter1, point = parameter2, skipRunning = parameter3;
         if (type != 0x17 || NDSManager::CManager::sTheObjectPtr == nullptr) return true;
         const auto* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
-        const auto x = Read<std::int16_t>(&point, 0), y = Read<std::int16_t>(&point, 2);
+        const auto x = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y);
         const auto left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY), width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
         if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
         const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
@@ -306,8 +306,8 @@ namespace NC2E2
     void Tool_Sound_PlaySoundOrientedOnDisplay(const void* point, std::uint32_t soundId, const void* display, bool skipRunning, bool attenuate)
     {
         if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0 || soundId == NXBasics::IntegerRange::UInt32Maximum) return;
-        const std::int32_t x = Read<std::int16_t>(point, 0);
-        const std::int32_t y = Read<std::int16_t>(point, 2);
+        const std::int32_t x = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X);
+        const std::int32_t y = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y);
         const std::int32_t left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX);
         const std::int32_t top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY);
         const std::int32_t width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth);

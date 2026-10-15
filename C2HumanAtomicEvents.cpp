@@ -57,14 +57,14 @@ namespace NC2Logic
     bool Human_IsInHomeHouse(const void* human)
     {
         const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId);
-        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
+        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
     }
 
     // Original function: FUN_0042cd98.
     bool Human_IsInWorkHouse(const void* human)
     {
         const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
-        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
+        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
     }
 
     // Original function: FUN_0045cca7.
@@ -198,7 +198,7 @@ namespace NC2Logic
         if (Human_IsAttachedToLearnHouse(human) && Human_Misc_IsHidden(human))
         {
             auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
-            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint) && House_Production_IsAbleToProduceGood(house, 8, false))
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint) && House_Production_IsAbleToProduceGood(house, 8, false))
             {
                 if (!House_Stock_ModifyAmount(house, 8, amount, 0, false)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 13); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 7); }
                 return;

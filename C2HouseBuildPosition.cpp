@@ -43,8 +43,8 @@ namespace NC2Logic
     bool __cdecl Tool_HouseBuildPointSearchEvaluationFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data)
     {
         auto* search = static_cast<std::uint32_t*>(data->userData);
-        if (!Tool_House_IsAllowedToBeBuild(search[0], NXBasics::Runtime_TimeSigned32(search[1]), search[2], Read<std::uint32_t>(point, 0), false, false)) return false;
-        search[3] = Read<std::uint32_t>(point, 0);
+        if (!Tool_House_IsAllowedToBeBuild(search[0], NXBasics::Runtime_TimeSigned32(search[1]), search[2], Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
+        search[3] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         return true;
     }
 
@@ -63,7 +63,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&candidate))
                 {
                     const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
-                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) { Write(workPoint, 0, candidate); return true; }
+                    if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) { Write(workPoint, NC2Layout::MapCoordinatePairOffset::Coordinates, candidate); return true; }
                 }
                 Write<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, NC2Layout::MapCoordinatePairOffset::X) + 1u));
             }
@@ -75,11 +75,11 @@ namespace NC2Logic
     bool Tool_Human_IsAnyOfPlayerAround(std::uint32_t player, const void* point, std::int32_t radius, bool includeVehicles)
     {
         CHumanIterator humans;
-        if (humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(point, 0), radius, false) != -1) return true;
-        if (humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(point, 0), radius, true) != -1) return true;
+        if (humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), radius, false) != -1) return true;
+        if (humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), radius, true) != -1) return true;
         if (!includeVehicles) return false;
         CVehicleIterator vehicles;
-        for (auto id = vehicles.GetFirstSectorVehicleId(player, Read<std::uint32_t>(point, 0), radius, false); id != -1; id = vehicles.GetNextSectorVehicleId())
+        for (auto id = vehicles.GetFirstSectorVehicleId(player, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), radius, false); id != -1; id = vehicles.GetNextSectorVehicleId())
         {
             const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);

@@ -30,7 +30,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (Tool_IsPointHitByNotMovingVehicle(point, point)) return true;
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         for (std::uint32_t radius = 1; radius < 4; ++radius)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
@@ -84,8 +84,8 @@ namespace NC2Logic
                 type = data;
                 output = to;
                 source = from;
-                Write<std::uint16_t>(&initialPoint, 2, 0);
-                Write<std::uint16_t>(&initialPoint, 0, 0);
+                Write<std::uint16_t>(&initialPoint, NC2Layout::MapCoordinatePairOffset::Y, 0);
+                Write<std::uint16_t>(&initialPoint, NC2Layout::MapCoordinatePairOffset::X, 0);
                 const auto distance = Distance(from, to);
                 minimumDistance = 0;
                 bestDistance = distance;
@@ -106,7 +106,7 @@ namespace NC2Logic
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
             if (data.sourceDistance == 0) data.sourceDistance = fromSource;
             else if (data.sourceDistance < fromSource) return false;
-            Write(data.output, 0, Read<std::uint32_t>(point, 0));
+            Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             data.bestDistance = distance;
             return false;
         }
@@ -121,7 +121,7 @@ namespace NC2Logic
             const auto distance = Distance(point, &data.initialPoint);
             const auto fromSource = Distance(data.source, point);
             if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
-            auto cursor = Read<std::uint32_t>(point, 0);
+            auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             const auto radius = static_cast<std::uint32_t>(data.type->logicSize) + 1u;
             MapMigPoint_MoveCursorUnwrapped(&cursor, 4, radius);
             bool land = false;
@@ -134,7 +134,7 @@ namespace NC2Logic
             if (!land) return false;
             if (data.sourceDistance == 0) data.sourceDistance = fromSource;
             else if (data.sourceDistance < fromSource) return false;
-            Write(data.output, 0, Read<std::uint32_t>(point, 0));
+            Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             data.bestDistance = distance;
             return false;
         }
@@ -145,7 +145,7 @@ namespace NC2Logic
         {
             const auto& data = *static_cast<SVehicleFreePositionSearch*>(callback->userData);
             if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(data.vehicle)->logicSize) || Vehicle_GoAway_HitByVehicle(data.vehicle, point)) return false;
-            Write(data.output, 0, Read<std::uint32_t>(point, 0));
+            Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             return true;
         }
     }
@@ -207,11 +207,11 @@ namespace NC2Logic
         Write(vehicle, NC2Layout::VehicleOffset::MissionCheckId, missionCheck);
         if (type == 3 || type == 4)
         {
-            const auto continent = Vehicle_l_GetLandContinentIdFromBorder(vehicle, Read<std::uint32_t>(point, 0));
+            const auto continent = Vehicle_l_GetLandContinentIdFromBorder(vehicle, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             if (continent == -1) Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DoorEntryPoint, NXBasics::IntegerRange::UInt32Maximum);
-            else { Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag, 1); Vehicle_l_GetDoorPoint(vehicle, static_cast<std::uint32_t>(continent), Read<std::uint32_t>(point, 0)); }
+            else { Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag, 1); Vehicle_l_GetDoorPoint(vehicle, static_cast<std::uint32_t>(continent), Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)); }
         }
-        Write(vehicle, NC2Layout::VehicleOffset::MilitaryCenter, Read<std::uint32_t>(point, 0));
+        Write(vehicle, NC2Layout::VehicleOffset::MilitaryCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MilitaryMode, 3);
         GameMap_Exploration_DoExplore(player, point, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::ExplorationRadius));
         Write<std::int32_t>(vehicle, NC2Layout::VehicleOffset::CarrierVehicleId, -1);
@@ -272,7 +272,7 @@ namespace NC2Logic
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
             if (Read<std::uint8_t>(&gGameStaticVars, NC2Layout::GameStaticVarsOffset::SuppressDestructionLandscapeFlag) == 0 && type != 3 && type != 4)
             {
-                auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
+                auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates);
                 const auto wreck = [&](bool checkInside)
                 {
                     const auto chance = Game_Random_GetNumber() % 100u;
@@ -293,7 +293,7 @@ namespace NC2Logic
                 {
                     if (!Vehicle_Stock_CanStoreGoodType(vehicle, good)) continue;
                     const auto amount = Vehicle_Stock_GetAmountOfGoods(vehicle, good);
-                    if (amount != 0) Map_GoodTool_PutOnMap(good, amount, Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0), 10, false);
+                    if (amount != 0) Map_GoodTool_PutOnMap(good, amount, Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates), 10, false);
                 }
             Logic_EntryPoint_Edit_Stop();
         }
@@ -306,13 +306,13 @@ namespace NC2Logic
     void Vehicle_ResetUserCommandArray(void* vehicle) { for (std::uint32_t index = 0; index < 22; ++index) Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::UserCommandQueue + index * NC2Layout::RecordSize::UserNetworkCommand, 0); }
 
     // Original function: FUN_004413a4.
-    void Vehicle_SetTargetWorkPosition(void* vehicle, const void* point) { Write(vehicle, NC2Layout::VehicleOffset::TargetWorkPosition, Read<std::uint32_t>(point, 0)); }
+    void Vehicle_SetTargetWorkPosition(void* vehicle, const void* point) { Write(vehicle, NC2Layout::VehicleOffset::TargetWorkPosition, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)); }
 
     // Original function: FUN_004413f9; send nearby humans away from the entire footprint.
     void Vehicle_l_SendAwayRadial(void* vehicle)
     {
         if (Vehicle_Attachment_IsInsideVehicle(vehicle)) return;
-        auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
+        auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates);
         Vehicle_l_SendAllAway(vehicle, &point);
         for (std::uint32_t ring = 1; ring <= static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize); ++ring)
         {
@@ -346,7 +346,7 @@ namespace NC2Logic
     bool Vehicle_GoAway_HitByVehicle(const void* vehicle, const void* point)
     {
         if (Vehicle_l_GoAway_HitByVehicle(vehicle, point, point)) return true;
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         for (std::uint32_t ring = 1; ring < 10; ++ring)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
@@ -541,7 +541,7 @@ namespace NC2Logic
     // Original function: FUN_00462483; Game.exe's 004F3B24 radius is 60.
     bool Vehicle_l_StartAtomicWalk(void* vehicle, const void* point, bool force)
     {
-        if (Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0) == Read<std::uint32_t>(point, 0)) { Vehicle_SetTargetWorkPosition(vehicle, point); return true; }
+        if (Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) { Vehicle_SetTargetWorkPosition(vehicle, point); return true; }
         if (!Vehicle_l_IsAtomicInterruptable(vehicle)) return false;
         if (!force)
         {
@@ -553,7 +553,7 @@ namespace NC2Logic
         if (!MapMoveable_Pathfinder_Start(Moveable(vehicle), point, 60, false, true, false)) return false;
         Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag, 0);
         Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag, 0);
-        Write(vehicle, NC2Layout::VehicleOffset::MilitaryCenter, Read<std::uint32_t>(point, 0));
+        Write(vehicle, NC2Layout::VehicleOffset::MilitaryCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction, 1);
         return true;
     }
@@ -573,7 +573,7 @@ namespace NC2Logic
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Vehicle_GetMapPositionRef(vehicle));
             if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize))
             {
-                auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
+                auto point = Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates);
                 std::uint32_t output = 0;
                 const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
                 if ((type == 3 || type == 4) && !Vehicle_Passengers_IsCommanderInVehicle(vehicle))
@@ -603,6 +603,6 @@ namespace NC2Logic
         data.minimumDistance = minimumDistance;
         data.sourceDistance = 0;
         CMapPathfinderElement::SearchOverMap(source, radius, true, slTool_CheckForVehiclePoint, &data, true, -1);
-        return Read<std::uint32_t>(point, 0) != data.initialPoint;
+        return Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates) != data.initialPoint;
     }
 }

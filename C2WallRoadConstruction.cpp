@@ -95,7 +95,7 @@ namespace NC2Logic
     {
         if (direction >= 6 || !WallGate_IsWallElementUsable(player, source)) return false;
         const auto height = GameMap_GetHeightAtMapMigPoint(source);
-        auto point = Read<std::uint32_t>(source, 0);
+        auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(&point, VE_HexagonDirection_OppositeDirection(direction), 2);
         for (std::uint32_t i = 0; i < 5; ++i)
         {
@@ -106,7 +106,7 @@ namespace NC2Logic
         }
         for (std::uint32_t side = 0; side < 2; ++side)
         {
-            point = Read<std::uint32_t>(source, 0);
+            point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(&point, VE_HexagonDirection_OppositeDirection(direction), 2);
             MapMigPoint_MoveCursorUnwrapped(point, (direction + (side == 0 ? 2u : 4u)) % 6u);
             for (std::uint32_t i = 0; i < 4; ++i)
@@ -124,7 +124,7 @@ namespace NC2Logic
         for (auto candidate : gSetWallGateDirections) { direction = candidate; if (ls_MapTool_WallGate_IsPossibleMapPosition_GatePossible(player, source, direction)) break; }
         if (direction == NXBasics::IntegerRange::UInt32Maximum) return;
         GameMapModifyManager_StartGameMapModify();
-        auto point = Read<std::uint32_t>(source, 0);
+        auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(&point, VE_HexagonDirection_OppositeDirection(direction), 1);
         for (std::uint32_t i = 0; i < 3; ++i) { GameMap_MapMicroPoint_Landscape_Clear(&point); MapMigPoint_MoveCursorUnwrapped(point, direction); }
         const auto engine = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(direction, true);
@@ -158,7 +158,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         if (data == nullptr) return nullptr;
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
-            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) == Read<std::uint32_t>(point, 0)) return data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint;
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) == Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) return data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint;
         return nullptr;
     }
     // Original function: FUN_0042856f; Windows folds the road/wall player lookup.
@@ -183,7 +183,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         const auto count = Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount);
         if (count == NC2Runtime::BuildLimits::WallPoints) return;
-        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, 0));
+        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + count * NC2Layout::RecordSize::BuildPoint, 0);
         Write(data, NC2Layout::BuildPlayerOffset::PointCount, count + 1u);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
@@ -197,7 +197,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) continue;
             if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
             data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
             std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
@@ -233,7 +233,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) continue;
             if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
             data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
             std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
@@ -321,7 +321,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         const auto count = Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount);
         if (count == NC2Runtime::BuildLimits::RoadPoints) return;
-        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, 0));
+        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + count * NC2Layout::RecordSize::BuildPoint, 0);
         Write(data, NC2Layout::BuildPlayerOffset::PointCount, count + 1u);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
@@ -335,7 +335,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) continue;
             if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
             data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
             std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
@@ -371,7 +371,7 @@ namespace NC2Logic
         auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)) continue;
             if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
             data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
             std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);

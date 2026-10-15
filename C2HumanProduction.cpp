@@ -61,8 +61,8 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, 0x2C) != 3) { Fail(human, 0); return; }
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(Real(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(Work(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto animation = Read<std::uint32_t>(house, 0x14) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
             Human_l_StartAtomicAnimation(human, animation, -1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
@@ -71,7 +71,7 @@ namespace NC2Logic
             return;
         }
         const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint);
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != work)
         {
             if (!Human_l_StartAtomicWalk(human, &real, &work)) { Fail(human, 1); return; }
         }

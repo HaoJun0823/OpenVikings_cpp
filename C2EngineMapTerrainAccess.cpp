@@ -28,7 +28,7 @@ namespace
 
     const void* GetMacro(const void* point)
     {
-        return NC2Logic::GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2));
+        return NC2Logic::GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y));
     }
 
     using TriangleGetter = const void* (*)(const void*);
@@ -329,7 +329,7 @@ namespace NC2E2
     // Original function: FUN_004828e5; C2DEngineMap::Brightness_Get.
     std::uint32_t EngineMap_Brightness_Get(const void* packedMicroPoint)
     {
-        const auto x = Read<std::int16_t>(packedMicroPoint, 0), y = Read<std::int16_t>(packedMicroPoint, 2);
+        const auto x = Read<std::int16_t>(packedMicroPoint, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::int16_t>(packedMicroPoint, NC2Layout::MapCoordinatePairOffset::Y);
         if (x < 4 || x >= NC2Logic::GameMap_GetWidth() - 4 || y < 4 || y >= NC2Logic::GameMap_GetHeight() - 4) return 0;
         Point macro, offset;
         NC2Logic::VE_MapCoords_MicroGridMapToMacroGridMapPoint(x, y, &macro[0], &macro[1]);

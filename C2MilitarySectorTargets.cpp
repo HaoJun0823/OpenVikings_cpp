@@ -16,12 +16,12 @@ namespace NC2Logic
     // Original function: FUN_0044edd5; the clipped last sector is excluded in both native loops.
     bool CGameMapSectorAttachmentManager::CheckForEnemyTarget_Human(std::uint32_t player, const void* point, std::uint32_t minimumDistance, std::uint32_t maximumDistance, void* target, bool ignoreAnimals, bool allowLandscape)
     {
-        const SSectorGridCursor center(Read<std::uint32_t>(point, 0));
-        std::uint16_t boundsPoint[2] = { static_cast<std::uint16_t>(Read<std::uint16_t>(point, 0) - maximumDistance), static_cast<std::uint16_t>(Read<std::uint16_t>(point, 2) - maximumDistance) };
-        SSectorGridCursor first(Read<std::uint32_t>(boundsPoint, 0));
+        const SSectorGridCursor center(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+        std::uint16_t boundsPoint[2] = { static_cast<std::uint16_t>(Read<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::X) - maximumDistance), static_cast<std::uint16_t>(Read<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) - maximumDistance) };
+        SSectorGridCursor first(Read<std::uint32_t>(boundsPoint, NC2Layout::MapCoordinatePairOffset::Coordinates));
         boundsPoint[0] = static_cast<std::uint16_t>(boundsPoint[0] + maximumDistance * 2u);
         boundsPoint[1] = static_cast<std::uint16_t>(boundsPoint[1] + maximumDistance * 2u);
-        SSectorGridCursor last(Read<std::uint32_t>(boundsPoint, 0));
+        SSectorGridCursor last(Read<std::uint32_t>(boundsPoint, NC2Layout::MapCoordinatePairOffset::Coordinates));
         first.CutInsideMap();
         last.CutInsideMap();
         bool scan = false;
@@ -49,9 +49,9 @@ namespace NC2Logic
     {
         auto setTarget = [&](std::uint32_t type, std::int32_t id, const void* object)
         {
-            Write(target, 4, id);
-            Write(target, 8, Read<std::uint32_t>(object, 8));
-            Write(target, 0, type);
+            Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, id);
+            Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(object, 8));
+            Write(target, NC2Layout::TargetDataOffset::Type, type);
         };
         auto id = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, minimumDistance, maximumDistance, true, 5, 3, true, false);
         if (id != -1) { setTarget(1, id, CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize); return true; }
@@ -87,8 +87,8 @@ namespace NC2Logic
             std::uint32_t landscape = 0;
             if (Tool_GetOneOfNearestEnemyLandscapes(player, point, 0, maximumDistance, true, 5, 3, &landscape))
             {
-                Write(target, 4, MapMigPoint_GetLong(&landscape));
-                Write<std::uint32_t>(target, 0, 6);
+                Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, MapMigPoint_GetLong(&landscape));
+                Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 6);
                 return true;
             }
         }

@@ -249,7 +249,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) == 100) return false;
         Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypes + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, type);
-        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, Read<std::uint32_t>(point, 0));
+        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStages + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, stage);
         Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIds + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, requested);
         Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) + 1);

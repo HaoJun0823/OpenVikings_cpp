@@ -52,7 +52,7 @@ namespace NC2Logic
             auto* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTargetUnsigned + index * NC2Layout::RecordSize::TargetData;
             const auto type = TargetData_GetTargetType(target);
             if (type == 0) continue;
-            if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
+            if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
             auto range = static_cast<std::uint32_t>(weapon.maximumRange);
             if (Human_IsAttachedToWorkHouse(human) && Human_IsJobSoldier(human) && weapon.hasMunition != 0) range += 5u;
             const auto id = TargetData_GetObjectId(target);

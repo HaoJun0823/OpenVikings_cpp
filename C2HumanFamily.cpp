@@ -154,7 +154,7 @@ namespace NC2Logic
     void* Human_FindHumanToMarry(const void* human)
     {
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 40, false); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates), 40, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* other = Human(static_cast<std::uint32_t>(id));
             if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Read<std::uint32_t>(other, NC2Layout::HumanOffset::TribeType) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) || Human_IsSexFemale(other) == Human_IsSexFemale(human) || !Human_IsAbleToGetMarried(other)) continue;
@@ -194,13 +194,13 @@ namespace NC2Logic
         if (firstBread + secondBread < 2u || Human_IsJobIgnoringHomeHouse(Spouse(human)) || Human_IsDefendingHouse(human, -1)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
         const auto real = Read<std::uint32_t>(home, NC2Layout::HouseOffset::MapPosition), work = Read<std::uint32_t>(home, NC2Layout::HouseOffset::DoorEntryPoint);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition) != real) Human_Target_SetTargetPositions(human, &real, &work);
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition))
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition))
         {
             if (Human_l_StartAtomicWalk(human, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition)) QueueChildCommand(human, command);
             else Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             return;
         }
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(Human_GetMapPositionRef(Spouse(human)), 0))
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(Human_GetMapPositionRef(Spouse(human)), NC2Layout::MapCoordinatePairOffset::Coordinates))
         {
             QueueChildCommand(human, command);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 9);

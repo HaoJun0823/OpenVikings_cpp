@@ -348,7 +348,7 @@ namespace NC2Logic
     void MapMoveable_Attachment_AttachToMap(void* moveable, const void* packedMigPoint)
     {
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
-        const auto point = Read<std::uint32_t>(packedMigPoint, 0);
+        const auto point = Read<std::uint32_t>(packedMigPoint, NC2Layout::MapCoordinatePairOffset::Coordinates);
         Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId, -1);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition, point);
         Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag, 1);
@@ -369,11 +369,11 @@ namespace NC2Logic
     void MapMoveable_Attachment_GetNextMapPosition(const void* moveable, void* point)
     {
         auto packed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
-        Write(point, 0, packed);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, packed);
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) == 0)
         {
             MapMigPoint_MoveCursorUnwrapped(packed, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection));
-            Write(point, 0, packed);
+            Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, packed);
         }
     }
 

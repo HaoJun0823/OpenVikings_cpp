@@ -114,7 +114,7 @@ namespace NC2Logic
         {
             const void* animal = Human_FindAnimalForHunting(human);
             if (animal == nullptr) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 3); return; }
-            Write(target, 4, Read<std::uint32_t>(animal, 4)); Write(target, 8, Read<std::uint32_t>(animal, 8)); Write<std::uint32_t>(target, 0, 3);
+            Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, Read<std::uint32_t>(animal, 4)); Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(animal, 8)); Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 3);
         }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);

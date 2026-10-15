@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Large readability continuation — 2026-10-15
+
+Completed the [547-access readability pass](LARGE_READABILITY_RECORDS_REVIEW.md): 417 packed-coordinate/WORD accesses and 130 GUI, target, command, message, actor and allowance fields across 78 C++ files. Corrected the misleading GUI +0x1C name from ElementId to MessageMask throughout production. All C++ operation tokens remain unchanged after value/name normalization. **38 value/type comparisons, 23 physical assertions and incremental Win32 syntax checks of all 78 affected units** pass; no build/test/game run. [Direct access delta](LARGE_READABILITY_ACCESS_DELTA.csv) records exactly 547 numeric replacements plus three symbolic renames.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 156,215 lines, 2,212 raw numeric-access operands, 74 heuristic unknown mentions, 1,006 long compound lines and 5,014 original-address annotations**. This pass removes 547 candidates; cumulative reduction **3,215 / 5,427 (59.24%)**, thirty-four completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Human needs now has nine raw operands; largest next files are observation window (41), main-menu world display (39) and single-vehicle window (38).
+
 ## Construction selection record continuation — 2026-10-15
 
 Completed the [construction selection records review](CONSTRUCTION_SELECTION_RECORDS_REVIEW.md): window state, cached engine/stage pairs, separate candidate allocation, player allowance flags, engine fields, commands, pages, timing and GUI object sizes. All 43 raw access operands in the owning source are named. Native query semantics, cache/display ordering, special-item filters, comparator ties, clock arithmetic, keyboard dispatch and close behavior are retained. **66 value/type comparisons, 27 physical assertions, a complete native vtable comparison and incremental Win32 syntax checks** pass; no build/test/game run.

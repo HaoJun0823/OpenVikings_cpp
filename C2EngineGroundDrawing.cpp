@@ -160,7 +160,7 @@ namespace NC2E2
     bool Display_l_DE_DrawSingleQuadrangle_MigMag(void* display, const void* packedPoint, NXBasics::CBitmap* bitmap, NXBasics::SPoint position)
     {
         const auto* macro = EngineMap_GetConstMapMacroPointPtr(packedPoint);
-        const U x = Read<std::uint16_t>(packedPoint, 0), y = Read<std::uint16_t>(packedPoint, 2);
+        const U x = Read<std::uint16_t>(packedPoint, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::uint16_t>(packedPoint, NC2Layout::MapCoordinatePairOffset::Y);
         const U left = static_cast<std::uint16_t>(x - ((y & 1) == 0 ? 1 : 0)), right = static_cast<std::uint16_t>(left + 1), bottom = static_cast<std::uint16_t>(y + 1), east = static_cast<std::uint16_t>(x + 1);
         const auto* mapMacro = NC2Logic::GameMap_GetConstMapMacroPointPtr(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
         const I h0 = mapMacro != nullptr ? Read<std::uint8_t>(mapMacro, NC2Layout::MapMacroPointOffset::Height) : 0;

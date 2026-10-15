@@ -246,7 +246,7 @@ namespace NC2E2
     // Original function: FUN_0048534a.
     static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(const void* manager, const void* point)
     {
-        const auto x = static_cast<std::int32_t>(Read<std::int16_t>(point, 0));
+        const auto x = static_cast<std::int32_t>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X));
         const auto sector = (x - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
         if (sector < 0 || sector >= Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth)) return 0;
         const auto percentage = (x - sector * NC2Runtime::WeatherGrid::SectorWidthInMapPoints - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) * NC2Runtime::WeatherGrid::FullPercentage / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
@@ -256,7 +256,7 @@ namespace NC2E2
     // Original function: FUN_0048538f.
     static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(const void* manager, const void* point)
     {
-        const auto y = static_cast<std::int32_t>(Read<std::int16_t>(point, 2));
+        const auto y = static_cast<std::int32_t>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y));
         const auto sector = (y - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
         if (sector < 0 || sector >= Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight)) return 0;
         const auto percentage = (y - sector * NC2Runtime::WeatherGrid::SectorWidthInMapPoints - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) * NC2Runtime::WeatherGrid::FullPercentage / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;

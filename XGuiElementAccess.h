@@ -11,7 +11,7 @@ namespace NXBaseGui
         NXBasics::SRectangle rectangle;
         std::uint32_t interactionState;
         std::uint32_t flags;
-        std::uint32_t elementId;
+        std::uint32_t messageMask;
         void* parentWindow;
         void* messageHandler;
         std::uint32_t serial;
@@ -33,7 +33,7 @@ namespace NXBaseGui
         std::memcpy(&rectangle, static_cast<const std::byte*>(element) + 4, sizeof(rectangle));
         return rectangle;
     }
-    void* BaseElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId);
+    void* BaseElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageMask);
     void BaseElement_Destruct(void* element);
     bool __fastcall BaseElement_HasSubElements(void* element);
     bool __fastcall BaseElement_IsHit(void* element, void* unusedEdx, const std::int32_t* point);

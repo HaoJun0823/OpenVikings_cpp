@@ -14,7 +14,7 @@ namespace NC2Logic
     std::int32_t CHumanIterator::GetFirstHumanId(const void* point, std::int32_t searchRadius)
     {
         flags = 2;
-        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         radius = searchRadius;
         currentObjectId = l_GetNext(CHumanArray::sTheObjectPtr->mFirstScanIndex - 1);
         return currentObjectId;
@@ -111,7 +111,7 @@ namespace NC2Logic
     {
         selection = player;
         flags = 3;
-        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         radius = radiusValue;
         currentObjectId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
         return currentObjectId;

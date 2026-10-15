@@ -207,7 +207,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(guide, NC2Layout::GuideOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(guide, NC2Layout::GuideOffset::PlayerId) != player) continue;
             std::uint32_t zero;
             MapMigPoint_AssignLong(&zero, 0);
-            if (Read<std::uint32_t>(Position(guide), 0) != zero && static_cast<std::uint32_t>(Distance(point, Position(guide))) < 16u) return false;
+            if (Read<std::uint32_t>(Position(guide), NC2Layout::MapCoordinatePairOffset::Coordinates) != zero && static_cast<std::uint32_t>(Distance(point, Position(guide))) < 16u) return false;
         }
         return true;
     }
@@ -284,7 +284,7 @@ namespace NC2Logic
         Write<std::uint8_t>(guide, NC2Layout::GuideOffset::AllocatedFlag, 1);
         if (!Tool_Guide_IsAllowedToBeBuild(player, point, false)) return false;
         Write(guide, NC2Layout::GuideOffset::GuideId, id);
-        Write(guide, NC2Layout::GuideOffset::MapPosition, Read<std::uint32_t>(point, 0));
+        Write(guide, NC2Layout::GuideOffset::MapPosition, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write(guide, NC2Layout::GuideOffset::PlayerId, player);
         const auto revision = Game_UniqueId_Generate();
         Write<std::int32_t>(guide, NC2Layout::GuideOffset::LinkSystemId, -1);

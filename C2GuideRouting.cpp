@@ -36,12 +36,12 @@ namespace NC2Logic
     void Guide_GetMovePoint(const void* guide, void* point)
     {
         const auto position = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::MapPosition);
-        Write(point, 0, position);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, position);
         const auto directions = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingDirections);
         for (std::uint32_t direction = 0; direction < 6; ++direction)
         {
             if ((directions & (1u << direction)) == 0) continue;
-            Write(point, 0, position);
+            Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, position);
             MapMigPoint_MoveCursorUnwrapped(point, direction, 1);
             if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) break;
         }
@@ -70,14 +70,14 @@ namespace NC2Logic
         SGuidePointSearch targetSearch;
         targetSearch.player = static_cast<std::uint32_t>(player);
         targetSearch.count = 0;
-        targetSearch.point = Read<std::uint32_t>(destination, 0);
+        targetSearch.point = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
         targetSearch.radius = NXBasics::Runtime_TimeSigned32(radius);
         GuideManager_GetNearestGuideIds(manager, destination, radius, targetSearch);
         if (targetSearch.count == 0) return -1;
         SGuidePointSearch sourceSearch;
         sourceSearch.player = static_cast<std::uint32_t>(player);
         sourceSearch.count = 0;
-        sourceSearch.point = Read<std::uint32_t>(source, 0);
+        sourceSearch.point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         sourceSearch.radius = NXBasics::Runtime_TimeSigned32(radius);
         GuideManager_GetRawNearestGuideIds(manager, source, radius, sourceSearch);
         if (sourceSearch.count == 0) return -1;
@@ -99,7 +99,7 @@ namespace NC2Logic
         Guide_GetMovePoint(Guide(selectedTarget), &position);
         if (selectedTarget == selectedSource)
         {
-            if (position == Read<std::uint32_t>(source, 0)) return -1;
+            if (position == Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates)) return -1;
             sourceGuideId = selectedSource;
             return selectedTarget;
         }
@@ -107,7 +107,7 @@ namespace NC2Logic
         targetGuideId = selectedTarget;
         sourceGuideId = selectedSource;
         for (std::int32_t index = 0; index < sourceSearch.count; ++index) if (sourceSearch.guideIds[index] == next) return next;
-        return position == Read<std::uint32_t>(source, 0) ? next : selectedTarget;
+        return position == Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) ? next : selectedTarget;
     }
 
     // Original function: FUN_0041B6C7.

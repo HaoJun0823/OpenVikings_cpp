@@ -55,7 +55,7 @@ namespace NC2Logic
         if (area == nullptr)
         {
             if (!GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(realPosition)) return false;
-            Write(workPosition, 0, Read<std::uint32_t>(realPosition, 0));
+            Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates));
             return true;
         }
         std::int16_t x, y;
@@ -65,7 +65,7 @@ namespace NC2Logic
             std::uint32_t point;
             MapMigPoint_ConstructOffset(&point, realPosition, x, y, false);
             if (!MapMigPoint_IsInsideMap(&point) || !GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(&point)) continue;
-            Write(workPosition, 0, point);
+            Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, point);
             return true;
         }
         return false;

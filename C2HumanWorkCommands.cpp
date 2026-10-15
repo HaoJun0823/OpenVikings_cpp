@@ -169,7 +169,7 @@ namespace NC2Logic
                 if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
             }
         }
-        SetCenter(human, Read<std::uint32_t>(point, 0));
+        SetCenter(human, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         return 2;
     }
 
@@ -242,7 +242,7 @@ namespace NC2Logic
         Human_Target_ResetSecondaryTarget(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
-        if (!Human_IsAttachedToWorkHouse(human)) SetCenter(human, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        if (!Human_IsAttachedToWorkHouse(human)) SetCenter(human, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
         // The native notification call at 0045BFEC is a no-op (RET 4).
         return 2;
     }

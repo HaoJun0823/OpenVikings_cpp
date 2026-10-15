@@ -51,7 +51,7 @@ namespace NC2Logic
     bool Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(const void* source, const void* target, void* result, std::uint32_t radius)
     {
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source),NC2Layout::MapMicroPointOffset::ContinentId);
-        auto point = Read<std::uint32_t>(source, 0);
+        auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(&point, 4, radius);
         std::uint32_t maximum = 0;
         for (std::uint32_t direction = 0; direction < 6; ++direction)

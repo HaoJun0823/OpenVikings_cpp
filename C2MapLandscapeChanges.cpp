@@ -76,7 +76,7 @@ namespace NC2Logic
         External_Landscape_Clear(point);
         if (redraw)
         {
-            std::int16_t rectangle[4] = { static_cast<std::int16_t>(Read<std::uint16_t>(point, 0) - 25u), static_cast<std::int16_t>(Read<std::uint16_t>(point, 2) - 25u), 50, 50 };
+            std::int16_t rectangle[4] = { static_cast<std::int16_t>(Read<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::X) - 25u), static_cast<std::int16_t>(Read<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) - 25u), 50, 50 };
             MapMigRectangle_CutInsideMap(rectangle);
             GameMap_Misc_LetBlocksBeReDrawn(rectangle);
         }

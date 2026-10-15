@@ -43,7 +43,7 @@ namespace NC2Logic
         void SetPointContinent(const void* point, std::uint32_t id) { Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId, static_cast<std::uint8_t>(id)); }
         bool InChangedArea(const void* point, const void* first, const void* end)
         {
-            return Read<std::int16_t>(point, 0) >= Read<std::int16_t>(first, 0) && Read<std::int16_t>(point, 0) < Read<std::int16_t>(end, 0) && Read<std::int16_t>(point, 2) >= Read<std::int16_t>(first, 2) && Read<std::int16_t>(point, 2) < Read<std::int16_t>(end, 2);
+            return Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) >= Read<std::int16_t>(first, 0) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) >= Read<std::int16_t>(first, 2) && Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y);
         }
         // Original function: FUN_004521F3; only embedded point constructors run here.
         SContinentChangeWork::SContinentChangeWork()
@@ -79,7 +79,7 @@ namespace NC2Logic
     {
         auto& queues = sMapPathfinderStaticVariables;
         queues[0].count = 0; queues[1].count = 0;
-        queues[0].count = 1; queues[0].points[0] = Read<std::uint32_t>(source, 0);
+        queues[0].count = 1; queues[0].points[0] = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         ++changedCounts[PointContinent(source)];
         SetPointContinent(source, id);
         std::uint32_t count = 1, current = 0;
@@ -113,7 +113,7 @@ namespace NC2Logic
         std::uint32_t remaining = 0;
         for (std::uint32_t old = 0; old < 250; ++old) if (changedIds[old] != 0 && Read<std::uint32_t>(Continent(old), NC2Layout::MapContinentOffset::PointCount) != 0) ++remaining;
         if (remaining == 0) return 0;
-        queues[0].count = 1; queues[0].points[0] = Read<std::uint32_t>(source, 0);
+        queues[0].count = 1; queues[0].points[0] = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         const auto old = PointContinent(source);
         SetPointContinent(source, id);
         const auto reduce = [&](std::uint32_t oldId)
@@ -152,7 +152,7 @@ namespace NC2Logic
     {
         auto& queues = sMapPathfinderStaticVariables;
         std::uint32_t from = 0, to = 1, pending = 1, count = 1;
-        queues[from].count = 1; queues[from].points[0] = Read<std::uint32_t>(source, 0);
+        queues[from].count = 1; queues[from].points[0] = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         SetPointContinent(source, id);
         do
         {
@@ -185,7 +185,7 @@ namespace NC2Logic
     {
         auto& queues = sMapPathfinderStaticVariables;
         std::uint32_t from = 0, to = 1, pending = 1, count = 1;
-        queues[from].count = 1; queues[from].points[0] = Read<std::uint32_t>(source, 0);
+        queues[from].count = 1; queues[from].points[0] = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         SetPointContinent(source, id);
         do
         {
@@ -232,7 +232,7 @@ namespace NC2Logic
                 if (type == 0) { SetPointContinent(point, 0); continue; }
                 if (nextId == 250) return;
                 auto* record = Continent(ContinentCount());
-                Write(record, NC2Layout::MapContinentOffset::Type, type); Write(record, NC2Layout::MapContinentOffset::SeedPoint, Read<std::uint32_t>(point, 0));
+                Write(record, NC2Layout::MapContinentOffset::Type, type); Write(record, NC2Layout::MapContinentOffset::SeedPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
                 const auto count = type == 1 ? GameMap_l_Continents_FillLand(nextId, point) : GameMap_l_Continents_FillWater(nextId, point);
                 record = Continent(ContinentCount());
                 Write(record, NC2Layout::MapContinentOffset::PointCount, count);
@@ -270,7 +270,7 @@ namespace NC2Logic
         for (std::uint32_t radius = 1; remaining != 0; ++radius)
         {
             if (radius > maximum) { GameMap_l_Continents_RecalculateAll(); break; }
-            auto point = Read<std::uint32_t>(center, 0);
+            auto point = Read<std::uint32_t>(center, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(&point, 4, radius);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
                 for (std::uint32_t step = 0; step < radius; ++step)
@@ -298,8 +298,8 @@ namespace NC2Logic
                 MapMigPoint_Construct(&work.differentPoints[id], -1, -1, false);
             }
             std::int16_t point[2] = {0, Read<std::int16_t>(first, 2)};
-            for (; point[1] < Read<std::int16_t>(end, 2); ++point[1])
-                for (point[0] = Read<std::int16_t>(first, 0); point[0] < Read<std::int16_t>(end, 0); ++point[0])
+            for (; point[1] < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y); ++point[1])
+                for (point[0] = Read<std::int16_t>(first, 0); point[0] < Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X); ++point[0])
                 {
                     const auto oldId = PointContinent(point);
                     if (oldId >= ContinentCount()) continue;
@@ -308,8 +308,8 @@ namespace NC2Logic
                     if (slot == work.idCount) work.ids[work.idCount++] = oldId;
                     const auto type = GameMap_Continent_CalculateContinentType(point);
                     if (type == 0) { SetPointContinent(point, temporaryBase); ++work.creations[0].count; }
-                    else if (GameMap_Continent_GetContinentTyp(oldId) == type) work.samePoints[oldId] = Read<std::uint32_t>(point, 0);
-                    else work.differentPoints[oldId] = Read<std::uint32_t>(point, 0);
+                    else if (GameMap_Continent_GetContinentTyp(oldId) == type) work.samePoints[oldId] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
+                    else work.differentPoints[oldId] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
                 }
             if (work.creations[0].count != 0 && work.creationCount == 0)
             {

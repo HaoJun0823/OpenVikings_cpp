@@ -91,7 +91,7 @@ namespace NC2Logic
             }
         };
         explorePoint(point);
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         for (std::uint32_t ring = 1; ring <= radius && radius != 0; ++ring)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
@@ -109,8 +109,8 @@ namespace NC2Logic
             const auto extent = radius + extraExtent;
             // Retain Windows DWORD packing, including overflow outside the low WORD.
             const auto size = (extent * 2u) | (extent << 17);
-            const auto x = (static_cast<std::uint32_t>(Read<std::uint16_t>(point, 0)) - extent) & NXBasics::IntegerRange::UInt16Maximum;
-            const auto y = static_cast<std::uint32_t>(Read<std::int16_t>(point, 2)) - extent;
+            const auto x = (static_cast<std::uint32_t>(Read<std::uint16_t>(point, NC2Layout::MapCoordinatePairOffset::X)) - extent) & NXBasics::IntegerRange::UInt16Maximum;
+            const auto y = static_cast<std::uint32_t>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)) - extent;
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x0D, true, player, x | (y << 16), size);
         }
         return changed;

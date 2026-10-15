@@ -19,11 +19,11 @@ namespace NC2Logic
         std::uint32_t Radius(const void* human) { const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType); return job == 18 || job == 29 ? 10u : 20u; }
         bool TryCandidatePoints(std::uint32_t count, const std::uint32_t* points, void* real, void* work)
         {
-            Write(real, 0, points[0]);
+            Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, points[0]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
             for (std::uint32_t retry = 0; retry < count * 2u; ++retry)
             {
-                Write(real, 0, points[Game_Random_GetNumber() % count]);
+                Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, points[Game_Random_GetNumber() % count]);
                 if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
             }
             return false;
@@ -42,7 +42,7 @@ namespace NC2Logic
                 if (entry.landscape != Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) || (entry.minimumValency > 1u && entry.minimumValency > Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency))) continue;
                 std::uint32_t work = 0;
                 if (!GameMap_Misc_GetLandscapeWorkPosition(point, &work) || entry.count >= 10u) return false;
-                entry.points[entry.count++] = Read<std::uint32_t>(point, 0);
+                entry.points[entry.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
                 ++data.candidateCount;
                 if (entry.enabled != 0)
                 {
@@ -72,7 +72,7 @@ namespace NC2Logic
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
             const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
             if (landscape != data.landscape) return false;
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 10u;
         }
 
@@ -90,7 +90,7 @@ namespace NC2Logic
         {
             if (!Human_CanPlantBioAtMapPosition(point)) return false;
             auto& data = *static_cast<SHumanSearchGrowPatternData*>(callback->userData);
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 5u;
         }
 
@@ -131,10 +131,10 @@ namespace NC2Logic
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
                 if ((ways & (1u << direction)) != 0) continue;
-                auto adjacent = Read<std::uint32_t>(point, 0);
+                auto adjacent = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
                 MapMigPoint_MoveCursorUnwrapped(&adjacent, direction, 1);
                 if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&adjacent)) != 2u || !static_cast<CMapFishManager*>(gMapFishManager)->IsFishNearMapPosition(&adjacent, 20)) continue;
-                data.work[data.count] = Read<std::uint32_t>(point, 0);
+                data.work[data.count] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
                 data.real[data.count++] = adjacent;
                 if (data.count == 8u) return true;
             }
@@ -149,11 +149,11 @@ namespace NC2Logic
             const auto kind = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
             if ((kind == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u) != data.landscape) return false;
             const auto valency = kind == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
-            if (kind == 1 && valency >= 5) data.mature[data.matureCount++] = Read<std::uint32_t>(point, 0);
+            if (kind == 1 && valency >= 5) data.mature[data.matureCount++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             else if (valency <= data.minimumValency)
             {
                 if (valency < data.minimumValency) { data.immatureCount = 0; data.minimumValency = valency; }
-                data.immature[data.immatureCount++] = Read<std::uint32_t>(point, 0);
+                data.immature[data.immatureCount++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             }
             return ++data.count == data.limit;
         }
@@ -165,7 +165,7 @@ namespace NC2Logic
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
             const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
             if (type != data.landscape || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) < 3) return false;
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 10u;
         }
 
@@ -187,7 +187,7 @@ namespace NC2Logic
             if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
             const auto kind = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType);
             if (kind == 2 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) != 1)) return false;
-            data.point = Read<std::uint32_t>(point, 0);
+            data.point = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return ++data.count == 1u;
         }
     }
@@ -201,7 +201,7 @@ namespace NC2Logic
         CMapPathfinderElement::SearchOverMap(source, 40, true, FindPilePointCallback, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         const auto index = Game_Random_GetNumber() % data.count;
-        Write(point, 0, Read<std::uint32_t>(&data, 8u + index * 4u));
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(&data, 8u + index * 4u));
         return true;
     }
 
@@ -295,7 +295,7 @@ namespace NC2Logic
         CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, Radius(human), false, slHumanSearchLandscapeFunction, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         for (std::uint32_t retry = 0; retry < data.count * 2u; ++retry)
         {
-            Write(real, 0, data.points[Game_Random_GetNumber() % data.count]);
+            Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
         }
         return false;
@@ -308,18 +308,18 @@ namespace NC2Logic
         data.count = 0;
         CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, 10, true, slHumanSearchGrowPatternFunction, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (data.count == 0) return false;
-        Write(real, 0, data.points[Game_Random_GetNumber() % data.count]);
-        Write(work, 0, Read<std::uint32_t>(real, 0));
+        Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
+        Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(real, NC2Layout::MapCoordinatePairOffset::Coordinates));
         auto direction = Game_Random_GetNumber() % 6u;
-        auto cursor = Read<std::uint32_t>(work, 0);
+        auto cursor = Read<std::uint32_t>(work, NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
-        Write(work, 0, cursor);
+        Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, cursor);
         if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << direction)) != 0) return true;
         const auto start = direction + 2u >= 6u ? direction - 3u : direction + 2u;
         for (direction = start; direction < 6u; ++direction)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, direction);
-            Write(work, 0, cursor);
+            Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, cursor);
             if (!MapMigPoint_IsInsideMap(work)) continue;
             const auto bit = (direction + 4u) % 6u;
             if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << bit)) != 0) return true;
@@ -327,12 +327,12 @@ namespace NC2Logic
         for (direction = 0; direction < start; ++direction)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, direction);
-            Write(work, 0, cursor);
+            Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, cursor);
             if (!MapMigPoint_IsInsideMap(work)) continue;
             const auto bit = (direction + 4u) % 6u;
             if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(real),NC2Layout::MapMicroPointOffset::WalkingDirections) & (1u << bit)) != 0) return true;
         }
-        Write(work, 0, Read<std::uint32_t>(real, 0));
+        Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(real, NC2Layout::MapCoordinatePairOffset::Coordinates));
         return true;
     }
 
@@ -348,13 +348,13 @@ namespace NC2Logic
         if (data.count < data.limit && Human_FindGrowPatternNearWorkCenter(human, real, work)) return true;
         if (data.matureCount != 0)
         {
-            Write(real, 0, data.mature[Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) % data.matureCount]);
+            Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.mature[Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) % data.matureCount]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
-            Write(real, 0, data.mature[Game_Random_GetNumber() % data.matureCount]);
+            Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.mature[Game_Random_GetNumber() % data.matureCount]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
         }
         if (data.immatureCount == 0) return false;
-        Write(real, 0, data.immature[Game_Random_GetNumber() % data.immatureCount]);
+        Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.immature[Game_Random_GetNumber() % data.immatureCount]);
         return GameMap_Misc_GetLandscapeWorkPosition(real, work);
     }
 
@@ -366,8 +366,8 @@ namespace NC2Logic
         CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, Radius(human), true, slHumanSearchShorePointFunction, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (data.count == 0) return false;
         const auto index = Game_Random_GetNumber() % data.count;
-        Write(real, 0, data.real[index]);
-        Write(work, 0, data.work[index]);
+        Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, data.real[index]);
+        Write(work, NC2Layout::MapCoordinatePairOffset::Coordinates, data.work[index]);
         return true;
     }
 

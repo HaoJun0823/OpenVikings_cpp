@@ -39,7 +39,7 @@ namespace NC2Logic
             const auto targetDistance = Distance(&data.target, point);
             if (targetDistance < data.minimumRange || targetDistance > data.maximumRange || Animal_l_Military_IsOtherAttackingAnimalOnPoint(data.owner, point)) return false;
             data.bestDistance = sourceDistance;
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 6;
         }
     }
@@ -56,10 +56,10 @@ namespace NC2Logic
         auto consider = [&](const void* object, std::uint32_t kind, const void* position)
         {
             const auto id = Read<std::uint32_t>(object, 4), revision = Read<std::uint32_t>(object, 8);
-            if (Read<std::uint32_t>(target, 0) == kind && Read<std::uint32_t>(target, 4) == id && Read<std::uint32_t>(target, 8) == revision) return;
+            if (Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) == kind && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) == id && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) == revision) return;
             const auto distance = Distance(position, center);
             if (distance >= targetDistance || distance >= bestDistance) return;
-            Write(target, 0, kind); Write(target, 4, id); Write(target, 8, revision); bestDistance = distance;
+            Write(target, NC2Layout::TargetDataOffset::Type, kind); Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, id); Write(target, NC2Layout::TargetDataOffset::ObjectRevision, revision); bestDistance = distance;
         };
         for (std::uint32_t pass = 0; pass < 4; ++pass)
         {
@@ -71,7 +71,7 @@ namespace NC2Logic
                 if (humans)
                 {
                     CHumanIterator iterator;
-                    for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(center, 0), 20, pass == 0); id != -1; id = iterator.GetNextSectorHumanId())
+                    for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(center, NC2Layout::MapCoordinatePairOffset::Coordinates), 20, pass == 0); id != -1; id = iterator.GetNextSectorHumanId())
                     {
                         const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                         if (Human_Misc_IsHidden(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & ((1u << 3) | (1u << 13))) != 0 || (pass == 2 && !Human_IsAgeAdult(human))) continue;
@@ -81,7 +81,7 @@ namespace NC2Logic
                 else
                 {
                     CAnimalIterator iterator;
-                    for (auto id = iterator.GetFirstSectorAnimalId(player, Read<std::uint32_t>(center, 0), 20, pass == 1, false); id != -1; id = iterator.GetNextSectorAnimalId())
+                    for (auto id = iterator.GetFirstSectorAnimalId(player, Read<std::uint32_t>(center, NC2Layout::MapCoordinatePairOffset::Coordinates), 20, pass == 1, false); id != -1; id = iterator.GetNextSectorAnimalId())
                     {
                         const auto* other = Animal(static_cast<std::uint32_t>(id));
                         consider(other, 3, Animal_GetMapPositionRef(other));
@@ -102,7 +102,7 @@ namespace NC2Logic
         const auto* weapon = Weapon(animal);
         if (weapon == nullptr) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 3); return; }
         const auto kind = TargetData_GetTargetType(target);
-        if (kind != 1 && kind != 3) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 1); return; }
+        if (kind != 1 && kind != 3) { Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 1); return; }
         const auto* object = kind == 1 ? CHumanArray::mStaticVars + TargetData_GetObjectId(target) * CHumanArray::ElementSize : static_cast<std::byte*>(Animal(TargetData_GetObjectId(target)));
         std::uint32_t point = 0;
         TargetData_GetMapPosition(target, &point);
@@ -117,7 +117,7 @@ namespace NC2Logic
         if (Animal_l_Military_IsOtherAttackingAnimalOnPoint(animal, source))
         {
             auto next = point;
-            if (Animal_l_Military_GetNextPointToStartAttack(animal, &next) && next != Read<std::uint32_t>(source, 0) && Animal_l_StartAtomicWalk(animal, &next)) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8); return; }
+            if (Animal_l_Military_GetNextPointToStartAttack(animal, &next) && next != Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) && Animal_l_StartAtomicWalk(animal, &next)) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8); return; }
         }
         Animal_l_Military_AttackTarget(animal, &point);
     }
@@ -127,9 +127,9 @@ namespace NC2Logic
     {
         SAttackPointSearch data;
         data.owner = animal; data.minimumRange = Weapon(animal)->minimumRange; data.maximumRange = Weapon(animal)->maximumRange;
-        data.target = Read<std::uint32_t>(point, 0); data.source = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0);
+        data.target = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates); data.source = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), NC2Layout::MapCoordinatePairOffset::Coordinates);
         if (!CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slAnimalSearchNextFreeMilitaryMapPointFunction, &data, false, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId))) return false;
-        Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
         return true;
     }
 

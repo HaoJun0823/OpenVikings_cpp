@@ -20,7 +20,7 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Original function: FUN_004340f5.
-    void House_Door_GetEntryPoint(const void* house, void* point) { Write(point, 0, Read<std::uint32_t>(House_Door_GetEntryPointRef(house), 0)); }
+    void House_Door_GetEntryPoint(const void* house, void* point) { Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(House_Door_GetEntryPointRef(house), NC2Layout::MapCoordinatePairOffset::Coordinates)); }
 
     // Original function: FUN_00423071; Windows-only outlined entry, no separate Mac name established.
     void House_HitPoints_ModifyValue(void* house, std::int32_t delta)

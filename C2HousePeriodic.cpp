@@ -81,17 +81,17 @@ namespace NC2Logic
         {
             fired = false;
             const auto humanFirst = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10, true, true);
-            if (humanFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanFirst) * CHumanArray::ElementSize), 0)); --remaining; fired = true; }
+            if (humanFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanFirst) * CHumanArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates)); --remaining; fired = true; }
             const auto vehicleFirst = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10, false, false);
-            if (vehicleFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleFirst) * CVehicleArray::ElementSize), 0)); --remaining; fired = true; }
+            if (vehicleFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleFirst) * CVehicleArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates)); --remaining; fired = true; }
             const auto animal = Tool_Animals_GetOneOfNextEnemyInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, false, 5, 10);
-            if (animal != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animal) * CAnimalArray::ElementSize), 0)); --remaining; fired = true; }
+            if (animal != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animal) * CAnimalArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates)); --remaining; fired = true; }
             const auto houseFirst = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10);
             if (houseFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseFirst) * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition)); --remaining; fired = true; }
             const auto humanSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, true, true);
-            if (humanSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanSecond) * CHumanArray::ElementSize), 0)); --remaining; fired = true; }
+            if (humanSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanSecond) * CHumanArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates)); --remaining; fired = true; }
             const auto vehicleSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, false, false);
-            if (vehicleSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleSecond) * CVehicleArray::ElementSize), 0)); --remaining; fired = true; }
+            if (vehicleSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleSecond) * CVehicleArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates)); --remaining; fired = true; }
             const auto houseSecond = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10);
             if (houseSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseSecond) * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition)); --remaining; fired = true; }
         } while (fired && remaining != 0);
@@ -237,7 +237,7 @@ namespace NC2Logic
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             const void* position = Human_GetMapPositionRef(human);
-            if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, NC2Layout::MapCoordinatePairOffset::Coordinates) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) continue;
+            if (Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(door, NC2Layout::MapCoordinatePairOffset::Coordinates) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) continue;
             if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) { ++count; continue; }
             if (Human_IsDefendingHouse(human, -1))
             {

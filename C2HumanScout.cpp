@@ -44,7 +44,7 @@ namespace NC2Logic
             auto& data = *static_cast<SNotExploredPointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
             if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || data.player >= 16 || (Read<std::uint16_t>(micro,NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << data.player)) != 0) return false;
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 8;
         }
     }
@@ -56,7 +56,7 @@ namespace NC2Logic
         if (!Human_IsJobScout(human)) return 1;
         Write<std::uint8_t>(human, 0x4F8, 0);
         Human_Target_Reset(human);
-        Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, 0));
+        Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
         Human_WorkCenterMarker_Update(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
@@ -71,12 +71,12 @@ namespace NC2Logic
         if (!Human_IsJobScout(human)) return 1;
         if (MapMigPoint_IsInsideMap(point))
         {
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, 0));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             Human_Target_SetTargetPositions(human, point, point);
         }
-        else if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(WorkCenter(human), 0)) Human_Target_Reset(human);
+        else if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(WorkCenter(human), NC2Layout::MapCoordinatePairOffset::Coordinates)) Human_Target_Reset(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 20);
         return 2;
@@ -147,7 +147,7 @@ namespace NC2Logic
         {
             const auto houseId = Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
             if (houseId == -1 || Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::intptr_t>(houseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 2) Human_UserMessage_SendToUserMessage(human, 11);
-            if (MapMigPoint_IsInsideMap(WorkCenter(human)) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(WorkCenter(human), 0)) Queue(human, 4, MapMigPoint_GetLong(WorkCenter(human)), 0);
+            if (MapMigPoint_IsInsideMap(WorkCenter(human)) && Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(WorkCenter(human), NC2Layout::MapCoordinatePairOffset::Coordinates)) Queue(human, 4, MapMigPoint_GetLong(WorkCenter(human)), 0);
             return;
         }
         default: Human_UserMessage_SendToUserMessage(human, 2); return;
@@ -157,7 +157,7 @@ namespace NC2Logic
     // Original function: FUN_00446468; 00445a6e shares the existing idle finish body.
     void Human_l_FinishTask_ExploreArea(void* human)
     {
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(WorkCenter(human), 0)) Queue(human, 20, NXBasics::IntegerRange::UInt32Maximum, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(WorkCenter(human), NC2Layout::MapCoordinatePairOffset::Coordinates)) Queue(human, 20, NXBasics::IntegerRange::UInt32Maximum, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
         Human_l_FinishTask_Idle(human);
     }
 
@@ -169,7 +169,7 @@ namespace NC2Logic
         data.player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         CMapPathfinderElement::SearchOverMap(WorkCenter(human), 40, true, SearchNotExploredPoint, &data, true, static_cast<std::int32_t>(data.player));
         if (data.count == 0) return false;
-        Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
         return true;
     }
 
@@ -180,7 +180,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum)
         {
             void* house = CHouseArray::mStaticVars + (Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum ? Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) : Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(RealTarget(human), 0) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition))
+            if (Read<std::uint32_t>(RealTarget(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition))
             {
                 auto efficiency = static_cast<std::uint32_t>(Human_JobEfficiency_CalculateExperienceFactor(human)) + 150u;
                 if (Human_HasEquippedTools(human))
@@ -210,7 +210,7 @@ namespace NC2Logic
             Human_ClearCarriedGood(human);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
             if (!RoadBuildManager_FinishRoad(gRoadBuildManager, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), RealTarget(human))) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
-            auto point = Read<std::uint32_t>(RealTarget(human), 0);
+            auto point = Read<std::uint32_t>(RealTarget(human), NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(point, 4);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {

@@ -66,7 +66,7 @@ namespace NC2Logic
         {
             const auto* house = House(id);
             if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != 1) continue;
-            Write(point, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)); return true;
+            Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)); return true;
         }
         return false;
     }

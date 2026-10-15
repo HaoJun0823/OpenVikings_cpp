@@ -103,7 +103,7 @@ namespace NC2Logic
         if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && continent != 0)
         {
             size = 1;
-            auto neighbor = Read<std::uint32_t>(position, 0);
+            auto neighbor = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(neighbor, 4);
             // Windows repeats this same neighbor read six times; it does not advance the cursor here.
             for (std::uint32_t count = 0; count < 6; ++count)
@@ -115,7 +115,7 @@ namespace NC2Logic
             --size;
             for (auto candidate = size; candidate <= 7; ++candidate)
             {
-                if (!GameMap_l_MaxMoveableSize_CheckForSize(Read<std::uint32_t>(position, 0), candidate, continent)) break;
+                if (!GameMap_l_MaxMoveableSize_CheckForSize(Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates), candidate, continent)) break;
                 size = candidate;
             }
         }
@@ -183,7 +183,7 @@ namespace NC2Logic
         if (MapMigPoint_IsBorderPoint(point)) return;
         for (std::uint32_t direction = 0; direction < 6; ++direction)
         {
-            auto neighbor = Read<std::uint32_t>(point, 0);
+            auto neighbor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
             if (!MapMigPoint_IsInsideMap(&neighbor) || MapMigPoint_IsBorderPoint(&neighbor)) continue;
             const void* wayPatterns[2];
@@ -198,7 +198,7 @@ namespace NC2Logic
                 for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 5) == 0) water = false;
                 if (!water) continue;
             }
-            GameMap_l_WalkFlagSet_SetConnection(Read<std::uint32_t>(point, 0), direction);
+            GameMap_l_WalkFlagSet_SetConnection(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), direction);
         }
     }
 

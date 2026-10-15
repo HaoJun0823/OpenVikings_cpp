@@ -281,7 +281,7 @@ namespace NC2Logic
         };
         const SSectorGridCursor center(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::WorkCenter));
         if (occupied(center, true) == 0) return;
-        const SSectorGridCursor active(Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0));
+        const SSectorGridCursor active(Read<std::uint32_t>(Animal_GetMapPositionRef(animal), NC2Layout::MapCoordinatePairOffset::Coordinates));
         auto best = active;
         auto minimum = occupied(active, false);
         for (std::uint32_t direction = 0; direction < 8; ++direction)
@@ -341,7 +341,7 @@ namespace NC2Logic
     // Original function: FUN_0042e9fc; the native helper copies the position without allocation or attachment checks.
     bool Animal_GetMapPosition(const void* animal, void* point)
     {
-        Write(point, 0, Read<std::uint32_t>(Moveable(animal), NC2Layout::MapMoveableOffset::MapPosition));
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(Moveable(animal), NC2Layout::MapMoveableOffset::MapPosition));
         return true;
     }
 

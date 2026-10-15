@@ -154,8 +154,8 @@ InGameGuiMessageWindowAccess.cpp,57,NC2Layout::GuiBaseElementOffset::Width
 InGameGuiMessageWindowAccess.cpp,61,NC2Layout::GuiBaseElementOffset::Width
 InGameGuiMessageWindowAccess.cpp,90,NC2Layout::GuiBaseElementOffset::VirtualTable
 InGameGuiMessageWindowAccess.cpp,92,NC2Layout::GuiBaseElementOffset::VirtualTable
-InGameGuiMessageWindowAccess.cpp,213,NC2Layout::GuiBaseElementOffset::ElementId
-InGameGuiMessageWindowAccess.cpp,213,NC2Layout::GuiBaseElementOffset::ElementId
+InGameGuiMessageWindowAccess.cpp,213,NC2Layout::GuiBaseElementOffset::MessageMask
+InGameGuiMessageWindowAccess.cpp,213,NC2Layout::GuiBaseElementOffset::MessageMask
 InGameGuiMessageWindowAccess.cpp,214,NC2Layout::GuiBaseElementOffset::VirtualTable
 InGameGuiMissionInfoWindow.cpp,90,NC2Layout::GuiBaseElementOffset::VirtualTable
 InGameGuiMissionInfoWindow.cpp,157,NC2Layout::GuiBaseElementOffset::VirtualTable
@@ -247,7 +247,7 @@ XGuiElementAccess.cpp,43,NC2Layout::GuiBaseElementOffset::Rectangle
 XGuiElementAccess.cpp,44,NC2Layout::GuiBaseElementOffset::InteractionState
 XGuiElementAccess.cpp,45,NC2Layout::GuiBaseElementOffset::Rectangle
 XGuiElementAccess.cpp,48,NC2Layout::GuiBaseElementOffset::Flags
-XGuiElementAccess.cpp,49,NC2Layout::GuiBaseElementOffset::ElementId
+XGuiElementAccess.cpp,49,NC2Layout::GuiBaseElementOffset::MessageMask
 XGuiElementAccess.cpp,50,NC2Layout::GuiBaseElementOffset::Serial
 XGuiElementAccess.cpp,57,NC2Layout::GuiBaseElementOffset::VirtualTable
 XGuiElementAccess.cpp,65,NC2Layout::GuiBaseElementOffset::VirtualTable

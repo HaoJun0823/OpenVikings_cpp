@@ -139,11 +139,11 @@ namespace NC2Logic
         if (House_Stock_IsFullSoon(house, secondaryGood)) { flush(secondaryGood); return; }
         if (adults > 2)
         {
-            auto slaughterPosition = Read<std::uint32_t>(Animal_GetMapPositionRef(slaughter), 0);
+            auto slaughterPosition = Read<std::uint32_t>(Animal_GetMapPositionRef(slaughter), NC2Layout::MapCoordinatePairOffset::Coordinates);
             const auto workingPosition = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint), entryPosition = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             if (slaughterPosition == workingPosition)
             {
-                if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == workingPosition)
+                if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == workingPosition)
                 {
                     CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(slaughter, 4));
                     const auto* micro = GameMap_GetConstMapMicroPointPtr(&slaughterPosition);

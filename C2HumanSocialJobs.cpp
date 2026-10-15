@@ -34,8 +34,8 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 7);
             Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(other, 4));
             Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(other, 8));
-            Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
-            Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
+            Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), NC2Layout::MapCoordinatePairOffset::Coordinates));
+            Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), NC2Layout::MapCoordinatePairOffset::Coordinates));
         }
     }
 

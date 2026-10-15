@@ -96,10 +96,10 @@ namespace NC2Logic
         if (atTarget)
         {
             const void* realTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
-            if (Read<std::uint32_t>(realTarget, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(human); return; }
+            if (Read<std::uint32_t>(realTarget, NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(human); return; }
             const void* workTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
             if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(workTarget, 0) != work)
+            if (Read<std::uint32_t>(workTarget, NC2Layout::MapCoordinatePairOffset::Coordinates) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, realTarget, &work)) { Fail(human, 0); Human_Target_Reset(human); }
                 return;
@@ -110,7 +110,7 @@ namespace NC2Logic
         {
             const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, &real, &work)) Fail(human, 0);
                 return;

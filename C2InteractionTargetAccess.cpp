@@ -72,12 +72,12 @@ namespace NC2Logic
     void TargetData_GetMapPosition(const void* target, void* point)
     {
         const auto type = TargetData_GetTargetType(target);
-        if (type == SwitchIds::TargetType::MapPosition || type == SwitchIds::TargetType::Landscape) { Write(point, 0, Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition)); return; }
+        if (type == SwitchIds::TargetType::MapPosition || type == SwitchIds::TargetType::Landscape) { Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition)); return; }
         if (type < SwitchIds::TargetType::Human || type > SwitchIds::TargetType::House) return;
         const auto* object = TargetObject(type, TargetData_GetObjectId(target));
         if (type == SwitchIds::TargetType::Animal) { Animal_GetMapPosition(object, point); return; }
         const void* position = type == SwitchIds::TargetType::Human ? Human_GetMapPositionRef(object) : type == SwitchIds::TargetType::Vehicle ? Vehicle_GetMapPositionRef(object) : static_cast<const std::byte*>(object) + NC2Layout::HouseOffset::MapPosition;
-        Write(point, 0, Read<std::uint32_t>(position, 0));
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates));
     }
 
     // Original function: FUN_00461b27; landscape ownership is a signed byte.
@@ -189,13 +189,13 @@ namespace NC2Logic
             std::uint32_t entry = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
             if (Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::WorkPosition) != entry) return false;
-            return Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::RealPosition) == Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0);
+            return Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::RealPosition) == Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates);
         }
         case SwitchIds::InteractionTargetType::Human:
         {
             const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::ObjectId) * CHumanArray::ElementSize;
             if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::ObjectRevision) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)) return false;
-            return Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::RealPosition) == Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
+            return Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::RealPosition) == Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates);
         }
         case SwitchIds::InteractionTargetType::Animal:
         {
@@ -210,8 +210,8 @@ namespace NC2Logic
     // Original function: FUN_00443134; Windows outlined map target setter.
     void TargetData_SetMapPosition(void* target, const void* point)
     {
-        NC2Lifetime::Write(target, NC2Layout::TargetDataOffset::MapPositionX, NC2Lifetime::Read<std::int16_t>(point, 0));
-        NC2Lifetime::Write(target, NC2Layout::TargetDataOffset::MapPositionY, NC2Lifetime::Read<std::int16_t>(point, 2));
+        NC2Lifetime::Write(target, NC2Layout::TargetDataOffset::MapPositionX, NC2Lifetime::Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X));
+        NC2Lifetime::Write(target, NC2Layout::TargetDataOffset::MapPositionY, NC2Lifetime::Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y));
     }
 
 }

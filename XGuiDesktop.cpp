@@ -480,7 +480,7 @@ namespace NXBaseGui
     CBaseElement* CDesktop::Message_SendToAllElements(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
     {
         using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-        const auto send = [=](void* element) { return NC2Lifetime::Read<TMessage*>(element, 0)[2](element, 0x1000, command, param1, param2, param3); };
+        const auto send = [=](void* element) { return NC2Lifetime::Read<TMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](element, 0x1000, command, param1, param2, param3); };
         if (mPrimaryMessageHandler != nullptr && send(mPrimaryMessageHandler)) return mPrimaryMessageHandler;
         constexpr std::uint32_t offsets[4] = {0xC8,0x50,0x78,0x28};
         for (auto offset : offsets) { auto* list = std::launder(reinterpret_cast<NXBasics::CListBase*>(reinterpret_cast<std::byte*>(this) + offset)); NXBasics::CListBase::Iterator iterator(*list); for (auto* element = iterator.First(); element != nullptr; element = iterator.Next()) { if (offset == 0xC8 || offset == 0x78) if (void* child = BaseWindow_Message_SendToChildElements(element, command, param1, param2, param3)) return static_cast<CBaseElement*>(child); if (send(element)) return static_cast<CBaseElement*>(element); } }
@@ -579,19 +579,19 @@ namespace NXBaseGui
         NXBasics::CListBase::Iterator iterator(list);
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
         {
-            if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
+            if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             auto area = BaseElement_GetRectangle(element);
             if (!rectangle.IsTouching(area)) continue;
             area.CutInside(rectangle);
             NXBasics::CBitmap clipped(mDisplayBitmap, area);
-            area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) - Read<std::uint32_t>(element, 4));
-            area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) - Read<std::uint32_t>(element, 8));
+            area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX));
+            area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY));
             using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const NXBasics::SRectangle*);
-            Read<TDraw*>(element, 0)[3](element, &clipped, &area);
-            if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit6) != 0)
+            Read<TDraw*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[3](element, &clipped, &area);
+            if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0)
             {
                 BaseWindow_DrawAllChildElements(element, &clipped, area);
-                Read<TDraw*>(element, 0)[18](element, &clipped, &area);
+                Read<TDraw*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[18](element, &clipped, &area);
             }
         }
     }
@@ -614,15 +614,15 @@ namespace NXBaseGui
         NXBasics::CListBase::Iterator iterator(list);
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
         {
-            const auto flags = Read<std::uint32_t>(element, 0x18);
+            const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags);
             if (!includeDisabled && !BaseElement_CanBeActivated(element)) continue;
-            if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, 0x1C) & messageMask) == 0)) continue;
+            if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::MessageMask) & messageMask) == 0)) continue;
             if (!DesktopPointInside(point, element)) continue;
             std::int32_t localPoint[2] = {point[0], point[1]};
             using TConvert = void(__thiscall*)(void*, std::int32_t*);
-            Read<TConvert*>(element, 0)[11](element, localPoint);
+            Read<TConvert*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[11](element, localPoint);
             using THit = bool(__thiscall*)(void*, const std::int32_t*);
-            if (Read<THit*>(element, 0)[8](element, localPoint)) return static_cast<CBaseElement*>(element);
+            if (Read<THit*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[8](element, localPoint)) return static_cast<CBaseElement*>(element);
         }
         return nullptr;
     }
@@ -640,11 +640,11 @@ namespace NXBaseGui
     {
         auto* element = l_Element_FindOnPosition(point, includeDisabled, 0);
         if (element == nullptr) return nullptr;
-        if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit6) != 0)
+        if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0)
         {
             std::int32_t localPoint[2] = {point[0], point[1]};
             using TConvert = void(__thiscall*)(void*, std::int32_t*);
-            Read<TConvert*>(element, 0)[11](element, localPoint);
+            Read<TConvert*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[11](element, localPoint);
             if (void* child = BaseWindow_FindElementOnPosition(element, localPoint, includeDisabled)) return static_cast<CBaseElement*>(child);
         }
         return element;
@@ -655,24 +655,24 @@ namespace NXBaseGui
     {
         if (mActiveElement == nullptr) return nullptr;
         using TActive = CBaseElement*(__thiscall*)(void*);
-        return Read<TActive*>(mActiveElement, 0)[9](mActiveElement);
+        return Read<TActive*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[9](mActiveElement);
     }
 
     // Original function: FUN_0047804d; callbacks can change active/handler fields,
     // so each later target is read only after the previous dispatch returns.
     void CDesktop::l_Message_Send(std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
     {
-        if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x1C) & message) != 0)
+        if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
             if (SendDesktopElementMessage(mPrimaryMessageHandler, message, param1, param2, param3, param4)) return;
-        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x18) & NXBasics::BitMask::Bit6) != 0)
+        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0)
         {
             void* child = Read<void*>(mActiveElement, 0x64);
-            if (child != nullptr && (Read<std::uint32_t>(child, 0x1C) & message) != 0)
+            if (child != nullptr && (Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
                 if (SendDesktopElementMessage(child, message, param1, param2, param3, param4)) return;
         }
-        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x1C) & message) != 0)
+        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
             if (SendDesktopElementMessage(mActiveElement, message, param1, param2, param3, param4)) return;
-        if (mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, 0x1C) & message) != 0)
+        if (mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
             SendDesktopElementMessage(mOwnedObject0114, message, param1, param2, param3, param4);
     }
 
@@ -687,11 +687,11 @@ namespace NXBaseGui
             const auto kind = keyboard->GetKeyboardMessage(key);
             const std::uint32_t message = kind == 1 ? 0x200u : 0x400u;
             bool handled = false;
-            if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x18) & 4u) != 0 && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x1C) & message) != 0)
+            if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::Flags) & 4u) != 0 && (Read<std::uint32_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
                 handled = SendDesktopElementMessage(mPrimaryMessageHandler, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
-            if (!handled && mElement010C != nullptr && (Read<std::uint32_t>(mElement010C, 0x1C) & message) != 0)
+            if (!handled && mElement010C != nullptr && (Read<std::uint32_t>(mElement010C, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
                 handled = SendDesktopElementMessage(mElement010C, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
-            if (!handled && mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, 0x18) & 4u) != 0 && (Read<std::uint32_t>(mOwnedObject0114, 0x1C) & message) != 0)
+            if (!handled && mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::Flags) & 4u) != 0 && (Read<std::uint32_t>(mOwnedObject0114, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
                 SendDesktopElementMessage(mOwnedObject0114, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
             keyboard = NXSysKeyManager::CKeyManager::sTheObjectPtr;
         }
@@ -715,7 +715,7 @@ namespace NXBaseGui
             if (element != nullptr)
             {
                 Element_Activate(element);
-                if (Read<THasChildren*>(mActiveElement, 0)[1](mActiveElement)) Read<TActivate*>(mActiveElement, 0)[4](mActiveElement, point);
+                if (Read<THasChildren*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[1](mActiveElement)) Read<TActivate*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[4](mActiveElement, point);
             }
             return element;
         };
@@ -725,17 +725,17 @@ namespace NXBaseGui
             mUnknown012C[0] = std::byte{1};
             if (mPrimaryMessageHandler != nullptr)
             {
-                if ((event.flags & 4u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 1u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 1, x, y, 0, 0);
-                if ((event.flags & NXBasics::BitMask::Bit8) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 4u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 4, x, y, 0, 0);
+                if ((event.flags & 4u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & 1u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 1, x, y, 0, 0);
+                if ((event.flags & NXBasics::BitMask::Bit8) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & 4u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 4, x, y, 0, 0);
             }
             bool pressed = false;
             if (activateAtPoint() != nullptr)
             {
-                const auto flags = Read<std::uint32_t>(mActiveElement, 0x18);
+                const auto flags = Read<std::uint32_t>(mActiveElement, NC2Layout::GuiBaseElementOffset::Flags);
                 if ((flags & NXBasics::BitMask::Bit10) == 0 && (flags & 2u) != 0)
                 {
                     using TPress = bool(__thiscall*)(void*, const std::int32_t*);
-                    pressed = Read<TPress*>(mActiveElement, 0)[6](mActiveElement, point);
+                    pressed = Read<TPress*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[6](mActiveElement, point);
                 }
             }
             if (!pressed)
@@ -748,7 +748,7 @@ namespace NXBaseGui
         {
             mUnknown012C[0] = std::byte{0};
             using TRelease = bool(__thiscall*)(void*);
-            if (mActiveElement == nullptr || !Read<TRelease*>(mActiveElement, 0)[7](mActiveElement)) l_Message_Send(2, x, y, 0, 0);
+            if (mActiveElement == nullptr || !Read<TRelease*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[7](mActiveElement)) l_Message_Send(2, x, y, 0, 0);
         }
         if ((event.flags & NXBasics::BitMask::Bit4AndBit6) != 0)
         {
@@ -761,9 +761,9 @@ namespace NXBaseGui
         if ((event.flags & 1u) != 0)
         {
             void* active = l_Element_GetRealActivePtr();
-            if (active != nullptr && (Read<std::uint32_t>(active, 0x18) & NXBasics::BitMask::Bit4) != 0 && Read<std::uint32_t>(active, 0x14) == 2)
+            if (active != nullptr && (Read<std::uint32_t>(active, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit4) != 0 && Read<std::uint32_t>(active, NC2Layout::GuiBaseElementOffset::InteractionState) == 2)
             {
-                void* parent = Read<void*>(active, 0x20);
+                void* parent = Read<void*>(active, NC2Layout::GuiBaseElementOffset::ParentWindow);
                 auto* areaOwner = parent != nullptr ? parent : active;
                 auto area = BaseElement_GetRectangle(areaOwner);
                 area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(event.deltaX));
@@ -777,7 +777,7 @@ namespace NXBaseGui
                 auto* hit = l_Element_FindOnPositionDeep(point, false);
                 if (hit != nullptr)
                 {
-                    if ((Read<std::uint32_t>(hit, 0x18) & NXBasics::BitMask::Bit8) == 0)
+                    if ((Read<std::uint32_t>(hit, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) == 0)
                     {
                         if (mMouseOverElement != nullptr) BaseElement_MouseLeftArea(mMouseOverElement);
                         mMouseOverElement = hit;

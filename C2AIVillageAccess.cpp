@@ -100,7 +100,7 @@ namespace NC2Logic
     // Original function: FUN_00453a07; unwrapped ring traversal preserves the original candidate order.
     bool AIVillagesData_l_GetVillageFreePoint(const void* villages, void* point, std::uint32_t radius)
     {
-        auto candidate = Read<std::uint32_t>(point, 0);
+        auto candidate = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         const auto player = Read<std::int32_t>(villages, NC2Layout::AIVillagesOffset::FirstVillagePlayerId);
         const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1u;
         std::uint32_t stage;
@@ -117,7 +117,7 @@ namespace NC2Logic
                 {
                     MapMigPoint_MoveCursorUnwrapped(candidate, direction);
                     if (!MapMigPoint_IsInsideMap(&candidate) || continent != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidate), NC2Layout::MapMicroPointOffset::ContinentId) || AIVillagesData_GetVillageId(villages, &candidate) != -1) continue;
-                    if (Tool_House_IsAllowedToBeBuild(player, engine, stage, candidate, false, false)) { Write(point, 0, candidate); return true; }
+                    if (Tool_House_IsAllowedToBeBuild(player, engine, stage, candidate, false, false)) { Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, candidate); return true; }
                 }
         }
         return false;
@@ -311,7 +311,7 @@ namespace NC2Logic
     // Original function: FUN_00471418.
     void AIVillageManager_Init(void* village, std::uint32_t type, std::int32_t good, std::uint32_t id, std::uint32_t player, const void* point, std::uint32_t radius)
     {
-        Write(village, NC2Layout::AIVillageOffset::Type, type); Write(village, NC2Layout::AIVillageOffset::ResourceGood, good); Write(village, NC2Layout::AIVillageOffset::CenterPoint, Read<std::uint32_t>(point, 0));
+        Write(village, NC2Layout::AIVillageOffset::Type, type); Write(village, NC2Layout::AIVillageOffset::ResourceGood, good); Write(village, NC2Layout::AIVillageOffset::CenterPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::int32_t>(village, 20, -1); Write(village, NC2Layout::AIVillageOffset::Radius, radius); Write(village, NC2Layout::AIVillageOffset::VillageId, id); Write(village, NC2Layout::AIVillageOffset::PlayerId, player);
         AIHouseManager_Init(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Houses);
         const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1u;
@@ -406,7 +406,7 @@ namespace NC2Logic
                     if (flags == 0 && House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(data->homeSize))
                     {
                         void* best = nullptr; std::uint32_t distance = 10000; CHumanIterator humans;
-                        for (auto humanId = humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(AIVillageManager_GetCenterPoint(village), 0), radius, false); humanId != -1; humanId = humans.GetNextSectorHumanId())
+                        for (auto humanId = humans.GetFirstSectorHumanId(player, Read<std::uint32_t>(AIVillageManager_GetCenterPoint(village), NC2Layout::MapCoordinatePairOffset::Coordinates), radius, false); humanId != -1; humanId = humans.GetNextSectorHumanId())
                         {
                             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
                             if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32) == 0 || !Human_IsAttachedToWorkHouse(human)) continue;

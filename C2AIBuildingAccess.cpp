@@ -107,8 +107,8 @@ namespace NC2Logic
                 if (MapMagPoint_IsInsideMap(&macro) && !check(&macro)) return false;
             }
         }
-        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, 0), false, false)) return false;
-        Write(search.output, 0, Read<std::uint32_t>(point, 0));
+        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
+        Write(search.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         return true;
     }
 
@@ -116,7 +116,7 @@ namespace NC2Logic
     bool AIVillageManager_l_House_GetPossibleBuildPosition(void* village, const void* source, std::int32_t engineType, std::uint32_t stage, void* output, bool checkTerrain, MapSearchCallback callback, std::uint32_t userData)
     {
         SBuildSearch search{village, engineType, stage, static_cast<std::uint8_t>(checkTerrain), {}, output, userData};
-        auto point = Read<std::uint32_t>(source, 0);
+        auto point = Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates);
         Tool_Map_GetNotBlockedPosition(&point, true);
         return CMapPathfinderElement::SearchOverMap(&point, Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::Radius), true, callback == nullptr ? slAIVillageManagerSearchBuildPos : callback, &search, false, Read<std::int32_t>(village, NC2Layout::AIVillageOffset::PlayerId));
     }
@@ -153,8 +153,8 @@ namespace NC2Logic
         const auto& search = *static_cast<const SBuildSearch*>(data->userData);
         if (!AIVillage_IsPointInside(search.village, point)) return false;
         if (AIHouseManager_Tower_IsPointInDefendRange(static_cast<const std::byte*>(search.village) + 0x1C, point)) return false;
-        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, 0), false, false)) return false;
-        Write(search.output, 0, Read<std::uint32_t>(point, 0));
+        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
+        Write(search.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         return true;
     }
 

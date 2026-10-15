@@ -39,7 +39,7 @@ namespace NC2Logic
     {
         selection = player;
         flags = 3;
-        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         radius = searchRadius;
         currentObjectId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
         return currentObjectId;

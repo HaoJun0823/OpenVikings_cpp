@@ -110,9 +110,9 @@ namespace NC2Logic
             std::uint32_t searchPosition = 0, minimumDistance = 0, maximumDistance = 0, landscapeDistance = 5;
             switch (Human_GetMilitaryMode(human))
             {
-            case SwitchIds::HumanMilitaryMode::SearchAroundPosition: searchPosition = Read<std::uint32_t>(position, 0); maximumDistance = landscapeDistance = 18; break;
-            case SwitchIds::HumanMilitaryMode::SearchAroundWorkCenter: searchPosition = Read<std::uint32_t>(workCenter, 0); maximumDistance = 18; break;
-            case SwitchIds::HumanMilitaryMode::SearchWithinWeaponRange: searchPosition = Read<std::uint32_t>(position, 0); minimumDistance = static_cast<std::uint32_t>(weapon->minimumRange); maximumDistance = landscapeDistance = static_cast<std::uint32_t>(weapon->maximumRange); break;
+            case SwitchIds::HumanMilitaryMode::SearchAroundPosition: searchPosition = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates); maximumDistance = landscapeDistance = 18; break;
+            case SwitchIds::HumanMilitaryMode::SearchAroundWorkCenter: searchPosition = Read<std::uint32_t>(workCenter, NC2Layout::MapCoordinatePairOffset::Coordinates); maximumDistance = 18; break;
+            case SwitchIds::HumanMilitaryMode::SearchWithinWeaponRange: searchPosition = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates); minimumDistance = static_cast<std::uint32_t>(weapon->minimumRange); maximumDistance = landscapeDistance = static_cast<std::uint32_t>(weapon->maximumRange); break;
             default: break;
             }
             if (!TargetData_IsValid(primary))
@@ -140,7 +140,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human))
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-            Write(workCenter, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
+            Write(workCenter, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             returnDistance = 0;
@@ -148,10 +148,10 @@ namespace NC2Logic
         if (!Human_IsAtTargetPoint(human) && (Human_IsAttachedToWorkHouse(human) || Distance(position, workCenter) > returnDistance))
         {
             if (Human_l_StartAtomicWalk(human, workCenter, workCenter)) return;
-            auto replacement = Read<std::uint32_t>(workCenter, 0);
+            auto replacement = Read<std::uint32_t>(workCenter, NC2Layout::MapCoordinatePairOffset::Coordinates);
             // Windows deliberately ignores the fallback lookup's return value.
             Tool_Map_GetNotBlockedPosition(&replacement, false);
-            Write(workCenter, 0, replacement);
+            Write(workCenter, NC2Layout::MapCoordinatePairOffset::Coordinates, replacement);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             if (Human_l_StartAtomicWalk(human, workCenter, workCenter)) return;

@@ -70,7 +70,7 @@ namespace NC2Logic
         }
         Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
         if (!SameContinent(human, &door)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 1); return; }
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == door)
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == door)
         {
             if (!Human_VehicleMisc_Enter(human)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
             const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
@@ -315,7 +315,7 @@ namespace NC2Logic
             {
                 auto* work = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
                 auto* real = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
-                if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(work, 0))
+                if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(work, NC2Layout::MapCoordinatePairOffset::Coordinates))
                 {
                     Human_Target_SetTargetPositions(human, real, work);
                     TargetHouse(human, house);

@@ -30,7 +30,7 @@ namespace NC2Logic
     void CMapPathfinderSpecialWallRoadElement::StartPathfinder(std::uint32_t playerId, bool isRoad, const void* start, const void* end, std::uint32_t searchRadius)
     {
         player = playerId; road = isRoad; state = 1;
-        source = Read<std::uint32_t>(start, 0); target = Read<std::uint32_t>(end, 0);
+        source = Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates); target = Read<std::uint32_t>(end, NC2Layout::MapCoordinatePairOffset::Coordinates);
         if (source == target) state = 3;
         radius = searchRadius;
     }
@@ -85,8 +85,8 @@ namespace NC2Logic
     {
         if (Distance(start, end) > searchRadius || searchRadius > 511) return false;
         GameMap_CalculationMap_Clear(end, static_cast<std::int32_t>(searchRadius + 2));
-        SetCalculation(Read<std::uint32_t>(start, 0), 0); SetCalculation(Read<std::uint32_t>(end, 0), searchRadius);
-        auto point = Read<std::uint32_t>(end, 0);
+        SetCalculation(Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates), 0); SetCalculation(Read<std::uint32_t>(end, NC2Layout::MapCoordinatePairOffset::Coordinates), searchRadius);
+        auto point = Read<std::uint32_t>(end, NC2Layout::MapCoordinatePairOffset::Coordinates);
         if (!IsPointOkForBuilding(player, road, &point)) return false;
         for (;;)
         {
@@ -100,7 +100,7 @@ namespace NC2Logic
             MapMigPoint_MoveCursorUnwrapped(point, direction);
             GameMap_GetConstMapMicroPointPtr(&point); Calculation(point);
             SetCalculation(point, (0x400u << ((direction + 3u) % 6u)) | (searchRadius - 1u));
-            if (point == Read<std::uint32_t>(start, 0)) return true;
+            if (point == Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates)) return true;
             if (--searchRadius <= 1) return false;
         }
     }
@@ -108,10 +108,10 @@ namespace NC2Logic
     // Original function: FUN_0043ec04.
     void CMapPathfinderSpecialWallRoadElement::l_GetPreferedDirections(const void* start, const void* end)
     {
-        const auto dx = Read<std::int16_t>(end, 0) - Read<std::int16_t>(start, 0), dy = Read<std::int16_t>(end, 2) - Read<std::int16_t>(start, 2);
+        const auto dx = Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X) - Read<std::int16_t>(start, NC2Layout::MapCoordinatePairOffset::X), dy = Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y) - Read<std::int16_t>(start, NC2Layout::MapCoordinatePairOffset::Y);
         auto x = dx < 0 ? -dx : dx;
         const auto y = dy < 0 ? -dy : dy;
-        if ((y & 1) != 0 && ((Read<std::int16_t>(end, 2) & 1) != 0 ? dx < 0 : dx > 0)) --x;
+        if ((y & 1) != 0 && ((Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y) & 1) != 0 ? dx < 0 : dx > 0)) --x;
         if (x > static_cast<std::int16_t>(y / 2))
         {
             preferred[0] = dy >= 0 ? dx >= 0 ? 1u : 2u : dx >= 0 ? 5u : 4u;
@@ -123,10 +123,10 @@ namespace NC2Logic
     // Original function: FUN_0043ecb7; distinct Windows entry also calculates direction weights.
     void CMapPathfinderSpecialWallRoadElement::l_GetPreferedDirectionsAndDistance(const void* start, const void* end)
     {
-        const auto dx = Read<std::int16_t>(end, 0) - Read<std::int16_t>(start, 0), dy = Read<std::int16_t>(end, 2) - Read<std::int16_t>(start, 2);
+        const auto dx = Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::X) - Read<std::int16_t>(start, NC2Layout::MapCoordinatePairOffset::X), dy = Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y) - Read<std::int16_t>(start, NC2Layout::MapCoordinatePairOffset::Y);
         auto x = dx < 0 ? -dx : dx;
         const auto y = dy < 0 ? -dy : dy;
-        if ((y & 1) != 0 && ((Read<std::int16_t>(end, 2) & 1) != 0 ? dx < 0 : dx > 0)) --x;
+        if ((y & 1) != 0 && ((Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y) & 1) != 0 ? dx < 0 : dx > 0)) --x;
         const auto half = static_cast<std::int16_t>(y / 2);
         if (x > half)
         {
@@ -142,7 +142,7 @@ namespace NC2Logic
                 if (dx >= 0) { distance[1] = static_cast<std::uint32_t>(half - x); distance[0] = static_cast<std::uint32_t>(y) - distance[1]; }
                 else { distance[0] = static_cast<std::uint32_t>(half - x); distance[1] = static_cast<std::uint32_t>(y) - distance[0]; }
             }
-            else if (y != 0 && (dx > 0 || (dx == 0 && x == 0 && (Read<std::int16_t>(end, 2) & 1) != 0))) { distance[0] = static_cast<std::uint32_t>(y); distance[1] = 0; }
+            else if (y != 0 && (dx > 0 || (dx == 0 && x == 0 && (Read<std::int16_t>(end, NC2Layout::MapCoordinatePairOffset::Y) & 1) != 0))) { distance[0] = static_cast<std::uint32_t>(y); distance[1] = 0; }
             else { distance[0] = 0; distance[1] = static_cast<std::uint32_t>(y); }
         }
     }
@@ -154,10 +154,10 @@ namespace NC2Logic
         GameMap_CalculationMap_Clear(end, static_cast<std::int32_t>(searchRadius * 2u));
         auto cost = searchRadius * 4u;
         if (cost > 511) return false;
-        SetCalculation(Read<std::uint32_t>(start, 0), 0);
+        SetCalculation(Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates), 0);
         for (std::uint32_t i = 0; i < 12; ++i) sMapPathfinderStaticVariables[i].count = 0;
-        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(end, 0); sMapPathfinderStaticVariables[0].count = 1;
-        SetCalculation(Read<std::uint32_t>(end, 0), cost);
+        sMapPathfinderStaticVariables[0].points[0] = Read<std::uint32_t>(end, NC2Layout::MapCoordinatePairOffset::Coordinates); sMapPathfinderStaticVariables[0].count = 1;
+        SetCalculation(Read<std::uint32_t>(end, NC2Layout::MapCoordinatePairOffset::Coordinates), cost);
         std::uint32_t queued = 1, ring = 0;
         for (;;)
         {
@@ -181,7 +181,7 @@ namespace NC2Logic
                     if (destination.count == 4000) continue;
                     destination.points[destination.count++] = point; ++queued;
                     SetCalculation(point, reverse | (next - penalty));
-                    if (point == Read<std::uint32_t>(start, 0)) return true;
+                    if (point == Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates)) return true;
                 }
             }
             queue.count = 0;
@@ -189,7 +189,7 @@ namespace NC2Logic
             ring = (ring + 1u) % 12u; cost = next;
             if (next <= 13) break;
         }
-        return (Calculation(Read<std::uint32_t>(start, 0)) & 511u) != 0;
+        return (Calculation(Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates)) & 511u) != 0;
     }
 
     // Original function: FUN_0043f062; point is copied and moved without wrapping.
@@ -202,7 +202,7 @@ namespace NC2Logic
         GameMap_CalculationMap_Clear(start, static_cast<std::int32_t>(searchRadius + 2u));
         auto& first = sMapPathfinderStaticVariables[0];
         sMapPathfinderStaticVariables[0].count = sMapPathfinderStaticVariables[1].count = 0;
-        first.count = 1; first.points[0] = Read<std::uint32_t>(start, 0); SetCalculation(first.points[0], searchRadius);
+        first.count = 1; first.points[0] = Read<std::uint32_t>(start, NC2Layout::MapCoordinatePairOffset::Coordinates); SetCalculation(first.points[0], searchRadius);
         std::uint32_t ring = 0;
         for (;;)
         {

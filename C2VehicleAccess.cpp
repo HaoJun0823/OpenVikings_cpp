@@ -33,7 +33,7 @@ namespace NC2Logic
     // Original function: FUN_0042ce12; copy the packed position returned by the shared accessor.
     bool Human_GetMapPosition(const void* human, void* point)
     {
-        NC2Lifetime::Write(point, 0, NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
         return true;
     }
     using NC2Lifetime::Read;
@@ -175,7 +175,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_004412e3.
-    void Vehicle_GetMapPosition(const void* vehicle, void* point) { NC2Lifetime::Write(point, 0, Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0)); }
+    void Vehicle_GetMapPosition(const void* vehicle, void* point) { NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates)); }
 
     // Original function: FUN_004378a1; each candidate advances the same packed cursor.
     static bool Vehicle_Door_ValidateEntryPoint(void* point, std::uint32_t requiredSpace)
@@ -183,13 +183,13 @@ namespace NC2Logic
         const auto* cell = GameMap_GetConstMapMicroPointPtr(point);
         const auto continent = Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::ContinentId);
         if ((Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
-        auto cursor = Read<std::uint32_t>(point, 0);
+        auto cursor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         MapMigPoint_MoveCursorUnwrapped(cursor, 4);
-        NC2Lifetime::Write(point, 0, cursor);
+        NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, cursor);
         for (std::uint32_t candidate = 0; candidate < 6; ++candidate)
         {
             MapMigPoint_MoveCursorUnwrapped(cursor, 0);
-            NC2Lifetime::Write(point, 0, cursor);
+            NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, cursor);
             if (!MapMigPoint_IsInsideMap(point)) continue;
             cell = GameMap_GetConstMapMicroPointPtr(point);
             if (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
@@ -203,7 +203,7 @@ namespace NC2Logic
         const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
         if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0)
         {
-            NC2Lifetime::Write(point, 0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DoorEntryPoint));
+            NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DoorEntryPoint));
             return Vehicle_Door_ValidateEntryPoint(point, requiredSpace);
         }
         const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
@@ -340,7 +340,7 @@ namespace NC2Logic
         if (slot == -1) return false;
         std::uint32_t entry = 0;
         Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize), 0) != entry) return false;
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates) != entry) return false;
         NC2Lifetime::Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::HumanPassengerInsideFlags + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::VehiclePassenger, 1);
         return true;
     }
@@ -354,7 +354,7 @@ namespace NC2Logic
     // Original function: FUN_00441377.
     void Vehicle_GetTargetWorkPosition(const void* vehicle, void* point)
     {
-        NC2Lifetime::Write(point, 0, Vehicle_Passengers_GetAttachedCommanderPtr(vehicle) != nullptr ? Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TargetWorkPosition) : NXBasics::IntegerRange::UInt32Maximum);
+        NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Vehicle_Passengers_GetAttachedCommanderPtr(vehicle) != nullptr ? Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TargetWorkPosition) : NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0044c095; moving outside retains the passenger reference.

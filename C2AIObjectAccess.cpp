@@ -33,9 +33,9 @@ namespace NC2Logic
     // Original function: FUN_0045360e.
     bool AITradeManager_IsObjectUsed(const void* manager, const void* target)
     {
-        if (Read<std::uint32_t>(target, 0) != 1) return false;
+        if (Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) != 1) return false;
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0); ++i)
-            if (Read<std::uint32_t>(manager, 4 + i * 16) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(manager, 8 + i * 16) == Read<std::uint32_t>(target, 8)) return true;
+            if (Read<std::uint32_t>(manager, 4 + i * 16) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(manager, 8 + i * 16) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
         return false;
     }
 

@@ -1583,8 +1583,8 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
                 direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
             }
             std::int32_t start[2], end[2];
-            NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(position, 0), start, true);
-            std::uint32_t target = Read<std::uint32_t>(position, 0);
+            NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates), start, true);
+            std::uint32_t target = Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates);
             NC2Logic::MapMigPoint_MoveCursorUnwrapped(target, direction);
             NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, target, end, true);
             const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / NC2Runtime::WalkingProgress::FullStepSigned;

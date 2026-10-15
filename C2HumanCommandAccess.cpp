@@ -52,7 +52,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0042cc19.
-    bool Human_IsAtWorkCenter(const void* human) { return NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter); }
+    bool Human_IsAtWorkCenter(const void* human) { return NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter); }
 
     // Original function: FUN_0042cecb.
     bool Human_Target_HasTarget(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) != 0; }
@@ -65,9 +65,9 @@ namespace NC2Logic
         switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget))
         {
         case SwitchIds::InteractionTargetType::Position: case SwitchIds::InteractionTargetType::RoadBuildPlace: case SwitchIds::InteractionTargetType::WallBuildPlace: case SwitchIds::InteractionTargetType::House:
-            return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition);
+            return Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition);
         case SwitchIds::InteractionTargetType::Landscape:
-            return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) && Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType);
+            return Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) && Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType);
         case SwitchIds::InteractionTargetType::Vehicle:
         {
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
@@ -75,7 +75,7 @@ namespace NC2Logic
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
             if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) return false;
-            return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == entry;
+            return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == entry;
         }
         case SwitchIds::InteractionTargetType::Human: case SwitchIds::InteractionTargetType::Animal: return true;
         default: return false;
@@ -577,7 +577,7 @@ namespace NC2Logic
         const bool direct = Human_l_StartAtomicWalkAndWait(human, point);
         if (!direct)
         {
-            auto fallback = Read<std::uint32_t>(point, 0);
+            auto fallback = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId)) return 1;
             if (!Tool_Map_GetNotBlockedPosition(&fallback, false) || !Human_l_StartAtomicWalkAndWait(human, &fallback)) return 1;
         }
@@ -592,7 +592,7 @@ namespace NC2Logic
         }
         if (recenter)
         {
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, 0));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             if (Human_IsAttachedToWorkHouse(human)) Human_DoExecuteUserCommand_DetachWorkHouse(human);
@@ -626,7 +626,7 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_GoAway(void* human, const void* point, std::uint32_t radius)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        Human_l_StartTask_GoAway(human, NC2Lifetime::Read<std::uint32_t>(point, 0), radius);
+        Human_l_StartTask_GoAway(human, NC2Lifetime::Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), radius);
         return 2;
     }
 
@@ -703,7 +703,7 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(target), 0));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(target), NC2Layout::MapCoordinatePairOffset::Coordinates));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
@@ -725,7 +725,7 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Animal_GetMapPositionRef(target), 0));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Animal_GetMapPositionRef(target), NC2Layout::MapCoordinatePairOffset::Coordinates));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
@@ -769,7 +769,7 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Vehicle_GetMapPositionRef(target), 0));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Vehicle_GetMapPositionRef(target), NC2Layout::MapCoordinatePairOffset::Coordinates));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
@@ -863,7 +863,7 @@ namespace NC2Logic
         {
             if (opcode == 20 && Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter2) != 0)
             {
-                Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+                Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
                 Human_WorkCenterMarker_Update(human);
             }

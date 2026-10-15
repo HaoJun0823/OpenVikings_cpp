@@ -186,7 +186,7 @@ namespace NC2E2
         constexpr std::uint32_t directions[3] = {2, 1, 0};
         for (const auto direction : directions)
         {
-            std::uint32_t neighbor = Read<std::uint32_t>(point, 0);
+            std::uint32_t neighbor = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             NC2Logic::MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
             if (!NC2Logic::MapMigPoint_IsInsideMap(&neighbor)) continue;
             const void* nextMicro = NC2Logic::GameMap_GetConstMapMicroPointPtr(&neighbor);
@@ -194,7 +194,7 @@ namespace NC2E2
             const auto nextBrightness = Display_DE_Hightlighting_GetMapLandscapeBrightness(display, &neighbor);
             const auto nextValency = Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(nextMicro,NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;
             std::int32_t origin[2], destination[2];
-            DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, 0), origin, true);
+            DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), origin, true);
             DisplayDescription_MapMigToWorldPixelCoordinates(display, neighbor, destination, true);
             const auto dx = Sub(destination[0], origin[0]), dy = Sub(destination[1], origin[1]);
             const auto dv = nextValency - valency, db = nextBrightness - brightness;

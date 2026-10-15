@@ -101,9 +101,9 @@ namespace NC2Logic
         if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0, type);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::Type, type);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -114,10 +114,10 @@ namespace NC2Logic
         if (good == 64 || GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData)) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 4);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write(message, 0x30, good);
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 4);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -127,10 +127,10 @@ namespace NC2Logic
     {
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 5);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write(message, 0x30, good);
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 5);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -140,13 +140,13 @@ namespace NC2Logic
     {
         const void* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
         const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 66u + good;
-        if (Read<std::uint8_t>(player, offset + 0x1D4C) == 0 || Read<std::uint8_t>(player, offset + 0x1278) == 0) return;
+        if (Read<std::uint8_t>(player, offset + NC2Layout::GameControlPlayerOffset::AvailableGoods) == 0 || Read<std::uint8_t>(player, offset + NC2Layout::GameControlPlayerOffset::AllowedGoods) == 0) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 6);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write(message, 0x30, good);
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 6);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -389,10 +389,10 @@ namespace NC2Logic
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 alignas(4) std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 0x70);
-                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 0x70);
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
@@ -460,10 +460,10 @@ namespace NC2Logic
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 0x70);
-                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 0x70);
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
@@ -522,8 +522,8 @@ namespace NC2Logic
             {
                 Human_Target_SetTargetPositions(human, Human_GetMapPositionRef(other), Human_GetMapPositionRef(human));
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 7);
-                Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(other, 4));
-                Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(other, 8));
+                Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId));
+                Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId));
                 Human_StartListening(other, human);
                 Human_StopWaitingForOtherHuman(other);
                 Human_l_StartAtomicAnimation(human, 14, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human)));
@@ -534,7 +534,7 @@ namespace NC2Logic
             if (other != nullptr && Human_StartWaitingForOtherHuman(other))
             {
                 Human_StopWaitingForOtherHuman(other);
-                if (Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 0x0C), 1)) return;
+                if (Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, NC2Layout::HumanOffset::MapMoveableId), 1)) return;
             }
         }
         Human_l_StartTask_FulfillNeeds_Social_Monologuize(human);
@@ -636,7 +636,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 7);
             return false;
         }
-        Write(real, 0, Read<std::uint32_t>(selected, 0x1C));
+        Write(real, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(selected, NC2Layout::HouseOffset::MapPosition));
         return true;
     }
 
@@ -714,11 +714,11 @@ namespace NC2Logic
                 {
                     std::byte message[772];
                     ToUserMessage_Construct(message);
-                    Write<std::uint32_t>(message, 0, 0x3B);
-                    Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-                    Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+                    Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3B);
+                    Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+                    Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
                     ToUserMessage_FinishMessage(message);
-                    Write<std::uint32_t>(message, 0x10, NXBasics::IntegerRange::UInt32Maximum);
+                    Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
                     NC2LogicExternals::External_Misc_SendToUserMessage(message);
                     Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
                     CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 4, 0);

@@ -49,7 +49,7 @@ namespace NC2Logic
         if (!Human_IsAttachedToHomeHouse(human)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
         auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) * CHouseArray::ElementSize;
         const auto work = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint);
-        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == work)
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == work)
         {
             Human_l_StartAtomicAnimation(human, 78, -1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 13);
@@ -89,7 +89,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) != 1 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::int8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapePlayerId) != data.player) return false;
             const auto landscape = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData);
             if (landscape < 82 || landscape > 84 || Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::LandscapeValency) >= 100) return false;
-            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            data.points[data.count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return data.count == 10;
         }
     }
@@ -104,7 +104,7 @@ namespace NC2Logic
         CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, 5, false, slHumanSearchDamagedWallFunction, &data, true, static_cast<std::int32_t>(data.player));
         for (std::uint32_t attempt = 0; attempt < data.count * 2u; ++attempt)
         {
-            Write(realPosition, 0, data.points[Game_Random_GetNumber() % data.count]);
+            Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, data.points[Game_Random_GetNumber() % data.count]);
             if (GameMap_Misc_GetLandscapeWorkPosition(realPosition, workPosition)) return true;
         }
         return false;
@@ -135,7 +135,7 @@ namespace NC2Logic
             const void* micro = GameMap_GetConstMapMicroPointPtr(point);
             const auto type = Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::ObjectData) : 0u;
             if (type != candidates->landscapeType) return false;
-            candidates->points[candidates->count++] = Read<std::uint32_t>(point, 0);
+            candidates->points[candidates->count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return candidates->count == 10;
         }
 
@@ -145,7 +145,7 @@ namespace NC2Logic
             auto* candidates = static_cast<NearbyPoints*>(data->userData);
             const void* micro = GameMap_GetConstMapMicroPointPtr(point);
             if ((Read<std::uint8_t>(micro,NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::int16_t>(micro,NC2Layout::MapMicroPointOffset::FirstMapMoveableId) != -1) return false;
-            candidates->points[candidates->count++] = Read<std::uint32_t>(point, 0);
+            candidates->points[candidates->count++] = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
             return candidates->count == 8;
         }
 
@@ -169,7 +169,7 @@ namespace NC2Logic
     bool Human_IsDoingGoodie(const void* human) { const auto task = Read<std::int32_t>(human, NC2Layout::HumanOffset::CurrentTask); return task >= 24 && task <= 29; }
 
     // Original function: FUN_0042d00a.
-    void Human_Target_SetWorkPosition(void* human, const void* position) { Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(position, 0)); }
+    void Human_Target_SetWorkPosition(void* human, const void* position) { Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates)); }
 
     // Original function: FUN_0042cf55.
     std::uint32_t Human_Target_GetDirectionTo(const void* human)
@@ -180,8 +180,8 @@ namespace NC2Logic
     // Original function: FUN_0042cf88; both positions are stored before house lookup.
     void Human_Target_SetTargetPositions(void* human, const void* realPosition, const void* workPosition)
     {
-        Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(realPosition, 0));
-        Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(workPosition, 0));
+        Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates));
+        Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates));
         const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition);
         if (id != -1)
         {
@@ -267,7 +267,7 @@ namespace NC2Logic
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
             if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
         }
-        if (Read<std::uint32_t>(Position(human), 0) == Read<std::uint32_t>(workPosition, 0))
+        if (Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates))
         {
             Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction, 1);
@@ -327,7 +327,7 @@ namespace NC2Logic
         NearbyPoints candidates;
         CMapPathfinderElement::SearchOverMap(Position(human), 40, true, slHumanSearchMapPointNearbyFunction, &candidates, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (candidates.count == 0) return false;
-        Write(point, 0, candidates.points[Game_Random_GetNumber() % candidates.count]);
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, candidates.points[Game_Random_GetNumber() % candidates.count]);
         return true;
     }
 
@@ -339,7 +339,7 @@ namespace NC2Logic
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other)) continue;
-            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            if (Read<std::uint32_t>(Position(other), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates) || !Human_IsAbleToListenNow(other)) continue;
             // Windows retains one candidate and still consumes random % 1.
             Game_Random_GetNumber();
             return other;
@@ -355,7 +355,7 @@ namespace NC2Logic
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other)) continue;
-            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            if (Read<std::uint32_t>(Position(other), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates) || !Human_IsAbleToListenNow(other)) continue;
             Game_Random_GetNumber();
             return other;
         }
@@ -438,11 +438,11 @@ namespace NC2Logic
             CMapPathfinderElement::SearchOverMap(Position(human), 20, false, slHumanSearchLandscapeFunction, &candidates, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
             if (candidates.count != 0)
             {
-                Write(realPosition, 0, candidates.points[0]);
+                Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, candidates.points[0]);
                 if (GameMap_Misc_GetLandscapeWorkPosition(realPosition, workPosition)) return true;
                 for (auto attempts = candidates.count * 2u; attempts != 0; --attempts)
                 {
-                    Write(realPosition, 0, candidates.points[Game_Random_GetNumber() % candidates.count]);
+                    Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, candidates.points[Game_Random_GetNumber() % candidates.count]);
                     if (GameMap_Misc_GetLandscapeWorkPosition(realPosition, workPosition)) return true;
                 }
             }
@@ -450,8 +450,8 @@ namespace NC2Logic
         // Windows folds CanSleepAtMapWorkPosition and IsAbleToUseVehicle into the same unconditional predicate.
         Human_IsAbleToUseVehicle(human);
         Human_CanSleepAtMapRealPosition(Position(human));
-        Write(realPosition, 0, Read<std::uint32_t>(Position(human), 0));
-        Write(workPosition, 0, Read<std::uint32_t>(Position(human), 0));
+        Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
+        Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates));
         return true;
     }
 
@@ -489,7 +489,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0) continue;
             const void* position = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12;
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position),NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
-            auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
+            auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y)));
             const auto tribe = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType);
             if (tribe != 16 && tribe != 17) distance *= 2u;
             if (distance < nearest) { selected = animal; nearest = distance; }
@@ -567,7 +567,7 @@ namespace NC2Logic
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
-            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            if (Read<std::uint32_t>(Position(other), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates) || !Human_IsAbleToListenNow(other)) continue;
             // Windows retains one candidate and still consumes random % 1.
             Game_Random_GetNumber();
             return other;
@@ -583,7 +583,7 @@ namespace NC2Logic
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
-            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            if (Read<std::uint32_t>(Position(other), NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(Position(human), NC2Layout::MapCoordinatePairOffset::Coordinates) || !Human_IsAbleToListenNow(other)) continue;
             Game_Random_GetNumber();
             return other;
         }

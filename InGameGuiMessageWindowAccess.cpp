@@ -210,7 +210,7 @@ namespace NC2InGameGuiMessages
             const NXBasics::SRectangle rectangle((vars.displayWidth - 440) / 2, (vars.displayHeight - 240) / 2, 440, 240);
             NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
             new (static_cast<std::byte*>(window) + 0x74) NC2InGameGuiBase::CDynamicSubButtonsHandler;
-            Write(window, NC2Layout::GuiBaseElementOffset::ElementId, Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::ElementId) | NXBasics::BitMask::Bit5);
+            Write(window, NC2Layout::GuiBaseElementOffset::MessageMask, Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::MessageMask) | NXBasics::BitMask::Bit5);
             Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessagePresentationWindowVirtualTable + 0);
             std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2808);
             Write(window, 0x70, uniqueId); Buttons(window).SetWindow(window);

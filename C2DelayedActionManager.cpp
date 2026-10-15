@@ -254,8 +254,8 @@ namespace NC2Logic
         {
             std::uint32_t position;
             MapMigPoint_ConstructOffset(&position, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, area->rows[index].x, area->rows[index].y, false);
-            const auto x = Read<std::int16_t>(&position, NC2Layout::MapCoordinatePairOffset::X), targetX = Read<std::int16_t>(point, 0);
-            if (Read<std::int16_t>(&position, NC2Layout::MapCoordinatePairOffset::Y) == Read<std::int16_t>(point, 2) && x <= targetX && NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(x) + area->rows[index].width) >= targetX) return true;
+            const auto x = Read<std::int16_t>(&position, NC2Layout::MapCoordinatePairOffset::X), targetX = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X);
+            if (Read<std::int16_t>(&position, NC2Layout::MapCoordinatePairOffset::Y) == Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y) && x <= targetX && NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(x) + area->rows[index].width) >= targetX) return true;
         }
         return false;
     }

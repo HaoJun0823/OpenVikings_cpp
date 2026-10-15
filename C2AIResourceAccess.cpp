@@ -146,7 +146,7 @@ namespace NC2Logic
         auto* entry = Resource(manager, index);
         auto* center = entry + NC2Layout::AIResourceSlotViewOffset::Point;
         Tool_Map_GetNotBlockedPosition(center, false);
-        const auto x = Read<std::uint16_t>(center, 0), y = Read<std::uint16_t>(center, 2);
+        const auto x = Read<std::uint16_t>(center, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::uint16_t>(center, NC2Layout::MapCoordinatePairOffset::Y);
         const auto lowX = static_cast<std::int16_t>(x - 8) < 0 ? 0 : x - 8;
         const auto lowY = static_cast<std::int16_t>(y - 8) < 0 ? 0 : y - 8;
         const auto highX = static_cast<std::int16_t>(x + 8) > GameMap_GetWidth() - 1 ? GameMap_GetWidth() - 1 : static_cast<std::int16_t>(x + 8);
@@ -219,7 +219,7 @@ namespace NC2Logic
         const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(point, Read<std::int32_t>(search, NC2Layout::AIResourceSearchOffset::PlayerId));
         const auto score = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(danger) + static_cast<std::uint32_t>(distance / 5));
         if (score > Read<std::int32_t>(search, NC2Layout::AIResourceSearchOffset::BestScore)) return;
-        Write(search, NC2Layout::AIResourceSearchOffset::BestPoint, Read<std::uint32_t>(point, 0)); Write(search, NC2Layout::AIResourceSearchOffset::BestScore, score); Write(search, NC2Layout::AIResourceSearchOffset::BestVillageId, village);
+        Write(search, NC2Layout::AIResourceSearchOffset::BestPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates)); Write(search, NC2Layout::AIResourceSearchOffset::BestScore, score); Write(search, NC2Layout::AIResourceSearchOffset::BestVillageId, village);
     }
 
     // Original function: FUN_00456ba3; callers must request an initialized good, as in Windows.
@@ -227,7 +227,7 @@ namespace NC2Logic
     {
         const auto* entry = Resource(manager, ResourceIndex(manager, good));
         if (Read<std::uint8_t>(entry, NC2Layout::AIResourceSlotViewOffset::OnMapFlag) == 0) return false;
-        Write(point, 0, Read<std::uint32_t>(entry, NC2Layout::AIResourceSlotViewOffset::Point)); return true;
+        Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(entry, NC2Layout::AIResourceSlotViewOffset::Point)); return true;
     }
 
     // Original function: FUN_00456be8.
