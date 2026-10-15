@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "InGameGuiConstructionSelectionWindow.h"
 #include "InGameGuiManager.h"
@@ -33,8 +35,8 @@ namespace NC2InGameGuiMiscWindows
     {
         std::array<std::uintptr_t, 19> table{};
         std::memcpy(table.data(), gBaseToolWindowVirtualTable, sizeof(table));
-        table[0] = reinterpret_cast<std::uintptr_t>(&ConstructionSelectionWindow_Delete);
-        table[2] = reinterpret_cast<std::uintptr_t>(&ConstructionSelectionWindow_XGui_BE_Message_Handle);
+        table[NC2Runtime::GuiVirtualSlot::DeletingDestructor] = reinterpret_cast<std::uintptr_t>(&ConstructionSelectionWindow_Delete);
+        table[NC2Runtime::GuiVirtualSlot::MessageHandle] = reinterpret_cast<std::uintptr_t>(&ConstructionSelectionWindow_XGui_BE_Message_Handle);
         return table;
     }();
 
@@ -42,14 +44,15 @@ namespace NC2InGameGuiMiscWindows
     void* ConstructionSelectionWindow_Construct(void* window, std::uint32_t specialItemType, std::uint32_t specialItem)
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
-        const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
+        const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - NC2Runtime::ConstructionSelectionDimensions::WidthUnsigned) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - NC2Runtime::ConstructionSelectionDimensions::HeightUnsigned) / 2, NC2Runtime::ConstructionSelectionDimensions::Width, NC2Runtime::ConstructionSelectionDimensions::Height);
         BaseToolWindow_Construct(window, &rectangle);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 824);
+        std::memset(static_cast<std::byte*>(window) + NC2Layout::ConstructionSelectionWindowOffset::Page, 0, NC2Layout::RecordSize::ConstructionSelectionWindowState);
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gConstructionSelectionWindowVirtualTable.data());
-        Write(window, 0x7C, specialItemType); Write(window, 0x80, specialItem);
+        Write(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType, specialItemType);
+        Write(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItem, specialItem);
         ConstructionSelectionWindow_l_GuiButtons_Add(window);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window);
-        ConstructionSelectionWindow_XGui_BE_Message_Handle(window, nullptr, 0x800, 0x7EE, 0, 0, 0);
+        ConstructionSelectionWindow_XGui_BE_Message_Handle(window, nullptr, SwitchIds::GuiWindowMessage::Command, SwitchIds::ConstructionSelectionCommand::Refresh, 0, 0, 0);
         return window;
     }
 
@@ -70,50 +73,61 @@ namespace NC2InGameGuiMiscWindows
         const auto rebuild = [window]
         {
             NXBaseGui::BaseWindow_Element_DeleteAll(window);
-            Write<void*>(window, 0x74, nullptr);
+            Write<void*>(window, NC2Layout::ConstructionSelectionWindowOffset::HouseList, nullptr);
             ConstructionSelectionWindow_l_GuiButtons_Add(window);
         };
-        if (message == 0x1000)
+        if (message == SwitchIds::GuiWindowMessage::Query)
         {
-            if (command == 0x7DA) return true;
-            if (command != 0x7DB) return false;
-            if (param1 != Read<std::uint32_t>(window, 0x7C) || param2 != Read<std::uint32_t>(window, 0x80))
+            if (command == SwitchIds::GuiWindowQuery::ConstructionSelection) return true;
+            if (command != SwitchIds::GuiWindowQuery::ConstructionSelectionWithItem) return false;
+            if (param1 != Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType) || param2 != Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItem))
             {
-                Write(window, 0x7C, param1); Write(window, 0x80, param2); rebuild();
+                Write(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType, param1);
+                Write(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItem, param2);
+                rebuild();
             }
             return true;
         }
-        if (message != 0x800) return false;
-        if (command >= 10000 && command < 10100) { Write(window, 0x70, command - 10000); rebuild(); return true; }
+        if (message != SwitchIds::GuiWindowMessage::Command) return false;
+        if (command >= SwitchIds::ConstructionSelectionCommand::FirstPage && command < SwitchIds::ConstructionSelectionCommand::PageLimit)
+        {
+            Write(window, NC2Layout::ConstructionSelectionWindowOffset::Page, command - SwitchIds::ConstructionSelectionCommand::FirstPage);
+            rebuild();
+            return true;
+        }
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         auto* input = NC2InGameGuiInputManager::gInputManager;
         const auto select = [&](std::uint32_t type, std::uint32_t stage)
         {
-            NC2InGameGuiInputManager::Selection_SelectEngineHouseType(input, type, stage, Read<std::uint32_t>(window, 0x7C), Read<std::uint32_t>(window, 0x80));
-            NC2InGameGuiInputManager::InputMode_Set(input, 12);
+            NC2InGameGuiInputManager::Selection_SelectEngineHouseType(input, type, stage, Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType), Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItem));
+            NC2InGameGuiInputManager::InputMode_Set(input, SwitchIds::InputMode::HousePlacement);
         };
-        if (command == 10100) { select(param2, param3); manager->MiscWindows_ConstructionSelectionWindow_Close(); }
-        else if (command == 10101) manager->MiscWindows_HelpWindow_Open_HouseInfo(param2, param3);
-        else if (command == 10102) manager->MiscWindows_HelpWindow_Open_GoodInfo(param2);
-        else if (command == 0x7EE)
+        if (command == SwitchIds::ConstructionSelectionCommand::SelectHouse)
         {
-            if (timeGetTime() > Read<std::uint32_t>(window, 0x78) + 2000u) ConstructionSelectionWindow_l_GuiButtons_UpdateListBox(window);
-            if (Read<std::uint32_t>(window, 0x7C) != 0 && Read<std::uint32_t>(window, 0x84) == 1)
+            select(param2, param3);
+            manager->MiscWindows_ConstructionSelectionWindow_Close();
+        }
+        else if (command == SwitchIds::ConstructionSelectionCommand::HouseHelp) manager->MiscWindows_HelpWindow_Open_HouseInfo(param2, param3);
+        else if (command == SwitchIds::ConstructionSelectionCommand::GoodHelp) manager->MiscWindows_HelpWindow_Open_GoodInfo(param2);
+        else if (command == SwitchIds::ConstructionSelectionCommand::Refresh)
+        {
+            if (timeGetTime() > Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::LastRefreshTime) + NC2Runtime::ConstructionSelectionLimits::RefreshIntervalMillisecondsUnsigned) ConstructionSelectionWindow_l_GuiButtons_UpdateListBox(window);
+            if (Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType) != 0 && Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseCount) == 1)
             {
-                select(Read<std::uint32_t>(window, 0x88), Read<std::uint32_t>(window, 0x8C));
+                select(Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseEngineTypes), Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseDevelopmentStages));
                 NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
             }
         }
-        else if (command >= 10200 && command <= 10202)
+        else if (command >= SwitchIds::ConstructionSelectionCommand::BuildRoad && command <= SwitchIds::ConstructionSelectionCommand::BuildGate)
         {
-            const std::int32_t modes[3]{14, 16, 18};
-            NC2InGameGuiInputManager::InputMode_Set(input, modes[command - 10200]);
+            const std::int32_t modes[3]{SwitchIds::InputMode::RoadStart, SwitchIds::InputMode::WallStart, SwitchIds::InputMode::GateStart};
+            NC2InGameGuiInputManager::InputMode_Set(input, modes[command - SwitchIds::ConstructionSelectionCommand::BuildRoad]);
             manager->MiscWindows_ConstructionSelectionWindow_Close();
         }
-        else if (command == 10300) manager->MiscWindows_GlobalGameSettingsWindow_Open(true, false);
-        else if (command == 33331)
+        else if (command == SwitchIds::ConstructionSelectionCommand::GameSettings) manager->MiscWindows_GlobalGameSettingsWindow_Open(true, false);
+        else if (command == SwitchIds::ConstructionSelectionCommand::NavigateByLetter)
         {
-            return Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::InteractionState) == 1 && static_cast<std::uint8_t>(param2) != 0 && NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_CenterOnEntry_StartingWithLetter(Read<void*>(window, 0x74), static_cast<char>(param2));
+            return Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::InteractionState) == 1 && static_cast<std::uint8_t>(param2) != 0 && NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_CenterOnEntry_StartingWithLetter(Read<void*>(window, NC2Layout::ConstructionSelectionWindowOffset::HouseList), static_cast<char>(param2));
         }
         return true;
     }
@@ -121,114 +135,121 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c672b; five filters, list viewport and normal-mode footer.
     void __fastcall ConstructionSelectionWindow_l_GuiButtons_Add(void* window)
     {
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiWindowMover, 1);
         NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22u), 14);
-        void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(Read<std::uint32_t>(window, 0x7C) == 0 ? 0 : 1));
+        void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType) == 0 ? 0 : 1));
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiWindowCloser, 1);
         rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18u), 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         const auto button = [window](const NXBasics::SRectangle& area, std::uint32_t caption, std::uint32_t command, bool selected)
         {
-            void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
+            void* memory = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
             void* child = memory == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(memory, nullptr, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(caption), command, window, selected);
             NXBaseGui::BaseWindow_Element_Add(window, child);
         };
-        rectangle = NXBasics::SRectangle(4, 22, 492 / 5 - 2, 22);
-        for (std::uint32_t page = 0; page < 5; ++page)
+        rectangle = NXBasics::SRectangle(4, 22, 492 / NC2Runtime::ConstructionSelectionLimits::Pages - 2, 22);
+        for (std::uint32_t page = 0; page < NC2Runtime::ConstructionSelectionLimits::Pages; ++page)
         {
-            button(rectangle, 2 + page, 10000 + page, Read<std::uint32_t>(window, 0x70) == page);
+            button(rectangle, 2 + page, SwitchIds::ConstructionSelectionCommand::FirstPage + page, Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::Page) == page);
             rectangle.x += rectangle.width + 2;
         }
-        rectangle = NXBasics::SRectangle(4, 54, 468, 354 - (Read<std::uint32_t>(window, 0x7C) == 0 ? 26 : 0));
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
+        rectangle = NXBasics::SRectangle(4, 54, 468, 354 - (Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType) == 0 ? 26 : 0));
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiListBox, 1);
         void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
-        Write(window, 0x74, list);
+        Write(window, NC2Layout::ConstructionSelectionWindowOffset::HouseList, list);
         NXBaseGui::BaseWindow_Element_Add(window, list);
         ConstructionSelectionWindow_l_GuiButtons_UpdateListBox(window);
-        rectangle.x = 476; rectangle.width = 20;
-        allocation = NXBasics::Runtime_AllocateWithNewHandler(60, 1);
+        rectangle.x = 476;
+        rectangle.width = 20;
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiListBoxController, 1);
         element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        if (Read<std::uint32_t>(window, 0x7C) != 0) return;
+        if (Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType) != 0) return;
         rectangle = NXBasics::SRectangle(4, rectangle.y + rectangle.height + 10, 121, 20);
         for (std::uint32_t index = 0; index < 3; ++index)
         {
-            button(rectangle, 7 + index, 10200 + index, false);
+            button(rectangle, 7 + index, SwitchIds::ConstructionSelectionCommand::BuildRoad + index, false);
             rectangle.x += rectangle.width + 2;
         }
         rectangle.x += 2;
-        button(rectangle, 501, 10300, false);
+        button(rectangle, 501, SwitchIds::ConstructionSelectionCommand::GameSettings, false);
     }
 
     // Original function: FUN_004c6af6; availability, sorting, costs and single-result special items.
     void __fastcall ConstructionSelectionWindow_l_GuiButtons_UpdateListBox(void* window)
     {
-        Write<std::uint32_t>(window, 0x84, 0);
-        void* list = Read<void*>(window, 0x74);
+        Write<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseCount, 0);
+        void* list = Read<void*>(window, NC2Layout::ConstructionSelectionWindowOffset::HouseList);
         if (list == nullptr) return;
-        const auto scroll = Read<std::int32_t>(list, 0x34);
+        const auto scroll = Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ScrollY);
         NC2InGameGuiBaseListBox::BaseListBoxElement_Element_DeleteAll(list);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
         const auto* playerData = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
-        struct SHouseEntry { std::uint32_t type, stage; };
-        auto* entries = static_cast<SHouseEntry*>(NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(NC2E2::gStaticHouseCount) * 40u, 1));
+        struct SHouseEntry { std::uint32_t type, stage;
+        };
+        auto* entries = static_cast<SHouseEntry*>(NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(NC2E2::gStaticHouseCount) * NC2Layout::RecordSize::ConstructionSelectionEntriesPerEngineUnsigned, 1));
         std::uint32_t count = 0;
-        const auto page = Read<std::uint32_t>(window, 0x70), specialType = Read<std::uint32_t>(window, 0x7C);
+        const auto page = Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::Page), specialType = Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItemType);
         for (std::int32_t type = 0; type < NC2E2::gStaticHouseCount; ++type)
         {
-            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + static_cast<std::uint32_t>(type) * 0x8BCu;
-            const auto tribe = Read<std::uint32_t>(engine, 0x50);
-            for (std::uint32_t stage = 0; stage < Read<std::uint32_t>(engine, 0x54); ++stage)
+            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + static_cast<std::uint32_t>(type) * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
+            const auto tribe = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::TribeType);
+            for (std::uint32_t stage = 0; stage < Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount); ++stage)
             {
-                const auto logic = Read<std::uint32_t>(engine, 0x3Cu + stage * 4u);
-                if (Read<std::uint8_t>(playerData, 0x2820u + tribe * 55u + logic) == 0) continue;
-                const auto main = NC2Logic::gStaticHouseTypeStorage.records[logic].mainType;
-                const bool buildable = logic != 1 && main != 6 && main != 7 && Read<std::uint8_t>(playerData, 0x3126u + tribe * 55u + logic) != 0;
+                const auto logicType = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
+                if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + logicType) == 0) continue;
+                const auto mainType = NC2Logic::gStaticHouseTypeStorage.records[logicType].mainType;
+                const bool buildable = logicType != 1 && mainType != 6 && mainType != 7 && Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + logicType) != 0;
                 bool include = false;
                 if (specialType != 0)
                 {
                     if (tribe == 1)
                     {
                         if (specialType == 2) include = buildable;
-                        else if (specialType > 2 && specialType <= 4) include = logic == Read<std::uint32_t>(window, 0x80);
+                        else if (specialType > 2 && specialType <= 4) include = logicType == Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::SpecialItem);
                     }
                 }
                 else if (buildable)
                 {
-                    include = page == 1 ? main == 3 : page == 2 ? main == 1 : page == 3 ? main == 2 : page == 4 ? main == 5 || logic == 39 : true;
+                    include = page == SwitchIds::ConstructionSelectionPage::Work ? mainType == 3 : page == SwitchIds::ConstructionSelectionPage::Stock ? mainType == 1 : page == SwitchIds::ConstructionSelectionPage::Home ? mainType == 2 : page == SwitchIds::ConstructionSelectionPage::Military ? mainType == 5 || logicType == 39 : true;
                 }
                 if (!include) continue;
                 entries[count++] = {static_cast<std::uint32_t>(type), stage};
-                const auto matches = Read<std::uint32_t>(window, 0x84);
-                if (matches < 100)
+                const auto cachedHouseCount = Read<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseCount);
+                if (cachedHouseCount < NC2Runtime::ConstructionSelectionLimits::CachedHouses)
                 {
-                    Write(window, 0x88u + matches * 8u, type); Write(window, 0x8Cu + matches * 8u, stage); Write(window, 0x84, matches + 1);
+                    Write(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseEngineTypesUnsigned + cachedHouseCount * NC2Layout::RecordSize::ConstructionSelectionHouseEntryUnsigned, type);
+                    Write(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseDevelopmentStagesUnsigned + cachedHouseCount * NC2Layout::RecordSize::ConstructionSelectionHouseEntryUnsigned, stage);
+                    Write(window, NC2Layout::ConstructionSelectionWindowOffset::CachedHouseCount, cachedHouseCount + 1);
                 }
             }
         }
         if (count != 0) NXBasics::Runtime_QuickSort(entries, count, sizeof(SHouseEntry), lsSortHouseTypeCompareFunction);
-        const bool expanded = page != 0;
-        NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), expanded ? 240 : 32);
+        const bool expandedRows = page != SwitchIds::ConstructionSelectionPage::All;
+        NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), expandedRows ? 240 : 32);
         for (std::uint32_t index = 0; index < count; ++index)
         {
             const auto entry = entries[index];
-            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + entry.type * 0x8BCu;
+            const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + entry.type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
             const auto* name = NC2Logic::StringAccess_GetHouseNamePtr(entry.type, entry.stage, 1);
             std::int32_t unfinished = 0;
-            const auto total = NC2Logic::Tool_PlayerStatistics_CountHousesOfLogicType(player, Read<std::uint32_t>(engine, 0x3Cu + entry.stage * 4u), &unfinished);
-            char caption[600], text[180]; caption[0] = '\0';
-            if (expanded)
+            const auto total = NC2Logic::Tool_PlayerStatistics_CountHousesOfLogicType(player, Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + entry.stage * NC2Layout::RecordSize::HouseStageValueUnsigned), &unfinished);
+            char caption[600], text[180];
+            caption[0] = '\0';
+            if (expandedRows)
             {
                 NXBasics::Runtime_PrintString(text, "{setx:240}{sety:70}{gfxhouse:%d,%d}", entry.type, entry.stage);
                 std::strcat(caption, text);
             }
-            NXBasics::Runtime_PrintString(text, "{setx:4}{sety:%d}%s - (%d+%d)", expanded ? -100 : 0, name, total - unfinished, unfinished);
+            NXBasics::Runtime_PrintString(text, "{setx:4}{sety:%d}%s - (%d+%d)", expandedRows ? -100 : 0, name, total - unfinished, unfinished);
             std::strcat(caption, text);
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
-            void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &row, caption, 10100, window);
-            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, entry.type); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, entry.stage);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
+            void* element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &row, caption, SwitchIds::ConstructionSelectionCommand::SelectHouse, window);
+            Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0);
+            Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, entry.type);
+            Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, entry.stage);
             BaseListBoxElement_Element_Add(list, nullptr, element);
             NXBasics::SRectangle control(row.width, row.y + 2, 0, 28);
             NC2Logic::SHouseConstructionGoods goods{};
@@ -239,30 +260,37 @@ namespace NC2InGameGuiMiscWindows
                 char tooltip[132], graphic[32];
                 NXBasics::Runtime_PrintString(graphic, "{gfxgood:%d,%d}", good, amount);
                 NXBasics::Runtime_PrintString(tooltip, "%d %s", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount));
-                control.x -= 30; control.width = 28;
-                allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
-                element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &control, graphic, 10102, window);
-                Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0); Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, good);
-                BaseToolTextButton_SetToolTipString(element, tooltip); Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::ImmediateTooltipFlag, 1);
+                control.x -= 30;
+                control.width = 28;
+                allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextButton, 1);
+                element = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &control, graphic, SwitchIds::ConstructionSelectionCommand::GoodHelp, window);
+                Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0);
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag, 0);
+                Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, good);
+                BaseToolTextButton_SetToolTipString(element, tooltip);
+                Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::ImmediateTooltipFlag, 1);
                 BaseListBoxElement_Element_Add(list, nullptr, element);
             }
-            control.x -= 22; control.width = 20;
-            allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-            element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &control, 143, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(10), 10101, window);
-            Write(element, 0x48, entry.type); Write(element, 0x4C, entry.stage); Write<std::uint8_t>(element, 0x35, 1);
+            control.x -= 22;
+            control.width = 20;
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiGfxButton, 1);
+            element = allocation == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &control, 143, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(10), SwitchIds::ConstructionSelectionCommand::HouseHelp, window);
+            Write(element, NC2Layout::GuiGfxButtonOffset::MessageParameter1, entry.type);
+            Write(element, NC2Layout::GuiGfxButtonOffset::MessageParameter2, entry.stage);
+            Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
             BaseListBoxElement_Element_Add(list, nullptr, element);
             row.y += row.height + 2;
         }
         if (count == 0)
         {
-            const NXBasics::SRectangle empty(0, 0, Read<std::int32_t>(list, 0xC), 28);
-            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
+            const NXBasics::SRectangle empty(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 28);
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::GuiTextElement, 1);
             void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &empty, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(12), false, false);
             BaseListBoxElement_Element_Add(list, nullptr, element);
         }
         NXBasics::Runtime_Free(entries);
         NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_Set(list, 0, scroll);
-        Write<std::uint32_t>(window, 0x78, timeGetTime());
+        Write<std::uint32_t>(window, NC2Layout::ConstructionSelectionWindowOffset::LastRefreshTime, timeGetTime());
     }
 }
 
@@ -272,7 +300,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Toggle(std::uint32_t type, std::uint32_t item)
     {
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
-        auto* window = desktop->Message_SendToAllWindows(0x7DB, type, item, 0);
+        auto* window = desktop->Message_SendToAllWindows(SwitchIds::GuiWindowQuery::ConstructionSelectionWithItem, type, item, 0);
         if (window != nullptr) desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
         else MiscWindows_ConstructionSelectionWindow_Open(type, item);
     }
@@ -280,8 +308,8 @@ namespace NInGameGuiManager
     // Original function: FUN_004a24e6; this window does not close other large windows.
     void CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Open(std::uint32_t type, std::uint32_t item)
     {
-        if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7DB, type, item, 0) != nullptr) return;
-        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(936, 1);
+        if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(SwitchIds::GuiWindowQuery::ConstructionSelectionWithItem, type, item, 0) != nullptr) return;
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::ConstructionSelectionWindow, 1);
         void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::ConstructionSelectionWindow_Construct(allocation, type, item);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
@@ -290,17 +318,17 @@ namespace NInGameGuiManager
     void CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Close()
     {
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
-        auto* window = desktop->Message_SendToAllWindows(0x7DA, 0, 0, 0);
+        auto* window = desktop->Message_SendToAllWindows(SwitchIds::GuiWindowQuery::ConstructionSelection, 0, 0, 0);
         if (window != nullptr) desktop->Window_Close(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
     }
 
     // Original function: FUN_004a255a; sign-extend the Windows char parameter.
     bool CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_SendKey(std::uint32_t key, char character)
     {
-        void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7DA, 0, 0, 0);
+        void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(SwitchIds::GuiWindowQuery::ConstructionSelection, 0, 0, 0);
         if (window == nullptr) return false;
         using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
         auto* methods = NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable);
-        return methods[2](window, 0x800, 33331, key, static_cast<std::uint32_t>(static_cast<std::int32_t>(character)), 0);
+        return methods[NC2Runtime::GuiVirtualSlot::MessageHandle](window, SwitchIds::GuiWindowMessage::Command, SwitchIds::ConstructionSelectionCommand::NavigateByLetter, key, static_cast<std::uint32_t>(static_cast<std::int32_t>(character)), 0);
     }
 }

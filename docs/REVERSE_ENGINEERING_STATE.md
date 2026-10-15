@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Construction selection record continuation — 2026-10-15
+
+Completed the [construction selection records review](CONSTRUCTION_SELECTION_RECORDS_REVIEW.md): window state, cached engine/stage pairs, separate candidate allocation, player allowance flags, engine fields, commands, pages, timing and GUI object sizes. All 43 raw access operands in the owning source are named. Native query semantics, cache/display ordering, special-item filters, comparator ties, clock arithmetic, keyboard dispatch and close behavior are retained. **66 value/type comparisons, 27 physical assertions, a complete native vtable comparison and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 156,213 lines, 2,759 raw numeric-access operands, 74 heuristic unknown mentions, 988 long compound lines and 5,014 original-address annotations**. This block removes 43 candidates; cumulative reduction **2,668 / 5,427 (49.16%)**, thirty-three completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next: human needs (43 raw operands), then main-menu screens and desktop (42 each).
+
 ## House access record continuation — 2026-10-15
 
 Completed the [house access records review](HOUSE_ACCESS_RECORDS_REVIEW.md): engine logic-view fields, static stock definitions, whole/fraction/future/request/minimum stock strides, construction rows, attachments, family references and overlay limits. All 43 raw access operands in the owning source are named. Windows signed/unsigned checks, wrapping, base-ten fractions, delivery/attachment order and search/blocking behavior remain unchanged. **40 value/type comparisons, 33 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

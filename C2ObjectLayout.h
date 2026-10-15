@@ -938,6 +938,8 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto ConstructionSelectionWindow = 936;
+
         inline constexpr auto MapFishManager = 0x1774;
 
         inline constexpr auto SelectedHumanActionWindow = 120;
@@ -1712,6 +1714,12 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto ConstructionSelectionEntriesPerEngineUnsigned = 40u;
+
+        inline constexpr auto ConstructionSelectionWindowState = 824;
+
+        inline constexpr auto ConstructionSelectionHouseEntryUnsigned = 8u;
+
         inline constexpr auto HouseGoodStockIndexUnsigned = 4u;
 
         inline constexpr auto StaticHouseStockUnsigned = 12u;
@@ -5196,6 +5204,29 @@ namespace NC2Layout
     namespace EngineLandscapeLogicViewOffset
     {
         inline constexpr auto LogicType = 0;
+    }
+
+    namespace ConstructionSelectionWindowOffset
+    {
+        inline constexpr auto CachedHouseDevelopmentStagesUnsigned = 0x8Cu;
+
+        inline constexpr auto CachedHouseEngineTypesUnsigned = 0x88u;
+
+        inline constexpr auto CachedHouseDevelopmentStages = 0x8C;
+
+        inline constexpr auto CachedHouseEngineTypes = 0x88;
+
+        inline constexpr auto CachedHouseCount = 0x84;
+
+        inline constexpr auto LastRefreshTime = 0x78;
+
+        inline constexpr auto Page = 0x70;
+
+        inline constexpr auto HouseList = 0x74;
+
+        inline constexpr auto SpecialItem = 0x80;
+
+        inline constexpr auto SpecialItemType = 0x7C;
     }
 
 }

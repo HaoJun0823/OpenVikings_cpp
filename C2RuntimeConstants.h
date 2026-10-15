@@ -1064,4 +1064,24 @@ namespace NC2Runtime
         inline constexpr auto LandscapeCount = 10;
     }
 
+    namespace ConstructionSelectionLimits
+    {
+        inline constexpr auto Pages = 5;
+
+        inline constexpr auto RefreshIntervalMillisecondsUnsigned = 2000u;
+
+        inline constexpr auto CachedHouses = 100;
+    }
+
+    namespace ConstructionSelectionDimensions
+    {
+        inline constexpr auto Height = 420;
+
+        inline constexpr auto Width = 500;
+
+        inline constexpr auto HeightUnsigned = 420u;
+
+        inline constexpr auto WidthUnsigned = 500u;
+    }
+
 }

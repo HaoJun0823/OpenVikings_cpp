@@ -981,6 +981,12 @@ namespace SwitchIds
 
     namespace InputMode
     {
+        inline constexpr auto GateStart = 18;
+
+        inline constexpr auto WallStart = 16;
+
+        inline constexpr auto HousePlacement = 12;
+
         inline constexpr auto RoadStart = 14;
 
         inline constexpr auto VehicleAttackHuman = 24;
@@ -2499,6 +2505,10 @@ namespace SwitchIds
 
     namespace GuiWindowQuery
     {
+        inline constexpr auto ConstructionSelectionWithItem = 0x7DB;
+
+        inline constexpr auto ConstructionSelection = 0x7DA;
+
         inline constexpr auto HumanLearnJob = 2017;
 
         inline constexpr auto HumanChangeProducedGood = 2015;
@@ -2642,6 +2652,42 @@ namespace SwitchIds
         inline constexpr auto WaterUnsigned = 2u;
 
         inline constexpr auto Land = 1;
+    }
+
+    namespace ConstructionSelectionCommand
+    {
+        inline constexpr auto PageLimit = 10100;
+
+        inline constexpr auto NavigateByLetter = 33331;
+
+        inline constexpr auto GameSettings = 10300;
+
+        inline constexpr auto BuildGate = 10202;
+
+        inline constexpr auto BuildRoad = 10200;
+
+        inline constexpr auto GoodHelp = 10102;
+
+        inline constexpr auto HouseHelp = 10101;
+
+        inline constexpr auto SelectHouse = 10100;
+
+        inline constexpr auto FirstPage = 10000;
+
+        inline constexpr auto Refresh = 0x7EE;
+    }
+
+    namespace ConstructionSelectionPage
+    {
+        inline constexpr auto Military = 4;
+
+        inline constexpr auto Home = 3;
+
+        inline constexpr auto Stock = 2;
+
+        inline constexpr auto Work = 1;
+
+        inline constexpr auto All = 0;
     }
 
 }

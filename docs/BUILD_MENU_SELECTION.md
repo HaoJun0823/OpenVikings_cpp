@@ -1,5 +1,7 @@
 # Construction menu and building selection - 2026-10-10
 
+Current naming/layout follow-up: [2026-10-15 construction selection records review](CONSTRUCTION_SELECTION_RECORDS_REVIEW.md). Earlier completion notes below are historical; consult current source and PROJECT_STATE.md.
+
 The user clarified that the requested building list means the construction menu/building selection. BUILDING_LIST.md/.csv are a separate prior inventory; this checkpoint fixes the construction menu data dependency.
 
 ## Connected data loader
