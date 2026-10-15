@@ -247,6 +247,14 @@ namespace SwitchIds
 
     namespace CallbackType
     {
+        inline constexpr auto MapPointChangedUnsigned = 0x33u;
+
+        inline constexpr auto EndMapChangesUnsigned = 0x32u;
+
+        inline constexpr auto BeginMapChangesUnsigned = 0x31u;
+
+        inline constexpr auto GameTickUnsigned = 1u;
+
         inline constexpr auto PlayerWonOrLost = 0x30;
 
         inline constexpr auto PlayerDied = 0x2A;
@@ -2620,6 +2628,20 @@ namespace SwitchIds
     namespace GameMapType
     {
         inline constexpr auto Multiplayer = 4;
+    }
+
+    namespace LandscapeTransition
+    {
+        inline constexpr auto BioUpdate = 7;
+
+        inline constexpr auto Automatic = 13;
+    }
+
+    namespace ContinentType
+    {
+        inline constexpr auto WaterUnsigned = 2u;
+
+        inline constexpr auto Land = 1;
     }
 
 }

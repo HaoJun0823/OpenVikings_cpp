@@ -4,6 +4,16 @@
 
 namespace NC2Logic
 {
+    // Physical Windows timer entry used by the distinct regrow and auto-transition arrays.
+    struct SMapLandscapeTimerStorage
+    {
+        std::uint8_t allocated;
+        std::byte unclassified01[3];
+        std::uint32_t elapsedTicks, durationTicks;
+        std::int32_t engineLandscapeId;
+        std::int16_t x, y;
+    };
+
     class CMapBioRegrowManager : public CArrayHandler
     {
     public:

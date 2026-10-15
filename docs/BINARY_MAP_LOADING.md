@@ -1,5 +1,7 @@
 # Binary map loading and manager ownership
 
+Current naming/layout follow-up: [2026-10-15 map resource records review](MAP_RESOURCE_RECORDS_REVIEW.md). Completion notes below are historical; consult current source and PROJECT_STATE.md for later reconstruction work.
+
 Snapshot: 2026-10-03. Windows x86 instructions are the behavior reference; Mac symbols identify the corresponding functions and owners. This block adds 28 distinct address mappings and replaces three temporary bodies. Static verification only; no build, tests or game execution.
 
 ## Connected entry tree

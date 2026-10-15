@@ -556,7 +556,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00426a89. Shared by the transition and bio-regrow arrays.
-    static void MapBioRegrowManager_FreeAll(void* manager) { FreeAllocatedRecords(manager, 0x14); }
+    static void MapBioRegrowManager_FreeAll(void* manager) { FreeAllocatedRecords(manager, NC2Layout::RecordSize::LandscapeTimer); }
     // Original function: FUN_004269a0.
     static void MapBioRegrowManager_Destruct(void* manager)
     {

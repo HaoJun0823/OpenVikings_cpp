@@ -938,6 +938,8 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto MapFishManager = 0x1774;
+
         inline constexpr auto SelectedHumanActionWindow = 120;
 
         inline constexpr auto HumanChangeNameWindow = 148;
@@ -1710,6 +1712,18 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto FishSwarmCount = 4;
+
+        inline constexpr auto LegacyFishSwarms = 0x4B0;
+
+        inline constexpr auto PackedMapPoint = 4;
+
+        inline constexpr auto FishSwarmUnsigned = 12u;
+
+        inline constexpr auto LandscapeTimer = 0x14;
+
+        inline constexpr auto LandscapeTimerUnsigned = 20u;
+
         inline constexpr auto PlayerGoodsCounts = 136;
 
         inline constexpr auto PlayerGoodCountUnsigned = 2u;
@@ -5122,5 +5136,32 @@ namespace NC2Layout
         inline constexpr auto PlayerFlags = 4;
     }
 
+
+    namespace LandscapeTimerOffset
+    {
+        inline constexpr auto MapPositionY = 0x12;
+
+        inline constexpr auto MapPosition = 0x10;
+
+        inline constexpr auto EngineLandscapeId = 0x0C;
+
+        inline constexpr auto DurationTicks = 8;
+
+        inline constexpr auto ElapsedTicks = 4;
+
+        inline constexpr auto Allocated = 0;
+    }
+
+    namespace TrianglePatternTypeOffset
+    {
+        inline constexpr auto BioCanPlantOn = 3;
+
+        inline constexpr auto BioCanGrowOn = 2;
+    }
+
+    namespace EngineLandscapeLogicViewOffset
+    {
+        inline constexpr auto LogicType = 0;
+    }
 
 }

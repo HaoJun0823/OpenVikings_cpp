@@ -195,7 +195,7 @@ namespace NC2Logic
                 if (!MapMigPoint_IsInsideMap(&point)) return false;
                 const void* descriptions[6];
                 if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&point, descriptions)) return false;
-                for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], 2) == 0 || Read<std::uint8_t>(descriptions[triangle], 3) == 0) return false;
+                for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], NC2Layout::TrianglePatternTypeOffset::BioCanGrowOn) == 0 || Read<std::uint8_t>(descriptions[triangle], NC2Layout::TrianglePatternTypeOffset::BioCanPlantOn) == 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }

@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Map resource record continuation — 2026-10-15
+
+Completed the [map resource records review](MAP_RESOURCE_RECORDS_REVIEW.md): regrow/automatic-transition timer entries, pattern growth/planting flags, packed coordinates, fish limits/iterator modes, timing and serialization widths. All 44 raw accesses in the owning source are named; the map-area consumer removes another two. Windows allocation/lifetime, scan bounds, RNG, wrap, edge behavior and empty-swarm reuse remain intact. The broader static transition `unknown10` remains explicitly unresolved. **60 value/type comparisons, 29 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 155,915 lines, 2,845 raw numeric-access operands, 74 heuristic unknown mentions, 994 long compound lines and 5,014 original-address annotations**. This block removes 46 candidates; cumulative reduction **2,582 / 5,427 (47.58%)**, thirty-one completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning block: house access (43 raw operands), then construction selection and human needs (43 each).
+
 ## Multiplayer goal record continuation — 2026-10-15
 
 Completed the [multiplayer goal records review](MULTIPLAYER_GOAL_RECORDS_REVIEW.md): manager/result/goal payload layouts, goods-count storage, parser, mission triggers, callback registration, raw save/checksum spans and both goal displays. All 47 raw numeric accesses in the owning manager are named; connected consumers remove another 37. Windows signed comparisons, unchecked indices, stale payloads, all-slot evaluation and callback/removal order remain unchanged. **57 value/type comparisons, 33 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

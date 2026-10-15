@@ -240,6 +240,8 @@ namespace NC2Runtime
 
     namespace MapTerrainFlags
     {
+        inline constexpr auto BuildBlockedUnsigned = 1u;
+
         inline constexpr auto RoadBuildPending = 4;
         inline constexpr auto WallBuildPending = 8;
         inline constexpr auto WallBuildPendingUnsigned = 8u;
@@ -952,6 +954,81 @@ namespace NC2Runtime
     namespace MultiPlayerGoalSavegame
     {
         inline constexpr auto Version = 1;
+    }
+
+    namespace FishIteratorMode
+    {
+        inline constexpr auto WithinRadiusUnsigned = 2u;
+
+        inline constexpr auto PopulatedOnlyUnsigned = 1u;
+
+        inline constexpr auto PopulatedOnly = 1;
+    }
+
+    namespace MapResourceLimits
+    {
+        inline constexpr auto AutoTransitionEntries = 100;
+
+        inline constexpr auto RegrowEntries = 300;
+    }
+
+    namespace BioRegrowLimits
+    {
+        inline constexpr auto LandscapeSearchRadius = 5;
+
+        inline constexpr auto RoadClearanceRadius = 2;
+
+        inline constexpr auto MinimumMatchingLandscapes = 6;
+
+        inline constexpr auto Candidates = 20;
+
+        inline constexpr auto SearchRadius = 12;
+    }
+
+    namespace BioRegrowTiming
+    {
+        inline constexpr auto PartitionPercent = 5;
+
+        inline constexpr auto PartitionPercentUnsigned = 5u;
+
+        inline constexpr auto PartitionsPerAxisUnsigned = 20u;
+
+        inline constexpr auto PartitionCountUnsigned = 400u;
+
+        inline constexpr auto PartitionIntervalTicksUnsigned = 24u;
+
+        inline constexpr auto MinimumDelayTicksUnsigned = 3600u;
+
+        inline constexpr auto RandomDelayTicksUnsigned = 10800u;
+
+        inline constexpr auto SkippedChanceUnsigned = 10u;
+
+        inline constexpr auto ChanceDivisorUnsigned = 100u;
+    }
+
+    namespace FishSwarmLimits
+    {
+        inline constexpr auto ReproductionRadius = 16;
+
+        inline constexpr auto FishPerSwarm = 30;
+
+        inline constexpr auto FishPerSwarmUnsigned = 30u;
+
+        inline constexpr auto CapacityUnsigned = 500u;
+
+        inline constexpr auto Capacity = 500;
+
+        inline constexpr auto DistanceNotFound = 1000;
+    }
+
+    namespace FishSwarmTiming
+    {
+        inline constexpr auto ReproductionIntervalTicksUnsigned = 2160u;
+    }
+
+    namespace FishSwarmCallback
+    {
+        inline constexpr auto RegistrationTag = 0x65;
     }
 
 }
