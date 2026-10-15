@@ -138,7 +138,7 @@ namespace NC2MainMenuGuiManager
 				{
 					auto rectangle = content;
 					void* element = CreateButton(rectangle, 0, 1, 0x138B, owner, StringTool_GetMainMenuStringPtr);
-					Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0]));
+					Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, mStaticVars.singlePlayerDisabled);
 					add(element);
 					AdvanceRow(rectangle, 20); button(rectangle, 2, 3, 0x138C);
 					AdvanceRow(rectangle, 30); button(rectangle, 6, 7, 0x138D);
@@ -187,7 +187,7 @@ namespace NC2MainMenuGuiManager
 						if (currentScreen == 8)
 						{
 							for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
-								if (static_cast<std::uint8_t>(map->unknown384) == 0 && (map->mapTypes & 2) != 0 && map->campaignId == 100) mapButton(map, 0x1396);
+								if (map->hiddenFromSelection == 0 && (map->mapTypes & 2) != 0 && map->campaignId == 100) mapButton(map, 0x1396);
 						}
 						else
 						{
@@ -204,7 +204,7 @@ namespace NC2MainMenuGuiManager
 								}, false));
 								AdvanceRow(row, 2);
 								for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
-									if (static_cast<std::uint8_t>(map->unknown384) == 0 && (map->mapTypes & (1u << groups[group])) != 0 && (group < 2 || map->multiplayerOnly == 0)) mapButton(map, 0x1397);
+									if (map->hiddenFromSelection == 0 && (map->mapTypes & (1u << groups[group])) != 0 && (group < 2 || map->multiplayerOnly == 0)) mapButton(map, 0x1397);
 								if (group != 3) row.y = AddCoordinate(row.y, 10);
 							}
 						}
@@ -224,7 +224,7 @@ namespace NC2MainMenuGuiManager
 						NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
 						for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
 						{
-							if (static_cast<std::uint8_t>(map->unknown384) != 0 || (map->mapTypes & 2) == 0 || map->campaignId != 3 || map->campaignMapId == 0) continue;
+							if (map->hiddenFromSelection != 0 || (map->mapTypes & 2) == 0 || map->campaignId != 3 || map->campaignMapId == 0) continue;
 							if (!NC2Logic::gCampaignStaticDataManager->CampaignSubMission_IsAllowed(map->campaignId, map->campaignMapId)) continue;
 							const auto* position = cCampaignButtonPositions;
 							while (position->mission != 0 && position->mission != map->campaignMapId) ++position;
@@ -321,7 +321,7 @@ namespace NC2MainMenuGuiManager
 					heading(title, 0x4B);
 					auto rectangle = content;
 					void* element = CreateButton(rectangle, 0x4C, 0x4D, 0x13A3, owner, StringTool_GetMainMenuStringPtr);
-					Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0])); add(element);
+					Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, mStaticVars.singlePlayerDisabled); add(element);
 					AdvanceRow(rectangle, 10); button(rectangle, 0x4E, 0x4F, 0x13A4);
 					networkBack();
 					break;
@@ -400,7 +400,7 @@ namespace NC2MainMenuGuiManager
 								AdvanceRow(row, 2);
 								for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
 								{
-									if (static_cast<std::uint8_t>(map->unknown384) != 0 || (map->mapTypes != 0 && (map->mapTypes & (1u << type)) == 0)) continue;
+									if (map->hiddenFromSelection != 0 || (map->mapTypes != 0 && (map->mapTypes & (1u << type)) == 0)) continue;
 									char name[200]; map->Tool_GetMapName(name);
 									void* element = CreateSimpleButton(row, [&]
 									{

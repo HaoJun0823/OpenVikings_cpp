@@ -113,7 +113,7 @@ namespace NNetwork
 
 		for (std::uint32_t index = 0; index < array->count; ++index)
 		{
-			array->slots[index].used = 0;
+			array->slots[index].payloadByteCount = 0;
 			std::memset(array->slots[index].data, 0, 200);
 		}
 	}
@@ -350,7 +350,7 @@ namespace NNetwork
 						return S_OK;
 					}
 
-					EnterCriticalSection(&GetNetworkInstance()->criticalD4);
+					EnterCriticalSection(&GetNetworkInstance()->sessionSearchCriticalSection);
 
 					if (GetNetworkInstance()->sessions != nullptr)
 					{
@@ -365,8 +365,8 @@ namespace NNetwork
 						GetNetworkInstance()->sessions = nullptr;
 					}
 
-					LeaveCriticalSection(&GetNetworkInstance()->criticalD4);
-					DeleteCriticalSection(&GetNetworkInstance()->criticalD4);
+					LeaveCriticalSection(&GetNetworkInstance()->sessionSearchCriticalSection);
+					DeleteCriticalSection(&GetNetworkInstance()->sessionSearchCriticalSection);
 
 					GetNetworkInstance()->searchOperation = 0;
 					GetNetworkInstance()->flags &= ~0x04u;
@@ -379,14 +379,14 @@ namespace NNetwork
 					WriteNetworkLogLevel(3, "Remote host found", 0);
 					OutputDebugStringA("# DPN_MSGID_ENUM_HOSTS_RESPONSE - Remote host found\n");
 
-					EnterCriticalSection(&GetNetworkInstance()->criticalD4);
+					EnterCriticalSection(&GetNetworkInstance()->sessionSearchCriticalSection);
 
 					if (GetNetworkInstance()->sessions != nullptr)
 					{
 						UpdateSessionList(GetNetworkInstance()->sessions, static_cast<const DPNMSG_ENUM_HOSTS_RESPONSE*>(message));
 					}
 
-					LeaveCriticalSection(&GetNetworkInstance()->criticalD4);
+					LeaveCriticalSection(&GetNetworkInstance()->sessionSearchCriticalSection);
 
 					return S_OK;
 				}
@@ -428,15 +428,15 @@ namespace NNetwork
 									return S_OK;
 								}
 
-								EnterCriticalSection(&GetNetworkInstance()->critical74);
+								EnterCriticalSection(&GetNetworkInstance()->controlPacketCriticalSection);
 
-								if (GetNetworkInstance()->data48[1] != std::byte{ 0 })
+								if (GetNetworkInstance()->controlPacketReceiveState.awaitingPacket != 0)
 								{
-									GetNetworkInstance()->data48[1] = std::byte{ 0 };
-									std::memcpy(GetNetworkInstance()->data48 + 8, packet + 4, sizeof(std::uint32_t));
+									GetNetworkInstance()->controlPacketReceiveState.awaitingPacket = 0;
+									std::memcpy(&GetNetworkInstance()->controlPacketReceiveState.receivedValue, packet + 4, sizeof(std::uint32_t));
 								}
 
-								LeaveCriticalSection(&GetNetworkInstance()->critical74);
+								LeaveCriticalSection(&GetNetworkInstance()->controlPacketCriticalSection);
 
 								return S_OK;
 							}
@@ -585,7 +585,7 @@ namespace NNetwork
 		CloseNetworkLog(&log);
 
 		ClearEventQueue(&events28);
-		ClearEventQueue(&events18);
+		ClearEventQueue(&playerEvents);
 	}
 
 	// Original function: FUN_004dc438
@@ -617,41 +617,41 @@ namespace NNetwork
 			ReportDirectPlayError("CDPNet::Uninitialize(): IDirectPlay8Peer::Close", result);
 		}
 
-		EnterCriticalSection(&criticalEC);
+		EnterCriticalSection(&receivedMessagesCriticalSection);
 		ReleaseReceivedMessages(receivedMessages, receivedMessageCount);
-		LeaveCriticalSection(&criticalEC);
-		DeleteCriticalSection(&criticalEC);
+		LeaveCriticalSection(&receivedMessagesCriticalSection);
+		DeleteCriticalSection(&receivedMessagesCriticalSection);
 
-		EnterCriticalSection(&critical74);
-		std::memset(data48, 0, sizeof(data48));
-		LeaveCriticalSection(&critical74);
-		DeleteCriticalSection(&critical74);
+		EnterCriticalSection(&controlPacketCriticalSection);
+		std::memset(&controlPacketReceiveState, 0, sizeof(controlPacketReceiveState));
+		LeaveCriticalSection(&controlPacketCriticalSection);
+		DeleteCriticalSection(&controlPacketCriticalSection);
 
-		EnterCriticalSection(&critical8C);
-		std::memset(data58, 0, sizeof(data58));
-		LeaveCriticalSection(&critical8C);
-		DeleteCriticalSection(&critical8C);
+		EnterCriticalSection(&sendStatisticsCriticalSection);
+		std::memset(sendStatisticsStorage, 0, sizeof(sendStatisticsStorage));
+		LeaveCriticalSection(&sendStatisticsCriticalSection);
+		DeleteCriticalSection(&sendStatisticsCriticalSection);
 
-		EnterCriticalSection(&criticalA4);
-		ClearEventQueue(&events18);
-		LeaveCriticalSection(&criticalA4);
-		DeleteCriticalSection(&criticalA4);
+		EnterCriticalSection(&playerEventsCriticalSection);
+		ClearEventQueue(&playerEvents);
+		LeaveCriticalSection(&playerEventsCriticalSection);
+		DeleteCriticalSection(&playerEventsCriticalSection);
 
 		EnterCriticalSection(&criticalBC);
 		ClearEventQueue(&events28);
 		LeaveCriticalSection(&criticalBC);
 		DeleteCriticalSection(&criticalBC);
 
-		if (interface6C != nullptr)
+		if (hostAddress != nullptr)
 		{
-			interface6C->Release();
-			interface6C = nullptr;
+			hostAddress->Release();
+			hostAddress = nullptr;
 		}
 
-		if (interface70 != nullptr)
+		if (deviceAddress != nullptr)
 		{
-			interface70->Release();
-			interface70 = nullptr;
+			deviceAddress->Release();
+			deviceAddress = nullptr;
 		}
 
 		if (peer != nullptr)
@@ -720,7 +720,7 @@ namespace NNetwork
 	// Original function: FUN_004dd888
 	void CDPNet::SaveReceivedMessage(const DPNMSG_RECEIVE* message)
 	{
-		EnterCriticalSection(&criticalEC);
+		EnterCriticalSection(&receivedMessagesCriticalSection);
 
 		if (receivedMessageCount == 0x40u)
 		{
@@ -741,7 +741,7 @@ namespace NNetwork
 		receivedMessages[receivedMessageCount].bufferHandle = message->hBufferHandle;
 		++receivedMessageCount;
 
-		LeaveCriticalSection(&criticalEC);
+		LeaveCriticalSection(&receivedMessagesCriticalSection);
 	}
 
 	// Original function: FUN_004dd9fe
@@ -766,27 +766,27 @@ namespace NNetwork
 	// Original function: FUN_004dda6f
 	void CDPNet::GetSendStatistics(std::uint32_t* statistics)
 	{
-		EnterCriticalSection(&critical8C);
+		EnterCriticalSection(&sendStatisticsCriticalSection);
 
 		if (statistics != nullptr)
 		{
-			std::memcpy(statistics, data58, 16);
+			std::memcpy(statistics, sendStatisticsStorage, 16);
 		}
 
-		LeaveCriticalSection(&critical8C);
+		LeaveCriticalSection(&sendStatisticsCriticalSection);
 	}
 
 	// Original function: FUN_004ddaa5
 	void CDPNet::SetSendStatistics(const std::uint32_t* statistics)
 	{
-		EnterCriticalSection(&critical8C);
+		EnterCriticalSection(&sendStatisticsCriticalSection);
 
 		if (statistics != nullptr)
 		{
-			std::memcpy(data58, statistics, 16);
+			std::memcpy(sendStatisticsStorage, statistics, 16);
 		}
 
-		LeaveCriticalSection(&critical8C);
+		LeaveCriticalSection(&sendStatisticsCriticalSection);
 	}
 
 	// Original function: FUN_004E0FFD.
@@ -794,7 +794,7 @@ namespace NNetwork
 	{
 		++gDynamicSlotArrayConstructionCount;
 		array->revision = 0;
-		array->unknown00 = 0;
+		array->slotAllocationCount = 0;
 		array->networkTick = 0;
 		array->count = 0;
 		array->slots = nullptr;
@@ -818,24 +818,24 @@ namespace NNetwork
 
 		for (std::uint32_t index = 0; index < 3; ++index)
 		{
-			ConstructDynamicSlotArray(&data->arrays[index]);
+			ConstructDynamicSlotArray(&data->commandBuffers[index]);
 		}
 
 		data->active = 0;
 		data->networkTick = 0;
-		data->allocation10 = nullptr;
-		data->allocation28 = nullptr;
-		data->receivedRecordCount = 0;
+		data->playerInfoRecords = nullptr;
+		data->receivedChatRecords = nullptr;
+		data->receivedChatRecordCount = 0;
 		data->pendingDataMessageCount = 0;
-		data->allocation30 = nullptr;
+		data->pendingDataMessages = nullptr;
 		data->waitStartTick = 0;
 		data->unknown7C = 0;
 
 		// Original allocation: FUN_004e5ddd -> FUN_004e860e(size, 1).
-		data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(66304u, 1);
+		data->pendingDataMessages = NXBasics::Runtime_AllocateWithNewHandler(66304u, 1);
 
 		// Preserve the original unconditional initialization after allocation.
-		std::memset(data->allocation30, 0, 66304u);
+		std::memset(data->pendingDataMessages, 0, 66304u);
 
 		return data;
 	}
@@ -848,7 +848,7 @@ namespace NNetwork
 		// Original destructors: FUN_004e1016 -> FUN_004e10fb.
 		for (std::uint32_t index = 3; index != 0; --index)
 		{
-			DestroyDynamicSlotArray(&data->arrays[index - 1]);
+			DestroyDynamicSlotArray(&data->commandBuffers[index - 1]);
 		}
 
 		// Original destructor: FUN_004db49b -> FUN_004db528.
@@ -865,27 +865,27 @@ namespace NNetwork
 
 		ClearEventQueue(&data->events);
 
-		if (data->allocation10 != nullptr)
+		if (data->playerInfoRecords != nullptr)
 		{
-			NXBasics::Runtime_Free(data->allocation10);
-			data->allocation10 = nullptr;
+			NXBasics::Runtime_Free(data->playerInfoRecords);
+			data->playerInfoRecords = nullptr;
 		}
 
-		if (data->allocation28 != nullptr)
+		if (data->receivedChatRecords != nullptr)
 		{
-			NXBasics::Runtime_Free(data->allocation28);
-			data->allocation28 = nullptr;
+			NXBasics::Runtime_Free(data->receivedChatRecords);
+			data->receivedChatRecords = nullptr;
 		}
 
-		if (data->allocation30 != nullptr)
+		if (data->pendingDataMessages != nullptr)
 		{
-			NXBasics::Runtime_Free(data->allocation30);
-			data->allocation30 = nullptr;
+			NXBasics::Runtime_Free(data->pendingDataMessages);
+			data->pendingDataMessages = nullptr;
 		}
 
-		ReleaseDynamicSlots(&data->arrays[0]);
-		ReleaseDynamicSlots(&data->arrays[1]);
-		ReleaseDynamicSlots(&data->arrays[2]);
+		ReleaseDynamicSlots(&data->commandBuffers[0]);
+		ReleaseDynamicSlots(&data->commandBuffers[1]);
+		ReleaseDynamicSlots(&data->commandBuffers[2]);
 	}
 
 }

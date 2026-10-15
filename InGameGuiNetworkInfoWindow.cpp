@@ -342,7 +342,7 @@ namespace NC2InGameGuiMiscWindows
 			}
 			return;
 		}
-		const auto* players = static_cast<const NNetwork::SPlayerInfo*>(gDynamicNetworkData.allocation10);
+		const auto* players = static_cast<const NNetwork::SPlayerInfo*>(gDynamicNetworkData.playerInfoRecords);
 		auto* network = GetNetworkInstance();
 		std::int32_t y = 60;
 		for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)

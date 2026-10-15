@@ -86,13 +86,24 @@ namespace NXBaseGui
 	private:
 		NXBasics::SRectangle mRectangle;        // +0x000
 		NXBasics::CBitmap* mDisplayBitmap;      // +0x010
-		std::byte mListStorage0014[240];       // +0x014; twelve GUI lists, each 0x14 bytes.
+		std::byte mBackgroundElementDrawListStorage[20]; // +0x014
+		std::byte mBackgroundElementHitTestListStorage[20]; // +0x028
+		std::byte mOverlayElementDrawListStorage[20]; // +0x03C
+		std::byte mOverlayElementHitTestListStorage[20]; // +0x050
+		std::byte mWindowOrderListStorage[20]; // +0x064
+		std::byte mWindowMessageListStorage[20]; // +0x078
+		std::byte mWindowDrawListStorage[20]; // +0x08C
+		std::byte mWindowHitTestListStorage[20]; // +0x0A0
+		std::byte mOverlayWindowOrderListStorage[20]; // +0x0B4
+		std::byte mOverlayWindowMessageListStorage[20]; // +0x0C8
+		std::byte mOverlayWindowDrawListStorage[20]; // +0x0DC
+		std::byte mOverlayWindowHitTestListStorage[20]; // +0x0F0
 		CBaseElement* mActiveElement;           // +0x104
 		CBaseElement* mMouseOverElement;        // +0x108
 		CBaseElement* mKeyboardTargetRoot;             // +0x10C; root selected by element flag 0x04.
 		CBaseElement* mPrimaryMessageHandler;   // +0x110
 		void* mFallbackMessageHandler;                 // +0x114; owned fallback element for unhandled messages.
-		std::byte mWindowListStorage0118[20]; // +0x118; window list.
+		std::byte mWindowCloseListStorage[20]; // +0x118; deferred window-close list.
 		std::uint8_t mLeftButtonDown;          // +0x12C
 		std::uint8_t mRightButtonDown;         // +0x12D
 		std::byte mUnclassified012E[2];

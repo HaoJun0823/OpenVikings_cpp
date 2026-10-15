@@ -1,5 +1,41 @@
 # Unknown member review — 2026-10-15
 
+## Full source inventory pass: 38 further field names
+
+The project-wide pass revisits all 133 previously listed unknown declarations and additionally scans offset-style field names that were not part of that lexical count. **38 further semantic fields are named in 15 production files**, bringing the [field/evidence inventory](RECOVERED_MEMBER_FIELDS.csv) to **95 fields**. Original Windows assembly and `Game.exe` determine all roles, offsets, widths and operations; the Mac header is used only for matching class/API names. These are descriptive Windows-derived member names, not claims of recovered original member spellings.
+
+| Block | Fields named | Windows evidence and retained behavior |
+| --- | ---: | --- |
+| Player statistics | 5 | `0041ADAF` copies births, human/soldier deaths, wealth and happiness into +114/+118/+11C/+130/+134. `00440B92` reads the two contiguous selector groups; byte-copy DWORD reads retain every original selector address without indexing across distinct C++ scalar members. |
+| Network records, ownership and locks | 18 | Player-info allocation, received chat rows/count, pending data buffer, three command buffers, player events, send statistics, host/device COM address pointers, five corresponding critical sections, command payload byte count, slot-allocation count and the two identified control-packet receive fields. Pointer types, allocation/free families, queue transfer order, COM releases and locking remain unchanged. |
+| Desktop GUI lists | 13 | Twelve 20-byte draw/hit-test/message/order list storage areas and the deferred-close list are named. Native construction order, reverse destruction, insertion order and layer traversal remain unchanged; byte storage avoids introducing extra C++ list constructors. |
+| Main-menu static byte | 1 | `005694D8` disables single-player buttons: written at `004D6C5B`, read at `004D3B7B` and `004D5161`. Three adjacent bytes remain unclassified. |
+| Map-selection byte | 1 | Map-info +384 hides rows in campaign, single-player and network selection. Native checks include `004D4177`, `004D4269`, `004D4357`, `004D4451`, `004D45EF`, `004D4D8C`, `004D58DC` and `004D59E0`; the original setter/reason for hiding remains unresolved. |
+
+The slot counter is named from its confirmed lifecycle: `004E0FFD` initializes it to zero and `004E1122` increments it on fresh slot allocation. No additional reader or original design intent is claimed. The control receive record identifies byte +49 as tested/cleared pending state and DWORD +50 as the received packet-kind-6 value; the original pending-state writer and value domain remain unresolved. The associated lock protects these operations. All other bytes in that previously vague 16-byte block remain explicit unknown spans.
+
+### Remaining evidence limits
+
+The [current member inventory](UNKNOWN_MEMBER_INVENTORY.csv) and [per-member triage](UNKNOWN_MEMBER_TRIAGE.csv) cover **134 explicit unknown declarations in 56 files: 97 one-to-three-byte regions and 37 larger/other regions**. Two complete unknown fields are resolved (map-selection flag and allocation counter); the menu byte partially classifies one region; exposing three residual spans in the formerly vague control receive block changes the lexical count **133 → 134**. This does not introduce new runtime state. The separately matched 182 existing padding/reserved declarations are unchanged. These counts describe the search pattern, not every semantically opaque byte in the game.
+
+The source pass inspected every registered C++ file/header for the remaining identifiers and their surrounding owners. Source spelling references are only navigation aids: repeated names such as `unknown004` or `unresolved04` can belong to different owners, and raw/named-offset aliases are not proved absent by identifier search. The triage retains these limits explicitly. Larger remaining regions include guide state, AI tails, the player vehicle-allowance gap, chunk-header words, serialized bob state, statistics tails and unused portions of goal/control records. Shape, zero initialization or bulk I/O alone does not establish a member's original meaning, nor prove padding or lack of use. The earlier twelve unresolved numeric sites remain unresolved separately.
+
+Additional vague labels intentionally retained outside the explicit-unknown counter:
+
+| Label | Established facts; unresolved part |
+| --- | --- |
+| `SFileTransferNode::path24`, `SFileTransferInfo::path24` | Owned optional string, copied and freed by transfer snapshots/cleanup. Its actual domain is unproved; it is not renamed to an invented file path or error message. |
+| `CDPNet::events28`, `CDPNet::criticalBC` | Second initialized/cleared event queue and the lock protecting it. Its separate event role is not established. |
+| `CFont::mSerializedData[8]` | Two serialized words retained by font I/O; the glyph metric consumers do not identify them. The storage already has an accurate I/O-role name. |
+
+Meaningful numeric names such as RGB555/RGB565 and message parameter 1/2 are retained. No speculative `availableVehicles[42][7]`, extra trader buttons, vtable fields or padding labels are introduced to force a zero-unknown count.
+
+### Validation of this pass
+
+Frozen replacement replay validates every production edit, and existing user edits remain preserved. **61 private compile-time assertions and 23 added production assertions pass**, including member offsets/widths, complete object sizes and all five grouped-statistic selector addresses. **5,545 inspected native instruction byte prefixes match `Game.exe`**; byte-prefix matching is supplementary evidence, not a whole-program instruction-boundary or alias proof. Win32 `/Zs` checks pass for twelve implementation units plus the private assertion unit; existing DirectPlay `INTERFACE` macro warnings remain. No Debug/Release build, tests or game execution was performed.
+
+The numerical heuristic now reports **122 raw operands: twelve unresolved and 110 established index/selector/relative/I/O/dereference cases**. The increase from 120 consists only of the two verified grouped-statistic reads introduced when replacing opaque arrays with named scalar counters. This is naming/layout progress, not a gameplay reconstruction percentage.
+
 ## Follow-up: map callback state and vague members
 
 Six further fields recover **41 of the former 44 unknown map-tail bytes**: changed-area bounds for walking directions, maximum moveable size, continents, resistance and landscape validation, plus the continent-update flag. Windows callbacks `00450E8C`, `00450C1D`, `004513C1`, `004511C5` and `00424AE9` identify the roles and signed 16-bit min-X/min-Y/max-X/max-Y accesses. The one byte at +FF9 and two bytes at +100A remain unclassified. The documentary layout does not merge the existing callback globals or change their initialization/lifetime.

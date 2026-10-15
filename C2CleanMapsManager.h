@@ -22,7 +22,7 @@ namespace NC2Logic
 		std::uint32_t campaignMapId;             // +0x128
 		char mapName[200];                       // +0x12C
 		char description[400];                  // +0x1F4
-		std::byte unknown384;                   // +0x384
+		std::uint8_t hiddenFromSelection;                   // +0x384
 		std::uint8_t userMap;                    // +0x385
 		char archiveFilename[260];              // +0x386
 		std::uint8_t multiplayerOnly;            // +0x48A
@@ -31,6 +31,8 @@ namespace NC2Logic
 		void Tool_GetMapName(char* destination) const;
 		const char* Tool_GetMapDescriptionPtr() const;
 	};
+
+	static_assert(offsetof(SCleanMapInfoData, hiddenFromSelection) == 0x384);
 
 	class CCleanMapInfoList final : public NXBasics::CListBase
 	{

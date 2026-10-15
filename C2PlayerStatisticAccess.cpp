@@ -50,8 +50,8 @@ namespace NC2Logic
 		if (type >= 16 && type <= 81) return goods[type - 16];
 		if (type >= 0 && type <= 14) return Read<std::uint16_t>(this, static_cast<std::uint32_t>(type) * NC2Layout::RecordSize::StatisticCountUnsigned);
 		if (type == 15) return static_cast<std::int32_t>(goodTotal);
-		if (type >= 82 && type <= 84) return static_cast<std::int32_t>(values114[type - 82]);
-		if (type >= 85 && type <= 86) return static_cast<std::int32_t>(values130[type - 85]);
+		if (type >= 82 && type <= 84) return static_cast<std::int32_t>(Read<std::uint32_t>(this, offsetof(SPlayerStatisticSampleData, babiesBorn) + static_cast<std::uint32_t>(type - 82) * sizeof(std::uint32_t)));
+		if (type >= 85 && type <= 86) return static_cast<std::int32_t>(Read<std::uint32_t>(this, offsetof(SPlayerStatisticSampleData, wealth) + static_cast<std::uint32_t>(type - 85) * sizeof(std::uint32_t)));
 		return 0;
 	}
 	// Original function: FUN_00440af8.
@@ -177,11 +177,11 @@ namespace NC2Logic
 		Tool_PlayerStatistics_CountHouses(player, sample->houses);
 		Tool_PlayerStatistics_CountGoods(player, &sample->goodTotal);
 		const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-		sample->values114[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::BabiesBorn);
-		sample->values114[1] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HumansDied);
-		sample->values114[2] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::SoldiersDied);
-		sample->values130[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Wealth);
-		sample->values130[1] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HappinessValue);
+		sample->babiesBorn = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::BabiesBorn);
+		sample->humansDied = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HumansDied);
+		sample->soldiersDied = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::SoldiersDied);
+		sample->wealth = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Wealth);
+		sample->happiness = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HappinessValue);
 	}
 	// Original function: FUN_0041ad6f.
 	void PlayerStatisticManager_CreateStatistics(void* manager)

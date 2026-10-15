@@ -54,6 +54,8 @@ GuiTextToolElementAccess.cpp,122,element,0x2C,unresolved,Text element +0x2C is c
 GuiTextToolElementAccess.cpp,260,reinterpret_cast<void*>(param2),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 GuiTextToolElementAccess.cpp,261,reinterpret_cast<void*>(param3),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 GuiTextToolElementAccess.cpp,262,reinterpret_cast<void*>(param4),0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
+C2PlayerStatisticAccess.cpp,53,this,"offsetof(SPlayerStatisticSampleData, babiesBorn) + static_cast<std::uint32_t>(type - 82) * sizeof(std::uint32_t)",known-relative-field,"Windows statistic-selector groups 82..84 and 85..86 index the named DWORD counters; offsets, widths and every selector address are asserted."
+C2PlayerStatisticAccess.cpp,54,this,"offsetof(SPlayerStatisticSampleData, wealth) + static_cast<std::uint32_t>(type - 85) * sizeof(std::uint32_t)",known-relative-field,"Windows statistic-selector groups 82..84 and 85..86 index the named DWORD counters; offsets, widths and every selector address are asserted."
 MainMenuWorldDisplayElement.cpp,214,&param1,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 MainMenuWorldDisplayElement.cpp,214,&param2,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.
 MainMenuWorldDisplayElement.cpp,214,&param3,0,pointer-dereference,Reads/writes the value at the supplied pixel or message-parameter address.

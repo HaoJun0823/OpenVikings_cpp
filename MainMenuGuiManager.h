@@ -47,14 +47,15 @@ namespace NC2MainMenuGuiManager
 		std::uint8_t desktopUpdateFlag;         // Original address: 005694c0
 		std::byte padding11[3];
 		SMenuGraphicResources resources;
-		std::byte unknown005694d8[4];
+		std::uint8_t singlePlayerDisabled;      // Original address: 005694D8
+		std::byte unclassified29[3];
 	};
 
 	static_assert(sizeof(SMenuGraphicResources) == 20);
 	static_assert(offsetof(SGuiManagerStaticVars, displayHeight) == 0x08);
 	static_assert(offsetof(SGuiManagerStaticVars, desktopUpdateFlag) == 0x10);
 	static_assert(offsetof(SGuiManagerStaticVars, resources) == 0x14);
-	static_assert(offsetof(SGuiManagerStaticVars, unknown005694d8) == 0x28);
+	static_assert(offsetof(SGuiManagerStaticVars, singlePlayerDisabled) == 0x28);
 	static_assert(sizeof(SGuiManagerStaticVars) == 44);
 
 	// Physical Windows network/lobby records. Runtime access and ownership remain unchanged.

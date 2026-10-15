@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Project-wide member naming pass — 2026-10-15
+
+[The full inventory pass](UNKNOWN_MEMBER_REVIEW.md) names **38 further semantic fields in 15 production files**, bringing the [Windows-backed field inventory](RECOVERED_MEMBER_FIELDS.csv) to **95 fields**. Statistics, desktop lists, network ownership/locks/buffers, allocation lifecycle and menu/map visibility bytes are covered. [All 134 remaining explicit unknown declarations](UNKNOWN_MEMBER_INVENTORY.csv) have [triage entries](UNKNOWN_MEMBER_TRIAGE.csv): 97 small byte regions and 37 larger/other regions. The lexical count 133 → 134 reflects two resolved fields and three newly exposed residual spans in formerly vague storage. Four further vague string/queue labels and the serialized font words remain documented. 61 private and 23 added production assertions, twelve implementation-unit Win32 syntax checks plus the assertion unit, and native evidence checks pass. Numeric scan: 122 operands / 12 unresolved; two added operands are verified statistic indexing. No build/tests/game run; independent user edits are preserved. Older checkpoints retain historical counts.
+
 ## Unknown member follow-up — 2026-10-15
 
 [Further field naming](UNKNOWN_MEMBER_REVIEW.md) identifies six map-change fields / 41 formerly unknown bytes and three vague savegame/desktop members, bringing the recovered-field inventory to **57 fields**. Two residual map-tail gaps stay explicit; splitting one large unknown span into two makes the declaration count **132 → 133**, without introducing new unknown behavior. 20 private and nine added production assertions, five implementation-unit Win32 syntax checks plus the assertion unit, and native evidence checks pass. No build/tests/game run. Independent user changes are preserved. Earlier counts describe their historical checkpoints.

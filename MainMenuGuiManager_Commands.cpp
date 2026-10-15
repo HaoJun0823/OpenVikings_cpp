@@ -466,7 +466,7 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
 		case SwitchIds::MainMenuCommand::InternetLobby: break;
 		case SwitchIds::MainMenuCommand::ShowCredits: changeScreen(SwitchIds::MainMenuScreen::Credits); break;
 		case SwitchIds::MainMenuCommand::MainMenuAfterCdCheck: if (MainMenu_HasGameCD()) changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
-		case SwitchIds::MainMenuCommand::DisableSinglePlayer: CGuiManager::mStaticVars.unknown005694d8[0] = std::byte{ 1 }; changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
+		case SwitchIds::MainMenuCommand::DisableSinglePlayer: CGuiManager::mStaticVars.singlePlayerDisabled = 1; changeScreen(SwitchIds::MainMenuScreen::MainMenu); break;
 		case SwitchIds::MainMenuCommand::ShowMapList: changeScreen(SwitchIds::MainMenuScreen::MapList); break;
 		case SwitchIds::MainMenuCommand::ShowCampaignMap: changeScreen(SwitchIds::MainMenuScreen::CampaignMap); break;
 		case SwitchIds::MainMenuCommand::ShowTutorialMapList: changeScreen(SwitchIds::MainMenuScreen::TutorialMapList); break;

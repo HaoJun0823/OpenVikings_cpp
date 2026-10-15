@@ -127,14 +127,14 @@ namespace NNetwork
 	struct SDynamicSlot
 	{
 		std::uint32_t playerId;                    // +0x00
-		std::uint8_t used;                         // +0x04: message length; zero means missing
+		std::uint8_t payloadByteCount;                         // +0x04: message length; zero means missing
 		std::byte data[200];                       // +0x05
 		std::byte unknownCD[3];
 	};
 
 	struct SDynamicSlotArray
 	{
-		std::uint32_t unknown00;                   // +0x00
+		std::uint32_t slotAllocationCount;         // +0x00; incremented when slot storage is first allocated.
 		std::uint32_t revision;                    // +0x04
 		std::uint32_t count;                       // +0x08
 		std::uint32_t networkTick;                 // +0x0C
@@ -163,19 +163,19 @@ namespace NNetwork
 		std::uint32_t networkTick;                 // +0x04
 		std::uint32_t waitStartTick;               // +0x08; timeGetTime-based timeout reference.
 		DWORD playerCount;                         // +0x0C
-		void* allocation10;                        // +0x10
+		void* playerInfoRecords;                        // +0x10
 		SEventQueue events;                        // +0x14
-		std::uint32_t receivedRecordCount;         // +0x24
-		void* allocation28;                        // +0x28
+		std::uint32_t receivedChatRecordCount;         // +0x24
+		void* receivedChatRecords;                        // +0x28
 		std::uint32_t pendingDataMessageCount;     // +0x2C
-		void* allocation30;                        // +0x30
-		SDynamicSlotArray arrays[3];               // +0x34, +0x48, +0x5C
+		void* pendingDataMessages;                        // +0x30
+		SDynamicSlotArray commandBuffers[3];               // +0x34, +0x48, +0x5C
 		std::uint32_t commandBufferIndices[3];     // +0x70
 		std::uint32_t unknown7C;                   // +0x7C
 	};
 
 	static_assert(sizeof(SDynamicNetworkData) == 128);
-	static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
+	static_assert(offsetof(SDynamicNetworkData, receivedChatRecordCount) == 0x24);
 	static_assert(offsetof(SDynamicNetworkData, commandBufferIndices) == 0x70);
 	static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
 
@@ -288,6 +288,20 @@ namespace NNetwork
 	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesReceivedGuaranteed) == 0x48);
 	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesReceivedNonGuaranteed) == 0x50);
 
+	// Identified members of the packet-kind-6 receive state at CDPNet +0x48.
+	// The value domain and the original writer of awaitingPacket remain unresolved.
+	struct SControlPacketReceiveStateStorage
+	{
+		std::byte unclassified00;
+		std::uint8_t awaitingPacket;
+		std::byte unclassified02[6];
+		std::uint32_t receivedValue;
+		std::byte unclassified0C[4];
+	};
+	static_assert(sizeof(SControlPacketReceiveStateStorage) == 16);
+	static_assert(offsetof(SControlPacketReceiveStateStorage, awaitingPacket) == 1);
+	static_assert(offsetof(SControlPacketReceiveStateStorage, receivedValue) == 8);
+
 	class CDPNet
 	{
 	public:
@@ -382,23 +396,23 @@ namespace NNetwork
 		STimerPrefix* searchTimer;                 // +0x00C
 		SSessionList* sessions;                    // +0x010
 		DWORD initializationTick;                  // +0x014
-		SEventQueue events18;                      // +0x018
+		SEventQueue playerEvents;                      // +0x018
 		SEventQueue events28;                      // +0x028
 		std::uint32_t receivedMessageCount;        // +0x038
 		SReceivedMessage* receivedMessages;        // +0x03C
 		DPNHANDLE searchOperation;                 // +0x040
 		void* callbackContext;                     // +0x044
-		std::byte data48[16];                    // +0x048
-		std::byte data58[16];                    // +0x058
+		SControlPacketReceiveStateStorage controlPacketReceiveState;                    // +0x048
+		std::byte sendStatisticsStorage[16];                    // +0x058
 		IDirectPlay8Peer* peer;                    // +0x068
-		IUnknown* interface6C;                     // +0x06C
-		IUnknown* interface70;                     // +0x070
-		CRITICAL_SECTION critical74;               // +0x074
-		CRITICAL_SECTION critical8C;               // +0x08C
-		CRITICAL_SECTION criticalA4;               // +0x0A4
+		IUnknown* hostAddress;                     // +0x06C
+		IUnknown* deviceAddress;                     // +0x070
+		CRITICAL_SECTION controlPacketCriticalSection;               // +0x074
+		CRITICAL_SECTION sendStatisticsCriticalSection;               // +0x08C
+		CRITICAL_SECTION playerEventsCriticalSection;               // +0x0A4
 		CRITICAL_SECTION criticalBC;               // +0x0BC
-		CRITICAL_SECTION criticalD4;               // +0x0D4
-		CRITICAL_SECTION criticalEC;               // +0x0EC
+		CRITICAL_SECTION sessionSearchCriticalSection;               // +0x0D4
+		CRITICAL_SECTION receivedMessagesCriticalSection;               // +0x0EC
 		SNetLog log;                               // +0x104
 	};
 
@@ -433,21 +447,23 @@ namespace NNetwork
 	static_assert(offsetof(STimerPrefix, thread) == 0x04);
 	static_assert(sizeof(SDynamicSlot) == 208);
 	static_assert(sizeof(SDynamicSlotArray) == 20);
+	static_assert(offsetof(SDynamicSlotArray, slotAllocationCount) == 0);
 	static_assert(offsetof(SDynamicNetworkData, events) == 0x14);
-	static_assert(offsetof(SDynamicNetworkData, allocation28) == 0x28);
-	static_assert(offsetof(SDynamicNetworkData, arrays) == 0x34);
+	static_assert(offsetof(SDynamicNetworkData, receivedChatRecords) == 0x28);
+	static_assert(offsetof(SDynamicNetworkData, commandBuffers) == 0x34);
 
 	static_assert(offsetof(CDPNet, allowConnections) == 0x008);
 	static_assert(offsetof(CDPNet, playerInfoChanged) == 0x009);
-	static_assert(offsetof(CDPNet, events18) == 0x18);
+	static_assert(offsetof(CDPNet, playerEvents) == 0x18);
 	static_assert(offsetof(CDPNet, receivedMessages) == 0x3C);
+	static_assert(offsetof(CDPNet, controlPacketReceiveState) == 0x48);
 	static_assert(offsetof(CDPNet, peer) == 0x68);
-	static_assert(offsetof(CDPNet, critical74) == 0x74);
-	static_assert(offsetof(CDPNet, critical8C) == 0x8C);
-	static_assert(offsetof(CDPNet, criticalA4) == 0xA4);
+	static_assert(offsetof(CDPNet, controlPacketCriticalSection) == 0x74);
+	static_assert(offsetof(CDPNet, sendStatisticsCriticalSection) == 0x8C);
+	static_assert(offsetof(CDPNet, playerEventsCriticalSection) == 0xA4);
 	static_assert(offsetof(CDPNet, criticalBC) == 0xBC);
-	static_assert(offsetof(CDPNet, criticalD4) == 0xD4);
-	static_assert(offsetof(CDPNet, criticalEC) == 0xEC);
+	static_assert(offsetof(CDPNet, sessionSearchCriticalSection) == 0xD4);
+	static_assert(offsetof(CDPNet, receivedMessagesCriticalSection) == 0xEC);
 	static_assert(offsetof(CDPNet, log) == 0x104);
 	static_assert(sizeof(CDPNet) == 552);
 }

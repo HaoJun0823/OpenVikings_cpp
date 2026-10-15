@@ -875,7 +875,7 @@ namespace NC2MainMenuGuiManager
 		{
 			NNetwork::UpdateDynamicNetwork(&gDynamicNetworkData, false);
 
-			if (gDynamicNetworkData.receivedRecordCount != 0)
+			if (gDynamicNetworkData.receivedChatRecordCount != 0)
 			{
 				void* chatBuffer = nullptr;
 				std::uint32_t chatCount = 0;

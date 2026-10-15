@@ -86,6 +86,19 @@ namespace NXBaseGui
 		static_assert(std::is_standard_layout_v<CDesktop>);
 		static_assert(offsetof(CDesktop, mRectangle) == 0);
 		static_assert(offsetof(CDesktop, mDisplayBitmap) == 0x010);
+		static_assert(offsetof(CDesktop, mBackgroundElementDrawListStorage) == 0x14);
+		static_assert(offsetof(CDesktop, mBackgroundElementHitTestListStorage) == 0x28);
+		static_assert(offsetof(CDesktop, mOverlayElementDrawListStorage) == 0x3C);
+		static_assert(offsetof(CDesktop, mOverlayElementHitTestListStorage) == 0x50);
+		static_assert(offsetof(CDesktop, mWindowOrderListStorage) == 0x64);
+		static_assert(offsetof(CDesktop, mWindowMessageListStorage) == 0x78);
+		static_assert(offsetof(CDesktop, mWindowDrawListStorage) == 0x8C);
+		static_assert(offsetof(CDesktop, mWindowHitTestListStorage) == 0xA0);
+		static_assert(offsetof(CDesktop, mOverlayWindowOrderListStorage) == 0xB4);
+		static_assert(offsetof(CDesktop, mOverlayWindowMessageListStorage) == 0xC8);
+		static_assert(offsetof(CDesktop, mOverlayWindowDrawListStorage) == 0xDC);
+		static_assert(offsetof(CDesktop, mOverlayWindowHitTestListStorage) == 0xF0);
+		static_assert(offsetof(CDesktop, mWindowCloseListStorage) == 0x118);
 		static_assert(offsetof(CDesktop, mActiveElement) == 0x104);
 		static_assert(offsetof(CDesktop, mMouseOverElement) == 0x108);
 		static_assert(offsetof(CDesktop, mKeyboardTargetRoot) == 0x10C);
@@ -209,7 +222,7 @@ namespace NXBaseGui
 	void CDesktop::Window_AddToCloseList(CBaseWindow* window)
 	{
 		if (window == nullptr) return;
-		auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowListStorage0118));
+		auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowCloseListStorage));
 		NXBasics::CListBase::Iterator iterator(*list);
 		for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
 			if (entry == window) return;
@@ -567,7 +580,7 @@ namespace NXBaseGui
 	// Original function: FUN_00477859; close processing consumes the list tail.
 	void CDesktop::l_WindowCloseList_Do()
 	{
-		auto& closeList = *std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowListStorage0118));
+		auto& closeList = *std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowCloseListStorage));
 		while (auto* window = static_cast<CBaseWindow*>(closeList.l_Base_RemoveFromEnd())) Window_Close(window);
 	}
 	using namespace NC2Lifetime;

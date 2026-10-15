@@ -160,7 +160,7 @@ namespace NMasterControlProgram
 	{
 		if (gDynamicNetworkData.active != 0)
 		{
-			if (gDynamicNetworkData.receivedRecordCount > 0)
+			if (gDynamicNetworkData.receivedChatRecordCount > 0)
 			{
 				void* receivedBuffer = nullptr;
 				std::uint32_t receivedRecordCount = 0;

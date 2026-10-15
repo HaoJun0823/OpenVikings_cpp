@@ -44,7 +44,7 @@ namespace NC2Logic
 	// Original function: FUN_0040B183; query only nonzero, non-local player IDs.
 	std::uint32_t GameTime_Network_GetHighestPlayerLatency()
 	{
-		const auto* players = static_cast<const std::byte*>(gDynamicNetworkData.allocation10);
+		const auto* players = static_cast<const std::byte*>(gDynamicNetworkData.playerInfoRecords);
 		auto* network = GetNetworkInstance();
 		std::uint32_t maximum = 0;
 		for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)
