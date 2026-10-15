@@ -45,7 +45,7 @@ namespace NXBasics
 		const auto imageBytes = static_cast<std::uint32_t>(rowBytes) * static_cast<std::uint32_t>(height);
 		Write(info, NC2Layout::BitmapInfoHeaderOffset::ImageSize, imageBytes);
 		std::byte header[14]{ };
-		Write<std::uint16_t>(header, 0, 0x4D42); Write(header, 2, imageBytes + 54u); Write<std::uint32_t>(header, 10, 54);
+		Write<std::uint16_t>(header, NC2Layout::BitmapFileHeaderOffset::Signature, 0x4D42); Write(header, NC2Layout::BitmapFileHeaderOffset::FileSize, imageBytes + 54u); Write<std::uint32_t>(header, NC2Layout::BitmapFileHeaderOffset::PixelDataOffset, 54);
 		if (mFile != nullptr)
 		{
 			mFile->Delete(1); mFile = nullptr;

@@ -54,7 +54,7 @@ namespace NC2Logic
 	void AIVillagesData_Init(void* villages, std::uint32_t player, const void* point)
 	{
 		Write<std::uint32_t>(villages, NC2Layout::AIVillagesOffset::NextVillageId, 0);
-		for (std::uint32_t i = 0; i < 8; ++i) Write<std::uint8_t>(villages, i * NC2Layout::RecordSize::AIVillageSlot + 8, 0);
+		for (std::uint32_t i = 0; i < 8; ++i) Write<std::uint8_t>(villages, i * NC2Layout::RecordSize::AIVillageSlot + NC2Layout::AIVillageSlotViewOffset::Active, 0);
 		AIVillagesData_l_Village_Add(villages, 3, 0, player, point, 50);
 		CHouseIterator iterator;
 		for (auto id = iterator.GetFirstSectorHouseId(player, point, 10000, false); id != -1; id = iterator.GetNextSectorHouseId())
@@ -141,7 +141,7 @@ namespace NC2Logic
 			if (!AIResourceManager_GetResourcePosition(resources, good, &point)) return 0;
 			for (;;)
 			{
-				const auto player = Read<std::uint32_t>(AIVillagesData_GetVillageDataById(villages, 0), 8);
+				const auto player = Read<std::uint32_t>(AIVillagesData_GetVillageDataById(villages, 0), NC2Layout::AIVillageOffset::PlayerId);
 				if (!AI_IsEnemyObjectAround(player, &point, 25)) break;
 				std::uint32_t area[2] = { point, 50 };
 				AIInvalidAreaManager_AddArea(invalidAreas, area);
@@ -224,7 +224,7 @@ namespace NC2Logic
 				House_GetHouseTypeDataPtr(house);
 				for (std::uint32_t slot = 0; slot < 20; ++slot)
 				{
-					if (Read<std::uint8_t>(House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot), 0) == 0) continue;
+					if (Read<std::uint8_t>(House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot), NC2Layout::HouseAttachmentOffset::RoleMask) == 0) continue;
 					auto* human = House_Inhabitants_GetAttachedHumanPtr(house, slot);
 					if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != job) continue;
 					std::uint32_t target[3] = { 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) };
@@ -269,11 +269,11 @@ namespace NC2Logic
 		bool supplied = true;
 		for (std::uint32_t level = 0; level < stage + 1; ++level)
 			for (std::uint32_t i = 0; i < Read<std::uint32_t>(definition, NC2Layout::EngineHouseLogicViewOffset::ConstructionGoods + level * NC2Layout::RecordSize::HouseConstructionGoodList); ++i)
-				if (!AIGoodManager_IsProducingGood(goods, Read<std::uint32_t>(definition, NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * 4), true)) supplied = false;
+				if (!AIGoodManager_IsProducingGood(goods, Read<std::uint32_t>(definition, NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * NC2Layout::RecordSize::HouseStageValue), true)) supplied = false;
 		if (!collecting && !supplied) return -1;
 		void* sourceHouse = nullptr;
 		const auto outputLogic = Read<std::uint32_t>(data, NC2Layout::AIResourceGoodViewOffset::HouseType);
-		if (Read<std::uint32_t>(resources, (outputLogic + 0x55) * 24) != 0)
+		if (Read<std::uint32_t>(resources, NC2Layout::AIResourceManagerOffset::HouseExports + outputLogic * NC2Layout::RecordSize::AIHouseExport) != 0)
 			for (auto id = iterator.GetFirstSectorHouseId(player, center, radius, false); id != -1; id = iterator.GetNextSectorHouseId())
 			{
 				auto* house = House(id);
@@ -309,7 +309,7 @@ namespace NC2Logic
 	{
 		std::int32_t best = -1;
 		std::uint32_t distance = 10000;
-		const auto player = Read<std::uint32_t>(handler, 0);
+		const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId);
 		const auto* single = Read<void*>(gAIManager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer);
 		CHumanIterator iterator;
 		for (auto id = iterator.GetFirstSectorHumanId(player, false); id != -1; id = iterator.GetNextSectorHumanId())
@@ -343,7 +343,7 @@ namespace NC2Logic
 		{
 			if (Read<std::uint32_t>(resources, NC2Layout::AIResourceManagerOffset::GoodRequirements + good * NC2Layout::RecordSize::AIResourceGood) != 1) continue;
 			std::uint32_t point = 0;
-			if (!AIVillageManager_Good_GetWorkCenterPoint(village, good, &point) && Read<std::uint32_t>(village, 0x280 + good * 40) != 0) AIGoodManager_ImportThisGoodType(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, good);
+			if (!AIVillageManager_Good_GetWorkCenterPoint(village, good, &point) && Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::FirstGoodNeedCount + good * NC2Layout::RecordSize::AIGood) != 0) AIGoodManager_ImportThisGoodType(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, good);
 		}
 		AIGoodManager_DoOneLogicGameTick(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, village, resources);
 	}
@@ -432,7 +432,7 @@ namespace NC2Logic
 				const auto* data = House_GetHouseTypeDataPtr(house);
 				for (std::uint32_t slot = 0; slot < 20; ++slot)
 				{
-					const auto flags = Read<std::uint8_t>(House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot), 0);
+					const auto flags = Read<std::uint8_t>(House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot), NC2Layout::HouseAttachmentOffset::RoleMask);
 					if (flags == 0 && House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(data->homeSize))
 					{
 						void* best = nullptr; std::uint32_t distance = 10000; CHumanIterator humans;
@@ -497,8 +497,8 @@ namespace NC2Logic
 				if (engine == -1) continue;
 				const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engine); bool goods = true;
 				for (std::uint32_t level = 0; level < stage + 1; ++level)
-					for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0x48 + level * 64); ++i)
-						if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, Read<std::uint32_t>(data, 0x4C + level * 64 + i * 4), true)) goods = false;
+					for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ConstructionGoodCounts + level * NC2Layout::RecordSize::HouseConstructionGoodList); ++i)
+						if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * NC2Layout::RecordSize::HouseStageValue), true)) goods = false;
 				if (!goods) break;
 				bestEngine = engine; bestStage = stage; bestType = type;
 			}

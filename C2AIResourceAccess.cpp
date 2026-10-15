@@ -212,7 +212,7 @@ namespace NC2Logic
 		Write(search, NC2Layout::AIResourceSearchOffset::ResourcePoints, entries); Write<std::uint32_t>(search, NC2Layout::AIResourceSearchOffset::BestPoint, 0); Write(search, NC2Layout::AIResourceSearchOffset::Villages, villages); Write(search, NC2Layout::AIResourceSearchOffset::ResourceIndex, index);
 		Write<std::uint32_t>(search, NC2Layout::AIResourceSearchOffset::ContinentId, Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(villages) + NC2Layout::AIVillagesOffset::FirstVillageCenter), NC2Layout::MapMicroPointOffset::ContinentId));
 		Write<std::int32_t>(search, NC2Layout::AIResourceSearchOffset::BestVillageId, -1); Write<std::int32_t>(search, NC2Layout::AIResourceSearchOffset::BestScore, 10000);
-		Write(search, NC2Layout::AIResourceSearchOffset::PlayerId, Read<std::uint32_t>(AIVillagesData_GetConstVillageDataById(villages, 0), 8));
+		Write(search, NC2Layout::AIResourceSearchOffset::PlayerId, Read<std::uint32_t>(AIVillagesData_GetConstVillageDataById(villages, 0), NC2Layout::AIVillageOffset::PlayerId));
 		return search;
 	}
 

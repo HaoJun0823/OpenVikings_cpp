@@ -70,7 +70,7 @@ namespace NC2Logic
 				const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(target, NC2Layout::MapCoordinatePairOffset::Y)));
 				if (distance <= maximum) continue;
 				maximum = distance;
-				Write(result, 0, point);
+				Write(result, NC2Layout::MapCoordinatePairOffset::Coordinates, point);
 			}
 		return maximum != 0;
 	}
@@ -126,7 +126,7 @@ namespace NC2Logic
 				if (!Animal_l_IsLeaderValid(animal) || Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::CurrentTask) != 4)
 				{
 					Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0);
-					for (std::uint32_t index = 0; index < 3; ++index) Write(animal, NC2Layout::AnimalOffset::MilitaryTargetUnsigned + index * 4u, attacker[index]);
+					for (std::uint32_t index = 0; index < 3; ++index) Write(animal, NC2Layout::AnimalOffset::MilitaryTargetUnsigned + index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned, attacker[index]);
 					Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8);
 				}
 			}

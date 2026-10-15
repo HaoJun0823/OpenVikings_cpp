@@ -132,7 +132,7 @@ namespace NC2E2
 		auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(2164, 1));
 		if (allocation != nullptr)
 		{
-			Write<std::uint32_t>(allocation, 0, 30);
+			Write<std::uint32_t>(allocation, NC2Layout::ObjectArrayCookieOffset::ElementCount, 30);
 			for (std::uint32_t index = 0; index < 30; ++index) std::memset(allocation + 4 + index * NC2Layout::RecordSize::StaticParticleUnsigned + 0x34, 0, 12);
 			gStaticParticelStorage.entries = allocation + 4;
 		}
@@ -154,7 +154,7 @@ namespace NC2E2
 	{
 		for (auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount) - 1u); index >= 0; --index)
 		{
-			void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), static_cast<std::uint32_t>(index) * 4u);
+			void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::ParticleFrameIdUnsigned);
 			if (Read<std::uint32_t>(entry, NC2Layout::ParticleFramesOffset::MinimumValency) <= valency) return entry;
 		}
 		return nullptr;

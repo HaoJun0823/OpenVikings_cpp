@@ -438,7 +438,7 @@ namespace NC2InGameGuiBaseListBox
 	static bool __fastcall Controller_Message(void* element, void*, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t, std::uint32_t)
 	{
 		if (message != 1 && message != 0x80) return false;
-		if (Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) == 0) return true;
+		if (Read<std::uint8_t>(CDesktop::sTheObjectPtr, NC2Layout::GuiDesktopOffset::LeftButtonDownFlag) == 0) return true;
 		std::int32_t point[2] = { NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2) };
 		NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
 		const auto inset = Read<std::int32_t>(element, NC2Layout::ListBoxControllerOffset::Inset);
@@ -511,7 +511,7 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
 			}
 			void* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
 			void* heading = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption, false, false);
-			if (specialHeadings) Write<std::uint8_t>(heading, 0xFD, 1);
+			if (specialHeadings) Write<std::uint8_t>(heading, NC2Layout::GuiTextElementOffset::DarkFontFlag, 1);
 			BaseListBoxElement_Element_Add(list, nullptr, heading);
 			rectangle.y = Add(Add(rectangle.y, rectangle.height), 2);
 		}

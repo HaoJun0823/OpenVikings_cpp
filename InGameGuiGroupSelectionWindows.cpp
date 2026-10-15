@@ -98,7 +98,7 @@ namespace NC2InGameGuiSelection
 		const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 300, 160, 300); BaseToolWindow_Construct(window, &area); Write<std::uint8_t>(window, 0x70, 0); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMultipleVehiclesWindowVirtualTable.data());
 		const SRectangle child(4, 20, 152, 262); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(260, 1); if (memory != nullptr)
 		{
-			NXBaseGui::BaseElement_Construct(memory, &child, 3, 0x20); std::memset(static_cast<std::byte*>(memory) + 0x2C, 0, 216); Write(memory, 0, gMultipleVehiclesElementVirtualTable.data()); Write<std::int32_t>(memory, 0x2C, -1); Write<std::uint32_t>(memory, 0xF8, 10000); Write<std::uint32_t>(memory, 0xFC, 10001); Write(memory, 0x100, window);
+			NXBaseGui::BaseElement_Construct(memory, &child, 3, 0x20); std::memset(static_cast<std::byte*>(memory) + 0x2C, 0, 216); Write(memory, NC2Layout::GuiBaseElementOffset::VirtualTable, gMultipleVehiclesElementVirtualTable.data()); Write<std::int32_t>(memory, NC2Layout::GroupSelectionElementOffset::HoveredObjectId, -1); Write<std::uint32_t>(memory, NC2Layout::GroupSelectionElementOffset::PressedCommand, 10000); Write<std::uint32_t>(memory, NC2Layout::GroupSelectionElementOffset::ActionCommand, 10001); Write(memory, NC2Layout::GroupSelectionElementOffset::Receiver, window);
 		} NXBaseGui::BaseWindow_Element_Add(window, memory);
 		if (NC2Logic::gGameStaticVars.networkGame == 0)
 		{
@@ -240,7 +240,7 @@ namespace NC2InGameGuiSelection
 			{
 				const auto x = point[0] + 24, width = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - x - 4; auto y = point[1] - 30; DrawStatusBar(element, bitmap, x, y, width, health, 34, 11, current, maximum, true); y += 11; if (!NC2Logic::Human_IsAgeAdult(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 1u) != 0) continue; const auto food = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, NC2Layout::HumanOffset::Food) * 100u) / 10000, stamina = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, NC2Layout::HumanOffset::Stamina) * 100u) / 10000; DrawStatusBar(element, bitmap, x, y, width, food, 38, 12, 0, 0, false); y += 11; DrawStatusBar(element, bitmap, x, y, width, stamina, 35, 13, 0, 0, false);
 			}
-			else NXBasics::BobManager_PrintBob(Read<void*>(NC2E2::gE2StaticDataBobManagersManager, 0x18), 21 - health / 10, bitmap, point[0], point[1] - 40, NC2E2::EnginePalette_GetPlayerPalette(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)));
+			else NXBasics::BobManager_PrintBob(Read<void*>(NC2E2::gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), 21 - health / 10, bitmap, point[0], point[1] - 40, NC2E2::EnginePalette_GetPlayerPalette(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)));
 		}
 	}
 	// Original function: FUN_004bf73f; native hit testing returns true even when no human slot matched.

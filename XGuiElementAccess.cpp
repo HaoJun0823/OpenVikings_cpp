@@ -163,7 +163,7 @@ namespace NXBaseGui
 	void BaseElement_MouseEnteredArea(void* element)
 	{
 		Write<std::uint8_t>(element, NC2Layout::GuiBaseElementOffset::FlagsByte1, Read<std::uint8_t>(element, NC2Layout::GuiBaseElementOffset::FlagsByte1) | 1u);
-		if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) != 0 && Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState) == 1) Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 2);
+		if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, NC2Layout::GuiDesktopOffset::LeftButtonDownFlag) != 0 && Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState) == 1) Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 2);
 	}
 	// Original function: FUN_00478a3b.
 	bool BaseElement_CanBeActivated(const void* element)
@@ -179,8 +179,8 @@ namespace NXBaseGui
 	// Original function: FUN_00478a65; unsigned subtraction preserves x86 wraparound.
 	void __fastcall BaseElement_ParentToLocalPosition(void* element, void*, std::int32_t* point)
 	{
-		Write(point, 0, Read<std::uint32_t>(point, 0) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX));
-		Write(point, 4, Read<std::uint32_t>(point, 4) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY));
+		Write(point, NC2Layout::PixelPointOffset::X, Read<std::uint32_t>(point, NC2Layout::PixelPointOffset::X) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX));
+		Write(point, NC2Layout::PixelPointOffset::Y, Read<std::uint32_t>(point, NC2Layout::PixelPointOffset::Y) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY));
 	}
 
 	// Original function: FUN_00478ad8.

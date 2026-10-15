@@ -116,10 +116,10 @@ namespace NC2Logic
 		// Original function: FUN_00428ae7.
 		void C2AIHighLevelHandler_Init(void* handler, std::uint32_t player, bool enabled)
 		{
-			Write(handler, 0, player);
+			Write(handler, NC2Layout::AISinglePlayerOffset::PlayerId, player);
 			Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::Enabled, enabled);
 			AIGuideManager_Init(static_cast<std::byte*>(handler) + NC2Layout::AIHighLevelOffset::GuideManager);
-			Write<std::uint8_t>(handler, 0x1A, 1);
+			Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::InitializationPending, 1);
 		}
 
 		// Original function: FUN_004294cf.

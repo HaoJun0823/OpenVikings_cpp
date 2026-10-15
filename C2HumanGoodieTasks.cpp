@@ -34,7 +34,7 @@ namespace NC2Logic
 	// Original function: FUN_0042cb60; the listening permission differs from ListenNow.
 	bool Human_IsAbleToListen(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x35u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::ListenAllowedUnsigned) != 0;
 	}
 
 	// Original function: FUN_00444b79; carrying a good leaves task state unchanged.
@@ -192,7 +192,7 @@ namespace NC2Logic
 	bool Human_IsAbleToListenNow(const void* human)
 	{
 		const auto task = Read<std::int32_t>(human, NC2Layout::HumanOffset::CurrentTask);
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x33u) != 0 && (task == 1 || (task >= 24 && task <= 29));
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::ListenNowAllowedUnsigned) != 0 && (task == 1 || (task >= 24 && task <= 29));
 	}
 
 	// Original function: FUN_0042c98b.
@@ -408,10 +408,10 @@ namespace NC2Logic
 		{
 			if (Human_UserControl_GetLastCommandType(human) == 11)
 			{
-				const auto task = Read<std::int32_t>(human, 0x39Cu + Read<std::uint32_t>(human, NC2Layout::HumanOffset::LastUserCommandIndex) * 20u);
+				const auto task = Read<std::int32_t>(human, NC2Layout::HumanOffset::FirstUserCommandParameter1Unsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::LastUserCommandIndex) * NC2Layout::RecordSize::UserNetworkCommand);
 				Write<std::int32_t>(human, NC2Layout::HumanOffset::CurrentTask, task >= 24 && task <= 29 ? task : 24);
 			}
-			Write<std::uint8_t>(human, 0x444, 0);
+			Write<std::uint8_t>(human, NC2Layout::HumanOffset::QueuedGoodieCommand, 0);
 		}
 		if (Human_IsAgeBaby(human)) Human_l_StartTask_Goodie_Helper_Baby(human);
 		else if (Human_IsAgeChild(human)) Human_l_StartTask_Goodie_Helper_Child(human);
@@ -544,7 +544,7 @@ namespace NC2Logic
 	{
 		if (const void* animal = Human_FindAnimalForPlaying(human))
 		{
-			const void* point = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0x0C) * NC2Layout::RecordSize::MapMoveable + 0x12;
+			const void* point = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12;
 			if (Human_l_StartAtomicWalk(human, point, point))
 			{
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 29);

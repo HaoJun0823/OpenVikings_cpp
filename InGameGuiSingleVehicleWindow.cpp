@@ -144,7 +144,7 @@ namespace NC2InGameGuiSelection
 	// Original function: FUN_004ab4bf.
 	int __cdecl lsSortGoodsCompareFunction(const void* first, const void* second)
 	{
-		return StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, 0), 1), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, 0), 1));
+		return StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, NC2Layout::MapCoordinatePairOffset::Coordinates), 1), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, NC2Layout::MapCoordinatePairOffset::Coordinates), 1));
 	}
 	// Original function: FUN_004ab4eb; stable descending signed amounts, then ascending names.
 	static void l_SubTabs_StockVehicleGoods_GetMostStockGoods(void*, SSelectionVehicleWindowMostStockGoodsData* output)
@@ -178,18 +178,18 @@ namespace NC2InGameGuiSelection
 		for (std::uint32_t page = 0; page < 7; ++page)
 		{
 			std::uint32_t index = 0;
-			for (const auto good : gStockPages[page]) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good]) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::VehicleWindowValue, good);
+			for (const auto good : gStockPages[page]) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good]) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index++) * NC2Layout::RecordSize::VehicleWindowValue, good);
 		}
 		for (std::uint32_t good = 1; good <= 55; ++good) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good])
 		{
 			bool found = false;
-			for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue) == good)
+			for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::VehicleWindowValue) == good)
 			{
 				found = true;
 				break;
-			} if (!found) for (std::uint32_t index = 0; index < 14; ++index) if (!Read<std::uint32_t>(window, 0x26C + index * 4))
+			} if (!found) for (std::uint32_t index = 0; index < 14; ++index) if (!Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::GoodId))
 			{
-				Write(window, 0x26C + index * 4, good);
+				Write(window, NC2Layout::SingleVehicleWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::GoodId, good);
 				break;
 			}
 		}
@@ -201,7 +201,7 @@ namespace NC2InGameGuiSelection
 		{
 			auto* data = static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::StockGoods + page * 56;
 			std::uint32_t count = 0;
-			for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(data, index * 4)) ++count;
+			for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(data, index * NC2Layout::RecordSize::GoodId)) ++count;
 			if (count > 1) NXBasics::Runtime_QuickSort(data, count, 4, &lsSortGoodsCompareFunction);
 		}
 	}
@@ -230,7 +230,7 @@ namespace NC2InGameGuiSelection
 		hide(NC2Layout::SingleVehicleWindowOffset::SecondRouteRemoveButton);
 		BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::RouteLabels), HumanString(112));
 		BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::SecondRouteLabel), HumanString(113));
-		Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton), 0x56, 1);
+		Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton), NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
 		auto* vehicle = l_Misc_GetSelectedVehiclePtr();
 		if (vehicle == nullptr) return;
 		auto* merchant = Merchant(vehicle);
@@ -240,7 +240,7 @@ namespace NC2InGameGuiSelection
 		{
 			const auto* data = NC2Logic::MerchantData_GetHouseDataPtr(merchant, index);
 			if (!NC2Logic::MerchantHouseData_IsValid(data)) continue;
-			const auto* house = House(Read<std::int32_t>(data, 0));
+			const auto* house = House(Read<std::int32_t>(data, NC2Layout::MerchantHouseOffset::HouseId));
 			BaseToolTextElement_SetCaptionString(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::RouteLabels + row * NC2Layout::RecordSize::VehicleRouteControls), NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1));
 			for (auto offset : { NC2Layout::SingleVehicleWindowOffset::RouteSelectButtonsUnsigned,NC2Layout::SingleVehicleWindowOffset::RouteRemoveButtonsUnsigned })
 			{
@@ -250,7 +250,7 @@ namespace NC2InGameGuiSelection
 				show(offset + row * 16);
 				if (offset == NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons) hide(NC2Layout::SingleVehicleWindowOffset::RouteAssignButtons + row * NC2Layout::RecordSize::VehicleRouteControls);
 			} if (++row == 2) break;
-		} Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton), 0x56, row < 2);
+		} Write<std::uint8_t>(Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton), NC2Layout::GuiTextButtonOffset::DisabledFlag, row < 2);
 	}
 	static void* AddGraphic(void* window, const SRectangle& area, std::uint32_t graphic, const char* tooltip, std::uint32_t command)
 	{
@@ -647,7 +647,7 @@ namespace NC2InGameGuiSelection
 		const auto slots = NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots;
 		for (std::uint32_t index = 0; index < 14; ++index)
 		{
-			const auto good = Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockPage) * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue);
+			const auto good = Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockPage) * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::VehicleWindowValue);
 			if (!good) break;
 			if (!NC2Logic::Vehicle_Stock_CanStoreGoodType(vehicle, good)) continue;
 			const auto amount = NC2Logic::Vehicle_Stock_GetAmountOfGoods(vehicle, good);

@@ -41,13 +41,13 @@ namespace NC2Logic
 	// Original function: FUN_0042cb08.
 	bool Human_IsAbleToTalk(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x32u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::TalkAllowedUnsigned) != 0;
 	}
 
 	// Original function: FUN_0042cb4c.
 	bool Human_IsAbleToPray(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x30u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::PrayAllowedUnsigned) != 0;
 	}
 
 	// Original function: FUN_0042cf0f.
@@ -59,7 +59,7 @@ namespace NC2Logic
 	// Original function: FUN_0042cbf7.
 	bool Human_IsAbleToEatCandy(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x2Fu) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::EatCandyAllowedUnsigned) != 0;
 	}
 
 	// Original function: FUN_0042d24e; retain the lookup even though Windows
@@ -122,7 +122,7 @@ namespace NC2Logic
 	void Human_UserMessage_SendToUserMessage(void* human, std::uint32_t type)
 	{
 		if (type == 11 && (Human_GetPlayerType(human) == 2 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 || !Human_IsAgeAdult(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)) return;
-		if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) return;
+		if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouseUnsigned) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) return;
 		std::byte message[772];
 		ToUserMessage_Construct(message);
 		Write(message, NC2Layout::ToUserMessageOffset::Type, type);
@@ -352,7 +352,7 @@ namespace NC2Logic
 			case SwitchIds::HumanNeed::Religion: repeat = Read<std::int32_t>(human, NC2Layout::HumanOffset::Religion) <= 2000 && Human_IsJobNeedingReligion(human); message = 0x1F; break;
 			default: break;
 		}
-		if (need == 1) Write<std::uint32_t>(human, 0xA64, 0);
+		if (need == 1) Write<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals, 0);
 		if (repeat) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
 		else if (message != 0) NC2LogicExternals::External_Misc_RemoveUserMessage(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), message);
 		if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 2) return;
@@ -746,8 +746,8 @@ namespace NC2Logic
 			if (((job == 1 || job == 2) && age > 1440) || ((job == 3 || job == 4) && age > 2880))
 			{
 				const bool becameAdult = job >= 3;
-				Write<std::uint8_t>(human, job == 1 || job == 3 ? 0x15D : 0x15E, 0);
-				Write<std::uint8_t>(human, job == 1 || job == 3 ? 0x15F : 0x160, becameAdult ? 0 : 1);
+				Write<std::uint8_t>(human, job == 1 || job == 3 ? NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::BabyFemale : NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::BabyMale, 0);
+				Write<std::uint8_t>(human, job == 1 || job == 3 ? NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::ChildFemale : NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::ChildMale, becameAdult ? 0 : 1);
 				Human_SetJobType(human, job + 2u);
 				CCallbackManager::sTheObjectPtr->ExecuteCallback(4, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 1);
 				if (becameAdult)

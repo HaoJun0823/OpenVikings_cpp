@@ -309,8 +309,8 @@ namespace NC2InGameGuiMiscWindows
 				char name[200];
 				GameControl_Misc_GetPlayerName(gGameControl, player, true, name);
 				bitmap->Text_PrintV(large, White(), 4, y, name);
-				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, 0x4A1C));
-				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, 0x4A18) - Read<std::uint32_t>(control, 0x4A1C));
+				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::SoldiersDied));
+				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::HumansDied) - Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::SoldiersDied));
 				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 340, y, "%d", Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::SoldiersKilled));
 				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 390, y, "%d", Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::CiviliansKilled));
 				NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 440, y, "%d", Read<std::uint32_t>(control, NC2Layout::GameControlPlayerOffset::HousesDestroyed));
@@ -405,7 +405,7 @@ namespace NC2InGameGuiMiscWindows
 			y += 6;
 		}
 		bitmap->Text_PrintV(font, White(), 4, 384, "%s: %d", Text(120), gGameTime.tick / 12u);
-		bitmap->Text_PrintV(font, White(), 4, 400, "%s: %d", Text(121), Read<std::uint32_t>(gUserNetworkCommandManager, 0x960) / 12u);
+		bitmap->Text_PrintV(font, White(), 4, 400, "%s: %d", Text(121), Read<std::uint32_t>(gUserNetworkCommandManager, NC2Layout::UserNetworkCommandManagerOffset::LastVerifiedTick) / 12u);
 	}
 }
 

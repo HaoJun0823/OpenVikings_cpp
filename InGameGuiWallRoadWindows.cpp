@@ -41,7 +41,7 @@ namespace NC2InGameGuiSelection
 			if (message == 0x1000) return command == 2001;
 			if (message != 0x800) return false;
 			if (command == 10100 && data != nullptr)
-				NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(Read<void*>(manager, 4), 0x30), static_cast<const std::uint32_t*>(data));
+				NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement), NC2Layout::WorldGuiElementOffset::Display), static_cast<const std::uint32_t*>(data));
 			else if (command == 10101 && data != nullptr)
 			{
 				std::byte packet[20]{ };
@@ -79,7 +79,7 @@ namespace NC2InGameGuiSelection
 			if (message == 0x1000) return command == 2001;
 			if (message != 0x800) return false;
 			if (command == 10100 && data != nullptr)
-				NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(Read<void*>(manager, 4), 0x30), static_cast<const std::uint32_t*>(data));
+				NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement), NC2Layout::WorldGuiElementOffset::Display), static_cast<const std::uint32_t*>(data));
 			else if (command == 10101 && data != nullptr)
 			{
 				std::byte packet[20]{ };

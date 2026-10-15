@@ -60,7 +60,7 @@ namespace NC2E2
 			const auto* entries = micro ? EngineMicro() : EngineMacro();
 			for (std::uint32_t i = 0; i < count; ++i)
 			{
-				if (words) Write<std::uint16_t>(scratch, i * 2u, Read<std::uint16_t>(entries, i * stride + offset));
+				if (words) Write<std::uint16_t>(scratch, i * NC2Layout::RecordSize::SerializedWordUnsigned, Read<std::uint16_t>(entries, i * stride + offset));
 				else scratch[i] = entries[i * stride + offset];
 			}
 			io->IO_Memory_PackAndWriteBinary(scratch, count * (words ? 2u : 1u), words ? NC2DataIds::PackingType::Rle16 : NC2DataIds::PackingType::Rle8);
@@ -103,11 +103,11 @@ namespace NC2E2
 			io->IO_File_ReadAndUnpackBinary(scratch, MacroCount() * 2u);
 			for (std::uint32_t i = 0; i < MacroCount(); ++i)
 			{
-				const auto stored = Read<std::uint16_t>(scratch, i * 2u);
+				const auto stored = Read<std::uint16_t>(scratch, i * NC2Layout::RecordSize::SerializedWordUnsigned);
 				std::int32_t id = borderId;
 				if (stored < mapping.count && mapping.ids[stored] != -1) id = mapping.ids[stored];
 				else Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 1);
-				Write<std::uint16_t>(EngineMacro(), i * 12u + offset, static_cast<std::uint16_t>(id));
+				Write<std::uint16_t>(EngineMacro(), i * NC2Layout::RecordSize::EngineMapMacroPointUnsigned + offset, static_cast<std::uint16_t>(id));
 			}
 		}
 
@@ -120,7 +120,7 @@ namespace NC2E2
 				const auto stored = Read<std::uint8_t>(scratch, i);
 				std::uint8_t encoded = NXBasics::IntegerRange::UInt8MaximumSigned;
 				if (stored != NXBasics::IntegerRange::UInt8MaximumSigned && stored / 6u < mapping.count && mapping.ids[stored / 6u] != -1) encoded = static_cast<std::uint8_t>(mapping.ids[stored / 6u] * 6u + stored % 6u);
-				Write(EngineMacro(), i * 12u + offset, encoded);
+				Write(EngineMacro(), i * NC2Layout::RecordSize::EngineMapMacroPointUnsigned + offset, encoded);
 			}
 		}
 
@@ -130,11 +130,11 @@ namespace NC2E2
 			io->IO_File_ReadAndUnpackBinary(scratch, MicroCount() * 2u);
 			for (std::uint32_t i = 0; i < MicroCount(); ++i)
 			{
-				const auto stored = Read<std::uint16_t>(scratch, i * 2u);
+				const auto stored = Read<std::uint16_t>(scratch, i * NC2Layout::RecordSize::SerializedWordUnsigned);
 				std::uint16_t id = NXBasics::IntegerRange::UInt16MaximumSigned;
 				const bool missing = stored != NXBasics::IntegerRange::UInt16MaximumSigned && (stored >= mapping.count || mapping.ids[stored] == -1);
 				if (stored != NXBasics::IntegerRange::UInt16MaximumSigned && !missing) id = static_cast<std::uint16_t>(mapping.ids[stored]);
-				Write(EngineMicro(), i * 4u, id);
+				Write(EngineMicro(), i * NC2Layout::RecordSize::EngineMapMicroPointUnsigned, id);
 				if (missing)
 				{
 					Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 1);

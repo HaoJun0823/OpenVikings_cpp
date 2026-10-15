@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Remaining numeric-access naming — 2026-10-15
+
+Completed [587 distinct access-operand replacements](REMAINING_NUMERIC_ACCESS_REVIEW.md) across **132 C++ files and two existing headers**. Raw scan: **694 → 134** (**560 removed**). The [remaining inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) classifies the residual matches: **108 ordinary indices/selectors, pointer dereferences, I/O sizes or established relative fields; 26 unresolved member/view accesses in 16 files** remain explicit. This is naming progress, not complete gameplay/function reconstruction. **365 value/type pairs, 85 layout/arithmetic assertions and Win32 syntax checks of all 132 affected C++ units pass**; ten existing DirectPlay macro warnings. No build, tests or game run. The user confirms pottery smoke now works; pottery fire and other runtime reports remain separate. Independent user source/documentation edits are preserved.
+
 ## Reported gameplay/rendering bugs — 2026-10-15
 
 The [reported-bug review](GAMEPLAY_RENDERING_BUG_REVIEW.md) records Windows evidence and correction history for static-landscape invalidation, projectile expiry and keyboard sounds, plus rechecked resource assignment, production overlays, marriage-bubble lifetime and visibility radii. Three older behavioral translation errors are corrected; the resource-field naming regression was already corrected in `36eb5b0`. Five affected/rechecked units pass Win32 syntax checks. Private evidence verifies 2,051 disassembly rows against Game.exe; this is not gameplay validation. No build, tests or game run.

@@ -220,7 +220,7 @@ namespace NC2InGameGuiMiscWindows
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawVehicles, 1);
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawHouses, 1);
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawGuides, 0);
-			Write<std::uint8_t>(overview, 0x8074, 1);
+			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::DrawWalls, 1);
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::FullRedrawRequested, 1);
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::UsePatternDebugColors, 0);
 			Write<std::uint8_t>(overview, NC2Layout::OverviewElementOffset::FullRedrawRequested, 1);
@@ -331,7 +331,7 @@ namespace NC2InGameGuiMiscWindows
 		}
 		bitmap->Text_PrintV(resources.font08, color, 4, y, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(358), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(theirState));
 		bitmap->Text_PrintV(resources.font08, color, 4, y + 18, "%s: %s", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(359), NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(ourState));
-		if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned));
+		if (ourState == 1 && theirState == 1) bitmap->Text_PrintV(resources.font08, color, 10, 402, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(360), Read<std::uint32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + other * NC2Layout::RecordSize::PlayerTradeCounterUnsigned + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned));
 	}
 	// Original function: FUN_004afcea; player names and diplomacy labels overlay the overview.
 	static void __fastcall DiplomacyWindow_DrawOverlays(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)

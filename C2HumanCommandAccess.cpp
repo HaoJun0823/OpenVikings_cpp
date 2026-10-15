@@ -489,8 +489,8 @@ namespace NC2Logic
 				if (target == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition)) return true;
 			}
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::IdleStartCount, 0);
-			Write<std::uint8_t>(human, 0x4F8, 0);
-			Write<std::uint8_t>(human, 0x4E4, 0);
+			Write<std::uint8_t>(human, NC2Layout::HumanOffset::QueuedExploreAreaAndUpdateCenterCommand, 0);
+			Write<std::uint8_t>(human, NC2Layout::HumanOffset::QueuedBuildGuideCommand, 0);
 		}
 		if (opcode >= 0x2B && opcode <= 0x2F)
 		{
@@ -849,7 +849,7 @@ namespace NC2Logic
 		{
 			case SwitchIds::UserCommand::GotoAndWait:
 				{
-					Write<std::uint8_t>(human, 0x728, 0);
+					Write<std::uint8_t>(human, NC2Layout::HumanOffset::QueuedAssignJobCommand, 0);
 					std::uint32_t point;
 					MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1));
 					return Human_DoExecuteUserCommand_GotoAndWait(human, &point);
@@ -956,7 +956,7 @@ namespace NC2Logic
 					}
 					Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
 					if (opcode == 50) MerchantHouseData_SetGoodTypeImportFlag(data, (packed >> 16u) & NXBasics::IntegerRange::UInt8Maximum, (packed & NXBasics::BitMask::DwordExceptBits0Through23) != 0);
-					else Write(merchant, 4, packed);
+					else Write(merchant, NC2Layout::MerchantOffset::TradeAgreementId, packed);
 					return 2;
 				}
 			default: return 1;

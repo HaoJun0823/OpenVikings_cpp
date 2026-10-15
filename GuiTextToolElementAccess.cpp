@@ -107,7 +107,7 @@ namespace NC2InGameGuiBase
 		else if (Read<std::uint8_t>(element, NC2Layout::GuiTextElementOffset::CenteredFlag) != 0)
 		{
 			const auto textWidth = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, caption));
-			const auto fontHeight = Read<std::uint32_t>(font, 8);
+			const auto fontHeight = Read<std::uint32_t>(font, NC2Layout::FontOffset::Height);
 			const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - textWidth) / 2) - static_cast<std::uint32_t>(rectangle->x));
 			const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - fontHeight) / 2) - static_cast<std::uint32_t>(rectangle->y) - 3u);
 			bitmap->Text_Print(font, color, x, y, caption);
@@ -210,7 +210,7 @@ namespace NC2InGameGuiBase
 		NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
 		const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
 		auto* font = Read<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SmallFontFlag) != 0 ? resources.font08 : resources.font10;
-		const auto fontHeight = Read<std::uint32_t>(font, 8);
+		const auto fontHeight = Read<std::uint32_t>(font, NC2Layout::FontOffset::Height);
 		const auto width = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width), height = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height);
 		char* caption = Read<char*>(element, NC2Layout::GuiTextButtonOffset::Caption);
 		const bool centered = Read<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::CenteredFlag) != 0;

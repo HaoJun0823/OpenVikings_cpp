@@ -68,8 +68,8 @@ namespace NC2Logic
 		}
 		if (candidate != nullptr && Animal_AttachToVehicle(candidate, Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)))
 		{
-			Write(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId, Read<std::uint32_t>(candidate, 4));
-			Write(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision, Read<std::uint32_t>(candidate, 8));
+			Write(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId, Read<std::uint32_t>(candidate, NC2Layout::ActorIdentityOffset::Id));
+			Write(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision, Read<std::uint32_t>(candidate, NC2Layout::ActorIdentityOffset::UniqueId));
 		}
 		return false;
 	}

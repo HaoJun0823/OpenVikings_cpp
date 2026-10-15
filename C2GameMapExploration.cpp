@@ -51,7 +51,7 @@ namespace NC2Logic
 		const auto houseId = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId) : NXBasics::IntegerRange::UInt32Maximum;
 		const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
 		const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-		return ls_Exploration_ExploreArea(player, point, Read<const CMapArea*>(definition, 0x1C));
+		return ls_Exploration_ExploreArea(player, point, Read<const CMapArea*>(definition, NC2Layout::EngineHouseLogicViewOffset::BuildArea));
 	}
 
 	// Original function: FUN_004243c6.
@@ -79,8 +79,8 @@ namespace NC2Logic
 			}
 			if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 4)
 			{
-				const auto x = static_cast<std::uint16_t>(Read<std::int16_t>(current, 0) + Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData));
-				const auto y = static_cast<std::uint16_t>(Read<std::int16_t>(current, 2) + Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency));
+				const auto x = static_cast<std::uint16_t>(Read<std::int16_t>(current, NC2Layout::MapCoordinatePairOffset::X) + Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData));
+				const auto y = static_cast<std::uint16_t>(Read<std::int16_t>(current, NC2Layout::MapCoordinatePairOffset::Y) + Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency));
 				const std::uint32_t origin = x | (static_cast<std::uint32_t>(y) << 16);
 				const auto* landscape = GameMap_GetConstMapMicroPointPtr(&origin);
 				const auto valency = Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0;

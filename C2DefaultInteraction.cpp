@@ -141,7 +141,7 @@ namespace NC2Logic
 					const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::AnimalId);
 					const auto* animal = GetAnimalPtr(targetId);
 					const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-					if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
+					if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), NC2Layout::MapMicroPointOffset::ContinentId) != continent) return 0;
 					if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) - 8u].warrantable != 0) return sendTo();
 					if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false))
 					{
@@ -204,7 +204,7 @@ namespace NC2Logic
 						Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45;
 					}
 					if (Continent(point) != continent) return 0;
-					const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)); const auto type = Read<std::int32_t>(landscape, 0);
+					const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)); const auto type = Read<std::int32_t>(landscape, NC2Layout::EngineLandscapeLogicViewOffset::LogicType);
 					if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)].landscapeToHarvest)
 					{
 						Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28;
@@ -238,7 +238,7 @@ namespace NC2Logic
 						}
 						Prepare(secondary, 4, human, destination); return 30;
 					}
-					if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)), 4))
+					if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)), NC2Layout::LandscapeLogicViewOffset::MaximumValency))
 					{
 						Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28;
 					}
@@ -330,7 +330,7 @@ namespace NC2Logic
 					const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId));
 					if (available.IsCommandAllowed(26))
 					{
-						const auto good = gStaticDependencyGoodByLandscape[Read<std::uint32_t>(landscape, 0)];
+						const auto good = gStaticDependencyGoodByLandscape[Read<std::uint32_t>(landscape, NC2Layout::EngineLandscapeLogicViewOffset::LogicType)];
 						if (good != 0 && Human_IsAbleToEquipGoodNow(human, good, true))
 						{
 							const auto kind = Tool_GoodEquipmentType_Convert(good);
@@ -340,7 +340,7 @@ namespace NC2Logic
 							}
 						}
 					}
-					const auto type = Read<std::int32_t>(landscape, 0);
+					const auto type = Read<std::int32_t>(landscape, NC2Layout::EngineLandscapeLogicViewOffset::LogicType);
 					if (StaticDependencies_Item_IsChest(type) && StaticDependencies_Item_IsAbleToOpenChest(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), type))
 					{
 						Prepare(command, 18, human, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::MapPosition)); *action = 30; return true;

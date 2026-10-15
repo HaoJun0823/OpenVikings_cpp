@@ -55,8 +55,8 @@ namespace NC2E2
 		// Original function: FUN_00495a40; Windows returns only zero or one.
 		int __cdecl ls_QSortCompareFunction(const void* first, const void* second)
 		{
-			const double firstCosine = Runtime_Cos(static_cast<double>(Read<float>(first, 0)));
-			const double secondCosine = Runtime_Cos(static_cast<double>(Read<float>(second, 0)));
+			const double firstCosine = Runtime_Cos(static_cast<double>(Read<float>(first, NC2Layout::MapCoordinatePairOffset::Coordinates)));
+			const double secondCosine = Runtime_Cos(static_cast<double>(Read<float>(second, NC2Layout::MapCoordinatePairOffset::Coordinates)));
 			return secondCosine >= firstCosine ? 0 : 1;
 		}
 
@@ -78,8 +78,8 @@ namespace NC2E2
 				}
 				else
 				{
-					dx = Read<std::int16_t>(target, 0x14) - Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionX);
-					dy = Read<std::int16_t>(target, 0x16) - Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionY);
+					dx = Read<std::int16_t>(target, NC2Layout::GuideOffset::MapPositionX) - Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionX);
+					dy = Read<std::int16_t>(target, NC2Layout::GuideOffset::MapPositionY) - Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionY);
 				}
 				const float angle = GuideDirectionAngle(static_cast<float>(dx), static_cast<float>(dy));
 				const double cosine = Runtime_Cos(static_cast<double>(angle));

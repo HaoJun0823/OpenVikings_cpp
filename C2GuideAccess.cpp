@@ -137,7 +137,7 @@ namespace NC2Logic
 			MapMigPoint_AssignLong(&point, parameter2);
 			for (std::uint32_t axis = 0; axis < 2; ++axis)
 			{
-				const auto value = Read<std::int16_t>(&point, axis * 2u);
+				const auto value = Read<std::int16_t>(&point, axis * NC2Layout::RecordSize::MapCoordinateUnsigned);
 				if (value < vars.modifiedAreaMinimum[axis]) vars.modifiedAreaMinimum[axis] = value;
 				if (value > vars.modifiedAreaMaximum[axis]) vars.modifiedAreaMaximum[axis] = value;
 			}

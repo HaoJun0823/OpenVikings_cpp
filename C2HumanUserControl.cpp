@@ -40,7 +40,7 @@ namespace NC2Logic
 	// Original function: FUN_0042c8b8.
 	bool Human_IsAbleToHaveWorkHouse(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x82u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::CanHaveWorkHouseUnsigned) != 0;
 	}
 
 	// Original function: FUN_00434f37; action ids are distinct from network opcodes.

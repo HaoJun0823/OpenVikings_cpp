@@ -136,7 +136,7 @@ namespace NC2Logic
 			while (id != -1)
 			{
 				const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-				const auto type = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
+				const auto type = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), NC2Layout::MapPathfinderOffset::SearchState);
 				if (type == 0 || type == 3) return false;
 				id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
 			}
@@ -220,7 +220,7 @@ namespace NC2Logic
 		CMapPathfinderElement::SearchOverMap(source, 40, true, FindPilePointCallback, &data, true, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId));
 		if (data.count == 0) return false;
 		const auto index = Game_Random_GetNumber() % data.count;
-		Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(&data, 8u + index * 4u));
+		Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(&data, NC2Layout::HumanSearchPilePointOffset::PointsUnsigned + index * NC2Layout::RecordSize::MapMigPointUnsigned));
 		return true;
 	}
 

@@ -230,8 +230,8 @@ namespace NC2Logic
 				if (Read<std::int32_t>(first, NC2Layout::AICombinedTaskOffset::Priority) >= Read<std::int32_t>(first, NC2Layout::AICombinedTaskOffset::NextTaskPriority)) continue;
 				alignas(8) std::byte temporary[88];
 				AIActiveCombinedMainTasks_CopyConstruct(temporary, first);
-				for (std::uint32_t offset = 0; offset < 0x58; offset += 4) Write(first, offset, Read<std::uint32_t>(first, offset + 0x58));
-				for (std::uint32_t offset = 0; offset < 0x58; offset += 4) Write(first, offset + 0x58, Read<std::uint32_t>(temporary, offset));
+				for (std::uint32_t offset = 0; offset < 0x58; offset += 4) Write(first, offset, Read<std::uint32_t>(first, offset + NC2Layout::RecordSize::AICombinedTask));
+				for (std::uint32_t offset = 0; offset < 0x58; offset += 4) Write(first, offset + NC2Layout::RecordSize::AICombinedTask, Read<std::uint32_t>(temporary, offset));
 			}
 	}
 

@@ -136,7 +136,7 @@ namespace NC2Logic
 		if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 2) Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType, 0);
 		Write(house, NC2Layout::HouseOffset::DevelopmentStage, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u);
 		const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-		Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(definition, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u));
+		Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(definition, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned));
 		definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
 		const auto health = Read<std::uint32_t>(definition, NC2Layout::EngineHouseLogicViewOffset::MaximumHitpointsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned);
 		const bool temple = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1;
@@ -186,7 +186,7 @@ namespace NC2Logic
 		const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
 		const auto offset = 0x188u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u;
 		std::uint32_t door;
-		MapMigPoint_ConstructOffset(&door, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, Read<std::int16_t>(definition, offset), Read<std::int16_t>(definition, offset + 2), false);
+		MapMigPoint_ConstructOffset(&door, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, Read<std::int16_t>(definition, offset), Read<std::int16_t>(definition, offset + NC2Layout::MapCoordinatePairOffset::Y), false);
 		Write(house, NC2Layout::HouseOffset::DoorEntryPoint, door);
 		House_Inhabitants_UpdateAllHumans(house);
 	}

@@ -62,7 +62,7 @@ namespace NC2Logic
 		{
 			const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
 			const auto* moveable = static_cast<const std::byte*>(gMapMoveableArrayStorage.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-			if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
+			if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) continue;
 			const auto* position = moveable + 0x12;
 			sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X));
 			sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y));

@@ -173,12 +173,12 @@ namespace NC2InGameGuiSelection
 		for (std::uint32_t page = 0; page < 7; ++page)
 		{
 			std::uint32_t index = 0;
-			for (const auto good : gStockPages[page]) if (IsGoodAllowed(house, good)) Write(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::HouseWindowStockValue, good);
+			for (const auto good : gStockPages[page]) if (IsGoodAllowed(house, good)) Write(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * NC2Layout::HouseWindowLimits::StockGoodsPerPage + index++) * NC2Layout::RecordSize::HouseWindowStockValue, good);
 		}
 		for (std::uint32_t good = 1; good <= 55; ++good) if (IsGoodAllowed(house, good))
 		{
 			bool found = false;
-			for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::HouseWindowStockValue) == good) found = true;
+			for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * NC2Layout::HouseWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::HouseWindowStockValue) == good) found = true;
 			if (!found) for (std::uint32_t index = 0; index < 14; ++index) if (!Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue))
 			{
 				Write(window, NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue, good);
@@ -193,7 +193,7 @@ namespace NC2InGameGuiSelection
 		{
 			auto* data = static_cast<std::byte*>(window) + NC2Layout::SelectionHouseWindowOffset::StockGoods + page * 56;
 			std::uint32_t count = 0;
-			for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(data, index * 4)) ++count;
+			for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(data, index * NC2Layout::RecordSize::GoodId)) ++count;
 			if (count > 1) NXBasics::Runtime_QuickSort(data, count, 4, &lsSortGoodsCompareFunction);
 		}
 	}
@@ -221,7 +221,7 @@ namespace NC2InGameGuiSelection
 	{
 		auto* memory = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
 		auto* preview = memory == nullptr ? nullptr : NC2InGameGuiWorldElement::WorldDisplayElement_Construct(memory, &area, false, false);
-		auto* display = Read<void*>(preview, 0x30);
+		auto* display = Read<void*>(preview, NC2Layout::WorldGuiElementOffset::Display);
 		NC2E2::DE_Zoom_SetCounter(display, -1);
 		NC2E2::DE_SetWantedPositionToMapPoint(display, reinterpret_cast<const std::uint32_t*>(static_cast<const std::byte*>(house) + 0x1C));
 		NC2E2::DE_ControllingPlayer_SetId(display, NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId());
@@ -353,7 +353,7 @@ namespace NC2InGameGuiSelection
 				const auto start = goodArea.y;
 				for (std::uint32_t slot = 0; slot < 14; ++slot)
 				{
-					const auto good = Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockPage) * 14 + slot) * NC2Layout::RecordSize::HouseWindowStockValue);
+					const auto good = Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockPage) * NC2Layout::HouseWindowLimits::StockGoodsPerPage + slot) * NC2Layout::RecordSize::HouseWindowStockValue);
 					if (!good) break;
 					AddGood(window, goodArea, house, good);
 					goodArea.y += 22;
@@ -571,7 +571,7 @@ namespace NC2InGameGuiSelection
 				};
 				centered(NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1));
 				y += 16;
-				const auto health = Read<std::uint32_t>(house, NC2Layout::HouseOffset::Hitpoints), maximum = Read<std::uint32_t>(development, 0x19C + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4);
+				const auto health = Read<std::uint32_t>(house, NC2Layout::HouseOffset::Hitpoints), maximum = Read<std::uint32_t>(development, NC2Layout::EngineHouseLogicViewOffset::MaximumHitpoints + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValue);
 				SRectangle bar(x, y + 2, width, 8);
 				DrawTool_DrawFrame(bitmap, bar, 2);
 				bar.Inflate(-2, -2);
@@ -653,7 +653,7 @@ namespace NC2InGameGuiSelection
 					const auto* state = HouseString(Read<std::uint8_t>(house, offset) ? 50 : 51);
 					const auto* name = HouseString(enhancer == 0 ? 41 : enhancer == 1 ? 44 : 47);
 					const auto* prefix = HouseString(40);
-					DrawTool_PrintStringXV(bitmap, x + 20, y, font, color, "%s %s (%s){setx:%d}%d", prefix, name, state, x + 120, Read<std::uint32_t>(house, offset + 4));
+					DrawTool_PrintStringXV(bitmap, x + 20, y, font, color, "%s %s (%s){setx:%d}%d", prefix, name, state, x + 120, Read<std::uint32_t>(house, offset + NC2Layout::HomeQualityEnhancerOffset::Value));
 					const auto enable = 10018u + enhancer * 2, disable = 10017u + enhancer * 2;
 					if (Allowed(commands, 4 + enhancer * 2)) Buttons(window).UpdateGfxButton(enable, 0, x, y, 30, HouseString(42 + enhancer * 3));
 					else Buttons(window).RemoveButton(enable, 0);

@@ -90,7 +90,7 @@ namespace NC2MainMenuGuiWorldElement
 			mapGuid = 0;
 			extra = 0;
 			using Handler = bool(__fastcall*)(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-			const auto handler = Read<Handler>(Read<void*>(hovered, NC2Layout::GuiBaseElementOffset::VirtualTable), 8);
+			const auto handler = Read<Handler>(Read<void*>(hovered, NC2Layout::GuiBaseElementOffset::VirtualTable), NC2Layout::GuiVirtualTableOffset::MessageHandle);
 			return handler(hovered, nullptr, 0x800, 0x7F0, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&type)), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&mapGuid)), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&extra)));
 		}
 
@@ -217,7 +217,7 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
 				if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
 				break;
 			case SwitchIds::WorldDisplayCommand::ToggleZoom:
-				if (Read<std::uint8_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), false);
+				if (Read<std::uint8_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), NC2Layout::EngineDisplayOffset::FontSigned) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), false);
 				break;
 		}
 	}
@@ -235,7 +235,7 @@ void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void* eleme
 	using namespace NC2Lifetime;
 	auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\menu_remap.pcx");
 	Write(element, NC2Layout::MenuWorldElementOffset::DarkenPalette, palette);
-	if (Read<std::int32_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Bitmap), 4) != 1) return;
+	if (Read<std::int32_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Bitmap), NC2Layout::BitmapStorageOffset::Depth) != 1) return;
 	auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(131072, 1));
 	Write(element, NC2Layout::MenuWorldElementOffset::DarkenTable, table);
 	const auto* paletteTable = NXBasics::Palette_GetHighColorTablePtr(palette);

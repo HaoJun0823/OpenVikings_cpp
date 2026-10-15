@@ -129,9 +129,9 @@ namespace NC2Logic
 			{
 				const auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
 				const auto cell = sectorCoordinates[5] * manager->GetGridWidth() + sectorCoordinates[4];
-				id = Read<std::int32_t>(manager->GetSectorData(), (cell * 21u + player) * 0x40u + ((flags & 1u) != 0 ? 0x28u : 0x10u));
+				id = Read<std::int32_t>(manager->GetSectorData(), (cell * NC2Layout::SectorLimits::PlayerSlotsUnsigned + player) * NC2Layout::RecordSize::SectorPlayerUnsigned + ((flags & 1u) != 0 ? NC2Layout::SectorPlayerOffset::MilitaryHouseHeadUnsigned : NC2Layout::SectorPlayerOffset::CivilianHouseHeadUnsigned));
 			}
-			else id = Read<std::int32_t>(CHouseArray::mStaticVars, static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize + 0x7A4u);
+			else id = Read<std::int32_t>(CHouseArray::mStaticVars, static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize + NC2Layout::HouseOffset::NextSectorHouseIdUnsigned);
 			previous = id;
 			if (id != -1)
 			{
@@ -216,9 +216,9 @@ namespace NC2Logic
 		for (std::int32_t index = Iterator_Increment(previous); index <= CGuideArray::sTheObjectPtr->mLastScanIndex; index = Iterator_Increment(index))
 		{
 			const void* guide = Iterator_Entry(CGuideArray::mStaticVars, index, CGuideArray::ElementSize);
-			if (Iterator_Read<std::uint8_t>(guide, 0) == 0) continue;
-			if ((flags & 1u) != 0 && Iterator_Read<std::uint32_t>(guide, 4) != player) continue;
-			if ((flags & 2u) != 0 && static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Iterator_Read<std::int16_t>(guide, 0x14), Iterator_Read<std::int16_t>(guide, 0x16), center[0], center[1])) > radius) continue;
+			if (Iterator_Read<std::uint8_t>(guide, NC2Layout::GuideOffset::AllocatedFlag) == 0) continue;
+			if ((flags & 1u) != 0 && Iterator_Read<std::uint32_t>(guide, NC2Layout::GuideOffset::PlayerId) != player) continue;
+			if ((flags & 2u) != 0 && static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Iterator_Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionX), Iterator_Read<std::int16_t>(guide, NC2Layout::GuideOffset::MapPositionY), center[0], center[1])) > radius) continue;
 			return index;
 		}
 		return -1;
@@ -233,7 +233,7 @@ namespace NC2Logic
 	{
 		flags = 1;
 		current = gMapMoveableArrayStorage.manager->mFirstScanIndex;
-		if (Iterator_Read<std::uint8_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), 0) == 0) current = -1;
+		if (Iterator_Read<std::uint8_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) current = -1;
 		return current;
 	}
 
@@ -251,7 +251,7 @@ namespace NC2Logic
 	{
 		if (flags == 2)
 		{
-			current = Iterator_Read<std::int32_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), 0x24);
+			current = Iterator_Read<std::int32_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), NC2Layout::MapMoveableOffset::NextCellMoveableId);
 			if (current != -1) return current;
 		}
 		else if (flags == 1)
@@ -259,7 +259,7 @@ namespace NC2Logic
 			current = Iterator_Increment(current);
 			while (current <= gMapMoveableArrayStorage.manager->mLastScanIndex)
 			{
-				if (Iterator_Read<std::uint8_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), 0) != 0) return current;
+				if (Iterator_Read<std::uint8_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), NC2Layout::MapMoveableOffset::AllocatedFlag) != 0) return current;
 				current = Iterator_Increment(current);
 			}
 		}

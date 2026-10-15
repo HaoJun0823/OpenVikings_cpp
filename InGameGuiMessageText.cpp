@@ -76,7 +76,7 @@ namespace NC2InGameGuiMessages
 						for (std::uint32_t i = 0; i < count; ++i)
 						{
 							if (i != 0) std::strcat(output, " - ");
-							const auto id = Read<std::uint32_t>(message, offset + 4u + i * 4u);
+							const auto id = Read<std::uint32_t>(message, offset + NC2Layout::CountedArrayOffset::EntriesUnsigned + i * NC2Layout::RecordSize::UserMessageItemUnsigned);
 							const auto* item = category == 0 ? StringAccess_GetJobNamePtr(id, 1) : category == 1 ? StringAccess_GetGoodNamePtr(id, 1) : category == 2 ? StringAccess_GetHouseNamePtr(id, 1) : StringAccess_GetVehicleTypeNamePtr(id);
 							std::strcat(output, item);
 							if (std::strlen(output) >= limit)

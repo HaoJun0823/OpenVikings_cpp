@@ -177,7 +177,7 @@ namespace NC2Logic
 		// Original function: FUN_00461308.
 		bool __cdecl CalculateFoodPattern(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
 		{
-			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), NC2Layout::MapMacroPointOffset::PatternA) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
+			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint8_t>(Macro(point), NC2Layout::MapMacroPointOffset::PatternA) == 2) Write(callback->userData, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(callback->userData, NC2Layout::MapCoordinatePairOffset::Coordinates) + 100u);
 			return false;
 		}
 
@@ -209,7 +209,7 @@ namespace NC2Logic
 		{
 			auto* value = static_cast<std::byte*>(animal) + NC2Layout::AnimalOffset::EnvironmentalFoodValue;
 			CMapPathfinderElement::SearchOverMap(Animal_GetMapPositionRef(animal), 10, true, CalculateFoodPattern, value, false, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId));
-			if (Read<std::int32_t>(value, 0) < 5000) Write<std::uint32_t>(value, 0, 5000);
+			if (Read<std::int32_t>(value, NC2Layout::MapCoordinatePairOffset::Coordinates) < 5000) Write<std::uint32_t>(value, NC2Layout::MapCoordinatePairOffset::Coordinates, 5000);
 		}
 
 		// Original function: FUN_00461531.

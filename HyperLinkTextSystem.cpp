@@ -130,8 +130,8 @@ namespace NHyperLinkTextSystem
 				list->l_Base_RemoveElement(entry);
 				if (list != &vars.textFiles)
 				{
-					DeleteStorable(Read<void*>(entry, 0x104));
-					if (list == &vars.bitmaps) DeleteStorable(Read<void*>(entry, 0x108));
+					DeleteStorable(Read<void*>(entry, NC2Layout::HyperlinkResourceOffset::Resource));
+					if (list == &vars.bitmaps) DeleteStorable(Read<void*>(entry, NC2Layout::HyperlinkResourceOffset::Palette));
 				}
 				Runtime_Free(entry);
 			}
@@ -140,11 +140,11 @@ namespace NHyperLinkTextSystem
 	// Original function: FUN_004d1df4.
 	CFont* CDataContainer::GetFontPtr(const char* filename)
 	{
-		if (void* entry = FindResource(vars.fonts, filename)) return Read<CFont*>(entry, 0x104);
+		if (void* entry = FindResource(vars.fonts, filename)) return Read<CFont*>(entry, NC2Layout::HyperlinkResourceOffset::Resource);
 		if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
 		void* entry = AllocateResource(0x108, filename);
 		auto* font = static_cast<CFont*>(XB_Storable_LoadObject(filename));
-		Write(entry, 0x104, font);
+		Write(entry, NC2Layout::HyperlinkResourceOffset::Resource, font);
 		vars.fonts.InsertAtEnd(entry);
 		return font;
 	}
@@ -152,14 +152,14 @@ namespace NHyperLinkTextSystem
 	// Original function: FUN_004d1e95.
 	CBitmap* CDataContainer::GetBitmapPtr(const char* filename)
 	{
-		if (void* entry = FindResource(vars.bitmaps, filename)) return Read<CBitmap*>(entry, 0x104);
+		if (void* entry = FindResource(vars.bitmaps, filename)) return Read<CBitmap*>(entry, NC2Layout::HyperlinkResourceOffset::Resource);
 		if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
 		void* entry = AllocateResource(0x10C, filename);
 		CPicture picture(filename);
 		auto* bitmap = picture.ExtractBitmap();
-		Write(entry, 0x104, bitmap);
+		Write(entry, NC2Layout::HyperlinkResourceOffset::Resource, bitmap);
 		auto* palette = picture.ExtractPalette();
-		Write(entry, 0x108, palette);
+		Write(entry, NC2Layout::HyperlinkResourceOffset::Palette, palette);
 		bitmap->SetPalettePtr(palette);
 		vars.bitmaps.InsertAtEnd(entry);
 		return bitmap;
@@ -168,12 +168,12 @@ namespace NHyperLinkTextSystem
 	// Original function: FUN_004d1f69.
 	CPalette* CDataContainer::GetPalettePtr(const char* filename)
 	{
-		if (void* entry = FindResource(vars.palettes, filename)) return Read<CPalette*>(entry, 0x104);
+		if (void* entry = FindResource(vars.palettes, filename)) return Read<CPalette*>(entry, NC2Layout::HyperlinkResourceOffset::Resource);
 		if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
 		void* entry = AllocateResource(0x108, filename);
 		CPicture picture(filename);
 		auto* palette = picture.ExtractPalette();
-		Write(entry, 0x104, palette);
+		Write(entry, NC2Layout::HyperlinkResourceOffset::Resource, palette);
 		vars.palettes.InsertAtEnd(entry);
 		return palette;
 	}
@@ -499,7 +499,7 @@ namespace NHyperLinkTextSystem
 			if (!highlight) source->CopyIntoBitmap_ColorKeyed(bitmap, drawX, drawY, 0);
 			else
 			{
-				auto* original = Read<CPalette*>(source, 0x4C);
+				auto* original = Read<CPalette*>(source, NC2Layout::BitmapStorageOffset::Palette);
 				CPalette palette(*original);
 				palette.Modify(SColorModifier(false, 1.5f, 1.5f, 1.5f));
 				source->SetPalettePtr(&palette);
@@ -662,7 +662,7 @@ namespace NHyperLinkTextSystem
 			{
 				if (font == nullptr) continue;
 				entityWidth = Font_GetPixelWidth(font, entity->content.text);
-				entityHeight = Runtime_TimeSigned32(Read<std::uint32_t>(font, 8) * 3u) / 2;
+				entityHeight = Runtime_TimeSigned32(Read<std::uint32_t>(font, NC2Layout::FontOffset::Height) * 3u) / 2;
 			}
 			else continue;
 			if (Runtime_TimeSigned32(xEnd) < Add(x, entityWidth)) l_Create_NewLine();

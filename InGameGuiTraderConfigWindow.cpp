@@ -120,7 +120,7 @@ namespace NC2InGameGuiSelectedAction
 		// Original function: FUN_004cd2bb.
 		int __cdecl lsSortGoodsCompareFunction(const void* first, const void* second)
 		{
-			return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, 0), 2), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, 0), 2));
+			return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(first, NC2Layout::MapCoordinatePairOffset::Coordinates), 2), NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(second, NC2Layout::MapCoordinatePairOffset::Coordinates), 2));
 		}
 		void Add(void* window, void* element)
 		{

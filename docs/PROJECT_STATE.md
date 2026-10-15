@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Remaining numeric-access naming — 2026-10-15
+
+Completed [587 distinct access-operand replacements](REMAINING_NUMERIC_ACCESS_REVIEW.md) across **132 C++ files and two existing headers**. Raw scan: **694 → 134** (**560 removed**). The [remaining inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) classifies the residual matches: **108 ordinary indices/selectors, pointer dereferences, I/O sizes or established relative fields; 26 unresolved member/view accesses in 16 files** remain explicit. This is naming progress, not complete gameplay/function reconstruction. **365 value/type pairs, 85 layout/arithmetic assertions and Win32 syntax checks of all 132 affected C++ units pass**; ten existing DirectPlay macro warnings. No build, tests or game run. The user confirms pottery smoke now works; pottery fire and other runtime reports remain separate. Independent user source/documentation edits are preserved.
+
 ## Reported gameplay/rendering bugs — 2026-10-15
 
 The [reported-bug review](GAMEPLAY_RENDERING_BUG_REVIEW.md) corrects three older Windows translation errors: static-landscape cache invalidation, landed-projectile movement/deferred-tick fields and keyboard confirmation sounds. The recent resource-allowance regression (`36eb5b0`) and house-particle base correction (`1144166`) are present and rechecked. The marriage bubble follows the original task/animation lifetime and is unchanged. Human exploration radii are documented. Five C++ units pass Win32 syntax checks (one existing DirectPlay macro warning); no build, tests or game run. Live confirmation of the reported cases remains open; naming progress counts are unaffected.

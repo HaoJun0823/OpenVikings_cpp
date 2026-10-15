@@ -93,14 +93,14 @@ namespace NC2InGameGuiSelection
 		}
 		std::int32_t y = 200; const auto id = SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window); if (id != -1 && Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId())
 		{
-			const auto type = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(id), 0); if (type == 82) y -= 40; if (type == 83 || type == 84) y -= 60;
+			const auto type = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(id), NC2Layout::EngineLandscapeLogicViewOffset::LogicType); if (type == 82) y -= 40; if (type == 83 || type == 84) y -= 60;
 		}
 		NC2E2::EngineGraphic_Draw(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window), SelectionLandscapeTypeWindow_l_Landscape_GetValency(window), bitmap, 80, y, NC2Logic::gGameTime.tick, 256, Read<std::int32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId), false);
 	}
 	// Original function: FUN_004be257.
 	static bool SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap(void* window)
 	{
-		if (Read<std::uint8_t>(window, NC2Layout::LandscapeSelectionWindowOffset::ValidSelection) == 0 || !NC2Logic::MapMigPoint_IsInsideMap(Point(window))) return false; const auto type = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::EngineType)), 0); return Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId() && (type == 83 || type == 84);
+		if (Read<std::uint8_t>(window, NC2Layout::LandscapeSelectionWindowOffset::ValidSelection) == 0 || !NC2Logic::MapMigPoint_IsInsideMap(Point(window))) return false; const auto type = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::EngineType)), NC2Layout::EngineLandscapeLogicViewOffset::LogicType); return Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId() && (type == 83 || type == 84);
 	}
 	// Original function: FUN_004be29b.
 	static std::int32_t SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(void* window)
@@ -123,7 +123,7 @@ namespace NC2InGameGuiSelection
 		if (NC2Logic::MapMigPoint_IsInsideMap(Point(window)))
 		{
 			AddButton(window, area, 481, 10100, true); area.y -= area.height + 2;
-		} if (SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window) == -1) return; const auto* data = NC2LogicExternals::External_Landscape_GetLogicDataPtr(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window)); if (Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return; const auto type = Read<std::uint32_t>(data, 0);
+		} if (SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window) == -1) return; const auto* data = NC2LogicExternals::External_Landscape_GetLogicDataPtr(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window)); if (Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return; const auto type = Read<std::uint32_t>(data, NC2Layout::EngineLandscapeLogicViewOffset::LogicType);
 		if (type == 82 || type == 83 || type == 84)
 		{
 			AddButton(window, area, 482, 10200, false); area.y -= area.height + 2;
@@ -137,7 +137,7 @@ namespace NC2InGameGuiSelection
 	{
 		if (Read<std::uint8_t>(window, NC2Layout::LandscapeSelectionWindowOffset::ValidSelection) == 0) return 0; std::uint32_t flags = NC2Logic::MapMigPoint_IsInsideMap(Point(window)) ? 1 : 0; if (SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window) == -1) return NXBasics::IntegerRange::UInt32Maximum; const auto* data = NC2LogicExternals::External_Landscape_GetLogicDataPtr(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window)); if (Read<std::uint32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::PlayerId) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId())
 		{
-			const auto type = Read<std::uint32_t>(data, 0); if (type == 82 || type == 83 || type == 84) flags |= 2; if (type == 84) flags |= 4; if (type == 83) flags |= 8;
+			const auto type = Read<std::uint32_t>(data, NC2Layout::EngineLandscapeLogicViewOffset::LogicType); if (type == 82 || type == 83 || type == 84) flags |= 2; if (type == 84) flags |= 4; if (type == 83) flags |= 8;
 		} return flags;
 	}
 }

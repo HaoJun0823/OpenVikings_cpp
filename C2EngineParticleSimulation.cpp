@@ -43,7 +43,7 @@ namespace NC2E2
 		{
 			Write(position, NC2Layout::ParticlePositionOffset::MapX, static_cast<double>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X)) / NC2Logic::GameMap_GetWidth());
 			Write(position, NC2Layout::ParticlePositionOffset::MapY, static_cast<double>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)) / NC2Logic::GameMap_GetHeight());
-			if ((Read<std::uint8_t>(point, 2) & 1u) != 0) Write(position, NC2Layout::ParticlePositionOffset::MapX, Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 1.0 / (2.0 * NC2Logic::GameMap_GetWidth()));
+			if ((Read<std::uint8_t>(point, NC2Layout::MapCoordinatePairOffset::Y) & 1u) != 0) Write(position, NC2Layout::ParticlePositionOffset::MapX, Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 1.0 / (2.0 * NC2Logic::GameMap_GetWidth()));
 			Write(position, NC2Layout::ParticlePositionOffset::Height, NC2Logic::GameMap_GetHeightAtMapMigPoint(point) * 0.004);
 		}
 
@@ -52,7 +52,7 @@ namespace NC2E2
 		{
 			Write(position, NC2Layout::ParticlePositionOffset::MapX, static_cast<double>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X)) / NC2Logic::GameMap_GetWidth());
 			Write(position, NC2Layout::ParticlePositionOffset::MapY, static_cast<double>(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y)) / NC2Logic::GameMap_GetHeight());
-			if ((Read<std::uint8_t>(point, 2) & 1u) != 0) Write(position, NC2Layout::ParticlePositionOffset::MapX, Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 1.0 / (2.0 * NC2Logic::GameMap_GetWidth()));
+			if ((Read<std::uint8_t>(point, NC2Layout::MapCoordinatePairOffset::Y) & 1u) != 0) Write(position, NC2Layout::ParticlePositionOffset::MapX, Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 1.0 / (2.0 * NC2Logic::GameMap_GetWidth()));
 			Write(position, NC2Layout::ParticlePositionOffset::Height, 0.0);
 		}
 
@@ -136,8 +136,8 @@ namespace NC2E2
 			Write(particle, NC2Layout::ParticleOffset::PositionHeight, raised < 1.0 || std::isnan(raised) ? raised : 1.0);
 		}
 		else ParticelPosition_SetFromMapWithoutHeight(position, mapPoint);
-		Write(particle, NC2Layout::ParticleOffset::PositionPixelX, static_cast<double>(Read<std::int32_t>(pixelPoint, 0)));
-		Write(particle, NC2Layout::ParticleOffset::PositionPixelY, static_cast<double>(Read<std::int32_t>(pixelPoint, 4)));
+		Write(particle, NC2Layout::ParticleOffset::PositionPixelX, static_cast<double>(Read<std::int32_t>(pixelPoint, NC2Layout::PixelPointOffset::X)));
+		Write(particle, NC2Layout::ParticleOffset::PositionPixelY, static_cast<double>(Read<std::int32_t>(pixelPoint, NC2Layout::PixelPointOffset::Y)));
 		ParticelPosition_ToMapPoint(position, At(particle, NC2Layout::ParticleOffset::MapPoint));
 	}
 
@@ -152,8 +152,8 @@ namespace NC2E2
 			Write(particle, NC2Layout::ParticleOffset::TargetHeight, raised < 1.0 || std::isnan(raised) ? raised : 1.0);
 		}
 		else ParticelPosition_SetFromMapWithoutHeight(position, mapPoint);
-		Write(particle, NC2Layout::ParticleOffset::TargetPixelX, static_cast<double>(Read<std::int32_t>(pixelPoint, 0)));
-		Write(particle, NC2Layout::ParticleOffset::TargetPixelY, static_cast<double>(Read<std::int32_t>(pixelPoint, 4)));
+		Write(particle, NC2Layout::ParticleOffset::TargetPixelX, static_cast<double>(Read<std::int32_t>(pixelPoint, NC2Layout::PixelPointOffset::X)));
+		Write(particle, NC2Layout::ParticleOffset::TargetPixelY, static_cast<double>(Read<std::int32_t>(pixelPoint, NC2Layout::PixelPointOffset::Y)));
 		const auto mode = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::MovementMode);
 		if (mode == SwitchIds::ParticleMotionMode::Linear || mode == SwitchIds::ParticleMotionMode::Parabolic) LogicParticelObject_CalculateMovingVector(particle);
 	}
@@ -258,7 +258,7 @@ namespace NC2E2
 		Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::UseWind, 0);
 		Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::FadingSpawn, 0);
 		void* frames = ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), maximum - 1u);
-		const auto age = frames != nullptr ? Read<std::uint32_t>(ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency)), 4) : 100u;
+		const auto age = frames != nullptr ? Read<std::uint32_t>(ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency)), NC2Layout::ParticleFramesOffset::FrameCount) : 100u;
 		Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::DrawBottom, 0);
 		Write(particle, NC2Layout::ParticleOffset::RemainingLifetimeTicks, age);
 	}
@@ -431,8 +431,8 @@ namespace NC2E2
 		if (index == 1000) return;
 		void* record = At(manager, NC2Layout::ParticleManagerOffset::GeneratorsUnsigned + index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned);
 		Write(record, NC2Layout::ParticleGeneratorSlotOffset::ChancePercent, chance);
-		Write(record, NC2Layout::ParticleGeneratorSlotOffset::PixelPoint, Read<std::uint32_t>(pixelPoint, 0));
-		Write(record, NC2Layout::ParticleGeneratorSlotOffset::PixelY, Read<std::uint32_t>(pixelPoint, 4));
+		Write(record, NC2Layout::ParticleGeneratorSlotOffset::PixelPoint, Read<std::uint32_t>(pixelPoint, NC2Layout::PixelPointOffset::X));
+		Write(record, NC2Layout::ParticleGeneratorSlotOffset::PixelY, Read<std::uint32_t>(pixelPoint, NC2Layout::PixelPointOffset::Y));
 		Write<std::uint8_t>(record, NC2Layout::ParticleGeneratorSlotOffset::Enabled, 0);
 		Write(record, NC2Layout::ParticleGeneratorSlotOffset::GeneratorId, generatorId);
 		Write(record, NC2Layout::ParticleGeneratorSlotOffset::Identifier, identifier);
@@ -477,7 +477,7 @@ namespace NC2E2
 			if (Read<std::uint8_t>(record, NC2Layout::ParticleGeneratorSlotOffset::Active) == 0 || Read<std::uint8_t>(record, NC2Layout::ParticleGeneratorSlotOffset::Enabled) == 0) continue;
 			auto point = Read<std::uint32_t>(record, NC2Layout::ParticleGeneratorSlotOffset::MapPoint);
 			if (RandUnsigned() % 100u >= Read<std::uint32_t>(record, NC2Layout::ParticleGeneratorSlotOffset::ChancePercent)) continue;
-			void* generator = At(Read<void*>(gE2ParticelGeneratorManager, 4), Read<std::uint32_t>(record, NC2Layout::ParticleGeneratorSlotOffset::GeneratorId) * NC2Layout::RecordSize::ParticleGeneratorUnsigned);
+			void* generator = At(Read<void*>(gE2ParticelGeneratorManager, NC2Layout::ParticleGeneratorManagerOffset::Entries), Read<std::uint32_t>(record, NC2Layout::ParticleGeneratorSlotOffset::GeneratorId) * NC2Layout::RecordSize::ParticleGeneratorUnsigned);
 			if (Read<std::uint8_t>(generator, NC2Layout::ParticleGeneratorOffset::UseRandomArea) != 0) ParticelGenerator_OffsetMapPoint(generator, &point);
 			E2ParticelGenerator_GenerateParticel(generator, &point, At(record, NC2Layout::ParticleGeneratorSlotOffset::PixelPoint));
 		}

@@ -1,6 +1,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2ObjectLayout.h"
 #include "C2StringAccess.h"
 #include "XStringArray.h"
 namespace NC2Logic
@@ -81,7 +82,7 @@ namespace NC2Logic
 	const char* StringAccess_GetHouseNamePtr(std::uint32_t type, std::uint32_t developmentStage, std::uint32_t amount)
 	{
 		const void* names = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(type);
-		if (names == nullptr || developmentStage >= NC2Lifetime::Read<std::uint32_t>(names, 0x18)) return nullptr;
-		return StringAccess_GetHouseNamePtr(NC2Lifetime::Read<std::uint32_t>(names, developmentStage * 4u), amount);
+		if (names == nullptr || developmentStage >= NC2Lifetime::Read<std::uint32_t>(names, NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount)) return nullptr;
+		return StringAccess_GetHouseNamePtr(NC2Lifetime::Read<std::uint32_t>(names, developmentStage * NC2Layout::RecordSize::HouseStageValueUnsigned), amount);
 	}
 }

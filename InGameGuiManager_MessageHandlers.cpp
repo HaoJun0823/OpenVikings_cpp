@@ -110,7 +110,7 @@ namespace
 		}
 		if (std::strncmp(history, "netsaklam", 9) == 0)
 		{
-			auto* world = manager->GetDesktop(); auto variant = NC2Lifetime::Read<std::uint32_t>(world, 0x238) + 1u; if (variant == 4) variant = 0; NC2InGameGuiWorldElement::WorldDisplayElement_DarkenBitmap_Init(world, variant); matched = true;
+			auto* world = manager->GetDesktop(); auto variant = NC2Lifetime::Read<std::uint32_t>(world, NC2Layout::WorldGuiElementOffset::DarkenVariant) + 1u; if (variant == 4) variant = 0; NC2InGameGuiWorldElement::WorldDisplayElement_DarkenBitmap_Init(world, variant); matched = true;
 		}
 		if (matched)
 		{
@@ -288,7 +288,7 @@ namespace
 		};
 		if (check(20))
 		{
-			std::byte packet[20]{ }; packet[0] = std::byte{ 0x86 }; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); Write<std::uint32_t>(packet, 4, 1); queue(packet); return confirm();
+			std::byte packet[20]{ }; packet[0] = std::byte{ 0x86 }; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); Write<std::uint32_t>(packet, NC2Layout::GameControlCommandOffset::Value, 1); queue(packet); return confirm();
 		}
 		if (check(21))
 		{
@@ -310,11 +310,11 @@ namespace
 		}
 		if (check(22))
 		{
-			std::byte packet[20]{ }; packet[0] = std::byte{ 0x87 }; Write<std::uint32_t>(packet, 4, gGameTime.speed < 0.01 ? static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.retainedSpeed)) : 0); queue(packet); return confirm();
+			std::byte packet[20]{ }; packet[0] = std::byte{ 0x87 }; Write<std::uint32_t>(packet, NC2Layout::GameSpeedCommandOffset::Speed, gGameTime.speed < 0.01 ? static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.retainedSpeed)) : 0); queue(packet); return confirm();
 		}
 		if (check(23))
 		{
-			const auto speed = Logic_EntryPoint_GameTime_GetSpeed(); std::byte packet[20]{ }; packet[0] = std::byte{ 0x87 }; Write<std::uint32_t>(packet, 4, speed < 12.0 ? 12 : speed < 24.0 ? 24 : speed < 36.0 ? 36 : 12); queue(packet); return confirm();
+			const auto speed = Logic_EntryPoint_GameTime_GetSpeed(); std::byte packet[20]{ }; packet[0] = std::byte{ 0x87 }; Write<std::uint32_t>(packet, NC2Layout::GameSpeedCommandOffset::Speed, speed < 12.0 ? 12 : speed < 24.0 ? 24 : speed < 36.0 ? 36 : 12); queue(packet); return confirm();
 		}
 		if (check(15))
 		{
@@ -402,7 +402,7 @@ static void DefaultHandler_VehicleCommand(std::uint32_t action)
 			case SwitchIds::VehicleGuiAction::GotoAndWait: opcode = 0x64; break; case SwitchIds::VehicleGuiAction::Stop: opcode = 0x66; break; case SwitchIds::VehicleGuiAction::MilitaryAggressive: case SwitchIds::VehicleGuiAction::MilitaryDefensive: case SwitchIds::VehicleGuiAction::MilitaryIgnore: opcode = 0x6F; break; case SwitchIds::VehicleGuiAction::DetachVehicle: if (single) opcode = 0x72; break; case SwitchIds::VehicleGuiAction::ResetWantedAmounts: if (single) opcode = 0x6E; break;
 		}
 		if (opcode == 0) return;
-		std::byte packet[20]{ }; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(packet, 4, id); if (opcode == 0x6F) Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
+		std::byte packet[20]{ }; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, id); if (opcode == 0x6F) Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
 	};
 	if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 4)
 	{
@@ -434,7 +434,7 @@ static void DefaultHandler_HouseCommand(std::uint32_t command)
 		constexpr std::uint8_t opcode[14] = { 0x5B,0x5C,0x5D,0x5D,0x5D,0x5D,0x5D,0x5D,0x5E,0x5E,0x5F,0x5F,0x61,0x61 };
 		constexpr std::uint32_t first[14] = { 0,0,0,0,1,1,2,2,1,0,1,0,1,0 };
 		constexpr std::uint32_t second[14] = { 0,0,1,0,1,0,1,0,0,0,1,1,0,0 };
-		std::byte packet[20]{ }; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode[index - 1]); Write(packet, 4, id); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, first[index - 1]); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter2, second[index - 1]); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet);
+		std::byte packet[20]{ }; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode[index - 1]); Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, first[index - 1]); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter2, second[index - 1]); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet);
 	}
 	manager->l_Selection_RemoveAllGuiElements();
 }

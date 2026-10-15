@@ -81,8 +81,8 @@ namespace NC2Logic
 	// Original function: FUN_0041ae3e; shared folded constructor, complete type identity unresolved.
 	void* __fastcall ConstructPointMembers(void* data, void* /*unusedEdx*/)
 	{
-		Write<std::uint16_t>(data, 6, 0); Write<std::uint16_t>(data, 4, 0);
-		Write<std::uint16_t>(data, 10, 0); Write<std::uint16_t>(data, 8, 0);
+		Write<std::uint16_t>(data, NC2Layout::EmbeddedMapPointPairOffset::FirstY, 0); Write<std::uint16_t>(data, NC2Layout::EmbeddedMapPointPairOffset::FirstX, 0);
+		Write<std::uint16_t>(data, NC2Layout::EmbeddedMapPointPairOffset::SecondY, 0); Write<std::uint16_t>(data, NC2Layout::EmbeddedMapPointPairOffset::SecondX, 0);
 		return data;
 	}
 
@@ -102,7 +102,7 @@ namespace NC2Logic
 	{
 		for (std::uint32_t offset = 4; offset < 0x24; offset += 4)
 		{
-			NC2Lifetime::Write<std::uint16_t>(data, offset + 2, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0);
+			NC2Lifetime::Write<std::uint16_t>(data, offset + NC2Layout::MapCoordinatePairOffset::Y, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0);
 		} return data;
 	}
 	// Original function: FUN_0045eb8c; player and count are initialized separately by callers.
@@ -110,7 +110,7 @@ namespace NC2Logic
 	{
 		for (std::uint32_t offset = 8; offset < 0x30; offset += 4)
 		{
-			NC2Lifetime::Write<std::uint16_t>(data, offset + 2, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0);
+			NC2Lifetime::Write<std::uint16_t>(data, offset + NC2Layout::MapCoordinatePairOffset::Y, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0);
 		} return data;
 	}
 

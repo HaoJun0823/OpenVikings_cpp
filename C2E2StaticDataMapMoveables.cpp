@@ -170,7 +170,7 @@ namespace NC2E2
 			Write(gStaticMapMoveableData, countOffset, count);
 			if (count == 0) return;
 			auto* records = AllocateCleared<std::byte>(count * NC2Layout::RecordSize::StaticAnimalVehicleGraphicsUnsigned);
-			Write(gStaticMapMoveableData, countOffset + 4, records);
+			Write(gStaticMapMoveableData, countOffset + NC2Layout::CountedArrayOffset::Entries, records);
 			auto* record = records;
 			for (char* group = reader.GetFirstGroup("jobgraphics"); group != nullptr; group = reader.GetNextGroup("jobgraphics"), record += NC2Layout::RecordSize::StaticAnimalVehicleGraphics)
 				while (reader.GetNextCommandLineInGroup() != nullptr)

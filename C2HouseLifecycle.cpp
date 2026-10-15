@@ -134,9 +134,9 @@ namespace NC2Logic
 		if (House_GetHouseMainType(house) == 2)
 		{
 			const auto offset = player * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType) * 0x42u;
-			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed, Read<std::uint8_t>(gGameControl, offset + 0x1D68));
-			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancers, Read<std::uint8_t>(gGameControl, offset + 0x1D69));
-			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed, Read<std::uint8_t>(gGameControl, offset + 0x1D5B));
+			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed, Read<std::uint8_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 28));
+			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancers, Read<std::uint8_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 29));
+			Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed, Read<std::uint8_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 15));
 		}
 		else if (type == 1 || type == 37)
 		{

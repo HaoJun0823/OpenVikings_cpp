@@ -89,7 +89,7 @@ namespace NC2Logic
 		}
 		auto* house = House(id);
 		if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
-		if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0)
+		if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::SoldierUnarmed) != 0)
 		{
 			Queue(human, 21, 31, 0); return 0;
 		}

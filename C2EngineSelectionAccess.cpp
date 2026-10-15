@@ -62,10 +62,10 @@ namespace NC2E2
 			Write(output, NC2Layout::DisplayObjectReferenceOffset::MapPosition, point);
 			const auto offset = type == SwitchIds::MapObjectUnderCursor::Human ? NC2Layout::DisplayObjectReferenceOffset::HumanIdUnsigned : type == SwitchIds::MapObjectUnderCursor::Animal ? NC2Layout::DisplayObjectReferenceOffset::AnimalIdUnsigned : NC2Layout::DisplayObjectReferenceOffset::VehicleIdUnsigned;
 			Write(output, offset, id);
-			Write(output, offset + 4, Read<std::uint32_t>(object, 8));
+			Write(output, offset + NC2Layout::ObjectReferenceOffset::Revision, Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId));
 			Write(output, NC2Layout::DisplayObjectReferenceOffset::MapMoveableId, moveableId);
 			Write(output, NC2Layout::DisplayObjectReferenceOffset::MapMoveableUniqueId, NC2Logic::MapMoveable_GetUniqueId(NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable));
-			Write(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int32_t>(object, type == 3 ? 0x1E0 : 0x10));
+			Write(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int32_t>(object, type == 3 ? NC2Layout::VehicleOffset::PlayerId : NC2Layout::ActorPlayerOffset::HumanOrAnimalPlayerId));
 			std::memcpy(static_cast<std::byte*>(output) + NC2Layout::DisplayObjectReferenceOffset::BobData, &bobs, sizeof(bobs));
 		}
 	}
@@ -95,7 +95,7 @@ namespace NC2E2
 				S2DEngineDisplaySearchObjectBobData bobs;
 				const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
 				const auto phase = static_cast<std::uint32_t>(x + y * 2);
-				if (type == 1 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId)), 0x38) != 1)
+				if (type == 1 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId)), NC2Layout::StaticLandscapeOffset::LogicType) != 1)
 				{
 					DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId)), Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency), phase, &bobs);
 					if (IsHit(bobs, mouse, base))
@@ -154,8 +154,8 @@ namespace NC2E2
 						Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::Type, SwitchIds::MapObjectUnderCursor::Guide);
 						Write(output, NC2Layout::DisplayObjectReferenceOffset::MapPosition, point);
 						Write<std::uint32_t>(output, NC2Layout::DisplayObjectReferenceOffset::GuideId, guideId);
-						Write(output, NC2Layout::DisplayObjectReferenceOffset::GuideUniqueId, Read<std::uint32_t>(Guide(guideId), 0x10));
-						Write(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int32_t>(Guide(guideId), 4));
+						Write(output, NC2Layout::DisplayObjectReferenceOffset::GuideUniqueId, Read<std::uint32_t>(Guide(guideId), NC2Layout::GuideOffset::UniqueId));
+						Write(output, NC2Layout::DisplayObjectReferenceOffset::PlayerId, Read<std::int32_t>(Guide(guideId), NC2Layout::GuideOffset::PlayerId));
 						std::memcpy(static_cast<std::byte*>(output) + NC2Layout::DisplayObjectReferenceOffset::BobData, &bobs, sizeof(bobs));
 						priority = 25;
 					}
@@ -181,8 +181,8 @@ namespace NC2E2
 					else if (marker)
 					{
 						const auto* data = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
-						if (Read<std::uint32_t>(data, 0x10) != 1 || Read<std::int32_t>(data, 0x14) == -1) continue;
-						id = Read<std::uint32_t>(data, 0x14); object = Human(id); objectType = 1;
+						if (Read<std::uint32_t>(data, NC2Layout::MarkerOffset::Type) != 1 || Read<std::int32_t>(data, NC2Layout::MarkerOffset::HumanId) == -1) continue;
+						id = Read<std::uint32_t>(data, NC2Layout::MarkerOffset::HumanId); object = Human(id); objectType = 1;
 						objectPoint = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(object), NC2Layout::MapCoordinatePairOffset::Coordinates); objectMoveable = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MapMoveableId);
 					}
 					else continue;

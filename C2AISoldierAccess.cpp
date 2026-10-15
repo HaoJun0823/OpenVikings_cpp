@@ -39,7 +39,7 @@ namespace NC2Logic
 		void CountWeapon(void* handler, const void* human)
 		{
 			const auto* weapon = static_cast<const std::byte*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]) + Human_Equipment_GetWeaponType(human) * 0xC4;
-			const auto offset = NC2Layout::AISinglePlayerOffset::WeaponCategoryCounts + Read<std::uint32_t>(weapon, 32) * 4;
+			const auto offset = NC2Layout::AISinglePlayerOffset::WeaponCategoryCounts + Read<std::uint32_t>(weapon, NC2Layout::StaticWeaponTypeOffset::MainType) * 4;
 			Write(handler, offset, Read<std::uint32_t>(handler, offset) + 1);
 		}
 		void RefreshNeeds(void* human)
@@ -203,7 +203,7 @@ namespace NC2Logic
 		{
 			const auto count = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::VehicleCount);
 			std::uint32_t i = 0;
-			while (i < count && Read<std::uint32_t>(entries + i * NC2Layout::RecordSize::AIVehicle, 0) != static_cast<std::uint32_t>(id)) ++i;
+			while (i < count && Read<std::uint32_t>(entries + i * NC2Layout::RecordSize::AIVehicle, NC2Layout::AIVehicleOffset::VehicleId) != static_cast<std::uint32_t>(id)) ++i;
 			if (i != count) continue;
 			auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
 			std::byte command[20]{ };
@@ -253,7 +253,7 @@ namespace NC2Logic
 			if (id == -1) return false;
 			return humans ? AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHuman(handler, slot, id, defence) : AISinglePlayerHandler_l_SingleSoldiers_Let_AttackVehicle(handler, slot, id, defence);
 		};
-		if (Read<std::uint8_t>(weapon, 0x58) != 0)
+		if (Read<std::uint8_t>(weapon, NC2Layout::StaticWeaponTypeOffset::HasMunition) != 0)
 		{
 			if (attackMoveable(false, true) || attackMoveable(true, true)) return true;
 		}
@@ -424,7 +424,7 @@ namespace NC2Logic
 			for (std::uint32_t i = 0; i < tasks; ++i)
 			{
 				if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) != 0 || Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) == 0) continue;
-				const auto* description = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription + Read<std::uint32_t>(combined(i), 20) * NC2Layout::RecordSize::AIMainTask;
+				const auto* description = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription + Read<std::uint32_t>(combined(i), NC2Layout::AICombinedTaskOffset::MainTaskIndices) * NC2Layout::RecordSize::AIMainTask;
 				std::uint32_t point = 0;
 				if (!AITaskSimpleDescription_Tool_GetMapPosition(description, &point)) continue;
 				candidates(description, &point); assign(i, description, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::AllocatedSoldierCounts + i * NC2Layout::RecordSize::AITaskIndexValue), firstCommand);
@@ -440,9 +440,9 @@ namespace NC2Logic
 			if (count >= Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::MinimumSoldiers)) Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i, 1);
 		}
 		std::uint32_t totalPriority = 0;
-		for (std::uint32_t i = 0; i < tasks; ++i) if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) == 0 && Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) != 0) totalPriority += Read<std::uint32_t>(combined(i), 4);
+		for (std::uint32_t i = 0; i < tasks; ++i) if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) == 0 && Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) != 0) totalPriority += Read<std::uint32_t>(combined(i), NC2Layout::AICombinedTaskOffset::Priority);
 		const auto priorityFactor = 100.0 / static_cast<std::int32_t>(totalPriority);
-		for (std::uint32_t i = 0; i < tasks; ++i) if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) == 0 && Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) != 0) Write(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationPriorityPercent + i * NC2Layout::RecordSize::AISoldierScoreEntry, static_cast<double>(Read<std::int32_t>(combined(i), 4)) * priorityFactor);
+		for (std::uint32_t i = 0; i < tasks; ++i) if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) == 0 && Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) != 0) Write(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationPriorityPercent + i * NC2Layout::RecordSize::AISoldierScoreEntry, static_cast<double>(Read<std::int32_t>(combined(i), NC2Layout::AICombinedTaskOffset::Priority)) * priorityFactor);
 		for (std::uint32_t i = 0; i < tasks; ++i)
 		{
 			if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationFinished + i) != 0 || Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::TaskAllocationEligible + i) == 0) continue;

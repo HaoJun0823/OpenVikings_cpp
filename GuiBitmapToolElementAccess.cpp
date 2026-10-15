@@ -419,7 +419,7 @@ namespace NC2InGameGuiBase
 		auto* font = NC2GuiToolsBase::DrawTool_GetFont10Ptr();
 		const char* caption = static_cast<const char*>(element) + 0x30;
 		const auto textWidth = NXBasics::Font_GetPixelWidth(font, caption);
-		const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - Read<std::uint32_t>(font, 8)) / 2) - 3u);
+		const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - Read<std::uint32_t>(font, NC2Layout::FontOffset::Height)) / 2) - 3u);
 		const auto x = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - static_cast<std::uint32_t>(textWidth)) / 2;
 		bitmap->Text_Print(font, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, y, caption);
 	}

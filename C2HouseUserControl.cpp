@@ -94,10 +94,10 @@ namespace NC2Logic
 		if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
 		const auto* stages = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
 		const auto nextStage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u;
-		if (nextStage >= Read<std::uint32_t>(stages, 0x18)) return false;
-		const auto nextLogicType = Read<std::uint32_t>(stages, nextStage * 4u);
+		if (nextStage >= Read<std::uint32_t>(stages, NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount)) return false;
+		const auto nextLogicType = Read<std::uint32_t>(stages, nextStage * NC2Layout::RecordSize::HouseStageValueUnsigned);
 		const auto permissionIndex = Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + 0x18u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType) * 55u + nextLogicType;
-		return Read<std::uint8_t>(gGameControl, permissionIndex + 0x2808) != 0 && Read<std::uint8_t>(gGameControl, permissionIndex + 0x310E) != 0;
+		return Read<std::uint8_t>(gGameControl, permissionIndex + NC2Layout::PlayerAllowedThingsOffset::AllowedHouses) != 0 && Read<std::uint8_t>(gGameControl, permissionIndex + NC2Layout::PlayerAllowedThingsOffset::AvailableHouses) != 0;
 	}
 	// Original function: FUN_00433549.
 	void House_UserControl_GetCommands(const void* house, std::int32_t player, SUserCommandsForHouseHandler* commands)

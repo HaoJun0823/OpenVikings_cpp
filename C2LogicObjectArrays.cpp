@@ -73,10 +73,10 @@ namespace NC2Logic
 	// Original function: FUN_004417d2; a reference stores the ID and revision in DWORDs.
 	bool HumanReference_IsAllocated(const void* reference)
 	{
-		const auto id = NC2Lifetime::Read<std::uint32_t>(reference, 0);
+		const auto id = NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::HumanReferenceOffset::HumanId);
 		if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
 		const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-		return NC2Lifetime::Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == NC2Lifetime::Read<std::uint32_t>(reference, 4);
+		return NC2Lifetime::Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::HumanReferenceOffset::UniqueId);
 	}
 	// Original function: FUN_0042d2ee.
 	bool Human_HasEquippedShoes(const void* human)

@@ -34,7 +34,7 @@ namespace NC2Logic
 		{
 			for (std::uint32_t i = 0; i < 50; ++i)
 			{
-				Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::FirstAreaY + i * 8, 0); Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::Areas + i * 8, 0);
+				Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::FirstAreaY + i * NC2Layout::RecordSize::AIInvalidArea, 0); Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::Areas + i * NC2Layout::RecordSize::AIInvalidArea, 0);
 			}
 		}
 	}
@@ -100,7 +100,7 @@ namespace NC2Logic
 		for (std::uint32_t good = 0; good < 66; ++good)
 		{
 			if (!AIGlobalGoods_IsNeedingVillage(bytes + 0x9520, good)) continue;
-			if (Read<std::uint32_t>(handler, 0x6AB0 + good * 16) == 1)
+			if (Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::ResourceGoodRequirements + good * NC2Layout::RecordSize::AIResourceGood) == 1)
 			{
 				while (AIResourceManager_IsResourceOnMap(resources, good))
 				{
@@ -119,11 +119,11 @@ namespace NC2Logic
 	{
 		auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
 		const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId);
-		if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, NC2Layout::AIHighLevelOffset::GuideDestination) == NXBasics::IntegerRange::UInt16MaximumSigned)
+		if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::PendingVillageFlag) != 0 && Read<std::uint16_t>(handler, NC2Layout::AIHighLevelOffset::GuideDestination) == NXBasics::IntegerRange::UInt16MaximumSigned)
 		{
 			if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE))
 			{
-				if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuidePairSearchExhaustedFlag) != 0) Write<std::uint8_t>(handler, 0x67AD, 1);
+				if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuidePairSearchExhaustedFlag) != 0) Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::PendingVillageConfirmedFlag, 1);
 			}
 			else AIGuideManager_BuildGuideNearPosition(guides, player, bytes + 0x67AE);
 		}
@@ -138,9 +138,9 @@ namespace NC2Logic
 		for (std::uint32_t village = 0; village < 8; ++village)
 		{
 			auto* entry = static_cast<std::byte*>(handler) + 0x24 + village * 0xCF0;
-			if (Read<std::uint8_t>(entry, 0) == 0) continue;
+			if (Read<std::uint8_t>(entry, NC2Layout::AIVillagePhysicalSlotOffset::Active) == 0) continue;
 			for (std::uint32_t good = 0; good < 66; ++good)
-				if (Read<std::uint8_t>(entry, 0x281 + good * 40) != 0 && Read<std::uint32_t>(handler, 0x9548 + good * 80) == 1 && Read<std::int32_t>(handler, 0x9520 + good * 80) != -1) AIGoodManager_SetTraderBringFlag(entry + 0x278, good, true);
+				if (Read<std::uint8_t>(entry, NC2Layout::AIHighLevelVillageActiveViewOffset::FirstGoodImportingFlag + good * NC2Layout::RecordSize::AIGood) != 0 && Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::FirstGlobalGoodHasProducer + good * NC2Layout::RecordSize::AIGlobalGood) == 1 && Read<std::int32_t>(handler, NC2Layout::AIHighLevelOffset::GlobalGoods + good * NC2Layout::RecordSize::AIGlobalGood) != -1) AIGoodManager_SetTraderBringFlag(entry + 0x278, good, true);
 		}
 	}
 	// Original function: FUN_00429191.

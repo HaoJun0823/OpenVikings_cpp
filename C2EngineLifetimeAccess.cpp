@@ -633,11 +633,11 @@ namespace NC2E2
 	{
 		for (std::uint32_t index = 0; index < Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount); ++index)
 		{
-			void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * 4);
+			void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * NC2Layout::RecordSize::ParticleFrameId);
 			if (entry != nullptr)
 			{
 				StaticParticelEntry_Delete(entry, 1);
-				Write<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * 4, nullptr);
+				Write<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * NC2Layout::RecordSize::ParticleFrameId, nullptr);
 			}
 		}
 		if (Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries) != nullptr) FreeAndClearField(list, NC2Layout::ParticleGraphicsOffset::Entries);
@@ -649,7 +649,7 @@ namespace NC2E2
 		if ((flags & 2) != 0)
 		{
 			allocation = static_cast<std::byte*>(data) - 4;
-			const std::uint32_t count = Read<std::uint32_t>(allocation, 0);
+			const std::uint32_t count = Read<std::uint32_t>(allocation, NC2Layout::ObjectArrayCookieOffset::ElementCount);
 			if (NXBasics::Runtime_TimeSigned32(count - 1u) >= 0)
 			{
 				std::uintptr_t cursor = reinterpret_cast<std::uintptr_t>(data) + count * 0x48u + 0x34u;
@@ -784,8 +784,8 @@ namespace NC2E2
 		while (void* entry = list->l_Base_GetStartElement())
 		{
 			list->l_Base_RemoveElement(entry);
-			DeleteStorable(Read<void*>(entry, 0x78));
-			DeleteStorable(Read<void*>(entry, 0x7C));
+			DeleteStorable(Read<void*>(entry, NC2Layout::TextureCacheEntryOffset::Bitmap));
+			DeleteStorable(Read<void*>(entry, NC2Layout::TextureCacheEntryOffset::Palette));
 			NXBasics::Runtime_Free(entry);
 		}
 		NXBasics::Runtime_Free(gStaticDataTextures.bitmaps);
@@ -834,7 +834,7 @@ namespace NC2E2
 		if (allocation != nullptr)
 		{
 			entries = allocation + 4;
-			Write(allocation, 0, count);
+			Write(allocation, NC2Layout::ObjectArrayCookieOffset::ElementCount, count);
 			if (NXBasics::Runtime_TimeSigned32(count - 1u) >= 0)
 				for (std::uint32_t i = 0; i < count; ++i) DynamicHuman_Construct(entries + i * NC2Layout::RecordSize::DynamicHumanUnsigned);
 		}
@@ -963,7 +963,7 @@ namespace NC2E2
 		if ((flags & 2) != 0)
 		{
 			allocation = static_cast<std::byte*>(human) - 4;
-			Vector_Destruct(human, NC2Layout::RecordSize::DynamicHuman, Read<std::uint32_t>(allocation, 0), DynamicHuman_Destruct);
+			Vector_Destruct(human, NC2Layout::RecordSize::DynamicHuman, Read<std::uint32_t>(allocation, NC2Layout::ObjectArrayCookieOffset::ElementCount), DynamicHuman_Destruct);
 		}
 		else
 		{
@@ -1021,7 +1021,7 @@ namespace NC2E2
 					if (map != nullptr) EngineMap_Construct(map, nullptr);
 					C2DEngineDisplayManager::sTheObjectPtr->InformThatMapXtructed();
 					Write<std::uint32_t>(gE2HumanSoundManager, NC2Layout::HumanSoundManagerOffset::LastGenericSoundTick, 0);
-					Write<std::uint32_t>(CE2AnimalSoundManager::sTheObjectPtr, 0, 0);
+					Write<std::uint32_t>(CE2AnimalSoundManager::sTheObjectPtr, NC2Layout::AnimalSoundManagerOffset::LastUpdate, 0);
 				}
 				else
 				{
@@ -1211,8 +1211,8 @@ namespace NC2E2
 	static void* LogicParticelObject_Construct(void* object)
 	{
 		for (std::uint32_t offset = 8; offset <= 0x50; offset += 8) Write<double>(object, offset, 0.0);
-		Write<std::uint16_t>(object, 0x5A, 0);
-		Write<std::uint16_t>(object, 0x58, 0);
+		Write<std::uint16_t>(object, NC2Layout::LogicParticleOffset::MapPositionY, 0);
+		Write<std::uint16_t>(object, NC2Layout::LogicParticleOffset::MapPositionX, 0);
 		return object;
 	}
 	// Original function: FUN_004863b7.
@@ -1231,7 +1231,7 @@ namespace NC2E2
 	{
 		for (std::uint32_t index = 0; index < 1000; ++index)
 		{
-			Write<std::uint16_t>(array, index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned + 2u, 0);
+			Write<std::uint16_t>(array, index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned + NC2Layout::MapCoordinatePairOffset::YUnsigned, 0);
 			Write<std::uint16_t>(array, index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned, 0);
 		}
 		return array;
@@ -1296,7 +1296,7 @@ namespace NC2E2
 		if (cd != nullptr && cd->IsStillPlaying()) cd->StopTrack();
 		if (mode == 1)
 		{
-			if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, 0x14) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+			if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, NC2Layout::DirectMusicManagerOffset::CurrentEventId) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
 			return;
 		}
 		if (gameTime % 120u != 0) gWorldMusicState.eventVariant = WorldMusic_GetEventVariant();
@@ -1319,7 +1319,7 @@ namespace NC2E2
 	// Original function: FUN_00485ed7.
 	void WorldMusic_UpdateCdTrack()
 	{
-		if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, 0x14) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+		if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, NC2Layout::DirectMusicManagerOffset::CurrentEventId) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
 		auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
 		if (cd == nullptr || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") != 3) return;
 		const auto current = cd->GetCurrentTrack();
@@ -1345,7 +1345,7 @@ namespace NC2E2
 	{
 		const auto inTransition = [] ()
 		{
-			const std::int32_t programState = Read<std::int32_t>(NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, 0);
+			const std::int32_t programState = Read<std::int32_t>(NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, NC2Layout::MasterControlOffset::ProgramState);
 			return programState == 7 || programState == 8 || programState == 9;
 		};
 		switch (type)

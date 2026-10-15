@@ -1,6 +1,7 @@
 #include "C2DataIds.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2ObjectLayout.h"
 #include "C2StaticHouseTypeData.h"
 #include "SwitchIdentifiers.h"
 #include "XIniFileReader.h"
@@ -103,9 +104,9 @@ namespace NC2Logic
 						if (record.workerCount != 10)
 						{
 							const std::int32_t jobType = reader.GetInt();
-							NC2Lifetime::Write<std::int32_t>(&record, static_cast<std::uint32_t>(record.workerCount) * 8u + 0x10u, jobType);
+							NC2Lifetime::Write<std::int32_t>(&record, static_cast<std::uint32_t>(record.workerCount) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned + NC2Layout::StaticHouseTypeOffset::WorkersUnsigned, jobType);
 							const std::int32_t secondValue = reader.GetInt();
-							NC2Lifetime::Write<std::int32_t>(&record, static_cast<std::uint32_t>(record.workerCount) * 8u + 0x14u, secondValue);
+							NC2Lifetime::Write<std::int32_t>(&record, static_cast<std::uint32_t>(record.workerCount) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned + NC2Layout::StaticHouseTypeOffset::FirstWorkerMaximumUnsigned, secondValue);
 							record.workerCount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(record.workerCount) + 1u);
 						}
 						break;
@@ -119,10 +120,10 @@ namespace NC2Logic
 							if (maximumAmount > 1000) maximumAmount = 1000;
 							const auto offset = record.stockCount * 12u + 0x64u;
 							NC2Lifetime::Write<std::int32_t>(&record, offset, goodType);
-							NC2Lifetime::Write<std::int32_t>(&record, offset + 4u, maximumAmount);
-							NC2Lifetime::Write<std::uint8_t>(&record, offset + 8u, flag);
+							NC2Lifetime::Write<std::int32_t>(&record, offset + NC2Layout::StaticHouseStockOffset::MaximumAmountUnsigned, maximumAmount);
+							NC2Lifetime::Write<std::uint8_t>(&record, offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned, flag);
 							// Preserve signed IDs and the original ID-66 write into +0x484.
-							NC2Lifetime::Write<std::uint32_t>(&record, 0x37Cu + static_cast<std::uint32_t>(goodType) * 4u, record.stockCount);
+							NC2Lifetime::Write<std::uint32_t>(&record, NC2Layout::StaticHouseTypeOffset::StockIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned, record.stockCount);
 							++record.stockCount;
 						}
 						break;
@@ -131,8 +132,8 @@ namespace NC2Logic
 						{
 							const std::int32_t goodType = reader.GetInt();
 							if (goodType >= 66) break;
-							NC2Lifetime::Write<std::int32_t>(&record, 0x488u + record.productionCount * 4u, goodType);
-							NC2Lifetime::Write<std::uint32_t>(&record, 0x4D8u + static_cast<std::uint32_t>(goodType) * 4u, record.productionCount);
+							NC2Lifetime::Write<std::int32_t>(&record, NC2Layout::StaticHouseTypeOffset::ProductionGoodsUnsigned + record.productionCount * NC2Layout::RecordSize::HouseTypeIndexUnsigned, goodType);
+							NC2Lifetime::Write<std::uint32_t>(&record, NC2Layout::StaticHouseTypeOffset::ProductionIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned, record.productionCount);
 							++record.productionCount;
 						}
 						break;
@@ -157,11 +158,11 @@ namespace NC2Logic
 			const auto& record = gStaticHouseTypeData[type];
 			for (std::int32_t worker = 0; worker < record.workerCount; ++worker)
 			{
-				if (NC2Lifetime::Read<std::int32_t>(&record, 0x10u + static_cast<std::uint32_t>(worker) * 8u) != jobType) continue;
+				if (NC2Lifetime::Read<std::int32_t>(&record, NC2Layout::StaticHouseTypeOffset::WorkersUnsigned + static_cast<std::uint32_t>(worker) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned) != jobType) continue;
 				for (std::uint32_t slot = 0; slot < record.stockCount; ++slot)
 				{
 					const auto offset = 0x64u + slot * 12u;
-					if (NC2Lifetime::Read<std::uint8_t>(&record, offset + 8u) == 0 && NC2Lifetime::Read<std::int32_t>(&record, offset) == goodType) return static_cast<std::int32_t>(type);
+					if (NC2Lifetime::Read<std::uint8_t>(&record, offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned) == 0 && NC2Lifetime::Read<std::int32_t>(&record, offset) == goodType) return static_cast<std::int32_t>(type);
 				}
 			}
 		}
@@ -178,7 +179,7 @@ namespace NC2Logic
 			for (std::uint32_t slot = 0; slot < record.stockCount; ++slot)
 			{
 				const auto offset = 0x64u + slot * 12u;
-				if (NC2Lifetime::Read<std::uint8_t>(&record, offset + 8u) == 0 && NC2Lifetime::Read<std::int32_t>(&record, offset) == goodType) return static_cast<std::int32_t>(type);
+				if (NC2Lifetime::Read<std::uint8_t>(&record, offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned) == 0 && NC2Lifetime::Read<std::int32_t>(&record, offset) == goodType) return static_cast<std::int32_t>(type);
 			}
 		}
 		return 0;

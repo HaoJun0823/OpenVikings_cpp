@@ -63,7 +63,7 @@ namespace NC2E2
 		}
 		void AssignTexture(Shader& shader, I id)
 		{
-			shader.texture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[id], 0x24);
+			shader.texture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[id], NC2Layout::BitmapStorageOffset::RawMemory);
 			shader.palette = gStaticDataTextures.palettes[id];
 		}
 		void AssignVertex(NToolGouraudShader::SVertex& vertex, const SCorner& corner, const I* coordinates, bool colors)
@@ -162,7 +162,7 @@ namespace NC2E2
 			{
 				const auto* transition = (firstMask & 8) != 0 ? road2 : (firstMask & 4) != 0 ? road1 : (firstMask & NXBasics::BitMask::Bit5Signed) != 0 ? house2 : (firstMask & NXBasics::BitMask::Bit4Signed) != 0 ? house1 : nullptr;
 				AssignTexture(shader, transition->textureId);
-				shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition->alphaTextureId], 0x24);
+				shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition->alphaTextureId], NC2Layout::BitmapStorageOffset::RawMemory);
 				const I shape = shapes[present + (triangleA ? 0 : 7)];
 				coordinates = triangleA ? transition->coordinatesA[shape] : transition->coordinatesB[shape];
 			}
@@ -214,7 +214,7 @@ namespace NC2E2
 		for (unsigned triangle = 0; triangle != 2; ++triangle)
 		{
 			const auto& corners = triangles[triangle];
-			const auto& pattern = patterns[visible[triangle] ? Read<std::uint16_t>(macro, triangle * 2) : gStaticPatternStorage.borderIds[0]];
+			const auto& pattern = patterns[visible[triangle] ? Read<std::uint16_t>(macro, triangle * NC2Layout::RecordSize::EnginePatternId) : gStaticPatternStorage.borderIds[0]];
 			AssignTexture(shader, pattern.textureId);
 			const I* coordinates = triangle == 0 ? pattern.coordinatesA : pattern.coordinatesB;
 			const unsigned indicesA[3] = { 4, 0, 2 }, indicesB[3] = { 2, 4, 0 };
@@ -226,11 +226,11 @@ namespace NC2E2
 			if (!visible[triangle]) continue;
 			for (int layer = 1; layer >= 0; --layer)
 			{
-				const auto encoded = Read<std::uint8_t>(macro, 7 + triangle + layer * 2);
+				const auto encoded = Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Transitions + triangle + layer * NC2Layout::RecordSize::MacroTransitionLayer);
 				if (encoded == NXBasics::IntegerRange::UInt8MaximumSigned || (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlagsByte1) & (layer == 0 ? 8 : 0x10)) != 0) continue;
 				const auto& transition = gStaticTransitionStorage.entries[encoded / 6];
 				AssignTexture(shader, transition.textureId);
-				shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition.alphaTextureId], 0x24);
+				shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition.alphaTextureId], NC2Layout::BitmapStorageOffset::RawMemory);
 				coordinates = triangle == 0 ? transition.coordinatesA[encoded % 6] : transition.coordinatesB[encoded % 6];
 				for (unsigned i = 0; i != 3; ++i) AssignVertex(shader.vertices[i], corners[i], coordinates + indices[i], true);
 				shader.XShade_VertexColor_Alpha();
@@ -303,7 +303,7 @@ namespace NC2E2
 		{
 			bitmap->Fill(std::uint8_t(0)); return;
 		}
-		NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader), 0x0C, 0);
+		NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader), NC2Layout::GouraudShaderOffset::Flags, 0);
 		worldX = Wrap(worldX, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels));
 		worldY = Wrap(worldY, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels));
 		std::int16_t rectangle[4]{ };

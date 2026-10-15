@@ -30,7 +30,7 @@ namespace NC2Logic
 	{
 		if (NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction) == 1) return true;
 		const auto* moveable = gMapMoveableArrayStorage.entries + NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-		return NC2Lifetime::Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4) == 1;
+		return NC2Lifetime::Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), NC2Layout::MapPathfinderOffset::SearchState) == 1;
 	}
 	using namespace NC2Lifetime;
 
@@ -55,7 +55,7 @@ namespace NC2Logic
 			for (auto id = static_cast<std::int32_t>(Read<std::int16_t>(micro, NC2Layout::MapMicroPointOffset::FirstMapMoveableId)); id != -1;)
 			{
 				const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-				const auto state = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
+				const auto state = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), NC2Layout::MapPathfinderOffset::SearchState);
 				if (state == 0 || state == 3) return false;
 				id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
 			}
@@ -356,11 +356,11 @@ namespace NC2Logic
 		{
 			if (other == player || (seen & (1u << other)) == 0) continue;
 			void* otherData = static_cast<std::byte*>(gGameControl) + other * NC2Layout::RecordSize::GameControlPlayer;
-			if (Read<std::uint8_t>(otherData, 0) == 0 || Read<std::uint8_t>(otherData, 0x45F8u + player) != 0) continue;
-			Write<std::uint8_t>(otherData, 0x45F8u + player, 1);
+			if (Read<std::uint8_t>(otherData, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0 || Read<std::uint8_t>(otherData, NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + player) != 0) continue;
+			Write<std::uint8_t>(otherData, NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + player, 1);
 			CCallbackManager::sTheObjectPtr->ExecuteCallback(0x29, true, other, player, MapMigPoint_GetLong(point));
 			const void* ownData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-			if (Read<std::uint8_t>(ownData, 0x4994u + other) != 0) continue;
+			if (Read<std::uint8_t>(ownData, NC2Layout::GameControlPlayerOffset::SuppressPlayerSeenMessagesUnsigned + other) != 0) continue;
 			std::byte message[772];
 			ToUserMessage_Construct(message);
 			Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3C);
@@ -451,7 +451,7 @@ namespace NC2Logic
 			{
 				AIManager_Message_StartSelfDefence(gAIManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), target); return true;
 			}
-			for (std::uint32_t index = 0; index < 3; ++index) Write(human, NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned + index * 4u, target[index]);
+			for (std::uint32_t index = 0; index < 3; ++index) Write(human, NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned + index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned, target[index]);
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
 			return false;
 		}
@@ -463,7 +463,7 @@ namespace NC2Logic
 			const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)));
 			if (distance > 40)
 			{
-				Write<std::uint32_t>(secondary, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return false;
+				Write<std::uint32_t>(secondary, NC2Layout::TargetDataOffset::Type, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return false;
 			}
 		}
 		return true;

@@ -302,9 +302,9 @@ namespace NInGameGuiManager
 	// Original function: FUN_004a2acd.
 	void CInGameGuiManager::l_UpdateElement0038()
 	{
-		if (Read<void*>(this, 0x38) == nullptr || l_IsElement0038Required()) return;
-		NXBaseGui::CDesktop::sTheObjectPtr->Element_Delete(Read<NXBaseGui::CBaseElement*>(this, 0x38));
-		Write<void*>(this, 0x38, nullptr);
+		if (Read<void*>(this, NC2Layout::InGameGuiManagerOffset::NetworkInfoButton) == nullptr || l_IsElement0038Required()) return;
+		NXBaseGui::CDesktop::sTheObjectPtr->Element_Delete(Read<NXBaseGui::CBaseElement*>(this, NC2Layout::InGameGuiManagerOffset::NetworkInfoButton));
+		Write<void*>(this, NC2Layout::InGameGuiManagerOffset::NetworkInfoButton, nullptr);
 	}
 
 	// Original function: FUN_004a2d80; callback mutation follows the original iterator.

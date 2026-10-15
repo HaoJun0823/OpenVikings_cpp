@@ -99,7 +99,7 @@ namespace NC2InGameGuiSelection
 		const auto* guide = SelectedGuide(Selection_GetSelectedGuideId(gInputManager)); if (guide == nullptr) return; auto* font = CGuiBaseDataManager::mStaticVars.resources.font08; bitmap->Text_PrintV(font, White(), 4, 40, Text(274)); std::int32_t x = 4, y = 66;
 		for (std::uint32_t good = 0; good < 66; ++good)
 		{
-			const auto amount = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCounts + good * 4u); if (amount == 0) continue; if (x + 26 > 170)
+			const auto amount = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCounts + good * NC2Layout::RecordSize::GuideGoodCountUnsigned); if (amount == 0) continue; if (x + 26 > 170)
 			{
 				y += 22; x = 4;
 			} DrawTool_PrintStringXV(bitmap, x, y, font, White(), "{gfxgood:%d,1}", good, amount); char caption[100]; NXBasics::Runtime_PrintString(caption, "%d %s", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount)); Tooltips(window)->Add(SRectangle(x, y, 24, 20), caption); x += 26;

@@ -176,10 +176,10 @@ namespace NC2Logic
 			if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? NC2Layout::GameControlPlayerOffset::SoldiersKilledUnsigned : NC2Layout::GameControlPlayerOffset::CiviliansKilledUnsigned);
 			// Windows 0041AE3E initializes the two positions only; other fields are assigned by this caller.
 			alignas(4) std::byte effect[28];
-			Write(effect, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)));
-			Write(effect, 8, MapMigPoint_GetLong(source));
-			Write(effect, 0x14, player);
-			Write(effect, 0x18, human);
+			Write(effect, NC2Layout::DirectionalParticleCallbackOffset::MapPoint, MapMigPoint_GetLong(Human_GetMapPositionRef(human)));
+			Write(effect, NC2Layout::DirectionalParticleCallbackOffset::DirectionPoint, MapMigPoint_GetLong(source));
+			Write(effect, NC2Layout::DirectionalParticleCallbackOffset::PlayerId, player);
+			Write(effect, NC2Layout::DirectionalParticleCallbackOffset::Human, human);
 			CCallbackManager::sTheObjectPtr->ExecuteCallback(0x27, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(effect)), damage, 0);
 			if (data.soundTypesHit[armor.materialType] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[armor.materialType], MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 1);
 			if (TargetData_IsValid(attacker))
@@ -208,7 +208,7 @@ namespace NC2Logic
 			// Native comparison deliberately checks type/revision without comparing the object id.
 			if (allowed && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision) == attacker[2] && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget) == attacker[0]))
 			{
-				for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * 4u, attacker[index]);
+				for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned, attacker[index]);
 				if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
 			}
 		}

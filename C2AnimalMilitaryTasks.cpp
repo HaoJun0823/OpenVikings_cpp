@@ -67,7 +67,7 @@ namespace NC2Logic
 		const auto owner = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
 		auto consider = [&] (const void* object, std::uint32_t kind, const void* position)
 		{
-			const auto id = Read<std::uint32_t>(object, 4), revision = Read<std::uint32_t>(object, 8);
+			const auto id = Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::Id), revision = Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId);
 			if (Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) == kind && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) == id && Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) == revision) return;
 			const auto distance = Distance(position, center);
 			if (distance >= targetDistance || distance >= bestDistance) return;

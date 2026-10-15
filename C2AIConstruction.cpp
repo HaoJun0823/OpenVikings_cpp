@@ -17,14 +17,14 @@ namespace NC2Logic
 		{
 			for (std::uint32_t i = 0; i < count; ++i)
 			{
-				Write<std::uint16_t>(array, offset + stride * i + 2, 0);
+				Write<std::uint16_t>(array, offset + stride * i + NC2Layout::MapCoordinatePairOffset::Y, 0);
 				Write<std::uint16_t>(array, offset + stride * i, 0);
 			}
 		}
 		// Original function: FUN_00408fa6; main-task calculation fields.
 		void* AIMainTask_CalcVars_Construct(void* fields)
 		{
-			Write<std::uint32_t>(fields, 8, 0); Write<std::uint32_t>(fields, 12, 0); return fields;
+			Write<std::uint32_t>(fields, NC2Layout::AIMainTaskCalcVarsOffset::SourcePoint, 0); Write<std::uint32_t>(fields, NC2Layout::AIMainTaskCalcVarsOffset::TargetPoint, 0); return fields;
 		}
 		// Original function: FUN_00407e28.
 		void* AIMainTaskArray_Construct(void* array)
@@ -78,7 +78,7 @@ namespace NC2Logic
 		void* AISingleSoldiers_Construct(void* soldiers)
 		{
 			AISingleSoldierArray_Construct(soldiers);
-			Write<std::uint16_t>(soldiers, 0x41C8, 0); Write<std::uint16_t>(soldiers, 0x41C6, 0); return soldiers;
+			Write<std::uint16_t>(soldiers, NC2Layout::AISingleSoldiersOffset::DefaultPositionY, 0); Write<std::uint16_t>(soldiers, NC2Layout::AISingleSoldiersOffset::DefaultPositionX, 0); return soldiers;
 		}
 		// Original function: FUN_00407f23.
 		void* AISingleSoldierCalcArray_Construct(void* array)
@@ -188,7 +188,7 @@ namespace NC2Logic
 	{
 		for (std::uint32_t i = 0; i < 500; ++i)
 		{
-			Write<std::uint16_t>(manager, i * 12 + 2, 0); Write<std::uint16_t>(manager, i * 12, 0);
+			Write<std::uint16_t>(manager, i * NC2Layout::RecordSize::FishSwarm + NC2Layout::FishSwarmOffset::MapPositionY, 0); Write<std::uint16_t>(manager, i * NC2Layout::RecordSize::FishSwarm, 0);
 		}
 		return manager;
 	}

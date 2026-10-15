@@ -882,7 +882,7 @@ namespace NC2E2
 			for (std::uint32_t offset = 0; offset < NC2Layout::RecordSize::GameControlPlayerArray; offset += NC2Layout::RecordSize::GameControlPlayer)
 			{
 				auto* player = static_cast<std::byte*>(NC2Logic::gGameControl) + offset;
-				Write<std::uint8_t>(player, 0, 1);
+				Write<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::ActiveFlag, 1);
 				Write<std::uint32_t>(player, NC2Layout::GameControlPlayerOffset::Type, 1);
 				Write<std::uint32_t>(player, NC2Layout::GameControlPlayerOffset::TribeType, 1);
 			}

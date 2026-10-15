@@ -301,7 +301,7 @@ namespace NC2InGameGuiWorldElement
 			if (overrideHandler != nullptr)
 			{
 				using THandle = bool(__fastcall*)(void*, void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-				const auto handle = Read<THandle>(Read<void*>(overrideHandler, NC2Layout::GuiBaseElementOffset::VirtualTable), 8);
+				const auto handle = Read<THandle>(Read<void*>(overrideHandler, NC2Layout::GuiBaseElementOffset::VirtualTable), NC2Layout::GuiVirtualTableOffset::MessageHandle);
 				if (handle(overrideHandler, nullptr, 0x800, Read<std::int32_t>(element, offset + NC2Layout::WorldClickHandlerOffset::Command), 0, 0, 0)) return true;
 			}
 		}

@@ -48,7 +48,7 @@ namespace NC2Logic
 	std::int32_t SPlayerStatisticSampleData::GetNumber(std::int32_t type) const
 	{
 		if (type >= 16 && type <= 81) return goods[type - 16];
-		if (type >= 0 && type <= 14) return Read<std::uint16_t>(this, static_cast<std::uint32_t>(type) * 2u);
+		if (type >= 0 && type <= 14) return Read<std::uint16_t>(this, static_cast<std::uint32_t>(type) * NC2Layout::RecordSize::StatisticCountUnsigned);
 		if (type == 15) return static_cast<std::int32_t>(goodTotal);
 		if (type >= 82 && type <= 84) return static_cast<std::int32_t>(values114[type - 82]);
 		if (type >= 85 && type <= 86) return static_cast<std::int32_t>(values130[type - 85]);
@@ -77,8 +77,8 @@ namespace NC2Logic
 		for (std::uint32_t player = 0; player < 20; ++player)
 		{
 			const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-			if (Read<std::uint8_t>(playerData, 0) == 0) continue;
-			if (Read<std::uint32_t>(playerData, 4) == 1)
+			if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
+			if (Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Type) == 1)
 			{
 				void* history = NXBasics::Runtime_AllocateWithNewHandler(187200, 1);
 				Write<void*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned, history);
@@ -177,9 +177,9 @@ namespace NC2Logic
 		Tool_PlayerStatistics_CountHouses(player, sample->houses);
 		Tool_PlayerStatistics_CountGoods(player, &sample->goodTotal);
 		const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-		sample->values114[0] = Read<std::uint32_t>(playerData, 0x4A14);
-		sample->values114[1] = Read<std::uint32_t>(playerData, 0x4A18);
-		sample->values114[2] = Read<std::uint32_t>(playerData, 0x4A1C);
+		sample->values114[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::BabiesBorn);
+		sample->values114[1] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HumansDied);
+		sample->values114[2] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::SoldiersDied);
 		sample->values130[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Wealth);
 		sample->values130[1] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HappinessValue);
 	}

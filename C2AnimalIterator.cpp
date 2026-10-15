@@ -82,8 +82,8 @@ namespace NC2Logic
 	CAnimalIterator* CAnimalIterator::l_InitIteratorFields()
 	{
 		// Game.exe has WORD stores at +0Ah then +08h; the text export misdecodes the first store.
-		NC2Lifetime::Write<std::uint16_t>(this, 0x0A, 0);
-		NC2Lifetime::Write<std::uint16_t>(this, 0x08, 0);
+		NC2Lifetime::Write<std::uint16_t>(this, NC2Layout::AnimalIteratorOffset::CenterY, 0);
+		NC2Lifetime::Write<std::uint16_t>(this, NC2Layout::AnimalIteratorOffset::CenterX, 0);
 		firstSector.x = 0;
 		firstSector.y = 0;
 		lastSector.x = 0;

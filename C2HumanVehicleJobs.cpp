@@ -115,8 +115,8 @@ namespace NC2Logic
 	std::uint32_t Human_l_FindVehicleBuildPointNearWorkCenter(const void* human, std::int32_t engineType, std::uint32_t stage, bool ignoreContinents, std::uint32_t continent, void* realPosition, void* workPosition, const void* candidate, std::uint32_t size)
 	{
 		const void* micro = GameMap_GetConstMapMicroPointPtr(candidate);
-		if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < size || !Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), engineType, stage, Read<std::uint32_t>(candidate, 0), ignoreContinents, false)) return 0;
-		Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, 0));
+		if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < size || !Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), engineType, stage, Read<std::uint32_t>(candidate, NC2Layout::TargetDataOffset::Type), ignoreContinents, false)) return 0;
+		Write(workPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, NC2Layout::TargetDataOffset::Type));
 		if (ignoreContinents && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) == continent || !Tool_House_IsWorkPointOnContinent(candidate, engineType, stage, continent, workPosition))) return 0;
 		const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
 		const auto* area = Read<const CMapArea*>(definition, NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
@@ -130,7 +130,7 @@ namespace NC2Logic
 				Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
 			}
 		}
-		Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, 0));
+		Write(realPosition, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(candidate, NC2Layout::TargetDataOffset::Type));
 		return 2;
 	}
 
@@ -258,7 +258,7 @@ namespace NC2Logic
 		const auto type = good >= 59 && good <= 63 ? good - 17u : 42u;
 		if (void* site = Human_FindVehicleConstructionSiteNearWorkCenter(human, type))
 		{
-			Human_l_AttachToVehicleBuildHouse(human, Read<std::int32_t>(site, 4)); return;
+			Human_l_AttachToVehicleBuildHouse(human, Read<std::int32_t>(site, NC2Layout::HouseOffset::HouseId)); return;
 		}
 		std::uint32_t real = 0, work = 0;
 		if (!Human_FindVehicleBuildPointNearWorkCenter(human, type, &real, &work)) return;

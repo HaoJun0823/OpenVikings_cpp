@@ -358,13 +358,13 @@ namespace NC2InGameGuiMiscWindows
 		const auto scroll = Read<std::int32_t>(list, NC2Layout::ListBoxOffset::ScrollY);
 		NC2InGameGuiBaseListBox::BaseListBoxElement_Element_DeleteAll(list);
 		const auto* dead = NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager;
-		const auto* records = Read<const std::byte*>(dead, 8);
+		const auto* records = Read<const std::byte*>(dead, NC2Layout::DeadHumanDataManagerOffset::Records);
 		NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22);
-		for (std::uint32_t index = 0; index < Read<std::uint32_t>(dead, 0); ++index)
+		for (std::uint32_t index = 0; index < Read<std::uint32_t>(dead, NC2Layout::DeadHumanDataManagerOffset::Count); ++index)
 		{
 			const auto* record = records + index * 0x3Cu;
 			char caption[200];
-			NXBasics::Runtime_PrintString(caption, "%s - %s", reinterpret_cast<const char*>(record + 4), StringAccess_GetJobNamePtr(Read<std::uint32_t>(record, 0x34), 1));
+			NXBasics::Runtime_PrintString(caption, "%s - %s", reinterpret_cast<const char*>(record + 4), StringAccess_GetJobNamePtr(Read<std::uint32_t>(record, NC2Layout::DeadHumanRecordOffset::JobType), 1));
 			auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(256, 1);
 			void* element = allocation == nullptr ? nullptr : BaseToolTextElement_Construct(allocation, nullptr, &row, caption, true, false);
 			Write<std::uint8_t>(element, NC2Layout::GuiTextElementOffset::FillBackgroundFlag, 0);

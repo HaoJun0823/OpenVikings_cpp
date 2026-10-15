@@ -71,10 +71,10 @@ namespace NC2Logic
 			for (std::uint32_t player = 0; player < 20u; ++player)
 			{
 				const auto* data = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-				if (counts[player].allocated == 0 && Read<std::uint8_t>(data, 0) == 0) continue;
+				if (counts[player].allocated == 0 && Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) == 0) continue;
 				const auto& c = counts[player];
 				char line[256];
-				NXBasics::Runtime_PrintString(line, "[OpenVikings] player=%u active=%u type=%u tribe=%u humans=%u attached=%u hidden=%u bodies=%u heads=%u explored=%u turning=%u\n", player, static_cast<std::uint32_t>(Read<std::uint8_t>(data, 0)), Read<std::uint32_t>(data, 4), Read<std::uint32_t>(data, 0xC), c.allocated, c.attached, c.hidden, c.bodies, c.heads, c.explored, c.turning);
+				NXBasics::Runtime_PrintString(line, "[OpenVikings] player=%u active=%u type=%u tribe=%u humans=%u attached=%u hidden=%u bodies=%u heads=%u explored=%u turning=%u\n", player, static_cast<std::uint32_t>(Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag)), Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Type), Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::TribeType), c.allocated, c.attached, c.hidden, c.bodies, c.heads, c.explored, c.turning);
 				::OutputDebugStringA(line);
 			}
 		}

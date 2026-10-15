@@ -75,9 +75,9 @@ namespace NC2E2
 			const auto soundId = sounds->staticSoundIdsByType[41];
 			if (soundId == NXBasics::IntegerRange::UInt32Maximum) return;
 			const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
-			if (Read<std::uint32_t>(sound, 0x28) == 0) return;
-			const auto wave = Read<std::uint32_t>(sound, 0x2C);
-			const auto volume = (Read<std::uint32_t>(sound, 0x30) * intensity) / 64u;
+			if (Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount) == 0) return;
+			const auto wave = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::Waves);
+			const auto volume = (Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::FirstWaveVolume) * intensity) / 64u;
 			auto* manager = NDSManager::CManager::sTheObjectPtr;
 			if (manager->PreloadWave_IsRunning(wave)) manager->PreloadWave_ChangeVolume(wave, volume, true, 200);
 			else manager->PreloadWave_Play(wave, volume, NXBasics::IntegerRange::UInt32Maximum, 64, true, 200);
@@ -263,7 +263,7 @@ namespace NC2E2
 				const auto flags = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags);
 				if ((flags & 1u) != 0 && (flags & NXBasics::BitMask::Bit18) == 0)
 				{
-					const std::uint16_t id = Read<std::uint16_t>(engine, 0);
+					const std::uint16_t id = Read<std::uint16_t>(engine, NC2Layout::EngineMapMicroPointOffset::LandscapeId);
 					if (id != NXBasics::IntegerRange::UInt16Maximum)
 					{
 						const auto* graphic = Landscape(id);
@@ -274,7 +274,7 @@ namespace NC2E2
 							const auto type = landscape ? Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) : 0;
 							std::uint32_t phase = static_cast<std::uint32_t>(static_cast<std::int32_t>(point[0]) + static_cast<std::int32_t>(point[1]) * 2);
 							// Typed pointer indexing already applies the native 0x9C-byte stride.
-							if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + type, 0x2D) & NXBasics::BitMask::Bit5) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
+							if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + type, NC2Layout::LandscapeLogicTypeOffset::TransitionMask + 1) & NXBasics::BitMask::Bit5) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
 							const std::int32_t player = landscape ? Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;
 							if (landscape && type == 82) DrawAtom_Landscape_Wall_DoDraw(bitmap, x, y, phase, display, point, player);
 							else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);

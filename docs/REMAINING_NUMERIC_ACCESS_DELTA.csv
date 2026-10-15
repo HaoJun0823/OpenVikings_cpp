@@ -1,0 +1,588 @@
+file,line,object,beforeOffset,afterOffset
+C2GameControlNetwork.cpp,188,gameControl,static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned,static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * NC2Layout::RecordSize::DiplomacyStateUnsigned + NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned
+C2PlayerCenterPosition.cpp,65,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag
+MainMenuGuiManager_WorldDisplay.cpp,15,this,4,NC2Layout::MainMenuManagerOffset::WorldDisplayElement
+MainMenuGuiManager_WorldDisplay.cpp,16,worldDisplayElement,0x30,NC2Layout::WorldGuiElementOffset::Display
+C2AnimalAccess.cpp,186,data,0x24u + action,NC2Layout::StaticJobTypeOffset::AllowedAtomicsUnsigned + action
+C2AnimalAccess.cpp,189,data,0x20,NC2Layout::StaticJobTypeOffset::BaseJob
+C2AnimalAccess.cpp,300,sector,other * 0x40u + 0x14,other * NC2Layout::RecordSize::SectorPlayerUnsigned + NC2Layout::SectorPlayerOffset::CivilianHouseCount
+C2AnimalAccess.cpp,300,sector,other * 0x40u + 0x2C,other * NC2Layout::RecordSize::SectorPlayerUnsigned + NC2Layout::SectorPlayerOffset::MilitaryHouseCount
+C2AnimalIterator.cpp,85,this,0x0A,NC2Layout::AnimalIteratorOffset::CenterY
+C2AnimalIterator.cpp,86,this,0x08,NC2Layout::AnimalIteratorOffset::CenterX
+C2E2StaticDataHumanMisc.cpp,66,gStaticGoodData,static_cast<std::uint32_t>(good) * 4u,static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::GoodGraphicsUnsigned
+C2E2StaticDataHumanMisc.cpp,213,record,countOffset + 4 + count * 4u,countOffset + NC2Layout::CountedArrayOffset::Entries + count * NC2Layout::RecordSize::PaletteChoiceIdUnsigned
+C2E2StaticDataHumanMisc.cpp,446,NC2Logic::gStaticJobTypeData,job * NC2Layout::RecordSize::JobType + 0x20,job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob
+C2E2StaticDataHumanMisc.cpp,457,NC2Logic::gStaticJobTypeData,job * NC2Layout::RecordSize::JobType + 0x20,job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob
+C2EngineDisplayAccess.cpp,1357,packedMapPoint,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2EngineDisplayAccess.cpp,1538,display,0x71,NC2Layout::WorldDisplayOffset::DrawFlagsByte1
+C2EngineDisplayAccess.cpp,1543,display,0x71,NC2Layout::WorldDisplayOffset::DrawFlagsByte1
+C2EngineLandscapeDrawing.cpp,78,sound,0x28,NC2Layout::StaticSoundFxOffset::WaveCount
+C2EngineLandscapeDrawing.cpp,79,sound,0x2C,NC2Layout::StaticSoundFxOffset::Waves
+C2EngineLandscapeDrawing.cpp,80,sound,0x30,NC2Layout::StaticSoundFxOffset::FirstWaveVolume
+C2EngineLandscapeDrawing.cpp,266,engine,0,NC2Layout::EngineMapMicroPointOffset::LandscapeId
+C2EngineLandscapeDrawing.cpp,277,NC2Logic::gStaticLandscapeTypeData + type,0x2D,NC2Layout::LandscapeLogicTypeOffset::TransitionMask + 1
+C2EngineMoveableDrawing.cpp,74,NC2Logic::gStaticJobTypeData,job * NC2Layout::RecordSize::JobType + 0x20,job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob
+C2GameMapAccess.cpp,22,micro,0,NC2Layout::MapMicroPointOffset::ObjectType
+C2GameMapAccess.cpp,23,micro,2,NC2Layout::MapMicroPointOffset::ObjectData
+C2GameMapAccess.cpp,23,micro,2,NC2Layout::MapMicroPointOffset::ObjectData
+C2GameMapAccess.cpp,24,micro,0,NC2Layout::MapMicroPointOffset::ObjectType
+C2GameMapAccess.cpp,25,micro,4,NC2Layout::MapMicroPointOffset::HouseId
+C2GameMapAccess.cpp,31,micro,0,NC2Layout::MapMicroPointOffset::ObjectType
+C2GameMapAccess.cpp,32,micro,2,NC2Layout::MapMicroPointOffset::ObjectData
+C2GameMapAccess.cpp,32,micro,2,NC2Layout::MapMicroPointOffset::ObjectData
+C2GameMapAccess.cpp,33,micro,0,NC2Layout::MapMicroPointOffset::ObjectType
+C2GameMapAccess.cpp,34,micro,4,NC2Layout::MapMicroPointOffset::HouseId
+C2LogicObjectArrays.cpp,76,reference,0,NC2Layout::HumanReferenceOffset::HumanId
+C2LogicObjectArrays.cpp,79,reference,4,NC2Layout::HumanReferenceOffset::UniqueId
+C2E2HumanSoundAccess.cpp,65,&root,0,NC2Layout::MapCoordinatePairOffset::X
+C2E2HumanSoundAccess.cpp,65,&root,2,NC2Layout::MapCoordinatePairOffset::Y
+C2E2HumanSoundAccess.cpp,85,good,0,NC2Layout::GoodGraphicsOffset::PalettePatchId
+C2E2HumanSoundAccess.cpp,143,data,8,NC2Layout::MunitionCallbackOffset::SourceHeight
+C2E2HumanSoundAccess.cpp,143,data,0x1C,NC2Layout::MunitionCallbackOffset::MunitionType
+C2E2HumanSoundAccess.cpp,143,data,0x20,NC2Layout::MunitionCallbackOffset::FlightTicks
+C2E2HumanSoundAccess.cpp,155,data,0x14,NC2Layout::DirectionalParticleCallbackOffset::PlayerId
+C2E2HumanSoundAccess.cpp,156,data,0x18,NC2Layout::DirectionalParticleCallbackOffset::Human
+C2OverviewObjectIterators.cpp,132,manager->GetSectorData(),(cell * 21u + player) * 0x40u + ((flags & 1u) != 0 ? 0x28u : 0x10u),(cell * NC2Layout::SectorLimits::PlayerSlotsUnsigned + player) * NC2Layout::RecordSize::SectorPlayerUnsigned + ((flags & 1u) != 0 ? NC2Layout::SectorPlayerOffset::MilitaryHouseHeadUnsigned : NC2Layout::SectorPlayerOffset::CivilianHouseHeadUnsigned)
+C2OverviewObjectIterators.cpp,134,CHouseArray::mStaticVars,static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize + 0x7A4u,static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize + NC2Layout::HouseOffset::NextSectorHouseIdUnsigned
+C2OverviewObjectIterators.cpp,219,guide,0,NC2Layout::GuideOffset::AllocatedFlag
+C2OverviewObjectIterators.cpp,220,guide,4,NC2Layout::GuideOffset::PlayerId
+C2OverviewObjectIterators.cpp,221,guide,0x14,NC2Layout::GuideOffset::MapPositionX
+C2OverviewObjectIterators.cpp,221,guide,0x16,NC2Layout::GuideOffset::MapPositionY
+C2OverviewObjectIterators.cpp,236,"Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58)",0,NC2Layout::MapMoveableOffset::AllocatedFlag
+C2OverviewObjectIterators.cpp,254,"Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58)",0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId
+C2OverviewObjectIterators.cpp,262,"Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58)",0,NC2Layout::MapMoveableOffset::AllocatedFlag
+GuiBitmapToolElementAccess.cpp,422,font,8,NC2Layout::FontOffset::Height
+XGuiElementAccess.cpp,166,CDesktop::sTheObjectPtr,0x12C,NC2Layout::GuiDesktopOffset::LeftButtonDownFlag
+XGuiElementAccess.cpp,182,point,0,NC2Layout::PixelPointOffset::X
+XGuiElementAccess.cpp,182,point,0,NC2Layout::PixelPointOffset::X
+XGuiElementAccess.cpp,183,point,4,NC2Layout::PixelPointOffset::Y
+XGuiElementAccess.cpp,183,point,4,NC2Layout::PixelPointOffset::Y
+InGameGuiManager.cpp,76,object,index * 4u + 2u,index * NC2Layout::RecordSize::MapMigPointUnsigned + NC2Layout::MapCoordinatePairOffset::YUnsigned
+InGameGuiManager.cpp,76,object,index * 4u,index * NC2Layout::RecordSize::MapMigPointUnsigned
+InGameGuiManager.cpp,83,object,0,NC2Layout::FrameRateCalculatorOffset::PreviousTick
+InGameGuiManager.cpp,751,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+InGameGuiManager.cpp,753,desktop,0x30,NC2Layout::WorldGuiElementOffset::Display
+MainMenuGuiManager_Access.cpp,169,desktopBitmap,4,NC2Layout::BitmapStorageOffset::Depth
+MainMenuGuiManager_Access.cpp,221,object,0,NC2Layout::ActorIdentityOffset::Allocated
+MainMenuGuiManager_Access.cpp,221,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+MainMenuGuiManager_Access.cpp,232,NC2Logic::CHumanArray::mStaticVars,"Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * 0xC58u + 0xC","Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * NC2Layout::RecordSize::HumanUnsigned + NC2Layout::HumanOffset::MapMoveableId"
+MainMenuGuiManager_Access.cpp,234,NC2Logic::CVehicleArray::mStaticVars,"Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * 0x54Cu + 0x1DC","Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * NC2Layout::RecordSize::VehicleUnsigned + NC2Layout::VehicleOffset::MapMoveableId"
+MainMenuGuiManager_Access.cpp,249,NC2Logic::CHumanArray::mStaticVars,static_cast<std::uint32_t>(humanId) * 0xC58u + 8,static_cast<std::uint32_t>(humanId) * NC2Layout::RecordSize::HumanUnsigned + NC2Layout::HumanOffset::UniqueId
+MainMenuGuiManager_Access.cpp,285,color,0,NC2Layout::ColorRGBOffset::PackedColor
+WorldDisplayElementAccess.cpp,304,"Read<void*>(overrideHandler, NC2Layout::GuiBaseElementOffset::VirtualTable)",8,NC2Layout::GuiVirtualTableOffset::MessageHandle
+XGuiDesktop.cpp,687,mActiveElement,0x64,NC2Layout::GuiBaseWindowOffset::ActiveChild
+XGuiDesktop.cpp,705,keyboard,0xC,NC2Layout::KeyManagerOffset::QueuedMessageCount
+XGuiDesktop.cpp,727,mouse,0x20,NC2Layout::MouseManagerOffset::StateChanged
+XGuiDesktop.cpp,799,areaOwner,4,NC2Layout::GuiBaseElementOffset::Rectangle
+XGuiDesktop.cpp,801,areaOwner,4,NC2Layout::GuiBaseElementOffset::Rectangle
+XGuiDesktop.cpp,834,window,0x34,NC2Layout::GuiWindowClipSizeOffset::Width
+XGuiDesktop.cpp,834,window,0x38,NC2Layout::GuiWindowClipSizeOffset::Height
+C2EngineLifetimeAccess.cpp,636,"Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries)",index * 4,index * NC2Layout::RecordSize::ParticleFrameId
+C2EngineLifetimeAccess.cpp,640,"Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries)",index * 4,index * NC2Layout::RecordSize::ParticleFrameId
+C2EngineLifetimeAccess.cpp,652,allocation,0,NC2Layout::ObjectArrayCookieOffset::ElementCount
+C2EngineLifetimeAccess.cpp,787,entry,0x78,NC2Layout::TextureCacheEntryOffset::Bitmap
+C2EngineLifetimeAccess.cpp,788,entry,0x7C,NC2Layout::TextureCacheEntryOffset::Palette
+C2EngineLifetimeAccess.cpp,837,allocation,0,NC2Layout::ObjectArrayCookieOffset::ElementCount
+C2EngineLifetimeAccess.cpp,966,allocation,0,NC2Layout::ObjectArrayCookieOffset::ElementCount
+C2EngineLifetimeAccess.cpp,1024,CE2AnimalSoundManager::sTheObjectPtr,0,NC2Layout::AnimalSoundManagerOffset::LastUpdate
+C2EngineLifetimeAccess.cpp,1214,object,0x5A,NC2Layout::LogicParticleOffset::MapPositionY
+C2EngineLifetimeAccess.cpp,1215,object,0x58,NC2Layout::LogicParticleOffset::MapPositionX
+C2EngineLifetimeAccess.cpp,1234,array,index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned + 2u,index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned + NC2Layout::MapCoordinatePairOffset::YUnsigned
+C2EngineLifetimeAccess.cpp,1299,gDirectMusicManager,0x14,NC2Layout::DirectMusicManagerOffset::CurrentEventId
+C2EngineLifetimeAccess.cpp,1322,gDirectMusicManager,0x14,NC2Layout::DirectMusicManagerOffset::CurrentEventId
+C2EngineLifetimeAccess.cpp,1348,NMasterControlProgram::CMasterControlProgram::sTheObjectPtr,0,NC2Layout::MasterControlOffset::ProgramState
+C2ScriptObjectAccess.cpp,18,micro,6,NC2Layout::MapMicroPointOffset::ContinentId
+C2ScriptObjectAccess.cpp,28,reference,0,NC2Layout::HumanReferenceOffset::HumanId
+C2ScriptObjectAccess.cpp,103,object,4,NC2Layout::ActorIdentityOffset::Id
+C2AIResourceAccess.cpp,215,"AIVillagesData_GetConstVillageDataById(villages, 0)",8,NC2Layout::AIVillageOffset::PlayerId
+C2AIVillageAccess.cpp,57,villages,i * NC2Layout::RecordSize::AIVillageSlot + 8,i * NC2Layout::RecordSize::AIVillageSlot + NC2Layout::AIVillageSlotViewOffset::Active
+C2AIVillageAccess.cpp,144,"AIVillagesData_GetVillageDataById(villages, 0)",8,NC2Layout::AIVillageOffset::PlayerId
+C2AIVillageAccess.cpp,227,"House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot)",0,NC2Layout::HouseAttachmentOffset::RoleMask
+C2AIVillageAccess.cpp,272,definition,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * 4,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * NC2Layout::RecordSize::HouseStageValue
+C2AIVillageAccess.cpp,276,resources,(outputLogic + 0x55) * 24,NC2Layout::AIResourceManagerOffset::HouseExports + outputLogic * NC2Layout::RecordSize::AIHouseExport
+C2AIVillageAccess.cpp,312,handler,0,NC2Layout::AIHighLevelOffset::PlayerId
+C2AIVillageAccess.cpp,346,village,0x280 + good * 40,NC2Layout::AIVillageOffset::FirstGoodNeedCount + good * NC2Layout::RecordSize::AIGood
+C2AIVillageAccess.cpp,435,"House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot)",0,NC2Layout::HouseAttachmentOffset::RoleMask
+C2AIVillageAccess.cpp,500,data,0x48 + level * 64,NC2Layout::EngineHouseLogicViewOffset::ConstructionGoodCounts + level * NC2Layout::RecordSize::HouseConstructionGoodList
+C2AIVillageAccess.cpp,501,data,0x4C + level * 64 + i * 4,NC2Layout::EngineHouseLogicViewOffset::FirstConstructionGood + level * NC2Layout::RecordSize::HouseConstructionGoodList + i * NC2Layout::RecordSize::HouseStageValue
+C2AIMovementMessages.cpp,209,handler,NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOriginsUnsigned + slot * 4u,NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOriginsUnsigned + slot * NC2Layout::RecordSize::MapMigPointUnsigned
+GuiTextToolElementAccess.cpp,110,font,8,NC2Layout::FontOffset::Height
+GuiTextToolElementAccess.cpp,213,font,8,NC2Layout::FontOffset::Height
+GuiClockToolElementAccess.cpp,207,font,8,NC2Layout::FontOffset::Height
+C2VehicleAccess.cpp,230,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag
+C2VehicleAccess.cpp,230,moveable,0x20,NC2Layout::MapMoveableOffset::Direction
+C2VehicleAccess.cpp,231,type,0x1C4,NC2Layout::StaticVehicleTypeOffset::PassengerVectorY
+C2VehicleAccess.cpp,473,gMapMoveableArrayStorage.entries,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + NC2Layout::MapMoveableOffset::MapPositionUnsigned"
+C2VehicleAccess.cpp,491,target,0,NC2Layout::TargetDataOffset::Type
+C2VehicleAccess.cpp,491,target,0,NC2Layout::TargetDataOffset::Type
+C2VehicleAccess.cpp,516,gMapMoveableArrayStorage.entries,"Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12u","Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + NC2Layout::MapMoveableOffset::MapPositionUnsigned"
+C2VehicleAccess.cpp,665,entry,0,NC2Layout::ActorIdentityOffset::Allocated
+C2VehicleAccess.cpp,666,entry,8,NC2Layout::ActorIdentityOffset::UniqueId
+InGameGuiBaseAccess.cpp,101,NC2InGameGuiInputManager::gInputManager,0,NC2Layout::InputManagerOffset::InputMode
+InGameGuiBaseAccess.cpp,109,NC2InGameGuiInputManager::gInputManager,0,NC2Layout::InputManagerOffset::InputMode
+InGameGuiBaseAccess.cpp,115,NC2InGameGuiInputManager::gInputManager,0,NC2Layout::InputManagerOffset::InputMode
+InGameGuiBaseAccess.cpp,124,NC2InGameGuiInputManager::gInputManager,0,NC2Layout::InputManagerOffset::InputMode
+InGameGuiBaseAccess.cpp,127,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+InGameGuiBaseAccess.cpp,130,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+C2HumanCommandAccess.cpp,492,human,0x4F8,NC2Layout::HumanOffset::QueuedExploreAreaAndUpdateCenterCommand
+C2HumanCommandAccess.cpp,493,human,0x4E4,NC2Layout::HumanOffset::QueuedBuildGuideCommand
+C2HumanCommandAccess.cpp,852,human,0x728,NC2Layout::HumanOffset::QueuedAssignJobCommand
+C2HumanCommandAccess.cpp,959,merchant,4,NC2Layout::MerchantOffset::TradeAgreementId
+C2UserMessageAccess.cpp,25,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+C2UserMessageAccess.cpp,126,CHumanArray::mStaticVars,human * CHumanArray::ElementSize + 8,human * CHumanArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId
+C2UserMessageAccess.cpp,128,CHouseArray::mStaticVars,house * CHouseArray::ElementSize + 8,house * CHouseArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId
+C2UserMessageAccess.cpp,130,CVehicleArray::mStaticVars,vehicle * CVehicleArray::ElementSize + 8,vehicle * CVehicleArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId
+C2UserMessageAccess.cpp,212,gui,0,NC2Layout::InGameGuiManagerOffset::LocalPlayerId
+C2UserMessageAccess.cpp,230,gui,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+C2UserMessageAccess.cpp,231,world,0x30,NC2Layout::WorldGuiElementOffset::Display
+C2UserMessageAccess.cpp,233,NInGameGuiManager::CInGameGuiManager::sTheObjectPtr,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+C2UserMessageAccess.cpp,234,world,0x30,NC2Layout::WorldGuiElementOffset::Display
+C2HumanMessageAccess.cpp,35,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x80u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::NeedsReligionUnsigned"
+C2HumanMessageAccess.cpp,51,MapMoveable_Pathfinder_GetPathfinderPtr(moveable),4,NC2Layout::MapPathfinderOffset::SearchState
+C2HumanMessageAccess.cpp,85,"HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId))",4,NC2Layout::MerchantOffset::TradeAgreementId
+C2InteractionTargetAccess.cpp,51,object,0,NC2Layout::ActorIdentityOffset::Allocated
+C2InteractionTargetAccess.cpp,51,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2InteractionTargetAccess.cpp,68,object,0,NC2Layout::ActorIdentityOffset::Allocated
+C2InteractionTargetAccess.cpp,68,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2InteractionTargetAccess.cpp,99,"TargetObject(type, TargetData_GetObjectId(target))",type == SwitchIds::TargetType::House ? 0x0Cu : type == SwitchIds::TargetType::Vehicle ? 0x1E0u : 0x10u,type == SwitchIds::TargetType::House ? NC2Layout::HouseOffset::PlayerIdUnsigned : type == SwitchIds::TargetType::Vehicle ? NC2Layout::VehicleOffset::PlayerIdUnsigned : NC2Layout::ActorPlayerOffset::HumanOrAnimalPlayerIdUnsigned
+C2InteractionTargetAccess.cpp,156,"TargetObject(SwitchIds::TargetType::House, id)",8,NC2Layout::HouseOffset::UniqueId
+MainMenuWorldDisplayElement.cpp,93,"Read<void*>(hovered, NC2Layout::GuiBaseElementOffset::VirtualTable)",8,NC2Layout::GuiVirtualTableOffset::MessageHandle
+MainMenuWorldDisplayElement.cpp,220,"Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display)",0x6C,NC2Layout::EngineDisplayOffset::FontSigned
+MainMenuWorldDisplayElement.cpp,238,"Read<void*>(element, NC2Layout::MenuWorldElementOffset::Bitmap)",4,NC2Layout::BitmapStorageOffset::Depth
+C2GameMapLoading.cpp,105,scratch,index * 2u,index * NC2Layout::RecordSize::SerializedWordUnsigned
+C2GameMapLoading.cpp,161,scratch,index * 2u,index * NC2Layout::RecordSize::SerializedWordUnsigned
+HyperLinkTextSystem.cpp,133,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,134,entry,0x108,NC2Layout::HyperlinkResourceOffset::Palette
+HyperLinkTextSystem.cpp,143,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,147,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,155,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,160,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,162,entry,0x108,NC2Layout::HyperlinkResourceOffset::Palette
+HyperLinkTextSystem.cpp,171,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,176,entry,0x104,NC2Layout::HyperlinkResourceOffset::Resource
+HyperLinkTextSystem.cpp,502,source,0x4C,NC2Layout::BitmapStorageOffset::Palette
+HyperLinkTextSystem.cpp,665,font,8,NC2Layout::FontOffset::Height
+InGameGuiManager_MessageHandlers.cpp,113,world,0x238,NC2Layout::WorldGuiElementOffset::DarkenVariant
+InGameGuiManager_MessageHandlers.cpp,291,packet,4,NC2Layout::GameControlCommandOffset::Value
+InGameGuiManager_MessageHandlers.cpp,313,packet,4,NC2Layout::GameSpeedCommandOffset::Speed
+InGameGuiManager_MessageHandlers.cpp,317,packet,4,NC2Layout::GameSpeedCommandOffset::Speed
+InGameGuiManager_MessageHandlers.cpp,405,packet,4,NC2Layout::UserNetworkCommandOffset::ObjectId
+InGameGuiManager_MessageHandlers.cpp,437,packet,4,NC2Layout::UserNetworkCommandOffset::ObjectId
+InGameGuiSavegameIO.cpp,92,"Read<void*>(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages)",4,NC2Layout::GuiDisplayedMessageOffset::UniqueId
+InGameGuiSavegameIO.cpp,188,NC2InGameGuiMessages::gMessageManager,8,NC2Layout::GuiMessageManagerOffset::MinimumPriority
+C2EngineMapIO.cpp,63,scratch,i * 2u,i * NC2Layout::RecordSize::SerializedWordUnsigned
+C2EngineMapIO.cpp,106,scratch,i * 2u,i * NC2Layout::RecordSize::SerializedWordUnsigned
+C2EngineMapIO.cpp,110,EngineMacro(),i * 12u + offset,i * NC2Layout::RecordSize::EngineMapMacroPointUnsigned + offset
+C2EngineMapIO.cpp,123,EngineMacro(),i * 12u + offset,i * NC2Layout::RecordSize::EngineMapMacroPointUnsigned + offset
+C2EngineMapIO.cpp,133,scratch,i * 2u,i * NC2Layout::RecordSize::SerializedWordUnsigned
+C2EngineMapIO.cpp,137,EngineMicro(),i * 4u,i * NC2Layout::RecordSize::EngineMapMicroPointUnsigned
+C2HumanJobAccess.cpp,30,gHumanMerchantArray,0x30,NC2Layout::MerchantManagerOffset::Entries
+C2HumanJobAccess.cpp,120,message,countOffset + 4u + count * 4u,countOffset + NC2Layout::CountedArrayOffset::EntriesUnsigned + count * NC2Layout::RecordSize::UserMessageItemUnsigned
+C2HumanJobAccess.cpp,134,human,0x39Cu + slot * 20u,NC2Layout::HumanOffset::FirstUserCommandParameter1Unsigned + slot * NC2Layout::RecordSize::UserNetworkCommand
+C2HumanJobAccess.cpp,190,table,NC2Layout::JobExperienceTypeListOffset::TypesUnsigned + index * 4u,NC2Layout::JobExperienceTypeListOffset::TypesUnsigned + index * NC2Layout::RecordSize::JobExperienceTypeIdUnsigned
+C2HumanJobAccess.cpp,592,data,0,NC2Layout::StaticHouseTypeOffset::MainType
+C2HumanJobAccess.cpp,603,data,(static_cast<std::uint32_t>(slot) * 3u + 0x1Bu) * 4u,NC2Layout::StaticHouseTypeOffset::StockUnsigned + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::StaticHouseStockUnsigned + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned
+C2HumanJobAccess.cpp,728,gStaticHouseTypeData,house * 0x624u,house * NC2Layout::RecordSize::StaticHouseTypeUnsigned
+C2HumanJobAccess.cpp,745,gStaticHouseTypeData,house * 0x624u,house * NC2Layout::RecordSize::StaticHouseTypeUnsigned
+C2HumanJobAccess.cpp,857,gStaticHouseTypeData,house * 0x624u,house * NC2Layout::RecordSize::StaticHouseTypeUnsigned
+C2HumanJobAccess.cpp,887,gStaticHouseTypeData,house * 0x624u,house * NC2Layout::RecordSize::StaticHouseTypeUnsigned
+C2HumanUserControl.cpp,43,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x82u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::CanHaveWorkHouseUnsigned"
+C2DefaultInteraction.cpp,144,Animal_GetConstMapMicroPointPtr(animal),6,NC2Layout::MapMicroPointOffset::ContinentId
+C2DefaultInteraction.cpp,207,landscape,0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+C2DefaultInteraction.cpp,241,"NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId))",4,NC2Layout::LandscapeLogicViewOffset::MaximumValency
+C2DefaultInteraction.cpp,333,landscape,0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+C2DefaultInteraction.cpp,343,landscape,0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+C2HumanTaskAccess.cpp,174,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanTaskAccess.cpp,174,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanTaskAccess.cpp,174,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanTaskAccess.cpp,374,target,4,NC2Layout::TargetDataOffset::ObjectIdOrMapPosition
+C2HumanTaskAccess.cpp,375,target,0,NC2Layout::TargetDataOffset::Type
+C2HumanTaskAccess.cpp,398,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanTaskAccess.cpp,654,JobData(human),0x84,NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouse
+C2HumanGoodieTasks.cpp,37,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x35u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::ListenAllowedUnsigned"
+C2HumanGoodieTasks.cpp,195,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x33u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::ListenNowAllowedUnsigned"
+C2HumanGoodieTasks.cpp,411,human,"0x39Cu + Read<std::uint32_t>(human, NC2Layout::HumanOffset::LastUserCommandIndex) * 20u","NC2Layout::HumanOffset::FirstUserCommandParameter1Unsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::LastUserCommandIndex) * NC2Layout::RecordSize::UserNetworkCommand"
+C2HumanGoodieTasks.cpp,414,human,0x444,NC2Layout::HumanOffset::QueuedGoodieCommand
+C2HumanGoodieTasks.cpp,547,animal,0x0C,NC2Layout::AnimalOffset::MapMoveableId
+C2HumanAtomicEvents.cpp,65,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x81u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::IgnoresHomeHouseUnsigned"
+C2HumanNeeds.cpp,44,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x32u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::TalkAllowedUnsigned"
+C2HumanNeeds.cpp,50,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x30u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::PrayAllowedUnsigned"
+C2HumanNeeds.cpp,62,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x2Fu","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::EatCandyAllowedUnsigned"
+C2HumanNeeds.cpp,125,gStaticJobTypeData,"Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u","Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouseUnsigned"
+C2HumanNeeds.cpp,355,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanNeeds.cpp,749,human,job == 1 || job == 3 ? 0x15D : 0x15E,job == 1 || job == 3 ? NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::BabyFemale : NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::BabyMale
+C2HumanNeeds.cpp,750,human,job == 1 || job == 3 ? 0x15F : 0x160,job == 1 || job == 3 ? NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::ChildFemale : NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::ChildMale
+C2HumanWalking.cpp,33,MapMoveable_Pathfinder_GetPathfinderPtr(moveable),4,NC2Layout::MapPathfinderOffset::SearchState
+C2HumanWalking.cpp,58,MapMoveable_Pathfinder_GetPathfinderPtr(moveable),4,NC2Layout::MapPathfinderOffset::SearchState
+C2HumanWalking.cpp,359,otherData,0,NC2Layout::GameControlPlayerOffset::ActiveFlag
+C2HumanWalking.cpp,359,otherData,0x45F8u + player,NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + player
+C2HumanWalking.cpp,360,otherData,0x45F8u + player,NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + player
+C2HumanWalking.cpp,363,ownData,0x4994u + other,NC2Layout::GameControlPlayerOffset::SuppressPlayerSeenMessagesUnsigned + other
+C2HumanWalking.cpp,454,human,NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned + index * 4u,NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned + index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned
+C2HumanWalking.cpp,466,secondary,0,NC2Layout::TargetDataOffset::Type
+C2HumanProduction.cpp,90,human,0x17B,NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::SoldierUnarmed
+C2HumanProduction.cpp,119,slot,8,NC2Layout::HouseAttachmentOffset::TrainingJobType
+C2HumanProduction.cpp,120,slot,12,NC2Layout::HouseAttachmentOffset::TrainingGoodType
+C2HumanProduction.cpp,127,"gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]",weapon * 0xC4u + 0x34u,weapon * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::JobTypeUnsigned
+C2HumanProduction.cpp,270,job,0x84,NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouse
+C2HumanProduction.cpp,540,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals
+C2HumanEquipment.cpp,161,weapons + weapon,0x34,NC2Layout::StaticWeaponTypeOffset::JobType
+C2HumanEquipment.cpp,248,LastCommand(human),0x10,NC2Layout::UserNetworkCommandOffset::Parameter2
+C2HumanEquipment.cpp,296,LastCommand(human),0,NC2Layout::UserNetworkCommandOffset::Opcode
+C2HumanEquipment.cpp,354,LastCommand(human),0x10,NC2Layout::UserNetworkCommandOffset::Parameter2
+C2HumanEquipment.cpp,433,LastCommand(human),0,NC2Layout::UserNetworkCommandOffset::Opcode
+C2HumanEquipment.cpp,467,LastCommand(human),0x10,NC2Layout::UserNetworkCommandOffset::Parameter2
+C2HumanEquipment.cpp,500,LastCommand(human),0,NC2Layout::UserNetworkCommandOffset::Opcode
+C2HumanEquipment.cpp,512,LastCommand(human),0,NC2Layout::UserNetworkCommandOffset::Opcode
+C2HumanEquipment.cpp,531,secondary,0,NC2Layout::InteractionTargetDataOffset::Type
+C2HumanEquipment.cpp,546,secondary,0,NC2Layout::InteractionTargetDataOffset::Type
+C2MapLandscapeChanges.cpp,187,External_Landscape_GetLogicDataPtr(target),0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+C2VehicleLifecycle.cpp,104,to,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2VehicleLifecycle.cpp,121,data.output,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2VehicleLifecycle.cpp,152,data.output,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2VehicleLifecycle.cpp,166,data.output,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2VehicleLifecycle.cpp,479,"Slot(vehicle, NC2Layout::VehicleOffset::HumanPassengersSigned, static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots))",8,NC2Layout::VehiclePassengerOffset::InsideFlagSigned
+C2VehicleLifecycle.cpp,510,vehicle,offset + 8,offset + NC2Layout::VehiclePassengerOffset::InsideFlagSigned
+C2VehicleLifecycle.cpp,572,data,0x24u + action,NC2Layout::StaticJobTypeOffset::AllowedAtomicsUnsigned + action
+C2VehicleLifecycle.cpp,575,data,0x20,NC2Layout::StaticJobTypeOffset::BaseJob
+InGameGuiTraderConfigWindow.cpp,123,first,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+InGameGuiTraderConfigWindow.cpp,123,second,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+XBitmapFileBMP.cpp,48,header,0,NC2Layout::BitmapFileHeaderOffset::Signature
+XBitmapFileBMP.cpp,48,header,2,NC2Layout::BitmapFileHeaderOffset::FileSize
+XBitmapFileBMP.cpp,48,header,10,NC2Layout::BitmapFileHeaderOffset::PixelDataOffset
+InGameGuiDiplomacyWindow.cpp,223,overview,0x8074,NC2Layout::OverviewElementOffset::DrawWalls
+InGameGuiDiplomacyWindow.cpp,334,NC2Logic::gGameControl,player * NC2Layout::RecordSize::GameControlPlayer + other * 4u + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned,player * NC2Layout::RecordSize::GameControlPlayer + other * NC2Layout::RecordSize::PlayerTradeCounterUnsigned + NC2Layout::GameControlPlayerOffset::GoodsReceivedFromPlayersUnsigned
+InGameGuiTechTreeWindow.cpp,351,gTechTreeWindowStatics,(command - 10100) * 4u + NC2Layout::TechTreeWindowStateOffset::SelectedHouseTypeUnsigned,(command - 10100) * NC2Layout::RecordSize::TechTreeSelectedHouseTypeUnsigned + NC2Layout::TechTreeWindowStateOffset::SelectedHouseTypeUnsigned
+InGameGuiHumanListWindow.cpp,249,"gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]","Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * 0xC4u + 0x24","Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::GoodType"
+InGameGuiHumanListWindow.cpp,461,element,0x36,NC2Layout::GuiGfxButtonOffset::Selected
+InGameGuiHumanListWindow.cpp,462,element,0x35,NC2Layout::GuiGfxButtonOffset::RectangularStyle
+InGameGuiHumanListWindow.cpp,561,first,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+InGameGuiHumanListWindow.cpp,561,second,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+InGameGuiHumanListWindow.cpp,567,state,0x18u + tribe * 56u + job,NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job
+InGameGuiHumanListWindow.cpp,568,state,0xC,NC2Layout::GameControlPlayerOffset::TribeType
+InGameGuiStatisticsWindow.cpp,361,dead,8,NC2Layout::DeadHumanDataManagerOffset::Records
+InGameGuiStatisticsWindow.cpp,363,dead,0,NC2Layout::DeadHumanDataManagerOffset::Count
+InGameGuiStatisticsWindow.cpp,367,record,0x34,NC2Layout::DeadHumanRecordOffset::JobType
+InGameGuiSimpleSelectionWindows.cpp,102,guide,NC2Layout::GuideOffset::GoodsCounts + good * 4u,NC2Layout::GuideOffset::GoodsCounts + good * NC2Layout::RecordSize::GuideGoodCountUnsigned
+InGameGuiLandscapeSelectionWindow.cpp,96,NC2LogicExternals::External_Landscape_GetLogicDataPtr(id),0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+InGameGuiLandscapeSelectionWindow.cpp,103,"NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(window, NC2Layout::LandscapeSelectionWindowOffset::EngineType))",0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+InGameGuiLandscapeSelectionWindow.cpp,126,data,0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+InGameGuiLandscapeSelectionWindow.cpp,140,data,0,NC2Layout::EngineLandscapeLogicViewOffset::LogicType
+InGameGuiGroupSelectionWindows.cpp,101,memory,0,NC2Layout::GuiBaseElementOffset::VirtualTable
+InGameGuiGroupSelectionWindows.cpp,101,memory,0x2C,NC2Layout::GroupSelectionElementOffset::HoveredObjectId
+InGameGuiGroupSelectionWindows.cpp,101,memory,0xF8,NC2Layout::GroupSelectionElementOffset::PressedCommand
+InGameGuiGroupSelectionWindows.cpp,101,memory,0xFC,NC2Layout::GroupSelectionElementOffset::ActionCommand
+InGameGuiGroupSelectionWindows.cpp,101,memory,0x100,NC2Layout::GroupSelectionElementOffset::Receiver
+InGameGuiGroupSelectionWindows.cpp,243,NC2E2::gE2StaticDataBobManagersManager,0x18,NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager
+InGameGuiSingleVehicleWindow.cpp,147,first,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+InGameGuiSingleVehicleWindow.cpp,147,second,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+InGameGuiSingleVehicleWindow.cpp,181,window,NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::VehicleWindowValue,NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index++) * NC2Layout::RecordSize::VehicleWindowValue
+InGameGuiSingleVehicleWindow.cpp,186,window,NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue,NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::VehicleWindowValue
+InGameGuiSingleVehicleWindow.cpp,190,window,0x26C + index * 4,NC2Layout::SingleVehicleWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::GoodId
+InGameGuiSingleVehicleWindow.cpp,192,window,0x26C + index * 4,NC2Layout::SingleVehicleWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::GoodId
+InGameGuiSingleVehicleWindow.cpp,204,data,index * 4,index * NC2Layout::RecordSize::GoodId
+InGameGuiSingleVehicleWindow.cpp,233,"Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton)",0x56,NC2Layout::GuiTextButtonOffset::DisabledFlag
+InGameGuiSingleVehicleWindow.cpp,243,data,0,NC2Layout::MerchantHouseOffset::HouseId
+InGameGuiSingleVehicleWindow.cpp,253,"Read<void*>(window, NC2Layout::SingleVehicleWindowOffset::TraderConfigButton)",0x56,NC2Layout::GuiTextButtonOffset::DisabledFlag
+InGameGuiSingleVehicleWindow.cpp,650,window,"NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockPage) * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue","NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockPage) * NC2Layout::VehicleWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::VehicleWindowValue"
+InGameGuiHouseWindow.cpp,176,window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::HouseWindowStockValue,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * NC2Layout::HouseWindowLimits::StockGoodsPerPage + index++) * NC2Layout::RecordSize::HouseWindowStockValue
+InGameGuiHouseWindow.cpp,181,window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::HouseWindowStockValue,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * NC2Layout::HouseWindowLimits::StockGoodsPerPage + index) * NC2Layout::RecordSize::HouseWindowStockValue
+InGameGuiHouseWindow.cpp,196,data,index * 4,index * NC2Layout::RecordSize::GoodId
+InGameGuiHouseWindow.cpp,224,preview,0x30,NC2Layout::WorldGuiElementOffset::Display
+InGameGuiHouseWindow.cpp,356,window,"NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockPage) * 14 + slot) * NC2Layout::RecordSize::HouseWindowStockValue","NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window, NC2Layout::SelectionHouseWindowOffset::StockPage) * NC2Layout::HouseWindowLimits::StockGoodsPerPage + slot) * NC2Layout::RecordSize::HouseWindowStockValue"
+InGameGuiHouseWindow.cpp,574,development,"0x19C + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4","NC2Layout::EngineHouseLogicViewOffset::MaximumHitpoints + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValue"
+InGameGuiHouseWindow.cpp,656,house,offset + 4,offset + NC2Layout::HomeQualityEnhancerOffset::Value
+C2HappinessRecalculation.cpp,45,statistics,0xB0,NC2Layout::PlayerStatisticSampleOffset::Goods + 16 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,45,statistics,0xB2,NC2Layout::PlayerStatisticSampleOffset::Goods + 17 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,47,statistics,0xC8,NC2Layout::PlayerStatisticSampleOffset::Goods + 28 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,47,statistics,0xCA,NC2Layout::PlayerStatisticSampleOffset::Goods + 29 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,47,statistics,0xAE,NC2Layout::PlayerStatisticSampleOffset::Goods + 15 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,55,statistics,0x68,NC2Layout::PlayerStatisticSampleOffset::Houses + 42 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,55,statistics,0x20,NC2Layout::PlayerStatisticSampleOffset::Houses + 6 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,55,statistics,0x38,NC2Layout::PlayerStatisticSampleOffset::Houses + 18 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,55,statistics,0x36,NC2Layout::PlayerStatisticSampleOffset::Houses + 17 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,56,statistics,0x70,NC2Layout::PlayerStatisticSampleOffset::Houses + 46 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,56,statistics,0x6E,NC2Layout::PlayerStatisticSampleOffset::Houses + 45 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,57,statistics,0x3A,NC2Layout::PlayerStatisticSampleOffset::Houses + 19 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,59,statistics,0x3C,NC2Layout::PlayerStatisticSampleOffset::Houses + 20 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,60,statistics,0x40,NC2Layout::PlayerStatisticSampleOffset::Houses + 22 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,60,statistics,0x14,NC2Layout::PlayerStatisticSampleOffset::Houses + 0 * NC2Layout::RecordSize::StatisticCount
+C2HappinessRecalculation.cpp,104,event,0x18,NC2Layout::DirectionalParticleCallbackOffset::Human
+C2HumanMilitaryJobs.cpp,58,secondary,0,NC2Layout::TargetDataOffset::Type
+C2HumanMilitaryJobs.cpp,58,secondary,4,NC2Layout::TargetDataOffset::ObjectIdOrMapPosition
+C2HumanMilitaryJobs.cpp,58,secondary,8,NC2Layout::TargetDataOffset::ObjectRevision
+C2HumanMilitaryJobs.cpp,125,primary,4,NC2Layout::TargetDataOffset::ObjectIdOrMapPosition
+C2HumanMilitaryJobs.cpp,126,primary,0,NC2Layout::TargetDataOffset::Type
+C2HumanMilitaryJobs.cpp,128,primary,0,NC2Layout::TargetDataOffset::Type
+C2MilitarySectorTargets.cpp,33,cache,0,NC2Layout::SectorEnemySearchCacheOffset::LastSearchTick
+C2MilitarySectorTargets.cpp,33,cache,8,NC2Layout::SectorEnemySearchCacheOffset::FoundTarget
+C2MilitarySectorTargets.cpp,42,cache,0,NC2Layout::SectorEnemySearchCacheOffset::LastSearchTick
+C2MilitarySectorTargets.cpp,43,cache,4,NC2Layout::SectorEnemySearchCacheOffset::LastLandscapeSearchTick
+C2MilitarySectorTargets.cpp,44,cache,4,NC2Layout::SectorEnemySearchCacheOffset::LastLandscapeSearchTick
+C2MilitarySectorTargets.cpp,46,cache,8,NC2Layout::SectorEnemySearchCacheOffset::FoundTarget
+C2MilitarySectorTargets.cpp,56,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2HumanLandscapeSearch.cpp,139,MapMoveable_Pathfinder_GetPathfinderPtr(moveable),4,NC2Layout::MapPathfinderOffset::SearchState
+C2HumanLandscapeSearch.cpp,223,&data,8u + index * 4u,NC2Layout::HumanSearchPilePointOffset::PointsUnsigned + index * NC2Layout::RecordSize::MapMigPointUnsigned
+C2HumanAnimalJobs.cpp,193,slaughter,4,NC2Layout::AnimalOffset::AnimalId
+C2HumanAnimalJobs.cpp,211,slaughter,12,NC2Layout::AnimalOffset::MapMoveableId
+C2AnimalTasks.cpp,180,callback->userData,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2AnimalTasks.cpp,180,callback->userData,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2AnimalTasks.cpp,212,value,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2AnimalTasks.cpp,212,value,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2HumanTransportJobs.cpp,35,vehicle,0x1E8,NC2Layout::VehicleOffset::LogicType
+C2HumanTransportJobs.cpp,35,vehicle,0x1D0,NC2Layout::VehicleOffset::DockedFlag
+C2HumanTraderJobs.cpp,658,target,0x24,NC2Layout::HouseOffset::DoorEntryPoint
+C2HumanTraderJobs.cpp,662,target,0x14,NC2Layout::HouseOffset::LogicType
+C2HumanVehicleJobs.cpp,118,candidate,0,NC2Layout::TargetDataOffset::Type
+C2HumanVehicleJobs.cpp,119,candidate,0,NC2Layout::TargetDataOffset::Type
+C2HumanVehicleJobs.cpp,133,candidate,0,NC2Layout::TargetDataOffset::Type
+C2HumanVehicleJobs.cpp,261,site,4,NC2Layout::HouseOffset::HouseId
+C2HumanHuntingJobs.cpp,132,animal,4,NC2Layout::AnimalOffset::AnimalId
+C2HumanHuntingJobs.cpp,132,animal,8,NC2Layout::AnimalOffset::UniqueId
+C2MilitaryDamage.cpp,73,result,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2MilitaryDamage.cpp,129,animal,NC2Layout::AnimalOffset::MilitaryTargetUnsigned + index * 4u,NC2Layout::AnimalOffset::MilitaryTargetUnsigned + index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned
+C2VehicleAnimalPassengers.cpp,71,candidate,4,NC2Layout::ActorIdentityOffset::Id
+C2VehicleAnimalPassengers.cpp,72,candidate,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2WeaponHits.cpp,179,effect,4,NC2Layout::DirectionalParticleCallbackOffset::MapPoint
+C2WeaponHits.cpp,180,effect,8,NC2Layout::DirectionalParticleCallbackOffset::DirectionPoint
+C2WeaponHits.cpp,181,effect,0x14,NC2Layout::DirectionalParticleCallbackOffset::PlayerId
+C2WeaponHits.cpp,182,effect,0x18,NC2Layout::DirectionalParticleCallbackOffset::Human
+C2WeaponHits.cpp,211,secondary,index * 4u,index * NC2Layout::RecordSize::MilitaryTargetValueUnsigned
+C2HumanWeaponEvents.cpp,165,data,0x1B0,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotCount
+C2HumanWeaponEvents.cpp,170,data,0x1BCu + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotParameterUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned
+C2HumanWeaponEvents.cpp,171,data,0x1B4u + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotXUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned
+C2HumanWeaponEvents.cpp,172,data,0x1B8u + selected * 12u,NC2Layout::EngineHouseLogicViewOffset::ArrowSlotYUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned
+C2AnimalMilitaryTasks.cpp,70,object,4,NC2Layout::ActorIdentityOffset::Id
+C2AnimalMilitaryTasks.cpp,70,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2EngineGuideDrawing.cpp,58,first,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2EngineGuideDrawing.cpp,59,second,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2EngineGuideDrawing.cpp,81,target,0x14,NC2Layout::GuideOffset::MapPositionX
+C2EngineGuideDrawing.cpp,82,target,0x16,NC2Layout::GuideOffset::MapPositionY
+C2EngineParticleDrawing.cpp,267,"Read<void*>(frames, NC2Layout::ParticleFramesOffset::FrameIds)","Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) * 4u","Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) * NC2Layout::RecordSize::ParticleFrameIdUnsigned"
+C2EngineParticleDrawing.cpp,325,swarm,0,NC2Layout::FishSwarmOffset::MapPosition
+C2EngineParticleDrawing.cpp,325,swarm,2,NC2Layout::FishSwarmOffset::MapPositionY
+C2EngineParticleDrawing.cpp,331,swarm,4,NC2Layout::FishSwarmOffset::FishCount
+C2EngineParticleDrawing.cpp,341,swarm,0,NC2Layout::FishSwarmOffset::MapPosition
+C2EngineParticleDrawing.cpp,342,swarm,4,NC2Layout::FishSwarmOffset::FishCount
+C2EngineParticleDrawing.cpp,350,swarm,4,NC2Layout::FishSwarmOffset::FishCount
+C2EngineParticleDrawing.cpp,352,swarm,4,NC2Layout::FishSwarmOffset::FishCount
+C2EngineParticleDrawing.cpp,353,swarm,4,NC2Layout::FishSwarmOffset::FishCount
+C2E2StaticDataParticles.cpp,135,allocation,0,NC2Layout::ObjectArrayCookieOffset::ElementCount
+C2E2StaticDataParticles.cpp,157,"Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries)",static_cast<std::uint32_t>(index) * 4u,static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::ParticleFrameIdUnsigned
+C2EngineParticleSimulation.cpp,46,point,2,NC2Layout::MapCoordinatePairOffset::Y
+C2EngineParticleSimulation.cpp,55,point,2,NC2Layout::MapCoordinatePairOffset::Y
+C2EngineParticleSimulation.cpp,139,pixelPoint,0,NC2Layout::PixelPointOffset::X
+C2EngineParticleSimulation.cpp,140,pixelPoint,4,NC2Layout::PixelPointOffset::Y
+C2EngineParticleSimulation.cpp,155,pixelPoint,0,NC2Layout::PixelPointOffset::X
+C2EngineParticleSimulation.cpp,156,pixelPoint,4,NC2Layout::PixelPointOffset::Y
+C2EngineParticleSimulation.cpp,261,"ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency))",4,NC2Layout::ParticleFramesOffset::FrameCount
+C2EngineParticleSimulation.cpp,434,pixelPoint,0,NC2Layout::PixelPointOffset::X
+C2EngineParticleSimulation.cpp,435,pixelPoint,4,NC2Layout::PixelPointOffset::Y
+C2EngineParticleSimulation.cpp,480,gE2ParticelGeneratorManager,4,NC2Layout::ParticleGeneratorManagerOffset::Entries
+C2AIBuildingAccess.cpp,112,"&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternA)]",3,NC2Layout::TrianglePatternTypeOffset::BioCanPlantOn
+C2AIBuildingAccess.cpp,112,"&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternB)]",3,NC2Layout::TrianglePatternTypeOffset::BioCanPlantOn
+C2AIBuildingAccess.cpp,122,search.village,8,NC2Layout::AIVillageOffset::PlayerId
+C2AIBuildingAccess.cpp,123,search.output,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2AIBuildingAccess.cpp,171,search.village,8,NC2Layout::AIVillageOffset::PlayerId
+C2AIBuildingAccess.cpp,172,search.output,0,NC2Layout::MapCoordinatePairOffset::Coordinates
+C2AIBuildingAccess.cpp,245,definition,0,NC2Layout::HouseConstructionGoodsOffset::Count
+C2AIBuildingAccess.cpp,247,definition,4u + index * 4u,NC2Layout::HouseConstructionGoodsOffset::GoodsUnsigned + index * NC2Layout::RecordSize::GoodIdUnsigned
+C2HumanIterator.cpp,72,manager->GetSectorData(),(index * 21u + selection) * 64u + ((flags & 1u) != 0 ? 24u : 0u),(index * NC2Layout::SectorLimits::PlayerSlotsUnsigned + selection) * NC2Layout::RecordSize::SectorPlayerUnsigned + ((flags & 1u) != 0 ? NC2Layout::SectorPlayerOffset::MilitaryHumanHeadUnsigned : NC2Layout::SectorPlayerOffset::CivilianHumanHeadUnsigned)
+C2GameMapConnectivity.cpp,31,&packed,0,NC2Layout::MapCoordinatePairOffset::X
+C2GameMapConnectivity.cpp,31,&packed,2,NC2Layout::MapCoordinatePairOffset::Y
+C2GameMapConnectivity.cpp,52,gGameMapStaticStorage,NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u,NC2Layout::GameMapOffset::ContinentsUnsigned + continent * NC2Layout::RecordSize::GameMapContinentUnsigned
+C2GameMapConnectivity.cpp,191,wayPatterns[0],0,NC2Layout::TrianglePatternTypeOffset::HumanCanWalkOn
+C2GameMapConnectivity.cpp,191,wayPatterns[1],0,NC2Layout::TrianglePatternTypeOffset::HumanCanWalkOn
+C2GameMapConnectivity.cpp,196,pattern,5,NC2Layout::TrianglePatternTypeOffset::IsWater
+C2GameMapConnectivity.cpp,198,pattern,5,NC2Layout::TrianglePatternTypeOffset::IsWater
+C2GameMapConnectivity.cpp,249,pattern,4,NC2Layout::TrianglePatternTypeOffset::IsLand
+C2GameMapConnectivity.cpp,251,pattern,8,NC2Layout::TrianglePatternTypeOffset::MoveResistance
+C2GameMapConnectivity.cpp,255,gGameMapStaticStorage,NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u,NC2Layout::GameMapOffset::ContinentsUnsigned + continent * NC2Layout::RecordSize::GameMapContinentUnsigned
+C2MapArea.cpp,179,descriptions[triangle],1,NC2Layout::TrianglePatternTypeOffset::HouseCanBeBuiltOn
+C2MapArea.cpp,270,&original,0,NC2Layout::MapCoordinatePairOffset::X
+C2MapArea.cpp,271,&original,2,NC2Layout::MapCoordinatePairOffset::Y
+InGameGuiMessageManagerAccess.cpp,45,NC2Logic::CHouseArray::mStaticVars,house * NC2Logic::CHouseArray::ElementSize + 0x1C,house * NC2Logic::CHouseArray::ElementSize + NC2Layout::HouseOffset::MapPosition
+InGameGuiMessageManagerAccess.cpp,83,"Read<void*>(button, NC2Layout::GuiBaseElementOffset::VirtualTable)",0,NC2Layout::GuiVirtualTableOffset::DeletingDestructor
+InGameGuiMessageManagerAccess.cpp,122,NC2Logic::CHumanArray::mStaticVars,"SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + 0x18","SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType"
+InGameGuiMessageManagerAccess.cpp,153,NC2Logic::CHumanArray::mStaticVars,human * NC2Logic::CHumanArray::ElementSize + 0x18,human * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType
+InGameGuiMessageManagerAccess.cpp,186,active,index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + 4,index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + NC2Layout::GuiDisplayedMessageOffset::UniqueId
+InGameGuiMessageManagerAccess.cpp,189,active,index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + 4,index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + NC2Layout::GuiDisplayedMessageOffset::UniqueId
+InGameGuiMessageManagerAccess.cpp,205,window,0x70,NC2Layout::MessagePresentationWindowOffset::UniqueId
+InGameGuiMessageManagerAccess.cpp,384,gMessageManager,20,NC2Layout::GuiMessageManagerOffset::HistoryMessages
+MainMenuGuiManager_Network.cpp,26,allocation,0,NC2Layout::SessionSummaryArrayCookieOffset::ElementCount
+C2GameMapExploration.cpp,54,definition,0x1C,NC2Layout::EngineHouseLogicViewOffset::BuildArea
+C2GameMapExploration.cpp,82,current,0,NC2Layout::MapCoordinatePairOffset::X
+C2GameMapExploration.cpp,83,current,2,NC2Layout::MapCoordinatePairOffset::Y
+C2AISavegameAccess.cpp,119,handler,0,NC2Layout::AISinglePlayerOffset::PlayerId
+C2AISavegameAccess.cpp,122,handler,0x1A,NC2Layout::AIHighLevelOffset::InitializationPending
+C2AIObjectAccess.cpp,21,record,0,NC2Layout::HumanReferenceOffset::HumanId
+C2AIObjectAccess.cpp,43,manager,0,NC2Layout::AITradeManagerOffset::Count
+C2AIObjectAccess.cpp,44,manager,4 + i * 16,NC2Layout::AITradeManagerOffset::FirstHumanId + i * NC2Layout::RecordSize::AITradeEntry
+C2AIObjectAccess.cpp,44,manager,8 + i * 16,NC2Layout::AITradeManagerOffset::FirstHumanUniqueId + i * NC2Layout::RecordSize::AITradeEntry
+C2AIObjectAccess.cpp,124,producer,offset + 4,offset + NC2Layout::ObjectReferenceOffset::Revision
+C2AIHighLevelAccess.cpp,37,areas,NC2Layout::AIInvalidAreaManagerOffset::FirstAreaY + i * 8,NC2Layout::AIInvalidAreaManagerOffset::FirstAreaY + i * NC2Layout::RecordSize::AIInvalidArea
+C2AIHighLevelAccess.cpp,37,areas,NC2Layout::AIInvalidAreaManagerOffset::Areas + i * 8,NC2Layout::AIInvalidAreaManagerOffset::Areas + i * NC2Layout::RecordSize::AIInvalidArea
+C2AIHighLevelAccess.cpp,103,handler,0x6AB0 + good * 16,NC2Layout::AIHighLevelOffset::ResourceGoodRequirements + good * NC2Layout::RecordSize::AIResourceGood
+C2AIHighLevelAccess.cpp,122,handler,0x67AC,NC2Layout::AIHighLevelOffset::PendingVillageFlag
+C2AIHighLevelAccess.cpp,126,handler,0x67AD,NC2Layout::AIHighLevelOffset::PendingVillageConfirmedFlag
+C2AIHighLevelAccess.cpp,141,entry,0,NC2Layout::AIVillagePhysicalSlotOffset::Active
+C2AIHighLevelAccess.cpp,143,entry,0x281 + good * 40,NC2Layout::AIHighLevelVillageActiveViewOffset::FirstGoodImportingFlag + good * NC2Layout::RecordSize::AIGood
+C2AIHighLevelAccess.cpp,143,handler,0x9548 + good * 80,NC2Layout::AIHighLevelOffset::FirstGlobalGoodHasProducer + good * NC2Layout::RecordSize::AIGlobalGood
+C2AIHighLevelAccess.cpp,143,handler,0x9520 + good * 80,NC2Layout::AIHighLevelOffset::GlobalGoods + good * NC2Layout::RecordSize::AIGlobalGood
+C2AIConstruction.cpp,20,array,offset + stride * i + 2,offset + stride * i + NC2Layout::MapCoordinatePairOffset::Y
+C2AIConstruction.cpp,27,fields,8,NC2Layout::AIMainTaskCalcVarsOffset::SourcePoint
+C2AIConstruction.cpp,27,fields,12,NC2Layout::AIMainTaskCalcVarsOffset::TargetPoint
+C2AIConstruction.cpp,81,soldiers,0x41C8,NC2Layout::AISingleSoldiersOffset::DefaultPositionY
+C2AIConstruction.cpp,81,soldiers,0x41C6,NC2Layout::AISingleSoldiersOffset::DefaultPositionX
+C2AIConstruction.cpp,191,manager,i * 12 + 2,i * NC2Layout::RecordSize::FishSwarm + NC2Layout::FishSwarmOffset::MapPositionY
+C2AIConstruction.cpp,191,manager,i * 12,i * NC2Layout::RecordSize::FishSwarm
+C2AIManagerAccess.cpp,86,task,16,NC2Layout::AIMainTaskHouseDataOffset::EngineHouseType
+C2AIManagerAccess.cpp,101,task,16,NC2Layout::AIMainTaskDiplomacyDataOffset::OtherPlayerId
+C2StaticHouseTypeData.cpp,107,&record,static_cast<std::uint32_t>(record.workerCount) * 8u + 0x10u,static_cast<std::uint32_t>(record.workerCount) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned + NC2Layout::StaticHouseTypeOffset::WorkersUnsigned
+C2StaticHouseTypeData.cpp,109,&record,static_cast<std::uint32_t>(record.workerCount) * 8u + 0x14u,static_cast<std::uint32_t>(record.workerCount) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned + NC2Layout::StaticHouseTypeOffset::FirstWorkerMaximumUnsigned
+C2StaticHouseTypeData.cpp,123,&record,offset + 4u,offset + NC2Layout::StaticHouseStockOffset::MaximumAmountUnsigned
+C2StaticHouseTypeData.cpp,124,&record,offset + 8u,offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned
+C2StaticHouseTypeData.cpp,126,&record,0x37Cu + static_cast<std::uint32_t>(goodType) * 4u,NC2Layout::StaticHouseTypeOffset::StockIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned
+C2StaticHouseTypeData.cpp,135,&record,0x488u + record.productionCount * 4u,NC2Layout::StaticHouseTypeOffset::ProductionGoodsUnsigned + record.productionCount * NC2Layout::RecordSize::HouseTypeIndexUnsigned
+C2StaticHouseTypeData.cpp,136,&record,0x4D8u + static_cast<std::uint32_t>(goodType) * 4u,NC2Layout::StaticHouseTypeOffset::ProductionIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned
+C2StaticHouseTypeData.cpp,161,&record,0x10u + static_cast<std::uint32_t>(worker) * 8u,NC2Layout::StaticHouseTypeOffset::WorkersUnsigned + static_cast<std::uint32_t>(worker) * NC2Layout::RecordSize::StaticHouseWorkerUnsigned
+C2StaticHouseTypeData.cpp,165,&record,offset + 8u,offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned
+C2StaticHouseTypeData.cpp,182,&record,offset + 8u,offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned
+C2StaticVehicleTypeData.cpp,120,&record,0x184u + static_cast<std::uint32_t>(passengerType),NC2Layout::StaticVehicleTypeOffset::AllowedPassengerTypesUnsigned + static_cast<std::uint32_t>(passengerType)
+C2StaticTribeTypeData.cpp,113,&record,entry + 4,entry + NC2Layout::TribeExperienceRequirementOffset::JobCount
+C2StaticTribeTypeData.cpp,115,&record,entry + 8 + count * 4u,entry + NC2Layout::TribeExperienceRequirementOffset::Jobs + count * NC2Layout::RecordSize::TribeEnableItemUnsigned
+C2StaticTribeTypeData.cpp,116,&record,entry + 4,entry + NC2Layout::TribeExperienceRequirementOffset::JobCount
+C2StaticTribeTypeData.cpp,116,&record,entry + 4,entry + NC2Layout::TribeExperienceRequirementOffset::JobCount
+C2StaticTribeTypeData.cpp,131,&record,entry + itemsOffset + count * 4u,entry + itemsOffset + count * NC2Layout::RecordSize::TribeEnableItemUnsigned
+C2StaticTribeTypeData.cpp,144,&record,entry + itemsOffset + count * 4u,entry + itemsOffset + count * NC2Layout::RecordSize::TribeEnableItemUnsigned
+C2StaticTribeTypeData.cpp,146,&record,0x14928u + static_cast<std::uint32_t>(value) * 8u,NC2Layout::StaticTribeOffset::GoodProductionUnsigned + static_cast<std::uint32_t>(value) * NC2Layout::RecordSize::TribeGoodProductionUnsigned
+C2StaticTribeTypeData.cpp,207,&record,0x6C58u + static_cast<std::uint32_t>(job) * 0x400u,NC2Layout::StaticTribeOffset::FirstJobDefaultGoodUnsigned + static_cast<std::uint32_t>(job) * NC2Layout::RecordSize::TribeJobEnablesUnsigned
+C2StaticTribeTypeData.cpp,208,&record,0x14928u + static_cast<std::uint32_t>(good) * 8u,NC2Layout::StaticTribeOffset::GoodProductionUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned
+C2StaticTribeTypeData.cpp,215,&record,0x1492Cu + static_cast<std::uint32_t>(good) * 8u,NC2Layout::StaticTribeOffset::FirstGoodProductionHouseUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned
+C2StringAccess.cpp,85,names,0x18,NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount
+C2StringAccess.cpp,86,names,developmentStage * 4u,developmentStage * NC2Layout::RecordSize::HouseStageValueUnsigned
+C2PlayerStatisticAccess.cpp,51,this,static_cast<std::uint32_t>(type) * 2u,static_cast<std::uint32_t>(type) * NC2Layout::RecordSize::StatisticCountUnsigned
+C2PlayerStatisticAccess.cpp,80,playerData,0,NC2Layout::GameControlPlayerOffset::ActiveFlag
+C2PlayerStatisticAccess.cpp,81,playerData,4,NC2Layout::GameControlPlayerOffset::Type
+C2PlayerStatisticAccess.cpp,180,playerData,0x4A14,NC2Layout::GameControlPlayerOffset::BabiesBorn
+C2PlayerStatisticAccess.cpp,181,playerData,0x4A18,NC2Layout::GameControlPlayerOffset::HumansDied
+C2PlayerStatisticAccess.cpp,182,playerData,0x4A1C,NC2Layout::GameControlPlayerOffset::SoldiersDied
+C2EngineMapTerrainAccess.cpp,232,macro,firstTriangle ? 0u : 2u,firstTriangle ? NC2Layout::EngineMapMacroPointOffset::PatternAUnsigned : NC2Layout::EngineMapMacroPointOffset::PatternBUnsigned
+C2EngineMapTerrainAccess.cpp,304,description,6,NC2Layout::TrianglePatternTypeOffset::IsBorder
+C2EngineMapTerrainAccess.cpp,465,macro,7 + layer * 2,NC2Layout::EngineMapMacroPointOffset::Transitions + layer * NC2Layout::RecordSize::MacroTransitionLayer
+C2EngineMapTerrainAccess.cpp,467,macro,8 + layer * 2,NC2Layout::EngineMapMacroPointOffset::TransitionB + layer * NC2Layout::RecordSize::MacroTransitionLayer
+C2HumanScout.cpp,69,human,0x4F8,NC2Layout::HumanOffset::QueuedExploreAreaAndUpdateCenterCommand
+C2HumanChest.cpp,101,data,0x1D4Cu + tribe * 66u + good,NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::GoodsUnsigned + good
+C2HumanChest.cpp,102,data,0x948u + tribe * 56u + static_cast<std::uint32_t>(job),NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(job)
+C2GuideAccess.cpp,140,&point,axis * 2u,axis * NC2Layout::RecordSize::MapCoordinateUnsigned
+C2EngineSelectionAccess.cpp,65,output,offset + 4,offset + NC2Layout::ObjectReferenceOffset::Revision
+C2EngineSelectionAccess.cpp,65,object,8,NC2Layout::ActorIdentityOffset::UniqueId
+C2EngineSelectionAccess.cpp,68,object,type == 3 ? 0x1E0 : 0x10,type == 3 ? NC2Layout::VehicleOffset::PlayerId : NC2Layout::ActorPlayerOffset::HumanOrAnimalPlayerId
+C2EngineSelectionAccess.cpp,98,"Landscape(Read<std::uint16_t>(engineMicro, NC2Layout::EngineMapMicroPointOffset::LandscapeId))",0x38,NC2Layout::StaticLandscapeOffset::LogicType
+C2EngineSelectionAccess.cpp,157,Guide(guideId),0x10,NC2Layout::GuideOffset::UniqueId
+C2EngineSelectionAccess.cpp,158,Guide(guideId),4,NC2Layout::GuideOffset::PlayerId
+C2EngineSelectionAccess.cpp,184,data,0x10,NC2Layout::MarkerOffset::Type
+C2EngineSelectionAccess.cpp,184,data,0x14,NC2Layout::MarkerOffset::HumanId
+C2EngineSelectionAccess.cpp,185,data,0x14,NC2Layout::MarkerOffset::HumanId
+C2GameChecksum.cpp,69,manager,0,NC2Layout::EmbeddedSavegameOffset::Size
+C2GameChecksum.cpp,70,manager,4,NC2Layout::EmbeddedSavegameOffset::Data
+C2GameChecksum.cpp,87,manager,8u + player * 4u,NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned
+C2GameChecksum.cpp,91,manager,0x58u + player * 4u,NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned
+C2GameChecksum.cpp,195,manager,0,NC2Layout::SectorAttachmentManagerOffset::GridHeight
+C2GameChecksum.cpp,195,manager,4,NC2Layout::SectorAttachmentManagerOffset::GridWidth
+C2GameChecksum.cpp,196,manager,8,NC2Layout::SectorAttachmentManagerOffset::SectorData
+C2GameChecksum.cpp,197,manager,0x0C,NC2Layout::SectorAttachmentManagerOffset::SectorAuxiliaryData
+InGameGuiNetworkInfoWindow.cpp,312,control,0x4A1C,NC2Layout::GameControlPlayerOffset::SoldiersDied
+InGameGuiNetworkInfoWindow.cpp,313,control,0x4A18,NC2Layout::GameControlPlayerOffset::HumansDied
+InGameGuiNetworkInfoWindow.cpp,313,control,0x4A1C,NC2Layout::GameControlPlayerOffset::SoldiersDied
+InGameGuiNetworkInfoWindow.cpp,408,gUserNetworkCommandManager,0x960,NC2Layout::UserNetworkCommandManagerOffset::LastVerifiedTick
+InGameGuiHouseRemoveWindow.cpp,39,window,0x70,NC2Layout::HouseRemoveWindowOffset::SelectionValidFlag
+InGameGuiHouseRemoveWindow.cpp,53,window,0x70,NC2Layout::HouseRemoveWindowOffset::SelectionValidFlag
+InGameGuiHouseRemoveWindow.cpp,66,window,0x70,NC2Layout::HouseRemoveWindowOffset::SelectionValidFlag
+InGameGuiHouseRemoveWindow.cpp,71,window,0x74,NC2Layout::HouseRemoveWindowOffset::SelectionChangeCount
+InGameGuiHouseRemoveWindow.cpp,73,window,0x74,NC2Layout::HouseRemoveWindowOffset::SelectionChangeCount
+InGameGuiHouseRemoveWindow.cpp,73,window,0x70,NC2Layout::HouseRemoveWindowOffset::SelectionValidFlag
+InGameGuiHouseRemoveWindow.cpp,74,window,0x74,NC2Layout::HouseRemoveWindowOffset::SelectionChangeCount
+InGameGuiHouseRemoveWindow.cpp,74,window,0x70,NC2Layout::HouseRemoveWindowOffset::SelectionValidFlag
+C2VehicleIterator.cpp,102,manager->GetSectorData(),(index * 21u + selection) * 64u + ((flags & 1u) != 0 ? 32u : 8u),(index * NC2Layout::SectorLimits::PlayerSlotsUnsigned + selection) * NC2Layout::RecordSize::SectorPlayerUnsigned + ((flags & 1u) != 0 ? NC2Layout::SectorPlayerOffset::MilitaryVehicleHeadUnsigned : NC2Layout::SectorPlayerOffset::CivilianVehicleHeadUnsigned)
+C2HouseLifecycle.cpp,137,gGameControl,offset + 0x1D68,offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 28
+C2HouseLifecycle.cpp,138,gGameControl,offset + 0x1D69,offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 29
+C2HouseLifecycle.cpp,139,gGameControl,offset + 0x1D5B,offset + NC2Layout::GameControlPlayerOffset::AvailableGoods + 15
+C2HumanMapCollection.cpp,112,description,0x38,NC2Layout::EngineTrianglePatternOffset::LogicType
+C2DelayedActionManager.cpp,63,manager,0x30,NC2Layout::OwnedArrayHandlerOffset::OwnedEntries
+C2DelayedActionManager.cpp,68,manager,0x30,NC2Layout::OwnedArrayHandlerOffset::OwnedEntries
+C2DelayedActionManager.cpp,113,manager,0x30,NC2Layout::OwnedArrayHandlerOffset::OwnedEntries
+C2DelayedActionManager.cpp,269,data,0x20u + stage * 4u,NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned
+C2GameMapIO.cpp,74,data,0,NC2Layout::GameControlPlayerOffset::ActiveFlag
+C2GameMapIO.cpp,77,data,0,NC2Layout::GameControlPlayerOffset::ActiveFlag
+C2GameMapIO.cpp,77,data,4,NC2Layout::GameControlPlayerOffset::Type
+C2GameMapIO.cpp,77,data,0xC,NC2Layout::GameControlPlayerOffset::TribeType
+C2GameTime.cpp,52,players,index * 0x98u,index * NC2Layout::RecordSize::NetworkPlayerUnsigned
+C2GameTime.cpp,55,players,index * 0x98u,index * NC2Layout::RecordSize::NetworkPlayerUnsigned
+C2GameTime.cpp,183,command,4,NC2Layout::NetworkFrequencyCommandOffset::Frequency
+C2E2StaticDataMapMoveables.cpp,173,gStaticMapMoveableData,countOffset + 4,countOffset + NC2Layout::CountedArrayOffset::Entries
+MainMenuGuiManager_Screens.cpp,280,NMasterControlProgram::CMasterControlProgram::sTheObjectPtr,0x148,NC2Layout::MasterControlOffset::DifficultyLevel
+MainMenuGuiManager_Screens.cpp,448,this,0x30 + index * 4,NC2Layout::MainMenuManagerOffset::PlayerButtons + index * NC2Layout::RecordSize::GuiElementPointer
+MainMenuGuiManager_Screens.cpp,449,this,NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * 0x6Cu,NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * NC2Layout::RecordSize::MenuNetworkPlayerUnsigned
+MainMenuGuiManager_Screens.cpp,460,this,NC2Layout::MainMenuManagerOffset::FirstPlayerHostFlag + index * 0x6Cu,NC2Layout::MainMenuManagerOffset::FirstPlayerHostFlag + index * NC2Layout::RecordSize::MenuNetworkPlayerUnsigned
+MainMenuGuiManager_Screens.cpp,469,this,offset + 8,offset + NC2Layout::MenuPlayerSlotOffset::Flags
+MainMenuGuiManager_Screens.cpp,471,this,offset + 4,offset + NC2Layout::MenuPlayerSlotOffset::Type
+MainMenuGuiManager_Screens.cpp,504,this,offset + 12,offset + NC2Layout::MenuPlayerSlotOffset::ColorId
+MainMenuGuiManager_Screens.cpp,552,this,0x30 + index * 4,NC2Layout::MainMenuManagerOffset::PlayerButtons + index * NC2Layout::RecordSize::GuiElementPointer
+MainMenuGuiManager_Screens.cpp,553,this,NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * 0x6Cu,NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * NC2Layout::RecordSize::MenuNetworkPlayerUnsigned
+C2LogicLifetimeAccess.cpp,227,manager,index * 0x3Cu,index * NC2Layout::RecordSize::TributeUnsigned
+C2AITaskAccess.cpp,233,first,offset + 0x58,offset + NC2Layout::RecordSize::AICombinedTask
+C2AITaskAccess.cpp,234,first,offset + 0x58,offset + NC2Layout::RecordSize::AICombinedTask
+C2AISoldierAccess.cpp,42,weapon,32,NC2Layout::StaticWeaponTypeOffset::MainType
+C2AISoldierAccess.cpp,206,entries + i * NC2Layout::RecordSize::AIVehicle,0,NC2Layout::AIVehicleOffset::VehicleId
+C2AISoldierAccess.cpp,256,weapon,0x58,NC2Layout::StaticWeaponTypeOffset::HasMunition
+C2AISoldierAccess.cpp,427,combined(i),20,NC2Layout::AICombinedTaskOffset::MainTaskIndices
+C2AISoldierAccess.cpp,443,combined(i),4,NC2Layout::AICombinedTaskOffset::Priority
+C2AISoldierAccess.cpp,445,combined(i),4,NC2Layout::AICombinedTaskOffset::Priority
+InGameGuiStringOutputWindow.cpp,74,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+InGameGuiStringOutputWindow.cpp,90,clock,0x30,NC2Layout::ClockElementOffset::AnalogMode
+InGameGuiStringOutputWindow.cpp,117,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+InGameGuiStringOutputWindow.cpp,164,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+InGameGuiStringOutputWindow.cpp,168,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+InGameGuiStringOutputWindow.cpp,180,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+InGameGuiStringOutputWindow.cpp,186,window,0x70,NC2Layout::StringOutputWindowOffset::Strings
+C2EngineMacroMaps.cpp,885,player,0,NC2Layout::GameControlPlayerOffset::ActiveFlag
+C2MapMoveableAccess.cpp,292,vehicle,0x1E0,NC2Layout::VehicleOffset::PlayerId
+C2MapMoveableAccess.cpp,417,static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u,8,NC2Layout::MarkerOffset::UniqueId
+InGameGuiMessageText.cpp,79,message,offset + 4u + i * 4u,offset + NC2Layout::CountedArrayOffset::EntriesUnsigned + i * NC2Layout::RecordSize::UserMessageItemUnsigned
+C2ObjectMemberConstructors.cpp,84,data,6,NC2Layout::EmbeddedMapPointPairOffset::FirstY
+C2ObjectMemberConstructors.cpp,84,data,4,NC2Layout::EmbeddedMapPointPairOffset::FirstX
+C2ObjectMemberConstructors.cpp,85,data,10,NC2Layout::EmbeddedMapPointPairOffset::SecondY
+C2ObjectMemberConstructors.cpp,85,data,8,NC2Layout::EmbeddedMapPointPairOffset::SecondX
+C2ObjectMemberConstructors.cpp,105,data,offset + 2,offset + NC2Layout::MapCoordinatePairOffset::Y
+C2ObjectMemberConstructors.cpp,113,data,offset + 2,offset + NC2Layout::MapCoordinatePairOffset::Y
+InGameGuiWallRoadWindows.cpp,44,"Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)",0x30,NC2Layout::WorldGuiElementOffset::Display
+InGameGuiWallRoadWindows.cpp,44,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+InGameGuiWallRoadWindows.cpp,82,"Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)",0x30,NC2Layout::WorldGuiElementOffset::Display
+InGameGuiWallRoadWindows.cpp,82,manager,4,NC2Layout::InGameGuiManagerOffset::WorldDisplayElement
+C2HouseUserControl.cpp,97,stages,0x18,NC2Layout::EngineHouseLogicViewOffset::DevelopmentStageCount
+C2HouseUserControl.cpp,98,stages,nextStage * 4u,nextStage * NC2Layout::RecordSize::HouseStageValueUnsigned
+C2HouseUserControl.cpp,100,gGameControl,permissionIndex + 0x2808,permissionIndex + NC2Layout::PlayerAllowedThingsOffset::AllowedHouses
+C2HouseUserControl.cpp,100,gGameControl,permissionIndex + 0x310E,permissionIndex + NC2Layout::PlayerAllowedThingsOffset::AvailableHouses
+C2HouseConstruction.cpp,139,definition,"Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u","Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned"
+C2HouseConstruction.cpp,189,definition,offset + 2,offset + NC2Layout::MapCoordinatePairOffset::Y
+C2LifetimeAccess.h,46,"Read<void*>(object, NC2Layout::StorableOffset::VirtualTable)",0x0C,NC2Layout::StorableVirtualTableOffset::DeletingDestructor
+C2LifetimeAccess.h,46,object,0,NC2Layout::StorableOffset::VirtualTable
+C2EngineGroundDrawing.cpp,66,gStaticDataTextures.bitmaps[id],0x24,NC2Layout::BitmapStorageOffset::RawMemory
+C2EngineGroundDrawing.cpp,165,gStaticDataTextures.bitmaps[transition->alphaTextureId],0x24,NC2Layout::BitmapStorageOffset::RawMemory
+C2EngineGroundDrawing.cpp,217,macro,triangle * 2,triangle * NC2Layout::RecordSize::EnginePatternId
+C2EngineGroundDrawing.cpp,229,macro,7 + triangle + layer * 2,NC2Layout::EngineMapMacroPointOffset::Transitions + triangle + layer * NC2Layout::RecordSize::MacroTransitionLayer
+C2EngineGroundDrawing.cpp,233,gStaticDataTextures.bitmaps[transition.alphaTextureId],0x24,NC2Layout::BitmapStorageOffset::RawMemory
+C2EngineGroundDrawing.cpp,306,"Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader)",0x0C,NC2Layout::GouraudShaderOffset::Flags
+C2WallRoadPathfinder.cpp,22,element,0x20,NC2Layout::WallRoadPathfinderOffset::Source
+C2WallRoadPathfinder.cpp,22,element,0x24,NC2Layout::WallRoadPathfinderOffset::Target
+C2EngineHouseDrawing.cpp,159,graphic,(human == -1 ? 0x254u : 0x250u) + stage * 12u,(human == -1 ? NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIdsUnsigned : NC2Layout::EngineHouseTypeOffset::OpenDoorBobIdsUnsigned) + stage * NC2Layout::RecordSize::HouseDoorOverlayUnsigned
+InGameGuiManager_State.cpp,305,this,0x38,NC2Layout::InGameGuiManagerOffset::NetworkInfoButton
+InGameGuiManager_State.cpp,306,this,0x38,NC2Layout::InGameGuiManagerOffset::NetworkInfoButton
+InGameGuiManager_State.cpp,307,this,0x38,NC2Layout::InGameGuiManagerOffset::NetworkInfoButton
+GuiListBoxElementAccess.cpp,441,CDesktop::sTheObjectPtr,0x12C,NC2Layout::GuiDesktopOffset::LeftButtonDownFlag
+GuiListBoxElementAccess.cpp,514,heading,0xFD,NC2Layout::GuiTextElementOffset::DarkFontFlag
+InGameGuiGlobalGameSettingsWindow.cpp,222,NC2Logic::gGameControl,base + index * 8u,base + index * NC2Layout::RecordSize::PlayerSpecialItemUnsigned
+InGameGuiGlobalGameSettingsWindow.cpp,223,NC2Logic::gGameControl,base + index * 8u + 4u,base + index * NC2Layout::RecordSize::PlayerSpecialItemUnsigned + NC2Layout::PlayerSpecialItemOffset::ItemUnsigned
+C2HumanWorkCommands.cpp,92,human,0x17B,NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::SoldierUnarmed
+C2HumanCollectionEvents.cpp,170,human,0xA64,NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals

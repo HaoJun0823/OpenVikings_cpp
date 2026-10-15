@@ -73,14 +73,14 @@ namespace
 	{
 		for (std::uint32_t index = 0; index < 10; ++index)
 		{
-			NC2Lifetime::Write<std::uint16_t>(object, index * 4u + 2u, 0); NC2Lifetime::Write<std::uint16_t>(object, index * 4u, 0);
+			NC2Lifetime::Write<std::uint16_t>(object, index * NC2Layout::RecordSize::MapMigPointUnsigned + NC2Layout::MapCoordinatePairOffset::YUnsigned, 0); NC2Lifetime::Write<std::uint16_t>(object, index * NC2Layout::RecordSize::MapMigPointUnsigned, 0);
 		} return object;
 	}
 
 	// Original function: FUN_00479943; original CFrameRateCalculator constructor storage.
 	void* FrameRateCalculator_Construct(void* object)
 	{
-		std::memset(object, 0, 132); NC2Lifetime::Write(object, 0, timeGetTime()); return object;
+		std::memset(object, 0, 132); NC2Lifetime::Write(object, NC2Layout::FrameRateCalculatorOffset::PreviousTick, timeGetTime()); return object;
 	}
 
 	// Original function: FUN_004b9407.
@@ -748,9 +748,9 @@ namespace NC2LogicExternals
 	{
 		const auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 		if (manager == nullptr) return;
-		const void* desktop = NC2Lifetime::Read<void*>(manager, 4);
+		const void* desktop = NC2Lifetime::Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
 		if (desktop == nullptr) return;
-		void* display = NC2Lifetime::Read<void*>(desktop, 0x30);
+		void* display = NC2Lifetime::Read<void*>(desktop, NC2Layout::WorldGuiElementOffset::Display);
 		if (display != nullptr) NC2E2::DE_SpecialFX_Earthquake_Start(display, durationMilliseconds);
 	}
 }

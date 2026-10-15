@@ -15,7 +15,7 @@ namespace NC2Logic
 	// Original function: FUN_00422fec.
 	std::uint32_t __fastcall MapMicroPoint_GetContinent(const void* micro, void*)
 	{
-		return Read<std::uint8_t>(micro, 6);
+		return Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId);
 	}
 	// Original function: FUN_00422ff1.
 	void* __fastcall MapMoveable_GetMarkerPtr(const void* moveable, void*)
@@ -25,7 +25,7 @@ namespace NC2Logic
 	// Original function: FUN_00423001.
 	std::uint32_t __fastcall HumanReference_GetHumanId(const void* reference, void*)
 	{
-		return Read<std::uint32_t>(reference, 0);
+		return Read<std::uint32_t>(reference, NC2Layout::HumanReferenceOffset::HumanId);
 	}
 	// Original function: FUN_00423004.
 	std::uint32_t __fastcall Vehicle_GetMapMoveableId(const void* vehicle, void*)
@@ -100,7 +100,7 @@ namespace NC2Logic
 	// Original function: FUN_004230e6; folded across different array object types.
 	std::uint32_t __fastcall ArrayObject_GetId(const void* object, void*)
 	{
-		return Read<std::uint32_t>(object, 4);
+		return Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::Id);
 	}
 	// Original function: FUN_004230ea; folded player-ID and marker-type access, no unique original name established.
 	std::uint32_t __fastcall Object_GetField10(const void* object, void*)

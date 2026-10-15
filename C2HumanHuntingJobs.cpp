@@ -129,7 +129,7 @@ namespace NC2Logic
 			{
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 3); return;
 			}
-			Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, Read<std::uint32_t>(animal, 4)); Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(animal, 8)); Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 3);
+			Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId)); Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::UniqueId)); Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 3);
 		}
 		Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
 		Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);

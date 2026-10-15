@@ -246,7 +246,7 @@ namespace NC2InGameGuiMiscWindows
 			if (Filter(9) || Filter(10)) continue;
 			if (Filter(11) && (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::ChildId) != NXBasics::IntegerRange::UInt32Maximum)) continue;
 			if (Filter(12) && (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Human_HasEquippedShoes(human))) continue;
-			if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * 0xC4u + 0x24) != 0)) continue;
+			if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::GoodType) != 0)) continue;
 			const auto job = Read<std::uint32_t>(gHumanListWindowStatics, NC2Layout::HumanListWindowStateOffset::JobFilter), possible = Read<std::uint32_t>(gHumanListWindowStatics, NC2Layout::HumanListWindowStateOffset::PossibleJobFilter);
 			if (job != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != job) continue;
 			if (possible != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != possible && (!Human_UserControl_CanChangeJob(human) || !Human_IsAllowedToDoJob(human, possible) || !Human_IsAbleToDoJob(human, possible))) continue;
@@ -458,8 +458,8 @@ namespace NC2InGameGuiMiscWindows
 		{
 			void* memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 			void* element = memory == nullptr ? nullptr : BaseToolGfxButton_ConstructWithToolTip(memory, nullptr, &area, graphic, tooltip, command, window);
-			Write<std::uint8_t>(element, 0x36, Filter(flag));
-			Write<std::uint8_t>(element, 0x35, 1);
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::Selected, Filter(flag));
+			Write<std::uint8_t>(element, NC2Layout::GuiGfxButtonOffset::RectangularStyle, 1);
 			NXBaseGui::BaseWindow_Element_Add(window, element);
 		};
 		graphicButton(NXBasics::SRectangle(4, 50, 80, 18), 168, Text(16), 10003, 0);
@@ -558,14 +558,14 @@ namespace NC2InGameGuiMiscWindows
 	// Original function: FUN_004b1a6d; the tribe is not used to break equal-name ties.
 	static std::int32_t __cdecl HumanListJobSelectionWindow_ls_SortFunction(const void* first, const void* second)
 	{
-		return StringToolMisc_StringSortCompare(StringAccess_GetJobNamePtr(Read<std::uint32_t>(first, 0), 1), StringAccess_GetJobNamePtr(Read<std::uint32_t>(second, 0), 1));
+		return StringToolMisc_StringSortCompare(StringAccess_GetJobNamePtr(Read<std::uint32_t>(first, NC2Layout::MapCoordinatePairOffset::Coordinates), 1), StringAccess_GetJobNamePtr(Read<std::uint32_t>(second, NC2Layout::MapCoordinatePairOffset::Coordinates), 1));
 	}
 	// Original function: FUN_004b1a99; one matching inhabitant makes the pair visible.
 	static bool HumanListJobSelectionWindow_l_IsJobToChoose(void* window, std::uint32_t tribe, std::uint32_t job, std::uint32_t player)
 	{
 		const auto* state = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
-		if (Read<std::uint8_t>(state, 0x18u + tribe * 56u + job) == 0) return false;
-		if (Read<std::uint8_t>(window, NC2Layout::HumanListJobSelectionWindowOffset::CurrentJobFlag) == 0 && tribe != Read<std::uint32_t>(state, 0xC)) return false;
+		if (Read<std::uint8_t>(state, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) == 0) return false;
+		if (Read<std::uint8_t>(window, NC2Layout::HumanListJobSelectionWindowOffset::CurrentJobFlag) == 0 && tribe != Read<std::uint32_t>(state, NC2Layout::GameControlPlayerOffset::TribeType)) return false;
 		CHumanIterator iterator;
 		for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
 		{

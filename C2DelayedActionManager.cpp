@@ -60,12 +60,12 @@ namespace NC2Logic
 		auto* array = static_cast<CArrayHandler*>(manager);
 		for (auto index = static_cast<std::uint32_t>(array->mFirstScanIndex); index <= static_cast<std::uint32_t>(array->mLastScanIndex); ++index)
 		{
-			auto* action = Read<SDelayedAction*>(manager, 0x30) + index;
+			auto* action = Read<SDelayedAction*>(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries) + index;
 			if (action->allocated == 0) continue;
 			++action->elapsedTicks;
 			if (action->elapsedTicks < action->delayTicks) continue;
 			DelayedActionManager_l_DelayedAction_Execute(manager, action);
-			if (array->Element_Free(static_cast<std::int32_t>(index), true)) (Read<SDelayedAction*>(manager, 0x30) + index)->allocated = 0;
+			if (array->Element_Free(static_cast<std::int32_t>(index), true)) (Read<SDelayedAction*>(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries) + index)->allocated = 0;
 		}
 	}
 
@@ -110,7 +110,7 @@ namespace NC2Logic
 		{
 			DelayedActionManager_l_DelayedAction_Execute(manager, &action); return false;
 		}
-		Read<SDelayedAction*>(manager, 0x30)[index] = action;
+		Read<SDelayedAction*>(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries)[index] = action;
 		return true;
 	}
 
@@ -266,7 +266,7 @@ namespace NC2Logic
 	{
 		const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
 		const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-		const auto* area = Read<const CMapArea*>(data, 0x20u + stage * 4u);
+		const auto* area = Read<const CMapArea*>(data, NC2Layout::EngineHouseLogicViewOffset::WalkAreasUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
 		if (area == nullptr) return false;
 		for (std::uint32_t index = 0; index < area->rowCount; ++index)
 		{

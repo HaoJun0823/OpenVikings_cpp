@@ -66,8 +66,8 @@ namespace NC2Logic
 	std::uint32_t __fastcall EmbeddedSavegameManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/)
 	{
 		auto checksum = Tool_Checksum_Calculate(manager, 4);
-		const auto bytes = Read<std::uint32_t>(manager, 0);
-		if (bytes != 0) Tool_Checksum_Combine(&checksum, Tool_Checksum_Calculate(Read<const void*>(manager, 4), bytes));
+		const auto bytes = Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size);
+		if (bytes != 0) Tool_Checksum_Combine(&checksum, Tool_Checksum_Calculate(Read<const void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data), bytes));
 		return checksum;
 	}
 
@@ -84,11 +84,11 @@ namespace NC2Logic
 		Tool_Checksum_CalculateAndCombine(&checksum, manager, 8);
 		for (std::uint32_t player = 0; player < 20; ++player)
 		{
-			const auto* history = Read<const void*>(manager, 8u + player * 4u);
+			const auto* history = Read<const void*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
 			if (history != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, history, 0x2DB40);
 			else
 			{
-				const auto* current = Read<const void*>(manager, 0x58u + player * 4u);
+				const auto* current = Read<const void*>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
 				if (current != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, current, 0x138);
 				else Tool_Checksum_Combine(&checksum, 0xFF000000u);
 			}
@@ -192,9 +192,9 @@ namespace NC2Logic
 	std::uint32_t __fastcall GameMapSectorAttachmentManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/)
 	{
 		auto checksum = Tool_Checksum_Calculate(manager, 8);
-		const auto count = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4);
-		Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, 8), count * 0x540u);
-		Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, 0x0C), count * 0xFCu);
+		const auto count = Read<std::uint32_t>(manager, NC2Layout::SectorAttachmentManagerOffset::GridHeight) * Read<std::uint32_t>(manager, NC2Layout::SectorAttachmentManagerOffset::GridWidth);
+		Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, NC2Layout::SectorAttachmentManagerOffset::SectorData), count * 0x540u);
+		Tool_Checksum_CalculateAndCombine(&checksum, Read<const void*>(manager, NC2Layout::SectorAttachmentManagerOffset::SectorAuxiliaryData), count * 0xFCu);
 		return checksum;
 	}
 

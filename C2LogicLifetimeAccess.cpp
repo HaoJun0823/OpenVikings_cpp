@@ -224,7 +224,7 @@ namespace NC2Logic
 	// Original function: FUN_00419ddb.
 	void* __fastcall TributeManager_Construct(void* manager, void* /*unusedEdx*/)
 	{
-		for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * 0x3Cu, 0);
+		for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * NC2Layout::RecordSize::TributeUnsigned, 0);
 		gTributeManager = manager;
 		std::memset(manager, 0, 2400);
 		return manager;

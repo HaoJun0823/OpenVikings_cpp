@@ -229,7 +229,7 @@ namespace NC2E2
 	{
 		if (NC2Logic::MapMagPoint_IsBorderPoint(packedMacroPoint)) return nullptr;
 		const void* macro = EngineMap_GetConstMapMacroPointPtr(packedMacroPoint);
-		const auto index = Read<std::uint16_t>(macro, firstTriangle ? 0u : 2u);
+		const auto index = Read<std::uint16_t>(macro, firstTriangle ? NC2Layout::EngineMapMacroPointOffset::PatternAUnsigned : NC2Layout::EngineMapMacroPointOffset::PatternBUnsigned);
 		return static_cast<const SE2StaticDataPatternData*>(gStaticPatternStorage.entries) + index;
 	}
 
@@ -301,7 +301,7 @@ namespace NC2E2
 		MapMigPoint_ConstructFromMag(micro, packedPoint, false);
 		const void* descriptions[6];
 		if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(micro, descriptions)) return;
-		for (const void* description : descriptions) if (Read<std::uint8_t>(description, 6) != 0) return;
+		for (const void* description : descriptions) if (Read<std::uint8_t>(description, NC2Layout::TrianglePatternTypeOffset::IsBorder) != 0) return;
 		Point cursor;
 		std::memcpy(cursor, packedPoint, 4);
 		const auto h0 = Read<std::uint8_t>(GetMacro(cursor), NC2Layout::MapMacroPointOffset::Height);
@@ -462,9 +462,9 @@ namespace NC2E2
 		const auto* macro = EngineMap_GetConstMapMacroPointPtr(point);
 		for (std::uint32_t layer = 0; layer < 2; ++layer)
 		{
-			const auto a = Read<std::uint8_t>(macro, 7 + layer * 2);
+			const auto a = Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::Transitions + layer * NC2Layout::RecordSize::MacroTransitionLayer);
 			if (a != NXBasics::IntegerRange::UInt8MaximumSigned) EngineMap_Transition_Set(point, a / 6, layer, true);
-			const auto b = Read<std::uint8_t>(macro, 8 + layer * 2);
+			const auto b = Read<std::uint8_t>(macro, NC2Layout::EngineMapMacroPointOffset::TransitionB + layer * NC2Layout::RecordSize::MacroTransitionLayer);
 			if (b != NXBasics::IntegerRange::UInt8MaximumSigned) EngineMap_Transition_Set(point, b / 6, layer, false);
 		}
 	}

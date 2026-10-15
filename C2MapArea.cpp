@@ -176,7 +176,7 @@ namespace NC2Logic
 				if (!MapMigPoint_IsInsideMap(&point)) return false;
 				const void* descriptions[6];
 				if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&point, descriptions)) return false;
-				for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], 1) == 0) return false;
+				for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], NC2Layout::TrianglePatternTypeOffset::HouseCanBeBuiltOn) == 0) return false;
 				Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
 			}
 		}
@@ -267,8 +267,8 @@ namespace NC2Logic
 				if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 0)
 				{
 					Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType, 4);
-					Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 0) - Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X)));
-					Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 2) - Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)));
+					Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData, static_cast<std::uint8_t>(Read<std::int16_t>(&original, NC2Layout::MapCoordinatePairOffset::X) - Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X)));
+					Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency, static_cast<std::uint8_t>(Read<std::int16_t>(&original, NC2Layout::MapCoordinatePairOffset::Y) - Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y)));
 				}
 				Write<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, NC2Layout::MapCoordinatePairOffset::X) + 1u));
 			}

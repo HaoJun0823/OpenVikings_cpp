@@ -264,7 +264,7 @@ namespace NC2E2
 		}
 		auto* data = StaticParticle(id);
 		const auto* frames = ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency));
-		const auto bob = Read<std::uint32_t>(Read<void*>(frames, NC2Layout::ParticleFramesOffset::FrameIds), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) * 4u);
+		const auto bob = Read<std::uint32_t>(Read<void*>(frames, NC2Layout::ParticleFramesOffset::FrameIds), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) * NC2Layout::RecordSize::ParticleFrameIdUnsigned);
 		const auto* bobManager = Read<void*>(data, NC2Layout::StaticParticleOffset::BobManager);
 		NXBasics::SRectangle rectangle(0, 0, 0, 0);
 		std::memcpy(&rectangle, NXBasics::BobManager_GetBobAreaRectanglePtr(bobManager, bob), sizeof(rectangle));
@@ -322,13 +322,13 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 	for (auto id = iterator.GetFirstFishSwarmId(true); id != -1; id = iterator.GetNextFishSwarmId())
 	{
 		const auto* swarm = &static_cast<NC2Logic::CMapFishManager*>(NC2Logic::gMapFishManager)->mSwarms[id];
-		const auto x = Read<std::int16_t>(swarm, 0), y = Read<std::int16_t>(swarm, 2);
+		const auto x = Read<std::int16_t>(swarm, NC2Layout::FishSwarmOffset::MapPosition), y = Read<std::int16_t>(swarm, NC2Layout::FishSwarmOffset::MapPositionY);
 		if (x < bounds[0] || x > static_cast<std::int16_t>(bounds[0] + bounds[2] - 1) || y < bounds[1] || y > static_cast<std::int16_t>(bounds[1] + bounds[3] - 1)) continue;
 		std::int32_t origin[2];
 		Display_MapMigToLocalDisplayPixelCoordinates(display, swarm, origin, false);
 		const auto shiftedX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(x) << (static_cast<std::uint32_t>(id) & 31u));
 		const auto shiftedY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(y) << (static_cast<std::uint32_t>(id) & 31u));
-		const double centerPhase = static_cast<double>(shiftedY) + shiftedX + Read<std::int32_t>(swarm, 4) * 0.5 + time;
+		const double centerPhase = static_cast<double>(shiftedY) + shiftedX + Read<std::int32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) * 0.5 + time;
 		const double centerMotionPhase = centerPhase * 0.01 + centerPhase * 0.2;
 		std::int32_t centerPixel[2] = { origin[0], origin[1] };
 		centerPixel[0] = add(centerPixel[0], truncate(Runtime_Sin(gFishMotionFrequencies.horizontal * centerMotionPhase) * 20.0));
@@ -338,8 +338,8 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 		centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin((centerPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0));
 		if ((Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte2) & 1u) != 0)
 		{
-			Display_l_DE_Debug_DrawRange(display, Read<std::uint32_t>(swarm, 0), 0, &white);
-			Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Text_PrintV(Read<NXBasics::CFont*>(display, NC2Layout::EngineDisplayOffset::Font), centerPixel[0], centerPixel[1], "%d", Read<std::uint32_t>(swarm, 4));
+			Display_l_DE_Debug_DrawRange(display, Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::MapPosition), 0, &white);
+			Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Text_PrintV(Read<NXBasics::CFont*>(display, NC2Layout::EngineDisplayOffset::Font), centerPixel[0], centerPixel[1], "%d", Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount));
 		}
 		Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, centerPixel, false);
 		std::uint32_t centerPoint = 0;
@@ -347,10 +347,10 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 		if (NC2Logic::MapMigPoint_IsBorderPoint(&centerPoint)) continue;
 		if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&centerPoint), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) continue;
 		auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + gStaticPalettes.fishPaletteId, DE_Hightlighting_GetHighlightBrightness(display, &centerPoint));
-		for (std::int32_t index = 0; index < Read<std::int32_t>(swarm, 4); ++index)
+		for (std::int32_t index = 0; index < Read<std::int32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount); ++index)
 		{
-			const double scatterX = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.000002) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, 4) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterX + 1.0) * 30.0;
-			const double scatterY = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.0000001) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, 4) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterY) * 30.0;
+			const double scatterX = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.000002) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterX + 1.0) * 30.0;
+			const double scatterY = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.0000001) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterY) * 30.0;
 			double currentX = origin[0], currentY = origin[1], previousX = origin[0], previousY = origin[1];
 			const double phase = static_cast<double>(shiftedY) + shiftedX + index + time;
 			const double motionPhase = phase * 0.01 + phase * 0.2;

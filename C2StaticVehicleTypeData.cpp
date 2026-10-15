@@ -1,6 +1,7 @@
 #include "C2DataIds.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2ObjectLayout.h"
 #include "C2StaticVehicleTypeData.h"
 #include "SwitchIdentifiers.h"
 #include "XIniFileReader.h"
@@ -116,7 +117,7 @@ namespace NC2Logic
 						{
 							const std::int32_t passengerType = reader.GetInt();
 							// Retain the original unchecked signed index as wrapped byte addressing.
-							NC2Lifetime::Write<std::uint8_t>(&record, 0x184u + static_cast<std::uint32_t>(passengerType), 1);
+							NC2Lifetime::Write<std::uint8_t>(&record, NC2Layout::StaticVehicleTypeOffset::AllowedPassengerTypesUnsigned + static_cast<std::uint32_t>(passengerType), 1);
 							break;
 						}
 					case SwitchIds::VehicleTypeToken::DebugColor:

@@ -49,10 +49,10 @@ namespace NC2Logic
 		std::uint32_t maximum = 0;
 		for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)
 		{
-			const auto player = NC2Lifetime::Read<DPNID>(players, index * 0x98u);
+			const auto player = NC2Lifetime::Read<DPNID>(players, index * NC2Layout::RecordSize::NetworkPlayerUnsigned);
 			if (player == 0 || player == NNetwork::Network_GetLocalPlayerId()) continue;
 			DPN_CONNECTION_INFO connection;
-			if (network->GetConnectionData(NC2Lifetime::Read<DPNID>(players, index * 0x98u), &connection) && connection.dwRoundTripLatencyMS > maximum) maximum = connection.dwRoundTripLatencyMS;
+			if (network->GetConnectionData(NC2Lifetime::Read<DPNID>(players, index * NC2Layout::RecordSize::NetworkPlayerUnsigned), &connection) && connection.dwRoundTripLatencyMS > maximum) maximum = connection.dwRoundTripLatencyMS;
 		}
 		return maximum;
 	}
@@ -180,7 +180,7 @@ namespace NC2Logic
 					{
 						std::byte command[20]{ };
 						command[0] = std::byte{ 0x8B };
-						Write<std::uint32_t>(command, 4, frequency);
+						Write<std::uint32_t>(command, NC2Layout::NetworkFrequencyCommandOffset::Frequency, frequency);
 						UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
 					}
 				}

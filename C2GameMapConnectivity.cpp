@@ -28,7 +28,7 @@ namespace NC2Logic
 		}
 		void IncludeChangedPoint(std::int16_t* area, std::uint32_t packed)
 		{
-			const auto x = Read<std::int16_t>(&packed, 0), y = Read<std::int16_t>(&packed, 2);
+			const auto x = Read<std::int16_t>(&packed, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::int16_t>(&packed, NC2Layout::MapCoordinatePairOffset::Y);
 			if (x < area[0]) area[0] = x;
 			if (x > area[2]) area[2] = x;
 			if (y < area[1]) area[1] = y;
@@ -49,7 +49,7 @@ namespace NC2Logic
 		}
 		std::uint32_t ContinentTypeUnchecked(std::uint32_t continent)
 		{
-			return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u);
+			return Read<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * NC2Layout::RecordSize::GameMapContinentUnsigned);
 		}
 	}
 
@@ -188,14 +188,14 @@ namespace NC2Logic
 			if (!MapMigPoint_IsInsideMap(&neighbor) || MapMigPoint_IsBorderPoint(&neighbor)) continue;
 			const void* wayPatterns[2];
 			if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundWay(point, direction, wayPatterns)) continue;
-			if (Read<std::uint8_t>(wayPatterns[0], 0) == 0 && Read<std::uint8_t>(wayPatterns[1], 0) == 0)
+			if (Read<std::uint8_t>(wayPatterns[0], NC2Layout::TrianglePatternTypeOffset::HumanCanWalkOn) == 0 && Read<std::uint8_t>(wayPatterns[1], NC2Layout::TrianglePatternTypeOffset::HumanCanWalkOn) == 0)
 			{
 				const void* patterns[6];
 				if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns)) continue;
 				bool water = true;
-				for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 5) == 0) water = false;
+				for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsWater) == 0) water = false;
 				if (!water || !GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&neighbor, patterns)) continue;
-				for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, 5) == 0) water = false;
+				for (const auto* pattern : patterns) if (Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsWater) == 0) water = false;
 				if (!water) continue;
 			}
 			GameMap_l_WalkFlagSet_SetConnection(Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), direction);
@@ -246,13 +246,13 @@ namespace NC2Logic
 		const bool land = continentType == 1;
 		std::uint32_t sum = 0, count = 0;
 		for (const auto* pattern : patterns)
-			if (!land || Read<std::uint8_t>(pattern, 4) != 0)
+			if (!land || Read<std::uint8_t>(pattern, NC2Layout::TrianglePatternTypeOffset::IsLand) != 0)
 			{
-				sum += Read<std::uint32_t>(pattern, 8); ++count;
+				sum += Read<std::uint32_t>(pattern, NC2Layout::TrianglePatternTypeOffset::MoveResistance); ++count;
 			}
 		if (count == 0)
 		{
-			Write<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * 16u, 0);
+			Write<std::uint32_t>(gGameMapStaticStorage, NC2Layout::GameMapOffset::ContinentsUnsigned + continent * NC2Layout::RecordSize::GameMapContinentUnsigned, 0);
 			return;
 		}
 		Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags, (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::ByteExceptBits3Through6) | (((sum / count) & 15u) << 3));

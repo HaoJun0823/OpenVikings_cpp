@@ -30,7 +30,7 @@ namespace NC2Logic
 			for (auto column = first.x; column < last.x; ++column)
 			{
 				const auto* cache = mSectorAuxiliaryData + (static_cast<std::uint32_t>(row) * static_cast<std::uint32_t>(mGridWidth) + static_cast<std::uint32_t>(column)) * 0xFCu + player * 12u;
-				if (Read<std::uint32_t>(cache, 0) + 12u <= gGameTime.tick || Read<std::uint8_t>(cache, 8) != 0)
+				if (Read<std::uint32_t>(cache, NC2Layout::SectorEnemySearchCacheOffset::LastSearchTick) + 12u <= gGameTime.tick || Read<std::uint8_t>(cache, NC2Layout::SectorEnemySearchCacheOffset::FoundTarget) != 0)
 				{
 					scan = true; break;
 				}
@@ -39,11 +39,11 @@ namespace NC2Logic
 		if (!scan) return false;
 		// Windows updates the source sector's cache, regardless of which sector triggered the scan.
 		auto* cache = mSectorAuxiliaryData + (static_cast<std::uint32_t>(center.y) * static_cast<std::uint32_t>(mGridWidth) + static_cast<std::uint32_t>(center.x)) * 0xFCu + player * 12u;
-		Write(cache, 0, gGameTime.tick);
-		allowLandscape = allowLandscape && Read<std::uint32_t>(cache, 4) + 60u < gGameTime.tick;
-		if (allowLandscape) Write(cache, 4, gGameTime.tick);
+		Write(cache, NC2Layout::SectorEnemySearchCacheOffset::LastSearchTick, gGameTime.tick);
+		allowLandscape = allowLandscape && Read<std::uint32_t>(cache, NC2Layout::SectorEnemySearchCacheOffset::LastLandscapeSearchTick) + 60u < gGameTime.tick;
+		if (allowLandscape) Write(cache, NC2Layout::SectorEnemySearchCacheOffset::LastLandscapeSearchTick, gGameTime.tick);
 		const bool result = l_CheckSectorForEnemyTarget_Human(player, point, minimumDistance, maximumDistance, target, ignoreAnimals, allowLandscape);
-		Write<std::uint8_t>(cache, 8, result);
+		Write<std::uint8_t>(cache, NC2Layout::SectorEnemySearchCacheOffset::FoundTarget, result);
 		return result;
 	}
 
@@ -53,7 +53,7 @@ namespace NC2Logic
 		auto setTarget = [&] (std::uint32_t type, std::int32_t id, const void* object)
 		{
 			Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint, id);
-			Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(object, 8));
+			Write(target, NC2Layout::TargetDataOffset::ObjectRevision, Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId));
 			Write(target, NC2Layout::TargetDataOffset::Type, type);
 		};
 		auto id = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, minimumDistance, maximumDistance, true, 5, 3, true, false);

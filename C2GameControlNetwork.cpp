@@ -185,7 +185,7 @@ namespace NC2Logic
 	{
 		if (player >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
 		if (otherPlayer >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(otherPlayer) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
-		return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned);
+		return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * NC2Layout::RecordSize::DiplomacyStateUnsigned + NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned);
 	}
 	// Original function: FUN_0040a171; CGameControl::Diplomacy_SetState.
 	bool __fastcall GameControl_Diplomacy_SetState(void* gameControl, void* /*unusedEdx*/, std::uint32_t player, std::uint32_t otherPlayer, std::uint32_t state)

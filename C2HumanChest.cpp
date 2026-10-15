@@ -98,8 +98,8 @@ namespace NC2Logic
 	{
 		auto* data = static_cast<std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
 		const auto job = gStaticTribeTypeData[tribe].goodProduction[good].job;
-		Write<std::uint8_t>(data, 0x1D4Cu + tribe * 66u + good, 1);
-		if (job != 0) Write<std::uint8_t>(data, 0x948u + tribe * 56u + static_cast<std::uint32_t>(job), 1);
+		Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::GoodsUnsigned + good, 1);
+		if (job != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Layout::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(job), 1);
 	}
 
 	// Original function: FUN_0044cf1c; all Windows chest reward branches are connected.

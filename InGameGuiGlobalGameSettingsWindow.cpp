@@ -219,8 +219,8 @@ namespace NC2InGameGuiMiscWindows
 			const auto base = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x4624u;
 			for (std::uint32_t index = 0; index < 100; ++index)
 			{
-				const auto type = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * 8u);
-				const auto item = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * 8u + 4u);
+				const auto type = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * NC2Layout::RecordSize::PlayerSpecialItemUnsigned);
+				const auto item = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * NC2Layout::RecordSize::PlayerSpecialItemUnsigned + NC2Layout::PlayerSpecialItemOffset::ItemUnsigned);
 				if (type == 0) continue;
 				char caption[200];
 				NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(type, static_cast<std::int32_t>(item), caption);

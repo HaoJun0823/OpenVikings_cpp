@@ -183,10 +183,10 @@ namespace NC2Logic
 		for (;;)
 		{
 			const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * NC2Layout::RecordSize::JobType;
-			if (Read<std::uint8_t>(data, 0x24u + action) == 0) return false;
+			if (Read<std::uint8_t>(data, NC2Layout::StaticJobTypeOffset::AllowedAtomicsUnsigned + action) == 0) return false;
 			animation = gStaticTribeTypeData[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType)].atomicIds[job][action];
 			if (animation != NXBasics::IntegerRange::UInt32Maximum) break;
-			job = Read<std::uint32_t>(data, 0x20);
+			job = Read<std::uint32_t>(data, NC2Layout::StaticJobTypeOffset::BaseJob);
 			if (job == 0) return false;
 		}
 		Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame, 0);
@@ -297,7 +297,7 @@ namespace NC2Logic
 			for (std::uint32_t other = 0; other < 20; ++other)
 			{
 				if (other == player || Read<std::uint8_t>(gGameControl, other * NC2Layout::RecordSize::GameControlPlayer) == 0) continue;
-				const auto first = Read<std::uint32_t>(sector, other * 0x40u + 0x14), second = Read<std::uint32_t>(sector, other * 0x40u + 0x2C);
+				const auto first = Read<std::uint32_t>(sector, other * NC2Layout::RecordSize::SectorPlayerUnsigned + NC2Layout::SectorPlayerOffset::CivilianHouseCount), second = Read<std::uint32_t>(sector, other * NC2Layout::RecordSize::SectorPlayerUnsigned + NC2Layout::SectorPlayerOffset::MilitaryHouseCount);
 				if (stopAtFirst && (first != 0 || second != 0)) return 1;
 				total += first + second;
 			}

@@ -22,7 +22,7 @@ namespace NC2LogicExternals
 		if (!followOnly && (gInputManager == nullptr || !Selection_SelectSingleHuman(gInputManager, humanId))) return;
 		auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 		if (manager == nullptr) return;
-		void* world = NC2Lifetime::Read<void*>(manager, 4);
+		void* world = NC2Lifetime::Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
 		if (world != nullptr) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, humanId);
 	}
 
@@ -123,11 +123,11 @@ namespace NC2Logic
 	{
 		using namespace NC2Lifetime;
 		const auto human = Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HumanId);
-		if (human != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::HumanUniqueId, Read<std::uint32_t>(CHumanArray::mStaticVars, human * CHumanArray::ElementSize + 8));
+		if (human != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::HumanUniqueId, Read<std::uint32_t>(CHumanArray::mStaticVars, human * CHumanArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId));
 		const auto house = Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseId);
-		if (house != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::HouseUniqueId, Read<std::uint32_t>(CHouseArray::mStaticVars, house * CHouseArray::ElementSize + 8));
+		if (house != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::HouseUniqueId, Read<std::uint32_t>(CHouseArray::mStaticVars, house * CHouseArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId));
 		const auto vehicle = Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::VehicleId);
-		if (vehicle != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::VehicleUniqueId, Read<std::uint32_t>(CVehicleArray::mStaticVars, vehicle * CVehicleArray::ElementSize + 8));
+		if (vehicle != NXBasics::IntegerRange::UInt32Maximum) Write(message, NC2Layout::ToUserMessageOffset::VehicleUniqueId, Read<std::uint32_t>(CVehicleArray::mStaticVars, vehicle * CVehicleArray::ElementSize + NC2Layout::ActorIdentityOffset::UniqueId));
 		Write<std::uint8_t>(message, NC2Layout::ToUserMessageOffset::FinishedFlag, 1);
 	}
 
@@ -209,7 +209,7 @@ namespace NC2LogicExternals
 		const auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 		if (gui == nullptr) return;
 		const auto player = NC2Lifetime::Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::PlayerId);
-		if (player != NXBasics::IntegerRange::UInt32Maximum && player != NC2Lifetime::Read<std::uint32_t>(gui, 0)) return;
+		if (player != NXBasics::IntegerRange::UInt32Maximum && player != NC2Lifetime::Read<std::uint32_t>(gui, NC2Layout::InGameGuiManagerOffset::LocalPlayerId)) return;
 		static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_Add(message);
 	}
 }
@@ -227,10 +227,10 @@ namespace NC2LogicExternals
 		using namespace NC2Lifetime;
 		auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 		if (gui == nullptr) return;
-		auto* world = Read<void*>(gui, 4);
-		if (world == nullptr || Read<void*>(world, 0x30) == nullptr) return;
+		auto* world = Read<void*>(gui, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
+		if (world == nullptr || Read<void*>(world, NC2Layout::WorldGuiElementOffset::Display) == nullptr) return;
 		NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
-		world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
-		NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, 0x30), point);
+		world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement);
+		NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, NC2Layout::WorldGuiElementOffset::Display), point);
 	}
 }

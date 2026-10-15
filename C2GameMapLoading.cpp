@@ -102,7 +102,7 @@ namespace NC2Logic
 			{
 				io->IO_File_ReadAndUnpackBinary(scratch, microCount * 2u);
 				for (std::uint32_t index = 0; index < microCount; ++index)
-					Write<std::uint16_t>(microPoints + index * NC2Layout::RecordSize::MapMicroPointUnsigned, offset, Read<std::uint16_t>(scratch, index * 2u));
+					Write<std::uint16_t>(microPoints + index * NC2Layout::RecordSize::MapMicroPointUnsigned, offset, Read<std::uint16_t>(scratch, index * NC2Layout::RecordSize::SerializedWordUnsigned));
 			};
 
 			switch (marker)
@@ -158,7 +158,7 @@ namespace NC2Logic
 					for (std::uint32_t index = 0; index < microCount; ++index)
 					{
 						auto* record = microPoints + index * NC2Layout::RecordSize::MapMicroPointUnsigned;
-						const auto value = Read<std::uint16_t>(scratch, index * 2u);
+						const auto value = Read<std::uint16_t>(scratch, index * NC2Layout::RecordSize::SerializedWordUnsigned);
 						if (marker == SwitchIds::LogicMapChunk::AttachedObjects)
 						{
 							if (value != 0)

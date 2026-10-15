@@ -171,7 +171,7 @@ namespace NC2Logic
 			return;
 		}
 		if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != task) return;
-		if (task == 8 && Read<std::uint32_t>(human, 0xA64) != 0 && TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType))) Write(human, 0xA64, Read<std::uint32_t>(human, 0xA64) - 1u);
+		if (task == 8 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals) != 0 && TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType))) Write(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals, Read<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals) - 1u);
 		else Human_AI_DoCheckForUrgentNeeds(human);
 		if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 7) return;
 		if (task == 9)
@@ -371,8 +371,8 @@ namespace NC2Logic
 					std::uint32_t point = 0;
 					if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Human_GetMapPositionRef(human), 0, 18, true, 1, 0, &point))
 					{
-						Write(target, 4, point);
-						Write<std::uint32_t>(target, 0, 6);
+						Write(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition, point);
+						Write<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type, 6);
 						Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
 						Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
 						return;
@@ -395,7 +395,7 @@ namespace NC2Logic
 			if (need >= 2 && need <= 4) doJob = false;
 			else if (need == 1)
 			{
-				doJob = TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)); Write<std::uint32_t>(human, 0xA64, 10);
+				doJob = TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)); Write<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals, 10);
 			}
 			checkUrgent = false;
 			Human_l_FailTask_FulfillNeeds(human);
@@ -651,7 +651,7 @@ namespace NC2Logic
 			Human_l_StartTask_ExerciseJob(human); return;
 		}
 		const auto attached = Human_IsAttachedToWorkHouse(human);
-		if ((Human_IsForcedToHaveWorkHouse(human) && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 3))
+		if ((Human_IsForcedToHaveWorkHouse(human) && !attached) || (attached && Read<std::uint8_t>(JobData(human), NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouse) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 3))
 		{
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 2);

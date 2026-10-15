@@ -18,7 +18,7 @@ namespace NC2Logic
 	{
 		void* Human(const void* record)
 		{
-			return CHumanArray::mStaticVars + Read<std::uint32_t>(record, 0) * CHumanArray::ElementSize;
+			return CHumanArray::mStaticVars + Read<std::uint32_t>(record, NC2Layout::HumanReferenceOffset::HumanId) * CHumanArray::ElementSize;
 		}
 		void* Good(void* manager, std::uint32_t good)
 		{
@@ -40,8 +40,8 @@ namespace NC2Logic
 	bool AITradeManager_IsObjectUsed(const void* manager, const void* target)
 	{
 		if (Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) != 1) return false;
-		for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0); ++i)
-			if (Read<std::uint32_t>(manager, 4 + i * 16) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(manager, 8 + i * 16) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
+		for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::AITradeManagerOffset::Count); ++i)
+			if (Read<std::uint32_t>(manager, NC2Layout::AITradeManagerOffset::FirstHumanId + i * NC2Layout::RecordSize::AITradeEntry) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(manager, NC2Layout::AITradeManagerOffset::FirstHumanUniqueId + i * NC2Layout::RecordSize::AITradeEntry) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
 		return false;
 	}
 
@@ -121,7 +121,7 @@ namespace NC2Logic
 			for (std::uint32_t i = 0; i < Read<std::uint32_t>(entry, NC2Layout::AIGoodOffset::ProducerCount); ++i)
 			{
 				const auto* producer = entry + NC2Layout::AIGoodOffset::Producer + i * NC2Layout::RecordSize::AIGoodProducer;
-				if (Read<std::uint32_t>(producer, offset) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(producer, offset + 4) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
+				if (Read<std::uint32_t>(producer, offset) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint) && Read<std::uint32_t>(producer, offset + NC2Layout::ObjectReferenceOffset::Revision) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision)) return true;
 			}
 		}
 		return false;

@@ -42,9 +42,9 @@ namespace NC2Logic
 	{
 		const void* statistics = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
 		const auto population = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::HumanCount));
-		const auto goods16And17 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, 0xB0)) + Read<std::uint16_t>(statistics, 0xB2);
+		const auto goods16And17 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Goods + 16 * NC2Layout::RecordSize::StatisticCount)) + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Goods + 17 * NC2Layout::RecordSize::StatisticCount);
 		const auto cappedGoods = goods16And17 > population * 2 ? population * 2 : goods16And17;
-		const auto goods15And28And29 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, 0xC8)) + Read<std::uint16_t>(statistics, 0xCA) + Read<std::uint16_t>(statistics, 0xAE);
+		const auto goods15And28And29 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Goods + 28 * NC2Layout::RecordSize::StatisticCount)) + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Goods + 29 * NC2Layout::RecordSize::StatisticCount) + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Goods + 15 * NC2Layout::RecordSize::StatisticCount);
 		return cappedGoods + goods15And28And29 / 3 - population;
 	}
 
@@ -52,12 +52,12 @@ namespace NC2Logic
 	std::int32_t HappinessManager_l_GetBuildingHappinessValue(const void*, std::uint32_t player)
 	{
 		const void* statistics = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
-		std::uint32_t value = Read<std::uint16_t>(statistics, 0x68) * 5u + Read<std::uint16_t>(statistics, 0x20) * 3u + Read<std::uint16_t>(statistics, 0x38) + Read<std::uint16_t>(statistics, 0x36);
-		value = value * 5u + Read<std::uint16_t>(statistics, 0x70) * 12u + Read<std::uint16_t>(statistics, 0x6E) * 8u;
-		const auto count = Read<std::uint16_t>(statistics, 0x3A);
+		std::uint32_t value = Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 42 * NC2Layout::RecordSize::StatisticCount) * 5u + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 6 * NC2Layout::RecordSize::StatisticCount) * 3u + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 18 * NC2Layout::RecordSize::StatisticCount) + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 17 * NC2Layout::RecordSize::StatisticCount);
+		value = value * 5u + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 46 * NC2Layout::RecordSize::StatisticCount) * 12u + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 45 * NC2Layout::RecordSize::StatisticCount) * 8u;
+		const auto count = Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 19 * NC2Layout::RecordSize::StatisticCount);
 		if (count == 0) value -= 10u;
-		else value += (static_cast<std::uint32_t>(count) + Read<std::uint16_t>(statistics, 0x3C)) * 20u;
-		value += Read<std::uint16_t>(statistics, 0x40) * 20u - Read<std::uint16_t>(statistics, 0x14);
+		else value += (static_cast<std::uint32_t>(count) + Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 20 * NC2Layout::RecordSize::StatisticCount)) * 20u;
+		value += Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 22 * NC2Layout::RecordSize::StatisticCount) * 20u - Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::Houses + 0 * NC2Layout::RecordSize::StatisticCount);
 		return NXBasics::Runtime_TimeSigned32(value);
 	}
 
@@ -101,7 +101,7 @@ namespace NC2Logic
 		else if (type == 0x27)
 		{
 			const void* event = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(param1));
-			const void* human = Read<const void*>(event, 0x18);
+			const void* human = Read<const void*>(event, NC2Layout::DirectionalParticleCallbackOffset::Human);
 			if (!Human_IsJobSoldier(human)) Happiness_AddEventType(static_cast<std::byte*>(gHappinessManager) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::HappinessPlayerUnsigned, 1);
 		}
 		else if (type == 0x28) HappinessManager_Messages_PlayerAttackedByPlayer(gHappinessManager, param1, param2);

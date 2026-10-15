@@ -227,8 +227,8 @@ namespace NC2Logic
 		const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
 		Vehicle_GetMapPosition(vehicle, point);
 		const auto* moveable = AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable);
-		auto direction = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::int32_t>(moveable, 0x20) : 2;
-		auto distance = Read<std::int32_t>(type, 0x1C4);
+		auto direction = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2;
+		auto distance = Read<std::int32_t>(type, NC2Layout::StaticVehicleTypeOffset::PassengerVectorY);
 		const auto offset = type->passengerVectorX;
 		if (direction < 6) direction = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(offset) + static_cast<std::uint32_t>(direction)) % 6;
 		else
@@ -470,7 +470,7 @@ namespace NC2Logic
 				}
 			}
 		}
-		return reinterpret_cast<const std::uint16_t*>(AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12u));
+		return reinterpret_cast<const std::uint16_t*>(AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + NC2Layout::MapMoveableOffset::MapPositionUnsigned));
 	}
 
 	// Original function: FUN_004375a6.
@@ -488,7 +488,7 @@ namespace NC2Logic
 		for (std::uint32_t slot = 0; ; ++slot)
 		{
 			const void* target = static_cast<const std::byte*>(vehicle) + NC2Layout::VehicleOffset::HumanPassengers + slot * NC2Layout::RecordSize::VehiclePassenger;
-			if (InteractionTargetData_IsValid(target) && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(target, 0) * CHumanArray::ElementSize, NC2Layout::HumanOffset::JobType) == 25) return Read<std::int32_t>(target, 0);
+			if (InteractionTargetData_IsValid(target) && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) * CHumanArray::ElementSize, NC2Layout::HumanOffset::JobType) == 25) return Read<std::int32_t>(target, NC2Layout::TargetDataOffset::Type);
 			if (slot + 1u > static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots)) return -1;
 		}
 	}
@@ -513,7 +513,7 @@ namespace NC2Logic
 			if ((state == 3 || state == 4) && Read<std::uint8_t>(carrier, NC2Layout::VehicleOffset::DockedFlag) != 0) return Vehicle_GetConstMapMicroPointPtr(carrier);
 			vehicle = carrier;
 		}
-		return AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12u);
+		return AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + NC2Layout::MapMoveableOffset::MapPositionUnsigned);
 	}
 
 	// Original function: FUN_0044ba1b.
@@ -662,8 +662,8 @@ namespace NC2Logic
 			if (!Vehicle_Passengers_CanBeCommander(vehicle, CHumanArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::VehiclePassengerOffset::ObjectId) * CHumanArray::ElementSize)) continue;
 			Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag, 1);
 			std::memcpy(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::HumanPassengers + capacity * NC2Layout::RecordSize::VehiclePassenger, entry, 12);
-			Write<std::int32_t>(entry, 0, -1);
-			Write<std::uint8_t>(entry, 8, 0);
+			Write<std::int32_t>(entry, NC2Layout::ActorIdentityOffset::Allocated, -1);
+			Write<std::uint8_t>(entry, NC2Layout::ActorIdentityOffset::UniqueId, 0);
 			return;
 		}
 	}

@@ -109,7 +109,7 @@ namespace NC2Logic
 			const auto check = [] (const void* position)
 			{
 				const void* terrain = GameMap_GetConstMapMacroPointPtr(position);
-				return Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternA)], 3) != 0 && Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternB)], 3) != 0;
+				return Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternA)], NC2Layout::TrianglePatternTypeOffset::BioCanPlantOn) != 0 && Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, NC2Layout::MapMacroPointOffset::PatternB)], NC2Layout::TrianglePatternTypeOffset::BioCanPlantOn) != 0;
 			};
 			if (!check(&macro)) return false;
 			MapMagPoint_MoveCursorUnwrapped(&macro, 4);
@@ -119,8 +119,8 @@ namespace NC2Logic
 				if (MapMagPoint_IsInsideMap(&macro) && !check(&macro)) return false;
 			}
 		}
-		if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
-		Write(search.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+		if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, NC2Layout::AIVillageOffset::PlayerId), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
+		Write(search.output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 		return true;
 	}
 
@@ -168,8 +168,8 @@ namespace NC2Logic
 		const auto& search = *static_cast<const SBuildSearch*>(data->userData);
 		if (!AIVillage_IsPointInside(search.village, point)) return false;
 		if (AIHouseManager_Tower_IsPointInDefendRange(static_cast<const std::byte*>(search.village) + 0x1C, point)) return false;
-		if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
-		Write(search.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+		if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, NC2Layout::AIVillageOffset::PlayerId), search.engineType, search.stage, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates), false, false)) return false;
+		Write(search.output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 		return true;
 	}
 
@@ -242,9 +242,9 @@ namespace NC2Logic
 		auto remaining = stage + 1u;
 		do
 		{
-			for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0); ++index)
+			for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, NC2Layout::HouseConstructionGoodsOffset::Count); ++index)
 			{
-				const auto good = Read<std::uint32_t>(definition, 4u + index * 4u);
+				const auto good = Read<std::uint32_t>(definition, NC2Layout::HouseConstructionGoodsOffset::GoodsUnsigned + index * NC2Layout::RecordSize::GoodIdUnsigned);
 				House_Stock_ModifyFutureAmount(house, good, 1, true);
 				House_Stock_ModifyAmount(house, nullptr, good, 1, true);
 			}

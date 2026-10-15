@@ -190,7 +190,7 @@ namespace NC2Logic
 			{
 				if (Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == workingPosition)
 				{
-					CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(slaughter, 4));
+					CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(slaughter, NC2Layout::AnimalOffset::AnimalId));
 					const auto* micro = GameMap_GetConstMapMicroPointPtr(&slaughterPosition);
 					if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 79 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 80))
 					{
@@ -208,7 +208,7 @@ namespace NC2Logic
 			}
 			const auto distance = Distance(Animal_GetMapPositionRef(slaughter), Human_GetMapPositionRef(human));
 			if (distance <= 2) Animal_GoIntoHouseInteractionMode(slaughter);
-			if (distance <= 1 || !Human_l_StartAtomicWalk(human, Read<std::int32_t>(slaughter, 12), 1)) Human_l_StartAtomicAnimation(human, 2, -1);
+			if (distance <= 1 || !Human_l_StartAtomicWalk(human, Read<std::int32_t>(slaughter, NC2Layout::AnimalOffset::MapMoveableId), 1)) Human_l_StartAtomicAnimation(human, 2, -1);
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
 			return;
 		}

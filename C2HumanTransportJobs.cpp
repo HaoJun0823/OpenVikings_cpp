@@ -32,7 +32,7 @@ namespace NC2Logic
 		}
 		bool IsUsable(const void* vehicle)
 		{
-			const auto type = Read<std::uint32_t>(vehicle, 0x1E8); return (type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0;
+			const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType); return (type != 3 && type != 4) || Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0;
 		}
 		void TargetVehicle(void* human)
 		{

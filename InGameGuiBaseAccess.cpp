@@ -98,7 +98,7 @@ namespace NC2InGameGuiBase
 	void BaseToolDesktop_AddWindow(NXBaseGui::CBaseWindow* window, bool showWhileHidden)
 	{
 		NXBaseGui::CDesktop::sTheObjectPtr->Window_Add(window);
-		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0 && !showWhileHidden)
+		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0 && !showWhileHidden)
 			NXBaseGui::CDesktop::sTheObjectPtr->Window_Hide(window);
 	}
 
@@ -106,13 +106,13 @@ namespace NC2InGameGuiBase
 	void BaseToolDesktop_AddOverlayElement(NXBaseGui::CBaseElement* element)
 	{
 		NXBaseGui::CDesktop::sTheObjectPtr->Element_AddOverlay(element, true);
-		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0) NXBaseGui::CDesktop::sTheObjectPtr->Element_Hide(element);
+		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0) NXBaseGui::CDesktop::sTheObjectPtr->Element_Hide(element);
 	}
 	// Original function: FUN_004b8518; Windows normal desktop-element adapter.
 	void BaseToolDesktop_AddElement(NXBaseGui::CBaseElement* element)
 	{
 		NXBaseGui::CDesktop::sTheObjectPtr->Element_Add(element, true);
-		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0)
+		if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0)
 			NXBaseGui::CDesktop::sTheObjectPtr->Element_Hide(element);
 	}
 
@@ -121,13 +121,13 @@ namespace NC2InGameGuiBase
 	{
 		auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
 		auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-		if (Read<std::int32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0)
+		if (Read<std::int32_t>(NC2InGameGuiInputManager::gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0)
 		{
 			desktop->Window_HideAll(nullptr);
-			desktop->Element_HideAll(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
+			desktop->Element_HideAll(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)));
 			desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(manager->MiscWindows_OverviewWindow_GetPtr()));
 			desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 8)));
-			desktop->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
+			desktop->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement)));
 		}
 		else
 		{

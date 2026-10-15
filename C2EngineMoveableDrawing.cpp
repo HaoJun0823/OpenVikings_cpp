@@ -71,7 +71,7 @@ namespace NC2E2
 
 		std::uint32_t ParentJob(std::uint32_t job)
 		{
-			return Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
+			return Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob);
 		}
 
 		std::uint32_t DrawingDirection(const void* moveable)

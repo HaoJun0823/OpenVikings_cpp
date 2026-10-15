@@ -101,7 +101,7 @@ namespace NC2Logic
 				const auto distance = Distance(from, to);
 				minimumDistance = 0;
 				bestDistance = distance;
-				initialPoint = Read<std::uint32_t>(to, 0);
+				initialPoint = Read<std::uint32_t>(to, NC2Layout::MapCoordinatePairOffset::Coordinates);
 			}
 		};
 		static_assert(sizeof(SVehiclePointSearch) == 28);
@@ -118,7 +118,7 @@ namespace NC2Logic
 			if (fromSource < data.minimumDistance || distance > data.bestDistance) return false;
 			if (data.sourceDistance == 0) data.sourceDistance = fromSource;
 			else if (data.sourceDistance < fromSource) return false;
-			Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+			Write(data.output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 			data.bestDistance = distance;
 			return false;
 		}
@@ -149,7 +149,7 @@ namespace NC2Logic
 			if (!land) return false;
 			if (data.sourceDistance == 0) data.sourceDistance = fromSource;
 			else if (data.sourceDistance < fromSource) return false;
-			Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+			Write(data.output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 			data.bestDistance = distance;
 			return false;
 		}
@@ -163,7 +163,7 @@ namespace NC2Logic
 		{
 			const auto& data = *static_cast<SVehicleFreePositionSearch*>(callback->userData);
 			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u) < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(data.vehicle)->logicSize) || Vehicle_GoAway_HitByVehicle(data.vehicle, point)) return false;
-			Write(data.output, 0, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+			Write(data.output, NC2Layout::MapCoordinatePairOffset::Coordinates, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 			return true;
 		}
 	}
@@ -476,7 +476,7 @@ namespace NC2Logic
 	// Original function: FUN_0044c393.
 	bool Vehicle_Passengers_IsCommanderInVehicle(const void* vehicle)
 	{
-		return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0 && Read<std::uint8_t>(Slot(vehicle, NC2Layout::VehicleOffset::HumanPassengersSigned, static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots)), 8) != 0;
+		return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0 && Read<std::uint8_t>(Slot(vehicle, NC2Layout::VehicleOffset::HumanPassengersSigned, static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots)), NC2Layout::VehiclePassengerOffset::InsideFlagSigned) != 0;
 	}
 	// Original function: FUN_0044c3bc.
 	bool Vehicle_Passengers_NeedsDraggingAnimal(const void* vehicle)
@@ -507,7 +507,7 @@ namespace NC2Logic
 			const auto offset = NC2Layout::VehicleOffset::VehiclePassengers + index * NC2Layout::RecordSize::VehiclePassenger;
 			if (Read<std::uint32_t>(vehicle, offset) != id) continue;
 			Write<std::int32_t>(vehicle, offset, -1);
-			Write<std::uint8_t>(vehicle, offset + 8, 0);
+			Write<std::uint8_t>(vehicle, offset + NC2Layout::VehiclePassengerOffset::InsideFlagSigned, 0);
 			Vehicle_Attachment_DetachFromVehicle(Vehicle(static_cast<std::int32_t>(id)));
 			return true;
 		}
@@ -569,10 +569,10 @@ namespace NC2Logic
 		for (;;)
 		{
 			const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * NC2Layout::RecordSize::JobType;
-			if (Read<std::uint8_t>(data, 0x24u + action) == 0) return false;
+			if (Read<std::uint8_t>(data, NC2Layout::StaticJobTypeOffset::AllowedAtomicsUnsigned + action) == 0) return false;
 			animation = gStaticTribeTypeData[Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType)].atomicIds[job][action];
 			if (animation != NXBasics::IntegerRange::UInt32Maximum) break;
-			job = Read<std::uint32_t>(data, 0x20);
+			job = Read<std::uint32_t>(data, NC2Layout::StaticJobTypeOffset::BaseJob);
 			if (job == 0) return false;
 		}
 		Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame, 0);

@@ -655,11 +655,11 @@ namespace NC2Logic
 				auto* target = Human_GetHousePtrAtTargetPosition(human);
 				if (target == house)
 				{
-					if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) != Read<std::uint32_t>(target, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+					if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) != Read<std::uint32_t>(target, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
 					const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
 					if (House_Stock_CanStoreGoodType(target, good, true) && House_Stock_GetAmountOfGoods(target, good, true) > House_Stock_GetMinimumValue(house, good))
 					{
-						const auto houseType = Read<std::uint32_t>(target, 0x14);
+						const auto houseType = Read<std::uint32_t>(target, NC2Layout::HouseOffset::LogicType);
 						Start(human, houseType == 10 ? 44 : houseType == 11 ? 45 : 22);
 						return true;
 					}

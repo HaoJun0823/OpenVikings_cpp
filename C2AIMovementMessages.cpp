@@ -206,7 +206,7 @@ namespace NC2Logic
 		auto* soldier = Soldier(handler, slot);
 		const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId)));
 		Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 1);
-		Write(handler, NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOriginsUnsigned + slot * 4u, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates));
+		Write(handler, NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOriginsUnsigned + slot * NC2Layout::RecordSize::MapMigPointUnsigned, Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapMigPointOffset::Coordinates));
 	}
 
 	// Original function: FUN_0045AB88.

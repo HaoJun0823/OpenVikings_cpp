@@ -32,7 +32,7 @@ namespace NC2Logic
 	// Original function: FUN_0042c928.
 	bool Human_IsJobNeedingReligion(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x80u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::NeedsReligionUnsigned) != 0;
 	}
 
 	namespace
@@ -48,7 +48,7 @@ namespace NC2Logic
 		{
 			if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction) != 1) return false;
 			const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-			return Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4) == 1;
+			return Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), NC2Layout::MapPathfinderOffset::SearchState) == 1;
 		}
 
 		// Original function: FUN_0042c9f0.
@@ -82,7 +82,7 @@ namespace NC2Logic
 			case SwitchIds::UserMessage::VehicleRequired:
 				return Human_IsAttachedToVehicle(human);
 			case SwitchIds::UserMessage::TradeAgreementRequired:
-				return !Human_IsJobTrader(human) || Read<std::uint32_t>(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)), 4) != NXBasics::IntegerRange::UInt32Maximum;
+				return !Human_IsJobTrader(human) || Read<std::uint32_t>(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)), NC2Layout::MerchantOffset::TradeAgreementId) != NXBasics::IntegerRange::UInt32Maximum;
 			case SwitchIds::UserMessage::Hungry:
 				if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Food) <= 0 || Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints) <= Human_GetHumanAttributeMargin_Hitpoints(human)) return true;
 				// Read-only Windows thresholds: food fulfillment 004f3b58 = 2000, critical food 004f3b68 = 1000.

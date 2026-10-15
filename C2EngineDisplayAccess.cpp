@@ -1354,7 +1354,7 @@ namespace NC2E2
 	// Original function: FUN_0047c9ab.
 	void Display_MapMigToLocalDisplayPixelCoordinates(const void* display, const void* packedMapPoint, std::int32_t* point, bool applyZoom)
 	{
-		const std::uint32_t position = Display_ReadField<std::uint32_t>(packedMapPoint, 0);
+		const std::uint32_t position = Display_ReadField<std::uint32_t>(packedMapPoint, NC2Layout::MapCoordinatePairOffset::Coordinates);
 		DisplayDescription_MapMigToWorldPixelCoordinates(display, position, point, true);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, point, applyZoom);
 	}
@@ -1535,12 +1535,12 @@ namespace NC2E2
 		}
 		if (Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::TooltipOverlaysEnabled) != 0)
 			Display_l_DE_DrawTooltipOverlays(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point);
-		if ((Display_ReadField<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit5) != 0)
+		if ((Display_ReadField<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte1) & NXBasics::BitMask::Bit5) != 0)
 		{
 			Display_l_DE_Debug_DrawMapMoveablesDebugInfos(display);
 			Display_l_DE_Debug_DrawHousesDebugInfos(display);
 		}
-		if ((Display_ReadField<std::uint8_t>(display, 0x71) & NXBasics::BitMask::ByteExceptBits0Through5) != 0)
+		if ((Display_ReadField<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte1) & NXBasics::BitMask::ByteExceptBits0Through5) != 0)
 			Display_l_DE_Debug_DrawGridLines(display);
 		Display_InformGuiRedraw(display);
 

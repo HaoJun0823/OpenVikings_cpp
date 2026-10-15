@@ -23,7 +23,7 @@ namespace NC2MainMenuGuiManager
 		if ((flags & 2u) != 0)
 		{
 			allocation = bytes - NC2Layout::RecordSize::SessionSummaryCountCookie;
-			const auto count = Read<std::uint32_t>(allocation, 0);
+			const auto count = Read<std::uint32_t>(allocation, NC2Layout::SessionSummaryArrayCookieOffset::ElementCount);
 			auto index = count;
 			while (index != 0)
 			{

@@ -162,14 +162,14 @@ namespace NC2Logic
 		{
 			const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
 			const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-			const auto count = Read<std::uint32_t>(data, 0x1B0);
+			const auto count = Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotCount);
 			if (count != 0)
 			{
 				const auto selected = Game_Random_GetNumber() % count;
 				source = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
-				height = Read<std::uint32_t>(data, 0x1BCu + selected * 12u);
-				offsetX = Read<std::uint32_t>(data, 0x1B4u + selected * 12u);
-				offsetY = Read<std::uint32_t>(data, 0x1B8u + selected * 12u);
+				height = Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotParameterUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
+				offsetX = Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotXUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
+				offsetY = Read<std::uint32_t>(data, NC2Layout::EngineHouseLogicViewOffset::ArrowSlotYUnsigned + selected * NC2Layout::RecordSize::HouseArrowSlotUnsigned);
 			}
 		}
 		const auto experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory6Experience);

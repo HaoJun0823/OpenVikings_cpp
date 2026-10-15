@@ -167,7 +167,7 @@ namespace NC2Logic
 		if (caught)
 		{
 			Human_l_JobExperience_Gain(human);
-			Write<std::uint32_t>(human, 0xA64, 0);
+			Write<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals, 0);
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
 			// Native outlined carried-good setter 0042DB6C invokes callback 0x21.
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 16);

@@ -83,7 +83,7 @@ namespace NC2Logic
 							{
 								const auto houseType = NC2LogicExternals::External_HouseType_GetEngineId(reader->GetString());
 								if (houseType == -1) break;
-								Write(task, 16, houseType);
+								Write(task, NC2Layout::AIMainTaskHouseDataOffset::EngineHouseType, houseType);
 								integer(20); coordinate(12); coordinate(14); integer(24);
 							}
 							else if (type == 1 || type == 2)
@@ -98,7 +98,7 @@ namespace NC2Logic
 							{
 								const auto other = reader->GetInt();
 								if (!IsScriptPlayerActive(other)) break;
-								Write(task, 16, other); integer(12);
+								Write(task, NC2Layout::AIMainTaskDiplomacyDataOffset::OtherPlayerId, other); integer(12);
 							}
 							else if (type == 5)
 							{

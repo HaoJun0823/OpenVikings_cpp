@@ -71,7 +71,7 @@ namespace NC2InGameGuiMiscWindows
 		const NXBasics::SRectangle rectangle(170, AddWrapped(state.displayHeight, 0xFFFFFFC0u), AddWrapped(state.displayWidth, 0xFFFFFE48u), 64);
 		NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
 		Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gStringOutputWindowVirtualTable + 0);
-		Write<std::uint32_t>(window, 0x70, 0);
+		Write<std::uint32_t>(window, NC2Layout::StringOutputWindowOffset::Strings, 0);
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 		void* closer = nullptr;
 		if (allocation != nullptr)
@@ -87,7 +87,7 @@ namespace NC2InGameGuiMiscWindows
 			const NXBasics::SRectangle clockRectangle(AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width), 0xFFFFFFE8u), AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height), 0xFFFFFFE8u), 20, 20);
 			clock = NC2InGameGuiBase::ToolClockElement_Construct(allocation, &clockRectangle);
 		}
-		Write<std::uint8_t>(clock, 0x30, 1);
+		Write<std::uint8_t>(clock, NC2Layout::ClockElementOffset::AnalogMode, 1);
 		NXBaseGui::BaseWindow_Element_Add(window, clock);
 		StringOutputWindow_String_Init(window);
 		return window;
@@ -114,7 +114,7 @@ namespace NC2InGameGuiMiscWindows
 		if (message == 0x1000) return command == 0x7DC;
 		if (message != 0x800) return false;
 		if (command == 0x4E20)
-			Read<NXBasics::CStringArray*>(window, 0x70)->InsertString(reinterpret_cast<const char*>(param1));
+			Read<NXBasics::CStringArray*>(window, NC2Layout::StringOutputWindowOffset::Strings)->InsertString(reinterpret_cast<const char*>(param1));
 		else if (command == 0x4E21)
 		{
 			StringOutputWindow_String_Exit(window);
@@ -161,11 +161,11 @@ namespace NC2InGameGuiMiscWindows
 			bitmap->Draw_VerticalLine(cursorX, static_cast<std::uint32_t>(y) + 2u, 10, cursorColour);
 			y = AddWrapped(y, 12);
 		}
-		auto index = Read<NXBasics::CStringArray*>(window, 0x70)->GetNumberOfStrings() - 1u;
+		auto index = Read<NXBasics::CStringArray*>(window, NC2Layout::StringOutputWindowOffset::Strings)->GetNumberOfStrings() - 1u;
 		while (NXBasics::Runtime_TimeSigned32(index) >= 0 && y < Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height))
 		{
 			const auto* colour = FontColour255(resources.fontWhitePalette);
-			const char* text = Read<NXBasics::CStringArray*>(window, 0x70)->GetStringPtr(index);
+			const char* text = Read<NXBasics::CStringArray*>(window, NC2Layout::StringOutputWindowOffset::Strings)->GetStringPtr(index);
 			bitmap->Text_Print(font, colour, 4, y, text);
 			--index;
 			y = AddWrapped(y, 12);
@@ -177,13 +177,13 @@ namespace NC2InGameGuiMiscWindows
 	{
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(32, 1);
 		auto* strings = allocation == nullptr ? nullptr : new (allocation) NXBasics::CStringArray(1);
-		Write(window, 0x70, strings);
+		Write(window, NC2Layout::StringOutputWindowOffset::Strings, strings);
 	}
 
 	// Original function: FUN_004c735f; the original leaves +70 unchanged.
 	static void StringOutputWindow_String_Exit(void* window)
 	{
-		auto* strings = Read<NXBasics::CStringArray*>(window, 0x70);
+		auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::StringOutputWindowOffset::Strings);
 		if (strings != nullptr) delete strings;
 	}
 }

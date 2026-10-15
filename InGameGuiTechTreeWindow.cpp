@@ -348,7 +348,7 @@ namespace NC2InGameGuiMiscWindows
 			Write<std::uint32_t>(gTechTreeWindowStatics, NC2Layout::TechTreeWindowStateOffset::SelectedHouseType, 0);
 			Write<std::uint32_t>(gTechTreeWindowStatics, NC2Layout::TechTreeWindowStateOffset::SelectedGoodType, 0);
 			Write<std::uint32_t>(gTechTreeWindowStatics, NC2Layout::TechTreeWindowStateOffset::SelectedJobType, 0);
-			Write(gTechTreeWindowStatics, (command - 10100) * 4u + NC2Layout::TechTreeWindowStateOffset::SelectedHouseTypeUnsigned, data);
+			Write(gTechTreeWindowStatics, (command - 10100) * NC2Layout::RecordSize::TechTreeSelectedHouseTypeUnsigned + NC2Layout::TechTreeWindowStateOffset::SelectedHouseTypeUnsigned, data);
 			TechTreeWindow_l_GuiButtons_Update(window);
 		}
 		else if (command == 10103)

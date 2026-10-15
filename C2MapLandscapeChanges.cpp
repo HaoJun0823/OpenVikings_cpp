@@ -184,7 +184,7 @@ namespace NC2Logic
 			const auto player = kind == 1 ? Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;
 			GameMap_MapMicroPoint_Landscape_Clear(point);
 			const auto target = External_Landscape_GetTransitionTarget(engine, 2);
-			if (target != -1) GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(target), 0), 1, target, false, player);
+			if (target != -1) GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(target), NC2Layout::EngineLandscapeLogicViewOffset::LogicType), 1, target, false, player);
 			if (transition == 5) result = External_Landscape_GetTransitionTarget(engine, 12);
 		}
 		else

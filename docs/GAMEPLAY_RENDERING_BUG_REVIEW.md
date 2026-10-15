@@ -1,5 +1,7 @@
 # Gameplay and rendering bug review — 2026-10-15
 
+**User confirmation, 2026-10-15:** The pottery building now emits smoke correctly. The reported missing-smoke observation is closed. This confirmation does not establish pottery fire or the other pending runtime observations. No additional gameplay change was made for this confirmation.
+
 Review baseline: `1144166`. Behavior evidence is the Windows assembly export and the original Windows `Game.exe`. The Mac reference was searched only for sound-helper names. No gameplay execution was performed by the assistant; subsequent user play-test confirmation is recorded below.
 
 ## Changes in this block

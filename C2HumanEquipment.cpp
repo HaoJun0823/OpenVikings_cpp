@@ -158,7 +158,7 @@ namespace NC2Logic
 		if (Human_IsJobSoldier(human) || Human_IsJobHero(human))
 		{
 			const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]);
-			Human_SetJobType(human, Read<std::uint32_t>(weapons + weapon, 0x34));
+			Human_SetJobType(human, Read<std::uint32_t>(weapons + weapon, NC2Layout::StaticWeaponTypeOffset::JobType));
 		}
 	}
 
@@ -245,7 +245,7 @@ namespace NC2Logic
 			case SwitchIds::GoodEquipmentCategory::Item:
 				{
 					const auto last = Human_UserControl_GetLastCommandType(human);
-					auto slot = last >= 74 && last <= 78 ? Read<std::int32_t>(LastCommand(human), 0x10) : -1;
+					auto slot = last >= 74 && last <= 78 ? Read<std::int32_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Parameter2) : -1;
 					if (slot == -1) slot = Human_l_Item_GetItemSlotIndex(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
 					if (slot == -1) return;
 					if (Human_l_Item_IsItemUnused(human, slot)) Human_SetCarriedGood(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlots + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HumanInventorySlot));
@@ -293,7 +293,7 @@ namespace NC2Logic
 		if (cargo != 0 && cargo != Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood))
 		{
 			Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human);
-			if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 3) Write<std::uint8_t>(LastCommand(human), 0, static_cast<std::uint8_t>(Human_UserControl_GetLastCommandType(human)));
+			if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 3) Write<std::uint8_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(Human_UserControl_GetLastCommandType(human)));
 			return;
 		}
 		const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
@@ -351,7 +351,7 @@ namespace NC2Logic
 	void Human_l_StartTask_Equip_Item(void* human)
 	{
 		const auto last = Human_UserControl_GetLastCommandType(human);
-		const auto slot = ((last >= 83 && last <= 87) || (last >= 65 && last <= 69)) ? Read<std::int32_t>(LastCommand(human), 0x10) : -1;
+		const auto slot = ((last >= 83 && last <= 87) || (last >= 65 && last <= 69)) ? Read<std::int32_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Parameter2) : -1;
 		if (slot != -1)
 		{
 			const auto offset = NC2Layout::HumanOffset::InventorySlots + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HumanInventorySlot;
@@ -430,7 +430,7 @@ namespace NC2Logic
 		const auto last = Human_UserControl_GetLastCommandType(human);
 		if (last >= 61 && last <= 87)
 		{
-			Write<std::uint8_t>(LastCommand(human), 0, static_cast<std::uint8_t>(last)); Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 0);
+			Write<std::uint8_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(last)); Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 0);
 		}
 		else Human_StopCurrentGoodCirculationMode(human);
 	}
@@ -464,7 +464,7 @@ namespace NC2Logic
 		if (kind == 5)
 		{
 			const auto last = Human_UserControl_GetLastCommandType(human);
-			auto slot = ((last >= 74 && last <= 78) || (last >= 56 && last <= 60)) ? Read<std::int32_t>(LastCommand(human), 0x10) : -1;
+			auto slot = ((last >= 74 && last <= 78) || (last >= 56 && last <= 60)) ? Read<std::int32_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Parameter2) : -1;
 			if (slot == -1) slot = Human_l_Item_GetItemSlotIndex(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
 			if (slot == -1)
 			{
@@ -497,7 +497,7 @@ namespace NC2Logic
 		const auto last = Human_UserControl_GetLastCommandType(human);
 		if ((last >= 70 && last <= 78) || (last >= 52 && last <= 60))
 		{
-			Write<std::uint8_t>(LastCommand(human), 0, static_cast<std::uint8_t>(last)); Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 0);
+			Write<std::uint8_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Opcode, static_cast<std::uint8_t>(last)); Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 0);
 		}
 	}
 
@@ -509,7 +509,7 @@ namespace NC2Logic
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0); return;
 		}
 		const auto last = Human_UserControl_GetLastCommandType(human);
-		if ((last >= 83 && last <= 87) || (last >= 65 && last <= 69)) Write<std::uint8_t>(LastCommand(human), 0, 0);
+		if ((last >= 83 && last <= 87) || (last >= 65 && last <= 69)) Write<std::uint8_t>(LastCommand(human), NC2Layout::UserNetworkCommandOffset::Opcode, 0);
 		Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
 		Human_l_FinishTask_Idle(human);
 		if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human))
@@ -528,7 +528,7 @@ namespace NC2Logic
 		// The native idle finish clears this target; callbacks may repopulate it.
 		auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget;
 		if (!InteractionTargetData_IsValid(secondary)) return;
-		const auto target = Read<std::uint32_t>(secondary, 0);
+		const auto target = Read<std::uint32_t>(secondary, NC2Layout::InteractionTargetDataOffset::Type);
 		if (target == 7 || target == 8) Queue(human, 4, MapMigPoint_GetLong(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryTargetPosition), 0);
 		else if (target == 6)
 		{
@@ -543,7 +543,7 @@ namespace NC2Logic
 			else if (mode == 5)
 			{
 				Human_l_StartAtomicWalk(human, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition);
-				Write(human, NC2Layout::HumanOffset::InteractionTarget, Read<std::uint32_t>(secondary, 0));
+				Write(human, NC2Layout::HumanOffset::InteractionTarget, Read<std::uint32_t>(secondary, NC2Layout::InteractionTargetDataOffset::Type));
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 5);
 			}
 		}

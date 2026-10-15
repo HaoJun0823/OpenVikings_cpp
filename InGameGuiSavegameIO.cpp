@@ -89,7 +89,7 @@ namespace NC2InGameGuiMessages
 	// Original function: FUN_004b3b92; discard current mini-buttons before replacing records.
 	void CMessageManager::IO_Savegame_Load(NC2Logic::CIoHelper* io)
 	{
-		while (Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount) != 0) Message_Remove(Read<std::uint32_t>(Read<void*>(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages), 4), false);
+		while (Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount) != 0) Message_Remove(Read<std::uint32_t>(Read<void*>(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages), NC2Layout::GuiDisplayedMessageOffset::UniqueId), false);
 		if (io->mReadHeader.marker != SwitchIds::GuiSavegameChunk::Messages || io->mReadHeader.version != 2)
 		{
 			io->IO_File_Chunk_Skip(); return;
@@ -185,7 +185,7 @@ namespace NInGameGuiManager
 		static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->IO_Savegame_Save(io);
 		MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Save(io);
 		io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::MessagePriority, 1);
-		io->IO_Memory_WriteLong(Read<std::uint32_t>(NC2InGameGuiMessages::gMessageManager, 8));
+		io->IO_Memory_WriteLong(Read<std::uint32_t>(NC2InGameGuiMessages::gMessageManager, NC2Layout::GuiMessageManagerOffset::MinimumPriority));
 		io->IO_Tool_Chunk_FinishAndWrite();
 		io->IO_Tool_Chunk_FinishAndWrite();
 		io->IO_Tool_Chunk_WriteEndChunk();

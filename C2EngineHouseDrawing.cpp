@@ -156,7 +156,7 @@ namespace NC2E2
 					NC2Logic::CHumanIterator iterator;
 					auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), house + NC2Layout::HouseOffset::DoorEntryPoint, 1);
 					while (human != -1 && NC2Logic::Human_Misc_IsHidden(Human(static_cast<std::uint32_t>(human)))) human = iterator.GetNextHumanId();
-					const auto bob = Read<std::uint32_t>(graphic, (human == -1 ? 0x254u : 0x250u) + stage * 12u);
+					const auto bob = Read<std::uint32_t>(graphic, (human == -1 ? NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIdsUnsigned : NC2Layout::EngineHouseTypeOffset::OpenDoorBobIdsUnsigned) + stage * NC2Layout::RecordSize::HouseDoorOverlayUnsigned);
 					if (bob != NXBasics::IntegerRange::UInt32Maximum) ls_DrawAtom_House_DoDraw_PrintImageBob(manager, bob, paletteId, brightness, bitmap, x, y, false);
 				}
 			}

@@ -109,7 +109,7 @@ namespace NC2Logic
 		NC2E2::Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(point, descriptions);
 		for (const auto* description : descriptions)
 		{
-			if (description == nullptr || gStaticTrianglePatternTypeStorage.records[Read<std::uint32_t>(description, 0x38)].bioCanPlantOn != 1) return false;
+			if (description == nullptr || gStaticTrianglePatternTypeStorage.records[Read<std::uint32_t>(description, NC2Layout::EngineTrianglePatternOffset::LogicType)].bioCanPlantOn != 1) return false;
 		}
 		return true;
 	}

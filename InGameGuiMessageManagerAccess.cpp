@@ -42,7 +42,7 @@ namespace NC2InGameGuiMessages
 			const auto house = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::HouseId);
 			if (house != NXBasics::IntegerRange::UInt32Maximum)
 			{
-				*point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true;
+				*point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + NC2Layout::HouseOffset::MapPosition); return true;
 			}
 			const auto vehicle = Read<std::uint32_t>(record, NC2Layout::GuiMessageEnvelopeOffset::VehicleId);
 			if (vehicle != NXBasics::IntegerRange::UInt32Maximum)
@@ -80,7 +80,7 @@ namespace NC2InGameGuiMessages
 		{
 			NXBaseGui::CDesktop::sTheObjectPtr->Element_Remove(static_cast<NXBaseGui::CBaseElement*>(button));
 			using TDelete = void* (__thiscall*)(void*, std::uint32_t);
-			Read<TDelete>(Read<void*>(button, NC2Layout::GuiBaseElementOffset::VirtualTable), 0)(button, 1);
+			Read<TDelete>(Read<void*>(button, NC2Layout::GuiBaseElementOffset::VirtualTable), NC2Layout::GuiVirtualTableOffset::DeletingDestructor)(button, 1);
 		}
 	}
 
@@ -119,7 +119,7 @@ namespace NC2InGameGuiMessages
 		{
 			std::uint32_t job = 0;
 			if (SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) != NXBasics::IntegerRange::UInt32Maximum)
-				job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + 0x18);
+				job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType);
 			if (MessagePriority_Calculate(Read<std::uint32_t>(Displayed(this, index), NC2Layout::GuiMessageEnvelopeOffset::Type), job) < Read<std::int32_t>(this, NC2Layout::GuiMessageManagerOffset::MinimumPriority)) Message_Remove(Read<std::uint32_t>(Displayed(this, index), NC2Layout::GuiDisplayedMessageOffset::UniqueId), false);
 			else ++index;
 		}
@@ -150,7 +150,7 @@ namespace NC2InGameGuiMessages
 		if (Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount) == NC2Runtime::GuiMessageLimits::Capacity) return false;
 		std::uint32_t job = 0;
 		const auto human = Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HumanId);
-		if (human != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x18);
+		if (human != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + NC2Layout::HumanOffset::JobType);
 		if (MessagePriority_Calculate(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type), job) < Read<std::int32_t>(this, NC2Layout::GuiMessageManagerOffset::MinimumPriority) || NC2Logic::gGameTime.tick <= 1u) return true;
 		for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount); ++index)
 			if (NC2Logic::ToUserMessage_IsEqualTo(Displayed(this, index) + NC2Layout::GuiMessageEnvelopeOffset::Message, message)) return true;
@@ -183,10 +183,10 @@ namespace NC2InGameGuiMessages
 		const auto count = Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount);
 		auto* active = Read<std::byte*>(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages);
 		std::uint32_t index = 0;
-		while (index < count && Read<std::uint32_t>(active, index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + 4) != uniqueId) ++index;
+		while (index < count && Read<std::uint32_t>(active, index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + NC2Layout::GuiDisplayedMessageOffset::UniqueId) != uniqueId) ++index;
 		if (index == count) return;
 		index = 0;
-		while (index < count && Read<std::uint32_t>(active, index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + 4) != uniqueId) ++index;
+		while (index < count && Read<std::uint32_t>(active, index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned + NC2Layout::GuiDisplayedMessageOffset::UniqueId) != uniqueId) ++index;
 		if (index == count) return;
 		auto* record = active + index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned;
 		const auto human = SingleMessageDisplayed_GetValidHumanId(record);
@@ -202,7 +202,7 @@ namespace NC2InGameGuiMessages
 		}
 		if (auto* button = Read<void*>(record, NC2Layout::GuiDisplayedMessageOffset::MiniButton)) RemoveMiniButton(button);
 		auto* window = Read<NXBaseGui::CBaseWindow*>(this, NC2Layout::GuiMessageManagerOffset::PresentationWindow);
-		if (window != nullptr && Read<std::uint32_t>(record, NC2Layout::GuiDisplayedMessageOffset::UniqueId) == Read<std::uint32_t>(window, 0x70)) NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(window);
+		if (window != nullptr && Read<std::uint32_t>(record, NC2Layout::GuiDisplayedMessageOffset::UniqueId) == Read<std::uint32_t>(window, NC2Layout::MessagePresentationWindowOffset::UniqueId)) NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(window);
 		if (addToHistory) l_MessageHistory_Add(record + NC2Layout::GuiMessageEnvelopeOffset::Message);
 		const auto remaining = Read<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::DisplayedCount) - index - 1u;
 		if (NXBasics::Runtime_TimeSigned32(remaining) > 0) std::memmove(record, record + NC2Layout::RecordSize::GuiDisplayedMessage, remaining * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned);
@@ -381,7 +381,7 @@ namespace NC2InGameGuiMessages
 		else if (type == 0x2E)
 		{
 			while (NC2Lifetime::Read<std::uint32_t>(manager, NC2Layout::GuiMessageManagerOffset::DisplayedCount) != 0) manager->Message_Remove(NC2Lifetime::Read<std::uint32_t>(Displayed(manager, 0), NC2Layout::GuiDisplayedMessageOffset::UniqueId), false);
-			std::memset(NC2Lifetime::Read<void*>(gMessageManager, 20), 0, NC2Layout::RecordSize::GuiMessageHistoryPool);
+			std::memset(NC2Lifetime::Read<void*>(gMessageManager, NC2Layout::GuiMessageManagerOffset::HistoryMessages), 0, NC2Layout::RecordSize::GuiMessageHistoryPool);
 		}
 		return true;
 	}

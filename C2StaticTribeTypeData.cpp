@@ -1,6 +1,7 @@
 #include "C2DataIds.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2ObjectLayout.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2StaticTribeTypeData.h"
 #include "SwitchIdentifiers.h"
@@ -109,10 +110,10 @@ namespace NC2Logic
 				while (reader.GetTypeOfNextParameter() == 3)
 				{
 					const auto job = reader.GetInt();
-					const auto count = Read<std::uint32_t>(&record, entry + 4);
+					const auto count = Read<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount);
 					// Windows does not cap this three-entry storage region.
-					Write<std::int32_t>(&record, entry + 8 + count * 4u, job);
-					Write<std::uint32_t>(&record, entry + 4, Read<std::uint32_t>(&record, entry + 4) + 1);
+					Write<std::int32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::Jobs + count * NC2Layout::RecordSize::TribeEnableItemUnsigned, job);
+					Write<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount, Read<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount) + 1);
 				}
 			};
 
@@ -127,7 +128,7 @@ namespace NC2Logic
 					if (value >= itemLimit) return;
 					const auto count = Read<std::uint32_t>(&record, entry + countOffset);
 					if (count >= 50) return;
-					Write<std::int32_t>(&record, entry + itemsOffset + count * 4u, value);
+					Write<std::int32_t>(&record, entry + itemsOffset + count * NC2Layout::RecordSize::TribeEnableItemUnsigned, value);
 					Write<std::uint32_t>(&record, entry + countOffset, count + 1);
 				}
 			};
@@ -140,9 +141,9 @@ namespace NC2Logic
 				const auto entry = 0x6928u + static_cast<std::uint32_t>(job) * 0x400u;
 				const auto count = Read<std::uint32_t>(&record, entry + countOffset);
 				if (count >= 50) return;
-				Write<std::int32_t>(&record, entry + itemsOffset + count * 4u, value);
+				Write<std::int32_t>(&record, entry + itemsOffset + count * NC2Layout::RecordSize::TribeEnableItemUnsigned, value);
 				Write<std::uint32_t>(&record, entry + countOffset, count + 1);
-				if (setProducingJob) Write<std::int32_t>(&record, 0x14928u + static_cast<std::uint32_t>(value) * 8u, job);
+				if (setProducingJob) Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::GoodProductionUnsigned + static_cast<std::uint32_t>(value) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, job);
 			};
 
 			while (reader.GetNextCommandLineInGroup() != nullptr)
@@ -203,15 +204,15 @@ namespace NC2Logic
 							const auto job = reader.GetInt();
 							const auto good = reader.GetInt();
 							if (job >= 56 || good >= 66) break;
-							Write<std::int32_t>(&record, 0x6C58u + static_cast<std::uint32_t>(job) * 0x400u, good);
-							Write<std::int32_t>(&record, 0x14928u + static_cast<std::uint32_t>(good) * 8u, job);
+							Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::FirstJobDefaultGoodUnsigned + static_cast<std::uint32_t>(job) * NC2Layout::RecordSize::TribeJobEnablesUnsigned, good);
+							Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::GoodProductionUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, job);
 							break;
 						}
 					case SwitchIds::TribeTypeToken::ToProduceGoodNeedHouse:
 						{
 							const auto good = reader.GetInt();
 							const auto house = reader.GetInt();
-							if (good < 66 && house < 55) Write<std::int32_t>(&record, 0x1492Cu + static_cast<std::uint32_t>(good) * 8u, house);
+							if (good < 66 && house < 55) Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::FirstGoodProductionHouseUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, house);
 							break;
 						}
 					case SwitchIds::TribeTypeToken::SetAtomic:

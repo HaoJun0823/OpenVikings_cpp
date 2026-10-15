@@ -66,7 +66,7 @@ namespace NC2Logic
 	{
 		if (!Human_l_IsAtomicInterruptable(human)) return 0;
 		if (!Human_IsJobScout(human)) return 1;
-		Write<std::uint8_t>(human, 0x4F8, 0);
+		Write<std::uint8_t>(human, NC2Layout::HumanOffset::QueuedExploreAreaAndUpdateCenterCommand, 0);
 		Human_Target_Reset(human);
 		Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
 		Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);

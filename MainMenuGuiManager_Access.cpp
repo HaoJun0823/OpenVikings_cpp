@@ -166,7 +166,7 @@ namespace NC2MainMenuGuiWorldElement
 	void* WorldDisplayElement_Construct(void* element, const void* rectangle, bool active)
 	{
 		auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
-		NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, static_cast<const NXBasics::SRectangle*>(rectangle), 1, 0x1E3, Read<std::int32_t>(desktopBitmap, 4));
+		NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, static_cast<const NXBasics::SRectangle*>(rectangle), 1, 0x1E3, Read<std::int32_t>(desktopBitmap, NC2Layout::BitmapStorageOffset::Depth));
 		Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
 		std::memset(static_cast<std::byte*>(element) + 0x30, 0, 40);
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
@@ -218,7 +218,7 @@ namespace NC2MainMenuGuiWorldElement
 			generation = Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleRevision);
 			hasFollowTarget = true;
 		}
-		if (hasFollowTarget && Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == generation) return;
+		if (hasFollowTarget && Read<std::uint8_t>(object, NC2Layout::ActorIdentityOffset::Allocated) != 0 && Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId) == generation) return;
 		std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 24);
 	}
 
@@ -229,9 +229,9 @@ namespace NC2MainMenuGuiWorldElement
 		if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowActive) == 0) return;
 		std::uint32_t moveableId;
 		if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowHuman) != 0)
-			moveableId = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * 0xC58u + 0xC);
+			moveableId = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * NC2Layout::RecordSize::HumanUnsigned + NC2Layout::HumanOffset::MapMoveableId);
 		else if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicle) != 0)
-			moveableId = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * 0x54Cu + 0x1DC);
+			moveableId = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * NC2Layout::RecordSize::VehicleUnsigned + NC2Layout::VehicleOffset::MapMoveableId);
 		else return;
 		std::int32_t point[2];
 		Display_DE_MapMoveableToGlobalWorldPixelCoordinates(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), nullptr, moveableId, point);
@@ -246,7 +246,7 @@ namespace NC2MainMenuGuiWorldElement
 		Write(element, NC2Layout::MenuWorldElementOffset::FollowHumanId, humanId);
 		Write<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowActive, 1);
 		Write<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowHuman, 1);
-		const auto generation = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, static_cast<std::uint32_t>(humanId) * 0xC58u + 8);
+		const auto generation = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, static_cast<std::uint32_t>(humanId) * NC2Layout::RecordSize::HumanUnsigned + NC2Layout::HumanOffset::UniqueId);
 		Write(element, NC2Layout::MenuWorldElementOffset::FollowHumanRevision, generation);
 		WorldDisplayElement_l_FollowMode_Update(element);
 	}
@@ -282,7 +282,7 @@ namespace NC2InGameGuiBase
 	{
 		using namespace NC2Lifetime;
 		Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::FillSolidColorFlag, 1);
-		Write(element, NC2Layout::GuiTextButtonOffset::SolidColor, Read<std::uint32_t>(color, 0));
+		Write(element, NC2Layout::GuiTextButtonOffset::SolidColor, Read<std::uint32_t>(color, NC2Layout::ColorRGBOffset::PackedColor));
 	}
 
 	// Original function: FUN_004b9052.

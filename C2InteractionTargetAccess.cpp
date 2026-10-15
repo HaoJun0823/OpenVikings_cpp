@@ -48,7 +48,7 @@ namespace NC2Logic
 		const auto id = TargetData_GetObjectId(target);
 		if (type == SwitchIds::TargetType::Human && id == NXBasics::IntegerRange::UInt32Maximum) return false;
 		const auto* object = TargetObject(type, id);
-		return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == TargetData_GetUniqueId(target) && (type != SwitchIds::TargetType::House || Read<std::uint8_t>(object, NC2Layout::HouseOffset::DemolitionFlag) == 0);
+		return Read<std::uint8_t>(object, NC2Layout::ActorIdentityOffset::Allocated) != 0 && Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId) == TargetData_GetUniqueId(target) && (type != SwitchIds::TargetType::House || Read<std::uint8_t>(object, NC2Layout::HouseOffset::DemolitionFlag) == 0);
 	}
 
 	// Original function: FUN_00461970; raw-object validity precedes container redirection.
@@ -65,7 +65,7 @@ namespace NC2Logic
 		const auto id = Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition);
 		if (type == SwitchIds::TargetType::Human && id == NXBasics::IntegerRange::UInt32Maximum) return false;
 		const auto* object = TargetObject(type, id);
-		return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) && (type != SwitchIds::TargetType::House || Read<std::uint8_t>(object, NC2Layout::HouseOffset::DemolitionFlag) == 0);
+		return Read<std::uint8_t>(object, NC2Layout::ActorIdentityOffset::Allocated) != 0 && Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) && (type != SwitchIds::TargetType::House || Read<std::uint8_t>(object, NC2Layout::HouseOffset::DemolitionFlag) == 0);
 	}
 
 	// Original function: FUN_00461a5e; point targets copy microgrid coordinates unchanged.
@@ -96,7 +96,7 @@ namespace NC2Logic
 			return Read<std::uint8_t>(point, NC2Layout::MapMicroPointOffset::ObjectType) == 1 ? Read<std::int8_t>(point, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;
 		}
 		if (type < SwitchIds::TargetType::Human || type > SwitchIds::TargetType::House) return -1;
-		return Read<std::int32_t>(TargetObject(type, TargetData_GetObjectId(target)), type == SwitchIds::TargetType::House ? 0x0Cu : type == SwitchIds::TargetType::Vehicle ? 0x1E0u : 0x10u);
+		return Read<std::int32_t>(TargetObject(type, TargetData_GetObjectId(target)), type == SwitchIds::TargetType::House ? NC2Layout::HouseOffset::PlayerIdUnsigned : type == SwitchIds::TargetType::Vehicle ? NC2Layout::VehicleOffset::PlayerIdUnsigned : NC2Layout::ActorPlayerOffset::HumanOrAnimalPlayerIdUnsigned);
 	}
 
 	// Original function: FUN_00461bc6; hidden humans expose their vehicle or house as target.
@@ -153,7 +153,7 @@ namespace NC2Logic
 				{
 					const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
 					const auto id = Read<std::uint8_t>(point, NC2Layout::MapMicroPointOffset::ObjectType) == 2 ? Read<std::uint16_t>(point, NC2Layout::MapMicroPointOffset::HouseId) : NXBasics::IntegerRange::UInt32Maximum;
-					return Read<std::uint32_t>(TargetObject(SwitchIds::TargetType::House, id), 8);
+					return Read<std::uint32_t>(TargetObject(SwitchIds::TargetType::House, id), NC2Layout::HouseOffset::UniqueId);
 				}
 			}
 		}

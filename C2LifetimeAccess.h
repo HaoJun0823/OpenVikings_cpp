@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2CallbackManager.h"
+#include "C2ObjectLayout.h"
 #include "XCrtFileAccess.h"
 #include "XList.h"
 
@@ -42,7 +43,7 @@ namespace NC2Lifetime
 		if (object != nullptr)
 		{
 			using TDelete = void* (__thiscall*)(void*, std::uint32_t);
-			Read<TDelete>(Read<void*>(object, 0), 0x0C)(object, 1);
+			Read<TDelete>(Read<void*>(object, NC2Layout::StorableOffset::VirtualTable), NC2Layout::StorableVirtualTableOffset::DeletingDestructor)(object, 1);
 		}
 	}
 

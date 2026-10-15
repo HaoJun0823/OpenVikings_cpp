@@ -62,7 +62,7 @@ namespace NC2Logic
 	// Original function: FUN_0042c93f.
 	bool Human_IsJobIgnoringHomeHouse(const void* human)
 	{
-		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x81u) != 0;
+		return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::IgnoresHomeHouseUnsigned) != 0;
 	}
 
 	// Original function: FUN_0042cd5d; PE bytes recover the misaligned export.

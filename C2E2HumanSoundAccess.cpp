@@ -62,7 +62,7 @@ namespace NC2E2
 						}
 					}
 					std::int16_t rectangle[4];
-					NC2Logic::MapMigRectangle_Construct(rectangle, static_cast<std::int16_t>(Read<std::uint16_t>(&root, 0) - 20u), static_cast<std::int16_t>(Read<std::uint16_t>(&root, 2) - 20u), 40, 40);
+					NC2Logic::MapMigRectangle_Construct(rectangle, static_cast<std::int16_t>(Read<std::uint16_t>(&root, NC2Layout::MapCoordinatePairOffset::X) - 20u), static_cast<std::int16_t>(Read<std::uint16_t>(&root, NC2Layout::MapCoordinatePairOffset::Y) - 20u), 40, 40);
 					C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, NXBasics::IntegerRange::UInt32Maximum);
 					return true;
 				}
@@ -82,7 +82,7 @@ namespace NC2E2
 					{
 						// Windows dereferences the null result for an out-of-range good ID.
 						const void* good = static_cast<std::int32_t>(parameter3) < 66 ? static_cast<const std::byte*>(gStaticGoodData) + parameter3 * 4u : nullptr;
-						patch = Read<std::int32_t>(good, 0);
+						patch = Read<std::int32_t>(good, NC2Layout::GoodGraphicsOffset::PalettePatchId);
 					}
 					else return true;
 					if (patch != -1)
@@ -140,7 +140,7 @@ namespace NC2E2
 			case SwitchIds::CallbackType::CreateMunitionParticle:
 				{
 					const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
-					E2ParticelManager_CreateMunitionParticel(gE2ParticelManager, data, Read<std::uint32_t>(data, 8), static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 0xC, static_cast<const std::byte*>(data) + 0x14, Read<std::uint32_t>(data, 0x1C), Read<std::uint32_t>(data, 0x20));
+					E2ParticelManager_CreateMunitionParticel(gE2ParticelManager, data, Read<std::uint32_t>(data, NC2Layout::MunitionCallbackOffset::SourceHeight), static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 0xC, static_cast<const std::byte*>(data) + 0x14, Read<std::uint32_t>(data, NC2Layout::MunitionCallbackOffset::MunitionType), Read<std::uint32_t>(data, NC2Layout::MunitionCallbackOffset::FlightTicks));
 					return true;
 				}
 			case SwitchIds::CallbackType::CreateFallingSmokeParticle: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3);
@@ -152,8 +152,8 @@ namespace NC2E2
 			case SwitchIds::CallbackType::StartDirectionalParticleEffectFromRecord:
 				{
 					const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
-					E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, 1, static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 8, Read<std::uint32_t>(data, 0x14));
-					E2HumanSoundManager_PlayHumanScreamSound(gE2HumanSoundManager, Read<void*>(data, 0x18));
+					E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, 1, static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 8, Read<std::uint32_t>(data, NC2Layout::DirectionalParticleCallbackOffset::PlayerId));
+					E2HumanSoundManager_PlayHumanScreamSound(gE2HumanSoundManager, Read<void*>(data, NC2Layout::DirectionalParticleCallbackOffset::Human));
 					return true;
 				}
 		}

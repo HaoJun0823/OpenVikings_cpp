@@ -27,7 +27,7 @@ namespace NC2Logic
 	void* Human_l_GetMerchantDataPtr(const void* human)
 	{
 		if (!Human_IsJobTrader(human)) return nullptr;
-		return NC2Lifetime::Read<std::byte*>(gHumanMerchantArray, 0x30) + static_cast<std::uint32_t>(NC2Lifetime::Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)) * 0xC4u;
+		return NC2Lifetime::Read<std::byte*>(gHumanMerchantArray, NC2Layout::MerchantManagerOffset::Entries) + static_cast<std::uint32_t>(NC2Lifetime::Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)) * 0xC4u;
 	}
 	// Original function: FUN_00436B16; Windows outlined trader-only merchant reference.
 	void* Human_GetMerchantDataPtr(const void* human)
@@ -117,7 +117,7 @@ namespace NC2Logic
 		void AppendMessageItem(void* message, std::uint32_t countOffset, std::uint32_t item)
 		{
 			const auto count = Read<std::uint32_t>(message, countOffset);
-			Write<std::uint32_t>(message, countOffset + 4u + count * 4u, item);
+			Write<std::uint32_t>(message, countOffset + NC2Layout::CountedArrayOffset::EntriesUnsigned + count * NC2Layout::RecordSize::UserMessageItemUnsigned, item);
 			Write<std::uint32_t>(message, countOffset, count + 1u);
 		}
 	}
@@ -131,7 +131,7 @@ namespace NC2Logic
 	// Original function: FUN_004355b5; the first queued job-change command overrides the current job.
 	std::uint32_t Human_UserControl_GetNextJobType(const void* human)
 	{
-		for (std::uint32_t slot = 0; slot < 87; ++slot) if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandQueue + slot * NC2Layout::RecordSize::UserNetworkCommand) == 21) return Read<std::uint32_t>(human, 0x39Cu + slot * 20u);
+		for (std::uint32_t slot = 0; slot < 87; ++slot) if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandQueue + slot * NC2Layout::RecordSize::UserNetworkCommand) == 21) return Read<std::uint32_t>(human, NC2Layout::HumanOffset::FirstUserCommandParameter1Unsigned + slot * NC2Layout::RecordSize::UserNetworkCommand);
 		return Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
 	}
 
@@ -187,7 +187,7 @@ namespace NC2Logic
 		const auto count = Read<std::uint32_t>(table, NC2Layout::JobExperienceTypeListOffset::Count);
 		for (std::uint32_t index = 0; index < count; ++index)
 		{
-			const auto id = Read<std::uint32_t>(table, NC2Layout::JobExperienceTypeListOffset::TypesUnsigned + index * 4u);
+			const auto id = Read<std::uint32_t>(table, NC2Layout::JobExperienceTypeListOffset::TypesUnsigned + index * NC2Layout::RecordSize::JobExperienceTypeIdUnsigned);
 			const auto* data = static_cast<const std::byte*>(gStaticHumanJobExperienceData) + id * NC2Layout::RecordSize::JobExperienceTypeUnsigned;
 			const auto firstGood = Read<std::uint32_t>(data, NC2Layout::JobExperienceTypeOffset::FirstGoodType);
 			if (firstGood == 0) general = id;
@@ -589,7 +589,7 @@ namespace NC2Logic
 	{
 		const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
 		const auto* data = reinterpret_cast<const std::byte*>(gStaticHouseTypeData) + type * 0x624u;
-		const auto category = Read<std::uint32_t>(data, 0);
+		const auto category = Read<std::uint32_t>(data, NC2Layout::StaticHouseTypeOffset::MainType);
 		if (category == 2)
 		{
 			if (good == 29) return !primary && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) != 0;
@@ -600,7 +600,7 @@ namespace NC2Logic
 		const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
 		if (slot == -1) return false;
 		if (category != 3) return true;
-		const bool slotPrimary = Read<std::uint8_t>(data, (static_cast<std::uint32_t>(slot) * 3u + 0x1Bu) * 4u) != 0;
+		const bool slotPrimary = Read<std::uint8_t>(data, NC2Layout::StaticHouseTypeOffset::StockUnsigned + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::StaticHouseStockUnsigned + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned) != 0;
 		return primary ? !slotPrimary : slotPrimary;
 	}
 
@@ -725,7 +725,7 @@ namespace NC2Logic
 			for (std::uint32_t house = 2; house < 55; ++house)
 			{
 				if (Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0) continue;
-				if (Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
+				if (Read<std::uint32_t>(gStaticHouseTypeData, house * NC2Layout::RecordSize::StaticHouseTypeUnsigned) == 7 || !requirementsMet(house)) continue;
 				enableHouse(house);
 			}
 		}
@@ -742,7 +742,7 @@ namespace NC2Logic
 			const auto house = static_cast<std::uint32_t>(enables.houses[i]);
 			if (!Human_DoesExperienceAllowHouseBuilding(human, house) && Human_GetPlayerType(human) != 2) continue;
 			if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0) continue;
-			if (Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
+			if (Read<std::uint32_t>(gStaticHouseTypeData, house * NC2Layout::RecordSize::StaticHouseTypeUnsigned) == 7) continue;
 			const bool allowed = requirementsMet(house);
 			if (Human_GetPlayerType(human) == 2 || allowed) enableHouse(house);
 		}
@@ -854,7 +854,7 @@ namespace NC2Logic
 			}
 			for (std::uint32_t house = 2; house < 55; ++house)
 			{
-				if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
+				if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * NC2Layout::RecordSize::StaticHouseTypeUnsigned) == 7 || !requirementsMet(house)) continue;
 				PlayerAllowedThings_MarkHouseAvailable(player + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
 				AppendMessageItem(message, NC2Layout::ToUserMessageOffset::HouseCount, house);
 			}
@@ -884,7 +884,7 @@ namespace NC2Logic
 			if (!Human_DoesExperienceAllowHouseBuilding(human, house) && Human_GetPlayerType(human) != 2) continue;
 			const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
 			auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-			if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
+			if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * NC2Layout::RecordSize::StaticHouseTypeUnsigned) == 7) continue;
 			const auto allowed = requirementsMet(house);
 			if (Human_GetPlayerType(human) != 2 && !allowed) continue;
 			PlayerAllowedThings_MarkHouseAvailable(player + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);

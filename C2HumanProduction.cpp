@@ -87,7 +87,7 @@ namespace NC2Logic
 				Human_Target_Reset(human); return;
 			}
 			if (Read<std::uint32_t>(Work(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
-			const auto animation = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
+			const auto animation = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlagsSigned + SwitchIds::HumanJob::SoldierUnarmed) != 0 ? 90u : 89u;
 			Human_l_StartAtomicAnimation(human, animation, -1);
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
 			House_ActionOverlay_Start(house, 3, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId)].length));
@@ -116,15 +116,15 @@ namespace NC2Logic
 			case SwitchIds::TrainingHouseType::School:
 				{
 					const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-					job = Read<std::uint32_t>(slot, 8);
-					good = Read<std::uint32_t>(slot, 12);
+					job = Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::TrainingJobType);
+					good = Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::TrainingGoodType);
 					break;
 				}
 			case SwitchIds::TrainingHouseType::Barracks:
 				{
 					auto weapon = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
 					if (weapon == 19) weapon = 1;
-					job = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], weapon * 0xC4u + 0x34u);
+					job = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], weapon * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::JobTypeUnsigned);
 					break;
 				}
 			default: return;
@@ -267,7 +267,7 @@ namespace NC2Logic
 		}
 		auto* house = WorkHouse(human);
 		const auto* job = static_cast<const std::byte*>(gStaticJobTypeData) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType;
-		if ((Read<std::uint8_t>(job, 0x84) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) || Read<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag) != 0 || !House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType), true))
+		if ((Read<std::uint8_t>(job, NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouse) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) || Read<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag) != 0 || !House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType), true))
 		{
 			Fail(human, 2); return;
 		}
@@ -537,7 +537,7 @@ namespace NC2Logic
 		const auto amount = decimal / 10, fraction = decimal % 10;
 		House_Stock_ModifyAmount(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType), amount, fraction, false);
 		if (Human_HasEquippedTools(human)) Human_ChangeToolCondition(human, -100);
-		if (TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType))) Write<std::uint32_t>(human, 0xA64, 0);
+		if (TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType))) Write<std::uint32_t>(human, NC2Layout::HumanOffset::FoodProductionNeedCheckDeferrals, 0);
 		Human_l_JobExperience_Gain(human);
 		House_Production_DidProduceOneGood(house);
 		Human_Production_DidProduceGoods(human, amount, fraction);

@@ -55,7 +55,7 @@ namespace NC2Logic
 		const auto* secondary = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
 		if (TargetData_IsValid(secondary))
 		{
-			if (Read<std::uint32_t>(secondary, 0) == candidate[0] && Read<std::uint32_t>(secondary, 4) == candidate[1] && Read<std::uint32_t>(secondary, 8) == candidate[2]) return false;
+			if (Read<std::uint32_t>(secondary, NC2Layout::TargetDataOffset::Type) == candidate[0] && Read<std::uint32_t>(secondary, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition) == candidate[1] && Read<std::uint32_t>(secondary, NC2Layout::TargetDataOffset::ObjectRevision) == candidate[2]) return false;
 			std::uint32_t oldPosition = 0x27102710u;
 			TargetData_GetMapPosition(secondary, &oldPosition);
 			const auto oldDistance = Distance(&oldPosition, Human_GetMapPositionRef(human));
@@ -122,10 +122,10 @@ namespace NC2Logic
 					std::uint32_t landscape = 0;
 					if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Human_GetMapPositionRef(human), static_cast<std::uint32_t>(weapon->minimumRange), landscapeDistance, true, 1, 0, &landscape))
 					{
-						Write(primary, 4, MapMigPoint_GetLong(&landscape));
-						Write<std::uint32_t>(primary, 0, 6);
+						Write(primary, NC2Layout::TargetDataOffset::ObjectIdOrMapPosition, MapMigPoint_GetLong(&landscape));
+						Write<std::uint32_t>(primary, NC2Layout::TargetDataOffset::Type, 6);
 					}
-					else Write<std::uint32_t>(primary, 0, 0);
+					else Write<std::uint32_t>(primary, NC2Layout::TargetDataOffset::Type, 0);
 				}
 				else if (Human_l_CheckForEnemyTarget(human, &searchPosition, minimumDistance, maximumDistance, target)) std::memcpy(secondary, target, NC2Layout::RecordSize::TargetDataSigned);
 			}

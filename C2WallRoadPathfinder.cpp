@@ -19,7 +19,7 @@ namespace NC2Logic
 		// Original function: FUN_0043e84b; constructor-only embedded point initialization.
 		void PathfinderWallRoadElement_ConstructPoints(void* element)
 		{
-			Write<std::uint32_t>(element, 0x20, 0); Write<std::uint32_t>(element, 0x24, 0);
+			Write<std::uint32_t>(element, NC2Layout::WallRoadPathfinderOffset::Source, 0); Write<std::uint32_t>(element, NC2Layout::WallRoadPathfinderOffset::Target, 0);
 		}
 		std::uint32_t Distance(const void* a, const void* b)
 		{

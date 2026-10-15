@@ -684,7 +684,7 @@ namespace NXBaseGui
 			if (SendDesktopElementMessage(mPrimaryMessageHandler, message, param1, param2, param3, param4)) return;
 		if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0)
 		{
-			void* child = Read<void*>(mActiveElement, 0x64);
+			void* child = Read<void*>(mActiveElement, NC2Layout::GuiBaseWindowOffset::ActiveChild);
 			if (child != nullptr && (Read<std::uint32_t>(child, NC2Layout::GuiBaseElementOffset::MessageMask) & message) != 0)
 				if (SendDesktopElementMessage(child, message, param1, param2, param3, param4)) return;
 		}
@@ -702,7 +702,7 @@ namespace NXBaseGui
 		{
 			keyboard->Init(); return;
 		}
-		while (Read<std::uint32_t>(keyboard, 0xC) != 0)
+		while (Read<std::uint32_t>(keyboard, NC2Layout::KeyManagerOffset::QueuedMessageCount) != 0)
 		{
 			NXSysKeyManager::SKeyMessage key;
 			const auto kind = keyboard->GetKeyboardMessage(key);
@@ -724,7 +724,7 @@ namespace NXBaseGui
 	void CDesktop::l_Message_HandleMouse(bool suppressInput)
 	{
 		auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
-		if (Read<std::uint8_t>(mouse, 0x20) == 0) return;
+		if (Read<std::uint8_t>(mouse, NC2Layout::MouseManagerOffset::StateChanged) == 0) return;
 		NXSysMouseManager::SMouseMessage event;
 		mouse->GetNewMouseMessage(event);
 		if (suppressInput) return;
@@ -796,9 +796,9 @@ namespace NXBaseGui
 				auto area = BaseElement_GetRectangle(areaOwner);
 				area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(event.deltaX));
 				area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(event.deltaY));
-				Write(areaOwner, 4, area);
+				Write(areaOwner, NC2Layout::GuiBaseElementOffset::Rectangle, area);
 				area.PlaceInside(mRectangle);
-				Write(areaOwner, 4, area);
+				Write(areaOwner, NC2Layout::GuiBaseElementOffset::Rectangle, area);
 			}
 			else
 			{
@@ -831,7 +831,7 @@ namespace NXBaseGui
 	// Original function: FUN_00478122; Windows passes the rectangle by value and clamps it to the desktop.
 	void CDesktop::Window_ChangeAreaRectangle(CBaseWindow* window, NXBasics::SRectangle rectangle)
 	{
-		rectangle.PlaceInside(mRectangle); std::memcpy(reinterpret_cast<std::byte*>(window) + 4, &rectangle, sizeof(rectangle)); NC2Lifetime::Write(window, 0x34, rectangle.width); NC2Lifetime::Write(window, 0x38, rectangle.height);
+		rectangle.PlaceInside(mRectangle); std::memcpy(reinterpret_cast<std::byte*>(window) + 4, &rectangle, sizeof(rectangle)); NC2Lifetime::Write(window, NC2Layout::GuiWindowClipSizeOffset::Width, rectangle.width); NC2Lifetime::Write(window, NC2Layout::GuiWindowClipSizeOffset::Height, rectangle.height);
 	}
 
 }

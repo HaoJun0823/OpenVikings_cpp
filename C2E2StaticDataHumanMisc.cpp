@@ -63,7 +63,7 @@ namespace NC2E2
 					else if (token == NC2DataIds::HumanMiscToken::GraphicsHumanRandomPalette && good != -1)
 					{
 						const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString());
-						Write(gStaticGoodData, static_cast<std::uint32_t>(good) * 4u, patch);
+						Write(gStaticGoodData, static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::GoodGraphicsUnsigned, patch);
 					}
 				}
 			} while (reader.GetNextGroup("goodgraphics") != nullptr);
@@ -210,7 +210,7 @@ namespace NC2E2
 									if (count == NC2Runtime::HumanAppearanceLimits::GraphicsChoices) break;
 									const char* name = reader.GetString();
 									const auto id = token == SwitchIds::HumanJobChangeToken::GfxPaletteRandom ? StaticHumanMisc_RandomPalette_GetPatchId(name) : E2StaticDataPalettesManager_GetPalette256Id(name);
-									Write(record, countOffset + 4 + count * 4u, id);
+									Write(record, countOffset + NC2Layout::CountedArrayOffset::Entries + count * NC2Layout::RecordSize::PaletteChoiceIdUnsigned, id);
 									Write(record, countOffset, count + 1u);
 									break;
 								}
@@ -443,7 +443,7 @@ namespace NC2E2
 		while (true)
 		{
 			if (const void* record = JobGraphicsBase_Find(tribe, job)) return record;
-			job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
+			job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob);
 			if (job == 0) return NC2Lifetime::Read<void*>(gStaticHumanMiscData, NC2Layout::StaticHumanMiscOffset::JobBaseGraphics);
 		}
 	}
@@ -454,7 +454,7 @@ namespace NC2E2
 		while (true)
 		{
 			if (const void* record = JobGraphicsChange_Find(tribe, job)) return record;
-			job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
+			job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::BaseJob);
 			if (job == 0) return nullptr;
 		}
 	}
