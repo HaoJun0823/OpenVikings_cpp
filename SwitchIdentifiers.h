@@ -247,6 +247,8 @@ namespace SwitchIds
 
     namespace CallbackType
     {
+        inline constexpr auto PlayerWonOrLost = 0x30;
+
         inline constexpr auto PlayerDied = 0x2A;
 
         inline constexpr auto GameTick = 1;
@@ -2561,6 +2563,8 @@ namespace SwitchIds
 
     namespace IniParameterType
     {
+        inline constexpr auto Integer = 3;
+
         inline constexpr auto String = 2;
     }
 
@@ -2611,6 +2615,11 @@ namespace SwitchIds
         inline constexpr auto ValidateSelection = 2029;
 
         inline constexpr auto NameInputKey = 0x8233;
+    }
+
+    namespace GameMapType
+    {
+        inline constexpr auto Multiplayer = 4;
     }
 
 }

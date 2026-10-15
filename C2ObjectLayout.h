@@ -1710,6 +1710,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto PlayerGoodsCounts = 136;
+
+        inline constexpr auto PlayerGoodCountUnsigned = 2u;
+
+        inline constexpr auto MultiPlayerGoalGoodRequirementUnsigned = 8u;
+
+        inline constexpr auto MultiPlayerGoalUnsigned = 0x48u;
+
+        inline constexpr auto MultiPlayerGoalPlayerResultUnsigned = 20u;
+
         inline constexpr auto HumanJobId = 4;
 
         inline constexpr auto SelectedHumanActionWindowState = 8;
@@ -5049,5 +5059,68 @@ namespace NC2Layout
 
         inline constexpr auto SelectionChangeCount = 0x74;
     }
+
+    namespace MultiPlayerGoalManagerOffset
+    {
+        inline constexpr auto PendingRemovalFlags = 0x14;
+
+        inline constexpr auto LossOrders = 0x10;
+
+        inline constexpr auto LostFlags = 0xC;
+
+        inline constexpr auto WinOrders = 8;
+
+        inline constexpr auto WonFlags = 4;
+
+        inline constexpr auto Goals = 0x1A0;
+
+        inline constexpr auto NextLossOrder = 0x198;
+
+        inline constexpr auto NextWinOrder = 0x194;
+
+        inline constexpr auto FirstGoalType = 0x1A0;
+
+        inline constexpr auto GoalCount = 0x19C;
+
+        inline constexpr auto Enabled = 0;
+    }
+
+    namespace MultiPlayerGoodsGoalOffset
+    {
+        inline constexpr auto RequirementCount = 4;
+
+        inline constexpr auto FirstRequiredAmount = 0xC;
+
+        inline constexpr auto FirstGoodId = 8;
+    }
+
+    namespace PlayerGoodsCountOffset
+    {
+        inline constexpr auto AmountsUnsigned = 4u;
+
+        inline constexpr auto Total = 0;
+
+        inline constexpr auto Amounts = 4;
+    }
+
+    namespace MultiPlayerPopulationGoalOffset
+    {
+        inline constexpr auto SoldiersOnly = 8;
+
+        inline constexpr auto RequiredCount = 4;
+    }
+
+    namespace MultiPlayerGoalOffset
+    {
+        inline constexpr auto Type = 0;
+    }
+
+    namespace MultiPlayerMissionGoalOffset
+    {
+        inline constexpr auto PlayerFlagsUnsigned = 4u;
+
+        inline constexpr auto PlayerFlags = 4;
+    }
+
 
 }

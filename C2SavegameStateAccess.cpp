@@ -132,8 +132,8 @@ namespace NC2Logic
     // Original function: FUN_00419081.
     void __fastcall MultiPlayerGoalManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MultiplayerGoals, 1);
-        io->IO_Memory_WriteBinary(manager, 0x740);
+        io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::MultiplayerGoals, NC2Runtime::MultiPlayerGoalSavegame::Version);
+        io->IO_Memory_WriteBinary(manager, NC2Layout::ObjectSize::MultiPlayerGoalManager);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
@@ -141,11 +141,11 @@ namespace NC2Logic
     void* __fastcall MultiPlayerGoalManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         gMultiPlayerGoalManager = manager;
-        std::memset(manager, 0, 1856);
-        if (io->mReadHeader.version == 1)
+        std::memset(manager, 0, NC2Layout::ObjectSize::MultiPlayerGoalManager);
+        if (io->mReadHeader.version == NC2Runtime::MultiPlayerGoalSavegame::Version)
         {
-            io->IO_File_ReadBinary(manager, 0x740);
-            CCallbackManager::sTheObjectPtr->RegisterCallback(1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 50);
+            io->IO_File_ReadBinary(manager, NC2Layout::ObjectSize::MultiPlayerGoalManager);
+            CCallbackManager::sTheObjectPtr->RegisterCallback(SwitchIds::CallbackType::GameTick, MultiPlayerGoalManager_l_LogicCallback, NC2Runtime::MultiPlayerGoalCallback::RegistrationTag, NC2Runtime::MultiPlayerGoalCallback::Priority);
         }
         else io->IO_File_Chunk_Skip();
         return manager;

@@ -192,8 +192,8 @@ namespace NC2Logic
     void* __fastcall MultiPlayerGoalManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gMultiPlayerGoalManager = manager;
-        std::memset(manager, 0, 1856);
-        CCallbackManager::sTheObjectPtr->RegisterCallback(1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 0x32);
+        std::memset(manager, 0, NC2Layout::ObjectSize::MultiPlayerGoalManager);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(SwitchIds::CallbackType::GameTick, MultiPlayerGoalManager_l_LogicCallback, NC2Runtime::MultiPlayerGoalCallback::RegistrationTag, NC2Runtime::MultiPlayerGoalCallback::Priority);
         return manager;
     }
 
@@ -380,7 +380,7 @@ namespace NC2Logic
     // Original function: FUN_00419065.
     static void MultiPlayerGoalManager_Destruct(void*)
     {
-        Unregister(MultiPlayerGoalManager_l_LogicCallback, 0x6F, {1});
+        Unregister(MultiPlayerGoalManager_l_LogicCallback, NC2Runtime::MultiPlayerGoalCallback::RegistrationTag, {SwitchIds::CallbackType::GameTick});
         gMultiPlayerGoalManager = nullptr;
     }
     // Original function: FUN_00419727.

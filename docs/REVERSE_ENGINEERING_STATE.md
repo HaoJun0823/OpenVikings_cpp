@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Multiplayer goal record continuation — 2026-10-15
+
+Completed the [multiplayer goal records review](MULTIPLAYER_GOAL_RECORDS_REVIEW.md): manager/result/goal payload layouts, goods-count storage, parser, mission triggers, callback registration, raw save/checksum spans and both goal displays. All 47 raw numeric accesses in the owning manager are named; connected consumers remove another 37. Windows signed comparisons, unchecked indices, stale payloads, all-slot evaluation and callback/removal order remain unchanged. **57 value/type comparisons, 33 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 155,731 lines, 2,891 raw numeric-access operands, 74 heuristic unknown mentions, 993 long compound lines and 5,014 original-address annotations**. This block removes 84 candidates; cumulative reduction **2,536 / 5,427 (46.73%)**, thirty completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning block: map resources (44 raw operands), followed by house access and construction selection/needs (43 each).
+
 ## Human job window continuation — 2026-10-15
 
 Completed the [job/name/production/training window records review](HUMAN_JOB_WINDOW_RECORDS_REVIEW.md), following human attacks (`d8bb32e`). Found and separately corrected the [school default-good source](SCHOOL_DEFAULT_GOOD_CORRECTION.md) (`f850b07`): Windows reads the tribe/job-enables record, not human offset 0x330. The owning file's 48 raw accesses are now zero (one correction plus 47 named accesses). **69 value/type comparisons, 18 physical assertions, complete native table checks and incremental Win32 syntax checks** pass; no build/test/game run.

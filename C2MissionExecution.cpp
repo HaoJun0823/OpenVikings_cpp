@@ -702,13 +702,13 @@ namespace NC2Logic
             NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(10), false);
             Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::WonFlag, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 6, 0);
-            if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_WonByMissionManager(gMultiPlayerGoalManager, p[0]);
+            if (gGameStaticVars.mapType == SwitchIds::GameMapType::Multiplayer) MultiPlayerGoalManager_ExternalTrigger_WonByMissionManager(gMultiPlayerGoalManager, p[0]);
             break;
         case SwitchIds::MissionResult::MissionFailed:
             NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(11), false);
             Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::FailedFlag, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 7, 0);
-            if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_LostByMissionManager(gMultiPlayerGoalManager, p[0]);
+            if (gGameStaticVars.mapType == SwitchIds::GameMapType::Multiplayer) MultiPlayerGoalManager_ExternalTrigger_LostByMissionManager(gMultiPlayerGoalManager, p[0]);
             break;
         case SwitchIds::MissionResult::AllowMap: gCampaignStaticDataManager->CampaignSubMission_DoAllow(p[0], p[1], true); break;
         case SwitchIds::MissionResult::ExploreArea:

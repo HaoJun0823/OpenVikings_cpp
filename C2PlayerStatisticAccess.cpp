@@ -138,9 +138,9 @@ namespace NC2Logic
         }
     }
     // Original function: FUN_00440a53.
-    void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts)
+void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts)
     {
-        std::memset(counts, 0, 136);
+        std::memset(counts, 0, NC2Layout::RecordSize::PlayerGoodsCounts);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
@@ -150,10 +150,10 @@ namespace NC2Logic
             {
                 const auto good = static_cast<std::uint32_t>(type->stock[stock].goodType);
                 const auto amount = House_Stock_GetAmountOfGoods(house, good, false);
-                Write<std::uint32_t>(counts, 0, Read<std::uint32_t>(counts, 0) + amount);
-                auto value = static_cast<std::uint32_t>(Read<std::uint16_t>(counts, 4u + good * 2u)) + amount;
+                Write<std::uint32_t>(counts, NC2Layout::PlayerGoodsCountOffset::Total, Read<std::uint32_t>(counts, NC2Layout::PlayerGoodsCountOffset::Total) + amount);
+                auto value = static_cast<std::uint32_t>(Read<std::uint16_t>(counts, NC2Layout::PlayerGoodsCountOffset::AmountsUnsigned + good * NC2Layout::RecordSize::PlayerGoodCountUnsigned)) + amount;
                 if (value > NXBasics::IntegerRange::UInt16Maximum) value = NXBasics::IntegerRange::UInt16Maximum;
-                Write<std::uint16_t>(counts, 4u + good * 2u, static_cast<std::uint16_t>(value));
+                Write<std::uint16_t>(counts, NC2Layout::PlayerGoodsCountOffset::AmountsUnsigned + good * NC2Layout::RecordSize::PlayerGoodCountUnsigned, static_cast<std::uint16_t>(value));
             }
         }
     }

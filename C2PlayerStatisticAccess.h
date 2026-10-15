@@ -3,6 +3,8 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    struct SPlayerGoodsCountStorage { std::uint32_t total; std::uint16_t amounts[66]; };
+
     struct SPlayerStatisticSampleData
     {
         std::uint16_t humans[10];

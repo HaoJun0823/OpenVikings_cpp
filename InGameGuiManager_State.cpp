@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiManager.h"
@@ -228,7 +230,7 @@ namespace NInGameGuiManager
     bool CInGameGuiManager::l_IsElement0038Required() const
     {
         if (NNetwork::Network_IsInSession()) return true;
-        return Read<std::uint8_t>(NC2Logic::gMultiPlayerGoalManager, 0) != 0;
+        return Read<std::uint8_t>(NC2Logic::gMultiPlayerGoalManager, NC2Layout::MultiPlayerGoalManagerOffset::Enabled) != 0;
     }
 
     // Original function: FUN_004a244e; complete table 004F4DA0..004F4DCF.

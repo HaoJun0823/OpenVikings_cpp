@@ -742,6 +742,8 @@ namespace NC2Runtime
 
     namespace HumanStatisticIndex
     {
+        inline constexpr auto Entries = 10;
+
         inline constexpr auto ChildrenWithoutHome = 7;
 
         inline constexpr auto Children = 6;
@@ -924,6 +926,32 @@ namespace NC2Runtime
         inline constexpr auto RequiresCurrentAvailability = 1;
 
         inline constexpr auto GoodId = 0;
+    }
+
+    namespace MultiPlayerGoalLimits
+    {
+        inline constexpr auto Goals = 20;
+
+        inline constexpr auto Players = 20;
+
+        inline constexpr auto GoodsRequirements = 8;
+    }
+
+    namespace MultiPlayerGoalTiming
+    {
+        inline constexpr auto CheckIntervalTicksUnsigned = 120u;
+    }
+
+    namespace MultiPlayerGoalCallback
+    {
+        inline constexpr auto Priority = 50;
+
+        inline constexpr auto RegistrationTag = 0x6F;
+    }
+
+    namespace MultiPlayerGoalSavegame
+    {
+        inline constexpr auto Version = 1;
     }
 
 }
