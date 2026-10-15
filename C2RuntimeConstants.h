@@ -475,6 +475,10 @@ namespace NC2Runtime
 
     namespace GuiVirtualSlot
     {
+        inline constexpr auto Draw = 3;
+
+        inline constexpr auto DeletingDestructor = 0;
+
         inline constexpr auto ImmediateTooltip = 14;
 
         inline constexpr auto TooltipAvailable = 13;
@@ -890,6 +894,36 @@ namespace NC2Runtime
     namespace WeaponDamageSlot
     {
         inline constexpr auto Landscape = 7;
+    }
+
+    namespace HumanJobWindowTiming
+    {
+        inline constexpr auto CursorBlinkMillisecondsUnsigned = 200u;
+
+        inline constexpr auto RefreshMillisecondsUnsigned = 2000u;
+    }
+
+    namespace HumanJobWindowLimits
+    {
+        inline constexpr auto CollectorGoodOptions = 6;
+
+        inline constexpr auto Goods = 66;
+
+        inline constexpr auto Jobs = 56;
+    }
+
+    namespace GuiVirtualTable
+    {
+        inline constexpr auto BaseWindowEntries = 19;
+    }
+
+    namespace CollectorGoodOptionField
+    {
+        inline constexpr auto Fields = 2;
+
+        inline constexpr auto RequiresCurrentAvailability = 1;
+
+        inline constexpr auto GoodId = 0;
     }
 
 }

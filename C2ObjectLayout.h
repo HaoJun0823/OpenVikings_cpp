@@ -938,6 +938,12 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto SelectedHumanActionWindow = 120;
+
+        inline constexpr auto HumanChangeNameWindow = 148;
+
+        inline constexpr auto HumanChangeJobWindow = 128;
+
         inline constexpr auto GuiManagerMousePointer = 20;
 
         inline constexpr auto WorldDisplayElement = 580;
@@ -1704,6 +1710,12 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HumanJobId = 4;
+
+        inline constexpr auto SelectedHumanActionWindowState = 8;
+
+        inline constexpr auto ChangeJobWindowState = 16;
+
         inline constexpr auto MapAreaRowUnsigned = 8u;
 
         inline constexpr auto EngineHouseAreaPointerUnsigned = 4u;
@@ -2505,6 +2517,10 @@ namespace NC2Layout
 
     namespace StaticJobTypeOffset
     {
+        inline constexpr auto CanBeTrainedUnsigned = 0x87u;
+
+        inline constexpr auto UserShouldAttachWorkPlaceAfterJobChangeUnsigned = 0x86u;
+
         inline constexpr auto AllowedAtomicsUnsigned = 0x24u;
 
         inline constexpr auto BaseJob = 0x20;
@@ -5019,6 +5035,19 @@ namespace NC2Layout
         inline constexpr auto Width = 4;
 
         inline constexpr auto Y = 2;
+    }
+
+    namespace SelectedHumanActionWindowOffset
+    {
+        inline constexpr auto NameInputHandler = 0x78;
+
+        inline constexpr auto LastRefreshTime = 0x78;
+
+        inline constexpr auto JobList = 0x7C;
+
+        inline constexpr auto ValidSelection = 0x70;
+
+        inline constexpr auto SelectionChangeCount = 0x74;
     }
 
 }

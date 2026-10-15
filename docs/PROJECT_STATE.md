@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## Human job window continuation — 2026-10-15
+
+Completed the [job/name/production/training window records review](HUMAN_JOB_WINDOW_RECORDS_REVIEW.md), following human attacks (`d8bb32e`). Found and separately corrected the [school default-good source](SCHOOL_DEFAULT_GOOD_CORRECTION.md) (`f850b07`): Windows reads the tribe/job-enables record, not human offset 0x330. The owning file's 48 raw accesses are now zero (one correction plus 47 named accesses). **69 value/type comparisons, 18 physical assertions, complete native table checks and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 155,258 lines, 2,975 raw numeric-access operands, 74 heuristic unknown mentions, 1,038 long compound lines and 5,014 original-address annotations**. Two naming/layout blocks plus the correction remove 97 candidates this continuation. Cumulative reduction **2,452 / 5,427 (45.18%)**, twenty-nine completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning block: multiplayer goals (47 raw operands), then map resources (44).
+
 ## Human attack record continuation — 2026-10-15
 
 Completed the [human attack records review](HUMAN_ATTACK_RECORDS_REVIEW.md): footprint rows, coordinate copies, landscape-target direction/attempt fields, pursued-object moveable ID, task statuses, selectors and attack limits. All 49 raw numeric accesses in the owning file are named. Windows control flow, search ties, wrapping, callback/RNG order and vehicle bounds-check behavior are retained. **54 value/type comparisons, 22 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

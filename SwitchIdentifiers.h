@@ -2482,11 +2482,21 @@ namespace SwitchIds
 
     namespace GuiWindowMessage
     {
+        inline constexpr auto Command = 0x800;
+
         inline constexpr auto Query = 0x1000;
     }
 
     namespace GuiWindowQuery
     {
+        inline constexpr auto HumanLearnJob = 2017;
+
+        inline constexpr auto HumanChangeProducedGood = 2015;
+
+        inline constexpr auto HumanChangeName = 2014;
+
+        inline constexpr auto HumanChangeJob = 2013;
+
         inline constexpr auto GameSafetyBox = 0x7EB;
 
         inline constexpr auto Options = 0x7D8;
@@ -2587,6 +2597,20 @@ namespace SwitchIds
         inline constexpr auto Running = 1;
 
         inline constexpr auto PendingStartup = 0;
+    }
+
+
+    namespace HumanJobWindowCommand
+    {
+        inline constexpr auto ProducedGoodCommandEnd = 11000;
+
+        inline constexpr auto SelectRow = 10000;
+
+        inline constexpr auto FrameUpdate = 2030;
+
+        inline constexpr auto ValidateSelection = 2029;
+
+        inline constexpr auto NameInputKey = 0x8233;
     }
 
 }
