@@ -1704,6 +1704,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MapAreaRowUnsigned = 8u;
+
+        inline constexpr auto EngineHouseAreaPointerUnsigned = 4u;
+
         inline constexpr auto GameControlStartupPlayer = 0x0C;
 
         inline constexpr auto TribeBuildRequirementItemUnsigned = 4u;
@@ -2369,6 +2373,10 @@ namespace NC2Layout
 
     namespace TargetDataOffset
     {
+        inline constexpr auto AttackPointAttempts = 10;
+
+        inline constexpr auto AttackBaseDirection = 8;
+
         inline constexpr auto ObjectRevisionHighWord = 10;
 
         inline constexpr auto ObjectIdOrMapPoint = 4;
@@ -3517,6 +3525,8 @@ namespace NC2Layout
 
     namespace EngineHouseLogicViewOffset
     {
+        inline constexpr auto WalkAreasUnsigned = 0x20u;
+
         inline constexpr auto ConstructionGoods = 0x48;
 
         inline constexpr auto DevelopmentStageCount = 0x18;
@@ -4995,6 +5005,20 @@ namespace NC2Layout
         inline constexpr auto LeftButtonDown = 8;
 
         inline constexpr auto PositionOverrideCallback = 0x4C;
+    }
+
+    namespace MapAreaOffset
+    {
+        inline constexpr auto RowCount = 0;
+
+        inline constexpr auto Rows = 4;
+    }
+
+    namespace MapAreaRowOffset
+    {
+        inline constexpr auto Width = 4;
+
+        inline constexpr auto Y = 2;
     }
 
 }

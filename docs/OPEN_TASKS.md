@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Human attack record continuation — 2026-10-15
+
+Completed the [human attack records review](HUMAN_ATTACK_RECORDS_REVIEW.md): footprint rows, coordinate copies, landscape-target direction/attempt fields, pursued-object moveable ID, task statuses, selectors and attack limits. All 49 raw numeric accesses in the owning file are named. Windows control flow, search ties, wrapping, callback/RNG order and vehicle bounds-check behavior are retained. **54 value/type comparisons, 22 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 155,024 lines, 3,023 raw numeric-access operands, 74 heuristic unknown mentions, 1,050 long compound lines and 5,014 original-address annotations**. Cumulative reduction **2,404 / 5,427 (44.30%)**, twenty-eight completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next owning block: human job windows (48 raw operands), followed by multiplayer goals (47).
+
 ## Game-control startup record continuation — 2026-10-15
 
 Completed the [game-control startup records review](GAME_CONTROL_STARTUP_RECORDS_REVIEW.md), following mission-start records (`b10fa39`). Replaced the unknown 288-byte startup block with verified fields; named player identity, diplomacy, death/message state, wealth, path counters, modes and availability counts. Windows call order, unchecked bounds, equality checks, name-copy lengths and equipment stride remain unchanged. Nineteen tokens plus four terminators match Game.exe. **50 value/type comparisons, 23 physical assertions and incremental Win32 syntax checks** pass; no build/test/game run.

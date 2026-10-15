@@ -855,4 +855,41 @@ namespace NC2Runtime
         inline constexpr auto PlayerDeathFirstCheckTickUnsigned = 720u;
     }
 
+    namespace HumanAtomicAction
+    {
+        inline constexpr auto Attack = 81;
+    }
+
+    namespace HumanAttackLimits
+    {
+        inline constexpr auto PreviousDirectionOffset = 5;
+
+        inline constexpr auto NeedsRequiredForRepeatAttack = 8000;
+
+        inline constexpr auto WorkHouseDistanceUnsigned = 20u;
+
+        inline constexpr auto ShortWorkHouseDistanceUnsigned = 10u;
+
+        inline constexpr auto RangedWorkHouseMarginUnsigned = 5u;
+
+        inline constexpr auto WorkCenterDistanceUnsigned = 40u;
+
+        inline constexpr auto WeaponModeWorkCenterDistanceUnsigned = 18u;
+
+        inline constexpr auto PositionSearchRadius = 5;
+
+        inline constexpr auto PositionCandidates = 6;
+
+        inline constexpr auto TargetRecords = 2;
+
+        inline constexpr auto VehicleDistanceNotFound = 100000;
+
+        inline constexpr auto PointDistanceNotFound = 1000000;
+    }
+
+    namespace WeaponDamageSlot
+    {
+        inline constexpr auto Landscape = 7;
+    }
+
 }

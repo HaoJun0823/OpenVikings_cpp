@@ -1,0 +1,6 @@
+Windows_address,DWORD_value,Meaning_from_Windows_reader
+004F3B48,8000,Food threshold for repeat attack
+004F3B4C,8000,Stamina threshold for repeat attack
+004F4308,40,Work-center distance
+004F430C,20,Work-house distance
+004F4310,10,Short work-house distance

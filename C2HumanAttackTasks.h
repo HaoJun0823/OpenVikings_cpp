@@ -2,6 +2,14 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    // Documentary landscape-target variant; direction/attempt WORDs overlap object revision storage.
+    struct SMapPositionAttackTargetStorage
+    {
+        std::uint32_t type;
+        std::int16_t x, y;
+        std::int16_t baseDirection, attempts;
+    };
+
     void Human_l_StartTask_Attack(void* human);
     void Human_l_FinishTask_Attack(void* human);
     void Human_l_FailTask_Attack(void* human);

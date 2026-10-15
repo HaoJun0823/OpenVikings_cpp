@@ -874,6 +874,14 @@ namespace SwitchIds
 
     namespace HumanTask
     {
+        inline constexpr auto AttackUnsigned = 14u;
+
+        inline constexpr auto ExecuteJobUnsigned = 8u;
+
+        inline constexpr auto IdleUnsigned = 1u;
+
+        inline constexpr auto Idle = 1;
+
         inline constexpr auto Goto = 2;
         inline constexpr auto GoHome = 3;
         inline constexpr auto GotoAndWait = 4;
@@ -1923,6 +1931,8 @@ namespace SwitchIds
 
     namespace TargetType
     {
+        inline constexpr auto None = 0;
+
         inline constexpr auto MapPosition = 5;
         inline constexpr auto Human = 1;
         inline constexpr auto Vehicle = 2;
@@ -2568,6 +2578,15 @@ namespace SwitchIds
         inline constexpr auto MultiplayerMap = 3;
 
         inline constexpr auto None = 0;
+    }
+
+    namespace HumanTaskStatus
+    {
+        inline constexpr auto Failed = 3;
+
+        inline constexpr auto Running = 1;
+
+        inline constexpr auto PendingStartup = 0;
     }
 
 }
