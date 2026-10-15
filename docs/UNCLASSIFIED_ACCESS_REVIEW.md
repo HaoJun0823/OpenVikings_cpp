@@ -29,14 +29,14 @@ The constructor immediately clears the entire allocation before loading its data
 | File / sites | Established facts and remaining uncertainty |
 | --- | --- |
 | `C2AnimalAccess.cpp` / 1 | Animal DWORD +`0x30` receives a random value modulo three in `0042DCE9`. Its consumer/purpose is unproven. Nearby sector-list `+0x30` operands use different receivers and cannot establish this field. The random call is retained. |
-| `C2ScriptObjectAccess.cpp` / 2 | Folded getters `004230EA` and `00471F57` share displacements across different object families: player/marker type and array revision/moveable type respectively. One semantic member name would incorrectly identify some receivers. Existing explicit getters remain. |
+| `C2ScriptObjectAccess.cpp` / 2 | Shared getters `004230EA` and `00471F57` serve human player ID/marker type, and object revision/moveable type/AI village player ID respectively. The [subsequent research](RESIDUAL_ACCESS_RESEARCH.md) maps all 26 direct native calls. One member name would incorrectly identify some receivers. Existing explicit getters remain. |
 | `C2AIVillageAccess.cpp` / 1 | Village DWORD +20 is initialized to -1 (`00471418`). A semantic reader has not been established. |
 | `C2AIProduction.cpp` / 1 | Goods-entry byte +36 is initialized to zero (`004571CE`). It lies in the producer tail, beyond the established human/house identity pairs. A consumer and flag meaning have not been established. |
 | `C2AIMilitaryAccess.cpp` / 1 | Manager DWORD +`0x1454`, following the military slots, is initialized to -1 (`00453F1B`). The inspected direct references do not establish its purpose. |
 | `GuiTextToolElementAccess.cpp` / 2 | Inherited base-tool byte +`0x2C` is cleared before text-specific storage construction. `004B8B51` clears exactly one byte there. The draw path does not establish a font/background interpretation. |
 | `InGameGuiWallRoadWindows.cpp`, `InGameGuiSimpleSelectionWindows.cpp`, `InGameGuiGroupSelectionWindows.cpp` / 6 | Each selection-window constructor clears one byte at +`0x70` after constructing the base tool window; wall-window example `004BDA98`. The field's later purpose is unproven. Other window classes using displacement `0x70` do not establish a shared identity. |
 
-These are unresolved semantics, not evidence that the fields are never read. Aliased, indexed or subobject-relative consumers may still exist. Arbitrary labels, removal of initialization and cross-class guesses would hide the remaining work rather than complete it. The raw-access heuristic also does not exhaust all numerical expressions or unknown layouts in the project.
+These are unresolved semantics, not evidence that the fields are never read. [Subsequent research](RESIDUAL_ACCESS_RESEARCH.md) confirms bulk serialization/checksum readers for all four opaque animal/AI fields and investigates the empty-member hypothesis for the GUI bytes. Aliased, indexed or subobject-relative consumers may still exist. Arbitrary labels, removal of initialization and cross-class guesses would hide the remaining work rather than complete it. The raw-access heuristic also does not exhaust all numerical expressions or unknown layouts in the project.
 
 ## Validation
 

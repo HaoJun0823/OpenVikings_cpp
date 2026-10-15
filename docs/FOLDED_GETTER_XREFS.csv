@@ -1,0 +1,27 @@
+getter,call,receiver,fieldRole,existingLayoutName,currentCppFile
+004230EA,00422459,Human,Human player ID,HumanOffset::PlayerId,C2MissionExecution.cpp
+004230EA,004224D3,Human,Human player ID,HumanOffset::PlayerId,C2MissionExecution.cpp
+004230EA,0042266E,Human,Human player ID,HumanOffset::PlayerId,C2MissionExecution.cpp
+004230EA,0042268A,Human,Human player ID,HumanOffset::PlayerId,C2MissionExecution.cpp
+004230EA,00422A30,Marker returned by MapMoveable_GetMarkerPtr,Marker type,MarkerOffset::Type,C2MissionExecution.cpp
+004230EA,00422D0B,Marker returned by MapMoveable_GetMarkerPtr,Marker type,MarkerOffset::Type,C2MissionExecution.cpp
+004230EA,00422E26,Marker returned by MapMoveable_GetMarkerPtr,Marker type,MarkerOffset::Type,C2MissionExecution.cpp
+004230EA,0044444A,Human,Human player ID,HumanOffset::PlayerId,C2WeaponHits.cpp
+004230EA,004444B9,Human,Human player ID,HumanOffset::PlayerId,C2WeaponHits.cpp
+004230EA,00444528,Human,Human player ID,HumanOffset::PlayerId,C2WeaponHits.cpp
+004230EA,0044457A,Human,Human player ID,HumanOffset::PlayerId,C2WeaponHits.cpp
+004230EA,0045DC7A,Human,Human player ID,HumanOffset::PlayerId,C2HumanVehicleJobs.cpp
+004230EA,0045E1D7,Human,Human player ID,HumanOffset::PlayerId,C2HumanFamily.cpp
+004230EA,00460C66,Human,Human player ID,HumanOffset::PlayerId,C2HumanNeeds.cpp
+004230EA,00460D26,Human,Human player ID,HumanOffset::PlayerId,C2HumanNeeds.cpp
+004230EA,00462E2A,Human,Human player ID,HumanOffset::PlayerId,C2HumanWalking.cpp
+004230EA,00469341,Human,Human player ID,HumanOffset::PlayerId,C2HumanAnimalJobs.cpp
+00471F57,00422438,Vehicle,Object unique ID / revision,ActorIdentityOffset::UniqueId,C2MissionExecution.cpp
+00471F57,00422449,Human,Object unique ID / revision,ActorIdentityOffset::UniqueId,C2MissionExecution.cpp
+00471F57,004224C3,Human,Object unique ID / revision,ActorIdentityOffset::UniqueId,C2MissionExecution.cpp
+00471F57,0042265E,Human,Object unique ID / revision,ActorIdentityOffset::UniqueId,C2MissionExecution.cpp
+00471F57,00422A1D,Map moveable,Moveable object type,MapMoveableOffset::ObjectType,C2MissionExecution.cpp
+00471F57,00422CF8,Map moveable,Moveable object type,MapMoveableOffset::ObjectType,C2MissionExecution.cpp
+00471F57,00422E13,Map moveable,Moveable object type,MapMoveableOffset::ObjectType,C2MissionExecution.cpp
+00471F57,00471F33,AI village through build-search context,Village player ID,AIVillageOffset::PlayerId,C2AIBuildingAccess.cpp
+00471F57,00476C21,AI village through build-search context,Village player ID,AIVillageOffset::PlayerId,C2AIBuildingAccess.cpp
