@@ -1,30 +1,28 @@
-#include "C2RuntimeConstants.h"
-#include "C2ObjectLayout.h"
-#include "XNumericConstants.h"
-#include "SwitchIdentifiers.h"
 #include "C2CallbackManager.h"
 #include "C2CleanMapsManager.h"
-#include "C2SavegamesManager.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2GameEngineStartup.h"
+#include "C2HumanIterator.h"
 #include "C2LanguageTools.h"
+#include "C2LifetimeGlobals.h"
 #include "C2LogicIOAccess.h"
 #include "C2LogicLifetimeAccess.h"
-#include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
+#include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
+#include "C2SavegamesManager.h"
 #include "CDAudioManager.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
 #include "MainMenuGuiManager.h"
 #include "MainMenuGuiManager_Access.h"
-#include "C2HumanIterator.h"
-#include "C2GameEngineStartup.h"
-#include "XGuiElementAccess.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
 #include "OriginalStrings.h"
 #include "StringInputHandler.h"
+#include "SwitchIdentifiers.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -32,12 +30,14 @@
 #include "XFileAccess.h"
 #include "XFontMetrics.h"
 #include "XGuiDesktop.h"
+#include "XGuiElementAccess.h"
 #include "XIniFileReader.h"
-#include "XPictureAccess.h"
-#include "XStorableIO.h"
 #include "XMemory.h"
 #include "XMKeyManager.h"
 #include "XMMouseManager.h"
+#include "XNumericConstants.h"
+#include "XPictureAccess.h"
+#include "XStorableIO.h"
 
 #include "dplay8.h"
 
@@ -51,7 +51,7 @@
 static constexpr float cMenuGameSpeed = 12.0f;
 
 // Original constant: 004f7e48; matches CLSID_DP8SP_TCPIP.
-static constexpr GUID cTcpIpServiceProviderGuid = { 0xEBFE7BA0u, 0x628Du, 0x11D2u, { 0xAE, 0x0F, 0, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
+static constexpr GUID cTcpIpServiceProviderGuid = { 0xEBFE7BA0u, 0x628Du, 0x11D2u,{ 0xAE, 0x0F, 0, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
 
 // Original data: DAT_005694e0.
 std::uint32_t gLastPlayerListUpdateTick = 0;
@@ -88,7 +88,7 @@ namespace NC2MainMenuGuiManager
 		sTheObjectPtr = this;
 
 		std::memset(static_cast<void*>(this), 0, offsetof(CGuiManager, unknown216C));
-		mStaticVars = {};
+		mStaticVars = { };
 
 		ls_GraphicData_Load();
 	}
@@ -222,7 +222,7 @@ namespace NC2MainMenuGuiManager
 			{
 				gLastHostMessage6Tick = currentTime;
 
-				std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+				std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 				message[0] = 6;
 
 				NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -387,17 +387,21 @@ namespace NC2MainMenuGuiManager
 		DestroyMainMenuStorableResource(resources.menuLogos);
 		DestroyMainMenuStorableResource(resources.smallMenuLogos);
 
-		resources = {};
+		resources = { };
 
 		auto* guiResourceManager = NC2GuiToolsBase::CGuiBaseDataManager::sTheObjectPtr;
 
 		if (guiResourceManager != nullptr)
-			{ guiResourceManager->~CGuiBaseDataManager(); NXBasics::Runtime_Free(guiResourceManager); }
+		{
+			guiResourceManager->~CGuiBaseDataManager(); NXBasics::Runtime_Free(guiResourceManager);
+		}
 
 		auto* textResourceManager = NC2GuiToolsBase::CGuiBaseStringsManager::sTheObjectPtr;
 
 		if (textResourceManager != nullptr)
-			{ textResourceManager->~CGuiBaseStringsManager(); NXBasics::Runtime_Free(textResourceManager); }
+		{
+			textResourceManager->~CGuiBaseStringsManager(); NXBasics::Runtime_Free(textResourceManager);
+		}
 	}
 
 	// Original function: FUN_004d31bc
@@ -429,7 +433,7 @@ namespace NC2MainMenuGuiManager
 
 				NXBasics::Runtime_PrintStringN(formattedText, 127, "%s> %s", NNetwork::Network_GetCallsign(), textInput.GetString());
 
-				wchar_t message[128]{};
+				wchar_t message[128]{ };
 				formattedText[127] = '\0';
 
 				NNetwork::CopyNetworkAnsiToWide(message + 1, formattedText, -1);
@@ -592,7 +596,7 @@ namespace NC2MainMenuGuiManager
 
 					if (!NNetwork::Network_IsHost())
 					{
-						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 						message[0] = 2;
 
 						const DPNID hostPlayerId = NNetwork::GetDynamicNetworkHostPlayerId(&gDynamicNetworkData);
@@ -889,7 +893,7 @@ namespace NC2MainMenuGuiManager
 
 					if (textType == 1)
 					{
-						char text[128] = {};
+						char text[128] = { };
 
 						NNetwork::ConvertNetworkWideToAnsi(text, reinterpret_cast<const wchar_t*>(record + 6), -1);
 						Chat_AddText(0, text);
@@ -908,7 +912,7 @@ namespace NC2MainMenuGuiManager
 			{
 				for (NNetwork::SEventNode* event = gDynamicNetworkData.events.first; event != nullptr; event = event->next)
 				{
-					char playerName[100] = {};
+					char playerName[100] = { };
 					char text[300];
 					text[0] = '\0';
 
@@ -937,7 +941,7 @@ namespace NC2MainMenuGuiManager
 					}
 					else
 					{
-						char description[200] = {};
+						char description[200] = { };
 
 						NNetwork::FormatNetworkEvent(&gDynamicNetworkData.events, event, description, sizeof(description));
 						NXBasics::Runtime_PrintString(text, ">> NET: '%s'", description);
@@ -1125,7 +1129,7 @@ namespace NC2MainMenuGuiManager
 				{
 					sTheObjectPtr->Screen_ChangeTo(16, false);
 
-					std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+					std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 					message[0] = 4;
 
 					NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -1141,7 +1145,7 @@ namespace NC2MainMenuGuiManager
 					{
 						sTheObjectPtr->Screen_ChangeTo(17, false);
 
-						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 						message[0] = 5;
 
 						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -1152,7 +1156,7 @@ namespace NC2MainMenuGuiManager
 
 						NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
-						std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+						std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 						auto* messageBytes = reinterpret_cast<std::byte*>(message);
 
 						message[0] = 1;
@@ -1261,7 +1265,7 @@ namespace NC2MainMenuGuiManager
 
 				case SwitchIds::MenuNetworkMessage::RequestLobbyData:
 					{
-						std::uint32_t response[360 / sizeof(std::uint32_t)] = {};
+						std::uint32_t response[360 / sizeof(std::uint32_t)] = { };
 						auto* responseBytes = reinterpret_cast<std::byte*>(response);
 
 						response[0] = 1;
@@ -1551,7 +1555,7 @@ namespace NC2MainMenuGuiManager
 
 		NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
-		std::uint32_t message[360 / sizeof(std::uint32_t)] = {};
+		std::uint32_t message[360 / sizeof(std::uint32_t)] = { };
 		auto* messageBytes = reinterpret_cast<std::byte*>(message);
 
 		message[0] = 1;

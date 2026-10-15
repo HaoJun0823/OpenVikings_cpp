@@ -7,70 +7,70 @@
 
 namespace NXSys2DApp
 {
-    class CDDDisplay;
+	class CDDDisplay;
 
-    class CWindow
-    {
-    public:
-        // Original function: FUN_0047b524
-        CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen);
+	class CWindow
+	{
+	public:
+		// Original function: FUN_0047b524
+		CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen);
 
-        // Original function: FUN_0047b662
-        LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+		// Original function: FUN_0047b662
+		LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-        ~CWindow();
+		~CWindow();
 
-        // Original function: FUN_0047b888
-        void Update();
+		// Original function: FUN_0047b888
+		void Update();
 
-        // Original function: FUN_0047b895
-        void FlipToGDISurface();
+		// Original function: FUN_0047b895
+		void FlipToGDISurface();
 
-        // Original function: FUN_0047b8a2
-        void ToggleFullscreen();
+		// Original function: FUN_0047b8a2
+		void ToggleFullscreen();
 
-        HWND GetWindowHandle() const
-        {
-            return mWindowHandle;
-        }
+		HWND GetWindowHandle() const
+		{
+			return mWindowHandle;
+		}
 
-        bool IsApplicationActive() const
-        {
-            return mApplicationActive;
-        }
+		bool IsApplicationActive() const
+		{
+			return mApplicationActive;
+		}
 
-        bool IsWindowActive() const
-        {
-            return mWindowActive;
-        }
+		bool IsWindowActive() const
+		{
+			return mWindowActive;
+		}
 
-        bool IsInitialized() const
-        {
-            return mInitialized;
-        }
+		bool IsInitialized() const
+		{
+			return mInitialized;
+		}
 
-        CDDDisplay* GetDisplay() const
-        {
-            return mDisplay;
-        }
+		CDDDisplay* GetDisplay() const
+		{
+			return mDisplay;
+		}
 
-    private:
-        void l_DeleteDisplay();
+	private:
+		void l_DeleteDisplay();
 
-        static constexpr const char* WindowClassName = "Funatics Software Application Window";
+		static constexpr const char* WindowClassName = "Funatics Software Application Window";
 
-        // Original function: FUN_0047b638
-        static LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+		// Original function: FUN_0047b638
+		static LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-        HWND mWindowHandle;             // +0x00
-        bool mApplicationActive;        // +0x04
-        bool mWindowActive;             // +0x05
-        bool mInitialized;              // +0x06
-        std::byte mPadding07;            // +0x07
-        CDDDisplay* mDisplay;            // +0x08
-        HINSTANCE mInstance;             // +0x0C
-        int mShowCommand;                // +0x10
-    };
+		HWND mWindowHandle;             // +0x00
+		bool mApplicationActive;        // +0x04
+		bool mWindowActive;             // +0x05
+		bool mInitialized;              // +0x06
+		std::byte mPadding07;            // +0x07
+		CDDDisplay* mDisplay;            // +0x08
+		HINSTANCE mInstance;             // +0x0C
+		int mShowCommand;                // +0x10
+	};
 
-    static_assert(sizeof(CWindow) == 20);
+	static_assert(sizeof(CWindow) == 20);
 }

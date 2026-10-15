@@ -6,33 +6,33 @@
 
 namespace NXBasics
 {
-    // Original function: FUN_00410b46.
-    inline void XB_Tool_ZeroMemory(void* memory, std::uint32_t byteCount)
-    {
-        std::memset(memory, 0, byteCount);
-    }
+	// Original function: FUN_00410b46.
+	inline void XB_Tool_ZeroMemory(void* memory, std::uint32_t byteCount)
+	{
+		std::memset(memory, 0, byteCount);
+	}
 
-    // Original function: FUN_00410c1f; loads the supplied DWORD as binary32.
-    inline double XB_BinaryConvert_T32uToFloat(std::uint32_t bits)
-    {
-        float value;
-        std::memcpy(&value, &bits, sizeof(value));
-        return value;
-    }
+	// Original function: FUN_00410c1f; loads the supplied DWORD as binary32.
+	inline double XB_BinaryConvert_T32uToFloat(std::uint32_t bits)
+	{
+		float value;
+		std::memcpy(&value, &bits, sizeof(value));
+		return value;
+	}
 
-    // Original function: FUN_00410b59
-    inline char* StringDuplicate(const char* source)
-    {
-        if (source == nullptr)
-        {
-            return nullptr;
-        }
+	// Original function: FUN_00410b59
+	inline char* StringDuplicate(const char* source)
+	{
+		if (source == nullptr)
+		{
+			return nullptr;
+		}
 
-        const std::size_t byteCount = std::strlen(source) + 1;
-        auto* copy = static_cast<char*>(Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(byteCount), 1));
+		const std::size_t byteCount = std::strlen(source) + 1;
+		auto* copy = static_cast<char*>(Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(byteCount), 1));
 
-        // The original copies without checking allocation success.
-        std::memcpy(copy, source, byteCount);
-        return copy;
-    }
+		// The original copies without checking allocation success.
+		std::memcpy(copy, source, byteCount);
+		return copy;
+	}
 }

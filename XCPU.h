@@ -2,5 +2,5 @@
 
 namespace NXBasics
 {
-    bool CPU_HasMMX();
+	bool CPU_HasMMX();
 }

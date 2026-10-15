@@ -2,5 +2,5 @@
 
 namespace NC2InGameGuiSelection
 {
-    void* SelectionLandscapeTypeWindow_Construct(void* window);
+	void* SelectionLandscapeTypeWindow_Construct(void* window);
 }

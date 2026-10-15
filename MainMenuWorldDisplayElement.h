@@ -2,13 +2,16 @@
 
 #include <cstdint>
 
-namespace NXBasics { class CBitmap; struct SRectangle; }
+namespace NXBasics
+{
+	class CBitmap; struct SRectangle;
+}
 namespace NC2MainMenuGuiWorldElement
 {
-    void WorldDisplayElement_Destruct(void* element);
-    void WorldDisplayElement_l_FollowMode_Update(void* element);
-    void WorldDisplayElement_l_Tool_DarkenBitmap_Exit(void* element);
-    void WorldDisplayElement_l_Tool_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap);
+	void WorldDisplayElement_Destruct(void* element);
+	void WorldDisplayElement_l_FollowMode_Update(void* element);
+	void WorldDisplayElement_l_Tool_DarkenBitmap_Exit(void* element);
+	void WorldDisplayElement_l_Tool_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap);
 }
 
 void* __fastcall MainMenuWorldDisplayElement_Delete(void* element, void* unusedEdx, std::uint32_t flags);

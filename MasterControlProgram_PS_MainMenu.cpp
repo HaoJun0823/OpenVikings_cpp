@@ -1,9 +1,9 @@
-#include "MainMenuGuiManager.h"
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2GameMapIO.h"
 #include "C2GameTime.h"
 #include "C2LifetimeGlobals.h"
 #include "CDAudioManager.h"
+#include "MainMenuGuiManager.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "X2DApplication.h"
@@ -18,103 +18,103 @@
 namespace NMasterControlProgram
 {
 
-    // Original function: FUN_0040212b
-    bool CMasterControlProgram::System_ProgramState_MainMenu_StartUp()
-    {
-        mProgramState = 7;
+	// Original function: FUN_0040212b
+	bool CMasterControlProgram::System_ProgramState_MainMenu_StartUp()
+	{
+		mProgramState = 7;
 
-        ProgressBar_Init(mEngineInitialized == 0);
+		ProgressBar_Init(mEngineInitialized == 0);
 
-        static_assert(sizeof(NC2MainMenuGuiManager::CGuiManager) == 8628);
-        if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(8628, 1))
-            ::new (storage) NC2MainMenuGuiManager::CGuiManager();
+		static_assert(sizeof(NC2MainMenuGuiManager::CGuiManager) == 8628);
+		if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(8628, 1))
+			::new (storage) NC2MainMenuGuiManager::CGuiManager();
 
-        GameEngine_StartUpEngine();
+		GameEngine_StartUpEngine();
 
-        auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
-        auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
-        const int displayDepth = application->GetDisplayDepth();
+		auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+		auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
+		const int displayDepth = application->GetDisplayDepth();
 
-        const int displayHeight = application->GetDisplayHeight();
+		const int displayHeight = application->GetDisplayHeight();
 
-        const int displayWidth = application->GetDisplayWidth();
+		const int displayWidth = application->GetDisplayWidth();
 
-        mainMenuGuiManager->Desktop_Open(displayWidth, displayHeight, static_cast<std::uint32_t>(displayDepth));
+		mainMenuGuiManager->Desktop_Open(displayWidth, displayHeight, static_cast<std::uint32_t>(displayDepth));
 
-        l_MainMenu_Misc_GameMap_LoadRandomMap();
-        ProgressBar_Exit();
+		l_MainMenu_Misc_GameMap_LoadRandomMap();
+		ProgressBar_Exit();
 
-        if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
-        {
-            NCDAudioManager::CCDAudioManager::sTheObjectPtr->StartTrack(2);
-        }
+		if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
+		{
+			NCDAudioManager::CCDAudioManager::sTheObjectPtr->StartTrack(2);
+		}
 
-        mProgramState = static_cast<std::int32_t>(TProgramState::MainMenu);
+		mProgramState = static_cast<std::int32_t>(TProgramState::MainMenu);
 
-        constexpr const char* propertyName = "start_campaign_3_screen";
+		constexpr const char* propertyName = "start_campaign_3_screen";
 
-        if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
-        {
-            NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Screen_ChangeTo(5, false);
-            NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove(propertyName);
-        }
+		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
+		{
+			NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Screen_ChangeTo(5, false);
+			NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove(propertyName);
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    // Original function: FUN_004021ea
-    void CMasterControlProgram::System_ProgramState_MainMenu_ShutDown()
-    {
-        mProgramState = 9;
+	// Original function: FUN_004021ea
+	void CMasterControlProgram::System_ProgramState_MainMenu_ShutDown()
+	{
+		mProgramState = 9;
 
-        if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
-        {
-            if (NCDAudioManager::CCDAudioManager::sTheObjectPtr->IsStillPlaying())
-            {
-                NCDAudioManager::CCDAudioManager::sTheObjectPtr->StopTrack();
-            }
-        }
+		if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
+		{
+			if (NCDAudioManager::CCDAudioManager::sTheObjectPtr->IsStillPlaying())
+			{
+				NCDAudioManager::CCDAudioManager::sTheObjectPtr->StopTrack();
+			}
+		}
 
-        NC2E2::AmbientSoundManager_StopAllAmbientSounds(NC2E2::gE2AmbientSoundManager);
-        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
-        GameEngine_ShutDownGame();
+		NC2E2::AmbientSoundManager_StopAllAmbientSounds(NC2E2::gE2AmbientSoundManager);
+		NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
+		GameEngine_ShutDownGame();
 
-        auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
+		auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
 
-        if (mainMenuGuiManager != nullptr)
-        {
-            mainMenuGuiManager->~CGuiManager();
-            NXBasics::Runtime_Free(mainMenuGuiManager);
-        }
+		if (mainMenuGuiManager != nullptr)
+		{
+			mainMenuGuiManager->~CGuiManager();
+			NXBasics::Runtime_Free(mainMenuGuiManager);
+		}
 
-        mProgramState = static_cast<std::int32_t>(TProgramState::None);
-    }
+		mProgramState = static_cast<std::int32_t>(TProgramState::None);
+	}
 
-    // Original function: FUN_00402250
-    void CMasterControlProgram::System_ProgramState_MainMenu_Update()
-    {
-        const DWORD currentTime = timeGetTime();
-        if (mMainMenuLastMapChangeTick + 300000U <= currentTime)
-        {
-            l_MainMenu_Misc_GameMap_LoadRandomMap();
-        }
+	// Original function: FUN_00402250
+	void CMasterControlProgram::System_ProgramState_MainMenu_Update()
+	{
+		const DWORD currentTime = timeGetTime();
+		if (mMainMenuLastMapChangeTick + 300000U <= currentTime)
+		{
+			l_MainMenu_Misc_GameMap_LoadRandomMap();
+		}
 
-        NC2Logic::Logic_EntryPoint_GameTime_Update();
-        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->System_UpdateGui();
+		NC2Logic::Logic_EntryPoint_GameTime_Update();
+		NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->System_UpdateGui();
 
-        auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
+		auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
-        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(static_cast<NXBasics::CBitmap*>(displayBitmap), 0, 0);
-    }
+		NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(static_cast<NXBasics::CBitmap*>(displayBitmap), 0, 0);
+	}
 
-    // Original function: FUN_00402298. Windows always selects this one demo map.
-    void CMasterControlProgram::l_MainMenu_Misc_GameMap_LoadRandomMap()
-    {
-        mMainMenuLastMapChangeTick = 0;
-        char mapRoot[200];
-        NXBasics::Runtime_PrintString(mapRoot, "data\\maps\\demo_mainmenu_10");
-        NC2Logic::GameIO_Cleanmap_Load(mapRoot, true, true, false);
-        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_CenterDisplay();
-        mMainMenuLastMapChangeTick = timeGetTime();
-    }
+	// Original function: FUN_00402298. Windows always selects this one demo map.
+	void CMasterControlProgram::l_MainMenu_Misc_GameMap_LoadRandomMap()
+	{
+		mMainMenuLastMapChangeTick = 0;
+		char mapRoot[200];
+		NXBasics::Runtime_PrintString(mapRoot, "data\\maps\\demo_mainmenu_10");
+		NC2Logic::GameIO_Cleanmap_Load(mapRoot, true, true, false);
+		NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_CenterDisplay();
+		mMainMenuLastMapChangeTick = timeGetTime();
+	}
 }

@@ -1,170 +1,176 @@
 #pragma once
 
-#include <Windows.h>
 #include <ddraw.h>
+#include <Windows.h>
 
+#include "X2DWindow.h"
 #include <cstddef>
 #include <cstdint>
-#include "X2DWindow.h"
 
-namespace NXBasics { class CBitmap; }
+namespace NXBasics
+{
+	class CBitmap;
+}
 
 namespace NXSys2DApp
 {
-    char FindCDDrive(const char* volumeName, const char* markerFileName);
+	char FindCDDrive(const char* volumeName, const char* markerFileName);
 
-    using TApplicationCallback = void(__cdecl*)();
-    using TWindowMessageCallback = int(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	using TApplicationCallback = void(__cdecl*)();
+	using TWindowMessageCallback = int(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-    struct SApplicationControl
-    {
-        // Original function: FUN_00479076
-        SApplicationControl();
+	struct SApplicationControl
+	{
+		// Original function: FUN_00479076
+		SApplicationControl();
 
-        HINSTANCE instance;
-        HINSTANCE previousInstance;
-        LPSTR commandLine;
-        int showCommand;
+		HINSTANCE instance;
+		HINSTANCE previousInstance;
+		LPSTR commandLine;
+		int showCommand;
 
-        bool fullscreen;
-        std::byte padding11[3];
+		bool fullscreen;
+		std::byte padding11[3];
 
-        std::int32_t screenWidth;
-        std::int32_t screenHeight;
-        std::int32_t screenDepth;
+		std::int32_t screenWidth;
+		std::int32_t screenHeight;
+		std::int32_t screenDepth;
 
-        std::int32_t minimumScreenWidth;
-        std::int32_t minimumScreenHeight;
-        std::int32_t minimumScreenDepth;
+		std::int32_t minimumScreenWidth;
+		std::int32_t minimumScreenHeight;
+		std::int32_t minimumScreenDepth;
 
-        std::int32_t maximumScreenWidth;
-        std::int32_t maximumScreenHeight;
-        std::int32_t maximumScreenDepth;
+		std::int32_t maximumScreenWidth;
+		std::int32_t maximumScreenHeight;
+		std::int32_t maximumScreenDepth;
 
-        bool fullscreenToggle;                                     // +0x38
-        std::byte padding39[3];                                    // +0x39
+		bool fullscreenToggle;                                     // +0x38
+		std::byte padding39[3];                                    // +0x39
 
-        TApplicationCallback fullscreenToggledCallback;            // +0x3C
-        TApplicationCallback applicationActivationCallback;        // +0x40
-        TWindowMessageCallback windowMessageCallback;              // +0x44
-    };
+		TApplicationCallback fullscreenToggledCallback;            // +0x3C
+		TApplicationCallback applicationActivationCallback;        // +0x40
+		TWindowMessageCallback windowMessageCallback;              // +0x44
+	};
 
-    static_assert(sizeof(SApplicationControl) == 72);
+	static_assert(sizeof(SApplicationControl) == 72);
 
-    struct SDisplayMode
-    {
-        std::uint32_t width;
-        std::uint32_t height;
-        std::uint32_t depth;
-    };
+	struct SDisplayMode
+	{
+		std::uint32_t width;
+		std::uint32_t height;
+		std::uint32_t depth;
+	};
 
-    static_assert(sizeof(SDisplayMode) == 12);
+	static_assert(sizeof(SDisplayMode) == 12);
 
-    struct SDisplayModeData
-    {
-        std::uint32_t desktopWidth;
-        std::uint32_t desktopHeight;
-        std::uint32_t desktopDepth;
-        std::uint32_t fullscreenDisplayModeCount;
-        SDisplayMode fullscreenDisplayModes[80];
-    };
+	struct SDisplayModeData
+	{
+		std::uint32_t desktopWidth;
+		std::uint32_t desktopHeight;
+		std::uint32_t desktopDepth;
+		std::uint32_t fullscreenDisplayModeCount;
+		SDisplayMode fullscreenDisplayModes[80];
+	};
 
-    static_assert(sizeof(SDisplayModeData) == 976);
+	static_assert(sizeof(SDisplayModeData) == 976);
 
-    class CWindow;
+	class CWindow;
 
-    class CApplication : public SApplicationControl
-    {
-    public:
-        // Original function: FUN_00478c02
-        bool SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation);
+	class CApplication : public SApplicationControl
+	{
+	public:
+		// Original function: FUN_00478c02
+		bool SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation);
 
-        // Original function: FUN_00478c98
-        bool ToggleFullscreen();
+		// Original function: FUN_00478c98
+		bool ToggleFullscreen();
 
-        // Original function: FUN_00478ce0
-        void FlipToGDISurface();
+		// Original function: FUN_00478ce0
+		void FlipToGDISurface();
 
-        // Original function: FUN_00478ced
-        HWND GetWindowHandle() const;
+		// Original function: FUN_00478ced
+		HWND GetWindowHandle() const;
 
-        // Original function: FUN_00478cfa
-        bool IsWindowActive() const;
+		// Original function: FUN_00478cfa
+		bool IsWindowActive() const;
 
-        // Original function: FUN_00478d08
-        bool IsApplicationActive() const;
+		// Original function: FUN_00478d08
+		bool IsApplicationActive() const;
 
-        // Original function: FUN_00478d16
-        int GetDisplayWidth() const;
+		// Original function: FUN_00478d16
+		int GetDisplayWidth() const;
 
-        // Original function: FUN_00478d27
-        int GetDisplayHeight() const;
+		// Original function: FUN_00478d27
+		int GetDisplayHeight() const;
 
-        // Original function: FUN_00478d38
-        int GetWindowOffsetX() const;
+		// Original function: FUN_00478d38
+		int GetWindowOffsetX() const;
 
-        // Original function: FUN_00478d4b
-        int GetWindowOffsetY() const;
+		// Original function: FUN_00478d4b
+		int GetWindowOffsetY() const;
 
-        // Original function: FUN_00478d5e
-        int GetDisplayDepth() const;
+		// Original function: FUN_00478d5e
+		int GetDisplayDepth() const;
 
-        // Original function: FUN_00478d6f
-        bool IsFullscreen() const;
+		// Original function: FUN_00478d6f
+		bool IsFullscreen() const;
 
-        // Original function: FUN_00478efa
-        bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
-        bool CheckFullscreenDisplayMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
+		// Original function: FUN_00478efa
+		bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
+		bool CheckFullscreenDisplayMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
 
-        std::uint32_t GetDesktopDepth() const;
-        const SDisplayModeData& GetDisplayModeData() const { return mDisplayModeData; }
-        void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+		std::uint32_t GetDesktopDepth() const;
+		const SDisplayModeData& GetDisplayModeData() const
+		{
+			return mDisplayModeData;
+		}
+		void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
 
-        // Original function: FUN_004790cd
-        explicit CApplication(const SApplicationControl& applicationControl);
+		// Original function: FUN_004790cd
+		explicit CApplication(const SApplicationControl& applicationControl);
 
-        // Original function: FUN_00479169
-        ~CApplication();
+		// Original function: FUN_00479169
+		~CApplication();
 
-        // Original function: FUN_004791a6
-        bool StartUp();
+		// Original function: FUN_004791a6
+		bool StartUp();
 
-        // Original function: FUN_0047929c
-        void ShutDown();
+		// Original function: FUN_0047929c
+		void ShutDown();
 
-        // Original function: FUN_00479a54
-        void UpdateDisplay();
+		// Original function: FUN_00479a54
+		void UpdateDisplay();
 
-        // Original function: FUN_00479a61
-        LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+		// Original function: FUN_00479a61
+		LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-        HINSTANCE GetInstance() const;
+		HINSTANCE GetInstance() const;
 
-        // Original function: FUN_004799d8
-        bool DoMessages();
+		// Original function: FUN_004799d8
+		bool DoMessages();
 
-        // Original data: 00554d74.
-        inline static CApplication* sTheObjectPtr = nullptr;
+		// Original data: 00554d74.
+		inline static CApplication* sTheObjectPtr = nullptr;
 
-    private:
-        friend class CDDDisplay;
-        // Original function: FUN_00478d8a
-        void l_GetDesktopDisplayMode();
+	private:
+		friend class CDDDisplay;
+		// Original function: FUN_00478d8a
+		void l_GetDesktopDisplayMode();
 
-        // Original function: FUN_00478ddf
-        void l_GetFullscreenDisplayModes();
+		// Original function: FUN_00478ddf
+		void l_GetFullscreenDisplayModes();
 
-        // Original function: FUN_00478e4e
-        static HRESULT CALLBACK l_EnumDisplayModesCallback(LPDDSURFACEDESC2 surfaceDescription, LPVOID context);
+		// Original function: FUN_00478e4e
+		static HRESULT CALLBACK l_EnumDisplayModesCallback(LPDDSURFACEDESC2 surfaceDescription, LPVOID context);
 
-        bool mOwnsSystemManager;             // +0x48
-        std::byte mPadding49[3];             // +0x49
-        CWindow* mWindow;					 // +0x4C
-        UINT mMouseWheelMessage;             // +0x50
-        DWORD mDirectXVersion;               // +0x54
-        DWORD mDirectXPlatform;              // +0x58
-        SDisplayModeData mDisplayModeData;   // +0x5C
-    };
+		bool mOwnsSystemManager;             // +0x48
+		std::byte mPadding49[3];             // +0x49
+		CWindow* mWindow;					 // +0x4C
+		UINT mMouseWheelMessage;             // +0x50
+		DWORD mDirectXVersion;               // +0x54
+		DWORD mDirectXPlatform;              // +0x58
+		SDisplayModeData mDisplayModeData;   // +0x5C
+	};
 
-    static_assert(sizeof(CApplication) == 1068);
+	static_assert(sizeof(CApplication) == 1068);
 }
