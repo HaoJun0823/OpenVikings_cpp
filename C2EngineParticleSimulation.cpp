@@ -551,10 +551,10 @@ namespace NC2E2
 					const void* micro = NC2Logic::GameMap_GetMapMicroPointPtr(At(particle, NC2Layout::ParticleOffset::MapPoint));
 					if (micro != nullptr && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::FirstMapMoveableId) == NXBasics::IntegerRange::UInt16Maximum && !(Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) != -1))
 					{
-						// The original clears only the low DWORD of the pixel-Y double.
-						Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::PositionPixelY, 0);
+						// EBP is particle + 0x90 in Windows 00486E03..00486E15.
+						Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::MovementMode, SwitchIds::ParticleMotionMode::Stationary);
 						Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::FadingSpawn, 0);
-						Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::ValencyMode, SwitchIds::ParticleValencyMode::Fixed);
+						Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::PendingMovementTicks, 0);
 						Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::ValencyIsDirection, 0);
 						Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::StaticParticleId, 10);
 						std::memcpy(At(particle, NC2Layout::ParticleOffset::Position), At(particle, NC2Layout::ParticleOffset::TargetPosition), NC2Layout::RecordSize::ParticlePosition);

@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Reported gameplay/rendering bugs — 2026-10-15
+
+The [reported-bug review](GAMEPLAY_RENDERING_BUG_REVIEW.md) records Windows evidence and correction history for static-landscape invalidation, projectile expiry and keyboard sounds, plus rechecked resource assignment, production overlays, marriage-bubble lifetime and visibility radii. Three older behavioral translation errors are corrected; the resource-field naming regression was already corrected in `36eb5b0`. Five affected/rechecked units pass Win32 syntax checks. Private evidence verifies 2,051 disassembly rows against Game.exe; this is not gameplay validation. No build, tests or game run.
+
 ## Five-hundred-access readability continuation — 2026-10-15
 
 Completed the [511-access readability pass](FIVEHUNDRED_RECORDS_REVIEW.md) across 54 C++ files: family/actor references, sector caches, house graphics/logic records, messages, mission displays, converter channels, AI roads, serialization and keyboard bindings. The user's `4fa0790` formatting/import cleanup includes the first 276 replacements; another 235 follow it. The reported production/equipment constant collision was corrected separately in **`36eb5b0`**. The native-proven house-particle record-base error is also corrected. All other own operations remain identical after constant normalization. **280 value/type comparisons, 73 physical assertions and incremental Win32 syntax checks pass**; five DirectPlay macro warnings, no errors. No build/test/game run.

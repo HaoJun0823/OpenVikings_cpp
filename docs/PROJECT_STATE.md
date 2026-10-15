@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Reported gameplay/rendering bugs — 2026-10-15
+
+The [reported-bug review](GAMEPLAY_RENDERING_BUG_REVIEW.md) corrects three older Windows translation errors: static-landscape cache invalidation, landed-projectile movement/deferred-tick fields and keyboard confirmation sounds. The recent resource-allowance regression (`36eb5b0`) and house-particle base correction (`1144166`) are present and rechecked. The marriage bubble follows the original task/animation lifetime and is unchanged. Human exploration radii are documented. Five C++ units pass Win32 syntax checks (one existing DirectPlay macro warning); no build, tests or game run. Live confirmation of the reported cases remains open; naming progress counts are unaffected.
+
 ## Five-hundred-access readability continuation — 2026-10-15
 
 Completed the [511-access readability pass](FIVEHUNDRED_RECORDS_REVIEW.md) across 54 C++ files: family/actor references, sector caches, house graphics/logic records, messages, mission displays, converter channels, AI roads, serialization and keyboard bindings. The user's `4fa0790` formatting/import cleanup includes the first 276 replacements; another 235 follow it. The reported production/equipment constant collision was corrected separately in **`36eb5b0`**. The native-proven house-particle record-base error is also corrected. All other own operations remain identical after constant normalization. **280 value/type comparisons, 73 physical assertions and incremental Win32 syntax checks pass**; five DirectPlay macro warnings, no errors. No build/test/game run.

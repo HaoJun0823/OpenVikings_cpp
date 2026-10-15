@@ -532,7 +532,8 @@ namespace NC2E2
 		{
 			Point point;
 			NC2Logic::MapMigPoint_AssignLong(point, parameter2);
-			if (parameter1 == 0x33 || parameter1 == 13 || parameter1 == 12 || (parameter1 == 0x32 && parameter3 == 0) || parameter1 == 0x34 || parameter1 == 0x35)
+			// Windows 0047EB3D..0047EB41 invalidates the cached image for static landscapes.
+			if (parameter1 == 0x33 || parameter1 == 13 || parameter1 == 12 || (parameter1 == 0x32 && parameter3 != 0) || parameter1 == 0x34 || parameter1 == 0x35)
 			{
 				for (unsigned axis = 0; axis != 2; ++axis)
 				{

@@ -114,7 +114,7 @@ namespace
 		}
 		if (matched)
 		{
-			NC2GuiToolsBase::FXTool_Chat(); history[0] = 0; NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, manager->GetLocalPlayerId(), 9, 0);
+			NC2GuiToolsBase::FXTool_ClickConfirm(); history[0] = 0; NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, manager->GetLocalPlayerId(), 9, 0);
 		}
 	}
 	static bool SendElementMessage(void* element, std::uint32_t message, std::uint32_t command)
@@ -197,7 +197,7 @@ namespace
 			return assignments->CheckKey(assignment, key, static_cast<std::uint8_t>(character));
 		}; const auto confirm = [] ()
 		{
-			FXTool_Chat(); return true;
+			FXTool_ClickConfirm(); return true;
 		};
 		if (check(1))
 		{
