@@ -131,9 +131,10 @@ namespace NC2Logic
 		Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 1);
 		Write<std::int32_t>(animal, NC2Layout::AnimalOffset::LeaderId, -1);
 		Write(animal, NC2Layout::AnimalOffset::MissionCheckId, missionCheck);
-		const auto delay = Game_Random_GetNumber() % 3u;
+		// This value is saved and checksummed; a countdown use is not established.
+		const auto initialRandomValue = Game_Random_GetNumber() % 3u;
 		Write(animal, NC2Layout::AnimalOffset::MiscFlags, flags);
-		Write(animal, 0x30, delay);
+		Write(animal, 0x30, initialRandomValue);
 		Animal_l_Aggressive_Check(animal);
 		return true;
 	}
