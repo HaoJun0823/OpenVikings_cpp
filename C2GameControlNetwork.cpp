@@ -26,10 +26,10 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto offset = player * NC2Layout::RecordSize::GameControlPlayer;
-        if (gGameStaticVars.networkGame != 0 && Read<std::uint32_t>(gameControl, offset + 4) == 1 && Read<std::uint32_t>(gameControl, offset + 0x14) != 0)
+        if (gGameStaticVars.networkGame != 0 && Read<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type) == 1 && Read<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::NetworkPlayerId) != 0)
         {
-            Write<std::uint32_t>(gameControl, offset + 0x14, 0);
-            Write<std::uint32_t>(gameControl, offset + 4, 2);
+            Write<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::NetworkPlayerId, 0);
+            Write<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type, 2);
         }
         GameControl_Player_LeftGameModifyObjects(gameControl, nullptr, player, originalFlag, removeObjects);
     }
@@ -92,7 +92,7 @@ namespace NC2Logic
     // Original function: FUN_0040a58c; the network name takes precedence over tribe names.
     void GameControl_Misc_GetPlayerName(const void* gameControl, std::int32_t player, bool shortName, char* output)
     {
-        if (GameControl_Player_IsNetworkPlayer(gameControl, player) && NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x14u), output)) return;
+        if (GameControl_Player_IsNetworkPlayer(gameControl, player) && NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::NetworkPlayerIdUnsigned), output)) return;
         const auto* name = shortName ? GameControl_Names_GetPlayerTribeShortNamePtr(gameControl, player) : GameControl_Names_GetPlayerTribeNamePtr(gameControl, player);
         if (name != nullptr) std::strcpy(output, name);
         else if (shortName) NXBasics::Runtime_PrintString(output, "P%d", player + 1);
@@ -122,14 +122,14 @@ namespace NC2Logic
             const std::uint32_t offset = base + 0x4624u + index * 8u;
             if (Read<std::uint32_t>(gameControl, offset) != 0) continue;
             Write(gameControl, offset, type);
-            Write(gameControl, offset + 4, item);
+            Write(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type, item);
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 0x3F);
-            Write(message, 8, player);
-            Write(message, 0x2FC, type);
-            Write(message, 0x300, item);
-            if (position != nullptr) Write(message, 0x28, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates));
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3F);
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, player);
+            Write(message, NC2Layout::ToUserMessageOffset::SpecialItemType, type);
+            Write(message, NC2Layout::ToUserMessageOffset::SpecialItem, item);
+            if (position != nullptr) Write(message, NC2Layout::ToUserMessageOffset::MapPositionX, Read<std::uint32_t>(position, NC2Layout::MapCoordinatePairOffset::Coordinates));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
             return true;
@@ -147,9 +147,9 @@ namespace NC2Logic
         for (std::uint32_t index = 0; index < 100; ++index)
         {
             const auto offset = base + 0x4624u + index * 8u;
-            if (Read<std::uint32_t>(gameControl, offset) != type || Read<std::uint32_t>(gameControl, offset + 4) != item) continue;
+            if (Read<std::uint32_t>(gameControl, offset) != type || Read<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type) != item) continue;
             Write<std::uint32_t>(gameControl, offset, 0);
-            Write<std::uint32_t>(gameControl, offset + 4, 0);
+            Write<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type, 0);
             return true;
         }
         return false;
@@ -159,7 +159,7 @@ namespace NC2Logic
     {
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x14u);
+            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::NetworkPlayerIdUnsigned);
             if (id != 0 && id == networkId) return static_cast<std::int32_t>(player);
         }
         return -1;
@@ -175,14 +175,14 @@ namespace NC2Logic
     {
         if (gGameStaticVars.networkGame == 0 || player >= 20) return false;
         const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
-        return NC2Lifetime::Read<std::uint8_t>(gameControl, offset) != 0 && NC2Lifetime::Read<std::uint32_t>(gameControl, offset + 4) == 1;
+        return NC2Lifetime::Read<std::uint8_t>(gameControl, offset) != 0 && NC2Lifetime::Read<std::uint32_t>(gameControl, offset + NC2Layout::GameControlPlayerOffset::Type) == 1;
     }
     // Original function: FUN_0040a12b; CGameControl::Diplomacy_GetState.
     std::int32_t GameControl_Diplomacy_GetState(const void* gameControl, std::int32_t player, std::int32_t otherPlayer)
     {
         if (player >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
         if (otherPlayer >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(otherPlayer) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
-        return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + 0x45A8u);
+        return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + NC2Layout::GameControlPlayerOffset::DiplomacyStatesUnsigned);
     }
     // Original function: FUN_0040a171; CGameControl::Diplomacy_SetState.
     bool __fastcall GameControl_Diplomacy_SetState(void* gameControl, void* /*unusedEdx*/, std::uint32_t player, std::uint32_t otherPlayer, std::uint32_t state)
@@ -199,9 +199,9 @@ namespace NC2Logic
         {
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 0x3D);
-            Write(message, 8, otherPlayer);
-            Write(message, 0x0C, player);
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3D);
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, otherPlayer);
+            Write(message, NC2Layout::ToUserMessageOffset::RelatedPlayerId, player);
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }
@@ -216,13 +216,13 @@ namespace NC2Logic
         (void)originalFlag; // The original stack argument is never read.
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, 0x14u + player * NC2Layout::RecordSize::GameControlPlayer);
+            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, NC2Layout::GameControlPlayerOffset::NetworkPlayerIdUnsigned + player * NC2Layout::RecordSize::GameControlPlayer);
             if (id == 0 || id != networkPlayerId) continue;
             std::byte command[20]{};
-            NC2Lifetime::Write<std::uint32_t>(command, 8, 0);
-            NC2Lifetime::Write<std::uint32_t>(command, 12, 1);
+            NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, 0);
+            NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1, 1);
             command[0] = std::byte{SwitchIds::UserCommand::PlayerLeavesGame};
-            NC2Lifetime::Write(command, 4, player);
+            NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, player);
             UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
             return;
         }

@@ -107,7 +107,7 @@ namespace NC2InGameGuiMiscWindows
             constexpr std::uint32_t frequency[6] = {1,2,3,4,6,12};
             std::byte packet[20]{};
             packet[0] = std::byte{0x8B};
-            Write(packet, 4, frequency[command - 14000]);
+            Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, frequency[command - 14000]);
             UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, packet, true, false);
             gGameTime.autoAdjustNetworkFrequency = 0;
         }

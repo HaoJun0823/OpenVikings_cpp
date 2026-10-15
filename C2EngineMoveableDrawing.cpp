@@ -356,7 +356,7 @@ namespace NC2E2
             const auto player = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
             sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount), palette, palette, bitmap, x, y, brightness, marking, player, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) != 0, centered, false, nullptr, -1, -1, display, false);
             if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, NC2Layout::StaticBobCacheManagerOffset::GuiBubblesBobManager), HealthBob(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
-            if (!centered && display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49)
+            if (!centered && display != nullptr && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49)
             {
                 const auto offset = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) * 4u - 0x1Cu;
                 auto* sounds = CE2AnimalSoundManager::sTheObjectPtr;
@@ -461,14 +461,14 @@ namespace NC2E2
             if (bodyPaletteCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % bodyPaletteCount;
-                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::BodyPaletteIds + index * 4u);
+                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::BodyPaletteIds + index * NC2Layout::RecordSize::HumanGraphicsVariantIdUnsigned);
                 *body = *gStaticPalettes.palettes256[paletteId].palette;
             }
             const auto headPaletteCount = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteCount);
             if (headPaletteCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % headPaletteCount;
-                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteIds + index * 4u);
+                const auto paletteId = Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::HeadPaletteIds + index * NC2Layout::RecordSize::HumanGraphicsVariantIdUnsigned);
                 *head = *gStaticPalettes.palettes256[paletteId].palette;
             }
             const auto playerPatch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), NC2Logic::Human_IsSexFemale(human));
@@ -477,7 +477,7 @@ namespace NC2E2
             if (patchCount != 0)
             {
                 const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % patchCount;
-                StaticHumanMisc_RandomPalette_Execute(Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::RandomPatchIds + index * 4u), body, head, false);
+                StaticHumanMisc_RandomPalette_Execute(Read<std::uint32_t>(graphics, NC2Layout::HumanJobBaseGraphicsOffset::RandomPatchIds + index * NC2Layout::RecordSize::HumanGraphicsVariantIdUnsigned), body, head, false);
             }
             const auto* name = StaticHumanMisc_TribeHumanNames_GetRandomNamePtr(tribe, NC2Logic::Human_IsSexFemale(human));
             std::strncpy(reinterpret_cast<char*>(dynamic + NC2Layout::DynamicHumanOffset::Name), name, 0x62);

@@ -147,11 +147,11 @@ namespace NC2Logic
             {
                 const auto offset = player * NC2Layout::RecordSize::GameControlPlayerSigned;
                 if (NC2Lifetime::Read<std::uint8_t>(gGameControl, offset) == 0) break;
-                const auto type = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + 4);
-                const auto color = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + 0x10);
+                const auto type = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::Type);
+                const auto color = NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::ColorId);
                 char name[216];
                 name[0] = '\0';
-                if (type == 1 && !NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + 0x14), name)) name[0] = '\0';
+                if (type == 1 && !NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::NetworkPlayerId), name)) name[0] = '\0';
                 io->IO_Memory_WriteLong(player);
                 io->IO_Memory_WriteLong(type);
                 io->IO_Memory_WriteString(name);

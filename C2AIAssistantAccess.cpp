@@ -118,37 +118,37 @@ namespace NC2Logic
     void GameAssistantManager_l_Assistant_DoWork(void* manager, std::int32_t player, std::uint32_t tick)
     {
         if (!GameAssistantManager_l_Assistant_IsPlayerIdOk(manager, player)) return;
-        auto* data = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(player) * 56;
-        const auto desiredBirths = [&]() { return Read<std::uint32_t>(data, 0) + Read<std::uint32_t>(data, 8) + Read<std::uint32_t>(data, 12) + Read<std::uint32_t>(data, 16) + Read<std::uint32_t>(data, 20); };
-        const auto desiredRecruits = [&]() { return Read<std::uint32_t>(data, 8) + Read<std::uint32_t>(data, 12) + Read<std::uint32_t>(data, 16) + Read<std::uint32_t>(data, 20); };
+        auto* data = static_cast<std::byte*>(manager) + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameAssistantPlayer;
+        const auto desiredBirths = [&]() { return Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedBoys) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedUnarmedSoldiers) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSpearmen) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedArchers) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSwordsmen); };
+        const auto desiredRecruits = [&]() { return Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedUnarmedSoldiers) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSpearmen) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedArchers) + Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSwordsmen); };
         if (tick % 180 == 0)
         {
-            const auto births = Read<std::uint32_t>(data, 32);
-            if (static_cast<std::int32_t>(births) < static_cast<std::int32_t>(desiredBirths())) Write(data, 32, births + 1);
-            const auto recruits = Read<std::uint32_t>(data, 40);
-            if (static_cast<std::int32_t>(recruits) < static_cast<std::int32_t>(desiredRecruits())) Write(data, 40, recruits + 1);
+            const auto births = Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget);
+            if (static_cast<std::int32_t>(births) < static_cast<std::int32_t>(desiredBirths())) Write(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget, births + 1);
+            const auto recruits = Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget);
+            if (static_cast<std::int32_t>(recruits) < static_cast<std::int32_t>(desiredRecruits())) Write(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget, recruits + 1);
         }
-        const std::uint32_t targets[6] = {desiredBirths(), Read<std::uint32_t>(data, 4), desiredRecruits(), Read<std::uint32_t>(data, 12), Read<std::uint32_t>(data, 16), Read<std::uint32_t>(data, 20)};
+        const std::uint32_t targets[6] = {desiredBirths(), Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedGirls), desiredRecruits(), Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSpearmen), Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedArchers), Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RequestedSwordsmen)};
         const std::int32_t caps[6] = {100, 20, 80, 20, 20, 20};
         for (std::uint32_t i = 0; i < 6; ++i)
         {
-            auto value = Read<std::int32_t>(data, 32 + i * 4);
+            auto value = Read<std::int32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4);
             if (value >= static_cast<std::int32_t>(targets[i])) value = static_cast<std::int32_t>(targets[i]);
             if (value <= 0) value = 0;
             if (value >= caps[i]) value = caps[i];
-            Write(data, 32 + i * 4, value);
+            Write(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget + i * 4, value);
         }
         if (tick % 15 == 0)
         {
-            if (Read<std::uint32_t>(data, 32) != 0)
+            if (Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget) != 0)
             {
                 const auto id = GameAssistantManager_ls_Tool_FindWomanToGetChild(player);
-                if (id != -1) { GameAssistantManager_l_Human_Command_Add(manager, id, 15, 0, 0, 3); Write(data, 32, Read<std::uint32_t>(data, 32) - 1); DecrementIfNonzero(data, 0); }
+                if (id != -1) { GameAssistantManager_l_Human_Command_Add(manager, id, 15, 0, 0, 3); Write(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget, Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::BoyRequestBudget) - 1); DecrementIfNonzero(data, NC2Layout::GameAssistantPlayerOffset::RequestedBoys); }
             }
-            if (Read<std::uint32_t>(data, 36) != 0)
+            if (Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::GirlRequestBudget) != 0)
             {
                 const auto id = GameAssistantManager_ls_Tool_FindWomanToGetChild(player);
-                if (id != -1) { GameAssistantManager_l_Human_Command_Add(manager, id, 16, 0, 0, 3); Write(data, 36, Read<std::uint32_t>(data, 36) - 1); DecrementIfNonzero(data, 4); }
+                if (id != -1) { GameAssistantManager_l_Human_Command_Add(manager, id, 16, 0, 0, 3); Write(data, NC2Layout::GameAssistantPlayerOffset::GirlRequestBudget, Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::GirlRequestBudget) - 1); DecrementIfNonzero(data, NC2Layout::GameAssistantPlayerOffset::RequestedGirls); }
             }
         }
         const auto equipItems = [&](std::uint32_t good, bool soldiers, bool tool, bool amulet)
@@ -175,11 +175,11 @@ namespace NC2Logic
             for (std::uint32_t i = 0; i < count && i < 6; ++i)
                 if (Human_IsAbleToEquipGoodNow(Human(candidates[i]), good, true)) GameAssistantManager_l_Human_Command_Add(manager, candidates[i], 83, good, 0, 3);
         };
-        if (Read<std::uint8_t>(data, 24) != 0 && (tick - 2u) % 30 == 0) equipItems(30, false, false, false);
-        if (Read<std::uint8_t>(data, 25) != 0 && (tick - 4u) % 30 == 0) equipItems(31, false, true, false);
-        if (Read<std::uint8_t>(data, 26) != 0 && (tick - 6u) % 30 == 0) equipItems(32, false, true, false);
-        if (Read<std::uint8_t>(data, 27) != 0 && (tick - 8u) % 30 == 0) equipItems(43, false, false, true);
-        if ((tick - 10u) % 30 == 0 && Read<std::uint32_t>(data, 40) != 0)
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipCivilianShoes) != 0 && (tick - 2u) % 30 == 0) equipItems(30, false, false, false);
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipCivilianWoodenTools) != 0 && (tick - 4u) % 30 == 0) equipItems(31, false, true, false);
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipCivilianIronTools) != 0 && (tick - 6u) % 30 == 0) equipItems(32, false, true, false);
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipCivilianMead) != 0 && (tick - 8u) % 30 == 0) equipItems(43, false, false, true);
+        if ((tick - 10u) % 30 == 0 && Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget) != 0)
         {
             std::uint32_t barracks[5], barrackCount = 0;
             CHouseIterator houses;
@@ -227,7 +227,7 @@ namespace NC2Logic
                 {
                     const auto& entry = recruits[i];
                     GameAssistantManager_l_Human_Command_Add(manager, entry.human, 32, entry.house, Read<std::uint32_t>(House(entry.house), NC2Layout::HouseOffset::UniqueId), 1);
-                    DecrementIfNonzero(data, 8); Write(data, 40, Read<std::uint32_t>(data, 40) - 1); if (Read<std::uint32_t>(data, 40) == 0) break;
+                    DecrementIfNonzero(data, NC2Layout::GameAssistantPlayerOffset::RequestedUnarmedSoldiers); Write(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget, Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget) - 1); if (Read<std::uint32_t>(data, NC2Layout::GameAssistantPlayerOffset::RecruitRequestBudget) == 0) break;
                 }
             }
         }
@@ -258,10 +258,10 @@ namespace NC2Logic
                 if (value != 0) { Write(data, counter, value - 1); if (value - 1 == 0) break; }
             }
         };
-        if ((tick - 12u) % 30 == 0) equipSoldiers(20, 52, 42, 41);
-        if ((tick - 14u) % 30 == 0) equipSoldiers(16, 48, 38, 37);
-        if ((tick - 16u) % 30 == 0) equipSoldiers(12, 44, 40, 39);
-        if (Read<std::uint8_t>(data, 28) != 0 && (tick - 18u) % 30 == 0) equipItems(30, true, false, false);
-        if (Read<std::uint8_t>(data, 29) != 0 && (tick - 20u) % 30 == 0) equipItems(43, true, false, true);
+        if ((tick - 12u) % 30 == 0) equipSoldiers(NC2Layout::GameAssistantPlayerOffset::RequestedSwordsmen, NC2Layout::GameAssistantPlayerOffset::SwordsmanRequestBudget, 42, 41);
+        if ((tick - 14u) % 30 == 0) equipSoldiers(NC2Layout::GameAssistantPlayerOffset::RequestedArchers, NC2Layout::GameAssistantPlayerOffset::ArcherRequestBudget, 38, 37);
+        if ((tick - 16u) % 30 == 0) equipSoldiers(NC2Layout::GameAssistantPlayerOffset::RequestedSpearmen, NC2Layout::GameAssistantPlayerOffset::SpearmanRequestBudget, 40, 39);
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipSoldierShoes) != 0 && (tick - 18u) % 30 == 0) equipItems(30, true, false, false);
+        if (Read<std::uint8_t>(data, NC2Layout::GameAssistantPlayerOffset::EquipSoldierMead) != 0 && (tick - 20u) % 30 == 0) equipItems(43, true, false, true);
     }
 }

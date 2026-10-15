@@ -57,9 +57,9 @@ namespace NC2Logic
     bool Human_UserMessage_IsInvalid(const void* human, const void* message)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(message, 8) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) return false;
+        if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) return false;
         if (Human_GetPlayerType(human) == 2 || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit4) != 0 || gGameTime.tick < 1u) return true;
-        switch (Read<std::uint32_t>(message, 0))
+        switch (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type))
         {
         case SwitchIds::UserMessage::NoWork: case SwitchIds::UserMessage::NoWay: case SwitchIds::UserMessage::CannotFindGood: case SwitchIds::UserMessage::CannotFindBuildGood: case SwitchIds::UserMessage::CannotFindHomeGood: case SwitchIds::UserMessage::NoTargetHuman: case SwitchIds::UserMessage::NoWorkPoint:
             return Human_IsDoingSomething(human) && !Human_IsAboutToWalk(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 0x17;
@@ -101,10 +101,10 @@ namespace NC2Logic
         if (Read<std::uint32_t>(gGameControl, NC2Layout::GameControlOffset::DifficultyLevel) == 2 && (good == 16 || good == 17 || good == 19 || good == 20 || good == 21 || good == 23)) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 13);
-        Write(message, 0x30, good);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 13);
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -115,10 +115,10 @@ namespace NC2Logic
         if (good == 0) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 24);
-        Write(message, 0x30, good);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 24);
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -128,9 +128,9 @@ namespace NC2Logic
     {
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 25);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 25);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -141,10 +141,10 @@ namespace NC2Logic
         if (good == 0) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 26);
-        Write(message, 0x30, good);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 26);
+        Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -154,9 +154,9 @@ namespace NC2Logic
     {
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 27);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 27);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }

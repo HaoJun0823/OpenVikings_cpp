@@ -27,7 +27,7 @@ namespace NC2InGameGuiWorldWindow
     using namespace NC2InGameGuiWorldElement;
     using namespace NC2InGameGuiInputManager;
     using namespace NC2Logic;
-    static void* Display(void* window) { return Read<void*>(Read<void*>(window, 0x70), NC2Layout::WorldGuiElementOffset::Display); }
+    static void* Display(void* window) { return Read<void*>(Read<void*>(window, NC2Layout::ObservationWindowOffset::WorldElement), NC2Layout::WorldGuiElementOffset::Display); }
     static void* __fastcall WorldObserveDisplayWindow_Delete(void* window, void*, std::uint32_t flags);
     static bool __fastcall WorldObserveDisplayWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     // Complete Windows virtual table 004F7080..004F70CB.
@@ -42,8 +42,8 @@ namespace NC2InGameGuiWorldWindow
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(240)));
         area = NXBasics::SRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14); allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &area));
         area = NXBasics::SRectangle(4, 20, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 8, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height) - 24); allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
-        void* element = allocation == nullptr ? nullptr : WorldDisplayElement_Construct(allocation, &area, false, true); Write(window, 0x70, element); NXBaseGui::BaseWindow_Element_Add(window, element); WorldDisplayElement_DrawFrame_SetMode(element, 2);
-        std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(manager->GetDesktop(), 0x30), &point); NC2E2::DE_SetWantedPositionToMapPoint(Display(window), &point); NC2E2::DE_ControllingPlayer_SetId(Display(window), manager->GetLocalPlayerId());
+        void* element = allocation == nullptr ? nullptr : WorldDisplayElement_Construct(allocation, &area, false, true); Write(window, NC2Layout::ObservationWindowOffset::WorldElement, element); NXBaseGui::BaseWindow_Element_Add(window, element); WorldDisplayElement_DrawFrame_SetMode(element, 2);
+        std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(manager->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), &point); NC2E2::DE_SetWantedPositionToMapPoint(Display(window), &point); NC2E2::DE_ControllingPlayer_SetId(Display(window), manager->GetLocalPlayerId());
         WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(element, window, 20000); WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(element, window, 20001);
         area = NXBasics::SRectangle(4, 20, 100, 14);
         for (std::uint32_t button = 0; button < 4; ++button)
@@ -62,31 +62,31 @@ namespace NC2InGameGuiWorldWindow
     // Original function: FUN_004bd9e4.
     void WorldObserveDisplayWindow_l_Follow_Stop(void* window)
     {
-        Write<std::int32_t>(window, 0x74, -1); Write<std::int32_t>(window, 0x7C, -1); Write<std::int32_t>(window, 0x84, -1); Write<std::uint32_t>(window, 0x78, 0); Write<std::uint32_t>(window, 0x80, 0); Write<std::uint32_t>(window, 0x88, 0); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 1);
+        Write<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HumanId, -1); Write<std::int32_t>(window, NC2Layout::ObservationWindowOffset::VehicleId, -1); Write<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HouseId, -1); Write<std::uint32_t>(window, NC2Layout::ObservationWindowOffset::HumanRevision, 0); Write<std::uint32_t>(window, NC2Layout::ObservationWindowOffset::VehicleRevision, 0); Write<std::uint32_t>(window, NC2Layout::ObservationWindowOffset::HouseRevision, 0); Write<std::uint8_t>(Read<void*>(window, NC2Layout::ObservationWindowOffset::WorldElement), NC2Layout::WorldGuiElementOffset::InputEnabledFlag, 1);
     }
     // Original function: FUN_004bd907.
-    void WorldObserveDisplayWindow_l_Follow_Human(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x74, id); Write(window, 0x78, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
+    void WorldObserveDisplayWindow_l_Follow_Human(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, NC2Layout::ObservationWindowOffset::HumanId, id); Write(window, NC2Layout::ObservationWindowOffset::HumanRevision, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, NC2Layout::ObservationWindowOffset::WorldElement), NC2Layout::WorldGuiElementOffset::InputEnabledFlag, 0); }
     // Original function: FUN_004bd934.
-    void WorldObserveDisplayWindow_l_Follow_Vehicle(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x7C, id); Write(window, 0x80, Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
+    void WorldObserveDisplayWindow_l_Follow_Vehicle(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, NC2Layout::ObservationWindowOffset::VehicleId, id); Write(window, NC2Layout::ObservationWindowOffset::VehicleRevision, Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, NC2Layout::ObservationWindowOffset::WorldElement), NC2Layout::WorldGuiElementOffset::InputEnabledFlag, 0); }
     // Original function: FUN_004bd964.
-    void WorldObserveDisplayWindow_l_Follow_House(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x84, id); Write(window, 0x88, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
+    void WorldObserveDisplayWindow_l_Follow_House(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, NC2Layout::ObservationWindowOffset::HouseId, id); Write(window, NC2Layout::ObservationWindowOffset::HouseRevision, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, NC2Layout::ObservationWindowOffset::WorldElement), NC2Layout::WorldGuiElementOffset::InputEnabledFlag, 0); }
     // Original function: FUN_004bd997.
     void WorldObserveDisplayWindow_l_Follow_Start(void* window)
     {
-        WorldObserveDisplayWindow_l_Follow_Stop(window); const auto type = Read<std::uint32_t>(gInputManager, 4);
+        WorldObserveDisplayWindow_l_Follow_Stop(window); const auto type = Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType);
         if (type == 1) WorldObserveDisplayWindow_l_Follow_Human(window, Selection_GetSelectedSingleHumanId(gInputManager)); else if (type == 4) WorldObserveDisplayWindow_l_Follow_Vehicle(window, Selection_GetSelectedSingleVehicleId(gInputManager)); else if (type == 6) WorldObserveDisplayWindow_l_Follow_House(window, Selection_GetSelectedHouseId(gInputManager));
     }
     // Original function: FUN_004bda0c.
     void WorldObserveDisplayWindow_l_Follow_Validate(void* window)
     {
         const std::byte* arrays[3] = {CHumanArray::mStaticVars, CVehicleArray::mStaticVars, CHouseArray::mStaticVars}; constexpr std::uint32_t strides[3] = {0xC58,0x54C,0x7E0};
-        for (std::uint32_t type = 0; type < 3; ++type) { const auto offset = 0x74u + type * 8u; const auto id = Read<std::int32_t>(window, offset); if (id == -1) continue; const auto* object = arrays[type] + static_cast<std::uint32_t>(id) * strides[type]; if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != Read<std::uint32_t>(window, offset + 4)) WorldObserveDisplayWindow_l_Follow_Stop(window); }
+        for (std::uint32_t type = 0; type < 3; ++type) { const auto offset = 0x74u + type * 8u; const auto id = Read<std::int32_t>(window, offset); if (id == -1) continue; const auto* object = arrays[type] + static_cast<std::uint32_t>(id) * strides[type]; if (Read<std::uint8_t>(object, NC2Layout::ActorIdentityOffset::Allocated) == 0 || Read<std::uint32_t>(object, NC2Layout::ActorIdentityOffset::UniqueId) != Read<std::uint32_t>(window, offset + NC2Layout::ObjectReferenceOffset::Revision)) WorldObserveDisplayWindow_l_Follow_Stop(window); }
     }
     static void SelectFollowed(void* window)
     {
-        if (Read<std::int32_t>(window, 0x74) != -1) { InputMode_Cancel(gInputManager); Selection_SelectSingleHuman(gInputManager, Read<std::int32_t>(window, 0x74)); }
-        else if (Read<std::int32_t>(window, 0x7C) != -1) { InputMode_Cancel(gInputManager); Selection_SelectSingleVehicle(gInputManager, Read<std::int32_t>(window, 0x7C)); }
-        else if (Read<std::int32_t>(window, 0x84) != -1) { InputMode_Cancel(gInputManager); Selection_SelectHouse(gInputManager, Read<std::int32_t>(window, 0x84)); }
+        if (Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HumanId) != -1) { InputMode_Cancel(gInputManager); Selection_SelectSingleHuman(gInputManager, Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HumanId)); }
+        else if (Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::VehicleId) != -1) { InputMode_Cancel(gInputManager); Selection_SelectSingleVehicle(gInputManager, Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::VehicleId)); }
+        else if (Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HouseId) != -1) { InputMode_Cancel(gInputManager); Selection_SelectHouse(gInputManager, Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HouseId)); }
     }
     // Original function: FUN_004bd6ae.
     static bool __fastcall WorldObserveDisplayWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
@@ -95,10 +95,10 @@ namespace NC2InGameGuiWorldWindow
         if (command == 10001) NC2E2::DE_Zoom_ToggleLevel(Display(window), false);
         else if (command == 10002) WorldObserveDisplayWindow_l_Follow_Start(window);
         else if (command == 10003 || command == 20001) { WorldObserveDisplayWindow_l_Follow_Validate(window); SelectFollowed(window); if (command == 20001) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp(); }
-        else if (command == 10004 || command == 20000) { std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Display(window), &point); NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), &point); }
+        else if (command == 10004 || command == 20000) { std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Display(window), &point); NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), &point); }
         else if (command == 0x7EE)
         {
-            WorldObserveDisplayWindow_l_Follow_Validate(window); const auto human = Read<std::int32_t>(window, 0x74), vehicle = Read<std::int32_t>(window, 0x7C), house = Read<std::int32_t>(window, 0x84);
+            WorldObserveDisplayWindow_l_Follow_Validate(window); const auto human = Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HumanId), vehicle = Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::VehicleId), house = Read<std::int32_t>(window, NC2Layout::ObservationWindowOffset::HouseId);
             if (human != -1 || vehicle != -1)
             {
                 const auto moveable = human != -1 ? Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId) : Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicle) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MapMoveableId);
@@ -113,9 +113,9 @@ namespace NC2InGameGuiWorldWindow
 namespace NInGameGuiManager
 {
     // Original function: FUN_004a0bc5.
-    void CInGameGuiManager::ActivateDesktop() { NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(NC2Lifetime::Read<void*>(this, 4))); }
+    void CInGameGuiManager::ActivateDesktop() { NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(NC2Lifetime::Read<void*>(this, NC2Layout::InGameGuiManagerOffset::WorldDisplayElement))); }
     // Original function: FUN_004a2997.
-    void* CInGameGuiManager::MiscWindows_OverviewWindow_GetPtr() const { return NC2Lifetime::Read<void*>(this, 0x44); }
+    void* CInGameGuiManager::MiscWindows_OverviewWindow_GetPtr() const { return NC2Lifetime::Read<void*>(this, NC2Layout::InGameGuiManagerOffset::OverviewWindow); }
     // Original function: FUN_004a0bf2.
     void CInGameGuiManager::ObservationWindow_CreateNewOne() { auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(140, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(allocation == nullptr ? nullptr : NC2InGameGuiWorldWindow::WorldObserveDisplayWindow_Construct(allocation)), false); }
     // Original function: FUN_004a0c17.
@@ -127,7 +127,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a0cc2.
     void CInGameGuiManager::Exploration_Toggle() { Exploration_Set(!Exploration_GetFlag()); }
     // Original function: FUN_004a290b.
-    void CInGameGuiManager::MiscWindows_OverviewWindow_Toggle() { if (NC2Lifetime::Read<void*>(this, 0x44) != nullptr) MiscWindows_OverviewWindow_Close(); else MiscWindows_OverviewWindow_Open(); }
+    void CInGameGuiManager::MiscWindows_OverviewWindow_Toggle() { if (NC2Lifetime::Read<void*>(this, NC2Layout::InGameGuiManagerOffset::OverviewWindow) != nullptr) MiscWindows_OverviewWindow_Close(); else MiscWindows_OverviewWindow_Open(); }
     // Original function: FUN_004a28ec.
-    void CInGameGuiManager::MiscWindows_OverviewWindow_Close() { auto* window = NC2Lifetime::Read<NXBaseGui::CBaseWindow*>(this, 0x44); if (window != nullptr) { NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(window); MiscWindows_OverviewWindow_Closed(); } }
+    void CInGameGuiManager::MiscWindows_OverviewWindow_Close() { auto* window = NC2Lifetime::Read<NXBaseGui::CBaseWindow*>(this, NC2Layout::InGameGuiManagerOffset::OverviewWindow); if (window != nullptr) { NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(window); MiscWindows_OverviewWindow_Closed(); } }
 }

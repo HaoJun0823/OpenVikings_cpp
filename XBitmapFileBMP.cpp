@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XBitmapFileBMP.h"
 #include "XBitmap.h"
 #include "XFile.h"
@@ -16,14 +17,14 @@ namespace NXBasics
     void CBitmapFileBMP::WriteBitmap(const CBitmap* bitmap)
     {
         using namespace NC2Lifetime;
-        if (mFile == nullptr || Read<std::uint32_t>(bitmap, 4) != 2 || Read<std::int32_t>(bitmap, 0x10) != mWidth) return;
+        if (mFile == nullptr || Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::Depth) != 2 || Read<std::int32_t>(bitmap, NC2Layout::BitmapStorageOffset::Width) != mWidth) return;
         const auto rowBytes = Runtime_TimeSigned32((static_cast<std::uint32_t>(mWidth) * 24u + 31u) & ~31u) / 8;
         auto* row = static_cast<std::uint8_t*>(Runtime_Allocate(static_cast<std::uint32_t>(rowBytes)));
         std::memset(row, 0, rowBytes);
-        for (std::int32_t y = Read<std::int32_t>(bitmap, 0x14) - 1; y >= 0 && mRowsWritten < mHeight; --y)
+        for (std::int32_t y = Read<std::int32_t>(bitmap, NC2Layout::BitmapStorageOffset::Height) - 1; y >= 0 && mRowsWritten < mHeight; --y)
         {
             // 0040F522 resolves this pointer from +2C and the pixel stride at +30.
-            const auto* pixels = Read<const std::uint8_t*>(bitmap, 0x2C) + static_cast<std::uint32_t>(y) * Read<std::uint32_t>(bitmap, 0x30) * 4u;
+            const auto* pixels = Read<const std::uint8_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory) + static_cast<std::uint32_t>(y) * Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::RowPixelCount) * 4u;
             for (std::int32_t x = 0; x < mWidth; ++x) std::memcpy(row + x * 3, pixels + x * 4, 3);
             mFile->Write(row, rowBytes);
             ++mRowsWritten;

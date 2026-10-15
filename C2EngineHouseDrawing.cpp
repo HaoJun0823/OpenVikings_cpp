@@ -53,14 +53,14 @@ namespace NC2E2
         const auto* graphic = Graphic(house);
         auto* dynamic = gDynamicDataHouses.entries + id * NC2Layout::RecordSize::DynamicHouseUnsigned;
         const auto variant = Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) % Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::PaletteCount);
-        const auto paletteId = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::PaletteIdsUnsigned + variant * 4u);
+        const auto paletteId = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::PaletteIdsUnsigned + variant * NC2Layout::RecordSize::HouseStageValueUnsigned);
         auto* colorData = gStaticPalettes.palettes256 + paletteId;
         auto* manager = Read<void*>(graphic, NC2Layout::EngineHouseTypeOffset::BobManager);
         auto* shadowManager = Read<void*>(graphic, NC2Layout::EngineHouseTypeOffset::ShadowBobManager);
         const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
         const auto state = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState);
         const bool deleting = Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0;
-        const auto baseBob = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::StageBobIdsUnsigned + stage * 4u);
+        const auto baseBob = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::StageBobIdsUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
         std::int32_t removedRows = 0;
         if (Read<std::uint8_t>(dynamic, NC2Layout::DynamicHouseOffset::SelectedFlag) != 0) brightness = Bits(DrawAtom_Tool_GetSelectedBrightness());
         else if (display != nullptr && Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::HighlightingEnabled) == 0) brightness = Add(256, Mul(Sub(brightness, 256), Read<std::int32_t>(graphic, NC2Layout::EngineHouseTypeOffset::ShadingFactor256)) / 256);
@@ -107,7 +107,7 @@ namespace NC2E2
                     if (action == 0 || Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::DevelopmentStage) != stage || Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount) == 0) continue;
                     if (Read<std::uint8_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::RequiredActiveFlag) != static_cast<std::uint8_t>(NC2Logic::House_ActionOverlay_IsActive(house, action))) continue;
                     const auto frame = (NC2Logic::gGameTime.tick / Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameTicks)) % Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount);
-                    ls_DrawAtom_House_DoDraw_PrintImageBob(manager, Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIdsUnsigned + frame * 4u), paletteId, brightness, bitmap, Add(x, Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetX)), Add(y, Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetY)), false);
+                    ls_DrawAtom_House_DoDraw_PrintImageBob(manager, Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIdsUnsigned + frame * NC2Layout::RecordSize::HouseActionFrameIdUnsigned), paletteId, brightness, bitmap, Add(x, Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetX)), Add(y, Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetY)), false);
                 }
                 // Windows requires a display for the completed-house debug branches.
                 if ((Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte2) & 1u) != 0)
@@ -121,7 +121,7 @@ namespace NC2E2
                     const auto* overlay = graphic + NC2Layout::EngineHouseTypeOffset::LandscapeOverlaysUnsigned + (stage * 10u + static_cast<std::uint32_t>(i)) * 16u;
                     if (Read<std::uint8_t>(overlay, NC2Layout::EngineHouseLandscapeOverlayOffset::EnabledFlag) != 0 && NC2Logic::House_LandscapeOverlay_IsActive(house, i)) EngineGraphic_Draw(Read<std::uint32_t>(overlay, NC2Layout::EngineHouseLandscapeOverlayOffset::LandscapeId), 1, bitmap, Add(x, Read<std::int32_t>(overlay, NC2Layout::EngineHouseLandscapeOverlayOffset::OffsetX)), Add(y, Read<std::int32_t>(overlay, NC2Layout::EngineHouseLandscapeOverlayOffset::OffsetY)), NC2Logic::gGameTime.tick, brightness, -1, false);
                 }
-                if (Read<std::uint8_t>(graphic, NC2Layout::EngineHouseTypeOffset::DoorOverlaysUnsigned + stage * 12u) != 0)
+                if (Read<std::uint8_t>(graphic, NC2Layout::EngineHouseTypeOffset::DoorOverlaysUnsigned + stage * NC2Layout::RecordSize::EngineHouseDoorOverlayUnsigned) != 0)
                 {
                     NC2Logic::CHumanIterator iterator;
                     auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), house + NC2Layout::HouseOffset::DoorEntryPoint, 1);
@@ -250,7 +250,7 @@ namespace NC2E2
         const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
         std::memset(output, 0, sizeof(*output));
         auto* manager = Read<void*>(data, NC2Layout::EngineHouseTypeOffset::BobManager);
-        output->AddBob(manager, Read<std::uint32_t>(data, NC2Layout::EngineHouseTypeOffset::StageBobIdsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u), 0, 0);
+        output->AddBob(manager, Read<std::uint32_t>(data, NC2Layout::EngineHouseTypeOffset::StageBobIdsUnsigned + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * NC2Layout::RecordSize::HouseStageValueUnsigned), 0, 0);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::EngineHouseTypeOffset::ActionOverlayCount); ++i)
         {
             const auto* overlay = Read<std::byte*>(data, NC2Layout::EngineHouseTypeOffset::ActionOverlays) + i * NC2Layout::RecordSize::EngineHouseActionOverlayUnsigned;
@@ -259,7 +259,7 @@ namespace NC2E2
             const bool active = NC2Logic::House_ActionOverlay_IsActive(house, static_cast<std::uint32_t>(action));
             if (Read<std::uint8_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::RequiredActiveFlag) != static_cast<std::uint8_t>(active)) continue;
             const auto frame = (NC2Logic::gGameTime.tick / Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameTicks)) % Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount);
-            output->AddBob(manager, Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIdsUnsigned + frame * 4u), Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetX), Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetY));
+            output->AddBob(manager, Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIdsUnsigned + frame * NC2Layout::RecordSize::HouseActionFrameIdUnsigned), Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetX), Read<std::int32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::OffsetY));
         }
     }
 
@@ -333,7 +333,7 @@ namespace NC2E2
         const auto* graphic = Graphic(house);
         const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
         auto* dynamic = gDynamicDataHouses.entries + id * NC2Layout::RecordSize::DynamicHouseUnsigned;
-        const auto maximum = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::MaximumHitpointsUnsigned + stage * 4u);
+        const auto maximum = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::MaximumHitpointsUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
         const auto pointCount = Read<std::uint32_t>(graphic, NC2Layout::EngineHouseTypeOffset::StagePointsUnsigned + stage * NC2Layout::RecordSize::EngineHouseStagePointsUnsigned);
         const auto originalHealth = Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints);
         auto health = originalHealth;

@@ -121,7 +121,7 @@ namespace NC2E2
                 {
                     Write<std::uint8_t>(gEngineMapStaticStorage, NC2Layout::EngineMapStaticOffset::MissingResourceFlag, 1);
                     auto* logic = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage) + i * 14u;
-                    if (Read<std::uint8_t>(logic, 0) <= 1) Write<std::uint8_t>(logic, 0, 0);
+                    if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) <= 1) Write<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType, 0);
                 }
             }
         }

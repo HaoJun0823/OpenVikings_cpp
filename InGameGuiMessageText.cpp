@@ -25,7 +25,7 @@ namespace NC2InGameGuiMessages
         std::strcpy(output, "<UNKNOWN MESSAGE>");
         char name[200];
         std::strcpy(name, "<NAMELESS>");
-        const auto humanId = Read<std::int32_t>(message, 0x10);
+        const auto humanId = Read<std::int32_t>(message, NC2Layout::ToUserMessageOffset::HumanId);
         if (humanId != -1)
         {
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
@@ -35,20 +35,20 @@ namespace NC2InGameGuiMessages
                 std::strcat(name, " ("); std::strcat(name, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), 1)); std::strcat(name, ")");
             }
         }
-        const auto type = Read<std::uint32_t>(message, 0);
+        const auto type = Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type);
         // Game.exe jump table 004d2a31..004d2b2c, recovered as one whole region.
         static constexpr std::uint32_t simpleText[47]{0,15,16,18,0,0,0,22,23,24,25,17,0,0,29,30,31,32,0,0,0,0,0,0,0,44,0,46,10,12,13,14,11,47,48,49,50,51,52,53,54,55,56,0,0,0,61};
         if (type < 47 && simpleText[type] != 0) { Runtime_PrintString(output, "%s %s", name, text(simpleText[type])); return; }
-        const auto good = [&]() { return StringAccess_GetGoodNamePtr(Read<std::uint32_t>(message, 0x30), 1); };
+        const auto good = [&]() { return StringAccess_GetGoodNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem), 1); };
         switch (type)
         {
         case SwitchIds::UserMessage::CannotFindGood: case SwitchIds::UserMessage::CannotFindBuildGood: case SwitchIds::UserMessage::CannotFindHomeGood:
             Runtime_PrintString(output, "%s %s", name, text(type + 15));
-            if (Read<std::uint32_t>(message, 0x30) != 0) { std::strcat(output, " - "); std::strcat(output, good()); }
+            if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem) != 0) { std::strcat(output, " - "); std::strcat(output, good()); }
             return;
         case SwitchIds::UserMessage::MustWaitForGood: Runtime_PrintString(output, "%s %s - %s", name, text(26), good()); return;
         case SwitchIds::UserMessage::ProductionStockFull:
-            if (Read<std::uint32_t>(message, 0x30) == 0) Runtime_PrintString(output, "%s %s", name, text(28));
+            if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem) == 0) Runtime_PrintString(output, "%s %s", name, text(28));
             else { char format[200]; Runtime_PrintString(format, "%%s %s", text(27)); Runtime_PrintString(output, format, name, good()); }
             return;
         case SwitchIds::UserMessage::ExperienceUnlocks:
@@ -73,29 +73,29 @@ namespace NC2InGameGuiMessages
             return;
         }
         case SwitchIds::UserMessage::GoodProductionUnlocked: case SwitchIds::UserMessage::EquipmentUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(type == 19 ? 38 : 42), good()); return;
-        case SwitchIds::UserMessage::JobUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(39), StringAccess_GetJobNamePtr(Read<std::uint32_t>(message, 0x13C), 1)); return;
-        case SwitchIds::UserMessage::HouseUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(40), StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1)); return;
-        case SwitchIds::UserMessage::VehicleUnlocked: case SwitchIds::UserMessage::CannotEnterVehicle: Runtime_PrintString(output, "%s %s - %s", name, text(type == 22 ? 41 : 57), StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, 0x2E0))); return;
+        case SwitchIds::UserMessage::JobUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(39), StringAccess_GetJobNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::JobItems), 1)); return;
+        case SwitchIds::UserMessage::HouseUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(40), StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseItems), 1)); return;
+        case SwitchIds::UserMessage::VehicleUnlocked: case SwitchIds::UserMessage::CannotEnterVehicle: Runtime_PrintString(output, "%s %s - %s", name, text(type == 22 ? 41 : 57), StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::EquipmentItems))); return;
         case SwitchIds::UserMessage::ProductionAmountCompleted: case SwitchIds::UserMessage::CannotProduceWantedGood: Runtime_PrintString(output, "%s %s %s", name, text(type == 24 ? 43 : 45), good()); return;
         case SwitchIds::UserMessage::CannotFindEquipment: case SwitchIds::UserMessage::BackpackFull: Runtime_PrintString(output, "%s %s: %s - %s", name, text(58), good(), text(type == 44 ? 59 : 60)); return;
         case SwitchIds::UserMessage::HouseFinished: case SwitchIds::UserMessage::HouseUpgradeFinished:
         {
-            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(message, 0x18) * CHouseArray::ElementSize;
+            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseId) * CHouseArray::ElementSize;
             Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1), text(type == 47 ? 90 : 91)); return;
         }
-        case SwitchIds::UserMessage::HouseAttacked: Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1), text(92)); return;
+        case SwitchIds::UserMessage::HouseAttacked: Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseItems), 1), text(92)); return;
         case SwitchIds::UserMessage::VehicleNoWay: case SwitchIds::UserMessage::VehicleNoCommander: case SwitchIds::UserMessage::VehicleAttacked: case SwitchIds::UserMessage::VehicleNoDraggingAnimal: case SwitchIds::UserMessage::VehicleNoPassengerSpace: case SwitchIds::UserMessage::VehicleCannotAttach: case SwitchIds::UserMessage::VehicleCannotReachShip: case SwitchIds::UserMessage::VehicleCannotDetach: case SwitchIds::UserMessage::VehicleNeedsCarrier:
-            Runtime_PrintString(output, "%s %s", StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, 0x2E0)), text(type + 50)); return;
+            Runtime_PrintString(output, "%s %s", StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::EquipmentItems)), text(type + 50)); return;
         case SwitchIds::UserMessage::HeroDied:
         {
-            const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(message, 0x14));
+            const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HumanUniqueId));
             if (dead != nullptr) Runtime_PrintString(output, "%s %s", static_cast<const char*>(dead) + NC2Layout::DeadHumanRecordOffset::Name, text(120));
             else std::strcpy(output, text(121));
             return;
         }
         case SwitchIds::UserMessage::PlayerSeen: case SwitchIds::UserMessage::DiplomacyChanged: case SwitchIds::UserMessage::PlayerDied:
         {
-            const auto player = Read<std::int32_t>(message, 0xC);
+            const auto player = Read<std::int32_t>(message, NC2Layout::ToUserMessageOffset::RelatedPlayerId);
             const auto* playerName = GameControl_Names_GetPlayerTribeNamePtr(gGameControl, player);
             char tribeName[100];
             if (playerName != nullptr) std::strcpy(tribeName, playerName);
@@ -103,7 +103,7 @@ namespace NC2InGameGuiMessages
             if (type == 62) Runtime_PrintString(output, "%s %s", tribeName, text(133));
             else
             {
-                const auto state = GameControl_Diplomacy_GetState(gGameControl, player, Read<std::int32_t>(message, 8));
+                const auto state = GameControl_Diplomacy_GetState(gGameControl, player, Read<std::int32_t>(message, NC2Layout::ToUserMessageOffset::PlayerId));
                 const auto* stateName = NC2GuiToolsBase::StringTool_GetLogicDiplomacyStateNamePtr(static_cast<std::uint32_t>(state));
                 Runtime_PrintString(output, "%s %s %s", tribeName, text(type + 71u), stateName);
             }
@@ -112,7 +112,7 @@ namespace NC2InGameGuiMessages
         case SwitchIds::UserMessage::SpecialItemFound:
         {
             char item[200];
-            NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(Read<std::uint32_t>(message, 0x2FC), Read<std::int32_t>(message, 0x300), item);
+            NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::SpecialItemType), Read<std::int32_t>(message, NC2Layout::ToUserMessageOffset::SpecialItem), item);
             Runtime_PrintString(output, "%s - %s", text(134), item);
             return;
         }

@@ -71,7 +71,7 @@ namespace NC2Logic
         {
             const auto* task = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::MainTasks + i * NC2Layout::RecordSize::AIMainTask;
             if (Read<std::uint32_t>(task, NC2Layout::AIMainTaskOffset::Description) == 0 || Read<std::uint32_t>(task, NC2Layout::AIMainTaskOffset::ActivePriority) == 0) continue;
-            Write(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + count * 4, i);
+            Write(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + count * NC2Layout::RecordSize::AITaskIndexValue, i);
             priorities[count++] = Read<std::uint32_t>(task, NC2Layout::AIMainTaskOffset::ActivePriority);
             Write(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskCount, count);
         }
@@ -81,9 +81,9 @@ namespace NC2Logic
                     if (priorities[i] < priorities[i + 1])
                     {
                         const auto priority = priorities[i]; priorities[i] = priorities[i + 1]; priorities[i + 1] = priority;
-                        const auto index = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * 4);
-                        Write(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * 4, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::SecondActiveMainTaskIndex + i * 4));
-                        Write(handler, NC2Layout::AISinglePlayerOffset::SecondActiveMainTaskIndex + i * 4, index);
+                        const auto index = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * NC2Layout::RecordSize::AITaskIndexValue);
+                        Write(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * NC2Layout::RecordSize::AITaskIndexValue, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::SecondActiveMainTaskIndex + i * NC2Layout::RecordSize::AITaskIndexValue));
+                        Write(handler, NC2Layout::AISinglePlayerOffset::SecondActiveMainTaskIndex + i * NC2Layout::RecordSize::AITaskIndexValue, index);
                     }
         AISinglePlayerHandler_l_CombinedActiveMainTask_UpdateList(handler);
     }
@@ -97,10 +97,10 @@ namespace NC2Logic
             const auto count = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount);
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (count == 100) break;
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypes + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition));
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStages + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIds + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypes + count * NC2Layout::RecordSize::AIBuildHouse, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + count * NC2Layout::RecordSize::AIBuildHouse, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStages + count * NC2Layout::RecordSize::AIBuildHouse, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIds + count * NC2Layout::RecordSize::AIBuildHouse, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
             Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount, count + 1);
         }
     }
@@ -161,7 +161,7 @@ namespace NC2Logic
         const auto count = Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::MainTaskCount);
         if (count == 10) return false;
         Write(task, NC2Layout::AICombinedTaskOffset::Priority, Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::Priority) + static_cast<std::uint32_t>(priority));
-        Write(task, NC2Layout::AICombinedTaskOffset::MainTaskIndices + count * 4, mainTask);
+        Write(task, NC2Layout::AICombinedTaskOffset::MainTaskIndices + count * NC2Layout::RecordSize::AITaskIndexValue, mainTask);
         Write(task, NC2Layout::AICombinedTaskOffset::MainTaskCount, count + 1);
         const auto type = Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::TaskType);
         if (type == 1 || type == 2)
@@ -195,7 +195,7 @@ namespace NC2Logic
         if (count == 0) return;
         for (std::uint32_t i = 0; i < count; ++i)
         {
-            const auto id = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * 4);
+            const auto id = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::ActiveMainTaskIndices + i * NC2Layout::RecordSize::AITaskIndexValue);
             const auto* main = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::MainTasks + id * NC2Layout::RecordSize::AIMainTask;
             const auto type = Read<std::uint32_t>(main, NC2Layout::AIMainTaskOffset::Description);
             bool add = true;
@@ -248,10 +248,10 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_BuildHouses_AddBuildHouse(void* handler, std::uint32_t type, const void* point, std::uint32_t stage, std::uint32_t requested)
     {
         if (Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) == 100) return false;
-        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypes + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, type);
-        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
-        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStages + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, stage);
-        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIds + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * 16, requested);
+        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypes + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * NC2Layout::RecordSize::AIBuildHouse, type);
+        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositions + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * NC2Layout::RecordSize::AIBuildHouse, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStages + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * NC2Layout::RecordSize::AIBuildHouse, stage);
+        Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIds + Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) * NC2Layout::RecordSize::AIBuildHouse, requested);
         Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) + 1);
         return true;
     }

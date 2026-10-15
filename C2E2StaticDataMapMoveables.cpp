@@ -175,7 +175,7 @@ namespace NC2E2
                     {
                         const auto used = Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
                         if (used == 5) break;
-                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + used * 4u, E2StaticDataPalettesManager_GetPalette256Id(reader.GetString()));
+                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + used * NC2Layout::RecordSize::MoveablePaletteIdUnsigned, E2StaticDataPalettesManager_GetPalette256Id(reader.GetString()));
                         Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount, used + 1u);
                         break;
                     }

@@ -25,23 +25,23 @@ namespace NC2Logic
     // Original function: FUN_0041984e; components, event decay and attack penalty preserve native update order.
     void HappinessManager_l_RecalculatePlayer(void* manager, std::uint32_t player)
     {
-        auto* happiness = static_cast<std::byte*>(manager) + player * 0x88u;
+        auto* happiness = static_cast<std::byte*>(manager) + player * NC2Layout::RecordSize::HappinessPlayerUnsigned;
         Happiness_UpdateEvents(happiness);
-        if (Read<std::uint32_t>(happiness, 0x84) < gGameTime.tick) Write<std::uint8_t>(happiness, 0x7C, 0);
-        Write(happiness, 0, HappinessManager_l_GetGoodHappinessValue(manager, player));
-        Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + static_cast<std::uint32_t>(HappinessManager_l_GetBuildingHappinessValue(manager, player)));
-        Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + static_cast<std::uint32_t>(HappinessManager_l_GetHumanHappinessValue(manager, player)));
-        Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + HappinessManager_l_GetMilitaryHappinessValue(manager, player));
-        Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + static_cast<std::uint32_t>(Happiness_GetEventValue(happiness)));
-        if (Read<std::uint8_t>(happiness, 0x7C) != 0) Write(happiness, 0, Read<std::uint32_t>(happiness, 0) - 10u);
-        Write(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x4610u, Read<std::uint32_t>(happiness, 0));
+        if (Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::AttackExpiresAtTick) < gGameTime.tick) Write<std::uint8_t>(happiness, NC2Layout::HappinessPlayerOffset::UnderAttack, 0);
+        Write(happiness, NC2Layout::HappinessPlayerOffset::Value, HappinessManager_l_GetGoodHappinessValue(manager, player));
+        Write(happiness, NC2Layout::HappinessPlayerOffset::Value, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value) + static_cast<std::uint32_t>(HappinessManager_l_GetBuildingHappinessValue(manager, player)));
+        Write(happiness, NC2Layout::HappinessPlayerOffset::Value, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value) + static_cast<std::uint32_t>(HappinessManager_l_GetHumanHappinessValue(manager, player)));
+        Write(happiness, NC2Layout::HappinessPlayerOffset::Value, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value) + HappinessManager_l_GetMilitaryHappinessValue(manager, player));
+        Write(happiness, NC2Layout::HappinessPlayerOffset::Value, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value) + static_cast<std::uint32_t>(Happiness_GetEventValue(happiness)));
+        if (Read<std::uint8_t>(happiness, NC2Layout::HappinessPlayerOffset::UnderAttack) != 0) Write(happiness, NC2Layout::HappinessPlayerOffset::Value, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value) - 10u);
+        Write(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::HappinessValueUnsigned, Read<std::uint32_t>(happiness, NC2Layout::HappinessPlayerOffset::Value));
     }
 
     // Original function: FUN_004198d3; statistics are read as unsigned WORDs before signed arithmetic.
     std::int32_t HappinessManager_l_GetGoodHappinessValue(const void*, std::uint32_t player)
     {
         const void* statistics = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
-        const auto population = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, 0));
+        const auto population = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::HumanCount));
         const auto goods16And17 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, 0xB0)) + Read<std::uint16_t>(statistics, 0xB2);
         const auto cappedGoods = goods16And17 > population * 2 ? population * 2 : goods16And17;
         const auto goods15And28And29 = static_cast<std::int32_t>(Read<std::uint16_t>(statistics, 0xC8)) + Read<std::uint16_t>(statistics, 0xCA) + Read<std::uint16_t>(statistics, 0xAE);
@@ -85,7 +85,7 @@ namespace NC2Logic
     std::uint32_t HappinessManager_l_GetMilitaryHappinessValue(const void*, std::uint32_t player)
     {
         const void* statistics = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
-        std::uint32_t value = Read<std::uint16_t>(statistics, 0x12);
+        std::uint32_t value = Read<std::uint16_t>(statistics, NC2Layout::PlayerStatisticSampleOffset::SoldierCount);
         CVehicleIterator iterator;
         for (auto id = iterator.GetFirstSectorVehicleId(player, 0, 10000, true); id != -1; id = iterator.GetNextSectorVehicleId()) value += 2u;
         return value;
@@ -102,7 +102,7 @@ namespace NC2Logic
         {
             const void* event = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(param1));
             const void* human = Read<const void*>(event, 0x18);
-            if (!Human_IsJobSoldier(human)) Happiness_AddEventType(static_cast<std::byte*>(gHappinessManager) + Read<std::uint32_t>(human, 0x10) * 0x88u, 1);
+            if (!Human_IsJobSoldier(human)) Happiness_AddEventType(static_cast<std::byte*>(gHappinessManager) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::HappinessPlayerUnsigned, 1);
         }
         else if (type == 0x28) HappinessManager_Messages_PlayerAttackedByPlayer(gHappinessManager, param1, param2);
         return true;

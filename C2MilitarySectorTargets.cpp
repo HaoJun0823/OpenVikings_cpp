@@ -82,7 +82,7 @@ namespace NC2Logic
         }
         id = Tool_GetOneOfNextEnemyHousesInRange(player, point, minimumDistance, maximumDistance, false, 5, 3);
         if (id != -1) { setTarget(4, id, CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize); return true; }
-        if (allowLandscape && NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 4u) == 2)
+        if (allowLandscape && NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TypeUnsigned) == 2)
         {
             std::uint32_t landscape = 0;
             if (Tool_GetOneOfNearestEnemyLandscapes(player, point, 0, maximumDistance, true, 5, 3, &landscape))

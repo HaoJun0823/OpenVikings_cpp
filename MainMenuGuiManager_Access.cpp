@@ -81,14 +81,14 @@ namespace NC2MainMenuGuiManager
     {
         const NXBasics::SRectangle rectangle(0, 0, 0, 0);
         NXBaseGui::BaseElement_Construct(element, &rectangle, 0, 0);
-        Write(element, 0, gDefaultMessageHandlerVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gDefaultMessageHandlerVirtualTable + 0);
         return element;
     }
 
     // Shared default-message-handler teardown used by the manager and deleting destructor.
     void DefaultMessageHandler_Destruct(void* element)
     {
-        Write(element, 0, gDefaultMessageHandlerVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gDefaultMessageHandlerVirtualTable + 0);
         NXBaseGui::BaseElement_Destruct(element);
     }
 
@@ -106,7 +106,7 @@ namespace NC2MainMenuGuiManager
     {
         const NXBasics::SRectangle rectangle(0, 0, 0, 0);
         NXBaseGui::BaseElement_Construct(element, &rectangle, 4, 0x200);
-        Write(element, 0, gPrimaryMessageHandlerVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gPrimaryMessageHandlerVirtualTable + 0);
         return element;
     }
 
@@ -114,7 +114,7 @@ namespace NC2MainMenuGuiManager
     static void* __fastcall PrimaryMessageHandler_Delete(void* element, void* unusedEdx, std::uint32_t flags)
     {
         (void)unusedEdx;
-        Write(element, 0, gPrimaryMessageHandlerVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gPrimaryMessageHandlerVirtualTable + 0);
         NXBaseGui::BaseElement_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -167,17 +167,17 @@ namespace NC2MainMenuGuiWorldElement
     {
         auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
         NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, static_cast<const NXBasics::SRectangle*>(rectangle), 1, 0x1E3, Read<std::int32_t>(desktopBitmap, 4));
-        Write(element, 0, gWorldDisplayElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 40);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
         void* display = nullptr;
         if (allocation != nullptr)
         {
             auto* font = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.font08;
-            auto* bitmap = Read<NXBasics::CBitmap*>(element, 0x2C);
+            auto* bitmap = Read<NXBasics::CBitmap*>(element, NC2Layout::MenuWorldElementOffset::Bitmap);
             display = NC2E2::Display_Construct(allocation, bitmap, active, font);
         }
-        Write(element, 0x30, display);
+        Write(element, NC2Layout::MenuWorldElementOffset::Display, display);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->ScreenGuiElement_FrameCall_Register(element);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Exploration_Set(false);
         MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(element);
@@ -187,10 +187,10 @@ namespace NC2MainMenuGuiWorldElement
     // Original function: FUN_004da5db; release resources before the bitmap base.
     void WorldDisplayElement_Destruct(void* element)
     {
-        Write(element, 0, gWorldDisplayElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
         WorldDisplayElement_l_Tool_DarkenBitmap_Exit(element);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->ScreenGuiElement_FrameCall_UnRegister(element);
-        void* display = Read<void*>(element, 0x30);
+        void* display = Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display);
         if (display != nullptr)
         {
             NC2E2::Display_Destruct(display);
@@ -202,20 +202,20 @@ namespace NC2MainMenuGuiWorldElement
     // Original function: FUN_004dad5c.
     static void FollowMode_Validate(void* element)
     {
-        if (Read<std::uint8_t>(element, 0x3C) == 0) return;
+        if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowActive) == 0) return;
         const void* object = nullptr;
         std::uint32_t generation = 0;
         bool hasFollowTarget = false;
-        if (Read<std::uint8_t>(element, 0x3D) != 0)
+        if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowHuman) != 0)
         {
-            object = reinterpret_cast<const std::byte*>(NC2Logic::CHumanArray::mStaticVars) + Read<std::uint32_t>(element, 0x40) * 0xC58u;
-            generation = Read<std::uint32_t>(element, 0x44);
+            object = reinterpret_cast<const std::byte*>(NC2Logic::CHumanArray::mStaticVars) + Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * 0xC58u;
+            generation = Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanRevision);
             hasFollowTarget = true;
         }
-        else if (Read<std::uint8_t>(element, 0x48) != 0)
+        else if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicle) != 0)
         {
-            object = reinterpret_cast<const std::byte*>(NC2Logic::CVehicleArray::mStaticVars) + Read<std::uint32_t>(element, 0x4C) * 0x54Cu;
-            generation = Read<std::uint32_t>(element, 0x50);
+            object = reinterpret_cast<const std::byte*>(NC2Logic::CVehicleArray::mStaticVars) + Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * 0x54Cu;
+            generation = Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleRevision);
             hasFollowTarget = true;
         }
         if (hasFollowTarget && Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == generation) return;
@@ -226,28 +226,28 @@ namespace NC2MainMenuGuiWorldElement
     void WorldDisplayElement_l_FollowMode_Update(void* element)
     {
         FollowMode_Validate(element);
-        if (Read<std::uint8_t>(element, 0x3C) == 0) return;
+        if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowActive) == 0) return;
         std::uint32_t moveableId;
-        if (Read<std::uint8_t>(element, 0x3D) != 0)
-            moveableId = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, 0x40) * 0xC58u + 0xC);
-        else if (Read<std::uint8_t>(element, 0x48) != 0)
-            moveableId = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, 0x4C) * 0x54Cu + 0x1DC);
+        if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowHuman) != 0)
+            moveableId = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowHumanId) * 0xC58u + 0xC);
+        else if (Read<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicle) != 0)
+            moveableId = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::MenuWorldElementOffset::FollowVehicleId) * 0x54Cu + 0x1DC);
         else return;
         std::int32_t point[2];
-        Display_DE_MapMoveableToGlobalWorldPixelCoordinates(Read<void*>(element, 0x30), nullptr, moveableId, point);
+        Display_DE_MapMoveableToGlobalWorldPixelCoordinates(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), nullptr, moveableId, point);
         point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - 25u);
-        NC2E2::DE_SetWantedPositionToPixelPoint(Read<void*>(element, 0x30), point);
+        NC2E2::DE_SetWantedPositionToPixelPoint(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), point);
     }
 
     // Original function: FUN_004dad1b.
     void WorldDisplayElement_FollowHuman(void* element, std::int32_t humanId)
     {
         std::memset(static_cast<std::byte*>(element) + 0x3C, 0, 24);
-        Write(element, 0x40, humanId);
-        Write<std::uint8_t>(element, 0x3C, 1);
-        Write<std::uint8_t>(element, 0x3D, 1);
+        Write(element, NC2Layout::MenuWorldElementOffset::FollowHumanId, humanId);
+        Write<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowActive, 1);
+        Write<std::uint8_t>(element, NC2Layout::MenuWorldElementOffset::FollowHuman, 1);
         const auto generation = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, static_cast<std::uint32_t>(humanId) * 0xC58u + 8);
-        Write(element, 0x44, generation);
+        Write(element, NC2Layout::MenuWorldElementOffset::FollowHumanRevision, generation);
         WorldDisplayElement_l_FollowMode_Update(element);
     }
 }

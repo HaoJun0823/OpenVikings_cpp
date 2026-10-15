@@ -104,16 +104,16 @@ namespace
     static bool SendElementMessage(void* element, std::uint32_t message, std::uint32_t command) { using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); return NC2Lifetime::Read<TMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](element, message, command, 0, 0, 0); }
     static void CycleHumanJob(std::uint32_t job)
     {
-        using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, 0) != 0) return;
+        using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0) return;
         const auto capacity = CHumanArray::sTheObjectPtr->mCapacity; std::int32_t start = 0, stop = capacity - 1;
-        if (Read<std::uint32_t>(gInputManager, 4) == 1) { const auto selected = Selection_GetSelectedSingleHumanId(gInputManager); if (Read<std::uint32_t>(GetHumanPtr(selected), NC2Layout::HumanOffset::JobType) == job) { start = selected + 1; if (start == capacity) start = 0; stop = selected; } }
+        if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 1) { const auto selected = Selection_GetSelectedSingleHumanId(gInputManager); if (Read<std::uint32_t>(GetHumanPtr(selected), NC2Layout::HumanOffset::JobType) == job) { start = selected + 1; if (start == capacity) start = 0; stop = selected; } }
         while (start != stop) { const auto* human = GetHumanPtr(start); if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == job) { Selection_SelectSingleHuman(gInputManager, start); break; } if (++start == capacity) start = 0; }
     }
     static void FilterSelectedHumans(bool heroes)
     {
-        using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, 0) != 0) return; const auto matches = [=](std::int32_t id) { return heroes ? Human_IsJobHero(GetHumanPtr(id)) : Human_IsJobSoldier(GetHumanPtr(id)); };
-        while (Read<std::uint32_t>(gInputManager, 4) == 2) { const auto count = Selection_GetSelectedMultipleHumanNumber(gInputManager); bool removed = false; for (std::uint32_t index = 0; index < count; ++index) { const auto id = Selection_GetSelectedMultipleHumanId(gInputManager, index); if (!matches(id)) { UnSelect_Human(gInputManager, id); removed = true; break; } } if (!removed) break; }
-        if (Read<std::uint32_t>(gInputManager, 4) == 1) { const auto id = Selection_GetSelectedSingleHumanId(gInputManager); if (!matches(id)) UnSelect_Human(gInputManager, id); }
+        using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0) return; const auto matches = [=](std::int32_t id) { return heroes ? Human_IsJobHero(GetHumanPtr(id)) : Human_IsJobSoldier(GetHumanPtr(id)); };
+        while (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 2) { const auto count = Selection_GetSelectedMultipleHumanNumber(gInputManager); bool removed = false; for (std::uint32_t index = 0; index < count; ++index) { const auto id = Selection_GetSelectedMultipleHumanId(gInputManager, index); if (!matches(id)) { UnSelect_Human(gInputManager, id); removed = true; break; } } if (!removed) break; }
+        if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 1) { const auto id = Selection_GetSelectedSingleHumanId(gInputManager); if (!matches(id)) UnSelect_Human(gInputManager, id); }
     }
     static void SelectOwnHumans(bool heroes)
     {
@@ -140,9 +140,9 @@ namespace
         const auto check = [=](std::int32_t assignment) { return assignments->CheckKey(assignment, key, static_cast<std::uint8_t>(character)); }; const auto confirm = []() { FXTool_Chat(); return true; };
         if (check(1))
         {
-            if (Read<std::uint32_t>(gInputManager, 0) != 0) { InputMode_Cancel(gInputManager); FXTool_ClickConfirm(); return true; }
+            if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::InputMode) != 0) { InputMode_Cancel(gInputManager); FXTool_ClickConfirm(); return true; }
             auto* window = desktop->Window_GetActive(); if (window != nullptr && !SendElementMessage(window, 0x1000, 2000) && !SendElementMessage(window, 0x1000, 2001)) { desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window)); return confirm(); }
-            if (Read<std::uint32_t>(gInputManager, 4) != 0) { Selection_UnselectAll(gInputManager); return confirm(); }
+            if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) != 0) { Selection_UnselectAll(gInputManager); return confirm(); }
         }
         if (check(2)) { manager->MiscWindows_HelpWindow_Open(); return confirm(); }
         if (check(3)) { manager->MiscWindows_OptionsWindow_Open(false, false); return confirm(); }
@@ -165,13 +165,13 @@ namespace
         if (check(20)) { std::byte packet[20]{}; packet[0] = std::byte{0x86}; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); Write<std::uint32_t>(packet, 4, 1); queue(packet); return confirm(); }
         if (check(21)) { std::byte packet[20]{}; packet[0] = std::byte{0x86}; packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId()); queue(packet); return confirm(); }
         if (check(35)) { desktop->Message_SendToAllElements(2007, 0, 0, 0); return confirm(); }
-        if (check(36)) { CHouseIterator iterator; for (auto id = iterator.GetFirstHouseId(manager->GetLocalPlayerId()); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType); if (type == 7 || type == 8 || type == 9 || type == 1) { NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition)); return confirm(); } } return true; }
+        if (check(36)) { CHouseIterator iterator; for (auto id = iterator.GetFirstHouseId(manager->GetLocalPlayerId()); id != -1; id = iterator.GetNextHouseId()) { const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType); if (type == 7 || type == 8 || type == 9 || type == 1) { NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition)); return confirm(); } } return true; }
         if (check(22)) { std::byte packet[20]{}; packet[0] = std::byte{0x87}; Write<std::uint32_t>(packet, 4, gGameTime.speed < 0.01 ? static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.retainedSpeed)) : 0); queue(packet); return confirm(); }
         if (check(23)) { const auto speed = Logic_EntryPoint_GameTime_GetSpeed(); std::byte packet[20]{}; packet[0] = std::byte{0x87}; Write<std::uint32_t>(packet, 4, speed < 12.0 ? 12 : speed < 24.0 ? 24 : speed < 36.0 ? 36 : 12); queue(packet); return confirm(); }
         if (check(15)) { GameIO_Savegame_Save("user_quicksave", nullptr, 0); manager->MiscWindows_StringOutputWindow_PrintString(StringTool_GetMiscMenuStringPtr(80)); return confirm(); }
         if (check(29)) CycleHumanJob(6); if (check(30)) CycleHumanJob(27); if (check(31)) FilterSelectedHumans(false); if (check(32)) FilterSelectedHumans(true); if (check(33)) SelectOwnHumans(true); if (check(34)) SelectOwnHumans(false);
         auto* groups = static_cast<NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager); for (std::uint32_t index = 0; index < 10; ++index) if (check(41 + index)) groups->Group_Choose(index); for (std::uint32_t index = 0; index < 10; ++index) if (check(51 + index)) groups->Group_CreateNewGroup(index); for (std::uint32_t index = 0; index < 10; ++index) if (check(61 + index)) groups->Group_AddSelectionToGroup(index);
-        if (key == 0 || (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) == 0) return false;
+        if (key == 0 || (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) == 0) return false;
         if (key == 'S') { const auto start = timeGetTime(); GameIO_Savegame_Save("user_quicksave", nullptr, 0); const auto duration = timeGetTime() - start; manager->MiscWindows_StringOutputWindow_PrintStringV(StringTool_GetMiscMenuStringPtr(81), static_cast<double>(duration) * static_cast<double>(0.001f)); return confirm(); }
         if (key == 'B') { NXBasics::CFile::FileSystem_Tool_CreateDirectory("screenshots"); char filename[200]; NXBasics::Runtime_PrintString(filename, "screenshots\\c2_%4.4d.bmp", gInGameKeyboardHistory.screenshotCounter++); auto* source = desktop->GetDisplayBitmap(); const auto area = source->GetRectangle(); { NXBasics::CBitmap bitmap(area.width, area.height, 2); source->CopyIntoBitmap(&bitmap, 0, 0); NXBasics::CBitmapFileBMP writer; writer.Open(area.width, area.height, filename); writer.WriteBitmap(&bitmap); writer.Close(); writer.Close(); } manager->MiscWindows_StringOutputWindow_PrintStringV(StringTool_GetMiscMenuStringPtr(84)); return confirm(); }
         return false;
@@ -207,7 +207,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a1b29; complete command/assignment table 00507350..00507377.
     bool CInGameGuiManager::Selection_CheckKey_Action(std::uint32_t key, char character)
     {
-        using namespace NC2InGameGuiInputManager; using namespace NC2Logic; if (NC2Lifetime::Read<std::uint32_t>(gInputManager, 4) != 1) return false; SUserCommandsForHumanHandler commands;
+        using namespace NC2InGameGuiInputManager; using namespace NC2Logic; if (NC2Lifetime::Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) != 1) return false; SUserCommandsForHumanHandler commands;
         if (!Logic_UserControl_GetHumanCommands(Selection_GetSelectedSingleHumanId(gInputManager), &commands, false, false)) return false; constexpr std::uint32_t mapping[5][2] = {{24,38},{16,39},{20,39},{10,40},{0,0}};
         for (const auto& entry : mapping) { if (entry[0] == 0) break; if (commands.IsCommandAllowed(entry[0]) && NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager::sTheObjectPtr->CheckKey(entry[1], key, static_cast<std::uint8_t>(character))) { using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); auto* handler = mDisplayObject; NC2Lifetime::Read<TMessage*>(handler, 0)[2](handler, 0x800, entry[0] + 3000u, 0, 0, 0); return true; } } return false;
     }
@@ -227,10 +227,10 @@ static void DefaultHandler_VehicleCommand(std::uint32_t action)
         std::uint8_t opcode = 0;
         switch (action) { case SwitchIds::VehicleGuiAction::GotoAndWait: opcode = 0x64; break; case SwitchIds::VehicleGuiAction::Stop: opcode = 0x66; break; case SwitchIds::VehicleGuiAction::MilitaryAggressive: case SwitchIds::VehicleGuiAction::MilitaryDefensive: case SwitchIds::VehicleGuiAction::MilitaryIgnore: opcode = 0x6F; break; case SwitchIds::VehicleGuiAction::DetachVehicle: if (single) opcode = 0x72; break; case SwitchIds::VehicleGuiAction::ResetWantedAmounts: if (single) opcode = 0x6E; break; }
         if (opcode == 0) return;
-        std::byte packet[20]{}; Write(packet, 0, opcode); Write(packet, 4, id); if (opcode == 0x6F) Write(packet, 0xC, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
+        std::byte packet[20]{}; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(packet, 4, id); if (opcode == 0x6F) Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
     };
-    if (Read<std::uint32_t>(gInputManager, 4) == 4) { const auto id = Selection_GetSelectedSingleVehicleId(gInputManager); if (action == 4) { InputMode_Set(gInputManager, 19); manager->l_Selection_RemoveAllGuiElements(); } else if (action == 12) InputMode_Set(gInputManager, 27); else queue(id, true); }
-    if (Read<std::uint32_t>(gInputManager, 4) == 5) { const auto count = Selection_GetSelectedMultipleVehiclesNumber(gInputManager); for (std::uint32_t index = 0; index < count; ++index) queue(Selection_GetSelectedMultipleVehicleId(gInputManager, index), false); }
+    if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 4) { const auto id = Selection_GetSelectedSingleVehicleId(gInputManager); if (action == 4) { InputMode_Set(gInputManager, 19); manager->l_Selection_RemoveAllGuiElements(); } else if (action == 12) InputMode_Set(gInputManager, 27); else queue(id, true); }
+    if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) == 5) { const auto count = Selection_GetSelectedMultipleVehiclesNumber(gInputManager); for (std::uint32_t index = 0; index < count; ++index) queue(Selection_GetSelectedMultipleVehicleId(gInputManager, index), false); }
     manager->l_Selection_RemoveAllGuiElements();
 }
 // House branch of FUN_004a3edb; complete native command table 004A479E..004A47D9.
@@ -238,7 +238,7 @@ static void DefaultHandler_HouseCommand(std::uint32_t command)
 {
     using namespace NC2Lifetime;
     using namespace NC2InGameGuiInputManager;
-    if (Read<std::uint32_t>(gInputManager, 4) != 6) return;
+    if (Read<std::uint32_t>(gInputManager, NC2Layout::InputManagerOffset::SelectionType) != 6) return;
     const auto id = Selection_GetSelectedHouseId(gInputManager);
     const auto index = command - 3301u;
     if (index > 14) return;
@@ -249,7 +249,7 @@ static void DefaultHandler_HouseCommand(std::uint32_t command)
         constexpr std::uint8_t opcode[14] = {0x5B,0x5C,0x5D,0x5D,0x5D,0x5D,0x5D,0x5D,0x5E,0x5E,0x5F,0x5F,0x61,0x61};
         constexpr std::uint32_t first[14] = {0,0,0,0,1,1,2,2,1,0,1,0,1,0};
         constexpr std::uint32_t second[14] = {0,0,1,0,1,0,1,0,0,0,1,1,0,0};
-        std::byte packet[20]{}; Write(packet, 0, opcode[index - 1]); Write(packet, 4, id); Write(packet, 0xC, first[index - 1]); Write(packet, 0x10, second[index - 1]); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet);
+        std::byte packet[20]{}; Write(packet, NC2Layout::UserNetworkCommandOffset::Opcode, opcode[index - 1]); Write(packet, 4, id); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter1, first[index - 1]); Write(packet, NC2Layout::UserNetworkCommandOffset::Parameter2, second[index - 1]); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet);
     }
     manager->l_Selection_RemoveAllGuiElements();
 }

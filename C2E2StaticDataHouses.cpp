@@ -135,8 +135,8 @@ namespace NC2E2
             for (std::uint32_t stage = 0; stage < 5; ++stage)
             {
                 walkAreas[stage].count = workAreas[stage].count = 0;
-                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::OpenDoorBobIds + stage * 12, -1);
-                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIds + stage * 12, -1);
+                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::OpenDoorBobIds + stage * NC2Layout::RecordSize::EngineHouseDoorOverlay, -1);
+                Write<std::int32_t>(entry, NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIds + stage * NC2Layout::RecordSize::EngineHouseDoorOverlay, -1);
             }
             Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::ShadingFactor256, 256);
             const auto overlayCount = reader.GetNumberOfCommandsInGroup("GfxOverlay");
@@ -202,7 +202,7 @@ namespace NC2E2
                         auto size = static_cast<std::uint32_t>(reader.GetInt());
                         if (size > 5) size = 5;
                         Write(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount, size);
-                        for (std::uint32_t stage = 0; stage < size; ++stage) Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::MaximumHitpoints + stage * 4, 1000);
+                        for (std::uint32_t stage = 0; stage < size; ++stage) Write<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::MaximumHitpoints + stage * NC2Layout::RecordSize::HouseStageValue, 1000);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Logictype: case SwitchIds::HouseGraphicsToken::LogicHitpoints: case SwitchIds::HouseGraphicsToken::Gfxbobid:
@@ -272,7 +272,7 @@ namespace NC2E2
                             if (count == 5) break;
                             const auto palette = E2StaticDataPalettesManager_GetPalette256Id(reader.GetString());
                             if (palette == -1) break;
-                            Write(entry, NC2Layout::EngineHouseTypeOffset::PaletteIds + count * 4, palette);
+                            Write(entry, NC2Layout::EngineHouseTypeOffset::PaletteIds + count * NC2Layout::RecordSize::HouseStageValue, palette);
                             Write(entry, NC2Layout::EngineHouseTypeOffset::PaletteCount, count + 1u);
                         }
                         break;
@@ -283,8 +283,8 @@ namespace NC2E2
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount)) break;
                         const bool open = reader.GetInt() != 0;
-                        Write(entry, (open ? NC2Layout::EngineHouseTypeOffset::OpenDoorBobIdsUnsigned : NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIdsUnsigned) + stage * 12, reader.GetInt());
-                        Write<std::uint8_t>(entry, NC2Layout::EngineHouseTypeOffset::DoorOverlays + stage * 12, 1);
+                        Write(entry, (open ? NC2Layout::EngineHouseTypeOffset::OpenDoorBobIdsUnsigned : NC2Layout::EngineHouseTypeOffset::ClosedDoorBobIdsUnsigned) + stage * NC2Layout::RecordSize::EngineHouseDoorOverlay, reader.GetInt());
+                        Write<std::uint8_t>(entry, NC2Layout::EngineHouseTypeOffset::DoorOverlays + stage * NC2Layout::RecordSize::EngineHouseDoorOverlay, 1);
                         break;
                     }
                     case SwitchIds::HouseGraphicsToken::Gfxbobconstructionlayer:
@@ -324,7 +324,7 @@ namespace NC2E2
                         {
                             const auto count = Read<std::uint32_t>(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount);
                             if (count == 50) break;
-                            Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIds + count * 4, reader.GetInt());
+                            Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::BobIds + count * NC2Layout::RecordSize::HouseActionFrameId, reader.GetInt());
                             Write(overlay, NC2Layout::EngineHouseActionOverlayOffset::FrameCount, count + 1u);
                         }
                         ++overlayIndex;

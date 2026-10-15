@@ -184,7 +184,7 @@ namespace NC2Logic
         {
             const void* house = House(id);
             const auto owner = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
-            if (owner < 20 && Read<std::uint32_t>(gGameControl, owner * NC2Layout::RecordSize::GameControlPlayer + 4) == 1) continue;
+            if (owner < 20 && Read<std::uint32_t>(gGameControl, owner * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::Type) == 1) continue;
             const auto count = Read<std::uint32_t>(manager, NC2Layout::MerchantManagerOffset::TradeAgreementCount);
             if (count == NC2Runtime::MerchantLimits::TradeAgreements) return;
             void* agreement = static_cast<std::byte*>(manager) + NC2Layout::MerchantManagerOffset::TradeAgreementsUnsigned + count * NC2Layout::RecordSize::TradeAgreementUnsigned;

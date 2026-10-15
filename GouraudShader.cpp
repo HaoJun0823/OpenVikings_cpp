@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "GouraudShader.h"
 #include "C2LifetimeAccess.h"
 #include "XBitmap.h"
@@ -235,37 +236,37 @@ namespace NToolGouraudShader
     }
 
     // Original function: FUN_0049a12f.
-    void CGouraudShader::XShade_VertexColor_Alpha() { l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_VertexColor_Alpha_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_VertexColor_Alpha_32Bit(); }
+    void CGouraudShader::XShade_VertexColor_Alpha() { l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_VertexColor_Alpha_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_VertexColor_Alpha_32Bit(); }
     // Original function: FUN_0049a155.
     void CGouraudShader::XShade_VertexColor_Alpha_16Bit() { Shade<true, true, true, false>(*this); }
     // Original function: FUN_0049a3c4.
     void CGouraudShader::XShade_VertexColor_Alpha_32Bit() { Shade<false, true, true, false>(*this); }
     // Original function: FUN_0049a5f0.
-    void CGouraudShader::XShade_VertexColor() { l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_VertexColor_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_VertexColor_32Bit(); }
+    void CGouraudShader::XShade_VertexColor() { l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_VertexColor_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_VertexColor_32Bit(); }
     // Original function: FUN_0049a616.
     void CGouraudShader::XShade_VertexColor_16Bit() { Shade<true, true, false, false>(*this); }
     // Original function: FUN_0049a7f7.
     void CGouraudShader::XShade_VertexColor_32Bit() { Shade<false, true, false, false>(*this); }
     // Original function: FUN_0049a9ab.
-    void CGouraudShader::XShade() { if (NXBasics::CPU_HasMMX()) { XShade_MMX(); return; } l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_32Bit(); }
+    void CGouraudShader::XShade() { if (NXBasics::CPU_HasMMX()) { XShade_MMX(); return; } l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_32Bit(); }
     // Original function: FUN_0049a9e3.
     void CGouraudShader::XShade_16Bit() { Shade<true, false, false, false>(*this); }
     // Original function: FUN_0049abf0.
     void CGouraudShader::XShade_32Bit() { Shade<false, false, false, false>(*this); }
     // Original function: FUN_0049ada7.
-    void CGouraudShader::XShade_Alpha() { if (NXBasics::CPU_HasMMX()) { XShade_Alpha_MMX(); return; } l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_Alpha_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_Alpha_32Bit(); }
+    void CGouraudShader::XShade_Alpha() { if (NXBasics::CPU_HasMMX()) { XShade_Alpha_MMX(); return; } l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_Alpha_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_Alpha_32Bit(); }
     // Original function: FUN_0049addf.
     void CGouraudShader::XShade_Alpha_16Bit() { Shade<true, false, true, false>(*this); }
     // Original function: FUN_0049b089.
     void CGouraudShader::XShade_Alpha_32Bit() { Shade<false, false, true, false>(*this); }
     // Original function: FUN_0049f5d5.
-    void CGouraudShader::XShade_MMX() { if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_MMX_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_MMX_32Bit(); }
+    void CGouraudShader::XShade_MMX() { if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_MMX_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_MMX_32Bit(); }
     // Original function: FUN_0049f628.
     void CGouraudShader::XShade_MMX_16Bit() { Shade<true, false, false, true>(*this); }
     // Original function: FUN_0049f7fb.
     void CGouraudShader::XShade_MMX_32Bit() { Shade<false, false, false, true>(*this); }
     // Original function: FUN_0049f951.
-    void CGouraudShader::XShade_Alpha_MMX() { if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, 0x34) == 2) XShade_Alpha_MMX_16Bit(); else if (Read<I>(bitmap, 0x34) == 4) XShade_Alpha_MMX_32Bit(); }
+    void CGouraudShader::XShade_Alpha_MMX() { if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 2) XShade_Alpha_MMX_16Bit(); else if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_Alpha_MMX_32Bit(); }
     // Original function: FUN_0049f9a4.
     void CGouraudShader::XShade_Alpha_MMX_16Bit() { Shade<true, false, true, true>(*this); }
     // Original function: FUN_0049fbdb.

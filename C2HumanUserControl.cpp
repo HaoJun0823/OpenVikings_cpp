@@ -40,7 +40,7 @@ namespace NC2Logic
         commands->Init();
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0) return;
         const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId);
-        const auto playerTribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x0Cu) : 1u;
+        const auto playerTribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeTypeUnsigned) : 1u;
         const bool sameTribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == playerTribe;
         if (!parameter2)
         {

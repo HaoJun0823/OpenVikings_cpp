@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiHumanActionButtons.h"
@@ -29,7 +30,7 @@ namespace
 std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(void*)
 {
     using namespace NC2InGameGuiInputManager;
-    const auto type = Read<std::uint32_t>(Input(), 4);
+    const auto type = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType);
     if (type == 6) { NC2Logic::SUserCommandsForHouseHandler house; if (!NC2Logic::Logic_UserControl_GetHouseCommands(Selection_GetSelectedHouseId(Input()), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(), &house)) return 0; return NXBasics::XB_GetMemoryChecksum(&house, sizeof(house)); }
     if (type == 4 || type == 5)
     {
@@ -58,7 +59,7 @@ std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(
 void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager)
 {
     using namespace NC2InGameGuiInputManager;
-    const auto selection = Read<std::uint32_t>(Input(), 4);
+    const auto selection = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType);
     if (selection == 4 || selection == 5 || selection == 6)
     {
         NC2Logic::SUserCommandsForHouseHandler house; NC2Logic::SUserCommandsForVehicleHandler vehicle; std::int32_t count; const std::uint32_t* commands;
@@ -172,7 +173,7 @@ namespace NC2InGameGuiManager
         case SwitchIds::HumanGuiAction::AggressionOn: case SwitchIds::HumanGuiAction::AggressionOff: opcode = 42; break; case SwitchIds::HumanGuiAction::GoAway: opcode = 5; break; case SwitchIds::HumanGuiAction::GoHome: opcode = 6; break;
         case SwitchIds::HumanGuiAction::Cheer: opcode = 12; break; case SwitchIds::HumanGuiAction::Goodie: opcode = 11; break; default: return false;
         }
-        std::byte command[20]{}; Write(command, 0, opcode); Write(command, 4, id); Write(command, 0x0C, first); Write(command, 0x10, second);
+        std::byte command[20]{}; Write(command, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, first); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, second);
         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
         NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id); return true;
     }
@@ -186,7 +187,7 @@ namespace NC2InGameGuiManager
         switch (action) { case SwitchIds::HumanGuiAction::AttackHuman: mode = 23; break; case SwitchIds::HumanGuiAction::AttackHouse: mode = 10; break; case SwitchIds::HumanGuiAction::AttackAnimal: mode = 25; break; case SwitchIds::HumanGuiAction::AttackVehicle: mode = 26; break; case SwitchIds::HumanGuiAction::AttackMapPosition: mode = 22; break; }
         bool remove = true;
         if (mode != -1) InputMode_Set(Input(), mode);
-        else if (Read<std::uint32_t>(Input(), 4) == 1)
+        else if (Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType) == 1)
         {
             const auto id = Selection_GetSelectedSingleHumanId(Input());
             switch (action)
@@ -203,7 +204,7 @@ namespace NC2InGameGuiManager
             }
             if (mode != -1) InputMode_Set(Input(), mode);
         }
-        else if (Read<std::uint32_t>(Input(), 4) == 2)
+        else if (Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType) == 2)
         {
             if (action == 24) manager->MiscWindows_HumanChangeJobWindow_Open();
             else if (action == 26) manager->MiscWindows_HumanChangeEquippedGoodsWindow_Open(6, -1);

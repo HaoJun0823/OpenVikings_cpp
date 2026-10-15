@@ -392,12 +392,12 @@ namespace NC2Logic
     // Original function: FUN_00419bdf.
     static void EmbeddedSavegameManager_Destruct(void* manager)
     {
-        if (Read<std::uint32_t>(manager, 0) != 0)
+        if (Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size) != 0)
         {
-            void* data = Read<void*>(manager, 4);
-            Write<std::uint32_t>(manager, 0, 0);
+            void* data = Read<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data);
+            Write<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size, 0);
             NXBasics::Runtime_Free(data);
-            Write<void*>(manager, 4, nullptr);
+            Write<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data, nullptr);
         }
         gEmbeddedSavegameManager = nullptr;
     }
@@ -409,11 +409,11 @@ namespace NC2Logic
         auto* array = static_cast<CArrayHandler*>(manager);
         for (std::uint32_t index = static_cast<std::uint32_t>(array->mFirstScanIndex); index <= static_cast<std::uint32_t>(array->mLastScanIndex); ++index)
         {
-            auto* entry = static_cast<std::byte*>(Read<void*>(manager, 0x30)) + index * stride;
-            if (Read<std::uint8_t>(entry, 0) != 0 && array->Element_Free(NXBasics::Runtime_TimeSigned32(index), true))
+            auto* entry = static_cast<std::byte*>(Read<void*>(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries)) + index * stride;
+            if (Read<std::uint8_t>(entry, NC2Layout::AllocatedRecordOffset::Allocated) != 0 && array->Element_Free(NXBasics::Runtime_TimeSigned32(index), true))
             {
-                entry = static_cast<std::byte*>(Read<void*>(manager, 0x30)) + index * stride;
-                Write<std::uint8_t>(entry, 0, 0);
+                entry = static_cast<std::byte*>(Read<void*>(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries)) + index * stride;
+                Write<std::uint8_t>(entry, NC2Layout::AllocatedRecordOffset::Allocated, 0);
             }
         }
     }
@@ -423,17 +423,17 @@ namespace NC2Logic
     static void DelayedActionManager_Destruct(void* manager)
     {
         DelayedActionManager_FreeAll(manager);
-        FreeAndClearField(manager, 0x30);
+        FreeAndClearField(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries);
         gDelayedActionManager = nullptr;
-        Write<std::uint8_t>(manager, 0, 0); // CArrayHandler::~CArrayHandler, 00430CA4.
+        Write<std::uint8_t>(manager, NC2Layout::ArrayHandlerOffset::Initialized, 0); // CArrayHandler::~CArrayHandler, 00430CA4.
     }
     // Original function: FUN_0041aaf1.
     static void PlayerStatisticManager_Destruct(void* manager)
     {
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            if (Read<void*>(manager, 8 + index * 4) != nullptr) FreeField(manager, 8 + index * 4);
-            if (Read<void*>(manager, 0x58 + index * 4) != nullptr) FreeField(manager, 0x58 + index * 4);
+            if (Read<void*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer + index * NC2Layout::RecordSize::StatisticPlayerPointer) != nullptr) FreeField(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer + index * NC2Layout::RecordSize::StatisticPlayerPointer);
+            if (Read<void*>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer + index * NC2Layout::RecordSize::StatisticPlayerPointer) != nullptr) FreeField(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer + index * NC2Layout::RecordSize::StatisticPlayerPointer);
         }
         gPlayerStatisticManager = nullptr;
     }
@@ -491,7 +491,7 @@ namespace NC2Logic
         NXBasics::Runtime_Free(gMarkerEntries);
         gMarkerEntries = nullptr;
         gMarkerArray = nullptr;
-        Write<std::uint8_t>(array, 0, 0);
+        Write<std::uint8_t>(array, NC2Layout::ArrayHandlerOffset::Initialized, 0);
     }
     // Original function: FUN_0041c428.
     static void HumanMerchantArray_Destruct(void* array)
@@ -499,7 +499,7 @@ namespace NC2Logic
         Unregister(HumanMerchantArray_l_LogicCallback, 0xDE, {0x1A});
         if (Read<void*>(array, NC2Layout::MerchantManagerOffset::Entries) != nullptr) FreeAndClearField(array, NC2Layout::MerchantManagerOffset::Entries);
         gHumanMerchantArray = nullptr;
-        Write<std::uint8_t>(array, 0, 0);
+        Write<std::uint8_t>(array, NC2Layout::ArrayHandlerOffset::Initialized, 0);
     }
     // Original function: FUN_0041cde1.
     static void MapPathfinderManager_Destruct(void* array)
@@ -507,7 +507,7 @@ namespace NC2Logic
         NXBasics::Runtime_Free(gMapPathfinderEntries);
         gMapPathfinderEntries = nullptr;
         gMapPathfinderManager = nullptr;
-        Write<std::uint8_t>(array, 0, 0);
+        Write<std::uint8_t>(array, NC2Layout::ArrayHandlerOffset::Initialized, 0);
     }
     // Original function: FUN_0040bbbd.
     static void MapMoveableArray_Destruct(CArrayHandler* array)
@@ -561,17 +561,17 @@ namespace NC2Logic
     static void MapBioRegrowManager_Destruct(void* manager)
     {
         MapBioRegrowManager_FreeAll(manager);
-        FreeAndClearField(manager, 0x30);
+        FreeAndClearField(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries);
         gMapBioRegrowManager = nullptr;
-        Write<std::uint8_t>(manager, 0, 0);
+        Write<std::uint8_t>(manager, NC2Layout::ArrayHandlerOffset::Initialized, 0);
     }
     // Original function: FUN_00426e9b.
     static void MapLandscapeAutoTransitionManager_Destruct(void* manager)
     {
         MapBioRegrowManager_FreeAll(manager);
-        FreeAndClearField(manager, 0x30);
+        FreeAndClearField(manager, NC2Layout::OwnedArrayHandlerOffset::OwnedEntries);
         gMapLandscapeAutoTransitionManager = nullptr;
-        Write<std::uint8_t>(manager, 0, 0);
+        Write<std::uint8_t>(manager, NC2Layout::ArrayHandlerOffset::Initialized, 0);
     }
     // Original function: FUN_00427343.
     static void WallBuildManager_Destruct(void* manager)

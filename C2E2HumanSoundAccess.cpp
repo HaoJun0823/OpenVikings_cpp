@@ -75,8 +75,8 @@ namespace NC2E2
             if (parameter2 == 2)
             {
                 const void* human = NC2Logic::GetHumanPtr(static_cast<std::int32_t>(parameter1));
-                if ((Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit10) != 0) return true;
-                patch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, 0x10), NC2Logic::Human_IsSexFemale(human));
+                if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit10) != 0) return true;
+                patch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), NC2Logic::Human_IsSexFemale(human));
             }
             else if (parameter2 == 1)
             {

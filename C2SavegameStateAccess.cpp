@@ -368,7 +368,7 @@ namespace NC2Logic
         for (std::uint32_t table = 0; table < 2; ++table)
             for (std::uint32_t index = 0; index < 20; ++index)
             {
-                void* data = Read<void*>(manager, (table == 0 ? 8 : 0x58) + index * 4);
+                void* data = Read<void*>(manager, (table == 0 ? NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer : NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer) + index * NC2Layout::RecordSize::StatisticPlayerPointer);
                 io->IO_Memory_WriteByte(data != nullptr);
                 if (data != nullptr) io->IO_Memory_WriteBinary(data, table == 0 ? 0x2DB40 : 0x138);
             }
@@ -388,7 +388,7 @@ namespace NC2Logic
                 {
                     const std::uint32_t bytes = table == 0 ? 0x2DB40 : 0x138;
                     void* data = NXBasics::Runtime_AllocateWithNewHandler(bytes, 1);
-                    Write(manager, (table == 0 ? 8 : 0x58) + index * 4, data);
+                    Write(manager, (table == 0 ? NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayer : NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayer) + index * NC2Layout::RecordSize::StatisticPlayerPointer, data);
                     io->IO_File_ReadBinary(data, bytes);
                 }
         return manager;
@@ -399,7 +399,7 @@ namespace NC2Logic
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::EmbeddedSavegame, 1);
         io->IO_Memory_WriteBinary(manager, 4);
-        if (Read<std::uint32_t>(manager, 0) != 0) io->IO_Memory_WriteBinary(Read<void*>(manager, 4), Read<std::uint32_t>(manager, 0));
+        if (Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size) != 0) io->IO_Memory_WriteBinary(Read<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data), Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size));
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
@@ -410,11 +410,11 @@ namespace NC2Logic
         std::memset(manager, 0, 8);
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return manager; }
         io->IO_File_ReadBinary(manager, 4);
-        const auto bytes = Read<std::uint32_t>(manager, 0);
+        const auto bytes = Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size);
         if (bytes != 0)
         {
             void* data = NXBasics::Runtime_AllocateWithNewHandler(bytes, 1);
-            Write(manager, 4, data);
+            Write(manager, NC2Layout::EmbeddedSavegameOffset::Data, data);
             io->IO_File_ReadBinary(data, bytes);
         }
         return manager;
@@ -423,20 +423,20 @@ namespace NC2Logic
     // Original function: FUN_00419cc5.
     bool EmbeddedSavegameManager_Savegame_DoEmbed(void* manager, const char* filename)
     {
-        if (Read<std::uint32_t>(manager, 0) != 0)
+        if (Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size) != 0)
         {
-            Write<std::uint32_t>(manager, 0, 0);
-            NXBasics::Runtime_Free(Read<void*>(manager, 4));
-            Write<void*>(manager, 4, nullptr);
+            Write<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size, 0);
+            NXBasics::Runtime_Free(Read<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data));
+            Write<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data, nullptr);
         }
         char fullFilename[260];
         gSavegamesManager->Tool_CreateFullSavegameFilename(filename, fullFilename);
         if (!NXBasics::CFile::FileSystem_Tool_FileExists(fullFilename, false)) return false;
         NXBasics::CFile file(fullFilename, true);
         const auto bytes = file.GetSize();
-        Write(manager, 0, bytes);
+        Write(manager, NC2Layout::EmbeddedSavegameOffset::Size, bytes);
         void* data = NXBasics::Runtime_AllocateWithNewHandler(bytes, 1);
-        Write(manager, 4, data);
+        Write(manager, NC2Layout::EmbeddedSavegameOffset::Data, data);
         file.Read(data, bytes);
         return true;
     }
@@ -444,17 +444,17 @@ namespace NC2Logic
     // Original function: FUN_00419d5a.
     bool EmbeddedSavegameManager_Savegame_RestoreEmbedded(void* manager, const char* filename)
     {
-        if (Read<std::uint32_t>(manager, 0) == 0) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size) == 0) return false;
         char fullFilename[260];
         gSavegamesManager->Tool_CreateFullSavegameFilename(filename, fullFilename);
         NXBasics::CFile file(fullFilename, false);
         file.OpenForWriting(true);
-        file.Write(Read<void*>(manager, 4), Read<std::uint32_t>(manager, 0));
-        if (Read<std::uint32_t>(manager, 0) != 0)
+        file.Write(Read<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data), Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size));
+        if (Read<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size) != 0)
         {
-            Write<std::uint32_t>(manager, 0, 0);
-            NXBasics::Runtime_Free(Read<void*>(manager, 4));
-            Write<void*>(manager, 4, nullptr);
+            Write<std::uint32_t>(manager, NC2Layout::EmbeddedSavegameOffset::Size, 0);
+            NXBasics::Runtime_Free(Read<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data));
+            Write<void*>(manager, NC2Layout::EmbeddedSavegameOffset::Data, nullptr);
         }
         return true;
     }

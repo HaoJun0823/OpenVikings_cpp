@@ -200,7 +200,7 @@ namespace NC2E2
             for (int layer = 1; layer >= 0; --layer)
             {
                 const auto encoded = Read<std::uint8_t>(macro, 7 + triangle + layer * 2);
-                if (encoded == NXBasics::IntegerRange::UInt8MaximumSigned || (Read<std::uint8_t>(display, 0x71) & (layer == 0 ? 8 : 0x10)) != 0) continue;
+                if (encoded == NXBasics::IntegerRange::UInt8MaximumSigned || (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlagsByte1) & (layer == 0 ? 8 : 0x10)) != 0) continue;
                 const auto& transition = gStaticTransitionStorage.entries[encoded / 6];
                 AssignTexture(shader, transition.textureId);
                 shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition.alphaTextureId], 0x24);
@@ -263,7 +263,7 @@ namespace NC2E2
     // Original function: FUN_00491c12.
     void Display_l_DE_DrawStatic(void* display, bool outside, I worldX, I worldY, NXBasics::CBitmap* bitmap)
     {
-        if (outside || (Read<std::uint8_t>(display, 0x71) & 4) != 0) { bitmap->Fill(std::uint8_t(0)); return; }
+        if (outside || (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlagsByte1) & 4) != 0) { bitmap->Fill(std::uint8_t(0)); return; }
         NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader), 0x0C, 0);
         worldX = Wrap(worldX, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels));
         worldY = Wrap(worldY, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels));

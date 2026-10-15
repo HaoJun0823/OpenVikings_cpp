@@ -35,7 +35,7 @@ namespace NC2Logic
         bool IsFoodGroup16(std::uint32_t good) { return good == 16 || good == 18 || good == 19 || good == 21 || good == 56 || good == 22 || good == 23; }
         bool IsFoodGroup17(std::uint32_t good) { return good == 17 || good == 20; }
         std::uint32_t NormalizedGood(std::uint32_t good) { return TGoodTypes_IsFood(good) ? (IsFoodGroup16(good) ? 16u : 17u) : good; }
-        bool StockOnly(const void* house) { const auto type = Read<std::uint32_t>(house, 0x14); return type == 1 || type == 7 || type == 8 || type == 9; }
+        bool StockOnly(const void* house) { const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType); return type == 1 || type == 7 || type == 8 || type == 9; }
         void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
         void Start(void* human, std::uint32_t animation) { Human_l_StartAtomicAnimation(human, animation, 6); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
         void TargetVehicle(void* human) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision)); }
@@ -77,8 +77,8 @@ namespace NC2Logic
                     if ((IsFoodGroup16(good) ? IsFoodGroup16(candidate) : IsFoodGroup17(candidate)) && House_Stock_CanStoreGoodType(house, candidate, true)) { good = candidate; break; }
             Write(human, NC2Layout::HumanOffset::RequestedGood, good);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5);
-            Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(house, 4));
-            Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, 8));
+            Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+            Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             if (!Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24, false)) Fail(human, 1);
         }
 
@@ -509,13 +509,13 @@ namespace NC2Logic
             std::uint32_t target = 0;
             Vehicle_GetTargetWorkPosition(vehicle, &target);
             std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 101);
-            Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-            Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-            Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 101);
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
+            Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+            Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
             if (point != target || Tool_Vehicle_GetNextMovePointNearPosition(type, &point, &target, 20, 1))
             {
-                Write(command, 12, MapMigPoint_GetLong(&point));
+                Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(&point));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);

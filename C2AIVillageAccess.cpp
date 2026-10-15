@@ -102,7 +102,7 @@ namespace NC2Logic
     {
         auto candidate = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
         const auto player = Read<std::int32_t>(villages, NC2Layout::AIVillagesOffset::FirstVillagePlayerId);
-        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1u;
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1u;
         std::uint32_t stage;
         const auto engine = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, 7, &stage);
         if (engine == -1) return false;
@@ -180,7 +180,7 @@ namespace NC2Logic
         std::uint32_t VillageTribe(const void* village)
         {
             const auto player = Read<std::int32_t>(village, NC2Layout::AIVillageOffset::PlayerId);
-            return player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1u;
+            return player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1u;
         }
         void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
     }
@@ -314,7 +314,7 @@ namespace NC2Logic
         Write(village, NC2Layout::AIVillageOffset::Type, type); Write(village, NC2Layout::AIVillageOffset::ResourceGood, good); Write(village, NC2Layout::AIVillageOffset::CenterPoint, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
         Write<std::int32_t>(village, 20, -1); Write(village, NC2Layout::AIVillageOffset::Radius, radius); Write(village, NC2Layout::AIVillageOffset::VillageId, id); Write(village, NC2Layout::AIVillageOffset::PlayerId, player);
         AIHouseManager_Init(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Houses);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1u;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1u;
         AIGoodManager_Init(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, tribe);
         Write<std::uint8_t>(village, NC2Layout::AIVillageOffset::BuildHouse, 0); Write<std::uint8_t>(village, NC2Layout::AIVillageOffset::UpgradeHouse, 0); Write<std::int32_t>(village, NC2Layout::AIVillageOffset::TowerHouseId, -1); Write<std::uint8_t>(village, NC2Layout::AIVillageOffset::AllocatedFlag, 1);
     }
@@ -484,7 +484,7 @@ namespace NC2Logic
                     if (list != 0)
                     {
                         const auto towers = Read<std::uint32_t>(manager, NC2Layout::AIHouseManagerOffset::DefendPointCount);
-                        if ((type == 40 || type == 41 || type == 1) && towers < 100) { Write(manager, NC2Layout::AIHouseManagerOffset::DefendPoints + towers * 4, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, NC2Layout::AIHouseManagerOffset::DefendPointCount, towers + 1); }
+                        if ((type == 40 || type == 41 || type == 1) && towers < 100) { Write(manager, NC2Layout::AIHouseManagerOffset::DefendPoints + towers * NC2Layout::RecordSize::PackedMapPoint, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, NC2Layout::AIHouseManagerOffset::DefendPointCount, towers + 1); }
                         if (type == 39 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3) { Write(manager, NC2Layout::AIHouseManagerOffset::BarrackHouseId, id); continue; }
                     }
                     const auto main = House_GetHouseMainType(house);
@@ -496,7 +496,7 @@ namespace NC2Logic
                             const auto stocks = Read<std::uint32_t>(manager, NC2Layout::AIHouseManagerOffset::StockCount);
                             if (stocks != 10)
                             {
-                                Write(manager, NC2Layout::AIHouseManagerOffset::Stocks + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, NC2Layout::AIHouseManagerOffset::FirstStockHouseId + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(manager, NC2Layout::AIHouseManagerOffset::FirstStockUniqueId + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); Write(manager, NC2Layout::AIHouseManagerOffset::StockCount, stocks + 1);
+                                Write(manager, NC2Layout::AIHouseManagerOffset::Stocks + stocks * NC2Layout::RecordSize::AIHouseStock, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, NC2Layout::AIHouseManagerOffset::FirstStockHouseId + stocks * NC2Layout::RecordSize::AIHouseStock, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(manager, NC2Layout::AIHouseManagerOffset::FirstStockUniqueId + stocks * NC2Layout::RecordSize::AIHouseStock, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); Write(manager, NC2Layout::AIHouseManagerOffset::StockCount, stocks + 1);
                             }
                         }
                     }

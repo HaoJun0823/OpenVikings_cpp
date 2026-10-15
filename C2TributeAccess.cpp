@@ -73,20 +73,20 @@ namespace NC2Logic
     {
         std::byte remaining[60]; std::memcpy(remaining, tribute, sizeof(remaining));
         CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(tribute, 8)); id != -1; id = iterator.GetNextHouseId())
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::SourcePlayer)); id != -1; id = iterator.GetNextHouseId())
         {
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             const auto type = House_GetHouseMainType(house);
             if (type != 1 && type != 3) continue;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, 4); ++i)
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount); ++i)
             {
-                auto good = Read<std::uint32_t>(tribute, 0x14u + i * 8u);
+                auto good = Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::FirstGoodUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned);
                 const auto amount = Tool_House_GetAmountOfGoods(house, &good, true);
-                Write(remaining, 0x18u + i * 8u, Read<std::uint32_t>(remaining, 0x18u + i * 8u) - amount);
+                Write(remaining, NC2Layout::TributeDataOffset::FirstAmountUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned, Read<std::uint32_t>(remaining, NC2Layout::TributeDataOffset::FirstAmountUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned) - amount);
             }
             std::uint32_t satisfied = 0;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, 4); ++i) if (Read<std::int32_t>(remaining, 0x18u + i * 8u) <= 0) ++satisfied;
-            if (satisfied == Read<std::uint32_t>(tribute, 4)) return true;
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount); ++i) if (Read<std::int32_t>(remaining, NC2Layout::TributeDataOffset::FirstAmountUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned) <= 0) ++satisfied;
+            if (satisfied == Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount)) return true;
         }
         return false;
     }
@@ -94,8 +94,8 @@ namespace NC2Logic
     bool TributeData_GetTributeFromHouse(void* tribute, std::int32_t id)
     {
         auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-        Write<std::uint8_t>(tribute, 1, 1);
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, 4); ++i)
+        Write<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid, 1);
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount); ++i)
         {
             const auto offset = 0x18u + i * 8u;
             const auto wanted = Read<std::uint32_t>(tribute, offset);
@@ -108,22 +108,22 @@ namespace NC2Logic
             Write(tribute, offset, remaining);
             House_Stock_ModifyAmount(house, nullptr, good, 0u - amount, false);
         }
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, 4); ++i) if (Read<std::uint32_t>(tribute, 0x18u + i * 8u) != 0) { Write<std::uint8_t>(tribute, 1, 0); break; }
-        return Read<std::uint8_t>(tribute, 1) != 0;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount); ++i) if (Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::FirstAmountUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned) != 0) { Write<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid, 0); break; }
+        return Read<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid) != 0;
     }
     // Original function: FUN_0043e72e; preferred stock, all stocks, then production houses.
     bool __fastcall TributeData_Pay(void* tribute, void*)
     {
         if (!TributeData_Possible(tribute)) return false;
         std::byte remaining[60]; std::memcpy(remaining, tribute, sizeof(remaining));
-        const auto player = Read<std::uint32_t>(tribute, 8);
+        const auto player = Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::SourcePlayer);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != 1) continue;
             const bool paid = TributeData_GetTributeFromHouse(remaining, id);
-            Write<std::uint8_t>(tribute, 1, paid); if (paid) return true;
+            Write<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid, paid); if (paid) return true;
             break;
         }
         for (std::uint32_t type : {1u, 3u})
@@ -133,7 +133,7 @@ namespace NC2Logic
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 if (House_GetHouseMainType(house) != type) continue;
                 const bool paid = TributeData_GetTributeFromHouse(remaining, id);
-                Write<std::uint8_t>(tribute, 1, paid); if (paid) return true;
+                Write<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid, paid); if (paid) return true;
             }
         }
         return false;
@@ -145,7 +145,7 @@ namespace NC2Logic
         while (mIndex < 40)
         {
             mCurrent = static_cast<std::byte*>(gTributeManager) + mIndex * 0x3Cu;
-            if (Read<std::uint8_t>(mCurrent, 0) != 0 && (mSource == NXBasics::IntegerRange::UInt32Maximum || (Read<std::uint32_t>(mCurrent, 8) == mSource && Read<std::uint32_t>(mCurrent, 12) == mTarget))) return;
+            if (Read<std::uint8_t>(mCurrent, NC2Layout::TributeDataOffset::Allocated) != 0 && (mSource == NXBasics::IntegerRange::UInt32Maximum || (Read<std::uint32_t>(mCurrent, NC2Layout::TributeDataOffset::SourcePlayer) == mSource && Read<std::uint32_t>(mCurrent, NC2Layout::TributeDataOffset::TargetPlayer) == mTarget))) return;
             ++mIndex;
         }
         mCurrent = nullptr;

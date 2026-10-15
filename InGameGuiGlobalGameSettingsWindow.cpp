@@ -152,7 +152,7 @@ namespace NC2InGameGuiMiscWindows
         default: return true;
         }
         packet[0] = std::byte{0x85};
-        Write(packet, 4, assistantCommand); Write(packet, 8, value);
+        Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, assistantCommand); Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectRevision, value);
         NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
         if (refresh) update();
         return true;

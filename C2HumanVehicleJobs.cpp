@@ -43,10 +43,10 @@ namespace NC2Logic
                 const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
                 if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0) continue;
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 103);
-                Write(command, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-                Write(command, 8, static_cast<std::uint32_t>(id));
-                Write(command, 12, MapMigPoint_GetLong(WorkCenter(human)));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 103);
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, static_cast<std::uint32_t>(id));
+                Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(WorkCenter(human)));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
             }
         }

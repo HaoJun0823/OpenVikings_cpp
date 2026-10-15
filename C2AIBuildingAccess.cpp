@@ -62,7 +62,7 @@ namespace NC2Logic
     {
         if (Read<std::uint8_t>(village, NC2Layout::AIVillageOffset::HouseBuildAllowedFlagsUnsigned + logicType) == 0) return 0;
         const auto player = Read<std::int32_t>(village, NC2Layout::AIVillageOffset::PlayerId);
-        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC) : 1u;
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeType) : 1u;
         std::uint32_t stage;
         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, logicType, &stage);
         if (engineType == -1) return 0;
@@ -127,8 +127,8 @@ namespace NC2Logic
         if (!House_Construction_CanBeUpgraded(house)) return 0;
         auto* upgrade = reinterpret_cast<SHouseUpgrade*>(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::UpgradeHouse);
         if (upgrade->IsValid()) return -2;
-        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
-        const auto level = Read<std::uint32_t>(house, 0x20) + 1u;
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+        const auto level = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u;
         bool available = true;
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0x48u + level * 0x40u); ++index)
             if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
@@ -240,5 +240,5 @@ namespace NC2Logic
         return false;
     }
     // Original function: FUN_00476ea4; active is set after starting construction.
-    void SHouseUpgrade::UpgradeHouse(void* house) { stage = Read<std::uint32_t>(house, 0x20) + 1u; houseId = Read<std::int32_t>(house, 4); uniqueId = Read<std::uint32_t>(house, 8); House_Construction_UpgradeStart(house, nullptr); active = 1; }
+    void SHouseUpgrade::UpgradeHouse(void* house) { stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u; houseId = Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId); uniqueId = Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId); House_Construction_UpgradeStart(house, nullptr); active = 1; }
 }

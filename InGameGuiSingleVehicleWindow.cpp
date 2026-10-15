@@ -129,9 +129,9 @@ namespace NC2InGameGuiSelection
     {
         if (!Read<std::uint8_t>(window, NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags + index) || Read<std::uint8_t>(window, NC2Layout::SingleVehicleWindowOffset::TabCollapsedFlags + index)) return;
         if (height < 16) height = 16;
-        if (Read<std::int32_t>(window, NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * 4) != height)
+        if (Read<std::int32_t>(window, NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::VehicleWindowValue) != height)
         {
-            Write(window, NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * 4, height);
+            Write(window, NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::VehicleWindowValue, height);
             Write<std::uint8_t>(window, NC2Layout::SingleVehicleWindowOffset::LayoutInvalidFlag, 1);
         } }
     // Original function: FUN_004ab4bf.
@@ -170,12 +170,12 @@ namespace NC2InGameGuiSelection
         for (std::uint32_t page = 0; page < 7; ++page)
         {
             std::uint32_t index = 0;
-            for (const auto good : gStockPages[page]) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good]) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index++) * 4, good);
+            for (const auto good : gStockPages[page]) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good]) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::VehicleWindowValue, good);
         }
         for (std::uint32_t good = 1; good <= 55; ++good) if (NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedGoodTypes[good])
         {
             bool found = false;
-            for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index) * 4) == good)
+            for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue) == good)
             {
                 found = true;
                 break;
@@ -185,7 +185,7 @@ namespace NC2InGameGuiSelection
         SSelectionVehicleWindowMostStockGoodsData most;
         l_SubTabs_StockVehicleGoods_GetMostStockGoods(window, &most);
         if (most.count > 14) most.count = 14;
-        for (std::uint32_t index = 0; index < 14; ++index) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + index * 4, index < most.count ? most.entries[index].good : 0u);
+        for (std::uint32_t index = 0; index < 14; ++index) Write(window, NC2Layout::SingleVehicleWindowOffset::StockGoods + index * NC2Layout::RecordSize::VehicleWindowValue, index < most.count ? most.entries[index].good : 0u);
         for (std::uint32_t page = 1; page < 7; ++page)
         {
             auto* data = static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::StockGoods + page * 56;
@@ -203,13 +203,13 @@ namespace NC2InGameGuiSelection
         {
             auto* element = Read<void*>(window,offset);
             desktop->Element_Hide(static_cast<NXBaseGui::CBaseElement*>(element));
-            Write<std::uint8_t>(element,0x50,1);
+            Write<std::uint8_t>(element,NC2Layout::GuiGfxButtonOffset::Disabled,1);
         };
         const auto show = [&](std::uint32_t offset)
         {
             auto* element = Read<void*>(window,offset);
             desktop->Element_UnHide(static_cast<NXBaseGui::CBaseElement*>(element));
-            Write<std::uint8_t>(element,0x50,0);
+            Write<std::uint8_t>(element,NC2Layout::GuiGfxButtonOffset::Disabled,0);
         };
         hide(NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons);
         hide(NC2Layout::SingleVehicleWindowOffset::SecondRouteSelectButton);
@@ -230,12 +230,12 @@ namespace NC2InGameGuiSelection
             const auto* data = NC2Logic::MerchantData_GetHouseDataPtr(merchant,index);
             if (!NC2Logic::MerchantHouseData_IsValid(data)) continue;
             const auto* house = House(Read<std::int32_t>(data,0));
-            BaseToolTextElement_SetCaptionString(Read<void*>(window,NC2Layout::SingleVehicleWindowOffset::RouteLabels + row * 16),NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house,NC2Layout::HouseOffset::LogicType),1));
-            for (auto offset : {NC2Layout::SingleVehicleWindowOffset::RouteSelectButtonsUnsigned,NC2Layout::SingleVehicleWindowOffset::RouteRemoveButtonsUnsigned}) { auto* element = Read<void*>(window,offset + row * 16);
-                Write(element,0x48,Read<std::uint32_t>(house,NC2Layout::HouseOffset::HouseId));
-                Write(element,0x4C,Read<std::uint32_t>(house,NC2Layout::HouseOffset::UniqueId));
+            BaseToolTextElement_SetCaptionString(Read<void*>(window,NC2Layout::SingleVehicleWindowOffset::RouteLabels + row * NC2Layout::RecordSize::VehicleRouteControls),NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house,NC2Layout::HouseOffset::LogicType),1));
+            for (auto offset : {NC2Layout::SingleVehicleWindowOffset::RouteSelectButtonsUnsigned,NC2Layout::SingleVehicleWindowOffset::RouteRemoveButtonsUnsigned}) { auto* element = Read<void*>(window,offset + row * NC2Layout::RecordSize::VehicleRouteControls);
+                Write(element,NC2Layout::GuiGfxButtonOffset::MessageParameter1,Read<std::uint32_t>(house,NC2Layout::HouseOffset::HouseId));
+                Write(element,NC2Layout::GuiGfxButtonOffset::MessageParameter2,Read<std::uint32_t>(house,NC2Layout::HouseOffset::UniqueId));
                 show(offset + row * 16);
-                if (offset == NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons) hide(NC2Layout::SingleVehicleWindowOffset::RouteAssignButtons + row * 16);
+                if (offset == NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons) hide(NC2Layout::SingleVehicleWindowOffset::RouteAssignButtons + row * NC2Layout::RecordSize::VehicleRouteControls);
             } if (++row == 2) break;
         } Write<std::uint8_t>(Read<void*>(window,NC2Layout::SingleVehicleWindowOffset::TraderConfigButton),0x56,row < 2);
     }
@@ -257,7 +257,7 @@ namespace NC2InGameGuiSelection
         for (std::uint32_t index = 0; index < 5; ++index) if (Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags + index))
         {
             if (width < gSubTabs[index].width) width = gSubTabs[index].width;
-            const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * 4);
+            const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::VehicleWindowValue);
             height += Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabCollapsedFlags + index) ? 16 : 16 + (overrideHeight ? overrideHeight : gSubTabs[index].height);
         }
         Write(window,NC2Layout::SingleVehicleWindowOffset::ComputedWidth,width);
@@ -268,7 +268,7 @@ namespace NC2InGameGuiSelection
             SRectangle area(-1,-1,0,0);
             if (Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags + index))
             {
-                const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * 4);
+                const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SingleVehicleWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::VehicleWindowValue);
                 area = SRectangle(width - gSubTabs[index].width,y,gSubTabs[index].width,Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabCollapsedFlags + index) ? 16 : 16 + (overrideHeight ? overrideHeight : gSubTabs[index].height));
                 y += area.height;
             } std::memcpy(static_cast<std::byte*>(window) + NC2Layout::SingleVehicleWindowOffset::TabRectangles + index * 16,&area,16);
@@ -284,8 +284,8 @@ namespace NC2InGameGuiSelection
             const auto section = Section(window,index);
             const bool collapsed = Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabCollapsedFlags + index) != 0;
             auto* button = AddGraphic(window,SRectangle(section.x + section.width - 19,section.y + 2,16,12),collapsed ? 19 : 20,VehicleString(collapsed ? 6 : 7),10000);
-            Write(button,0x48,index);
-            Write<std::uint32_t>(button,0x4C,0);
+            Write(button,NC2Layout::GuiGfxButtonOffset::MessageParameter1,index);
+            Write<std::uint32_t>(button,NC2Layout::GuiGfxButtonOffset::MessageParameter2,0);
         }
         if (Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabEnabledFlags) && !Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::TabCollapsedFlags))
         {
@@ -314,14 +314,14 @@ namespace NC2InGameGuiSelection
                 for (std::uint32_t row = 0; row < 2; ++row)
                 {
                     const auto rowY = section.y + 24 + row * 24;
-                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons + row * 16,AddGraphic(window,SRectangle(section.x,rowY,20,18),18,VehicleString(26),10019));
-                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteAssignButtons + row * 16,AddGraphic(window,SRectangle(section.x,rowY,20,30),30,VehicleString(27),10020));
-                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteRemoveButtons + row * 16,AddGraphic(window,SRectangle(section.x + 20,rowY,20,30),29,VehicleString(28),10021));
+                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteSelectButtons + row * NC2Layout::RecordSize::VehicleRouteControls,AddGraphic(window,SRectangle(section.x,rowY,20,18),18,VehicleString(26),10019));
+                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteAssignButtons + row * NC2Layout::RecordSize::VehicleRouteControls,AddGraphic(window,SRectangle(section.x,rowY,20,30),30,VehicleString(27),10020));
+                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteRemoveButtons + row * NC2Layout::RecordSize::VehicleRouteControls,AddGraphic(window,SRectangle(section.x + 20,rowY,20,30),29,VehicleString(28),10021));
                     auto* memory = NXBasics::Runtime_AllocateWithNewHandler(256,1);
                     const SRectangle labelArea(section.x + 38,rowY,154,20);
                     auto* label = memory == nullptr ? nullptr : BaseToolTextElement_Construct(memory,nullptr,&labelArea,"",false,false);
-                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteLabels + row * 16,label);
-                    Write<std::uint8_t>(label,0xFB,1);
+                    Write(window,NC2Layout::SingleVehicleWindowOffset::RouteLabels + row * NC2Layout::RecordSize::VehicleRouteControls,label);
+                    Write<std::uint8_t>(label,NC2Layout::GuiTextElementOffset::SmallFontFlag,1);
                     NXBaseGui::BaseWindow_Element_Add(window,label);
                 } const SRectangle config(section.x + 8,section.y + 76,184,20);
                 auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96,1);
@@ -354,11 +354,11 @@ namespace NC2InGameGuiSelection
             for (std::uint32_t page = 0; page < 7; ++page)
             {
                 auto* button = AddGraphic(window,SRectangle(section.x + 8 + page * 46,section.y + 24,44,18),gStockPageButtons[page][0],CGuiBaseStringsManager::GetStringPtr(8,gStockPageButtons[page][1]),10016);
-                Write(button,0x48,page);
-                Write<std::uint32_t>(button,0x4C,0);
-                Write<std::uint8_t>(button,0x36,page == Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockPage));
-                Write<std::uint8_t>(button,0x35,1);
-                Write<std::uint8_t>(button,0x44,1);
+                Write(button,NC2Layout::GuiGfxButtonOffset::MessageParameter1,page);
+                Write<std::uint32_t>(button,NC2Layout::GuiGfxButtonOffset::MessageParameter2,0);
+                Write<std::uint8_t>(button,NC2Layout::GuiGfxButtonOffset::Selected,page == Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockPage));
+                Write<std::uint8_t>(button,NC2Layout::GuiGfxButtonOffset::RectangularStyle,1);
+                Write<std::uint8_t>(button,NC2Layout::GuiGfxButtonOffset::ImmediateTooltip,1);
             } }
     }
     static void __fastcall SelectionSingleVehicleWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle);
@@ -376,7 +376,7 @@ namespace NC2InGameGuiSelection
             } break;
         case SwitchIds::VehicleWindowCommand::CenterVehicle: case SwitchIds::VehicleWindowCommand::CenterVehicleAndStopFollowing: if (vehicle != nullptr)
         {
-            NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(),0x30),static_cast<const std::uint32_t*>(NC2Logic::Vehicle_GetMapPositionRef(vehicle)));
+            NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(),NC2Layout::WorldGuiElementOffset::Display),static_cast<const std::uint32_t*>(NC2Logic::Vehicle_GetMapPositionRef(vehicle)));
                 NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
             } break;
         case SwitchIds::VehicleWindowCommand::ShowActionButtons: manager->Selection_ActionButtons_BringUp();
@@ -386,7 +386,7 @@ namespace NC2InGameGuiSelection
         case SwitchIds::VehicleWindowCommand::Update: { if (Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::StockTabEnabled) && !Read<std::uint8_t>(window,NC2Layout::SingleVehicleWindowOffset::StockTabCollapsed)) { SSelectionVehicleWindowMostStockGoodsData most;
                     l_SubTabs_StockVehicleGoods_GetMostStockGoods(window,&most);
                     if (most.count > 14) most.count = 14;
-                    for (std::uint32_t index = 0; index < most.count; ++index) if (Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockGoods + index * 4) != most.entries[index].good)
+                    for (std::uint32_t index = 0; index < most.count; ++index) if (Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockGoods + index * NC2Layout::RecordSize::VehicleWindowValue) != most.entries[index].good)
                     {
                         l_SubTabs_StockVehicleGoods_Init(window);
                         l_SubTabs_UpdateAll(window,true);
@@ -427,7 +427,7 @@ namespace NC2InGameGuiSelection
         case SwitchIds::VehicleWindowCommand::DecreaseWantedAmount: case SwitchIds::VehicleWindowCommand::IncreaseWantedAmount: if (vehicle != nullptr)
         {
             auto amount = static_cast<std::int32_t>(NC2Logic::Vehicle_Stock_GetAmountOfWantedGoods(vehicle,second));
-                const auto step = (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr,0) & 2u) ? 10 : 1;
+                const auto step = (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr,NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) ? 10 : 1;
                 if (command == 10017)
                 {
                     amount -= step;
@@ -611,7 +611,7 @@ namespace NC2InGameGuiSelection
         const auto totalWanted = NC2Logic::Vehicle_Stock_GetTotalWantedAmount(vehicle);
         const auto slots = NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots;
         for (std::uint32_t index = 0; index < 14; ++index) {
-            const auto good = Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockPage) * 14 + index) * 4);
+            const auto good = Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockGoods + (Read<std::uint32_t>(window,NC2Layout::SingleVehicleWindowOffset::StockPage) * 14 + index) * NC2Layout::RecordSize::VehicleWindowValue);
             if (!good) break;
             if (!NC2Logic::Vehicle_Stock_CanStoreGoodType(vehicle,good)) continue;
             const auto amount = NC2Logic::Vehicle_Stock_GetAmountOfGoods(vehicle,good);

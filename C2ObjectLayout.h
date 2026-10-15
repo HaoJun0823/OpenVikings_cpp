@@ -346,6 +346,8 @@ namespace NC2Layout
 
     namespace EngineDisplayOffset
     {
+        inline constexpr auto DrawFlagsByte1 = 0x71;
+
         inline constexpr auto DrawCounters = 0x84;
         inline constexpr auto SeenLocalAdultMenUnsigned = 0x90u;
         inline constexpr auto SeenLocalAdultWomenUnsigned = 0x94u;
@@ -523,6 +525,16 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto HappinessValue = 0x4610;
+
+        inline constexpr auto ColorIdUnsigned = 0x10u;
+
+        inline constexpr auto NetworkPlayerIdUnsigned = 0x14u;
+
+        inline constexpr auto HappinessValueUnsigned = 0x4610u;
+
+        inline constexpr auto TribeTypeUnsigned = 0x0Cu;
+
         inline constexpr auto TribeShortName = 0x49E0;
 
         inline constexpr auto TribeName = 0x49AC;
@@ -1327,6 +1339,8 @@ namespace NC2Layout
     // Windows AI owners, task records and soldier/military storage.
     namespace AISinglePlayerOffset
     {
+        inline constexpr auto HumanRequests = 0x3B80;
+
         inline constexpr auto InitializationPendingFlag = 5;
 
         inline constexpr auto FirstGateRepairPendingFlag = 0x5B24;
@@ -1527,6 +1541,14 @@ namespace NC2Layout
 
     namespace AIHighLevelOffset
     {
+        inline constexpr auto ShoeScanHumanId = 0xA9C0;
+
+        inline constexpr auto RandomDestructionEnabled = 0x94E0;
+
+        inline constexpr auto InitializationPending = 0x1A;
+
+        inline constexpr auto PlayerId = 0;
+
         inline constexpr auto Enabled = 4;
 
         inline constexpr auto Diplomacy = 0xA9C4;
@@ -1714,6 +1736,88 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto StatisticPlayerPointerUnsigned = 4u;
+
+        inline constexpr auto HouseWindowTabHeight = 4;
+
+        inline constexpr auto StaticLandscapeUnsigned = 0x8Cu;
+
+        inline constexpr auto MiscHouseLandscapeLinkUnsigned = 20u;
+
+        inline constexpr auto MiscLandscapeLinkUnsigned = 12u;
+
+        inline constexpr auto LandscapeTransitionUnsigned = 8u;
+
+        inline constexpr auto WeightedLandscapeChoiceUnsigned = 8u;
+
+        inline constexpr auto StatisticPlayerPointer = 4;
+
+        inline constexpr auto HappinessEventUnsigned = 12u;
+
+        inline constexpr auto HappinessPlayerUnsigned = 0x88u;
+
+        inline constexpr auto GameAssistantPlayerUnsigned = 0x38u;
+
+        inline constexpr auto GameAssistantPlayer = 56;
+
+        inline constexpr auto AIHumanRequest = 24;
+
+        inline constexpr auto TributeGoodAmountUnsigned = 8u;
+
+        inline constexpr auto VehicleRouteControls = 16;
+
+        inline constexpr auto VehicleWindowValue = 4;
+
+        inline constexpr auto PackedMapPointUnsigned = 4u;
+
+        inline constexpr auto HumanReferenceUnsigned = 8u;
+
+        inline constexpr auto HouseWindowStockValue = 4;
+
+        inline constexpr auto HelpHouseEntryUnsigned = 8u;
+
+        inline constexpr auto DiplomacyPlayerSlotUnsigned = 4u;
+
+        inline constexpr auto TribeJobEnableItemUnsigned = 4u;
+
+        inline constexpr auto HumanJobValueUnsigned = 4u;
+
+        inline constexpr auto GuideIdUnsigned = 4u;
+
+        inline constexpr auto ParticleDrawIndexUnsigned = 4u;
+
+        inline constexpr auto HumanGraphicsVariantIdUnsigned = 4u;
+
+        inline constexpr auto HouseActionFrameIdUnsigned = 4u;
+
+        inline constexpr auto EngineHouseDoorOverlayUnsigned = 12u;
+
+        inline constexpr auto MoveablePaletteIdUnsigned = 4u;
+
+        inline constexpr auto PaletteDestinationRangeUnsigned = 4u;
+
+        inline constexpr auto HumanSignGraphicsIdUnsigned = 4u;
+
+        inline constexpr auto HouseActionFrameId = 4;
+
+        inline constexpr auto EngineHouseDoorOverlay = 12;
+
+        inline constexpr auto HouseStageValue = 4;
+
+        inline constexpr auto AIHouseStock = 12;
+
+        inline constexpr auto AISoldierScoreEntry = 8;
+
+        inline constexpr auto AITaskIndexValue = 4;
+
+        inline constexpr auto AIBuildHouseUnsigned = 16u;
+
+        inline constexpr auto AIInvalidArea = 8;
+
+        inline constexpr auto AIHouseTypeId = 4;
+
+        inline constexpr auto AIResourceIndexValue = 4;
+
         inline constexpr auto ConstructionSelectionEntriesPerEngineUnsigned = 40u;
 
         inline constexpr auto ConstructionSelectionWindowState = 824;
@@ -2532,6 +2636,12 @@ namespace NC2Layout
 
     namespace ToUserMessageOffset
     {
+        inline constexpr auto HouseItems = 0x200;
+
+        inline constexpr auto SpecialItem = 0x300;
+
+        inline constexpr auto SpecialItemType = 0x2FC;
+
         inline constexpr auto RelatedPlayerId = 0x0C;
 
         inline constexpr auto EquipmentItems = 0x2E0;
@@ -2732,6 +2842,8 @@ namespace NC2Layout
 
     namespace AIInvalidAreaManagerOffset
     {
+        inline constexpr auto FirstAreaY = 6;
+
         inline constexpr auto Count = 0;
         inline constexpr auto Areas = 4;
         inline constexpr auto FirstAreaRadius = 8;
@@ -3841,6 +3953,8 @@ namespace NC2Layout
 
     namespace ArrayHandlerOffset
     {
+        inline constexpr auto Initialized = 0;
+
         inline constexpr auto Capacity = 4;
     }
 
@@ -3895,6 +4009,38 @@ namespace NC2Layout
 
     namespace InGameGuiManagerOffset
     {
+        inline constexpr auto WallBuildWindow = 0xB4;
+
+        inline constexpr auto RoadBuildWindow = 0xB0;
+
+        inline constexpr auto GuideWindow = 0xA8;
+
+        inline constexpr auto HouseTypeWindow = 0xA4;
+
+        inline constexpr auto SingleAnimalWindow = 0x94;
+
+        inline constexpr auto MultipleVehiclesWindow = 0x9C;
+
+        inline constexpr auto MultipleHumansWindow = 0x90;
+
+        inline constexpr auto StatisticsWindow = 0x48;
+
+        inline constexpr auto SingleHumanWindow = 0x8C;
+
+        inline constexpr auto LandscapeWindow = 0xAC;
+
+        inline constexpr auto SingleVehicleWindow = 0x98;
+
+        inline constexpr auto HouseWindow = 0xA0;
+
+        inline constexpr auto SelectionChangeCount = 0x88;
+
+        inline constexpr auto MessagePriorityButton = 0x40;
+
+        inline constexpr auto SpeedButton = 0x34;
+
+        inline constexpr auto OverviewWindow = 0x44;
+
         inline constexpr auto ExpertMode = 0xE0;
 
         inline constexpr auto MainMode = 0xDC;
@@ -5099,6 +5245,8 @@ namespace NC2Layout
 
     namespace MapAreaRowOffset
     {
+        inline constexpr auto X = 0;
+
         inline constexpr auto Width = 4;
 
         inline constexpr auto Y = 2;
@@ -5228,6 +5376,333 @@ namespace NC2Layout
         inline constexpr auto SpecialItem = 0x80;
 
         inline constexpr auto SpecialItemType = 0x7C;
+    }
+
+    namespace BitmapStorageOffset
+    {
+        inline constexpr auto TrueColorMemory = 0x2C;
+
+        inline constexpr auto HighColorMemory = 0x28;
+
+        inline constexpr auto RowPixelCount = 0x30;
+
+        inline constexpr auto Height = 0x14;
+
+        inline constexpr auto Width = 0x10;
+
+        inline constexpr auto Depth = 4;
+
+        inline constexpr auto BytesPerPixel = 0x34;
+    }
+
+    namespace ObservationWindowOffset
+    {
+        inline constexpr auto HouseRevision = 0x88;
+
+        inline constexpr auto VehicleRevision = 0x80;
+
+        inline constexpr auto HumanRevision = 0x78;
+
+        inline constexpr auto HouseId = 0x84;
+
+        inline constexpr auto VehicleId = 0x7C;
+
+        inline constexpr auto HumanId = 0x74;
+
+        inline constexpr auto WorldElement = 0x70;
+    }
+
+    namespace ObjectReferenceOffset
+    {
+        inline constexpr auto Revision = 4;
+    }
+
+    namespace MenuWorldElementOffset
+    {
+        inline constexpr auto FollowVehicleRevision = 0x50;
+
+        inline constexpr auto FollowVehicleId = 0x4C;
+
+        inline constexpr auto FollowVehicle = 0x48;
+
+        inline constexpr auto FollowHumanRevision = 0x44;
+
+        inline constexpr auto FollowHumanId = 0x40;
+
+        inline constexpr auto FollowHuman = 0x3D;
+
+        inline constexpr auto FollowActive = 0x3C;
+
+        inline constexpr auto Bitmap = 0x2C;
+
+        inline constexpr auto Display = 0x30;
+
+        inline constexpr auto DarkenTable = 0x38;
+
+        inline constexpr auto DarkenPalette = 0x34;
+    }
+
+    namespace HighColorConverterOffset
+    {
+        inline constexpr auto BlueShift = 0x34;
+
+        inline constexpr auto BlueMask = 0x10;
+
+        inline constexpr auto GreenShift = 0x30;
+
+        inline constexpr auto GreenMask = 0x0E;
+
+        inline constexpr auto RedShift = 0x2C;
+
+        inline constexpr auto RedMask = 0x0C;
+    }
+
+    namespace GroupSelectionElementOffset
+    {
+        inline constexpr auto ActionCommand = 0xFC;
+
+        inline constexpr auto PressedCommand = 0xF8;
+
+        inline constexpr auto Receiver = 0x100;
+
+        inline constexpr auto HoveredObjectId = 44;
+    }
+
+    namespace HouseGoodElementOffset
+    {
+        inline constexpr auto Receiver = 0x108;
+
+        inline constexpr auto HoverCommand = 0x104;
+
+        inline constexpr auto PressedCommand = 0x100;
+
+        inline constexpr auto GoodType = 0x34;
+
+        inline constexpr auto HouseRevision = 0x30;
+
+        inline constexpr auto HouseId = 0x2C;
+    }
+
+    namespace TributeDataOffset
+    {
+        inline constexpr auto DescriptionStringId = 0x10;
+
+        inline constexpr auto TargetPlayer = 12;
+
+        inline constexpr auto Allocated = 0;
+
+        inline constexpr auto FirstAmountUnsigned = 0x18u;
+
+        inline constexpr auto Paid = 1;
+
+        inline constexpr auto FirstGoodUnsigned = 0x14u;
+
+        inline constexpr auto GoodCount = 4;
+
+        inline constexpr auto SourcePlayer = 8;
+    }
+
+    namespace AIHumanRequestOffset
+    {
+        inline constexpr auto RequiredJob = 20;
+
+        inline constexpr auto HumanRevision = 16;
+
+        inline constexpr auto TargetRevision = 8;
+
+        inline constexpr auto HumanId = 12;
+
+        inline constexpr auto TargetHouseIdOrPoint = 4;
+
+        inline constexpr auto Type = 0;
+    }
+
+    namespace EmbeddedSavegameOffset
+    {
+        inline constexpr auto Data = 4;
+
+        inline constexpr auto Size = 0;
+    }
+
+    namespace LandscapeSelectionWindowOffset
+    {
+        inline constexpr auto StateChecksum = 0x84;
+
+        inline constexpr auto Valency = 0x80;
+
+        inline constexpr auto EngineType = 0x7C;
+
+        inline constexpr auto PlayerId = 0x78;
+
+        inline constexpr auto ValidSelection = 0x70;
+
+        inline constexpr auto MapPosition = 0x72;
+    }
+
+    namespace HumanEquipmentWindowOffset
+    {
+        inline constexpr auto Slot = 0x74;
+
+        inline constexpr auto Category = 0x70;
+
+        inline constexpr auto ValidSelection = 0x78;
+
+        inline constexpr auto SelectionChangeCount = 0x7C;
+    }
+
+    namespace PreIngameFmvOffset
+    {
+        inline constexpr auto CursorHideRequested = 0xCA;
+
+        inline constexpr auto FmvActive = 0xC9;
+
+        inline constexpr auto FmvRequested = 0;
+
+        inline constexpr auto ScreenBitmap = 0xCC;
+    }
+
+    namespace GameAssistantPlayerOffset
+    {
+        inline constexpr auto SpearmanRequestBudget = 44;
+
+        inline constexpr auto ArcherRequestBudget = 48;
+
+        inline constexpr auto SwordsmanRequestBudget = 52;
+
+        inline constexpr auto EquipSoldierMead = 29;
+
+        inline constexpr auto EquipSoldierShoes = 28;
+
+        inline constexpr auto EquipCivilianMead = 27;
+
+        inline constexpr auto EquipCivilianIronTools = 26;
+
+        inline constexpr auto EquipCivilianWoodenTools = 25;
+
+        inline constexpr auto EquipCivilianShoes = 24;
+
+        inline constexpr auto GirlRequestBudget = 36;
+
+        inline constexpr auto RequestedGirls = 4;
+
+        inline constexpr auto RecruitRequestBudget = 40;
+
+        inline constexpr auto BoyRequestBudget = 32;
+
+        inline constexpr auto RequestedSwordsmen = 20;
+
+        inline constexpr auto RequestedArchers = 16;
+
+        inline constexpr auto RequestedSpearmen = 12;
+
+        inline constexpr auto RequestedUnarmedSoldiers = 8;
+
+        inline constexpr auto RequestedBoys = 0;
+    }
+
+    namespace HappinessPlayerOffset
+    {
+        inline constexpr auto Value = 0;
+
+        inline constexpr auto UnderAttack = 0x7C;
+
+        inline constexpr auto AttackExpiresAtTick = 0x84;
+
+        inline constexpr auto AttackExpiresAtTickUnsigned = 0x84u;
+
+        inline constexpr auto AttackerPlayerIdUnsigned = 0x80u;
+
+        inline constexpr auto UnderAttackUnsigned = 0x7Cu;
+
+        inline constexpr auto EventsUnsigned = 4u;
+    }
+
+    namespace HappinessEventOffset
+    {
+        inline constexpr auto InitialValue = 8;
+
+        inline constexpr auto ExpiresAtTick = 4;
+
+        inline constexpr auto InitialValueUnsigned = 8u;
+
+        inline constexpr auto ExpiresAtTickUnsigned = 4u;
+    }
+
+    namespace PlayerStatisticManagerOffset
+    {
+        inline constexpr auto CurrentByPlayer = 0x58;
+
+        inline constexpr auto HistoryByPlayer = 8;
+
+        inline constexpr auto CurrentSampleIndex = 0;
+
+        inline constexpr auto LastSampleTime = 4;
+
+        inline constexpr auto CurrentByPlayerUnsigned = 0x58u;
+
+        inline constexpr auto HistoryByPlayerUnsigned = 8u;
+    }
+
+    namespace MiscLandscapeLinkOffset
+    {
+        inline constexpr auto EngineLandscapeId = 8;
+
+        inline constexpr auto LogicLandscapeType = 4;
+
+        inline constexpr auto TribeType = 0;
+    }
+
+    namespace MiscHouseLandscapeLinkOffset
+    {
+        inline constexpr auto TotalWeight = 12;
+
+        inline constexpr auto ChoiceCount = 8;
+
+        inline constexpr auto LogicHouseType = 4;
+
+        inline constexpr auto TribeType = 0;
+
+        inline constexpr auto Choices = 16;
+    }
+
+    namespace WeightedLandscapeChoiceOffset
+    {
+        inline constexpr auto Weight = 4;
+    }
+
+    namespace LandscapeTransitionOffset
+    {
+        inline constexpr auto TargetLandscapeId = 4;
+    }
+
+    namespace LandscapeLogicViewOffset
+    {
+        inline constexpr auto MaximumValency = 4;
+
+        inline constexpr auto Transitions = 0x30;
+
+        inline constexpr auto TransitionCount = 0x2C;
+    }
+
+    namespace StaticLandscapeOffset
+    {
+        inline constexpr auto IsStaticUnsigned = 0x79u;
+
+        inline constexpr auto LogicTypeUnsigned = 0x38u;
+
+        inline constexpr auto PileableOnMap = 0x41;
+
+        inline constexpr auto LogicType = 0x38;
+    }
+
+    namespace OwnedArrayHandlerOffset
+    {
+        inline constexpr auto OwnedEntries = 0x30;
+    }
+
+    namespace AllocatedRecordOffset
+    {
+        inline constexpr auto Allocated = 0;
     }
 
 }

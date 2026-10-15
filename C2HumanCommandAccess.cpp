@@ -533,9 +533,9 @@ namespace NC2Logic
         (void)attachmentMask;
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 42);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 42);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }

@@ -348,10 +348,10 @@ namespace NC2Logic
             if (Read<std::uint8_t>(ownData, 0x4994u + other) != 0) continue;
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 0x3C);
-            Write(message, 8, other);
-            Write(message, 0x0C, player);
-            Write(message, 0x28, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3C);
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, other);
+            Write(message, NC2Layout::ToUserMessageOffset::RelatedPlayerId, player);
+            Write(message, NC2Layout::ToUserMessageOffset::MapPositionX, Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }

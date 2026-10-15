@@ -118,9 +118,9 @@ namespace NC2InGameGuiSelection
     {
         if (!Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabEnabledFlags + index) || Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabCollapsedFlags + index)) return;
         if (height < 16) height = 16;
-        if (Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * 4) != height)
+        if (Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::HouseWindowTabHeight) != height)
         {
-            Write(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * 4,height);
+            Write(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::HouseWindowTabHeight,height);
             Write<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::LayoutInvalidFlag,1);
         }
     }
@@ -165,20 +165,20 @@ namespace NC2InGameGuiSelection
         for (std::uint32_t page = 0; page < 7; ++page)
         {
             std::uint32_t index = 0;
-            for (const auto good : gStockPages[page]) if (IsGoodAllowed(house,good)) Write(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index++) * 4,good);
+            for (const auto good : gStockPages[page]) if (IsGoodAllowed(house,good)) Write(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index++) * NC2Layout::RecordSize::HouseWindowStockValue,good);
         }
         for (std::uint32_t good = 1; good <= 55; ++good) if (IsGoodAllowed(house,good)) { bool found = false;
-            for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index) * 4) == good) found = true;
-            if (!found) for (std::uint32_t index = 0; index < 14; ++index) if (!Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * 4))
+            for (std::uint32_t page = 0; page < 7; ++page) for (std::uint32_t index = 0; index < 14; ++index) if (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (page * 14 + index) * NC2Layout::RecordSize::HouseWindowStockValue) == good) found = true;
+            if (!found) for (std::uint32_t index = 0; index < 14; ++index) if (!Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue))
             {
-                Write(window,NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * 4,good);
+                Write(window,NC2Layout::SelectionHouseWindowOffset::UncategorizedStockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue,good);
                 break;
             }
         }
         SSelectionHouseWindowMostStockGoodsData most;
         l_SubTabs_StockHouseGoods_GetMostStockGoods(window,&most);
         if (most.count > 14) most.count = 14;
-        for (std::uint32_t index = 0; index < 14; ++index) Write(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + index * 4,index < most.count ? most.entries[index].good : 0u);
+        for (std::uint32_t index = 0; index < 14; ++index) Write(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue,index < most.count ? most.entries[index].good : 0u);
         for (std::uint32_t page = 1; page < 7; ++page)
         {
             auto* data = static_cast<std::byte*>(window) + NC2Layout::SelectionHouseWindowOffset::StockGoods + page * 56;
@@ -204,7 +204,7 @@ namespace NC2InGameGuiSelection
     static void AddGood(void* window, const SRectangle& area, const void* house, std::uint32_t good)
     {
         auto* memory = NXBasics::Runtime_AllocateWithNewHandler(268,1);
-        auto* element = memory == nullptr ? nullptr : SelectionHouseGoodTypeElement_Construct(memory,&area,window,10014,0,Read<std::int32_t>(house,4),good);
+        auto* element = memory == nullptr ? nullptr : SelectionHouseGoodTypeElement_Construct(memory,&area,window,10014,0,Read<std::int32_t>(house,NC2Layout::HouseOffset::HouseId),good);
         NXBaseGui::BaseWindow_Element_Add(window,element);
     }
     static void* AddPreview(void* window, const SRectangle& area, const void* house, bool commands)
@@ -240,7 +240,7 @@ namespace NC2InGameGuiSelection
         for (std::uint32_t index = 0; index < 11; ++index) if (Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabEnabledFlags + index))
         {
             if (width < gSubTabs[index].width) width = gSubTabs[index].width;
-            const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * 4);
+            const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::HouseWindowTabHeight);
             height += Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabCollapsedFlags + index) ? 16 : 16 + (overrideHeight ? overrideHeight : gSubTabs[index].height);
         }
         Write(window,NC2Layout::SelectionHouseWindowOffset::ComputedWidth,width);
@@ -251,7 +251,7 @@ namespace NC2InGameGuiSelection
             SRectangle area(-1,-1,0,0);
             if (Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabEnabledFlags + index))
             {
-                const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * 4);
+                const auto overrideHeight = Read<std::int32_t>(window,NC2Layout::SelectionHouseWindowOffset::TabHeightOverrides + index * NC2Layout::RecordSize::HouseWindowTabHeight);
                 area = SRectangle(width - gSubTabs[index].width,y,gSubTabs[index].width,Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabCollapsedFlags + index) ? 16 : 16 + (overrideHeight ? overrideHeight : gSubTabs[index].height));
                 y += area.height;
             }
@@ -267,8 +267,8 @@ namespace NC2InGameGuiSelection
             const auto section = Section(window,index);
             const bool collapsed = Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::TabCollapsedFlags + index) != 0;
             auto* button = AddGraphic(window,SRectangle(section.x + section.width - 19,section.y + 2,18,12),collapsed ? 19 : 20,HouseString(collapsed ? 100 : 101),10000);
-            Write(button,0x48,index);
-            Write<std::uint32_t>(button,0x4C,0);
+            Write(button,NC2Layout::GuiGfxButtonOffset::MessageParameter1,index);
+            Write<std::uint32_t>(button,NC2Layout::GuiGfxButtonOffset::MessageParameter2,0);
         }
         auto* house = l_Misc_GetSelectedHousePtr();
         if (house == nullptr) return;
@@ -331,16 +331,16 @@ namespace NC2InGameGuiSelection
                     auto* child = AddGraphic(window,button,gStockPageButtons[page][0],HouseString(gStockPageButtons[page][1]),10013);
                     Write(child,NC2Layout::ToolGfxButtonOffset::CommandData1,page);
                     Write<std::uint32_t>(child,NC2Layout::ToolGfxButtonOffset::CommandData2,0);
-                    Write<std::uint8_t>(child,0x36,page == Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockPage));
-                    Write<std::uint8_t>(child,0x35,1);
-                    Write<std::uint8_t>(child,0x44,1);
+                    Write<std::uint8_t>(child,NC2Layout::GuiGfxButtonOffset::Selected,page == Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockPage));
+                    Write<std::uint8_t>(child,NC2Layout::GuiGfxButtonOffset::RectangularStyle,1);
+                    Write<std::uint8_t>(child,NC2Layout::GuiGfxButtonOffset::ImmediateTooltip,1);
                     button.x += button.width + 2;
                 }
                 SRectangle goodArea(section.x + 8,section.y + 48,156,20);
                 const auto start = goodArea.y;
                 for (std::uint32_t slot = 0; slot < 14; ++slot)
                 {
-                    const auto good = Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockPage) * 14 + slot) * 4);
+                    const auto good = Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockPage) * 14 + slot) * NC2Layout::RecordSize::HouseWindowStockValue);
                     if (!good) break;
                     AddGood(window,goodArea,house,good);
                     goodArea.y += 22;
@@ -417,7 +417,7 @@ namespace NC2InGameGuiSelection
                 if (Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::StockHouseTabEnabled) && !Read<std::uint8_t>(window,NC2Layout::SelectionHouseWindowOffset::StockHouseTabCollapsed)) { SSelectionHouseWindowMostStockGoodsData most;
                     l_SubTabs_StockHouseGoods_GetMostStockGoods(window,&most);
                     if (most.count > 14) most.count = 14;
-                    for (std::uint32_t index = 0; index < most.count; ++index) if (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + index * 4) != most.entries[index].good)
+                    for (std::uint32_t index = 0; index < most.count; ++index) if (Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::StockGoods + index * NC2Layout::RecordSize::HouseWindowStockValue) != most.entries[index].good)
                     {
                         l_SubTabs_StockHouseGoods_Init(window);
                         l_SubTabs_UpdateAll(window,true);
@@ -443,7 +443,7 @@ namespace NC2InGameGuiSelection
             break;
         case SwitchIds::HouseWindowCommand::CenterHouse: case SwitchIds::HouseWindowCommand::CenterHouseAndStopFollowing: if (house != nullptr)
         {
-            NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(),0x30),reinterpret_cast<const std::uint32_t*>(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition));
+            NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(manager->GetDesktop(),NC2Layout::WorldGuiElementOffset::Display),reinterpret_cast<const std::uint32_t*>(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition));
                 if (command == 10023) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
             }
             break;
@@ -467,7 +467,7 @@ namespace NC2InGameGuiSelection
         case SwitchIds::HouseWindowCommand::DecreaseStockMinimum: case SwitchIds::HouseWindowCommand::IncreaseStockMinimum: if (house != nullptr && Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::SelectedStockGood))
         {
             const auto good = Read<std::uint32_t>(window,NC2Layout::SelectionHouseWindowOffset::SelectedStockGood);
-                const auto step = (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr,0) & 2u) ? 10u : 1u;
+                const auto step = (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr,NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) ? 10u : 1u;
                 const auto previous = NC2Logic::House_Stock_GetMinimumValue(house,good);
                 auto amount = NXBasics::Runtime_TimeSigned32(command == 10015 ? previous - step : previous + step);
                 if (command == 10015 && amount < 0) amount = 0;
@@ -612,8 +612,8 @@ namespace NC2InGameGuiSelection
                     y += 16;
                 }
                 for (std::int32_t goodIndex = 0; goodIndex < Read<std::int32_t>(house,NC2Layout::HouseOffset::ConstructionGoodsCount); ++goodIndex) { const auto* entry = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::ConstructionGoodEntriesSigned + goodIndex * 20;
-                    const auto good = Read<std::uint32_t>(entry,0);
-                    DrawTool_PrintStringXV(bitmap,x,y,font,DrawTool_GetFontColorRef(),"{gfxgood:%d,1} %s   %d - %d - %d",good,NC2Logic::StringAccess_GetGoodNamePtr(good,1),Read<std::uint32_t>(entry,4),Read<std::uint32_t>(entry,8),Read<std::uint32_t>(entry,16));
+                    const auto good = Read<std::uint32_t>(entry,NC2Layout::HouseConstructionGoodOffset::GoodType);
+                    DrawTool_PrintStringXV(bitmap,x,y,font,DrawTool_GetFontColorRef(),"{gfxgood:%d,1} %s   %d - %d - %d",good,NC2Logic::StringAccess_GetGoodNamePtr(good,1),Read<std::uint32_t>(entry,NC2Layout::HouseConstructionGoodOffset::RequiredAmount),Read<std::uint32_t>(entry,NC2Layout::HouseConstructionGoodOffset::DeliveredAmount),Read<std::uint32_t>(entry,NC2Layout::HouseConstructionGoodOffset::ConsumedAmount));
                     y += 12;
                 }
                 l_SubTabs_OverwriteHeight(window,2,y - section.y - 8);
@@ -697,11 +697,11 @@ namespace NC2InGameGuiSelection
                 for (auto agreement = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray,house,NXBasics::IntegerRange::UInt32Maximum); agreement != NXBasics::IntegerRange::UInt32Maximum; agreement = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray,house,agreement))
                 {
                     const auto* data = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38 + agreement * 24;
-                    const auto* secondName = NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(data,8),Read<std::uint32_t>(data,12));
+                    const auto* secondName = NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::OutgoingGood),Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::OutgoingAmount));
                     const auto* secondPrefix = HouseString(91);
-                    const auto* firstName = NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(data,16),Read<std::uint32_t>(data,20));
+                    const auto* firstName = NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::IncomingGood),Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::IncomingAmount));
                     const auto* firstPrefix = HouseString(90);
-                    bitmap->Text_PrintV(font,color,section.x + 4,y,"%s %d %s - %s %d %s",firstPrefix,Read<std::uint32_t>(data,20),firstName,secondPrefix,Read<std::uint32_t>(data,12),secondName);
+                    bitmap->Text_PrintV(font,color,section.x + 4,y,"%s %d %s - %s %d %s",firstPrefix,Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::IncomingAmount),firstName,secondPrefix,Read<std::uint32_t>(data,NC2Layout::TradeAgreementOffset::OutgoingAmount),secondName);
                     y += 12;
                 }
             }

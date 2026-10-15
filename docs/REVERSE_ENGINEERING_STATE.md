@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Thousand-access readability continuation — 2026-10-15
+
+Completed the [1,007-access readability pass](THOUSAND_READABILITY_RECORDS_REVIEW.md) across 90 C++ files: human/house/GUI/message/command fields, proven array strides, observation and menu windows, AI requests and assistant budgets, FMV, happiness/events, statistics, tribute and landscape records. **335 value/type comparisons, 104 physical assertions and incremental Win32 syntax checks of all 90 affected units** pass. C++ operation tokens remain identical after constant normalization; no build/test/game run. The [direct delta](THOUSAND_READABILITY_ACCESS_DELTA.csv) records 1,030 changed expressions, of which exactly 1,007 cease to contain raw numeric operands.
+
+Latest scan: **595 registered files (307 CPP / 288 headers), 156,706 lines, 1,205 raw numeric-access operands, 74 heuristic unknown mentions, 1,037 long compound lines and 5,014 original-address annotations**. This pass removes 1,007 candidates; cumulative reduction **4,222 / 5,427 (77.80%)**, thirty-five completed naming/layout blocks. These are refactoring heuristics, not missing functions or gameplay completion. The broad request and full per-function review remain open. Independent pending documentation is preserved. Next: map-sector routing (26 raw operands), static engine-house data (22), then display/lifetime/map saving (20 each).
+
 ## Large readability continuation — 2026-10-15
 
 Completed the [547-access readability pass](LARGE_READABILITY_RECORDS_REVIEW.md): 417 packed-coordinate/WORD accesses and 130 GUI, target, command, message, actor and allowance fields across 78 C++ files. Corrected the misleading GUI +0x1C name from ElementId to MessageMask throughout production. All C++ operation tokens remain unchanged after value/name normalization. **38 value/type comparisons, 23 physical assertions and incremental Win32 syntax checks of all 78 affected units** pass; no build/test/game run. [Direct access delta](LARGE_READABILITY_ACCESS_DELTA.csv) records exactly 547 numeric replacements plus three symbolic renames.

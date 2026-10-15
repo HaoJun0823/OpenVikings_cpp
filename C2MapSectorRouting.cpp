@@ -250,7 +250,7 @@ namespace NC2Logic
         for (auto& queue : sMapPathfinderStaticVariables) queue.count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = PackSector(destination);
-        const bool dangerCosts = player != -1 && player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 4) == 2;
+        const bool dangerCosts = player != -1 && player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::Type) == 2;
         l_Sectors_CalculationMap_SetValue(destination, NXBasics::IntegerRange::UInt16Maximum);
         std::uint32_t current = 0, pending = 1;
         do

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "XGuiDesktop.h"
 #include "XGuiWindowAccess.h"
@@ -13,9 +14,9 @@ namespace NXBaseGui
     // Original function: FUN_00477163.
     void CDesktop::Element_Add(CBaseElement* element, bool insertAtEnd)
     {
-        const auto flags = Read<std::uint32_t>(element, 0x18);
+        const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags);
         if ((flags & NXBasics::BitMask::Bit11) != 0) return;
-        Write(element, 0x18, flags | NXBasics::BitMask::Bit11);
+        Write(element, NC2Layout::GuiBaseElementOffset::Flags, flags | NXBasics::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(element) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         auto* drawList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x14));
@@ -31,31 +32,31 @@ namespace NXBaseGui
             inputList->InsertAtEnd(element);
         }
         using TAdded = void(__thiscall*)(void*);
-        Read<TAdded*>(element, 0)[12](element);
+        Read<TAdded*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[12](element);
     }
 
     // Original function: FUN_004771be; overlay draw/input lists are distinct from normal elements.
     void CDesktop::Element_AddOverlay(CBaseElement* element, bool insertAtEnd)
     {
-        const auto flags = Read<std::uint32_t>(element, 0x18);
+        const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags);
         if ((flags & NXBasics::BitMask::Bit11) != 0) return;
-        Write(element, 0x18, flags | NXBasics::BitMask::Bit11);
+        Write(element, NC2Layout::GuiBaseElementOffset::Flags, flags | NXBasics::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(element) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         auto* drawList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x3C));
         auto* inputList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x50));
         if (insertAtEnd) { drawList->InsertAtEnd(element); inputList->InsertAtStart(element); }
         else { drawList->InsertAtStart(element); inputList->InsertAtEnd(element); }
-        Read<void(__thiscall**)(void*)>(element, 0)[12](element);
+        Read<void(__thiscall**)(void*)>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[12](element);
     }
     // Original function: FUN_00477219.
     void CDesktop::Window_Add(CBaseWindow* window)
     {
         if (window == nullptr) return;
-        const auto flags = Read<std::uint32_t>(window, 0x18);
+        const auto flags = Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Flags);
         if ((flags & NXBasics::BitMask::Bit11) != 0) return;
         Write<std::uint8_t>(window, 0x68, static_cast<std::uint8_t>(Read<std::uint8_t>(window, 0x68) | 1u));
-        Write(window, 0x18, flags | NXBasics::BitMask::Bit11);
+        Write(window, NC2Layout::GuiBaseElementOffset::Flags, flags | NXBasics::BitMask::Bit11);
         std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(window) + 4))->PlaceInside(mRectangle);
         auto* bytes = reinterpret_cast<std::byte*>(this);
         std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x64))->InsertAtEnd(window);
@@ -64,7 +65,7 @@ namespace NXBaseGui
         std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0xA0))->InsertAtStart(window);
         BaseWindow_NotifyAddedToDesktop(window);
         using TAdded = void(__thiscall*)(void*);
-        Read<TAdded*>(window, 0)[12](window);
+        Read<TAdded*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[12](window);
         Element_Activate(reinterpret_cast<CBaseElement*>(window));
     }
 
@@ -72,30 +73,30 @@ namespace NXBaseGui
     std::uint32_t CDesktop::Window_Hide(CBaseWindow* window)
     {
         using TCanBeHidden = bool(__thiscall*)(void*);
-        if (window == nullptr || !Read<TCanBeHidden*>(window, 0)[15](window)) return 0;
+        if (window == nullptr || !Read<TCanBeHidden*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[15](window)) return 0;
         if (static_cast<void*>(Window_GetActivePtr()) == window)
         {
             using TDeactivate = void(__thiscall*)(void*);
             if (mActiveElement != nullptr)
             {
                 auto* active = mActiveElement;
-                Read<TDeactivate*>(active, 0)[5](active);
+                Read<TDeactivate*>(active, NC2Layout::GuiBaseElementOffset::VirtualTable)[5](active);
                 mActiveElement = nullptr;
             }
-            Read<TDeactivate*>(window, 0)[5](window);
+            Read<TDeactivate*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[5](window);
         }
         BaseWindow_InternalHide(window);
-        return Read<std::uint32_t>(window, 0x28);
+        return Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Serial);
     }
 
     // Original function: FUN_00477532.
     std::uint32_t CDesktop::Element_Hide(CBaseElement* element)
     {
         using TCanBeHidden = bool(__thiscall*)(void*);
-        if (element == nullptr || !Read<TCanBeHidden*>(element, 0)[15](element)) return 0;
+        if (element == nullptr || !Read<TCanBeHidden*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[15](element)) return 0;
         Element_Deactivate(element);
         BaseElement_InternalHide(element);
-        return Read<std::uint32_t>(element, 0x28);
+        return Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Serial);
     }
 
     // Original function: FUN_00477564.
@@ -105,7 +106,7 @@ namespace NXBaseGui
     CBaseElement* CDesktop::Window_GetActivePtr() const
     {
         auto* active = mActiveElement;
-        if (active == nullptr || (Read<std::uint32_t>(active, 0x18) & NXBasics::BitMask::Bit6) != 0) return active;
-        return Read<CBaseElement*>(active, 0x20);
+        if (active == nullptr || (Read<std::uint32_t>(active, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0) return active;
+        return Read<CBaseElement*>(active, NC2Layout::GuiBaseElementOffset::ParentWindow);
     }
 }

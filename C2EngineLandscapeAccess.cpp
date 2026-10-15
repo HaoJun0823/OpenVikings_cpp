@@ -40,7 +40,7 @@ namespace NC2E2
     bool EngineMap_MapMicroPoint_Landscape_SetType(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
     {
         if (engineId == -1 || EngineMap_GetConstMapMicroPointPtr(point) == nullptr || NC2Logic::MapMigPoint_IsBorderPoint(point)) return false;
-        const auto type = NC2Lifetime::Read<std::uint32_t>(gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x38u);
+        const auto type = NC2Lifetime::Read<std::uint32_t>(gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * NC2Layout::RecordSize::StaticLandscapeUnsigned + NC2Layout::StaticLandscapeOffset::LogicTypeUnsigned);
         return NC2Logic::Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, type, valency, engineId, preserveWalkingBlock, player);
     }
 
@@ -79,9 +79,9 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<MiscLandscapeTokenList_AtExit>(landscapeTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case SwitchIds::MiscLandscapeToken::LogicTribeType: Write(entry, 0, reader.GetInt()); break;
-                    case SwitchIds::MiscLandscapeToken::LogicLandscapeType: Write(entry, 4, reader.GetInt()); break;
-                    case SwitchIds::MiscLandscapeToken::LandscapeName: Write(entry, 8, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString())); break;
+                    case SwitchIds::MiscLandscapeToken::LogicTribeType: Write(entry, NC2Layout::MiscLandscapeLinkOffset::TribeType, reader.GetInt()); break;
+                    case SwitchIds::MiscLandscapeToken::LogicLandscapeType: Write(entry, NC2Layout::MiscLandscapeLinkOffset::LogicLandscapeType, reader.GetInt()); break;
+                    case SwitchIds::MiscLandscapeToken::LandscapeName: Write(entry, NC2Layout::MiscLandscapeLinkOffset::EngineLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString())); break;
                     }
         }
         gStaticMiscLandscapeGroupCount = reader.GetNumberOfGroups("tribehouseLinkData");
@@ -92,21 +92,21 @@ namespace NC2E2
             for (auto* group = reader.GetFirstGroup("tribehouseLinkData"); group != nullptr; group = reader.GetNextGroup("tribehouseLinkData"), entry += 20)
             {
                 auto* choices = allocate(reader.GetNumberOfCommandsInGroup("landscapename") * 8u);
-                Write(entry, 16, choices);
+                Write(entry, NC2Layout::MiscHouseLandscapeLinkOffset::Choices, choices);
                 reader.SetCurrentLineToGroupStart();
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<MiscHouseLandscapeTokenList_AtExit>(groupTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case SwitchIds::MiscHouseLandscapeToken::LogicTribeType: Write(entry, 0, reader.GetInt()); break;
-                    case SwitchIds::MiscHouseLandscapeToken::LogicHouseType: Write(entry, 4, reader.GetInt()); break;
+                    case SwitchIds::MiscHouseLandscapeToken::LogicTribeType: Write(entry, NC2Layout::MiscHouseLandscapeLinkOffset::TribeType, reader.GetInt()); break;
+                    case SwitchIds::MiscHouseLandscapeToken::LogicHouseType: Write(entry, NC2Layout::MiscHouseLandscapeLinkOffset::LogicHouseType, reader.GetInt()); break;
                     case SwitchIds::MiscHouseLandscapeToken::LandscapeName:
                     {
-                        const auto index = Read<std::uint32_t>(entry, 8);
-                        Write(choices, index * 8u, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()));
+                        const auto index = Read<std::uint32_t>(entry, NC2Layout::MiscHouseLandscapeLinkOffset::ChoiceCount);
+                        Write(choices, index * NC2Layout::RecordSize::WeightedLandscapeChoiceUnsigned, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()));
                         const auto weight = reader.GetTypeOfNextParameter() == 3 ? static_cast<std::uint32_t>(reader.GetInt()) : 1u;
-                        Write(choices, index * 8u + 4, weight);
-                        Write(entry, 12, Read<std::uint32_t>(entry, 12) + weight);
-                        Write(entry, 8, index + 1u);
+                        Write(choices, index * NC2Layout::RecordSize::WeightedLandscapeChoiceUnsigned + NC2Layout::WeightedLandscapeChoiceOffset::Weight, weight);
+                        Write(entry, NC2Layout::MiscHouseLandscapeLinkOffset::TotalWeight, Read<std::uint32_t>(entry, NC2Layout::MiscHouseLandscapeLinkOffset::TotalWeight) + weight);
+                        Write(entry, NC2Layout::MiscHouseLandscapeLinkOffset::ChoiceCount, index + 1u);
                         break;
                     }
                     }
@@ -120,8 +120,8 @@ namespace NC2E2
         using namespace NC2Lifetime;
         for (std::uint32_t index = 0; index < NC2E2::gStaticMiscLandscapeEntryCount; ++index)
         {
-            const auto offset = index * 12u;
-            if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset) == tribe && Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + 4) == type) return Read<std::int32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + 8);
+            const auto offset = index * NC2Layout::RecordSize::MiscLandscapeLinkUnsigned;
+            if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset) == tribe && Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + NC2Layout::MiscLandscapeLinkOffset::LogicLandscapeType) == type) return Read<std::int32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + NC2Layout::MiscLandscapeLinkOffset::EngineLandscapeId);
         }
         return -1;
     }
@@ -135,15 +135,15 @@ namespace NC2E2
         for (std::uint32_t pass = 0; pass < 2; ++pass)
             for (std::uint32_t index = 0; index < NC2E2::gStaticMiscLandscapeGroupCount; ++index)
             {
-                const auto offset = index * 20u;
-                if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset) != tribe || Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 4) != (pass == 0 ? type : 0u)) continue;
-                auto choice = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 12);
-                const auto count = Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 8);
-                const auto* entries = Read<const std::byte*>(NC2E2::gStaticMiscLandscapeGroups, offset + 16);
+                const auto offset = index * NC2Layout::RecordSize::MiscHouseLandscapeLinkUnsigned;
+                if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset) != tribe || Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + NC2Layout::MiscHouseLandscapeLinkOffset::LogicHouseType) != (pass == 0 ? type : 0u)) continue;
+                auto choice = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + NC2Layout::MiscHouseLandscapeLinkOffset::TotalWeight);
+                const auto count = Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + NC2Layout::MiscHouseLandscapeLinkOffset::ChoiceCount);
+                const auto* entries = Read<const std::byte*>(NC2E2::gStaticMiscLandscapeGroups, offset + NC2Layout::MiscHouseLandscapeLinkOffset::Choices);
                 for (std::uint32_t item = 0; item < count; ++item)
                 {
-                    choice -= Read<std::uint32_t>(entries, item * 8u + 4);
-                    if (NXBasics::Runtime_TimeSigned32(choice) <= 0) return Read<std::int32_t>(entries, item * 8u);
+                    choice -= Read<std::uint32_t>(entries, item * NC2Layout::RecordSize::WeightedLandscapeChoiceUnsigned + NC2Layout::WeightedLandscapeChoiceOffset::Weight);
+                    if (NXBasics::Runtime_TimeSigned32(choice) <= 0) return Read<std::int32_t>(entries, item * NC2Layout::RecordSize::WeightedLandscapeChoiceUnsigned);
                 }
             }
         return -1;
@@ -179,16 +179,16 @@ namespace NC2LogicExternals
     std::int32_t External_Misc_GetEngineDepotLandscapeId(std::uint32_t tribe, std::uint32_t type) { return NC2E2::E2StaticDataMiscLandscapeManager_GetRandomEngineLandscapeId(tribe, type); }
 
     // Original function: FUN_0045343e.
-    std::uint32_t External_Landscape_GetMaximumValency(std::int32_t engineId) { return engineId == -1 ? 0u : NC2Lifetime::Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(engineId), 4); }
+    std::uint32_t External_Landscape_GetMaximumValency(std::int32_t engineId) { return engineId == -1 ? 0u : NC2Lifetime::Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(engineId), NC2Layout::LandscapeLogicViewOffset::MaximumValency); }
 
     // Original function: FUN_00453456.
     std::int32_t External_Landscape_GetTransitionTarget(std::int32_t engineId, std::uint32_t transition)
     {
         if (engineId == -1) return -1;
         const auto* data = External_Landscape_GetLogicDataPtr(engineId);
-        const auto count = NC2Lifetime::Read<std::uint32_t>(data, 0x2C);
-        const auto* entries = NC2Lifetime::Read<const std::byte*>(data, 0x30);
-        for (std::uint32_t i = 0; i < count; ++i) if (NC2Lifetime::Read<std::uint32_t>(entries, i * 8u) == transition) return NC2Lifetime::Read<std::int32_t>(entries, i * 8u + 4);
+        const auto count = NC2Lifetime::Read<std::uint32_t>(data, NC2Layout::LandscapeLogicViewOffset::TransitionCount);
+        const auto* entries = NC2Lifetime::Read<const std::byte*>(data, NC2Layout::LandscapeLogicViewOffset::Transitions);
+        for (std::uint32_t i = 0; i < count; ++i) if (NC2Lifetime::Read<std::uint32_t>(entries, i * NC2Layout::RecordSize::LandscapeTransitionUnsigned) == transition) return NC2Lifetime::Read<std::int32_t>(entries, i * NC2Layout::RecordSize::LandscapeTransitionUnsigned + NC2Layout::LandscapeTransitionOffset::TargetLandscapeId);
         return -1;
     }
 
@@ -198,7 +198,7 @@ namespace NC2LogicExternals
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
         const auto id = NC2Lifetime::Read<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId);
         if (id == NXBasics::IntegerRange::UInt16Maximum) return;
-        const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * 0x8Cu + 0x79u);
+        const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::StaticLandscapeUnsigned + NC2Layout::StaticLandscapeOffset::IsStaticUnsigned);
         NC2Lifetime::Write<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId, NXBasics::IntegerRange::UInt16Maximum);
         NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, parameter);
     }
@@ -209,7 +209,7 @@ namespace NC2LogicExternals
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
         if (NC2Lifetime::Read<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId) == static_cast<std::uint32_t>(engineId)) return;
         NC2Lifetime::Write<std::uint16_t>(micro, NC2Layout::EngineMapMicroPointOffset::LandscapeId, static_cast<std::uint16_t>(engineId));
-        NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x79u));
+        NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * NC2Layout::RecordSize::StaticLandscapeUnsigned + NC2Layout::StaticLandscapeOffset::IsStaticUnsigned));
     }
 
     // Original function: FUN_00480712.
@@ -251,8 +251,8 @@ namespace NC2LogicExternals
         {
             // Original 0x8C layout is described by SE2StaticDataLandscape.
             const auto* record = static_cast<const std::byte*>(NC2E2::gStaticLandscapeEntries) + static_cast<std::uint32_t>(index) * 0x8Cu;
-            if (NC2Lifetime::Read<std::int32_t>(record, 0x38) != landscapeType) continue;
-            if (!requireMapLandscape || NC2Lifetime::Read<std::uint8_t>(record, 0x41) != 0) return index;
+            if (NC2Lifetime::Read<std::int32_t>(record, NC2Layout::StaticLandscapeOffset::LogicType) != landscapeType) continue;
+            if (!requireMapLandscape || NC2Lifetime::Read<std::uint8_t>(record, NC2Layout::StaticLandscapeOffset::PileableOnMap) != 0) return index;
         }
         return -1;
     }

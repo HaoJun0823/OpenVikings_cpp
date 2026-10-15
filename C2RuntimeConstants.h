@@ -251,6 +251,12 @@ namespace NC2Runtime
 
     namespace PlayerAllowanceStride
     {
+        inline constexpr auto Houses = 55;
+
+        inline constexpr auto Goods = 66;
+
+        inline constexpr auto JobsAndEquipment = 56;
+
         inline constexpr auto VehiclesUnsigned = 7u;
         inline constexpr auto HousesUnsigned = 55u;
         inline constexpr auto JobsAndEquipmentUnsigned = 56u;

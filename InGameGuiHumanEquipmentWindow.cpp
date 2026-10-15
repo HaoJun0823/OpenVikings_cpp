@@ -40,25 +40,25 @@ namespace NC2InGameGuiSelectedAction
         // Original function: FUN_004c85ad; only a zero checksum accepts a new selection.
         void l_System_Validate(void* window)
         {
-            const auto type = Read<std::uint32_t>(Input(), 4);
-            const auto saved = Read<std::uint32_t>(window, 0x7C);
-            const auto current = Read<std::uint32_t>(Input(), 0xAB0);
+            const auto type = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType);
+            const auto saved = Read<std::uint32_t>(window, NC2Layout::HumanEquipmentWindowOffset::SelectionChangeCount);
+            const auto current = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionChangeCount);
             if ((type != 1 && type != 2) || (saved != 0 && saved != current))
             {
-                Write<std::uint32_t>(window, 0x7C, 0);
-                Write<std::uint8_t>(window, 0x78, 0);
+                Write<std::uint32_t>(window, NC2Layout::HumanEquipmentWindowOffset::SelectionChangeCount, 0);
+                Write<std::uint8_t>(window, NC2Layout::HumanEquipmentWindowOffset::ValidSelection, 0);
                 NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window));
                 return;
             }
-            Write(window, 0x7C, current);
-            Write<std::uint8_t>(window, 0x78, 1);
+            Write(window, NC2Layout::HumanEquipmentWindowOffset::SelectionChangeCount, current);
+            Write<std::uint8_t>(window, NC2Layout::HumanEquipmentWindowOffset::ValidSelection, 1);
         }
         void AddRow(void* list, void* window, SRectangle& rectangle, const char* caption, bool button, std::uint32_t command, std::uint32_t good, bool spacing)
         {
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(button ? 0x60 : 0x100, 1);
             void* element = nullptr;
             if (allocation != nullptr) element = button ? NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, caption, command, window) : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption, false, false);
-            if (button && element != nullptr) { Write(element, 0x4C, good); Write<std::uint32_t>(element, 0x50, 0); }
+            if (button && element != nullptr) { Write(element, NC2Layout::GuiTextButtonOffset::MessageParameter1, good); Write<std::uint32_t>(element, NC2Layout::GuiTextButtonOffset::MessageParameter2, 0); }
             BaseListBoxElement_Element_Add(list, nullptr, element);
             rectangle.y += rectangle.height + (spacing ? 2 : 0);
         }
@@ -76,9 +76,9 @@ namespace NC2InGameGuiSelectedAction
             element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closer);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             l_System_Validate(window);
-            if (Read<std::uint8_t>(window, 0x78) == 0) return;
-            const auto category = Read<std::uint32_t>(window, 0x70);
-            const auto slot = Read<std::int32_t>(window, 0x74);
+            if (Read<std::uint8_t>(window, NC2Layout::HumanEquipmentWindowOffset::ValidSelection) == 0) return;
+            const auto category = Read<std::uint32_t>(window, NC2Layout::HumanEquipmentWindowOffset::Category);
+            const auto slot = Read<std::int32_t>(window, NC2Layout::HumanEquipmentWindowOffset::Slot);
             char title[100];
             const char* typeName = NC2GuiToolsBase::StringTool_GetLogicGoodEquipmentTypeNamePtr(category);
             if (slot == -1) NXBasics::Runtime_PrintStringN(title, sizeof(title), "%s", typeName);
@@ -88,8 +88,8 @@ namespace NC2InGameGuiSelectedAction
             allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             const SRectangle listRect(4, 44, 388, 234);
             void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &listRect);
-            SRectangle row(0, 0, Read<std::int32_t>(list, 0x0C), 22);
-            if (Read<std::uint32_t>(Input(), 4) == 1)
+            SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22);
+            if (Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType) == 1)
             {
                 const void* human = Human(NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(Input()));
                 for (std::uint32_t good = 30; good <= 55; ++good)
@@ -105,7 +105,7 @@ namespace NC2InGameGuiSelectedAction
                     AddRow(list, window, row, caption, !equipped || good >= 33, equipped ? 10001u : 10000u, good, true);
                 }
             }
-            else if (Read<std::uint32_t>(Input(), 4) == 2)
+            else if (Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType) == 2)
             {
                 bool allowed[66]{};
                 for (std::uint32_t good = 30; good <= 55; ++good) allowed[good] = true;
@@ -125,7 +125,7 @@ namespace NC2InGameGuiSelectedAction
             const SRectangle controllerRect(396, 44, 20, 234);
             element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &controllerRect, list, false, true);
             NXBaseGui::BaseWindow_Element_Add(window, element);
-            const auto selection = Read<std::uint32_t>(Input(), 4);
+            const auto selection = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType);
             if (selection == 1)
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(Input());
@@ -150,7 +150,7 @@ namespace NC2InGameGuiSelectedAction
         void QueueEquipmentCommand(std::int32_t id, std::uint8_t opcode, std::uint32_t good, std::int32_t slot)
         {
             std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, opcode); Write(command, 4, id); Write(command, 0x0C, good); Write(command, 0x10, slot);
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, opcode); Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, good); Write(command, NC2Layout::UserNetworkCommandOffset::Parameter2, slot);
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
         }
@@ -163,7 +163,7 @@ namespace NC2InGameGuiSelectedAction
                 if (command != 2016) return false;
                 if (first != 0)
                 {
-                    Write(window, 0x70, first); Write(window, 0x74, second);
+                    Write(window, NC2Layout::HumanEquipmentWindowOffset::Category, first); Write(window, NC2Layout::HumanEquipmentWindowOffset::Slot, second);
                     NXBaseGui::BaseWindow_Element_DeleteAll(window);
                     l_GuiButtons_Add(window);
                 }
@@ -171,9 +171,9 @@ namespace NC2InGameGuiSelectedAction
             }
             if (message != 0x800) return false;
             if (command != 10000 && command != 10001) return true;
-            const auto selection = Read<std::uint32_t>(Input(), 4);
-            const auto category = Read<std::uint32_t>(window, 0x70) == 6 ? NC2Logic::Tool_GoodEquipmentType_Convert(second) : Read<std::uint32_t>(window, 0x70);
-            const auto slot = Read<std::int32_t>(window, 0x74);
+            const auto selection = Read<std::uint32_t>(Input(), NC2Layout::InputManagerOffset::SelectionType);
+            const auto category = Read<std::uint32_t>(window, NC2Layout::HumanEquipmentWindowOffset::Category) == 6 ? NC2Logic::Tool_GoodEquipmentType_Convert(second) : Read<std::uint32_t>(window, NC2Layout::HumanEquipmentWindowOffset::Category);
+            const auto slot = Read<std::int32_t>(window, NC2Layout::HumanEquipmentWindowOffset::Slot);
             if (selection == 1)
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(Input());
@@ -213,7 +213,7 @@ namespace NC2InGameGuiSelectedAction
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 16);
         Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gEquipmentWindowVirtualTable.data());
-        Write(window, 0x70, type); Write(window, 0x74, slot);
+        Write(window, NC2Layout::HumanEquipmentWindowOffset::Category, type); Write(window, NC2Layout::HumanEquipmentWindowOffset::Slot, slot);
         l_GuiButtons_Add(window);
         return window;
     }

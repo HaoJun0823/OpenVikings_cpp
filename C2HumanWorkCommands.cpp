@@ -136,13 +136,13 @@ namespace NC2Logic
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 101);
-                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 101);
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 std::uint32_t point = 0;
                 MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &point);
-                Write(command, 12, MapMigPoint_GetLong(&point));
+                Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, MapMigPoint_GetLong(&point));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 return 0;
             }
@@ -308,9 +308,9 @@ namespace NC2Logic
     {
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write<std::uint32_t>(message, 0, 42);
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 42);
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }

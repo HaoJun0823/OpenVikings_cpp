@@ -47,7 +47,7 @@ namespace NC2Logic
             if (Human_IsAttachedToLearnHouse(human) && !House_Inhabitants_DetachHuman(WorkHouse(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 8))
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 33);
+                Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 33);
                 Human_DoAddNewUserCommand(human, command);
             }
             Human_DoAddNewUserCommand(human, 5, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), 0, 0, 0, 0);
@@ -58,12 +58,12 @@ namespace NC2Logic
     void Human_l_StartTask_ExerciseJob(void* human)
     {
         auto* house = WorkHouse(human);
-        if (Read<std::uint32_t>(house, 0x2C) != 3) { Fail(human, 0); return; }
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) { Fail(human, 0); return; }
         if (Human_IsAtTargetPoint(human))
         {
             if (Read<std::uint32_t>(Real(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
             if (Read<std::uint32_t>(Work(human), NC2Layout::MapCoordinatePairOffset::Coordinates) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
-            const auto animation = Read<std::uint32_t>(house, 0x14) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
+            const auto animation = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
             Human_l_StartAtomicAnimation(human, animation, -1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             House_ActionOverlay_Start(house, 3, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId)].length));
@@ -84,7 +84,7 @@ namespace NC2Logic
     {
         auto* house = WorkHouse(human);
         std::uint32_t job = 0, good = 0;
-        switch (Read<std::uint32_t>(house, 0x14))
+        switch (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType))
         {
         case SwitchIds::TrainingHouseType::School:
         {
@@ -210,10 +210,10 @@ namespace NC2Logic
         default: return;
         }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) * 4u) == 0) { Human_Production_Rotate(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) * NC2Layout::RecordSize::HumanJobValueUnsigned) == 0) { Human_Production_Rotate(human); return; }
         auto* house = WorkHouse(human);
         const auto* job = static_cast<const std::byte*>(gStaticJobTypeData) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType;
-        if ((Read<std::uint8_t>(job, 0x84) != 0 && Read<std::uint32_t>(house, 0x2C) != 3) || Read<std::uint8_t>(house, 0x798) != 0 || !House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType), true)) { Fail(human, 2); return; }
+        if ((Read<std::uint8_t>(job, 0x84) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) || Read<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag) != 0 || !House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType), true)) { Fail(human, 2); return; }
         if (House_Stock_IsFull(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)))
         {
             Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType));
@@ -253,7 +253,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human))
         {
             auto* house = Human_IsProducingVehicle(human) ? House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId)) : WorkHouse(human);
-            if (Read<std::uint32_t>(house, 0x2C) == 3)
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3)
             {
                 if ((House_Stock_CanStoreGoodType(house, good, false) || House_Stock_CanStoreGoodType(house, good, true)) && House_Stock_HasDemandForGood(house, good) && !House_Stock_IsFullSoon(house, good) && Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24)) return;
             }
@@ -301,7 +301,7 @@ namespace NC2Logic
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
                 if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), true) && House_Stock_RequestAmountOfGoods(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), true) != 0)
                 {
-                    const auto type = Read<std::uint32_t>(house, 0x14);
+                    const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
                     Start(human, type == 10 ? 44 : type == 11 ? 45 : 22);
                     return;
                 }

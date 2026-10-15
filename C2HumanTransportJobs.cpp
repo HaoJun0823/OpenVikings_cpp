@@ -26,9 +26,9 @@ namespace NC2Logic
         void* WorkHouse(const void* human) { return CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize; }
         bool IsUsable(const void* vehicle) { const auto type = Read<std::uint32_t>(vehicle, 0x1E8); return (type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0; }
         void TargetVehicle(void* human) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision)); }
-        void TargetHouse(void* human, const void* house) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(house, 4)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, 8)); }
+        void TargetHouse(void* human, const void* house) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); }
         void Start(void* human, std::uint32_t animation) { Human_l_StartAtomicAnimation(human, animation, 6); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
-        std::uint32_t PickupAnimation(const void* house) { const auto type = Read<std::uint32_t>(house, 0x14); return type == 10 ? 44u : type == 11 ? 45u : 22u; }
+        std::uint32_t PickupAnimation(const void* house) { const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType); return type == 10 ? 44u : type == 11 ? 45u : 22u; }
         bool WalkToConsumer(void* human) { std::uint32_t real = 0, work = 0; return Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work); }
         bool WalkToPile(void* human, const void* source) { std::uint32_t real = 0, work = 0; return Human_FindPilePointNearPosition(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), source, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work); }
         bool SameContinent(const void* human, const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point),NC2Layout::MapMicroPointOffset::ContinentId) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)),NC2Layout::MapMicroPointOffset::ContinentId); }
@@ -58,10 +58,10 @@ namespace NC2Logic
         {
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-            Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-            Write<std::uint32_t>(message, 0, 43);
-            Write(message, 0x2E0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
+            Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 43);
+            Write(message, NC2Layout::ToUserMessageOffset::EquipmentItems, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);

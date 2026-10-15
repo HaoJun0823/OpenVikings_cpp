@@ -80,10 +80,10 @@ namespace NC2InGameGuiMiscWindows
             if (Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::TribeType) != tribe) continue;
             for (std::uint32_t stage = 0; stage < Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount); ++stage)
             {
-                const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u);
+                const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
                 if (NC2Logic::gStaticHouseTypeStorage.records[logic].mainType == 6) continue;
                 const auto index = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount);
-                Write(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u, type);
+                Write(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned, type);
                 Write(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u, stage);
                 Write(window, NC2Layout::HelpWindowOffset::HouseCount, index + 1);
                 if (index + 1 == 100)
@@ -214,7 +214,7 @@ namespace NC2InGameGuiMiscWindows
         {
             Write<std::uint32_t>(window, NC2Layout::HelpWindowOffset::Page, 1);
             std::int32_t slot = -1;
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u) == param2 && Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u) == param3)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++index) if (Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned) == param2 && Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u) == param3)
             {
                 slot = index;
                     break;
@@ -297,7 +297,7 @@ namespace NC2InGameGuiMiscWindows
             NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width), 22);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, counts[page - 1]); ++index)
             {
-                const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * 8u), Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u), 1) : Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings)->GetStringPtr(index * 2u);
+                const char* caption = page == 1 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + index * NC2Layout::RecordSize::HelpHouseEntryUnsigned), Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + index * 8u), 1) : page == 2 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::GoodsUnsigned + index * 4u), 1) : Read<NXBasics::CStringArray*>(window, NC2Layout::HelpWindowOffset::MiscHelpStrings)->GetStringPtr(index * 2u);
                 element = button(row, caption, selectCommands[page - 1], false);
                 Write(element, NC2Layout::ToolTextButtonOffset::CommandData1, index);
                 Write<std::uint32_t>(element, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
@@ -380,9 +380,9 @@ namespace NC2InGameGuiMiscWindows
             std::uint32_t producers[10]{}, producerCount = 0;
             for (std::uint32_t houseIndex = 0; houseIndex < Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseCount); ++houseIndex)
             {
-                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + houseIndex * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * 8u);
+                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + houseIndex * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + houseIndex * 8u);
                 const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
-                const auto& house = NC2Logic::gStaticHouseTypeStorage.records[Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u)];
+                const auto& house = NC2Logic::gStaticHouseTypeStorage.records[Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned)];
                 for (std::uint32_t production = 0; production < house.productionCount; ++production)
                 {
                     if (static_cast<std::uint32_t>(house.productionGoods[production]) != good) continue;
@@ -398,7 +398,7 @@ namespace NC2InGameGuiMiscWindows
             for (std::uint32_t producer = 0; producer < producerCount; ++producer)
             {
                 const auto slot = producers[producer];
-                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + slot * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * 8u);
+                const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + slot * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + slot * 8u);
                 const auto height = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 20, y, 500, resources.font12, color, NC2Logic::StringAccess_GetHouseNamePtr(type, stage, 1));
                 buttons->UpdateGfxButton(20000, producer, 478, y, 143, nullptr);
                 buttons->SetButtonMiscCommandData(20000, producer, type, stage);
@@ -409,9 +409,9 @@ namespace NC2InGameGuiMiscWindows
         if (page != 1) return;
         const auto index = Read<std::int32_t>(window, NC2Layout::HelpWindowOffset::SelectedHouseIndex);
         if (index == -1) return;
-        const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + static_cast<std::uint32_t>(index) * 8u), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * 8u);
+        const auto type = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseTypesUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HelpHouseEntryUnsigned), stage = Read<std::uint32_t>(window, NC2Layout::HelpWindowOffset::HouseDevelopmentStagesUnsigned + static_cast<std::uint32_t>(index) * 8u);
         const auto* engine = static_cast<const std::byte*>(NC2E2::gStaticHouseEntries) + type * NC2Layout::RecordSize::EngineHouseTypeUnsigned;
-        const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * 4u);
+        const auto logic = Read<std::uint32_t>(engine, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + stage * NC2Layout::RecordSize::HouseStageValueUnsigned);
         const auto& house = NC2Logic::gStaticHouseTypeStorage.records[logic];
         NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(static_cast<std::int32_t>(type), stage, bitmap, 250, 300, NC2E2::E2StaticDataPalettesManager_GetPalette256Id("house_sepia"), false, false);
         NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 20, 60, fontMedium, color, NC2Logic::StringAccess_GetHouseNamePtr(type, stage, 1));

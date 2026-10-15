@@ -228,7 +228,7 @@ namespace NC2E2
 				const auto elements = Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned);
 				if (elements < 100)
 				{
-					Write(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned + elements * 4u, index);
+					Write(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned + elements * NC2Layout::RecordSize::ParticleDrawIndexUnsigned, index);
 					Write(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned, elements + 1u);
 				}
 			}
@@ -244,7 +244,7 @@ namespace NC2E2
 			const auto offset = group * NC2Layout::RecordSize::ParticleDrawRowUnsigned;
 			if (Read<std::int32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRows + offset) != row) continue;
 			for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + offset); ++index)
-				E2ParticelManager_l_DrawParticel(manager, display, At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + offset + index * 4u) * NC2Layout::RecordSize::ParticleUnsigned));
+				E2ParticelManager_l_DrawParticel(manager, display, At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + offset + index * NC2Layout::RecordSize::ParticleDrawIndexUnsigned) * NC2Layout::RecordSize::ParticleUnsigned));
 			return;
 		}
 	}
@@ -256,7 +256,7 @@ namespace NC2E2
 		if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::UseMapHeights) != 0) ParticelPosition_ToWorldPixelCoordinates(At(particle, NC2Layout::ParticleOffset::Position), pixel, display);
 		else ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(At(particle, NC2Layout::ParticleOffset::Position), pixel, display);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, pixel, false);
-		auto* bitmap = Read<NXBasics::CBitmap*>(display, 0x68);
+		auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
 		const auto id = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::StaticParticleId);
 		if (id == static_cast<std::uint32_t>(gStaticParticelStorage.munitionIds[3]))
 		{
@@ -327,10 +327,10 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
         centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin(centerPhase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0));
         centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin(gFishMotionFrequencies.vertical * centerMotionPhase) * 20.0));
         centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin((centerPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0));
-        if ((Read<std::uint8_t>(display, 0x72) & 1u) != 0)
+        if ((Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte2) & 1u) != 0)
         {
             Display_l_DE_Debug_DrawRange(display, Read<std::uint32_t>(swarm, 0), 0, &white);
-            Read<NXBasics::CBitmap*>(display, 0x68)->Text_PrintV(Read<NXBasics::CFont*>(display, 0x924), centerPixel[0], centerPixel[1], "%d", Read<std::uint32_t>(swarm, 4));
+            Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Text_PrintV(Read<NXBasics::CFont*>(display, NC2Layout::EngineDisplayOffset::Font), centerPixel[0], centerPixel[1], "%d", Read<std::uint32_t>(swarm, 4));
         }
         Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, centerPixel, false);
         std::uint32_t centerPoint = 0;
@@ -369,7 +369,7 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
             const auto pixelY = truncate(currentY);
             const auto pixelX = truncate(currentX);
             const auto bob = truncate(18.0 - angle * 2.86);
-            NXBasics::BobManager_PrintBobUsingTransparency(bobManager, static_cast<std::uint32_t>(bob), Read<NXBasics::CBitmap*>(display, 0x68), pixelX, pixelY, palette);
+            NXBasics::BobManager_PrintBobUsingTransparency(bobManager, static_cast<std::uint32_t>(bob), Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), pixelX, pixelY, palette);
         }
     }
 }

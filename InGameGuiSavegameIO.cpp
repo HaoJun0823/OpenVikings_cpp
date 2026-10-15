@@ -156,7 +156,7 @@ namespace NInGameGuiManager
         io->IO_Tool_Chunk_StartCreation(NC2DataIds::GuiSavegameChunk::GuiHeader, 1);
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DisplayPosition, 1);
         std::uint32_t mapPoint = 0;
-        NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(sTheObjectPtr->GetDesktop(), 0x30), &mapPoint);
+        NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(sTheObjectPtr->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), &mapPoint);
         io->IO_Memory_WriteLong(mapPoint);
         io->IO_Tool_Chunk_FinishAndWrite();
         StatisticsWindow_IO_Savegame_Save(io);
@@ -185,7 +185,7 @@ namespace NInGameGuiManager
             case SwitchIds::GuiSavegameChunk::DisplayPosition:
             {
                 const auto point = io->IO_File_ReadLong();
-                NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(sTheObjectPtr->GetDesktop(), 0x30), &point);
+                NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(sTheObjectPtr->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), &point);
                 break;
             }
             case SwitchIds::GuiSavegameChunk::StatisticsWindow: StatisticsWindow_IO_Savegame_Load(io); break;

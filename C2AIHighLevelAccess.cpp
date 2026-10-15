@@ -32,7 +32,7 @@ namespace NC2Logic
         // Original function: FUN_00428f0e.
         void AIInvalidAreaManager_Construct(void* areas)
         {
-            for (std::uint32_t i = 0; i < 50; ++i) { Write<std::uint16_t>(areas, 6 + i * 8, 0); Write<std::uint16_t>(areas, 4 + i * 8, 0); }
+            for (std::uint32_t i = 0; i < 50; ++i) { Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::FirstAreaY + i * 8, 0); Write<std::uint16_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::Areas + i * 8, 0); }
         }
     }
     // Original function: FUN_00428bb2; alternating village updates retain the Windows cadence.
@@ -42,15 +42,15 @@ namespace NC2Logic
         auto* bytes = static_cast<std::byte*>(handler);
         auto* villages = bytes + 0x1C; auto* resources = bytes + 0x67B4; auto* roads = bytes + 0x94E4;
         auto* catcher = bytes + 0x94E8; auto* goods = bytes + 0x9520; auto* military = bytes + 0x7578; auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
-        const auto player = Read<std::uint32_t>(handler, 0);
-        if (Read<std::uint8_t>(handler, 0x1A) != 0)
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId);
+        if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::InitializationPending) != 0)
         {
             if (!AIHighLevelHandler_l_CreateVillages(handler)) return;
             AIResourceManager_Init(resources, player, villages); AIRoadManager_Init(roads); AIAnimalCatcher_Init(catcher); AIGlobalGoods_Init(goods);
-            AIMilitaryManager_Init(military, player, bytes + 0x34, Read<std::uint32_t>(AIVillagesData_GetVillageDataById(villages, 0), 16));
-            Write<std::uint8_t>(handler, 0x1A, 0);
+            AIMilitaryManager_Init(military, player, bytes + 0x34, Read<std::uint32_t>(AIVillagesData_GetVillageDataById(villages, 0), NC2Layout::AIVillagePhysicalSlotOffset::Center));
+            Write<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::InitializationPending, 0);
         }
-        if (Read<std::uint8_t>(handler, 0x94E0) != 0) AIHighLevelHandler_l_DestroyRandom(handler, tick);
+        if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::RandomDestructionEnabled) != 0) AIHighLevelHandler_l_DestroyRandom(handler, tick);
         if ((tick & 1) == 0) AIResourceManager_UpdateResourcePointArray(resources, player, villages);
         AIGuideManager_CheckAndBuildGuides(guides, player, military);
         if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuideScoutRequestedFlag) != 0)
@@ -69,7 +69,7 @@ namespace NC2Logic
         }
         AIHighLevelHandler_l_Villages_EnhanceVillages(handler); AIHighLevelHandler_l_Villages_CheckForNeedments(handler);
         AIMilitaryManager_DoOneLogicGameTick(military, handler, tick);
-        Write(handler, 0xA9C0, AIHighLevelHandler_l_Humans_CheckShoes(handler, Read<std::int32_t>(handler, 0xA9C0)));
+        Write(handler, NC2Layout::AIHighLevelOffset::ShoeScanHumanId, AIHighLevelHandler_l_Humans_CheckShoes(handler, Read<std::int32_t>(handler, NC2Layout::AIHighLevelOffset::ShoeScanHumanId)));
         AIDiplomacy_DoOneLogicTick(bytes + NC2Layout::AIHighLevelOffset::Diplomacy, player, villages);
     }
     // Original function: FUN_00428d5a; stop at the first allocated human of this player.
@@ -80,8 +80,8 @@ namespace NC2Logic
         for (auto id = static_cast<std::int32_t>(static_cast<std::uint32_t>(previous) + 1); id < CHumanArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(handler, 0)) continue;
-            if (Human_IsAgeAdult(human) && !Human_HasEquippedShoes(human) && AIVillagesData_GetVillageId(villages, Human_GetMapPositionRef(human)) != -1) Human_DoAddNewUserCommand(human, 79, Read<std::uint8_t>(handler, 0), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 30, 0);
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId)) continue;
+            if (Human_IsAgeAdult(human) && !Human_HasEquippedShoes(human) && AIVillagesData_GetVillageId(villages, Human_GetMapPositionRef(human)) != -1) Human_DoAddNewUserCommand(human, 79, Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 30, 0);
             return id;
         }
         return -1;
@@ -90,7 +90,7 @@ namespace NC2Logic
     void AIHighLevelHandler_l_Villages_CheckForNeedments(void* handler)
     {
         auto* bytes = static_cast<std::byte*>(handler); auto* villages = bytes + 0x1C; auto* resources = bytes + 0x67B4;
-        std::byte areas[404]; AIInvalidAreaManager_Construct(areas); Write<std::uint32_t>(areas, 0, 0);
+        std::byte areas[404]; AIInvalidAreaManager_Construct(areas); Write<std::uint32_t>(areas, NC2Layout::AIInvalidAreaManagerOffset::Count, 0);
         for (std::uint32_t good = 0; good < 66; ++good)
         {
             if (!AIGlobalGoods_IsNeedingVillage(bytes + 0x9520, good)) continue;
@@ -112,7 +112,7 @@ namespace NC2Logic
     void AIHighLevelHandler_l_Villages_EnhanceVillages(void* handler)
     {
         auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + NC2Layout::AIHighLevelOffset::GuideManager;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId);
         if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, NC2Layout::AIHighLevelOffset::GuideDestination) == NXBasics::IntegerRange::UInt16MaximumSigned)
         {
             if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE)) { if (Read<std::uint8_t>(handler, NC2Layout::AIHighLevelOffset::GuidePairSearchExhaustedFlag) != 0) Write<std::uint8_t>(handler, 0x67AD, 1); }
@@ -137,7 +137,7 @@ namespace NC2Logic
     // Original function: FUN_00429191.
     bool AIHighLevelHandler_l_CreateVillages(void* handler)
     {
-        const auto player = Read<std::uint32_t>(handler, 0); std::uint32_t count = 0;
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId); std::uint32_t count = 0;
         CHumanIterator humans;
         for (auto id = humans.GetFirstSectorHumanId(player, false); id != -1; id = humans.GetNextSectorHumanId()) if (!Human_IsJobHero(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize)) ++count;
         std::uint32_t center = 0;
@@ -153,7 +153,7 @@ namespace NC2Logic
         }
         for (; count < 4; ++count)
         {
-            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
+            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
             CHumanArray::sTheObjectPtr->AllocateHuman(player, tribe, 6, &chosen, 0, 0);
         }
         AIVillagesData_Init(static_cast<std::byte*>(handler) + 0x1C, player, &chosen); return true;
@@ -162,7 +162,7 @@ namespace NC2Logic
     void AIHighLevelHandler_l_DestroyRandom(void* handler, std::uint32_t tick)
     {
         if (tick % 24 != 0) return;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId);
         if ((Game_Random_GetNumber() & 1) == 0)
         {
             auto remaining = Game_Random_GetNumber() % 100 + 1; CHumanIterator humans;

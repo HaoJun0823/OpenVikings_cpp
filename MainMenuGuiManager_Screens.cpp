@@ -270,8 +270,8 @@ namespace NC2MainMenuGuiManager
         {
             heading(title, 0x4A);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 100);
-            Write<std::uint32_t>(this, 0x51C, NXBasics::IntegerRange::UInt32Maximum);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x68); ++index)
+            Write<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedProviderIndex, NXBasics::IntegerRange::UInt32Maximum);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::ProviderCount); ++index)
             {
                 auto* name = reinterpret_cast<const char*>(this) + 0x6C + index * 0x78u;
                 void* element = CreateSimpleButton(rectangle, [=] { return name; }, 0x13A2, owner);
@@ -294,9 +294,9 @@ namespace NC2MainMenuGuiManager
         {
             heading(title, 0x52);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 200);
-            if (Read<std::uint32_t>(this, 0x588) != 0)
+            if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SessionCount) != 0)
             {
-                for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x588); ++index)
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SessionCount); ++index)
                 {
                     auto* name = reinterpret_cast<const char*>(this) + 0x58C + index * 0x78u;
                     void* element = CreateSimpleButton(rectangle, [=] { return name; }, 0x13A6, owner);
@@ -325,7 +325,7 @@ namespace NC2MainMenuGuiManager
                 }
                 rectangle = upperContent; rectangle.y = AddCoordinate(rectangle.y, 30); rectangle.width = 660; rectangle.height = 250;
                 void* list = CreateListBox(rectangle);
-                Tool_Options_FillSavegameListboxForLoading(list, owner, 0x13AE, true, Read<std::uint32_t>(this, 0xF24), false);
+                Tool_Options_FillSavegameListboxForLoading(list, owner, 0x13AE, true, Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId), false);
                 attachList(rectangle, list);
                 button(back, 0x79, 0x7A, 0x13A9);
                 break;
@@ -368,7 +368,7 @@ namespace NC2MainMenuGuiManager
                     void* element = nullptr;
                     if (allocation != nullptr)
                     {
-                        const bool selected = Read<std::uint32_t>(this, 0x106C) == index;
+                        const bool selected = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbyDifficulty) == index;
                         const char* tooltip = StringTool_GetOdin001StringPtr(0x1C + index * 2);
                         const char* caption = StringTool_GetOdin001StringPtr(0x1B + index * 2);
                         element = NC2InGameGuiBase::BaseToolTextButton_ConstructToggleWithToolTip(allocation, nullptr, &rectangle, caption, tooltip, 0x13AB + index, owner, selected);
@@ -384,14 +384,14 @@ namespace NC2MainMenuGuiManager
             auto players = upperContent;
             const auto firstRowY = players.y;
             heading(players, 0x65); players.y = AddCoordinate(players.y, players.height);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::PlayerCount); ++index)
             {
                 char description[260]; Network_FormatPlayerDescription(index, description);
                 void* element = CreateSimpleButton(players, [&] { return description; }, 0x13B1, owner);
                 Write(this, 0x30 + index * 4, element);
-                const auto id = Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu);
+                const auto id = Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * 0x6Cu);
                 SetButtonValue(element, id);
-                if (id == Read<std::uint32_t>(this, 0xEE4)) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
+                if (id == Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId)) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::SelectedFlag, 1);
                 Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, !NNetwork::Network_IsHost());
                 add(element); AdvanceRow(players, 5);
             }
@@ -399,8 +399,8 @@ namespace NC2MainMenuGuiManager
             {
                 players.y = AddCoordinate(players.y, 5);
                 void* element = CreateButton(players, 0x66, 0x67, 0x13B2, owner, StringTool_GetMainMenuStringPtr);
-                const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, 0xEE4));
-                if (index == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
+                const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::SelectedPlayerId));
+                if (index == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerHostFlag + index * 0x6Cu) != 0) Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, 1);
                 add(element); AdvanceRow(players, 5);
             }
             auto slots = players;
@@ -434,7 +434,7 @@ namespace NC2MainMenuGuiManager
                     SetButtonValue(element, index);
                     NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(element, NC2E2::StaticHumanMisc_ColorIds_GetColorRef(Read<std::uint32_t>(this, offset + 12)));
                     bool disabled = true;
-                    if (Read<std::uint32_t>(this, 0xF24) == 0 && Read<std::uint8_t>(this, 0x1068) == 0 && NNetwork::Network_IsHost()) disabled = false;
+                    if (Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::LobbySavegameId) == 0 && Read<std::uint8_t>(this, NC2Layout::MainMenuManagerOffset::FixedPlayerColors) == 0 && NNetwork::Network_IsHost()) disabled = false;
                     Write<std::uint8_t>(element, NC2Layout::GuiTextButtonOffset::DisabledFlag, disabled); add(element);
                 }
                 AdvanceRow(slots, 5);
@@ -470,12 +470,12 @@ namespace NC2MainMenuGuiManager
         {
             heading(title, 0x82); auto rectangle = content; heading(rectangle, 0x83);
             rectangle.y = AddCoordinate(rectangle.y, rectangle.height);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::PlayerCount); ++index)
             {
                 char description[260]; Network_FormatPlayerDescription(index, description);
                 void* element = CreateSimpleButton(rectangle, [&] { return description; }, 0x13B1, owner);
                 Write(this, 0x30 + index * 4, element);
-                SetButtonValue(element, Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu));
+                SetButtonValue(element, Read<std::uint32_t>(this, NC2Layout::MainMenuManagerOffset::FirstPlayerId + index * 0x6Cu));
                 add(element); AdvanceRow(rectangle, 5);
             }
             break;

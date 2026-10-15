@@ -42,8 +42,8 @@ namespace NC2InGameGuiSelection
             else if (command == 10101 && data != nullptr)
             {
                 std::byte packet[20]{};
-                Write<std::uint8_t>(packet, 0, 0x79); Write<std::uint8_t>(packet, 1, static_cast<std::uint8_t>(manager->GetLocalPlayerId()));
-                Write(packet, 4, NC2Logic::MapMigPoint_GetLong(data)); Write<std::uint32_t>(packet, 8, 4);
+                Write<std::uint8_t>(packet, NC2Layout::UserNetworkCommandOffset::Opcode, 0x79); Write<std::uint8_t>(packet, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(manager->GetLocalPlayerId()));
+                Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, NC2Logic::MapMigPoint_GetLong(data)); Write<std::uint32_t>(packet, NC2Layout::UserNetworkCommandOffset::ObjectRevision, 4);
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
             }
             return true;
@@ -80,8 +80,8 @@ namespace NC2InGameGuiSelection
             else if (command == 10101 && data != nullptr)
             {
                 std::byte packet[20]{};
-                Write<std::uint8_t>(packet, 0, 0x77); Write<std::uint8_t>(packet, 1, static_cast<std::uint8_t>(manager->GetLocalPlayerId()));
-                Write(packet, 4, NC2Logic::MapMigPoint_GetLong(data)); Write<std::uint32_t>(packet, 8, 4);
+                Write<std::uint8_t>(packet, NC2Layout::UserNetworkCommandOffset::Opcode, 0x77); Write<std::uint8_t>(packet, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(manager->GetLocalPlayerId()));
+                Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, NC2Logic::MapMigPoint_GetLong(data)); Write<std::uint32_t>(packet, NC2Layout::UserNetworkCommandOffset::ObjectRevision, 4);
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
             }
             return true;

@@ -145,10 +145,10 @@ namespace NC2E2
                         Write(patch, NC2Layout::RandomPalettePatchOffset::Weight, reader.GetInt());
                         const auto rangeCount = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount);
                         std::uint32_t found = 0;
-                        while (found < rangeCount && Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + found * 4u) != destinationRange) ++found;
+                        while (found < rangeCount && Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + found * NC2Layout::RecordSize::PaletteDestinationRangeUnsigned) != destinationRange) ++found;
                         if (found == rangeCount)
                         {
-                            Write(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + rangeCount * 4u, destinationRange);
+                            Write(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + rangeCount * NC2Layout::RecordSize::PaletteDestinationRangeUnsigned, destinationRange);
                             Write(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount, rangeCount + 1u);
                         }
                         ++index;
@@ -341,12 +341,12 @@ namespace NC2E2
             for (std::uint32_t sign = 0; sign < 10; ++sign)
             {
                 NXBasics::Runtime_PrintString(name, gSignPatterns[sign], static_cast<int>(color + 1u));
-                Write(record, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
+                Write(record, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * NC2Layout::RecordSize::HumanSignGraphicsIdUnsigned, E2StaticDataLandscapesManager_GetLandscapeId(name));
             }
             for (std::uint32_t soldier = 0; soldier < 5; ++soldier)
             {
                 NXBasics::Runtime_PrintString(name, "player%2.2d soldier %2.2d", static_cast<int>(color + 1u), static_cast<int>(soldier + 1u));
-                Write(record, NC2Layout::StaticHumanColorOffset::SoldierSigns + soldier * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
+                Write(record, NC2Layout::StaticHumanColorOffset::SoldierSigns + soldier * NC2Layout::RecordSize::HumanSignGraphicsIdUnsigned, E2StaticDataLandscapesManager_GetLandscapeId(name));
             }
             NXBasics::Runtime_PrintString(name, "player%2.2d marker road", static_cast<int>(color + 1u));
             Write(record, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(name));
@@ -380,7 +380,7 @@ namespace NC2E2
         const auto* patches = Read<std::byte*>(record, NC2Layout::RandomPaletteSetOffset::Patches);
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRangeCount); ++index)
         {
-            const auto destinationRange = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + index * 4u);
+            const auto destinationRange = Read<std::uint32_t>(record, NC2Layout::RandomPaletteSetOffset::DestinationRanges + index * NC2Layout::RecordSize::PaletteDestinationRangeUnsigned);
             std::uint32_t totalWeight = 0;
             for (std::uint32_t patch = 0; patch < count; ++patch)
             {
@@ -427,7 +427,7 @@ namespace NC2E2
         if (player >= 20) return -1;
         const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(NC2Logic::gGameControl, offset) == 0) return -1;
-        auto color = Read<std::int32_t>(NC2Logic::gGameControl, offset + 0x10);
+        auto color = Read<std::int32_t>(NC2Logic::gGameControl, offset + NC2Layout::GameControlPlayerOffset::ColorId);
         if (color < 0 || color >= 10) color = 9;
         return Read<std::int32_t>(gStaticHumanColors, static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned + (female ? NC2Layout::StaticHumanColorOffset::FemaleRandomPatchIdUnsigned : NC2Layout::StaticHumanColorOffset::MaleRandomPatchIdUnsigned));
     }

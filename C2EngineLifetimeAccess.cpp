@@ -680,8 +680,8 @@ namespace NC2E2
             DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::BuildArea));
             for (std::uint32_t state = 0; state < 5; ++state)
             {
-                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WalkAreas + state * 4));
-                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WorkAreas + state * 4));
+                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WalkAreas + state * NC2Layout::RecordSize::HouseStageValue));
+                DestroyMapArea(Read<void*>(entry, NC2Layout::EngineHouseTypeOffset::WorkAreas + state * NC2Layout::RecordSize::HouseStageValue));
                 const std::uint32_t offset = NC2Layout::EngineHouseStageViewOffset::ForwardSmokePoints + state * NC2Layout::RecordSize::EngineHouseStagePoints;
                 FreeField(entry, offset - 8);
                 FreeField(entry, offset);
@@ -873,7 +873,7 @@ namespace NC2E2
             if (Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount) != 0)
             {
                 const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
-                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * 4u));
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * NC2Layout::RecordSize::MoveablePaletteIdUnsigned));
             }
         }
         Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
@@ -904,7 +904,7 @@ namespace NC2E2
             if (Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount) != 0)
             {
                 const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
-                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * 4u));
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * NC2Layout::RecordSize::MoveablePaletteIdUnsigned));
             }
         }
         Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
@@ -1040,12 +1040,12 @@ namespace NC2E2
             if (NC2Logic::House_GetHouseMainType(house) == 6) break;
             void* area = NC2Logic::House_Misc_WalkBlockArea_GetPtr(house);
             const std::uint32_t position = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
-            for (std::uint32_t row = 0; row < Read<std::uint32_t>(area, 0); ++row)
+            for (std::uint32_t row = 0; row < Read<std::uint32_t>(area, NC2Layout::MapAreaOffset::RowCount); ++row)
             {
-                void* line = static_cast<std::byte*>(Read<void*>(area, 4)) + row * 8;
+                void* line = static_cast<std::byte*>(Read<void*>(area, NC2Layout::MapAreaOffset::Rows)) + row * 8;
                 std::uint32_t point;
-                NC2Logic::MapMigPoint_ConstructOffset(&point, &position, Read<std::uint16_t>(line, 0), Read<std::uint16_t>(line, 2), false);
-                for (std::uint32_t column = 0; column < Read<std::uint32_t>(line, 4); ++column)
+                NC2Logic::MapMigPoint_ConstructOffset(&point, &position, Read<std::uint16_t>(line, NC2Layout::MapAreaRowOffset::X), Read<std::uint16_t>(line, NC2Layout::MapAreaRowOffset::Y), false);
+                for (std::uint32_t column = 0; column < Read<std::uint32_t>(line, NC2Layout::MapAreaRowOffset::Width); ++column)
                 {
                     if (NC2Logic::MapMigPoint_IsInsideMap(&point)) EngineMap_OverlayPattern_HouseAreaChanged(&point, created);
                     point = (point & NXBasics::BitMask::DwordExceptBits0Through15) | static_cast<std::uint16_t>(point + 1u);
@@ -1246,7 +1246,7 @@ namespace NC2E2
     // Original function: FUN_00485ba6; thresholds include state-dependent hysteresis.
     static std::uint32_t WorldMusic_GetEventVariant()
     {
-        const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * NC2Layout::RecordSize::GameControlPlayer + 0x4610u);
+        const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::HappinessValueUnsigned);
         switch (gWorldMusicState.eventVariant)
         {
         case SwitchIds::MusicEventVariant::Neutral: if (value <= -50) return 6; if (value >= 50) return 5; break;
@@ -1280,7 +1280,7 @@ namespace NC2E2
         }
         const auto selected = NXBasics::Runtime_TimeSigned32(gWorldMusicState.selectedPlayer);
         const auto relationship = NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, NXBasics::Runtime_TimeSigned32(gWorldMusicState.controllingPlayer), selected);
-        const auto tribe = selected < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.selectedPlayer * NC2Layout::RecordSize::GameControlPlayer + 12u) : 1;
+        const auto tribe = selected < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.selectedPlayer * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeTypeUnsigned) : 1;
         const auto event = tribe == 1 ? 2 : tribe == 2 ? 3 : tribe == 3 ? 4 : tribe == 4 ? 5 : tribe > 4 && tribe <= 6 ? 6 : 1;
         NDMManager::ProcessEvent(gDirectMusicManager, event, event == 6 ? 0 : static_cast<std::uint32_t>(relationship), 2);
     }
@@ -1342,7 +1342,7 @@ namespace NC2E2
             }
             {
                 const std::uint32_t player = param1 == gWorldMusicState.controllingPlayer ? param2 : param1;
-                const std::int32_t tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x0C) : 1;
+                const std::int32_t tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
                 gWorldMusicState.changeAtGameTime = NC2Logic::gGameTime.tick + 120u;
                 gWorldMusicState.changePending = 1;
                 const std::int32_t event = tribe == 2 ? 7 : tribe == 3 ? 8 : tribe == 4 ? 9 : 6;

@@ -25,8 +25,8 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < 20; ++i)
         {
-            auto* request = static_cast<std::byte*>(handler) + 0x3B80 + i * 24;
-            if (Read<std::uint32_t>(request, 0) == 0) return request;
+            auto* request = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::HumanRequests + i * NC2Layout::RecordSize::AIHumanRequest;
+            if (Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type) == 0) return request;
         }
         return nullptr;
     }
@@ -36,8 +36,8 @@ namespace NC2Logic
         std::uint32_t count = 0;
         for (std::uint32_t i = 0; i < 20; ++i)
         {
-            const auto* request = static_cast<const std::byte*>(handler) + 0x3B80 + i * 24;
-            if (Read<std::uint32_t>(request, 0) != 0 && Read<std::int32_t>(request, 4) == house) ++count;
+            const auto* request = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::HumanRequests + i * NC2Layout::RecordSize::AIHumanRequest;
+            if (Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type) != 0 && Read<std::int32_t>(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint) == house) ++count;
         }
         return count;
     }
@@ -45,7 +45,7 @@ namespace NC2Logic
     std::uint32_t AISinglePlayerHandler_l_Road_CountConstructorRequest(const void* handler)
     {
         std::uint32_t count = 0;
-        for (std::uint32_t i = 0; i < 20; ++i) if (Read<std::uint32_t>(handler, 0x3B80 + i * 24) == 3) ++count;
+        for (std::uint32_t i = 0; i < 20; ++i) if (Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::HumanRequests + i * NC2Layout::RecordSize::AIHumanRequest) == 3) ++count;
         return count;
     }
     // Original function: FUN_00457ac3.
@@ -53,8 +53,8 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < 20; ++i)
         {
-            const auto* request = static_cast<const std::byte*>(handler) + 0x3B80 + i * 24;
-            if (Read<std::uint32_t>(request, 0) != 0 && Read<std::int32_t>(request, 12) == human) return true;
+            const auto* request = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::HumanRequests + i * NC2Layout::RecordSize::AIHumanRequest;
+            if (Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type) != 0 && Read<std::int32_t>(request, NC2Layout::AIHumanRequestOffset::HumanId) == human) return true;
         }
         return false;
     }
@@ -69,11 +69,11 @@ namespace NC2Logic
         void* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
         void Send(void* human, std::uint8_t command, std::uint32_t p1, std::uint32_t p2)
         {
-            Human_DoAddNewUserCommand(human, command, Read<std::uint8_t>(human, 16), 0, 0, p1, p2);
+            Human_DoAddNewUserCommand(human, command, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, p1, p2);
         }
         void CreateRequest(void* request, std::uint32_t type, std::uint32_t target, std::uint32_t revision, std::uint32_t human, std::uint32_t job)
         {
-            Write(request, 0, type); Write(request, 4, target); Write(request, 8, revision); Write(request, 12, human); Write(request, 16, Read<std::uint32_t>(Human(human), NC2Layout::HumanOffset::UniqueId)); Write(request, 20, job);
+            Write(request, NC2Layout::AIHumanRequestOffset::Type, type); Write(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint, target); Write(request, NC2Layout::AIHumanRequestOffset::TargetRevision, revision); Write(request, NC2Layout::AIHumanRequestOffset::HumanId, human); Write(request, NC2Layout::AIHumanRequestOffset::HumanRevision, Read<std::uint32_t>(Human(human), NC2Layout::HumanOffset::UniqueId)); Write(request, NC2Layout::AIHumanRequestOffset::RequiredJob, job);
         }
     }
     // Original function: FUN_004581f3.
@@ -130,31 +130,31 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < 20; ++i)
         {
-            auto* request = static_cast<std::byte*>(handler) + 0x3B80 + i * 24;
-            const auto type = Read<std::uint32_t>(request, 0);
+            auto* request = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::HumanRequests + i * NC2Layout::RecordSize::AIHumanRequest;
+            const auto type = Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type);
             if (type == 0) continue;
             void* house = nullptr;
             if (type != 3 && type != 4)
             {
-                house = CHouseArray::mStaticVars + Read<std::uint32_t>(request, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(request, 8)) { Write<std::uint32_t>(request, 0, 0); continue; }
+                house = CHouseArray::mStaticVars + Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint) * CHouseArray::ElementSize;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::TargetRevision)) { Write<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type, 0); continue; }
             }
-            auto* human = Human(Read<std::uint32_t>(request, 12));
-            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(request, 16) || Human_IsJobScout(human)) { Write<std::uint32_t>(request, 0, 0); continue; }
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != Read<std::uint32_t>(request, 20))
+            auto* human = Human(Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::HumanId));
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::HumanRevision) || Human_IsJobScout(human)) { Write<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type, 0); continue; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::RequiredJob))
             {
-                if (type == 2 || type == 3 || type == 4 || Human_IsAttachedToWorkHouse(human)) Write<std::uint32_t>(request, 0, 0);
-                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(request, 20), 0);
+                if (type == 2 || type == 3 || type == 4 || Human_IsAttachedToWorkHouse(human)) Write<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type, 0);
+                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::RequiredJob), 0);
                 continue;
             }
-            if (type == 1 || type == 2 || type == 5) Send(human, type == 1 ? 28 : type == 2 ? 30 : 26, Read<std::uint32_t>(request, 4), Read<std::uint32_t>(house, 8));
+            if (type == 1 || type == 2 || type == 5) Send(human, type == 1 ? 28 : type == 2 ? 30 : 26, Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             else if (type == 3)
             {
                 if (!Human_IsAttachedToWorkHouse(human))
                 {
-                    std::uint32_t point; MapMigPoint_AssignLong(&point, Read<std::uint32_t>(request, 4));
+                    std::uint32_t point; MapMigPoint_AssignLong(&point, Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint));
                     const auto* road = RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &point);
-                    if (road != nullptr && Read<std::uint8_t>(road, NC2Layout::BuildPointOffset::Assigned) == 0) Send(human, 17, Read<std::uint32_t>(request, 4), 0);
+                    if (road != nullptr && Read<std::uint8_t>(road, NC2Layout::BuildPointOffset::Assigned) == 0) Send(human, 17, Read<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::TargetHouseIdOrPoint), 0);
                 }
             }
             else if (type == 4 && !Human_IsAttachedToWorkHouse(human))
@@ -168,7 +168,7 @@ namespace NC2Logic
                     Write<std::uint8_t>(handler, offset, 0);
                 }
             }
-            Write<std::uint32_t>(request, 0, 0);
+            Write<std::uint32_t>(request, NC2Layout::AIHumanRequestOffset::Type, 0);
         }
         const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         CHouseIterator iterator;

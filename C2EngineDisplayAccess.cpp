@@ -1611,7 +1611,7 @@ namespace NC2E2
     void DE_Debug_DrawMicroGridMarker(const void* display, const void* point, const NXBasics::SColorRGB* outerColor, const NXBasics::SColorRGB* innerColor, std::uint32_t radius, bool filled)
     {
         std::int32_t pixel[2]; Display_MapMigToLocalDisplayPixelCoordinates(display, point, pixel, false);
-        auto* bitmap = NC2Lifetime::Read<NXBasics::CBitmap*>(display, 0x68);
+        auto* bitmap = NC2Lifetime::Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         if (filled) { bitmap->Draw_FilledCircle(pixel[0], pixel[1], radius + 1u, *outerColor); bitmap->Draw_FilledCircle(pixel[0], pixel[1], radius, *innerColor); }
         else { bitmap->Draw_Circle(pixel[0], pixel[1], radius - 1u, *outerColor); bitmap->Draw_Circle(pixel[0], pixel[1], radius + 1u, *outerColor); bitmap->Draw_Circle(pixel[0], pixel[1], radius, *innerColor); }
     }
@@ -1620,6 +1620,6 @@ namespace NC2E2
     {
         std::int32_t firstPixel[2], secondPixel[2];
         Display_MapMigToLocalDisplayPixelCoordinates(display, first, firstPixel, false); Display_MapMigToLocalDisplayPixelCoordinates(display, second, secondPixel, false);
-        NC2Lifetime::Read<NXBasics::CBitmap*>(display, 0x68)->Draw_Line(secondPixel[0], secondPixel[1], firstPixel[0], firstPixel[1], *color);
+        NC2Lifetime::Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(secondPixel[0], secondPixel[1], firstPixel[0], firstPixel[1], *color);
     }
 }

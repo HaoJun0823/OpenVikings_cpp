@@ -164,9 +164,9 @@ namespace NC2Logic
     {
         std::byte message[772];
         ToUserMessage_Construct(message);
-        Write(message, 0, type);
-        Write(message, 0x18, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
-        Write(message, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId));
+        Write(message, NC2Layout::ToUserMessageOffset::Type, type);
+        Write(message, NC2Layout::ToUserMessageOffset::HouseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }

@@ -282,10 +282,10 @@ namespace NC2Logic
             {
                 alignas(4) std::byte message[772];
                 ToUserMessage_Construct(message);
-                Write(message, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(message, 0x20, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-                Write(message, 0x2E0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
-                Write<std::uint32_t>(message, 0, 0x3A);
+                Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
+                Write(message, NC2Layout::ToUserMessageOffset::VehicleId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(message, NC2Layout::ToUserMessageOffset::EquipmentItems, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
+                Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 0x3A);
                 ToUserMessage_FinishMessage(message);
                 NC2LogicExternals::External_Misc_SendToUserMessage(message);
             }
@@ -571,7 +571,7 @@ namespace NC2Logic
     // Original function: FUN_0044c122; Windows checks the passenger job mask here as well.
     bool Vehicle_Passengers_CanBeCommander(const void* vehicle, const void* human)
     {
-        if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[NC2Lifetime::Read<std::uint32_t>(human, 0x18)] == 0) return false;
+        if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType)] == 0) return false;
         return NC2Lifetime::Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) == 0;
     }
 

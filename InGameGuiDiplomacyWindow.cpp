@@ -70,7 +70,7 @@ namespace NC2InGameGuiMiscWindows
     }
     static std::uint32_t OtherPlayer(const void* window)
     {
-        return Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerPageSlotsUnsigned + SelectedPage() * 4u);
+        return Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerPageSlotsUnsigned + SelectedPage() * NC2Layout::RecordSize::DiplomacyPlayerSlotUnsigned);
     }
     static void Add(void* window, void* element)
     {
@@ -154,7 +154,7 @@ namespace NC2InGameGuiMiscWindows
         else if (command == 12000)
         {
             const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition));
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition));
         }
         else return true;
         NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
@@ -182,7 +182,7 @@ namespace NC2InGameGuiMiscWindows
             if (Read<std::uint8_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer) == 0 || (Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::PlayerSeenFlagsUnsigned + other) == 0 && player != other) || Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::HideDiplomacyChangesUnsigned + other) != 0) continue;
             const auto count = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerCount);
             const auto hidden = Read<std::uint8_t>(NC2Logic::gGameControl, playerBase + NC2Layout::GameControlPlayerOffset::HideDiplomacyDetailsUnsigned + other);
-            Write(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + count * 4u, other);
+            Write(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + count * NC2Layout::RecordSize::DiplomacyPlayerSlotUnsigned, other);
             Write(window, NC2Layout::DiplomacyWindowOffset::HiddenPlayerFlagsUnsigned + count, hidden);
             Write(window, NC2Layout::DiplomacyWindowOffset::PlayerCount, count + 1);
             if (hidden == 0) Write(window, NC2Layout::DiplomacyWindowOffset::VisiblePlayerCount, Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::VisiblePlayerCount) + 1u);
@@ -196,13 +196,13 @@ namespace NC2InGameGuiMiscWindows
             tab.x += tab.width + 2;
             for (std::uint32_t i = 0; i < Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerCount); ++i)
             {
-                const auto other = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + i * 4u);
+                const auto other = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + i * NC2Layout::RecordSize::DiplomacyPlayerSlotUnsigned);
                 if (Read<std::uint8_t>(window, NC2Layout::DiplomacyWindowOffset::HiddenPlayerFlagsUnsigned + i) != 0 || other == player) continue;
                 char name[260];
                 NC2Logic::GameControl_Misc_GetPlayerName(NC2Logic::gGameControl, other, true, name);
                 auto* button = TextButton(window, tab, name, 10001 + i, true, SelectedPage() == i + 1);
-                NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(button, NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + 0x10u) : 9));
-                Write<std::uint8_t>(button, 0x58, 1);
+                NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(button, NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::ColorIdUnsigned) : 9));
+                Write<std::uint8_t>(button, NC2Layout::GuiTextButtonOffset::SkipOverwideCaptionFlag, 1);
                 Add(window, button);
                 tab.x += tab.width + 2;
             }
@@ -246,14 +246,14 @@ namespace NC2InGameGuiMiscWindows
             for (tributes++; tributes.GetCurrent() != nullptr; tributes++)
             {
                 const auto* tribute = tributes.GetCurrent();
-                if (Read<std::uint8_t>(tribute, 0) != 0 && Read<std::uint8_t>(tribute, 1) != 0) continue;
+                if (Read<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Allocated) != 0 && Read<std::uint8_t>(tribute, NC2Layout::TributeDataOffset::Paid) != 0) continue;
                 auto* strings = Read<NXBasics::CStringArray*>(window, NC2Layout::DiplomacyWindowOffset::MissionStrings);
-                const auto* description = strings == nullptr ? "<MISSION STRINGS NOT LOADED>" : strings->GetStringPtr(Read<std::uint32_t>(tribute, 0x10));
+                const auto* description = strings == nullptr ? "<MISSION STRINGS NOT LOADED>" : strings->GetStringPtr(Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::DescriptionStringId));
                 if (description == nullptr) description = "<MISSION STRING DOES NOT EXIST>";
                 char goods[300]{}, entry[200], caption[300];
-                for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, 4); ++i)
+                for (std::uint32_t i = 0; i < Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::GoodCount); ++i)
                 {
-                    const auto good = Read<std::uint32_t>(tribute, 0x14u + i * 8u), amount = Read<std::uint32_t>(tribute, 0x18u + i * 8u);
+                    const auto good = Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::FirstGoodUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned), amount = Read<std::uint32_t>(tribute, NC2Layout::TributeDataOffset::FirstAmountUnsigned + i * NC2Layout::RecordSize::TributeGoodAmountUnsigned);
                     NXBasics::Runtime_PrintString(entry, "%d %s (%d %s)", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount), NC2Logic::TributeManager_CountGoodAmountForTribute(player, good), NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(355));
                     if (goods[0] != '\0') std::strcat(goods, " - ");
                     std::strcat(goods, entry);
@@ -262,11 +262,11 @@ namespace NC2InGameGuiMiscWindows
                 std::strcat(caption, "\r\n");
                 std::strcat(caption, goods);
                 auto* button = TextButton(window, demand, caption, 11000, false);
-                Write<std::uint8_t>(button, 0x56, !NC2Logic::TributeData_Possible(tribute));
+                Write<std::uint8_t>(button, NC2Layout::GuiTextButtonOffset::DisabledFlag, !NC2Logic::TributeData_Possible(tribute));
                 NC2InGameGuiBase::BaseToolTextButton_SetToolTipString(button, goods);
                 Write(button, NC2Layout::ToolTextButtonOffset::CommandData1, tributes.GetIndex());
                 Write<std::uint32_t>(button, NC2Layout::ToolTextButtonOffset::CommandData2, 0);
-                Write<std::uint8_t>(button, 0x57, 1);
+                Write<std::uint8_t>(button, NC2Layout::GuiTextButtonOffset::SmallFontFlag, 1);
                 Add(window, button);
                 demand.y += demand.height;
             }
@@ -275,7 +275,7 @@ namespace NC2InGameGuiMiscWindows
                 NXBasics::SRectangle listArea(4, 320, 468, 82), row(0, 0, 468, 18);
                 memory = NXBasics::Runtime_Allocate(116);
                 auto* list = memory == nullptr ? nullptr : ToolListBoxElement_Construct(memory, nullptr, &listArea);
-                row.width = Read<std::int32_t>(list, 0x0C);
+                row.width = Read<std::int32_t>(list, NC2Layout::GuiBaseElementOffset::Width);
                 NC2Logic::CHouseIterator houses;
                 for (auto id = houses.GetFirstHouseId(other); id != -1; id = houses.GetNextHouseId())
                 {
@@ -287,7 +287,7 @@ namespace NC2InGameGuiMiscWindows
                     for (auto offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, NXBasics::IntegerRange::UInt32Maximum); offer != NXBasics::IntegerRange::UInt32Maximum; offer = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, offer))
                     {
                         const auto* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + offer * 24u;
-                        const auto firstGood = Read<std::uint32_t>(agreement, 8), firstAmount = Read<std::uint32_t>(agreement, 12), secondGood = Read<std::uint32_t>(agreement, 16), secondAmount = Read<std::uint32_t>(agreement, 20);
+                        const auto firstGood = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingGood), firstAmount = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::OutgoingAmount), secondGood = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingGood), secondAmount = Read<std::uint32_t>(agreement, NC2Layout::TradeAgreementOffset::IncomingAmount);
                         char caption[260];
                         NXBasics::Runtime_PrintString(caption, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(356), secondAmount, NC2Logic::StringAccess_GetGoodNamePtr(secondGood, secondAmount), firstAmount, NC2Logic::StringAccess_GetGoodNamePtr(firstGood, firstAmount));
                         auto* button = TextButton(window, row, caption, 12000, false);
@@ -326,7 +326,7 @@ namespace NC2InGameGuiMiscWindows
         NC2Logic::GameControl_Misc_GetPlayerName(NC2Logic::gGameControl, other, false, name);
         bitmap->Text_Print(resources.font10, color, 4, 50, name);
         std::int32_t y = 74;
-        if (other < 20 && Read<std::uint8_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + 8u) != 0)
+        if (other < 20 && Read<std::uint8_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::DeadFlagUnsigned) != 0)
         {
             bitmap->Text_Print(resources.font08, color, 4, y, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(357));
             y = 92;
@@ -344,7 +344,7 @@ namespace NC2InGameGuiMiscWindows
         const auto area = OverviewArea(window);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerCount); ++i)
         {
-            const auto other = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + i * 4u);
+            const auto other = Read<std::uint32_t>(window, NC2Layout::DiplomacyWindowOffset::PlayerIdsUnsigned + i * NC2Layout::RecordSize::DiplomacyPlayerSlotUnsigned);
             if (other == Player()) continue;
             std::uint32_t position = 0;
             if (!NC2InGameGuiEntryPoints::C2IGG_EntryPoint_PlayerCenterPosition_Get(other, &position)) continue;
@@ -360,7 +360,7 @@ namespace NC2InGameGuiMiscWindows
                 const auto width = NXBasics::Font_GetPixelWidth(resources.font08, text), height = NXBasics::Font_GetPixelHeight(resources.font08, text);
                 NXBasics::SRectangle frame(x - width / 2 - 2, top, width + 6, height + 3);
                 frame.PlaceInside(area);
-                if (fill) bitmap->Draw_Box(frame, *NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + 0x10u) : 9));
+                if (fill) bitmap->Draw_Box(frame, *NC2E2::Tool_PlayerColors_GetColorRef(other < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, other * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::ColorIdUnsigned) : 9));
                 bitmap->Tool_Darken(frame);
                 NXBasics::CBitmap sub(bitmap, frame);
                 NC2GuiToolsBase::DrawTool_DrawFrame(nullptr, &sub, &frame, 2);

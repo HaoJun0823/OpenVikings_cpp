@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
@@ -25,9 +26,9 @@ namespace NC2InGameGuiMessages
         // Original function: FUN_004d10e4.
         void MessageMiniButton_Destruct(void* button)
         {
-            Write(button, 0, gMessageMiniButtonVirtualTable + 0);
+            Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessageMiniButtonVirtualTable + 0);
             static_cast<CMessageManager*>(gMessageManager)->MiniButton_Removed(Read<std::uint32_t>(button, 0x30));
-            Write(button, 0, NC2InGameGuiBase::gBaseToolElementVirtualTable + 0);
+            Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolElementVirtualTable + 0);
             BaseElement_Destruct(button);
         }
 
@@ -44,7 +45,7 @@ namespace NC2InGameGuiMessages
         {
             if (message != 0x20) return false;
             auto* manager = static_cast<CMessageManager*>(gMessageManager);
-            if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0) manager->Message_RemoveAll(true);
+            if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags) & 2u) != 0) manager->Message_RemoveAll(true);
             else manager->Message_Remove(Read<std::uint32_t>(button, 0x30), true);
             return true;
         }
@@ -149,7 +150,7 @@ namespace NC2InGameGuiMessages
     {
         const NXBasics::SRectangle rectangle(x, 0, 0x36, 0x45);
         NC2InGameGuiBase::BaseToolElement_Construct(button, &rectangle, 2, 0x20);
-        NC2Lifetime::Write(button, 0, gMessageMiniButtonVirtualTable + 0);
+        NC2Lifetime::Write(button, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessageMiniButtonVirtualTable + 0);
         std::memset(static_cast<std::byte*>(button) + 0x30, 0, 1004);
         NC2Lifetime::Write(button, 0x30, uniqueId);
         return button;

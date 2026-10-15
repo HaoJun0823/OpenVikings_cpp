@@ -35,12 +35,12 @@ namespace NC2Logic
             const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             const auto point = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             std::uint32_t index = 0;
-            while (index < count && Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + index * 16u) != point) ++index;
+            while (index < count && Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + index * NC2Layout::RecordSize::AIBuildHouseUnsigned) != point) ++index;
             if (index != count) continue;
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypesUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + count * 16u, point);
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStagesUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
-            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIdsUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypesUnsigned + count * NC2Layout::RecordSize::AIBuildHouseUnsigned, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + count * NC2Layout::RecordSize::AIBuildHouseUnsigned, point);
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStagesUnsigned + count * NC2Layout::RecordSize::AIBuildHouseUnsigned, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIdsUnsigned + count * NC2Layout::RecordSize::AIBuildHouseUnsigned, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
             Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount, count + 1u);
         }
     }
@@ -144,11 +144,11 @@ namespace NC2Logic
                 if (Read<std::uint8_t>(gGameControl, offset) == 0) continue;
                 void* single = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AISinglePlayerHandler, 1);
                 Write(manager, player * NC2Layout::RecordSize::AIPlayerHandlerPointer, single);
-                C2AISinglePlayerHandler_Init(single, player, Read<std::uint32_t>(gGameControl, offset + 4) == 2);
+                C2AISinglePlayerHandler_Init(single, player, Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::Type) == 2);
                 void* high = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::ObjectSize::AIHighLevelHandler, 1);
                 if (high != nullptr) C2AIHighLevelHandler_Construct(high);
                 Write(manager, NC2Layout::AIManagerOffset::HighLevelHandlers + player * NC2Layout::RecordSize::AIPlayerHandlerPointer, high);
-                const bool enabled = enableHighLevel && Read<std::uint32_t>(gGameControl, offset + 4) == 2 && Read<std::uint32_t>(gGameControl, offset + 12) != 5 && Read<std::uint32_t>(gGameControl, offset + 12) != 6;
+                const bool enabled = enableHighLevel && Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::Type) == 2 && Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::TribeType) != 5 && Read<std::uint32_t>(gGameControl, offset + NC2Layout::GameControlPlayerOffset::TribeType) != 6;
                 C2AIHighLevelHandler_Init(high, player, enabled);
             }
         }

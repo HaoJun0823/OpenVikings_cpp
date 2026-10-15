@@ -31,7 +31,7 @@ namespace NC2Logic
         for (auto id = preferredHouses.GetFirstHouseId(playerId); id != -1; id = preferredHouses.GetNextHouseId())
         {
             const auto* house = houseAt(id);
-            const auto type = Read<std::uint32_t>(house, 0x14);
+            const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
             if (type == 7 || type == 8 || type == 9 || type == 1)
             {
                 *mapPoint = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint);
@@ -103,7 +103,7 @@ namespace NC2InGameGuiEntryPoints
     {
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
-        void* display = NC2Lifetime::Read<void*>(manager->GetDesktop(), 0x30);
+        void* display = NC2Lifetime::Read<void*>(manager->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display);
         NC2E2::DE_SetWantedPositionToMapPoint(display, static_cast<const std::uint32_t*>(mapPoint));
     }
 

@@ -54,10 +54,10 @@ namespace NC2Logic
             if (GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData)) return;
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 44);
-            Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-            Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-            Write(message, 0x30, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 44);
+            Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+            Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }
@@ -66,10 +66,10 @@ namespace NC2Logic
         {
             std::byte message[772];
             ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 45);
-            Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-            Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-            Write(message, 0x30, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
+            Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 45);
+            Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+            Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+            Write(message, NC2Layout::ToUserMessageOffset::FirstPayloadItem, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }

@@ -83,7 +83,7 @@ namespace NC2Logic
         damage = HalfForDifficulty(damage, player);
         if (damage == 0) return false;
         if (data.soundTypesHit[7] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[7], Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 0);
-        if (NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 4u) == 2 && House_CanEnableDefenceMode(house)) AIManager_Message_Attacked(gAIManager, player, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint);
+        if (NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + NC2Layout::GameControlPlayerOffset::TypeUnsigned) == 2 && House_CanEnableDefenceMode(house)) AIManager_Message_Attacked(gAIManager, player, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint);
         const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(0u - damage));
@@ -95,11 +95,11 @@ namespace NC2Logic
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 0);
         alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 49);
-        Write(message, 8, player);
-        Write(message, 0x18, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
-        Write(message, 0x1C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-        Write(message, 0x200, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 49);
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, player);
+        Write(message, NC2Layout::ToUserMessageOffset::HouseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+        Write(message, NC2Layout::ToUserMessageOffset::HouseUniqueId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+        Write(message, NC2Layout::ToUserMessageOffset::HouseItems, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
         return true;
@@ -127,11 +127,11 @@ namespace NC2Logic
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 0);
         alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);
-        Write<std::uint32_t>(message, 0, 52);
-        Write(message, 8, player);
-        Write(message, 0x20, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
-        Write(message, 0x24, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
-        Write(message, 0x2E0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, 52);
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, player);
+        Write(message, NC2Layout::ToUserMessageOffset::VehicleId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+        Write(message, NC2Layout::ToUserMessageOffset::VehicleUniqueId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+        Write(message, NC2Layout::ToUserMessageOffset::EquipmentItems, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
         return true;
@@ -203,10 +203,10 @@ namespace NC2Logic
         else if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
         {
             alignas(4) std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 4);
-            Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(player));
-            Write(command, 12, previousPosition);
-            Write<std::uint32_t>(command, 16, propagate ? 0u : 1u);
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 4);
+            Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(player));
+            Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, previousPosition);
+            Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter2, propagate ? 0u : 1u);
             Human_DoAddNewUserCommand(human, command);
         }
         if (propagate && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit15) == 0)

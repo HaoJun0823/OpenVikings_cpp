@@ -465,7 +465,7 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
         {
             const auto x = add(round(mul(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed), column)), rowX);
             const auto y = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed))));
-            if ((Read<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit6) != 0)
+            if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlagsByte1) & NXBasics::BitMask::Bit6) != 0)
             {
                 std::int16_t next[2] = {point[0], point[1]};
                 NC2Logic::MapMigPoint_MoveCursorWrappedEast(next);
@@ -475,26 +475,26 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
                 NC2Logic::MapMigPoint_MoveCursorWrappedWest(next);
                 const auto lowerLeftY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed)))), rowStep);
                 auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
-                const auto edges = Read<std::uint8_t>(logic, 7);
+                const auto edges = Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::WalkingDirections);
                 bitmap->Draw_Circle(x, y, 2, grey);
                 bitmap->Draw_Line(x, y, add(x, fullStep), eastY, (edges & 1u) != 0 ? white : grey);
                 bitmap->Draw_Line(x, y, add(x, halfStep), lowerRightY, (edges & 2u) != 0 ? white : grey);
                 bitmap->Draw_Line(x, y, sub(x, halfStep), lowerLeftY, (edges & 4u) != 0 ? white : grey);
             }
-            if ((Read<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit7) == 0) continue;
-            if ((Read<std::uint8_t>(logic, 0x0C) & NXBasics::BitMask::Bit7) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 5, blue);
-            if ((Read<std::uint8_t>(logic, 0x0D) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 4, red);
-            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
-            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 2u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
-            if (Read<std::uint8_t>(logic, 0) == 4)
+            if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlagsByte1) & NXBasics::BitMask::Bit7) == 0) continue;
+            if ((Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 5, blue);
+            if ((Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 4, red);
+            if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
+            if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
+            if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 4)
             {
                 Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 6, paleYellow);
-                std::int16_t origin[2] = {static_cast<std::int16_t>(point[0] + (Read<std::uint8_t>(logic, 0) == 4 ? Read<std::int8_t>(logic, 2) : 0)), static_cast<std::int16_t>(point[1] + (Read<std::uint8_t>(logic, 0) == 4 ? Read<std::int8_t>(logic, 3) : 0))};
+                std::int16_t origin[2] = {static_cast<std::int16_t>(point[0] + (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 4 ? Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) : 0)), static_cast<std::int16_t>(point[1] + (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 4 ? Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0))};
                 std::int32_t originPixel[2];
                 Display_MapMigToLocalDisplayPixelCoordinates(display, origin, originPixel, false);
                 Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(x, y, originPixel[0], originPixel[1], paleYellow);
             }
-            if ((Read<std::uint8_t>(logic, 0x0D) & NXBasics::BitMask::Bit5) != 0)
+            if ((Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::TerrainFlags) & NXBasics::BitMask::Bit5) != 0)
             {
                 Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), sub(y, 5), add(x, 5), add(y, 5), red);
                 Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), add(y, 5), add(x, 5), sub(y, 5), red);

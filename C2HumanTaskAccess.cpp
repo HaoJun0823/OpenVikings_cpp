@@ -226,7 +226,7 @@ namespace NC2Logic
             std::uint32_t productionCount = 0;
             for (std::uint32_t good = 0; good < 66; ++good)
             {
-                const auto count = Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u);
+                const auto count = Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * NC2Layout::RecordSize::HumanJobValueUnsigned);
                 if (count > 0 && count <= 11) ++productionCount;
             }
             if (productionCount >= 2)

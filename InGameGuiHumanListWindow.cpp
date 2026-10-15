@@ -59,7 +59,7 @@ namespace NC2InGameGuiMiscWindows
     }
     static std::uint32_t Modifiers()
     {
-        return Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0);
+        return Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, NC2Layout::KeyManagerOffset::ModifierFlags);
     }
     static void* __fastcall HumanListWindow_Delete(void* window, void*, std::uint32_t flags);
     static bool __fastcall HumanListWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
@@ -191,7 +191,7 @@ namespace NC2InGameGuiMiscWindows
             if ((Modifiers() & 3u) == 0) NC2InGameGuiInputManager::Selection_UnselectAll(input);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanCount); ++index)
             {
-                const auto id = Read<std::int32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * 8u);
+                const auto id = Read<std::int32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned);
                 if ((Modifiers() & 1u) != 0 || (Modifiers() & 2u) == 0) NC2InGameGuiInputManager::Selection_SelectAddSingleHuman(input, id);
                 else NC2InGameGuiInputManager::UnSelect_Human(input, id);
             }
@@ -254,7 +254,7 @@ namespace NC2InGameGuiMiscWindows
             ids[index + 1] = old;
         }
         bool same = Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanCount) == count;
-        if (same) for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * 8u) != ids[index] || Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::FirstHumanUniqueIdUnsigned + index * 8u) != Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId))
+        if (same) for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned) != ids[index] || Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::FirstHumanUniqueIdUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned) != Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId))
         {
             same = false;
             break;
@@ -263,8 +263,8 @@ namespace NC2InGameGuiMiscWindows
         Write(window, NC2Layout::HumanListWindowOffset::HumanCount, count);
         for (std::uint32_t index = 0; index < count; ++index)
         {
-            Write(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * 8u, ids[index]);
-            Write(window, NC2Layout::HumanListWindowOffset::FirstHumanUniqueIdUnsigned + index * 8u, Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId));
+            Write(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned, ids[index]);
+            Write(window, NC2Layout::HumanListWindowOffset::FirstHumanUniqueIdUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned, Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId));
         }
         return true;
     }
@@ -473,7 +473,7 @@ namespace NC2InGameGuiMiscWindows
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanCount); ++index)
         {
             allocation = NXBasics::Runtime_AllocateWithNewHandler(72, 1);
-            void* element = allocation == nullptr ? nullptr : HumanListButton_Construct(allocation, &row, Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * 8u), 10000, 10001, window, false);
+            void* element = allocation == nullptr ? nullptr : HumanListButton_Construct(allocation, &row, Read<std::uint32_t>(window, NC2Layout::HumanListWindowOffset::HumanReferencesUnsigned + index * NC2Layout::RecordSize::HumanReferenceUnsigned), 10000, 10001, window, false);
             BaseListBoxElement_Element_Add(list, nullptr, element);
             row.y += row.height + 2;
         }

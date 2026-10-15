@@ -54,15 +54,15 @@ namespace NC2InGameGuiMessages
         // Original function: FUN_004d1144.
         void MessageMiniButton_SetXPosition(void* button, std::int32_t x)
         {
-            Write<std::uint32_t>(button, 8, 0);
-            Write(button, 4, x);
+            Write<std::uint32_t>(button, NC2Layout::GuiBaseElementOffset::PositionY, 0);
+            Write(button, NC2Layout::GuiBaseElementOffset::PositionX, x);
         }
 
         void RemoveMiniButton(void* button)
         {
             NXBaseGui::CDesktop::sTheObjectPtr->Element_Remove(static_cast<NXBaseGui::CBaseElement*>(button));
             using TDelete = void*(__thiscall*)(void*, std::uint32_t);
-            Read<TDelete>(Read<void*>(button, 0), 0)(button, 1);
+            Read<TDelete>(Read<void*>(button, NC2Layout::GuiBaseElementOffset::VirtualTable), 0)(button, 1);
         }
     }
 

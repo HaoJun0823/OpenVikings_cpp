@@ -100,12 +100,12 @@ namespace NC2InGameGuiInputManager
                 const std::uint32_t offset = 0x14u + index * 8u;
                 const std::uint32_t id = Input_Read<std::uint32_t>(manager, offset);
                 const void* human = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize;
-                if ((Input_Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit5) != 0) continue;
+                if ((Input_Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0) continue;
                 std::byte command[20]{};
-                NC2Lifetime::Write<std::uint32_t>(command, 4, id);
+                NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::ObjectId, id);
                 const std::uint32_t targetIndex = index % Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::TargetPointCount);
-                NC2Lifetime::Write<std::uint8_t>(command, 0, 4);
-                NC2Lifetime::Write<std::uint32_t>(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + targetIndex * 4u));
+                NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 4);
+                NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + targetIndex * NC2Layout::RecordSize::PackedMapPointUnsigned));
                 NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Input_Read<std::int32_t>(manager, offset));
             }
@@ -113,9 +113,9 @@ namespace NC2InGameGuiInputManager
         else if (selection == 1)
         {
             std::byte command[20]{};
-            NC2Lifetime::Write<std::uint8_t>(command, 0, 4);
-            NC2Lifetime::Write<std::uint32_t>(command, 4, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
-            NC2Lifetime::Write<std::uint32_t>(command, 0x0C, NC2Logic::MapMigPoint_GetLong(point));
+            NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 4);
+            NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
+            NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(point));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Input_Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
         }
@@ -139,11 +139,11 @@ namespace NC2InGameGuiInputManager
             for (std::uint32_t index = 0; index < Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount); ++index)
             {
                 std::byte command[20]{};
-                NC2Lifetime::Write<std::uint8_t>(command, 0, 101);
-                NC2Lifetime::Write(command, 4, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + index * 8u));
+                NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 101);
+                NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + index * 8u));
                 const auto count = Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::TargetPointCount);
-                const void* target = count == 0 ? static_cast<const void*>(&point) : static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + (index % count) * 4u;
-                NC2Lifetime::Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(target));
+                const void* target = count == 0 ? static_cast<const void*>(&point) : static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + (index % count) * NC2Layout::RecordSize::PackedMapPointUnsigned;
+                NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(target));
                 NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
                 const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + index * 8u) * NC2Logic::CVehicleArray::ElementSize;
                 if (Input_Read<std::uint8_t>(vehicle, 0x2EC) != 0) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, NC2Logic::Vehicle_Passengers_GetAttachedCommanderId(vehicle));
@@ -152,9 +152,9 @@ namespace NC2InGameGuiInputManager
         else if (selection == 4)
         {
             std::byte command[20]{};
-            NC2Lifetime::Write<std::uint8_t>(command, 0, 101);
-            NC2Lifetime::Write(command, 4, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId));
-            NC2Lifetime::Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(&point));
+            NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode, 101);
+            NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::ObjectId, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId));
+            NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::Parameter1, NC2Logic::MapMigPoint_GetLong(&point));
             NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
             const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId) * NC2Logic::CVehicleArray::ElementSize;
             if (Input_Read<std::uint8_t>(vehicle, 0x2EC) != 0) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, NC2Logic::Vehicle_Passengers_GetAttachedCommanderId(vehicle));
@@ -181,7 +181,7 @@ namespace NC2InGameGuiInputManager
             if (Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count) * search.spacing > search.visited) return false;
         }
         const std::uint32_t count = Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count);
-        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Points + count * 4u, Input_Read<std::uint32_t>(point, 0));
+        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Points + count * NC2Layout::RecordSize::PackedMapPointUnsigned, Input_Read<std::uint32_t>(point, 0));
         NC2Lifetime::Write<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count, count + 1u);
         return Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count) >= search.wanted;
     }
@@ -196,9 +196,9 @@ namespace NC2Logic
         if (type <= 1u || type >= 0x58u) return;
         const std::uint32_t id = Input_Read<std::uint32_t>(command, 4);
         const void* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-        if (Input_Read<std::uint8_t>(human, 0) == 0) return;
-        NC2Lifetime::Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Input_Read<std::uint32_t>(human, 0x10)));
-        NC2Lifetime::Write<std::uint32_t>(command, 8, Input_Read<std::uint32_t>(human, 8));
+        if (Input_Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0) return;
+        NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, static_cast<std::uint8_t>(Input_Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
+        NC2Lifetime::Write<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Input_Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
         UserNetworkCommandManager_AddCommand(manager, nullptr, command, false, false);
     }
 
@@ -209,9 +209,9 @@ namespace NC2Logic
         if (type <= 0x59 || type >= 0x62) return;
         const std::uint32_t id = Input_Read<std::uint32_t>(command, 4);
         const void* house = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(CHouseArray::mStaticVars) + id * CHouseArray::ElementSize);
-        if (Input_Read<std::uint8_t>(house, 0) == 0) return;
-        NC2Lifetime::Write<std::uint8_t>(command, 1, Input_Read<std::uint8_t>(house, 0xC));
-        NC2Lifetime::Write(command, 8, Input_Read<std::uint32_t>(house, 8));
+        if (Input_Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) return;
+        NC2Lifetime::Write<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::PlayerId, Input_Read<std::uint8_t>(house, NC2Layout::HouseOffset::PlayerId));
+        NC2Lifetime::Write(command, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Input_Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
         UserNetworkCommandManager_AddCommand(manager, nullptr, command, false, false);
     }
 

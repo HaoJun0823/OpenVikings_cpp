@@ -36,7 +36,7 @@ namespace NC2E2
             if (NC2Lifetime::Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::TribeType) != tribe) continue;
             for (std::uint32_t variant = 0; variant < NC2Lifetime::Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::DevelopmentStageCount); ++variant)
             {
-                if (NC2Lifetime::Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + variant * 4u) == logicType)
+                if (NC2Lifetime::Read<std::uint32_t>(entry, NC2Layout::EngineHouseTypeOffset::LogicTypesUnsigned + variant * NC2Layout::RecordSize::HouseStageValueUnsigned) == logicType)
                 {
                     *stage = variant;
                     return index;

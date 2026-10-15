@@ -79,7 +79,7 @@ namespace NC2E2
                 const auto halfSize = wall ? 5 : 3;
                 bitmap->Draw_Box(NXBasics::SRectangle(Sub(x, halfSize), Sub(y, halfSize), halfSize * 2, halfSize * 2), *color);
             }
-            if ((Read<std::uint8_t>(display, 0x72) & 1u) == 0) return;
+            if ((Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte2) & 1u) == 0) return;
             const auto* data = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(manager, player, point);
             if (data != nullptr)
             {
@@ -96,7 +96,7 @@ namespace NC2E2
         // Foreground branch 004918CF..00491B12 / 00491BB1..00491BEA of 004911D5.
         void DrawMoveablesOnField(void* display, const void* logic, const void* point, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
         {
-            if (Read<std::uint16_t>(logic, 0xA) == NXBasics::IntegerRange::UInt16Maximum) return;
+            if (Read<std::uint16_t>(logic, NC2Layout::MapMicroPointOffset::FirstMapMoveableId) == NXBasics::IntegerRange::UInt16Maximum) return;
             std::uint32_t count = 0;
             NC2Logic::CMapMoveableIterator counter;
             for (auto id = counter.GetFirstMapMoveableId(point); id != -1; id = counter.GetNextMapMoveableId())
@@ -246,14 +246,14 @@ namespace NC2E2
                         const bool skipVoid = graphic->logicType == 1 && graphic->areas[0].count == 0 && !drawVoid && graphic->drawVoidEver == 0;
                         if (!skipVoid && ((foregroundPart && graphic->unresolved78 != 0) || (staticPart && graphic->isStatic != 0) || (backgroundPart && graphic->dynamicBackground != 0)))
                         {
-                            const bool landscape = Read<std::uint8_t>(logic, 0) == 1;
-                            const auto type = landscape ? Read<std::uint8_t>(logic, 2) : 0;
+                            const bool landscape = Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 1;
+                            const auto type = landscape ? Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) : 0;
                             std::uint32_t phase = static_cast<std::uint32_t>(static_cast<std::int32_t>(point[0]) + static_cast<std::int32_t>(point[1]) * 2);
                             // Typed pointer indexing already applies the native 0x9C-byte stride.
                             if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + type, 0x2D) & NXBasics::BitMask::Bit5) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
-                            const std::int32_t player = landscape ? Read<std::int8_t>(logic, 4) : -1;
+                            const std::int32_t player = landscape ? Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;
                             if (landscape && type == 82) DrawAtom_Landscape_Wall_DoDraw(bitmap, x, y, phase, display, point, player);
-                            else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, 3) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
+                            else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
                             Write(display, NC2Layout::EngineDisplayOffset::LandscapeDrawCount, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::LandscapeDrawCount) + 1u);
                         }
                     }
@@ -261,14 +261,14 @@ namespace NC2E2
                 if (foregroundPart)
                 {
                     const auto controllingPlayer = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
-                    if ((flags & 4u) == 0 || controllingPlayer >= 16u || (Read<std::uint16_t>(logic, 8) & (1u << controllingPlayer)) != 0)
+                    if ((flags & 4u) == 0 || controllingPlayer >= 16u || (Read<std::uint16_t>(logic, NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << controllingPlayer)) != 0)
                     {
                         DrawConstructionMarker(display, logic, point, bitmap, x, y, false);
                         DrawConstructionMarker(display, logic, point, bitmap, x, y, true);
                         // Windows foreground house branch 0049180A..0049189E.
-                        if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0)
+                        if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 2 && (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) & 1u) != 0)
                         {
-                            const auto id = Read<std::uint16_t>(logic, 4);
+                            const auto id = Read<std::uint16_t>(logic, NC2Layout::MapMicroPointOffset::LandscapePlayerId);
                             if ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & NXBasics::BitMask::Bits16Through17) != 0x30000u) DrawAtom_House_DoDraw(id, bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
                             Write(display, NC2Layout::EngineDisplayOffset::SeenHouses, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenHouses) + 1u);
                             const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
@@ -276,12 +276,12 @@ namespace NC2E2
                             if ((state == 3 || state == 2) && NC2Logic::House_HitPoints_IsDamaged(house)) Write(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses) + 1u);
                         }
                         // Windows guidepost branch 0049189E..004918CF.
-                        if (Read<std::uint8_t>(logic, 0) == 3) DrawAtom_Guide_DoDraw(Read<std::uint16_t>(logic, 2), bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
+                        if (Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 3) DrawAtom_Guide_DoDraw(Read<std::uint16_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData), bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
                         DrawMoveablesOnField(display, logic, point, bitmap, x, y);
                     }
                 }
-                if ((flags & 1u) == 0 || (flags & NXBasics::BitMask::Bit18) != 0 || !staticPart || Read<std::uint8_t>(logic, 0) != 4) continue;
-                Point origin{static_cast<std::int16_t>(point[0] + Read<std::int8_t>(logic, 2)), static_cast<std::int16_t>(point[1] + Read<std::int8_t>(logic, 3))};
+                if ((flags & 1u) == 0 || (flags & NXBasics::BitMask::Bit18) != 0 || !staticPart || Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) != 4) continue;
+                Point origin{static_cast<std::int16_t>(point[0] + Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData)), static_cast<std::int16_t>(point[1] + Read<std::int8_t>(logic, NC2Layout::MapMicroPointOffset::LandscapeValency))};
                 if (NC2Logic::MapMigPoint_IsInside(origin, rectangle)) continue;
                 const auto* graphic = Landscape(Read<std::uint16_t>(EngineMap_GetConstMapMicroPointPtr(origin), NC2Layout::EngineMapMicroPointOffset::LandscapeId));
                 if (graphic->isStatic == 0) continue;

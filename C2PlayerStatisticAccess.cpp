@@ -21,10 +21,10 @@ namespace NC2Logic
     SPlayerStatisticSampleData* PlayerStatisticManager_GetStatistics(void* manager, std::int32_t time, std::uint32_t player)
     {
         if (time < 0) return nullptr;
-        auto* history = Read<SPlayerStatisticSampleData*>(manager, 8u + player * 4u);
-        if (history == nullptr) return Read<SPlayerStatisticSampleData*>(manager, 0x58u + player * 4u);
-        const auto sampleTime = Read<std::uint32_t>(manager, 4);
-        const auto current = Read<std::uint32_t>(manager, 0);
+        auto* history = Read<SPlayerStatisticSampleData*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
+        if (history == nullptr) return Read<SPlayerStatisticSampleData*>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
+        const auto sampleTime = Read<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::LastSampleTime);
+        const auto current = Read<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentSampleIndex);
         if (static_cast<std::uint32_t>(time) >= sampleTime) return history + current;
         const auto distance = (sampleTime - static_cast<std::uint32_t>(time) + 59u) / 60u;
         if (distance > 598) return nullptr;
@@ -78,13 +78,13 @@ namespace NC2Logic
             if (Read<std::uint32_t>(playerData, 4) == 1)
             {
                 void* history = NXBasics::Runtime_AllocateWithNewHandler(187200, 1);
-                Write<void*>(manager, 8u + player * 4u, history);
+                Write<void*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned, history);
                 std::memset(history, 0, 187200);
             }
             else
             {
                 void* sample = NXBasics::Runtime_AllocateWithNewHandler(312, 1);
-                Write<void*>(manager, 0x58u + player * 4u, sample);
+                Write<void*>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned, sample);
                 std::memset(sample, 0, 312);
             }
         }
@@ -169,25 +169,25 @@ void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts)
         sample->values114[1] = Read<std::uint32_t>(playerData, 0x4A18);
         sample->values114[2] = Read<std::uint32_t>(playerData, 0x4A1C);
         sample->values130[0] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::Wealth);
-        sample->values130[1] = Read<std::uint32_t>(playerData, 0x4610);
+        sample->values130[1] = Read<std::uint32_t>(playerData, NC2Layout::GameControlPlayerOffset::HappinessValue);
     }
     // Original function: FUN_0041ad6f.
     void PlayerStatisticManager_CreateStatistics(void* manager)
     {
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            auto* history = Read<std::byte*>(manager, 8u + player * 4u);
-            if (history != nullptr) PlayerStatisticManager_CreateStatisticSamples(player, reinterpret_cast<SPlayerStatisticSampleData*>(history + Read<std::uint32_t>(manager, 0) * 0x138u));
-            auto* current = Read<SPlayerStatisticSampleData*>(manager, 0x58u + player * 4u);
+            auto* history = Read<std::byte*>(manager, NC2Layout::PlayerStatisticManagerOffset::HistoryByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
+            if (history != nullptr) PlayerStatisticManager_CreateStatisticSamples(player, reinterpret_cast<SPlayerStatisticSampleData*>(history + Read<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentSampleIndex) * 0x138u));
+            auto* current = Read<SPlayerStatisticSampleData*>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentByPlayerUnsigned + player * NC2Layout::RecordSize::StatisticPlayerPointerUnsigned);
             if (current != nullptr) PlayerStatisticManager_CreateStatisticSamples(player, current);
         }
     }
     // Original function: FUN_0041acd6.
     void __fastcall PlayerStatisticManager_UpdateStatistics(void* manager, void* /*unusedEdx*/, std::uint32_t time)
     {
-        const auto index = Read<std::uint32_t>(manager, 0) + 1u;
-        Write<std::uint32_t>(manager, 0, index == 600 ? 0 : index);
+        const auto index = Read<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentSampleIndex) + 1u;
+        Write<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::CurrentSampleIndex, index == 600 ? 0 : index);
         PlayerStatisticManager_CreateStatistics(manager);
-        Write<std::uint32_t>(manager, 4, time);
+        Write<std::uint32_t>(manager, NC2Layout::PlayerStatisticManagerOffset::LastSampleTime, time);
     }
 }

@@ -45,7 +45,7 @@ namespace NC2E2
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * 4u);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::InhabitantSigns + sign * NC2Layout::RecordSize::HumanSignGraphicsIdUnsigned);
     }
 
     // Original function: FUN_0048b574.
@@ -59,7 +59,7 @@ namespace NC2E2
         if (color < 0 || color >= 10) color = 9;
         auto index = count - 1u;
         if (index >= 5) index = 4;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::SoldierSignsUnsigned + index * 4u);
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * NC2Layout::RecordSize::StaticHumanColorUnsigned, NC2Layout::StaticHumanColorOffset::SoldierSignsUnsigned + index * NC2Layout::RecordSize::HumanSignGraphicsIdUnsigned);
     }
 
     // Original function: FUN_00486f3c

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "MainMenuGuiManager.h"
 #include "MainMenuGuiManager_Access.h"
 #include "C2LifetimeAccess.h"
@@ -48,7 +49,7 @@ namespace NC2MainMenuGuiManager
             list->l_Base_RemoveElement(element);
             NXBaseGui::CDesktop::sTheObjectPtr->Element_Remove(static_cast<NXBaseGui::CBaseElement*>(element));
             using TDelete = void*(__thiscall*)(void*, std::uint32_t);
-            NC2Lifetime::Read<TDelete*>(element, 0)[0](element, 1);
+            NC2Lifetime::Read<TDelete*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[0](element, 1);
         }
         std::memset(reinterpret_cast<std::byte*>(this) + 0x30, 0, 10 * sizeof(void*));
     }
@@ -77,6 +78,6 @@ namespace NC2MainMenuGuiManager
     {
         NXBasics::CListBase::Iterator iterator(*ElementList(this, 0x1C));
         using TMessage = std::uint32_t(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-        for (void* element = iterator.First(); element != nullptr; element = iterator.Next()) NC2Lifetime::Read<TMessage*>(element, 0)[2](element, 0x800, 0x7EE, 0, 0, 0);
+        for (void* element = iterator.First(); element != nullptr; element = iterator.Next()) NC2Lifetime::Read<TMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](element, 0x800, 0x7EE, 0, 0, 0);
     }
 }

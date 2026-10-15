@@ -1,0 +1,33 @@
+# Thousand-access readability review — 2026-10-15
+
+Baseline: `b2d47af`. This continuation completes **1,007 additional raw numeric-access operands across 90 C++ files and two existing headers**, meeting the requested batch of at least 1,000. The [direct delta inventory](THOUSAND_READABILITY_ACCESS_DELTA.csv) lists 1,030 changed access expressions; 23 retain another numeric operand and are excluded from the 1,007 resolved count. These are access counts, not reconstructed-function or gameplay-completion counts. The [field-reference inventory](THOUSAND_READABILITY_RECORDS_FIELDS.csv) includes 2,226 references to the checked constants, including existing context; it is not another count of new replacements.
+
+## Completed scope
+
+- Applied existing Windows-derived human, house, actor, input, command, user-message and GUI-prefix names to connected consumers. Retained distinct WORD/DWORD accesses, packed points, player flags and command payload meanings. The tick payload in game-time commands and speed payloads in the mixed GUI handler were excluded from object-ID naming.
+- Named proven array strides for human job counters, palettes, graphics IDs, engine-house stages and door overlays, AI tasks, scores, resource indices, stocks, guides, player allowance dimensions, vehicle routes and GUI stock rows.
+- Named observation-window target IDs/revisions, its embedded world element, menu camera-follow state, palette-remapping masks/shifts, selection-manager window pointers, group selection actions, house-good elements and tribute rows. The in-game manager's misleading `GetDesktop()` returns its world GUI element; +0x30 is that element's display pointer, not a `NXBaseGui::CDesktop` bitmap.
+- Named AI human-request fields, embedded-savegame size/data ownership, landscape/equipment selection fields, player identity/diplomacy/happiness fields, FMV state, happiness/event rows, statistics-manager pointer tables and separate misc landscape-link/weighted-choice records.
+- Named the assistant's six request counts and six budgets from the Windows command setters and consumers. Boy/recruit budgets aggregate several requests; they are distinct from the individual requested counts. Equipment flags follow existing command identities, including mead. No new interpretation of weapon goods IDs was introduced.
+
+No production file was added or removed. No new call, allocation, object cast, ownership rule, control-flow rewrite, ABI change or gameplay correction was introduced. The existing requested DataX film path remains intact. The project and filter registrations are unchanged.
+
+## Windows evidence and naming boundaries
+
+Windows x86 assembly and original Game.exe remain authoritative. Existing repository layouts and Git history supply integration context. Existing original/semantic names were reused; no Mac behavior, constants, offsets or layout were imported.
+
+Canonical and representative native excerpts cover assistant construction/commands 004175EC..00418CC5; happiness/events 004195D3..00419BC4; pre-game FMV 00403029..00403486; misc landscape links 0048A4BA..0048A968; transition lookup 0045343E..00453492; observation window 004BD3C6..004BDA97; menu world element 004DA53A..004DAE2E; AI requests 00457A65..004584C6; tribute operations 0043E55C..0043E82D; selection manager 004A0E9D..004A18E5; statistics 0041AA59..0041AE52; AI high-level update 00428BB2..00429190; array-handler prefix 00430C90..00430CA7; key manager 00479CF9..00479DA1; embedded savegame 00419BC5..00419E05; GUI base 004788C6..00478982; messages 0042BF7E..0042C021; graphics button 004B94B7..004B9503; text button 004B8DA2..004B8F9D. **8,089 decoded disassembly rows** match executable bytes. Embedded jump tables can appear as decoded data in these broad ranges; this count measures checked provenance, not instruction or function completion. The selection manager's trailing jump table is excluded. Additional assembly inspection of 004B8D11..004B8D41 confirms the tool window's four-byte background-style extension at +0x6C.
+
+**Confirmed physically from Windows:** the record widths, offsets, owned-pointer spans, array steps and the listed canonical constructor/setter/consumer accesses. **Inferred at connected call sites:** which established layout belongs to a local receiver, using its constructor, getter, allocation and pointer flow. The source-expression audit confirms no operation changes; it does not establish full transitive instruction-by-instruction equivalence of every function in 90 files. No new Mac-name recovery is claimed.
+
+Final name review corrected temporary candidates before commit: logic micro-point +0x0A is `FirstMapMoveableId`, not a visibility mask; +0x08 reuses `ExplorationMask`. Key-manager +0x00 is the modifier flags word, not a pointer to key states. Group-selection +0xFC is its action command, distinct from the pressed command at +0xF8. CArrayHandler initialization reuses its base-prefix name. Unresolved identities and unrelated statistics members remain unresolved.
+
+## Validation and remaining work
+
+Frozen stages verify exact baseline/current source and identical C++ operation tokens after named-value normalization. **335 value/type comparisons and 104 physical/relational assertions pass.** All 90 affected production translation units pass incremental Win32 `/Zs`, and the private assertion unit passes separately. An initial private observation-window model omitted the tool-window +0x6C extension; assertions caught it, the model was corrected from the constructor evidence, and the final checks pass. Production access offsets were already correct. No build, test project, tests or game run was performed.
+
+Temporary scripts, native excerpts, frozen snapshots and validation logs remain under ignored `.codex-work/`. Shared evidence inventories and this review remain in `docs/`. Independent pending documentation is excluded from this commit.
+
+Repository scan: **595 registered files (307 CPP / 288 headers), 156,706 lines, 1,205 raw numeric-access operands, 74 heuristic unknown mentions, 1,037 long compound lines and 5,014 original-address annotations**. This batch reduces raw operands **2,212 → 1,205**. Cumulative reduction against the tracked 5,427-operand baseline is **4,222 / 5,427 (77.80%)**, across thirty-five naming/layout blocks. The broad source review and complete per-function behavior ledger remain open. Descriptive constants lengthen some existing statements; unrelated wholesale formatting was excluded.
+
+Next: map-sector routing (26 raw operands), static engine-house data (22), then engine display, logic lifetime, engine lifetime and map saving (20 each). Counts also contain ordinary numeric subexpressions; they do not all represent unexplained members.

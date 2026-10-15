@@ -31,14 +31,14 @@ namespace NC2Logic
         const std::byte* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
         std::byte* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         const std::byte* Vehicle(std::uint32_t id) { return CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize; }
-        const std::byte* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * NC2Layout::RecordSize::MapMoveable; }
+        const std::byte* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable; }
         std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId); }
         void Prepare(void* command, std::uint8_t opcode, const void* actor, std::uint32_t first, std::uint32_t second = 0)
         {
             std::memset(command, 0, 20); Write(command, 0, opcode); Write(command, 4, Read<std::uint32_t>(actor, 4)); Write(command, 8, Read<std::uint32_t>(actor, 8)); Write(command, 0xC, first); Write(command, 0x10, second);
         }
         // Windows outlined helper 00436B16; the separate original semantic name remains unresolved.
-        const void* Merchant(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr; }
+        const void* Merchant(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)) : nullptr; }
     }
 
     // Original function: FUN_00412248.

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuWorldDisplayElement.h"
@@ -27,24 +28,24 @@ namespace NC2MainMenuGuiWorldElement
     // Original function: FUN_004dac2a.
     void WorldDisplayElement_l_Tool_DarkenBitmap_Exit(void* element)
     {
-        auto* palette = Read<NXBasics::CPalette*>(element, 0x34);
+        auto* palette = Read<NXBasics::CPalette*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette);
         if (palette != nullptr) NXBasics::CPalette::DeleteOriginal(palette, 1);
-        Write<NXBasics::CPalette*>(element, 0x34, nullptr);
-        NXBasics::Runtime_Free(Read<void*>(element, 0x38));
-        Write<void*>(element, 0x38, nullptr);
+        Write<NXBasics::CPalette*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette, nullptr);
+        NXBasics::Runtime_Free(Read<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable));
+        Write<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable, nullptr);
     }
 
     // Original function: FUN_004dac4e; remap the full destination, respecting its stride.
     void WorldDisplayElement_l_Tool_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap)
     {
-        const std::int32_t depth = Read<std::int32_t>(bitmap, 4);
-        const std::uint32_t width = Read<std::uint32_t>(bitmap, 0x10);
-        const std::uint32_t height = Read<std::uint32_t>(bitmap, 0x14);
-        const std::uint32_t stride = Read<std::uint32_t>(bitmap, 0x30);
+        const std::int32_t depth = Read<std::int32_t>(bitmap, NC2Layout::BitmapStorageOffset::Depth);
+        const std::uint32_t width = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::Width);
+        const std::uint32_t height = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::Height);
+        const std::uint32_t stride = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::RowPixelCount);
         if (depth == 1)
         {
-            auto* pixels = Read<std::uint16_t*>(bitmap, 0x28);
-            const auto* table = Read<const std::uint16_t*>(element, 0x38);
+            auto* pixels = Read<std::uint16_t*>(bitmap, NC2Layout::BitmapStorageOffset::HighColorMemory);
+            const auto* table = Read<const std::uint16_t*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable);
             for (std::uint32_t row = 0; row < height; ++row)
             {
                 for (std::uint32_t column = 0; column < width; ++column) pixels[column] = table[pixels[column]];
@@ -53,8 +54,8 @@ namespace NC2MainMenuGuiWorldElement
         }
         else if (depth == 2)
         {
-            auto* pixels = Read<std::uint32_t*>(bitmap, 0x2C);
-            const auto* table = NXBasics::Palette_GetTrueColorTablePtr(Read<void*>(element, 0x34));
+            auto* pixels = Read<std::uint32_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory);
+            const auto* table = NXBasics::Palette_GetTrueColorTablePtr(Read<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette));
             for (std::uint32_t row = 0; row < height; ++row)
             {
                 for (std::uint32_t column = 0; column < width; ++column)
@@ -89,7 +90,7 @@ namespace NC2MainMenuGuiWorldElement
             mapGuid = 0;
             extra = 0;
             using Handler = bool(__fastcall*)(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-            const auto handler = Read<Handler>(Read<void*>(hovered, 0), 8);
+            const auto handler = Read<Handler>(Read<void*>(hovered, NC2Layout::GuiBaseElementOffset::VirtualTable), 8);
             return handler(hovered, nullptr, 0x800, 0x7F0, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&type)), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&mapGuid)), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&extra)));
         }
 
@@ -129,15 +130,15 @@ void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void* element, 
     using namespace NC2Lifetime;
     using namespace NC2MainMenuGuiWorldElement;
     using NC2MainMenuGuiManager::CGuiManager;
-    void* display = Read<void*>(element, 0x30);
+    void* display = Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display);
     NC2E2::Display_UpdateDisplay(display);
     NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
     if (Read<std::uint8_t>(CGuiManager::sTheObjectPtr, 0x5C) == 0) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, bitmap);
-    if (Read<std::uint8_t>(display, 0x6C) == 0) return;
+    if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0) return;
     NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
     const auto& resources = CGuiManager::mStaticVars.resources;
     auto* logos = resources.menuLogos;
-    const std::int32_t width = Read<std::int32_t>(element, 0x0C), height = Read<std::int32_t>(element, 0x10);
+    const std::int32_t width = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), height = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height);
     const std::int32_t campaignX = WrappedAdd(width, -800) / 2, campaignY = WrappedAdd(height, -600) / 2;
     if (CGuiManager::sTheObjectPtr->currentScreen == 5)
     {
@@ -207,13 +208,13 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
     {
         switch (command)
         {
-        case SwitchIds::WorldDisplayCommand::AssignDisplayDefinition: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, 0x30), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
-        case SwitchIds::WorldDisplayCommand::ToggleDrawFlags: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, 0x30), param1); break;
+        case SwitchIds::WorldDisplayCommand::AssignDisplayDefinition: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
+        case SwitchIds::WorldDisplayCommand::ToggleDrawFlags: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), param1); break;
         case SwitchIds::WorldDisplayCommand::ScrollByPixelDelta:
-            if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
+            if ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
             break;
         case SwitchIds::WorldDisplayCommand::ToggleZoom:
-            if (Read<std::uint8_t>(Read<void*>(element, 0x30), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, 0x30), false);
+            if (Read<std::uint8_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display), false);
             break;
         }
     }
@@ -230,17 +231,17 @@ void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void* eleme
 {
     using namespace NC2Lifetime;
     auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\menu_remap.pcx");
-    Write(element, 0x34, palette);
-    if (Read<std::int32_t>(Read<void*>(element, 0x2C), 4) != 1) return;
+    Write(element, NC2Layout::MenuWorldElementOffset::DarkenPalette, palette);
+    if (Read<std::int32_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Bitmap), 4) != 1) return;
     auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(131072, 1));
-    Write(element, 0x38, table);
+    Write(element, NC2Layout::MenuWorldElementOffset::DarkenTable, table);
     const auto* paletteTable = NXBasics::Palette_GetHighColorTablePtr(palette);
     const void* converter = NXBasics::g16BitPixelConverter;
     for (std::uint32_t value = 0; value < 0x10000; ++value)
     {
-        const std::uint32_t red = ((value & Read<std::uint16_t>(converter, 0x0C)) >> (Read<std::uint8_t>(converter, 0x2C) & 31u)) << 3;
-        const std::uint32_t green = ((value & Read<std::uint16_t>(converter, 0x0E)) >> (Read<std::uint8_t>(converter, 0x30) & 31u)) << 3;
-        const std::uint32_t blue = ((value & Read<std::uint16_t>(converter, 0x10)) >> (Read<std::uint8_t>(converter, 0x34) & 31u)) << 3;
+        const std::uint32_t red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedShift) & 31u)) << 3;
+        const std::uint32_t green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenShift) & 31u)) << 3;
+        const std::uint32_t blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueShift) & 31u)) << 3;
         const std::uint32_t maximum = red > green ? red : green;
         table[value] = paletteTable[maximum > blue ? maximum : blue];
     }

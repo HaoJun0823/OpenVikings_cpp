@@ -59,8 +59,8 @@ namespace NC2InGameGuiSelection
     static bool __fastcall SelectionGuideWindow_Message(void*, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
     {
         const auto id = Selection_GetSelectedGuideId(gInputManager); const auto* guide = SelectedGuide(id); if (message != 0x800) return message == 0x1000 && command == 2001;
-        if (command == 10100 && guide != nullptr) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(guide + 0x14));
-        else if (command == 10101 && guide != nullptr) { std::byte packet[20]{}; Write<std::uint8_t>(packet, 0, 0x7E); Write(packet, 1, Read<std::uint8_t>(guide, 4)); Write(packet, 4, id); Write(packet, 8, Read<std::uint32_t>(guide, 0x10)); NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false); } return true;
+        if (command == 10100 && guide != nullptr) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), NC2Layout::WorldGuiElementOffset::Display), reinterpret_cast<const std::uint32_t*>(guide + 0x14));
+        else if (command == 10101 && guide != nullptr) { std::byte packet[20]{}; Write<std::uint8_t>(packet, NC2Layout::UserNetworkCommandOffset::Opcode, 0x7E); Write(packet, NC2Layout::UserNetworkCommandOffset::PlayerId, Read<std::uint8_t>(guide, 4)); Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(packet, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(guide, 0x10)); NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false); } return true;
     }
     // Original function: FUN_004be83f.
     static void __fastcall SelectionGuideWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "C2LanguageTools.h"
@@ -24,7 +25,7 @@ namespace
     // Verified application +4C, window +8, display +18/+20 COM ownership chain.
     static IUnknown* PreIngameFmv_DisplayInterface(std::uint32_t offset)
     {
-        auto* window = Read<NXSys2DApp::CWindow*>(NXSys2DApp::CApplication::sTheObjectPtr, 0x4C);
+        auto* window = Read<NXSys2DApp::CWindow*>(NXSys2DApp::CApplication::sTheObjectPtr, NC2Layout::ApplicationOffset::Window);
         return Read<IUnknown*>(window->GetDisplay(), offset);
     }
 
@@ -42,31 +43,31 @@ namespace
             const auto width = widthApplication->GetDisplayWidth();
             bitmap = ::new (memory) NXBasics::CBitmap(width, height, depth);
         }
-        Write(manager, 0xCC, bitmap);
+        Write(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap, bitmap);
         bitmap->Fill(NXBasics::SColorRGB(0, 0, 0));
     }
 
     // Original function: FUN_00403475; the stored pointer is not cleared.
     static void PreIngameFmv_GfxData_Free(void* manager)
     {
-        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, 0xCC)) delete bitmap;
+        if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap)) delete bitmap;
     }
 
     // Original function: FUN_004031f7.
     static bool PreIngameFmv_StartVideo(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0) == 0) return false;
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) == 0) return false;
         char pattern[260], fileName[260];
         // Requested installation layout: loose films are stored in DataX\FMV.
         NXBasics::Runtime_PrintString(pattern, "datax\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
         if (!NC2Logic::LanguageTool_GetFilename(pattern, fileName, false)) return false;
-        Read<NXBasics::CBitmap*>(manager, 0xCC)->Fill(NXBasics::SColorRGB(0, 0, 0));
+        Read<NXBasics::CBitmap*>(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap)->Fill(NXBasics::SColorRGB(0, 0, 0));
         if (NWindowsVideo::CVideoPlayer::sTheObjectPtr == nullptr)
         {
             if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(44, 1)) new (memory) NWindowsVideo::CVideoPlayer();
         }
         IDirectDraw* directDraw = nullptr;
-        PreIngameFmv_DisplayInterface(0x18)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
+        PreIngameFmv_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::DirectDraw)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
         if (directDraw != nullptr)
         {
             auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
@@ -74,26 +75,26 @@ namespace
             if (video->Open(fileName, directDraw, enableAudio))
             {
                 NWindowsVideo::CVideoPlayer::sTheObjectPtr->Start();
-                Write<std::uint8_t>(manager, 0xC9, 1);
+                Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive, 1);
             }
             directDraw->Release();
         }
-        if (Read<std::uint8_t>(manager, 0xC9) == 0) return false;
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive) == 0) return false;
         NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(true);
-        Write<std::uint8_t>(manager, 0xCA, 1);
+        Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::CursorHideRequested, 1);
         return true;
     }
 
     // Original function: FUN_0040330d; the force argument is unused by Windows.
     static void PreIngameFmv_UpdateDisplay(void* manager, bool /*force*/)
     {
-        if (Read<std::uint8_t>(manager, 0xC9) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive) != 0)
         {
             auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
             if (video != nullptr && video->IsPlaying())
             {
                 IDirectDrawSurface* surface = nullptr;
-                PreIngameFmv_DisplayInterface(0x20)->QueryInterface(gLegacySurfaceInterface, reinterpret_cast<void**>(&surface));
+                PreIngameFmv_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::BackSurface)->QueryInterface(gLegacySurfaceInterface, reinterpret_cast<void**>(&surface));
                 if (surface != nullptr)
                 {
                     NWindowsVideo::CVideoPlayer::sTheObjectPtr->Update(surface, nullptr);
@@ -102,19 +103,19 @@ namespace
                 }
             }
         }
-        else Read<NXBasics::CBitmap*>(manager, 0xCC)->Fill(NXBasics::SColorRGB(0, 0, 0));
-        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(Read<NXBasics::CBitmap*>(manager, 0xCC), 0, 0);
+        else Read<NXBasics::CBitmap*>(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap)->Fill(NXBasics::SColorRGB(0, 0, 0));
+        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(Read<NXBasics::CBitmap*>(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap), 0, 0);
     }
 
     // Original function: FUN_0040339b.
     static void PreIngameFmv_ToNextMode(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0xC9) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive) != 0)
         {
             NWindowsVideo::CVideoPlayer::sTheObjectPtr->Stop();
-            Write<std::uint8_t>(manager, 0xC9, 0);
+            Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive, 0);
         }
-        if (Read<std::uint8_t>(manager, 0) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) != 0)
         {
             NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_ResetToUserResolution();
             PreIngameFmv_GfxData_Free(manager);
@@ -134,15 +135,15 @@ namespace
         gPreIngameFmv.manager = manager;
         std::memset(manager, 0, 208);
         gPreIngameFmv.state = 0;
-        Write<std::uint8_t>(manager, 0, 0);
+        Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested, 0);
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("start_pre_ingame_fmv"))
         {
             const char* caption = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("start_pre_ingame_fmv");
-            Write<std::uint8_t>(manager, 0, 1);
+            Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested, 1);
             std::strcpy(static_cast<char*>(manager) + 1, caption);
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("start_pre_ingame_fmv");
         }
-        if (Read<std::uint8_t>(manager, 0) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) != 0)
         {
             std::uint32_t depth = 32;
             auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
@@ -151,14 +152,14 @@ namespace
             NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(640, 480, depth, false, false, true);
         }
         PreIngameFmv_GfxData_Load(manager);
-        if (Read<std::uint8_t>(manager, 0) != 0) PreIngameFmv_StartVideo(manager);
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) != 0) PreIngameFmv_StartVideo(manager);
         return manager;
     }
 
     // Original function: FUN_0040313f.
     static void PreIngameFmv_Destruct(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0xCA) != 0) NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::CursorHideRequested) != 0) NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
         if (auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr)
         {
             video->~CVideoPlayer();
@@ -171,7 +172,7 @@ namespace
     // Original function: FUN_00403182.
     static void PreIngameFmv_System_Update(void* manager)
     {
-        if (Read<std::uint8_t>(manager, 0) == 0 || Read<std::uint8_t>(manager, 0xC9) == 0 || !NWindowsVideo::CVideoPlayer::sTheObjectPtr->IsPlaying())
+        if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) == 0 || Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive) == 0 || !NWindowsVideo::CVideoPlayer::sTheObjectPtr->IsPlaying())
         {
             PreIngameFmv_ToNextMode(manager);
             return;

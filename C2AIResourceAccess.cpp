@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2AIResourceAccess.h"
 #include "C2AIBuildingAccess.h"
@@ -53,17 +54,17 @@ namespace NC2Logic
     void AIResourceManager_Init(void* manager, std::uint32_t player, const void* villages)
     {
         Write(manager, NC2Layout::AIResourceManagerOffset::PlayerId, player); Write<std::int32_t>(manager, NC2Layout::AIResourceManagerOffset::ScanIndex, -1);
-        for (std::uint32_t i = 0; i < 88; ++i) Write<std::int32_t>(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + i * 4, -1);
-        const auto tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
+        for (std::uint32_t i = 0; i < 88; ++i) Write<std::int32_t>(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + i * NC2Layout::RecordSize::AIResourceIndexValue, -1);
+        const auto tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + NC2Layout::GameControlPlayerOffset::TribeType) : 1;
         const auto* control = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayerSigned;
         for (std::uint32_t job = 0; job < 48; ++job)
         {
-            if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedJobs + tribe * 56 + job) == 0) continue;
+            if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedJobs + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipment + job) == 0) continue;
             const auto* jobData = static_cast<const std::byte*>(gStaticJobTypeData) + job * NC2Layout::RecordSize::JobTypeSigned;
             if (Read<std::uint8_t>(jobData, NC2Layout::StaticJobTypeOffset::UserCanChangeProduction) == 0) continue;
             for (std::uint32_t good = 0; good < 66; ++good)
             {
-                if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * 66 + good) == 0) continue;
+                if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * NC2Runtime::PlayerAllowanceStride::Goods + good) == 0) continue;
                 const auto* definition = StaticGoodTypeData_GetPtr(good);
                 if (Read<std::uint8_t>(jobData, NC2Layout::StaticJobTypeOffset::AllowedAtomics + static_cast<std::uint32_t>(definition->atomicForHarvesting)) == 0 && Read<std::uint8_t>(jobData, NC2Layout::StaticJobTypeOffset::AllowedAtomics + static_cast<std::uint32_t>(definition->atomicForProduction)) == 0) continue;
                 auto* goodData = static_cast<std::byte*>(manager) + NC2Layout::AIResourceManagerOffset::GoodRequirements + good * NC2Layout::RecordSize::AIResourceGood;
@@ -74,9 +75,9 @@ namespace NC2Logic
                     if (index == 20) continue;
                     auto* entry = Resource(manager, static_cast<std::int32_t>(index));
                     Write(entry, NC2Layout::AIResourceSlotViewOffset::GoodType, good);
-                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToHarvest) * 4, index);
-                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToPickup) * 4, index);
-                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToStore) * 4, index);
+                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToHarvest) * NC2Layout::RecordSize::AIResourceIndexValue, index);
+                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToPickup) * NC2Layout::RecordSize::AIResourceIndexValue, index);
+                    Write(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + static_cast<std::uint32_t>(definition->landscapeToStore) * NC2Layout::RecordSize::AIResourceIndexValue, index);
                     Write(entry, NC2Layout::AIResourceSlotViewOffset::StoredLandscapeType, definition->landscapeToStore);
                     if (definition->isBioLandscape != 0) Write<std::uint32_t>(entry, NC2Layout::AIResourceSlotViewOffset::MinimumValency, definition->landscapeToHarvest == 4 ? 3 : 5);
                     Write(manager, NC2Layout::AIResourceManagerOffset::ResourceCount, index + 1);
@@ -86,39 +87,39 @@ namespace NC2Logic
                     Write(goodData, NC2Layout::AIResourceGoodOffset::WorkerJob, job); Write<std::uint32_t>(goodData, NC2Layout::AIResourceGoodOffset::Type, 4);
                     const auto house = CStaticHouseTypeDataManager::GetHouseType(static_cast<std::int32_t>(job), static_cast<std::int32_t>(good));
                     if (house == 0) { Write<std::uint32_t>(goodData, NC2Layout::AIResourceGoodOffset::Type, 0); continue; }
-                    Write(goodData, NC2Layout::AIResourceGoodOffset::HouseType, house); Write(manager, NC2Layout::AIResourceManagerOffset::HouseGoods + static_cast<std::uint32_t>(house) * 4, good);
+                    Write(goodData, NC2Layout::AIResourceGoodOffset::HouseType, house); Write(manager, NC2Layout::AIResourceManagerOffset::HouseGoods + static_cast<std::uint32_t>(house) * NC2Layout::RecordSize::AIResourceIndexValue, good);
                     if (definition->atomicForCultivating != 0) Write<std::uint8_t>(goodData, NC2Layout::AIResourceGoodOffset::CheckTerrainFlag, 1);
                 }
             }
         }
         for (std::uint32_t good = 0; good < 66; ++good)
         {
-            if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * 66 + good) == 0) continue;
+            if (Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * NC2Runtime::PlayerAllowanceStride::Goods + good) == 0) continue;
             auto* entry = static_cast<std::byte*>(manager) + NC2Layout::AIResourceManagerOffset::GoodRequirements + good * NC2Layout::RecordSize::AIResourceGood;
             if (Read<std::uint32_t>(entry, NC2Layout::AIResourceGoodOffset::Type) != 0) continue;
             const auto house = CStaticHouseTypeDataManager::GetHouseType_NoStock(static_cast<std::int32_t>(good));
             if (house == 0) continue;
-            Write<std::uint32_t>(entry, NC2Layout::AIResourceGoodOffset::Type, 4); Write(entry, NC2Layout::AIResourceGoodOffset::HouseType, house); Write<std::uint32_t>(entry, NC2Layout::AIResourceGoodOffset::WorkerJob, 0); Write(manager, NC2Layout::AIResourceManagerOffset::HouseGoods + static_cast<std::uint32_t>(house) * 4, good);
+            Write<std::uint32_t>(entry, NC2Layout::AIResourceGoodOffset::Type, 4); Write(entry, NC2Layout::AIResourceGoodOffset::HouseType, house); Write<std::uint32_t>(entry, NC2Layout::AIResourceGoodOffset::WorkerJob, 0); Write(manager, NC2Layout::AIResourceManagerOffset::HouseGoods + static_cast<std::uint32_t>(house) * NC2Layout::RecordSize::AIResourceIndexValue, good);
         }
         for (std::uint32_t house = 0; house < 55; ++house)
         {
             auto* exports = static_cast<std::byte*>(manager) + NC2Layout::AIResourceManagerOffset::HouseExports + house * NC2Layout::RecordSize::AIHouseExport;
             Write<std::uint32_t>(exports, NC2Layout::AIHouseExportOffset::Count, 0);
-            if (house == 7 || house == 8 || house == 9 || house == 1 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedHouses + tribe * 55 + house) == 0) continue;
+            if (house == 7 || house == 8 || house == 9 || house == 1 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedHouses + tribe * NC2Runtime::PlayerAllowanceStride::Houses + house) == 0) continue;
             const auto& definition = gStaticHouseTypeStorage.records[house];
             for (std::uint32_t stock = 0; stock < definition.stockCount; ++stock)
             {
                 const auto& output = definition.stock[stock];
-                if (output.isOutputStock == 0 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
+                if (output.isOutputStock == 0 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * NC2Runtime::PlayerAllowanceStride::Goods + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
                 for (std::uint32_t other = 0; other < 55; ++other)
                 {
-                    if (other == 7 || other == 8 || other == 9 || other == 1 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedHouses + tribe * 55 + other) == 0) continue;
+                    if (other == 7 || other == 8 || other == 9 || other == 1 || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedHouses + tribe * NC2Runtime::PlayerAllowanceStride::Houses + other) == 0) continue;
                     const auto& consumer = gStaticHouseTypeStorage.records[other];
                     for (std::uint32_t input = 0; input < consumer.stockCount; ++input)
                     {
-                        if (consumer.stock[input].isOutputStock != 0 || consumer.stock[input].goodType != output.goodType || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
+                        if (consumer.stock[input].isOutputStock != 0 || consumer.stock[input].goodType != output.goodType || Read<std::uint8_t>(control, NC2Layout::GameControlPlayerOffset::AllowedGoods + tribe * NC2Runtime::PlayerAllowanceStride::Goods + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
                         const auto count = Read<std::uint32_t>(exports, NC2Layout::AIHouseExportOffset::Count);
-                        Write(exports, NC2Layout::AIHouseExportOffset::HouseTypes + count * 4, other); Write(exports, NC2Layout::AIHouseExportOffset::Count, count + 1); break;
+                        Write(exports, NC2Layout::AIHouseExportOffset::HouseTypes + count * NC2Layout::RecordSize::AIHouseTypeId, other); Write(exports, NC2Layout::AIHouseExportOffset::Count, count + 1); break;
                     }
                     if (Read<std::uint32_t>(exports, NC2Layout::AIHouseExportOffset::Count) == 5) break;
                 }
@@ -158,7 +159,7 @@ namespace NC2Logic
                 std::uint32_t point; MapMigPoint_SetPosition(&point, px, py, false);
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
                 const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData);
-                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && type != 0 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) == continent && Read<std::int32_t>(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + type * 4) == index && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) >= Read<std::uint32_t>(entry, NC2Layout::AIResourceSlotViewOffset::MinimumValency)) return true;
+                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == 1 && type != 0 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId) == continent && Read<std::int32_t>(manager, NC2Layout::AIResourceManagerOffset::LandscapeResourceIndices + type * NC2Layout::RecordSize::AIResourceIndexValue) == index && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) >= Read<std::uint32_t>(entry, NC2Layout::AIResourceSlotViewOffset::MinimumValency)) return true;
             }
         return false;
     }
@@ -202,7 +203,7 @@ namespace NC2Logic
         const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData);
         const auto* entries = Read<const void*>(search, NC2Layout::AIResourceSearchOffset::ResourcePoints);
         const auto index = Read<std::uint32_t>(search, NC2Layout::AIResourceSearchOffset::ResourceIndex);
-        if (Read<std::uint32_t>(entries, NC2Layout::AIResourcePointArrayOffset::LandscapeResourceIndices + type * 4) != index) return false;
+        if (Read<std::uint32_t>(entries, NC2Layout::AIResourcePointArrayOffset::LandscapeResourceIndices + type * NC2Layout::RecordSize::AIResourceIndexValue) != index) return false;
         const auto* entry = static_cast<const std::byte*>(entries) + index * 20;
         return type == Read<std::uint32_t>(entry, NC2Layout::AIResourcePointOffset::StoredLandscapeType) || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) >= Read<std::uint32_t>(entry, NC2Layout::AIResourcePointOffset::MinimumValency);
     }
@@ -270,7 +271,7 @@ namespace NC2Logic
     // Original function: FUN_00456d6c.
     bool AIResourceManager_IsExportingHouseType(const void* manager, std::uint32_t house, std::uint32_t exportedHouse)
     {
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::AIResourceManagerOffset::HouseExports + house * NC2Layout::RecordSize::AIHouseExport); ++i) if (Read<std::uint32_t>(manager, NC2Layout::AIResourceManagerOffset::FirstHouseExportTypes + house * NC2Layout::RecordSize::AIHouseExport + i * 4) == exportedHouse) return true;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::AIResourceManagerOffset::HouseExports + house * NC2Layout::RecordSize::AIHouseExport); ++i) if (Read<std::uint32_t>(manager, NC2Layout::AIResourceManagerOffset::FirstHouseExportTypes + house * NC2Layout::RecordSize::AIHouseExport + i * NC2Layout::RecordSize::AIResourceIndexValue) == exportedHouse) return true;
         return false;
     }
 
@@ -279,7 +280,7 @@ namespace NC2Logic
     {
         const auto count = Read<std::uint32_t>(manager, NC2Layout::AIInvalidAreaManagerOffset::Count);
         if (count >= 50) return false;
-        Write(manager, NC2Layout::AIInvalidAreaManagerOffset::Areas + count * 8, Read<std::uint32_t>(area, NC2Layout::AIInvalidAreaOffset::Center)); Write(manager, NC2Layout::AIInvalidAreaManagerOffset::FirstAreaRadius + count * 8, Read<std::uint32_t>(area, NC2Layout::AIInvalidAreaOffset::Radius)); Write(manager, NC2Layout::AIInvalidAreaManagerOffset::Count, count + 1);
+        Write(manager, NC2Layout::AIInvalidAreaManagerOffset::Areas + count * NC2Layout::RecordSize::AIInvalidArea, Read<std::uint32_t>(area, NC2Layout::AIInvalidAreaOffset::Center)); Write(manager, NC2Layout::AIInvalidAreaManagerOffset::FirstAreaRadius + count * NC2Layout::RecordSize::AIInvalidArea, Read<std::uint32_t>(area, NC2Layout::AIInvalidAreaOffset::Radius)); Write(manager, NC2Layout::AIInvalidAreaManagerOffset::Count, count + 1);
         return true;
     }
 
@@ -288,7 +289,7 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::AIInvalidAreaManagerOffset::Count); ++i)
         {
-            const auto* area = static_cast<const std::byte*>(manager) + NC2Layout::AIInvalidAreaManagerOffset::Areas + i * 8;
+            const auto* area = static_cast<const std::byte*>(manager) + NC2Layout::AIInvalidAreaManagerOffset::Areas + i * NC2Layout::RecordSize::AIInvalidArea;
             if (Distance(area, point) <= Read<std::uint32_t>(area, NC2Layout::AIInvalidAreaOffset::Radius)) return true;
         }
         return false;
