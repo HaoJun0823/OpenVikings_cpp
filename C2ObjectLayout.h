@@ -735,7 +735,7 @@ namespace NC2Layout
 
 	namespace HumanOffset
 	{
-		// inline constexpr auto AllowedEquipmentFlagsSigned = 0x195;
+		inline constexpr auto AllowedProductionGoodFlagsSigned = 0x195;
 
 		inline constexpr auto ProducedGood = 0x1C;
 
