@@ -164,7 +164,7 @@ namespace NC2Logic
 		if (reader->SearchGroup("misc_maptype") && reader->SearchCommand("maptype")) gGameStaticVars.mapType = static_cast<std::uint32_t>(reader->GetInt());
 		if (retainIni)
 		{
-			if (mapRoot != nullptr) std::strcpy(reinterpret_cast<char*>(&gGameStaticVars) + 0xA0, mapRoot);
+			if (mapRoot != nullptr) std::strcpy(gGameStaticVars.retainedMapRoot, mapRoot);
 			NC2Logic::gGameStaticVars.retainedMapIni = reader;
 		}
 

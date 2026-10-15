@@ -64,8 +64,8 @@ namespace NC2E2
 		SStaticLandscapeTransition* transitions;
 		void* bobManagers[2];
 		std::int32_t paletteId;
-		// Set by default, cleared by gfxstatic/gfxdynamicbackground; name unresolved.
-		std::uint8_t unresolved78;
+		// The default landscape draw pass, disabled by static/background rendering.
+		std::uint8_t dynamicForeground;
 		std::uint8_t isStatic;
 		std::uint8_t dynamicBackground;
 		std::uint8_t loopAnimation;
@@ -159,7 +159,7 @@ namespace NC2E2
 	static_assert(offsetof(SE2StaticDataLandscape, transitions) == 0x68);
 	static_assert(offsetof(SE2StaticDataLandscape, bobManagers) == 0x6C);
 	static_assert(offsetof(SE2StaticDataLandscape, paletteId) == 0x74);
-	static_assert(offsetof(SE2StaticDataLandscape, unresolved78) == 0x78);
+	static_assert(offsetof(SE2StaticDataLandscape, dynamicForeground) == 0x78);
 	static_assert(offsetof(SE2StaticDataLandscape, shadingFactor) == 0x80);
 	static_assert(offsetof(SE2StaticDataLandscape, frameGroups) == 0x88);
 	static_assert(sizeof(SStaticPatternStorage) == 24);

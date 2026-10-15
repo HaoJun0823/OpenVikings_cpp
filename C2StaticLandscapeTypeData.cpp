@@ -92,7 +92,7 @@ namespace NC2Logic
 							transition.targetLandscapeType = static_cast<std::uint32_t>(reader.GetInt());
 							transition.valencyOperation = static_cast<std::uint32_t>(reader.GetInt());
 							transition.valencyValue = static_cast<std::uint32_t>(reader.GetInt());
-							transition.unknown10 = static_cast<std::uint32_t>(reader.GetInt());
+							transition.resultValue = static_cast<std::uint32_t>(reader.GetInt());
 							record.transitionMask |= 1u << (transition.type & 31u);
 							++record.transitionCount;
 							break;

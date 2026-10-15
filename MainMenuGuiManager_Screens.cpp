@@ -101,7 +101,7 @@ namespace NC2MainMenuGuiManager
 		const SRectangle title{ 30, AddCoordinate(halfHeight, -105), 500, 20 };
 		const SRectangle content{ 56, AddCoordinate(halfHeight, -70), 280, 20 };
 		const SRectangle back{ 30, AddCoordinate(halfHeight, 220), 100, 30 };
-		void* owner = unknown216C;
+		void* owner = defaultMessageHandlerStorage;
 		auto add = [this] (void* element)
 		{
 			l_ScreenGuiElement_Add(element);

@@ -83,11 +83,11 @@ namespace NC2MainMenuGuiManager
 	}
 
 	// Original function: FUN_004d2b2d
-	CGuiManager::CGuiManager() : textInput((GuiObjectVars_Construct(reinterpret_cast<std::byte*>(this) + 0x04), DefaultMessageHandler_Construct(unknown216C), NC2InGameGuiBaseTextInputElement::CStringInputHandler()))
+	CGuiManager::CGuiManager() : textInput((GuiObjectVars_Construct(reinterpret_cast<std::byte*>(this) + 0x04), DefaultMessageHandler_Construct(defaultMessageHandlerStorage), NC2InGameGuiBaseTextInputElement::CStringInputHandler()))
 	{
 		sTheObjectPtr = this;
 
-		std::memset(static_cast<void*>(this), 0, offsetof(CGuiManager, unknown216C));
+		std::memset(static_cast<void*>(this), 0, offsetof(CGuiManager, defaultMessageHandlerStorage));
 		mStaticVars = { };
 
 		ls_GraphicData_Load();
@@ -100,7 +100,7 @@ namespace NC2MainMenuGuiManager
 		sTheObjectPtr = nullptr;
 
 		textInput.Exit();
-		DefaultMessageHandler_Destruct(unknown216C);
+		DefaultMessageHandler_Destruct(defaultMessageHandlerStorage);
 		GuiObjectVars_Destruct(this);
 	}
 
@@ -305,7 +305,7 @@ namespace NC2MainMenuGuiManager
 		}
 
 		// Original member offset: +0x04.
-		std::memcpy(unknown0004, &worldElement, sizeof(worldElement));
+		std::memcpy(&worldDisplayElement, &worldElement, sizeof(worldElement));
 
 		NXBaseGui::CDesktop::sTheObjectPtr->Element_Add(static_cast<NXBaseGui::CBaseElement*>(worldElement), true);
 
@@ -345,7 +345,7 @@ namespace NC2MainMenuGuiManager
 		}
 
 		// Clear only the original desktop-related instance range.
-		std::memset(unknown0004, 0, 84);
+		std::memset(reinterpret_cast<std::byte*>(this) + offsetof(CGuiManager, worldDisplayElement), 0, 84);
 
 		NC2E2::Inform_DesktopXTructed(0, 0, 0);
 
@@ -418,12 +418,12 @@ namespace NC2MainMenuGuiManager
 			using MessageHandler = std::uint32_t(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
 			const std::byte* vtable;
-			std::memcpy(&vtable, unknown216C, sizeof(vtable));
+			std::memcpy(&vtable, defaultMessageHandlerStorage, sizeof(vtable));
 
 			MessageHandler handleMessage;
 			std::memcpy(&handleMessage, vtable + 8, sizeof(handleMessage));
 
-			handleMessage(unknown216C, 0x800u, currentScreen == 9 ? 0x13A1u : 0x13A5u, 0, 0, 0);
+			handleMessage(defaultMessageHandlerStorage, 0x800u, currentScreen == 9 ? 0x13A1u : 0x13A5u, 0, 0, 0);
 		}
 		else if (currentScreen == 14 || currentScreen == 16 || currentScreen == 17)
 		{

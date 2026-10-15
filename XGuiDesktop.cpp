@@ -92,6 +92,10 @@ namespace NXBaseGui
 		static_assert(offsetof(CDesktop, mPrimaryMessageHandler) == 0x110);
 		static_assert(offsetof(CDesktop, mOwnedObject0114) == 0x114);
 		static_assert(offsetof(CDesktop, mMousePointerStorage) == 0x134);
+		static_assert(offsetof(CDesktop, mLeftButtonDown) == 0x12C);
+		static_assert(offsetof(CDesktop, mRightButtonDown) == 0x12D);
+		static_assert(offsetof(CDesktop, mWorkResult) == 0x130);
+		static_assert(offsetof(CDesktop, mSkipOrdinaryHitTestLists) == 0x138);
 
 		l_ConstructLists();
 
@@ -543,7 +547,7 @@ namespace NXBaseGui
 	std::uint32_t CDesktop::Desktop_DoWork(bool clearBitmap, bool processInput)
 	{
 		std::uint32_t result = 0;
-		std::memcpy(mUnknown012C + 4, &result, sizeof(result));
+		std::memcpy(&mWorkResult, &result, sizeof(result));
 		l_Message_HandleMouse(processInput);
 		l_Message_HandleKeyBoard(processInput);
 		l_WindowCloseList_Do();
@@ -556,7 +560,7 @@ namespace NXBaseGui
 			std::memcpy(&methods, mMousePointerStorage, sizeof(methods));
 			methods[0](mMousePointerStorage, mDisplayBitmap, NXSysMouseManager::CMouseManager::sTheObjectPtr);
 		}
-		std::memcpy(&result, mUnknown012C + 4, sizeof(result));
+		std::memcpy(&result, &mWorkResult, sizeof(result));
 		return result;
 	}
 
@@ -620,9 +624,9 @@ namespace NXBaseGui
 			return l_Element_FindInList(*std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + offset)), point, includeDisabled, messageMask);
 		};
 		if (auto* element = findAt(0xF0)) return element;
-		if (mUnknown0138[0] == std::byte{ 0 }) if (auto* element = findAt(0x50)) return element;
+		if (mSkipOrdinaryHitTestLists == 0) if (auto* element = findAt(0x50)) return element;
 		if (auto* element = findAt(0xA0)) return element;
-		return mUnknown0138[0] == std::byte{ 0 } ? findAt(0x28) : nullptr;
+		return mSkipOrdinaryHitTestLists == 0 ? findAt(0x28) : nullptr;
 	}
 
 	// Original function: FUN_00477f3d; BE_CanBeActivated precedes visibility,
@@ -744,7 +748,7 @@ namespace NXBaseGui
 		const auto x = static_cast<std::uint32_t>(event.mouseX), y = static_cast<std::uint32_t>(event.mouseY);
 		if ((event.flags & NXBasics::BitMask::Bit2AndBit8) != 0)
 		{
-			mUnknown012C[0] = std::byte{ 1 };
+			mLeftButtonDown = 1;
 			if (mPrimaryMessageHandler != nullptr)
 			{
 				if ((event.flags & 4u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, NC2Layout::GuiBaseElementOffset::MessageMask) & 1u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 1, x, y, 0, 0);
@@ -768,7 +772,7 @@ namespace NXBaseGui
 		}
 		if ((event.flags & 8u) != 0)
 		{
-			mUnknown012C[0] = std::byte{ 0 };
+			mLeftButtonDown = 0;
 			using TRelease = bool(__thiscall*)(void*);
 			if (mActiveElement == nullptr || !Read<TRelease*>(mActiveElement, NC2Layout::GuiBaseElementOffset::VirtualTable)[7](mActiveElement)) l_Message_Send(2, x, y, 0, 0);
 		}
@@ -777,13 +781,13 @@ namespace NXBaseGui
 			activateAtPoint();
 			if ((event.flags & NXBasics::BitMask::Bit6) != 0)
 			{
-				mUnknown012C[1] = std::byte{ 1 }; l_Message_Send(0x20, x, y, 0, 0);
+				mRightButtonDown = 1; l_Message_Send(0x20, x, y, 0, 0);
 			}
 			if ((event.flags & NXBasics::BitMask::Bit4) != 0) l_Message_Send(8, x, y, 0, 0);
 		}
 		if ((event.flags & NXBasics::BitMask::Bit7) != 0)
 		{
-			mUnknown012C[1] = std::byte{ 0 }; l_Message_Send(0x40, x, y, 0, 0);
+			mRightButtonDown = 0; l_Message_Send(0x40, x, y, 0, 0);
 		}
 		if ((event.flags & NXBasics::BitMask::Bit5) != 0) l_Message_Send(0x10, x, y, 0, 0);
 		if ((event.flags & 1u) != 0)

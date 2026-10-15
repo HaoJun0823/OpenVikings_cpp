@@ -1,0 +1,32 @@
+# Unknown member review — 2026-10-15
+
+The scan of all 595 project-registered C++ sources and headers finds **137 explicitly unknown/unresolved/unclassified member declarations in 59 files before this pass**. This includes records inside anonymous namespaces and local scopes; an initial scan that excluded those reported only 134. The scope-aware scan separates **182 declarations already named padding/reserved**; their names are not new evidence that they are padding. Comments, strings, function names, parameters, local scalar variables and `offsetof`/assertion references are excluded from the member count.
+
+**48 semantic fields covering 795 bytes are identified in ten original unknown regions**, across 19 production files. Arrays count once, regardless of their element count. Six regions are completely classified; four are partially classified and retain five explicit residual spans. Consequently the declaration count falls **137 → 132**, across 57 files. This is member/layout naming progress, not a function reconstruction percentage or proof that every opaque object layout is known.
+
+The [current inventory](UNKNOWN_MEMBER_INVENTORY.csv) lists all 132 remaining explicit unknown members with owner, location, declaration and identifier-navigation files. Identifier search is not a native alias analysis. The [recovered-field inventory](RECOVERED_MEMBER_FIELDS.csv) gives every changed field's Windows offset, width and evidence. Opaque byte storage that already has a semantic role (base objects, lists, embedded handlers/calculators) is kept as byte storage where replacing it with a native C++ object would change construction/destruction. The twelve earlier unresolved numeric access sites remain a separate inventory and are not claimed resolved here.
+
+| Original unknown region | Established Windows role | Result |
+| --- | --- | --- |
+| In-game manager +08..D7 | Sidebar graphics/mode buttons, window pointers, three registered GUI lists, action-button list/checksum/origin, selection revision | All 208 bytes classified. Mode-button slot order stays 1,2,5,4,6,7,3,8,0. List constructors receive the original biased +4 view. |
+| In-game manager +E5..197 | Cheats flag, ten packed map-coordinate pairs, 132-byte frame-rate calculator | 173 bytes classified; +E6..E7 and +194..197 remain unknown. The existing +199..19F gap is unchanged. |
+| Main-menu manager +04..67 | World display, screen-element/frame-call lists, ten player buttons, input timestamp, preview-darkening byte, follow-update timestamp/count | 97 bytes classified; +5D..5F remains unknown. The follow counter advances even when no target is chosen. |
+| Main-menu manager +216C..2197 | Embedded default message handler | All 44 bytes classified; same constructor, vtable, teardown and storage address. |
+| Game static vars +A0..1A3 | Retained map-root string | All 260 bytes classified. The map-load argument is copied here when retaining the INI; savegame loading clears the first byte. This is a path, not the displayed map title. |
+| Engine landscape +78 | Dynamic foreground draw participation | Default enabled; disabled for static/background rendering. Same byte and branch predicates. |
+| Particle-generator static byte +00 | Select real-time animation clock | Both Windows drawing consumers use `timeGetTime()/83` instead of game ticks when nonzero. Original spelling and writer remain unresolved; no new writer/mode is introduced. |
+| Logic landscape transition +10 | Transition result parameter | Collection returns a good ID; automatic transitions copy the same word to their duration in ticks. `resultValue` preserves both uses instead of claiming it always represents a duration or a good. Existing special/error overrides stay intact. |
+| Desktop +12C..133 | Left/right button bytes and `Desktop_DoWork` result DWORD | Six bytes classified; +12E..12F remains unknown. Result field is only described as cleared and returned, without inventing a producer. |
+| Desktop +138..13B | Skip ordinary hit-test lists byte | One byte classified; +139..13B remains unknown. Windows skips lists +50/+28 while still searching +F0/+A0. Original spelling/writer remain unresolved. |
+
+## Evidence and limits
+
+Windows assembly and original `Game.exe` establish the behavior, receiver-relative offsets, access widths, constructor order and native consumers. Current C++ and Git history establish integration context. The Mac header supplies only matching class/function names, including `CGuiManagerDefaultMessageHandlerElement`, `CGuiManager::SObjectVars`, `CE2StaticDataLandscapesManager` and `SE2StaticDataLandscape`; no Mac offsets, constants or behavior were used. Newly introduced descriptive member names summarize the Windows role and are not claimed to be recovered original member spellings.
+
+The remaining inventory contains both small gaps and substantive unknown spans/words: guide scratch storage, map-tail state, AI producer/village/military data, statistics-window tail storage, savegame player metadata, chunk-header words, network state and bob-manager serialized/runtime words. A gap next to an aligned DWORD is not sufficient proof of padding. Several words have only initialization or bulk I/O consumers in the current sources; that does not prove that the original game never reads them. They remain unchanged. Complete object-layout recovery and the previously documented twelve numeric sites still require further Windows evidence.
+
+## Validation
+
+All 19 source/header edits match a frozen, explicit replacement list. **Seven pre-existing user-modified/untracked files are preserved**: six remain byte-identical; the original `OPEN_TASKS.md` body remains byte-identical after removing this pass's prepended checkpoint, which is staged independently from the user's documentation edit. Object sizes, offsets, scalar/array widths and existing layout constants pass **116 private compile-time assertions**, plus 29 newly added production assertions. **5,307 inspected native instruction byte prefixes match the original PE**; prefix matching supplements the function/control-flow review and does not independently certify every disassembly boundary. Original Windows addresses are recorded in the field inventory.
+
+Win32 `/Zs` syntax checks passed for the affected implementation units, additional manager-header consumers and the private assertion unit. Existing DirectPlay `INTERFACE` macro redefinition warnings are unchanged. No Debug/Release build, tests or game execution was performed. No gameplay fix or runtime validation is claimed.

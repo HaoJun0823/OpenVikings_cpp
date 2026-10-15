@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Unknown member inventory and naming — 2026-10-15
+
+The [scope-aware member review](UNKNOWN_MEMBER_REVIEW.md) searches all 595 registered C++ files/headers: **137 explicit unknown member declarations → 132**, with 182 existing padding/reserved declarations counted separately. **48 semantic fields / 795 bytes** are identified in ten regions (six complete, four partial): GUI pointers/lists/buttons/timestamps, retained map-root string, desktop input/result state, landscape draw/clock flags and the transition result parameter. Five residual spans remain explicit. [All remaining members](UNKNOWN_MEMBER_INVENTORY.csv) and [recovered fields with Windows evidence](RECOVERED_MEMBER_FIELDS.csv) are listed. 116 private and 29 added production assertions, native byte-prefix verification and Win32 syntax checks pass. No build, tests or game run; seven independent user files are preserved. This is naming/layout progress, not gameplay/function completion. Earlier checkpoints retain historical counts.
+
 ## Shared getter field access — 2026-10-15
 
 The two shared native getter bodies are now [represented by caller-specific named DWORD reads](SHARED_GETTER_ACCESS_REFACTOR.md). Ten C++ calls use human player/revision, vehicle revision, moveable object type and marker type fields; obsolete generic wrappers are removed. Raw scan: **122 → 120**. The [current inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) retains **12 unresolved sites in eight files**, plus 108 ordinary indices/selectors, dereferences, I/O sizes or established relative fields. Exact getter expansion preserves operation tokens; five field/value/type pairs and DWORD width pass eleven assertions. Both affected Win32 units and the private assertion unit pass syntax checks without diagnostics. No build, tests or game run. Earlier checkpoints below retain their historical counts. User changes are preserved.

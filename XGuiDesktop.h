@@ -93,9 +93,13 @@ namespace NXBaseGui
 		CBaseElement* mPrimaryMessageHandler;   // +0x110
 		void* mOwnedObject0114;                 // +0x114; owned object, precise role unresolved.
 		std::byte mWindowListStorage0118[20]; // +0x118; window list.
-		std::byte mUnknown012C[8];           // +0x12C; remaining state is unresolved.
+		std::uint8_t mLeftButtonDown;          // +0x12C
+		std::uint8_t mRightButtonDown;         // +0x12D
+		std::byte mUnclassified012E[2];
+		std::uint32_t mWorkResult;             // +0x130; cleared and returned by Desktop_DoWork.
 		void* mMousePointerStorage;             // +0x134
-		std::byte mUnknown0138[4];           // +0x138
+		std::uint8_t mSkipOrdinaryHitTestLists; // +0x138; skips lists +0x50/+0x28 during hit testing.
+		std::byte mUnclassified0139[3];
 
 		// Original function: FUN_00476f2f
 		void l_ConstructLists();

@@ -268,7 +268,7 @@ namespace NC2E2
 					{
 						const auto* graphic = Landscape(id);
 						const bool skipVoid = graphic->logicType == 1 && graphic->areas[0].count == 0 && !drawVoid && graphic->drawVoidEver == 0;
-						if (!skipVoid && ((foregroundPart && graphic->unresolved78 != 0) || (staticPart && graphic->isStatic != 0) || (backgroundPart && graphic->dynamicBackground != 0)))
+						if (!skipVoid && ((foregroundPart && graphic->dynamicForeground != 0) || (staticPart && graphic->isStatic != 0) || (backgroundPart && graphic->dynamicBackground != 0)))
 						{
 							const bool landscape = Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectType) == 1;
 							const auto type = landscape ? Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::ObjectData) : 0;

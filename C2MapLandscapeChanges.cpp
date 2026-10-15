@@ -151,7 +151,7 @@ namespace NC2Logic
 		return true;
 	}
 
-	// Original function: FUN_00423c73; transition return value at +10h remains unnamed.
+	// Original function: FUN_00423c73; the transition result is overridden on the original special/error paths.
 	std::int32_t GameMap_MapMicroPoint_Landscape_ApplyTransition(const void* point, std::uint32_t transition)
 	{
 		auto* micro = GameMap_GetMapMicroPointPtr(point);
@@ -178,7 +178,7 @@ namespace NC2Logic
 		else if (selected->valencyOperation == 2) valency += selected->valencyValue;
 		auto targetType = selected->targetLandscapeType;
 		if (NXBasics::Runtime_TimeSigned32(valency) <= 0) targetType = 0;
-		auto result = NXBasics::Runtime_TimeSigned32(selected->unknown10);
+		auto result = NXBasics::Runtime_TimeSigned32(selected->resultValue);
 		if (targetType == 0)
 		{
 			const auto player = kind == 1 ? Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) : -1;

@@ -227,7 +227,7 @@ namespace NC2E2
 		if (group < 0) return;
 		const auto* frames = reinterpret_cast<const std::byte*>(graphic->frameGroups) + static_cast<std::uint32_t>(group) * NC2Layout::RecordSize::StaticLandscapeFramesUnsigned;
 		std::uint32_t value = graphic->loopAnimation != 0 ? phase + NC2Logic::gGameTime.tick : 0;
-		if (graphic->loopAnimation != 0 && gE2ParticelGeneratorStorage.unresolved00 != 0) value = ::timeGetTime() / 83u + phase;
+		if (graphic->loopAnimation != 0 && gE2ParticelGeneratorStorage.useRealTimeAnimationClock != 0) value = ::timeGetTime() / 83u + phase;
 		const auto* ids = Read<const std::uint32_t*>(frames, NC2Layout::StaticLandscapeFramesOffset::Frames);
 		output->AddBob(graphic->bobManagers[0], ids[value % Read<std::uint32_t>(frames, NC2Layout::StaticLandscapeFramesOffset::Count)], 0, 0);
 	}

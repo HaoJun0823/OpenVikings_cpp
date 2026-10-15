@@ -212,11 +212,11 @@ namespace NC2E2
 	inline void* gE2StaticDataBobManagersManager = nullptr;
 	// Original global: 00568B48.
 	// Complete generator storage at 00568B44..00568B4B, zero-filled in the PE.
-	// The byte selects the real-time animation clock; its original name and
-	// writer remain unresolved. Keep it explicit rather than inventing a mode.
+	// Both Windows drawing consumers select timeGetTime()/83 instead of game ticks
+	// when this byte is nonzero. The original member name and writer remain unresolved.
 	struct SE2ParticelGeneratorStorage
 	{
-		std::uint8_t unresolved00;
+		std::uint8_t useRealTimeAnimationClock;
 		std::byte padding01[3];
 		void* owner;
 	};

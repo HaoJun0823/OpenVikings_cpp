@@ -64,7 +64,7 @@ namespace NC2Logic
 		SGameAutosaveState autosave;
 		SGameRandomState random;
 		std::uint32_t uniqueIdCounter;
-		std::byte unknown0A0[260];
+		char retainedMapRoot[260];                // +0x0A0; copied when retaining the map INI.
 		NXBasics::CIniFileReader* retainedMapIni;    // +0x1A4; original 005109BC, owned until game shutdown.
 		void* mapFileLibrary;                      // +0x1A8; original 005109C0, owned registered map archive.
 		std::uint8_t networkGame;                  // +0x1AC; original 005109C4, startup/savegame network mode.
@@ -92,6 +92,7 @@ namespace NC2Logic
 	static_assert(offsetof(SGameStaticVars, autosave) == 0x88);
 	static_assert(offsetof(SGameStaticVars, random) == 0x94);
 	static_assert(offsetof(SGameStaticVars, uniqueIdCounter) == 0x9C);
+	static_assert(offsetof(SGameStaticVars, retainedMapRoot) == 0xA0);
 	static_assert(offsetof(SGameStaticVars, retainedMapIni) == 0x1A4);
 	static_assert(offsetof(SGameStaticVars, mapFileLibrary) == 0x1A8);
 	static_assert(offsetof(SGameStaticVars, networkGame) == 0x1AC);

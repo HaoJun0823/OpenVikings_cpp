@@ -278,7 +278,7 @@ namespace NC2E2
 		{
 			frameValue = NC2Logic::gGameTime.tick + animationValue;
 
-			if (gE2ParticelGeneratorStorage.unresolved00 != 0)
+			if (gE2ParticelGeneratorStorage.useRealTimeAnimationClock != 0)
 				frameValue = ::timeGetTime() / 83u + animationValue;
 		}
 

@@ -300,7 +300,7 @@ namespace NC2Logic
 	// Original function: FUN_00425b1a.
 	void GameIO_Savegame_Load(const char* filename, bool network)
 	{
-		gGameStaticVars.unknown0A0[0] = std::byte{ 0 };
+		gGameStaticVars.retainedMapRoot[0] = '\0';
 		gSavegamesManager->SavegameList_Update(network ? 2 : 1, false);
 		char fullFilename[260];
 		gSavegamesManager->Tool_CreateFullSavegameFilename(filename, fullFilename);

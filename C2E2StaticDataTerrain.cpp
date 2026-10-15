@@ -195,7 +195,7 @@ namespace NC2E2
 			for (auto& areas : areaWork)
 				for (SLandscapeAreaWork& area : areas) area.count = 0;
 			entry->paletteId = -1;
-			entry->unresolved78 = 1;
+			entry->dynamicForeground = 1;
 			entry->shadingFactor = 0x100;
 			entry->maximumValency = 1;
 			while (reader.GetNextCommandLineInGroup() != nullptr)
@@ -274,7 +274,7 @@ namespace NC2E2
 						break;
 					case SwitchIds::LandscapeToken::GfxStatic:
 						entry->isStatic = reader.GetInt() != 0;
-						if (entry->isStatic != 0) entry->unresolved78 = 0;
+						if (entry->isStatic != 0) entry->dynamicForeground = 0;
 						break;
 					case SwitchIds::LandscapeToken::GfxLoopAnimation:
 						entry->loopAnimation = reader.GetInt() != 0;
@@ -297,7 +297,7 @@ namespace NC2E2
 						break;
 					case SwitchIds::LandscapeToken::GfxDynamicBackground:
 						entry->dynamicBackground = reader.GetInt() != 0;
-						if (entry->dynamicBackground != 0) entry->unresolved78 = 0;
+						if (entry->dynamicBackground != 0) entry->dynamicForeground = 0;
 						break;
 					case SwitchIds::LandscapeToken::GfxDrawVoidEver:
 						entry->drawVoidEver = reader.GetInt() != 0;

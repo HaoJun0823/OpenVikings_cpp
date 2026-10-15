@@ -11,7 +11,7 @@ namespace NC2Logic
 		std::uint32_t targetLandscapeType;
 		std::uint32_t valencyOperation;
 		std::uint32_t valencyValue;
-		std::uint32_t unknown10; // Returned/overridden by ApplyTransition; identity unresolved.
+		std::uint32_t resultValue; // Good ID for collection; duration ticks for automatic transitions.
 	};
 
 	struct SStaticLandscapeTypeData
@@ -58,7 +58,7 @@ namespace NC2Logic
 	static_assert(offsetof(SStaticLandscapeTransition, targetLandscapeType) == 4);
 	static_assert(offsetof(SStaticLandscapeTransition, valencyOperation) == 8);
 	static_assert(offsetof(SStaticLandscapeTransition, valencyValue) == 0x0C);
-	static_assert(offsetof(SStaticLandscapeTransition, unknown10) == 0x10);
+	static_assert(offsetof(SStaticLandscapeTransition, resultValue) == 0x10);
 	static_assert(sizeof(SStaticLandscapeTypeData) == 156);
 	static_assert(offsetof(SStaticLandscapeTypeData, allowedOnLand) == 0x1E);
 	static_assert(offsetof(SStaticLandscapeTypeData, allowedOnWater) == 0x1F);

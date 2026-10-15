@@ -343,7 +343,7 @@ namespace NC2Logic
 		std::uint32_t duration = 1;
 		for (std::uint32_t i = 0; i < data->transitionCount; ++i) if (data->transitions[i].type == SwitchIds::LandscapeTransition::Automatic)
 		{
-			duration = data->transitions[i].unknown10;
+			duration = data->transitions[i].resultValue;
 			break;
 		}
 		auto* record = mRecords + id * NC2Layout::RecordSize::LandscapeTimerUnsigned;
