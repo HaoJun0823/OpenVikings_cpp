@@ -93,11 +93,8 @@ namespace NC2Logic
 		// Original function: FUN_0042ec3c.
 		void Animal_l_CheckForValidLeader(void* animal)
 		{
-			if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId))
-			{
-				if (Animal_l_IsLeaderValid(animal)) return;
-				Animal_l_DetachLeader(animal);
-			}
+			if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId) || Animal_l_IsLeaderValid(animal)) return;
+			Animal_l_DetachLeader(animal);
 			if (Animal_IsAttachedToVehicle(animal))
 			{
 				Animal_SetLeaderId(animal, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId)); return;

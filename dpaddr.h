@@ -1,4 +1,3 @@
-#undef INTERFACE
 /*
  * Copyright (C) 2003-2005 Raphael Junqueira
  *
@@ -185,6 +184,7 @@ extern "C" {
 	/*****************************************************************************
 	 * IDirectPlay8Address interface
 	 */
+#undef INTERFACE
 #define INTERFACE IDirectPlay8Address
 	DECLARE_INTERFACE_(IDirectPlay8Address, IUnknown)
 	{

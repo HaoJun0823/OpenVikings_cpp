@@ -9,7 +9,7 @@ Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_ST
 - On explicit build request, build/link the current Win32 Debug/Release revision. Syntax-check checkpoints are not current linker results. Validate legacy CRT backend availability on other Windows installations.
 - Run campaign progression, submap return/unlocks, tribute and save/load checks, including duplicate campaign/map metadata. Verify multiplayer transfers, checksums and deterministic progression separately.
 - Validate village production, stock flow, housing, family/education, resource searches, movement, combat, vehicles, walls/gates/guides and assistant phases under sustained play.
-- Retest the [remaining reported rendering/input issues](GAMEPLAY_RENDERING_BUG_REVIEW.md): picked-up objects, landed arrows, keyboard confirmation feedback and pottery fire. Miners' resource assignment and pottery smoke have user confirmation.
+- Retest the [remaining reported issues](GAMEPLAY_RENDERING_BUG_REVIEW.md): picked-up objects, landed arrows, keyboard confirmation feedback and pottery fire. Miners' resource assignment, pottery smoke, catapult chests and the rapid animal increase are closed by user confirmation.
 - Verify fullscreen/focus/surface restoration, 16/32-bit rendering, mouse wheel/remote input, DirectSound/DirectMusic/CD playback and FMV transitions. The DataX adaptation is implemented; playback is not certified by path existence.
 - Decide separately whether to retain the local scout-radius **500** edit; Windows uses **20**. No decision or source change is made by this cleanup.
 

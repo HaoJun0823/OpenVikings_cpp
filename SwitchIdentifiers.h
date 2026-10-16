@@ -334,7 +334,7 @@ namespace SwitchIds
 		inline constexpr auto MintAndCoinMaker = 72;
 		inline constexpr auto AdvancedAlchemyHutAndDruid = 73;
 		inline constexpr auto WeaponsHutAndArmorer = 74;
-		inline constexpr auto Catapult = 89;
+		inline constexpr auto Catapult = 91;
 		inline constexpr auto Wolves = 90;
 		inline constexpr auto Civilians = 92;
 		inline constexpr auto Women = 93;
