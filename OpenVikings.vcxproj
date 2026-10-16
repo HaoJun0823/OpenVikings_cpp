@@ -126,7 +126,6 @@
     <ClCompile Include="src\XGuiDesktop.cpp" />
     <ClCompile Include="src\XIniFileReader.cpp" />
     <ClCompile Include="src\XList.cpp" />
-    <ClCompile Include="src\XMDirectInputMouse.cpp" />
     <ClCompile Include="src\XMemory.cpp" />
     <ClCompile Include="src\XMKeyManager.cpp" />
     <ClCompile Include="src\XMMessageDialogs.cpp" />
@@ -248,7 +247,6 @@
     <ClInclude Include="src\XFile.h" />
     <ClInclude Include="src\XFileAccess.h" />
     <ClInclude Include="src\XIniFileReader.h" />
-    <ClInclude Include="src\XMDirectInputMouse.h" />
     <ClInclude Include="src\XMemory.h" />
     <ClInclude Include="src\XMKeyManager.h" />
     <ClInclude Include="src\XMMessageDialogs.h" />
@@ -266,9 +264,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LegacyDirectInput.def" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -321,8 +316,7 @@
     <Link>
       <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
       <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dxguid.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -347,8 +341,7 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
       <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dxguid.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableSegmentHeap>true</EnableSegmentHeap>
@@ -357,9 +350,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="CreateBuildSymbolsDirectory" BeforeTargets="ClCompile;Link">
     <MakeDir Directories="$(OutDir)symbols" />
-  </Target>
-  <Target Name="GenerateLegacyDirectInputImportLibrary" BeforeTargets="Link" Inputs="$(ProjectDir)LegacyDirectInput.def" Outputs="$(IntDir)LegacyDirectInput.lib">
-    <Exec Command="&quot;$(VCToolsInstallDir)bin\Hostx86\x86\lib.exe&quot; /nologo /machine:x86 /def:&quot;$(ProjectDir)LegacyDirectInput.def&quot; /out:&quot;$(IntDir)LegacyDirectInput.lib&quot;" />
   </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

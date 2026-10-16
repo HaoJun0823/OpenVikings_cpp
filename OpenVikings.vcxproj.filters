@@ -309,9 +309,6 @@
     <ClCompile Include="src\NetworkShutdown.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="src\XMDirectInputMouse.cpp">
-      <Filter>Platform\Input</Filter>
-    </ClCompile>
     <ClCompile Include="src\XMKeyManager.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
@@ -654,9 +651,6 @@
     </ClInclude>
     <ClInclude Include="src\NetworkShutdown.h">
       <Filter>Network</Filter>
-    </ClInclude>
-    <ClInclude Include="src\XMDirectInputMouse.h">
-      <Filter>Platform\Input</Filter>
     </ClInclude>
     <ClInclude Include="src\XMKeyManager.h">
       <Filter>Platform\Input</Filter>
@@ -1199,11 +1193,6 @@
     <ClInclude Include="src\InGameGuiStringOutputWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LegacyDirectInput.def">
-      <Filter>Platform\Input</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\C2PlayerStatisticAccess.cpp"><Filter>Logic</Filter></ClCompile>

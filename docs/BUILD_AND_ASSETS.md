@@ -10,7 +10,7 @@ Production sources and headers are in [`src/`](../src/). The project and its sem
 
 Release uses `/O2`, `/Gy`, `/MD`, `/GS`, `/fp:precise`, `/Zi`, `/DEBUG:FULL`, `/OPT:REF`, `/OPT:NOICF` and nonincremental linking. Identical folding stays disabled for function-pointer identity. `XCrtMath.cpp` retains its IA32/strict floating-point overrides; `XCrtCompiler.cpp` has special raw-entry code-generation settings. Do not generalize those files' ABI to ordinary C++ calls.
 
-The project links Windows/DirectX imports and generates the legacy DirectInput import library from [LegacyDirectInput.def](../LegacyDirectInput.def) before linking. Do not add library pragmas or redirect the legacy ABI merely to suppress an import failure. The main target is not x64.
+The project links Windows/DirectX imports directly. On `remaster`, mouse input uses Windows Raw Input; the unused DirectInput mouse class, export definition, generated import library, linker alias and `dinput8.lib` dependency have been removed. No custom DirectInput import-generation step is needed. The main target is not x64.
 
 Runtime also depends on the [verified legacy compiler/math backends](RUNTIME_COMPATIBILITY.md). A historical successful build does not certify the current working tree or backend availability on another installation.
 

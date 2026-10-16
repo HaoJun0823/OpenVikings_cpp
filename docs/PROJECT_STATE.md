@@ -9,13 +9,13 @@ OpenVikings reconstructs the Windows version of Cultures: 8th Wonder of the Worl
 | Inventory | State |
 | --- | --- |
 | Known native entries | **5,063 / 5,063 implemented**, completion checkpoint October 12 |
-| Registered production files | **307 CPP + 288 headers = 595**, all in [`src/`](../src/) |
+| Registered production files | **306 CPP + 287 headers = 593**, all in [`src/`](../src/) |
 | Function naming map | **3,151 distinct Windows address rows** |
 | Fields identified in recent member-analysis passes | **95**, [evidence](RECOVERED_MEMBER_FIELDS.csv) |
 | Explicit unknown member declarations/regions | **134 in 56 files**, [triage](UNKNOWN_MEMBER_TRIAGE.csv) |
 | Numeric-access scan | **122 operands: 12 unresolved, 110 established operations**, [inventory](REMAINING_NUMERIC_ACCESS_INVENTORY.csv) |
 
-The entry total is a source-reconstruction milestone, not a whole-program equivalence proof. The naming inventories measure separate scopes and must not be added together. Small unknown regions are not automatically padding; unknown fields included in savegames/checksums cannot be removed merely because a direct gameplay reader is unproved.
+The entry total is a historical source-reconstruction milestone, not a whole-program equivalence proof or a count of native routines retained by the remaster. The unused DirectInput mouse module has been removed from the current production file count; active mouse handling continues through Windows Raw Input. The naming inventories measure separate scopes and must not be added together. Small unknown regions are not automatically padding; unknown fields included in savegames/checksums cannot be removed merely because a direct gameplay reader is unproved.
 
 The latest member-naming pass recorded twelve implementation-unit Win32 syntax checks plus a private assertion unit, layout assertions and selected native byte comparisons. It did not build or run the game. Earlier build successes apply to their revisions; no current build/link or gameplay pass rate is established.
 

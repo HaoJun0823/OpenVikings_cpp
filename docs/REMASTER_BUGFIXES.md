@@ -74,6 +74,12 @@ These intentional corrections are in [DSManager.cpp](../src/DSManager.cpp), with
 | RM008 | `PreloadWave_Play`, `00404CED`; `PreloadWave_ChangeVolume`, `00404E5C`; OB063 | A requested fade of zero milliseconds applies immediately, avoiding division by zero. Input volume is bounded to 0–100 and pan to 0–128 before mixing. | Zero-duration start/change, equal start/target values, zero-volume stop and ordinary nonzero fades. |
 | RM009 | `MainVolume_Set`, `00404AAC`; OB066 | Master changes preserve each sound's logical volume and stereo position, including active fades. Transient sounds retain their relative volume; explicit volume overrides remain overrides. Effective zero gain uses DirectSound's silence level. | Move the master slider with quiet/loud and left/right sounds, during a fade and while jingles play. Check mute/unmute and quality reinitialization. Music has its own manager and is not changed by this correction. |
 
+## Remaster input cleanup
+
+RM010 removes the unused `CDirectInputMouse` implementation/header and `LegacyDirectInput.def`, their project/filter entries, `dinput8.lib`, the generated import library and its generation target, and the Win32 symbol alias for `DirectInputCreateA`. Before removal, all class and DirectInput API references were confined to that obsolete module. Application startup already constructs `CMouseManager`, whose active input uses Windows Raw Input and cursor/button/wheel messages. No active input source or object layout is changed. Shared DirectX error-name constants remain available to the common diagnostic formatter; their presence does not imply a DirectInput dependency.
+
+This is removal of superseded remaster code, not another original-game bug fix. The legacy branch retains its original mouse implementation and build setup. The project and filters now agree on 306 CPP files and 287 headers, all present in `src/`. Source/reference and XML inventory checks pass; build/link and gameplay checks were not run. The original reconstruction-entry total remains a historical checkpoint.
+
 ## Verification and boundaries
 
 - The five gameplay evidence ranges for marker allocation, both education queries, vehicle-builder startup, attack startup and particle sorting match **1,173** ASM instruction byte sequences against the reference Windows `Game.exe`. Five additional audio ranges match **447** instruction sequences. These **1,620** matches verify original evidence provenance, not runtime correctness of the intentional changes.

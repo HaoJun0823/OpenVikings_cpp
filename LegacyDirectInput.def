@@ -1,3 +1,0 @@
-LIBRARY DINPUT.dll
-EXPORTS
-    DirectInputCreateA

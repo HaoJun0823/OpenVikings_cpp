@@ -59,7 +59,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 
 ## 4. Naming and code style
 
-- **Use English for all authored content:** code comments, documentation, changelogs, commit messages and user-facing responses. This is the user's standing instruction, regardless of the language of their messages. Preserve original quoted strings and established identifiers when needed as evidence.
+- **Use English for all repository content:** code comments, documentation, changelogs and commit messages. Communicate with the user in German unless they request otherwise. Preserve original quoted strings and established identifiers when needed as evidence.
 - Do not use inline assembly in C++ source. Use established C++ numeric helpers or documented platform APIs and record any remaining floating-point precision/status differences.
 - Function declarations, definitions, and ordinary function-call argument lists must stay on one line. Do not vertically wrap parameters.
 - Keep names semantic and stable. Prefer original class/function names recovered from the Mac build when they match Windows behavior.

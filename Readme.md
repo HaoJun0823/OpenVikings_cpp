@@ -57,6 +57,10 @@ Keep pull requests focused and explain what changes for players. Please do not u
 
 The following fixes are implemented in the source code. In-game verification is still pending.
 
+#### Maintenance
+
+- **Fewer legacy dependencies:** Removed the unused DirectInput mouse backend and its build dependencies. Mouse handling continues to use Windows Raw Input, as it already did in the remaster.
+
 #### Gameplay and Stability
 
 - **School training:** Starting an education no longer accidentally unlocks unrelated jobs or goods. Completing the selected training still grants its intended unlock. Unlocks already stored in saved games are preserved.
