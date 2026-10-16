@@ -23,7 +23,7 @@ The work also includes the less visible parts: allocation and cleanup, callbacks
 
 **Last updated: October 16, 2026.**
 
-On October 12, 2026, the project reached implementations for **all 5,063 tracked native entries**. The [project state](docs/PROJECT_STATE.md) records that milestone; the [temporary-stub inventory](docs/TEMPORARY_LINK_STUBS.csv) has no remaining entries.
+On October 12, 2026, the project reached implementations for **all 5,063 tracked native entries**. The [project state](docs/PROJECT_STATE.md) records that milestone.
 
 That milestone measures source reconstruction. Gameplay validation, regression fixes and the review of individual functions are still ongoing. A function having an implementation does not, by itself, prove that every branch behaves exactly like the original.
 
