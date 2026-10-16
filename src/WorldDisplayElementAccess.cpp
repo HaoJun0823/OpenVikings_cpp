@@ -19,6 +19,8 @@
 #include "SwitchIdentifiers.h"
 #include "WorldDisplayElementAccess.h"
 #include "XBasicTypes.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
@@ -41,6 +43,13 @@ extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void*
 
 namespace NC2InGameGuiWorldElement
 {
+	// GUI hit testing stays in reference coordinates; the main world uses native pixels.
+	static void WorldGuiPointToRender(const void* element, std::int32_t* point)
+	{
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		if (presentation->IsMainWorld(element)) presentation->HudToWorld(point);
+	}
+
 	template<class T> static T WorldDisplayElement_ReadField(const void* object, std::size_t offset)
 	{
 		T value;
@@ -60,6 +69,7 @@ namespace NC2InGameGuiWorldElement
 		std::int32_t point[2]{ x, y };
 		NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
 		auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
+		WorldGuiPointToRender(element, point);
 		NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
 		if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag) != 0)
 		{
@@ -80,6 +90,7 @@ namespace NC2InGameGuiWorldElement
 		std::int32_t point[2]{ Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::X), Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::Y) };
 		NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
 		auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
+		WorldGuiPointToRender(element, point);
 		NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
 		auto* target = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse;
 		NC2E2::DE_SearchObject_FindOnWorldPosition(display, point, target);
@@ -310,6 +321,7 @@ namespace NC2InGameGuiWorldElement
 			if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0 || Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0 || Read<std::int32_t>(input, NC2Layout::InputManagerOffset::InputMode) != 0) return true;
 			Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, 1);
 			std::int32_t point[2]{ command, static_cast<std::int32_t>(param1) };
+			WorldGuiPointToRender(element, point);
 			NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
 			Write(element, NC2Layout::WorldGuiElementOffset::AreaStartX, point[0]); Write(element, NC2Layout::WorldGuiElementOffset::AreaStartY, point[1]); Write(element, NC2Layout::WorldGuiElementOffset::AreaEndX, point[0]); Write(element, NC2Layout::WorldGuiElementOffset::AreaEndY, point[1]);
 			return true;
@@ -379,6 +391,7 @@ namespace NC2InGameGuiWorldElement
 				const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
 				std::int32_t point[2]{ Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::X), Read<std::int32_t>(mouse, NC2Layout::MouseManagerPositionOffset::Y) };
 				NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
+				WorldGuiPointToRender(element, point);
 				NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
 				Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), (keys & 1u) != 0, (keys & 2u) != 0);
 			}
@@ -556,6 +569,15 @@ namespace NC2InGameGuiWorldElement
 		auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 		const std::int32_t depth = WorldDisplayElement_ReadField<std::int32_t>(desktopBitmap, 0x04);
 		NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, rectangle, 1, 0x1A7, depth);
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		if (active && presentation->RegisterMainWorld(element))
+		{
+			delete WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, NC2Layout::WorldGuiElementOffset::Bitmap);
+			void* memory = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NXBasics::CBitmap));
+			auto* nativeBitmap = memory != nullptr ? ::new(memory) NXBasics::CBitmap(presentation->GetWidth(), presentation->GetHeight(), depth) : nullptr;
+			WorldDisplayElement_WriteField(element, NC2Layout::WorldGuiElementOffset::Bitmap, nativeBitmap);
+			presentation->SetMainWorldBitmap(nativeBitmap);
+		}
 		auto* state = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::Display;
 		WorldDisplayElement_ConstructState(state);
 		WorldDisplayElement_WriteField(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
@@ -802,7 +824,17 @@ namespace NC2InGameGuiWorldElement
 
 		WorldDisplayElement_ValidateObjectUnderMouse(element);
 		NC2E2::Display_UpdateDisplay(readPointer(element, NC2Layout::WorldGuiElementOffset::Display));
-		NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		const bool mainWorld = presentation->IsMainWorld(element);
+		NXBasics::SRectangle nativeRectangle(0, 0, presentation->GetWidth(), presentation->GetHeight());
+		if (mainWorld)
+		{
+			bitmap = presentation->GetWorldComposition();
+			auto* worldBitmap = static_cast<NXBasics::CBitmap*>(readPointer(element, NC2Layout::WorldGuiElementOffset::Bitmap));
+			worldBitmap->CopyIntoBitmap(bitmap, 0, 0);
+			rectangle = &nativeRectangle;
+		}
+		else NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
 		WorldDisplayElement_DarkenBitmap_Do(element, bitmap);
 
 		if (readWord(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse) == 4u)
@@ -842,6 +874,7 @@ namespace NC2InGameGuiWorldElement
 
 			NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, NC2Layout::WorldGuiElementOffset::Display), firstPoint, true);
 			NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, NC2Layout::WorldGuiElementOffset::Display), lastPoint, true);
+			if (mainWorld) { presentation->WorldToHud(firstPoint); presentation->WorldToHud(lastPoint); }
 
 			const std::uint32_t widthBits = static_cast<std::uint32_t>(lastPoint[0]) - static_cast<std::uint32_t>(firstPoint[0]);
 			const std::uint32_t heightBits = static_cast<std::uint32_t>(lastPoint[1]) - static_cast<std::uint32_t>(firstPoint[1]);
@@ -849,7 +882,7 @@ namespace NC2InGameGuiWorldElement
 			NXBasics::SRectangle selection(firstPoint[0], firstPoint[1], NXBasics::Runtime_TimeSigned32(widthBits), NXBasics::Runtime_TimeSigned32(heightBits));
 			NXBasics::SColorRGB white(255, 255, 255);
 
-			bitmap->Draw_Rectangle(selection, white);
+			(mainWorld ? presentation->GetHudBitmap() : bitmap)->Draw_Rectangle(selection, white);
 		}
 
 		void* display = readPointer(element, NC2Layout::WorldGuiElementOffset::Display);
@@ -866,6 +899,7 @@ namespace NC2InGameGuiWorldElement
 
 		if (readByte(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && !(NC2Logic::gGameTime.speed >= 0.01))
 		{
+			auto* textBitmap = mainWorld ? presentation->GetHudBitmap() : bitmap;
 			char text[200];
 			NXBasics::Runtime_PrintString(text, "* %s *", NC2GuiToolsBase::StringTool_GetUpdate103StringPtr(20));
 
@@ -874,19 +908,20 @@ namespace NC2InGameGuiWorldElement
 			auto* font = guiResources.font10;
 			const auto* colour = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(guiResources.fontWhitePalette) + 0x400);
 
-			const std::int32_t halfHeight = bitmap->GetRectangle().height / 2;
+			const std::int32_t halfHeight = textBitmap->GetRectangle().height / 2;
 			const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(halfHeight) + 180u);
 			const std::int32_t textWidth = NXBasics::Font_GetPixelWidth(font, text);
-			const std::uint32_t remainingWidth = static_cast<std::uint32_t>(bitmap->GetRectangle().width) - static_cast<std::uint32_t>(textWidth);
+			const std::uint32_t remainingWidth = static_cast<std::uint32_t>(textBitmap->GetRectangle().width) - static_cast<std::uint32_t>(textWidth);
 			const std::int32_t x = NXBasics::Runtime_TimeSigned32(remainingWidth) / 2;
 
-			NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, x, y, font, colour, text);
+			NC2GuiToolsBase::DrawTool_PrintStringX(textBitmap, x, y, font, colour, text);
 		}
 
 		const std::uint32_t frameMode = readWord(element, NC2Layout::WorldGuiElementOffset::FrameMode);
 
 		if (frameMode != 0)
 			NC2GuiToolsBase::DrawTool_DrawFrame(nullptr, bitmap, rectangle, NXBasics::Runtime_TimeSigned32(frameMode));
+		if (mainWorld) presentation->BitmapToScreen(bitmap, 0, 0);
 	}
 
 	// Original function: FUN_004baf71

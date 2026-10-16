@@ -22,16 +22,6 @@ namespace
 		std::uint8_t state; std::byte padding[3]; void* manager;
 	};
 	static SPreIngameFmvStaticVars gPreIngameFmv{ };
-	static const GUID gLegacyDrawInterface = { 0x6C14DB80, 0xA733, 0x11CE,{ 0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60 } };
-	static const GUID gLegacySurfaceInterface = { 0x6C14DB81, 0xA733, 0x11CE,{ 0xA5, 0x21, 0, 0x20, 0xAF, 0x0B, 0xE5, 0x60 } };
-
-	// Verified application +4C, window +8, display +18/+20 COM ownership chain.
-	static IUnknown* PreIngameFmv_DisplayInterface(std::uint32_t offset)
-	{
-		auto* window = Read<NXSys2DApp::CWindow*>(NXSys2DApp::CApplication::sTheObjectPtr, NC2Layout::ApplicationOffset::Window);
-		return Read<IUnknown*>(window->GetDisplay(), offset);
-	}
-
 	// Original function: FUN_00403406.
 	static void PreIngameFmv_GfxData_Load(void* manager)
 	{
@@ -69,18 +59,12 @@ namespace
 		{
 			if (auto* memory = NXBasics::Runtime_AllocateWithNewHandler(44, 1)) new (memory) NWindowsVideo::CVideoPlayer();
 		}
-		IDirectDraw* directDraw = nullptr;
-		PreIngameFmv_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::DirectDraw)->QueryInterface(gLegacyDrawInterface, reinterpret_cast<void**>(&directDraw));
-		if (directDraw != nullptr)
+		auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
+		const bool enableAudio = !NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_off");
+		if (video != nullptr && video->Open(fileName, enableAudio))
 		{
-			auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
-			const bool enableAudio = !NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_off");
-			if (video->Open(fileName, directDraw, enableAudio))
-			{
-				NWindowsVideo::CVideoPlayer::sTheObjectPtr->Start();
-				Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive, 1);
-			}
-			directDraw->Release();
+			video->Start();
+			Write<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive, video->IsPlaying() ? 1 : 0);
 		}
 		if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvActive) == 0) return false;
 		NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(true);
@@ -96,14 +80,8 @@ namespace
 			auto* video = NWindowsVideo::CVideoPlayer::sTheObjectPtr;
 			if (video != nullptr && video->IsPlaying())
 			{
-				IDirectDrawSurface* surface = nullptr;
-				PreIngameFmv_DisplayInterface(NC2Layout::DirectDrawDisplayOffset::BackSurface)->QueryInterface(gLegacySurfaceInterface, reinterpret_cast<void**>(&surface));
-				if (surface != nullptr)
-				{
-					NWindowsVideo::CVideoPlayer::sTheObjectPtr->Update(surface, nullptr);
-					surface->Release();
-					return;
-				}
+				video->Update(NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay());
+				return;
 			}
 		}
 		else Read<NXBasics::CBitmap*>(manager, NC2Layout::PreIngameFmvOffset::ScreenBitmap)->Fill(NXBasics::SColorRGB(0, 0, 0));

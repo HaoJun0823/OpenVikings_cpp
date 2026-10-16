@@ -10,6 +10,8 @@
 #include "MainMenuGuiManager.h"
 #include "MainMenuWorldDisplayElement.h"
 #include "SwitchIdentifiers.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBitmap.h"
 #include "XBobRendering.h"
 #include "XFile.h"
@@ -132,8 +134,22 @@ void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void* element, 
 	using NC2MainMenuGuiManager::CGuiManager;
 	void* display = Read<void*>(element, NC2Layout::MenuWorldElementOffset::Display);
 	NC2E2::Display_UpdateDisplay(display);
-	NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
-	if (Read<std::uint8_t>(CGuiManager::sTheObjectPtr, NC2Layout::MainMenuManagerOffset::SuppressPreviewDarkening) == 0) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, bitmap);
+	auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+	const bool darken = Read<std::uint8_t>(CGuiManager::sTheObjectPtr, NC2Layout::MainMenuManagerOffset::SuppressPreviewDarkening) == 0;
+	if (presentation->IsMainWorld(element))
+	{
+		// Render the animated scenery at native resolution; logos, campaign maps,
+		// descriptions and controls below remain on the reference-size GUI plane.
+		auto* background = presentation->GetWorldComposition();
+		Read<NXBasics::CBitmap*>(element, NC2Layout::MenuWorldElementOffset::Bitmap)->CopyIntoBitmap(background, 0, 0);
+		if (darken) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, background);
+		presentation->BitmapToScreen(background, 0, 0);
+	}
+	else
+	{
+		NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
+		if (darken) WorldDisplayElement_l_Tool_DarkenBitmap_Do(element, bitmap);
+	}
 	if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0) return;
 	NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
 	const auto& resources = CGuiManager::mStaticVars.resources;

@@ -82,6 +82,8 @@ namespace
 // Hosted entry for the reconstructed startup at FUN_004e709e.
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
 {
+	// Remaster: use physical monitor pixels, including mixed-DPI desktops.
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	// The reconstructed startup obtains these values from the Win32 APIs.
 	(void) instance;
 	(void) previousInstance;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ddraw.h>
 #include <Windows.h>
 
 #include "X2DWindow.h"
@@ -90,6 +89,8 @@ namespace NXSys2DApp
 
 		// Original function: FUN_00478ced
 		HWND GetWindowHandle() const;
+		CDisplay* GetDisplay() const;
+		bool IsMouseCaptureAllowed() const { return mWindow != nullptr && mWindow->IsMouseCaptureAllowed(); }
 
 		// Original function: FUN_00478cfa
 		bool IsWindowActive() const;
@@ -153,15 +154,11 @@ namespace NXSys2DApp
 		inline static CApplication* sTheObjectPtr = nullptr;
 
 	private:
-		friend class CDDDisplay;
 		// Original function: FUN_00478d8a
 		void l_GetDesktopDisplayMode();
 
 		// Original function: FUN_00478ddf
 		void l_GetFullscreenDisplayModes();
-
-		// Original function: FUN_00478e4e
-		static HRESULT CALLBACK l_EnumDisplayModesCallback(LPDDSURFACEDESC2 surfaceDescription, LPVOID context);
 
 		bool mOwnsSystemManager;             // +0x48
 		std::byte mPadding49[3];             // +0x49

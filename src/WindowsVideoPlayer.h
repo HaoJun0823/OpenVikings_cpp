@@ -6,6 +6,8 @@
 #include <ddstream.h>
 #include <Windows.h>
 
+namespace NXSys2DApp { class CDisplay; }
+
 namespace NWindowsVideo
 {
 	// The original class name is unresolved; fields follow verified COM identities.
@@ -14,11 +16,11 @@ namespace NWindowsVideo
 	public:
 		CVideoPlayer();
 		~CVideoPlayer();
-		bool Open(const char* fileName, IDirectDraw* directDraw, bool enableAudio);
+		bool Open(const char* fileName, bool enableAudio);
 		void Close();
 		void Start();
 		void Stop();
-		bool Update(IDirectDrawSurface* destination, const RECT* destinationRectangle);
+		bool Update(NXSys2DApp::CDisplay* display);
 		bool IsPlaying() const
 		{
 			return mPlaying != 0;

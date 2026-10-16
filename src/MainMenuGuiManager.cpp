@@ -23,6 +23,8 @@
 #include "OriginalStrings.h"
 #include "StringInputHandler.h"
 #include "SwitchIdentifiers.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -268,6 +270,9 @@ namespace NC2MainMenuGuiManager
 		if (mStaticVars.displayInitialized != 0)
 			return;
 
+		// Remaster: share the in-game GUI scale while retaining a native background.
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		presentation->ConfigureHud(width, height);
 		mStaticVars.displayWidth = width;
 		mStaticVars.displayHeight = height;
 		mStaticVars.displayDepth = depth;
@@ -275,6 +280,7 @@ namespace NC2MainMenuGuiManager
 		const std::int32_t bitmapDepth = NXBasics::ConvertBitsToTDepth(NXBasics::Runtime_TimeSigned32(depth));
 		void* desktopAllocation = NXBasics::Runtime_AllocateWithNewHandler(316, 1);
 		if (desktopAllocation != nullptr) new (desktopAllocation) NXBaseGui::CDesktop(width, height, bitmapDepth);
+		if (presentation->GetWorldComposition() != nullptr) presentation->SetHudBitmap(NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap());
 
 		NC2GuiToolsBase::CGuiBaseDataManager::DynamicData_Load();
 
@@ -351,6 +357,7 @@ namespace NC2MainMenuGuiManager
 
 		NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(1u, &CGuiManager::ls_Logic_CallbackFunction, 0u);
 
+		NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay()->DisableHud();
 		mStaticVars.displayInitialized = 0;
 	}
 

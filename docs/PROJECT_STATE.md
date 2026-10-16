@@ -1,5 +1,7 @@
 # Project state
 
+On branch `remaster`, the first authorized modernization replaces exclusive DirectDraw window presentation with a Unicode, DPI-aware Win32 window and D3D11/DXGI borderless presentation. Internal resolution changes retain the desktop mode. See [remaster window and presentation](REMASTER_WINDOW_PRESENTATION.md) for scope and validation limits. The reconstruction inventories below describe the pre-remaster baseline; they do not certify the new frontend's runtime behavior or native layout.
+
 Reviewed October 16, 2026 against source baseline `e385046` and the subsequent source-directory reorganization.
 
 OpenVikings reconstructs the Windows version of Cultures: 8th Wonder of the World. The main target is **Windows x86, C++17, MSVC v145**. Original Windows assembly and Game.exe determine behavior; Mac references supply names only.

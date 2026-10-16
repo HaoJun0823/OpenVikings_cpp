@@ -321,7 +321,7 @@
     <Link>
       <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
       <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
-      <AdditionalDependencies>winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Manifest>
@@ -347,7 +347,7 @@
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
       <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
-      <AdditionalDependencies>winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;ddraw.lib;winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Manifest>

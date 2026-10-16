@@ -9,12 +9,16 @@
 #include "MainMenuGuiManager_Access.h"
 #include "MainMenuWorldDisplayElement.h"
 #include "SwitchIdentifiers.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBitmap.h"
+#include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
 #include "XGuiElementAccess.h"
 #include "XStringMemory.h"
 
 #include <cstring>
+#include <new>
 
 
 // Genuine message dispatch, world drawing and tooltip drawing remain separate families.
@@ -167,6 +171,15 @@ namespace NC2MainMenuGuiWorldElement
 	{
 		auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 		NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, static_cast<const NXBasics::SRectangle*>(rectangle), 1, 0x1E3, Read<std::int32_t>(desktopBitmap, NC2Layout::BitmapStorageOffset::Depth));
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		if (active && presentation->RegisterMainWorld(element))
+		{
+			delete Read<NXBasics::CBitmap*>(element, NC2Layout::MenuWorldElementOffset::Bitmap);
+			void* memory = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NXBasics::CBitmap));
+			auto* nativeBitmap = memory != nullptr ? ::new(memory) NXBasics::CBitmap(presentation->GetWidth(), presentation->GetHeight(), Read<std::int32_t>(desktopBitmap, NC2Layout::BitmapStorageOffset::Depth)) : nullptr;
+			Write(element, NC2Layout::MenuWorldElementOffset::Bitmap, nativeBitmap);
+			presentation->SetMainWorldBitmap(nativeBitmap);
+		}
 		Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
 		std::memset(static_cast<std::byte*>(element) + 0x30, 0, 40);
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);

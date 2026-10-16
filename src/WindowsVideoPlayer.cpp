@@ -1,5 +1,8 @@
 #include "WindowsVideoPlayer.h"
 #include "XFile.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
+#include "XCrtFileAccess.h"
 #include <cstring>
 
 namespace NWindowsVideo
@@ -31,32 +34,37 @@ namespace NWindowsVideo
 	// Original function: FUN_004046da. Only S_OK accepts the probe.
 	bool CVideoPlayer::l_CheckAvailability()
 	{
-		CoInitialize(nullptr);
-		IUnknown* graph;
+		if (FAILED(CoInitialize(nullptr))) return false;
+		IUnknown* graph = nullptr;
 		if (CoCreateInstance(gFilterGraphClass, nullptr, CLSCTX_INPROC_SERVER, gFilterGraphInterface, reinterpret_cast<void**>(&graph)) == S_OK)
 		{
 			graph->Release();
 			mAvailable = 1;
 			return true;
 		}
+		CoUninitialize();
 		mAvailable = 0;
 		return false;
 	}
 
 	// Original function: FUN_00404484.
-	bool CVideoPlayer::Open(const char* fileName, IDirectDraw* directDraw, bool enableAudio)
+	bool CVideoPlayer::Open(const char* fileName, bool enableAudio)
 	{
+		Stop();
+		Close();
 		if (!l_CheckAvailability()) return false;
 		char resolvedFile[MAX_PATH];
-		if (!NXBasics::CFile::FileSystem_Tool_GetRealFilename(fileName, resolvedFile)) return false;
+		if (!NXBasics::CFile::FileSystem_Tool_GetRealFilename(fileName, resolvedFile)) { Close(); return false; }
 		IAMMultiMediaStream* stream = nullptr;
-		HRESULT result = CoCreateInstance(gMultiMediaStreamClass, nullptr, CLSCTX_INPROC_SERVER, gMultiMediaStreamInterface, reinterpret_cast<void**>(&stream));
+		// Decoder-only DirectDraw object: no primary surface, exclusive mode or mode switch.
+		HRESULT result = DirectDrawCreate(nullptr, &mDirectDraw, nullptr);
+		if (SUCCEEDED(result)) result = mDirectDraw->SetCooperativeLevel(NXSys2DApp::CApplication::sTheObjectPtr->GetWindowHandle(), DDSCL_NORMAL);
+		if (SUCCEEDED(result)) result = CoCreateInstance(gMultiMediaStreamClass, nullptr, CLSCTX_INPROC_SERVER, gMultiMediaStreamInterface, reinterpret_cast<void**>(&stream));
+		mMultiMediaStream = stream;
 		if (SUCCEEDED(result)) result = stream->Initialize(STREAMTYPE_READ, 1, nullptr);
 		if (SUCCEEDED(result))
 		{
-			mDirectDraw = directDraw;
-			directDraw->AddRef();
-			result = stream->AddMediaStream(directDraw, &gPrimaryVideoPurpose, 0, nullptr);
+			result = stream->AddMediaStream(mDirectDraw, &gPrimaryVideoPurpose, 0, nullptr);
 		}
 		if (SUCCEEDED(result))
 		{
@@ -67,22 +75,35 @@ namespace NWindowsVideo
 		}
 		if (SUCCEEDED(result))
 		{
-			mMultiMediaStream = stream;
 			result = stream->GetMediaStream(gPrimaryVideoPurpose, &mMediaStream);
 		}
 		if (SUCCEEDED(result)) result = mMediaStream->QueryInterface(gDrawMediaStreamInterface, reinterpret_cast<void**>(&mDrawMediaStream));
 		if (SUCCEEDED(result)) result = mDrawMediaStream->CreateSample(nullptr, nullptr, 0, &mSample);
 		if (SUCCEEDED(result)) result = mSample->GetSurface(&mSurface, &mSourceRectangle);
+		if (SUCCEEDED(result))
+		{
+			// The shipped 640 x 480 intro contains a 640 x 400 picture with an
+			// encoded 40-row matte at each edge. The mission film uses all 480 rows.
+			const char* baseName = NXBasics::Runtime_FindLastCharacter(fileName, '\\');
+			baseName = baseName != nullptr ? baseName + 1 : fileName;
+			if (NXBasics::Runtime_CompareStringsIgnoreCase(baseName, "intro.mpg") == 0 && mSourceRectangle.right - mSourceRectangle.left == 640 && mSourceRectangle.bottom - mSourceRectangle.top == 480)
+			{
+				mSourceRectangle.top += 40;
+				mSourceRectangle.bottom -= 40;
+			}
+		}
 		if (SUCCEEDED(result)) return true;
-		// Before assignment to +4 the local stream is deliberately not released.
+		// Remaster cleanup also releases partially opened decoder resources.
 		Close();
 		mAvailable = 0;
 		return false;
 	}
 
-	// Original function: FUN_004045cb. Playing state is not cleared here.
+	// Original function: FUN_004045cb; remaster also stops playback and balances COM.
 	void CVideoPlayer::Close()
 	{
+		Stop();
+		mPlaying = 0;
 		if (mSurface != nullptr)
 		{
 			mSurface->Release(); mSurface = nullptr;
@@ -107,17 +128,16 @@ namespace NWindowsVideo
 		{
 			mDirectDraw->Release(); mDirectDraw = nullptr;
 		}
+		if (mAvailable != 0) CoUninitialize();
 		mAvailable = 0;
 	}
 
-	// Original function: FUN_00404635. Seek precedes the availability check.
+	// Original function: FUN_00404635; remaster rejects unavailable/failed streams.
 	void CVideoPlayer::Start()
 	{
-		mMultiMediaStream->Seek(0);
-		if (mAvailable != 0)
+		if (mAvailable != 0 && mMultiMediaStream != nullptr)
 		{
-			mMultiMediaStream->SetState(STREAMSTATE_RUN);
-			mPlaying = 1;
+			if (SUCCEEDED(mMultiMediaStream->Seek(0)) && SUCCEEDED(mMultiMediaStream->SetState(STREAMSTATE_RUN))) mPlaying = 1;
 		}
 	}
 
@@ -132,16 +152,21 @@ namespace NWindowsVideo
 	}
 
 	// Original function: FUN_0040467c. Sample update requires exact S_OK.
-	bool CVideoPlayer::Update(IDirectDrawSurface* destination, const RECT* destinationRectangle)
+	bool CVideoPlayer::Update(NXSys2DApp::CDisplay* display)
 	{
-		if (mAvailable == 0) return false;
-		RECT rectangle = destinationRectangle != nullptr ? *destinationRectangle : mSourceRectangle;
+		if (mAvailable == 0 || display == nullptr) return false;
 		if (mSample->Update(0, nullptr, nullptr, 0) != S_OK)
 		{
-			mPlaying = 0;
+			Stop();
 			return false;
 		}
-		destination->Blt(&rectangle, mSurface, &mSourceRectangle, 0, nullptr);
-		return true;
+		DDSURFACEDESC frame{ };
+		frame.dwSize = sizeof(frame);
+		if (FAILED(mSurface->Lock(&mSourceRectangle, &frame, DDLOCK_WAIT | DDLOCK_READONLY, nullptr))) { Stop(); return false; }
+		const auto& format = frame.ddpfPixelFormat;
+		const bool updated = (format.dwFlags & DDPF_RGB) != 0 && display->VideoFrameToScreen(frame.lpSurface, frame.lPitch, mSourceRectangle.right - mSourceRectangle.left, mSourceRectangle.bottom - mSourceRectangle.top, format.dwRGBBitCount, format.dwRBitMask, format.dwGBitMask, format.dwBBitMask);
+		mSurface->Unlock(frame.lpSurface);
+		if (!updated) Stop();
+		return updated;
 	}
 }

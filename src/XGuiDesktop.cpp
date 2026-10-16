@@ -1,5 +1,6 @@
 #include "C2LifetimeAccess.h"
 #include "C2ObjectLayout.h"
+#include "X2DDisplay.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
@@ -564,7 +565,8 @@ namespace NXBaseGui
 		l_Message_HandleMouse(processInput);
 		l_Message_HandleKeyBoard(processInput);
 		l_WindowCloseList_Do();
-		if (clearBitmap) mDisplayBitmap->Fill(std::uint8_t{ 0 });
+		if (NXSys2DApp::IsRemasterHudBitmap(mDisplayBitmap)) mDisplayBitmap->Fill(std::uint32_t{ 0xFF000000 });
+		else if (clearBitmap) mDisplayBitmap->Fill(std::uint8_t{ 0 });
 		l_DrawDesktop(mRectangle);
 		if (mMousePointerStorage != nullptr)
 		{

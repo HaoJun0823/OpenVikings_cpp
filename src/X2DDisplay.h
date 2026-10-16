@@ -1,151 +1,80 @@
 #pragma once
 
-#include <ddraw.h>
 #include <Windows.h>
-
-#include <cstddef>
 #include <cstdint>
 
-namespace NXBasics
-{
-	class CBitmap;
-}
+namespace NXBasics { class CBitmap; }
 
 namespace NXSys2DApp
 {
-	class CDDDisplay
+	// Remaster presentation backend; no native object-layout contract.
+	class CDisplay
 	{
 	public:
-		// Original function: FUN_0047ab9a
-		explicit CDDDisplay(bool fullscreen);
-
-		// Original function: FUN_0047abbc
-		~CDDDisplay();
-
-		// Original function: FUN_0047abdc
+		explicit CDisplay(bool fullscreen);
+		~CDisplay();
 		bool StartUp(HWND windowHandle, std::int32_t width, std::int32_t height, std::int32_t depth);
-
-		// Original function: FUN_0047b0b6
 		void ShutDown();
-
-		// Original function: FUN_0047b38e
 		bool SetDisplayMode(std::int32_t width, std::int32_t height, std::int32_t depth);
-
-		// Original function: FUN_0047b3d6
 		bool ToggleFullscreen();
-
-		// Original function: FUN_0047b43c
-		void FlipToGDISurface();
-
-		// Original function: FUN_0047b44c
 		void Update();
-
 		void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-
-		std::int32_t GetWidth() const
-		{
-			return mWidth;
-		}
-
-		std::int32_t GetHeight() const
-		{
-			return mHeight;
-		}
-
-		std::int32_t GetDepth() const
-		{
-			return mDepth;
-		}
-
+		bool VideoFrameToScreen(const void* pixels, LONG pitch, std::int32_t width, std::int32_t height, std::uint32_t bits, std::uint32_t redMask, std::uint32_t greenMask, std::uint32_t blueMask);
+		void UpdateWindowPlacement();
+		RECT GetPresentationRectangle() const;
+		POINT ScreenToGame(POINT point) const;
+		POINT GameToScreen(POINT point) const;
+		std::int32_t GetWidth() const { return mWidth; }
+		std::int32_t GetHeight() const { return mHeight; }
+		std::int32_t GetDepth() const { return mDepth; }
+		bool IsFullscreen() const { return mFullscreen; }
 		std::int32_t GetWindowOffsetX() const;
-
 		std::int32_t GetWindowOffsetY() const;
-
-		bool IsFullscreen() const
-		{
-			return mFullscreen;
-		}
-
-		HPALETTE GetWindowsPalette() const
-		{
-			return mWindowsPalette;
-		}
-
-		void SetWindowOffsets(std::int32_t x, std::int32_t y)
-		{
-			mWindowOffsetX = x;
-			mWindowOffsetY = y;
-		}
+		static bool IsSupportedMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth);
+		bool ConfigureHud(std::int32_t& width, std::int32_t& height);
+		void DisableHud();
+		void SetHudBitmap(NXBasics::CBitmap* bitmap) { mHudBitmap = bitmap; }
+		void SetHudScratchBitmap(NXBasics::CBitmap* bitmap) { mHudScratchBitmap = bitmap; }
+		bool IsHudBitmap(const NXBasics::CBitmap* bitmap) const;
+		bool RegisterMainWorld(void* element) { if (mWorldComposition == nullptr || mMainWorldElement != nullptr) return false; mMainWorldElement = element; return true; }
+		bool IsMainWorld(const void* element) const { return element != nullptr && element == mMainWorldElement; }
+		NXBasics::CBitmap* GetWorldComposition() const { return mWorldComposition; }
+		void HudToWorld(std::int32_t* point) const;
+		void WorldToHud(std::int32_t* point) const;
+		void SetMainWorldBitmap(NXBasics::CBitmap* bitmap) { mMainWorldBitmap = bitmap; }
+		bool IsMainWorldBitmap(const NXBasics::CBitmap* bitmap) const;
+		NXBasics::CBitmap* GetHudBitmap() const { return mHudBitmap; }
+		void CopyCompositedFrame(NXBasics::CBitmap* bitmap) const;
+		static void CompositeHudImage(const NXBasics::CBitmap* source, NXBasics::CBitmap* destination, std::int32_t x, std::int32_t y);
 
 	private:
-		struct SBitmapSurface;
-		bool l_BitmapSurface_Lock(SBitmapSurface& target, IDirectDrawSurface7* surface, bool fullscreen);
-		static bool l_BitmapSurface_SetRectangle(SBitmapSurface& target, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height);
-		void l_MemoryToScreen(const std::uint8_t* pixels, std::uint32_t width, std::uint32_t height, std::uint32_t rowPixelCount, std::uint32_t x, std::uint32_t y, std::uint32_t bytesPerPixel);
-		void l_BitmapToScreen8To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-		void l_BitmapToScreen8To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-		void l_BitmapToScreen16To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-		void l_BitmapToScreen16To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-		void l_BitmapToScreen32To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
-
-		// Original function: FUN_0047ac2d
-		bool l_StartUp();
-
-		// Original function: FUN_0047b057
-		bool l_DoesInitializationHaveError(HRESULT result);
-
-		// Original function: FUN_0047b198
-		IDirectDrawSurface7* l_CreateSurface(std::int32_t width, std::int32_t height, DWORD surfaceCaps, bool specifyPixelFormat, bool useCurrentFullscreenState);
-
-		// Original function: FUN_0047b29d
-		HRESULT l_RestoreSurfaces();
-
-		// Original function: FUN_0047b2b8
-		std::uint32_t l_GetSurfaceDepth(IDirectDrawSurface7* surface);
-
-		// Original function: FUN_0047b8db
-		static std::uint32_t l_GetColorMask(IDirectDrawSurface7* surface, COLORREF color);
-
-		// Original function: FUN_0047c21f
-		void l_CreatePalettes();
-
-		// Original function: FUN_0047c23e
-		void l_DestroyPalettes();
-
-		// Original function: FUN_0047c266
-		bool l_SetPaletteEntries(const PALETTEENTRY* paletteEntries);
-
-		// Original function: FUN_0047c588
-		void l_Configure16BitColorMasks();
-
-		// Original function: FUN_0047c5f1
-		void l_Configure32BitColorMasks();
-
-		HWND mWindowHandle;                         // +0x00
-		std::int32_t mWidth;                       // +0x04
-		std::int32_t mHeight;                      // +0x08
-		std::int32_t mDepth;                       // +0x0C
-		bool mInitialized;                         // +0x10
-		std::byte mPadding11[3];                   // +0x11
-		HMODULE mDirectDrawModule;                 // +0x14
-		IDirectDraw7* mDirectDraw;                 // +0x18
-		IDirectDrawSurface7* mPrimarySurface;      // +0x1C
-		IDirectDrawSurface7* mBackSurface;         // +0x20
-		IDirectDrawClipper* mClipper;              // +0x24
-		IDirectDrawPalette* mDirectDrawPalette;    // +0x28
-		HPALETTE mWindowsPalette;                  // +0x2C
-		LOGPALETTE* mPaletteData;                  // +0x30
-		bool mFullscreen;                          // +0x34
-		std::byte mPadding35[3];                   // +0x35
-		std::int32_t mWindowOffsetX;               // +0x38
-		std::int32_t mWindowOffsetY;               // +0x3C
-		std::int32_t mSavedWindowOffsetX;          // +0x40
-		std::int32_t mSavedWindowOffsetY;          // +0x44
-		std::uint32_t mTransparentColor;           // +0x48
-		bool mFullscreenFlipState;                 // +0x4C
-		std::byte mPadding4D[3];                   // +0x4D
-		float mGamma;                              // +0x50
+		struct SGraphics;
+		bool CreateGraphics();
+		void ReleaseGraphics();
+		bool CreateFrameTexture();
+		bool ResizeTarget();
+		bool DrawHud();
+		HWND mWindowHandle = nullptr;
+		std::int32_t mWidth = 0;
+		std::int32_t mHeight = 0;
+		std::int32_t mDepth = 0;
+		bool mFullscreen;
+		bool mHasWindowedPlacement = false;
+		RECT mWindowedRectangle{ };
+		std::uint32_t* mPixels = nullptr;
+		SGraphics* mGraphics = nullptr;
+		NXBasics::CBitmap* mHudBitmap = nullptr;
+		NXBasics::CBitmap* mHudScratchBitmap = nullptr;
+		NXBasics::CBitmap* mWorldComposition = nullptr;
+		NXBasics::CBitmap* mMainWorldBitmap = nullptr;
+		NXBasics::CBitmap* mVideoFrame = nullptr;
+		bool mVideoActive = false;
+		bool mPresentHud = false;
+		void* mMainWorldElement = nullptr;
+		std::int32_t mHudWidth = 0;
+		std::int32_t mHudHeight = 0;
 	};
 
-	static_assert(sizeof(CDDDisplay) == 84);
+	// Only the dedicated GUI plane uses its high byte as inverse coverage.
+	bool IsRemasterHudBitmap(const NXBasics::CBitmap* bitmap);
 }

@@ -8,7 +8,7 @@
 
 namespace NXSys2DApp
 {
-	class CDDDisplay;
+	class CDisplay;
 }
 
 namespace NXBasics
@@ -145,7 +145,7 @@ namespace NXBasics
 
 	private:
 		friend class CPicture;
-		friend class NXSys2DApp::CDDDisplay;
+		friend class NXSys2DApp::CDisplay;
 
 		void l_ConstructNonVirtual(const SRectangle& rectangle, std::int32_t depth);
 		void l_ConstructVirtual(CBitmap* sourceBitmap, const SRectangle& rectangle);

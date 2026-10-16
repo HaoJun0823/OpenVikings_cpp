@@ -2,6 +2,7 @@
 #include "SwitchIdentifiers.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "X2DDisplay.h"
 #include "XBitmapTools.h"
 #include "XCrtFileAccess.h"
 #include "XDiagnostics.h"
@@ -1826,6 +1827,7 @@ namespace NXBasics
 	// Original function: FUN_0040f589
 	void CBitmap::Tool_Darken(SRectangle rectangle)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(this);
 		if (mRawMemory == nullptr)
 			return;
 
@@ -1851,7 +1853,8 @@ namespace NXBasics
 					std::uint32_t pixel;
 					std::memcpy(&pixel, reinterpret_cast<const void*>(pixelAddress), sizeof(pixel));
 
-					pixel = (pixel >> 1) & mask;
+					const auto inverseCoverage = hud ? (((pixel >> 24) / 2u) << 24) : 0u;
+					pixel = ((pixel >> 1) & mask) | inverseCoverage;
 
 					std::memcpy(reinterpret_cast<void*>(pixelAddress), &pixel, sizeof(pixel));
 					pixelAddress += 4u;
@@ -1892,6 +1895,7 @@ namespace NXBasics
 	// Original function: FUN_0040f688
 	void CBitmap::Tool_Darken(SRectangle rectangle, std::uint8_t redMask, std::uint8_t greenMask, std::uint8_t blueMask)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(this);
 		if (mRawMemory == nullptr)
 			return;
 
@@ -1917,7 +1921,8 @@ namespace NXBasics
 					std::uint32_t pixel;
 					std::memcpy(&pixel, reinterpret_cast<const void*>(pixelAddress), sizeof(pixel));
 
-					pixel = (pixel >> 1) & mask;
+					const auto inverseCoverage = hud ? (((pixel >> 24) / 2u) << 24) : 0u;
+					pixel = ((pixel >> 1) & mask) | inverseCoverage;
 
 					std::memcpy(reinterpret_cast<void*>(pixelAddress), &pixel, sizeof(pixel));
 					pixelAddress += 4u;

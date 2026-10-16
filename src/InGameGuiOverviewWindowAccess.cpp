@@ -7,6 +7,8 @@
 #include "InGameGuiOverviewDisplayAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
 #include "SwitchIdentifiers.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBitmap.h"
 #include "XBobRendering.h"
 #include "XCrtFileAccess.h"
@@ -47,7 +49,31 @@ namespace NC2InGameGuiOverviewDisplay
 			bitmap = bitmap->GetSourceBitmap();
 		}
 		const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
-		NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 0x37, bitmap, NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y - 13u), resources.iconsLeftPalette, 0x80);
+		// Remaster: retain the complete alpha artwork, including its outer shadow.
+		const auto* bounds = static_cast<const NXBasics::SRectangle*>(NXBasics::BobManager_GetBobAreaRectanglePtr(resources.windowBobManager, 0x37));
+		if (bounds == nullptr || bounds->width <= 116 || bounds->height <= 129) return;
+		NXBasics::CBitmap frame(bounds->width, bounds->height, 2);
+		frame.Fill(std::uint32_t{ 0xFF000000 });
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		presentation->SetHudScratchBitmap(&frame);
+		NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 0x37, &frame, -bounds->x, -bounds->y, resources.iconsLeftPalette, 0x80);
+		presentation->SetHudScratchBitmap(nullptr);
+		// Expand the original 112 x 112 opening to 224 x 224 without thickening
+		// the top ornament, right rail or shadow. Preserve all four pixel channels.
+		NXBasics::CBitmap enlarged(bounds->width + 112, bounds->height + 112, 2);
+		const std::int32_t sourceX[] = { 0, 4, 116, bounds->width };
+		const std::int32_t sourceY[] = { 0, 17, 129, bounds->height };
+		const std::int32_t destinationX[] = { 0, 4, 228, bounds->width + 112 };
+		const std::int32_t destinationY[] = { 0, 17, 241, bounds->height + 112 };
+		for (std::int32_t row = 0; row < 3; ++row) for (std::int32_t column = 0; column < 3; ++column)
+		{
+			NXBasics::CBitmap sourcePart(&frame, sourceX[column], sourceY[row], sourceX[column + 1] - sourceX[column], sourceY[row + 1] - sourceY[row]);
+			NXBasics::CBitmap destinationPart(&enlarged, destinationX[column], destinationY[row], destinationX[column + 1] - destinationX[column], destinationY[row + 1] - destinationY[row]);
+			sourcePart.CopyIntoBitmap_FitIn(&destinationPart);
+		}
+		// The map reaches the left/bottom screen edges; the old black padding is
+		// outside the viewport instead of being enlarged along with the image.
+		presentation->CompositeHudImage(&enlarged, bitmap, NXBasics::Runtime_TimeSigned32(x - 4u), NXBasics::Runtime_TimeSigned32(y));
 	}
 
 	// Original function: FUN_004c97ac; XGui_BE_Message_Handle.
@@ -125,8 +151,9 @@ namespace NC2InGameGuiOverviewDisplay
 	// Original function: FUN_004c9708; CWorldOverviewStaticGuiWindow constructor.
 	void* WorldOverviewStaticWindow_Construct(void* window)
 	{
-		const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayHeight) - 120u);
-		const NXBasics::SRectangle rectangle(0, y, 140, 120);
+		// Include the top ornament in hit testing as well as the right rail.
+		const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayHeight) - 241u);
+		const NXBasics::SRectangle rectangle(0, y, 257, 241);
 		NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
 		OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewStaticWindowVirtualTable + 0);
 		std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12);
@@ -144,7 +171,7 @@ namespace NC2InGameGuiOverviewDisplay
 	static void WorldOverviewStaticWindow_AddButtons(void* window)
 	{
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(33132, 1);
-		const NXBasics::SRectangle overviewRectangle(4, 4, 112, 112);
+		const NXBasics::SRectangle overviewRectangle(0, 17, 224, 224);
 		void* element = allocation == nullptr ? nullptr : WorldOverviewElement_Construct(allocation, &overviewRectangle, 0);
 		OverviewWindow_Write(window, 0x74, element);
 		NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -168,7 +195,7 @@ namespace NC2InGameGuiOverviewDisplay
 			if (allocation != nullptr)
 			{
 				const char* text = NC2GuiToolsBase::CGuiBaseStringsManager::GetStringPtr(button.stringArray, button.stringId);
-				const NXBasics::SRectangle rectangle(115, button.y, button.width, button.height);
+				const NXBasics::SRectangle rectangle(223, button.y == 0 ? 13 : button.y * 2 + 9, button.width, button.height);
 				control = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, button.graphics, text, button.command, window);
 			}
 			if (index == 1) OverviewWindow_Write(window, 0x78, control);

@@ -1,6 +1,7 @@
 #include "SwitchIdentifiers.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "X2DDisplay.h"
 #include "XBobRendering.h"
 #include "XCPU.h"
 #include "XCrtFileAccess.h"
@@ -614,14 +615,17 @@ namespace NXBasics
 	// Original function: FUN_0049b930
 	void BobManager_PrintBob_Shadow32(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t /*mode*/)
 	{
-		const auto transform = [] (std::uint32_t pixel) -> std::uint32_t
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
+		const auto transform = [hud] (std::uint32_t pixel) -> std::uint32_t
 		{
+			const auto coverage = hud ? (((pixel >> 24) * 2u / 3u) << 24) : 0u;
+			if (hud) pixel &= 0x00FFFFFF;
 			// Preserve the original masks and blue-channel adjustment.
 			const std::uint32_t upper = ((pixel >> 15) & NXBasics::BitMask::Bits1Through16) / 3u;
 			const std::uint32_t blue = ((pixel & NXBasics::IntegerRange::UInt8Maximum) * 2u) / 3u;
 			const std::uint32_t green = ((pixel >> 7) & NXBasics::BitMask::Bits1Through8) / 3u;
 
-			return (((green | (upper << 8)) << 8) | (blue + ((blue + upper) >> 4)));
+			return (((green | (upper << 8)) << 8) | (blue + ((blue + upper) >> 4))) | coverage;
 		};
 
 		PrintShadowRuns<std::uint32_t>(bobManager, bobId, bitmap, x, y, true, transform);
@@ -745,13 +749,14 @@ namespace NXBasics
 			}
 		}
 
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		const auto blend = [&] (std::uint32_t destination, std::uint32_t source, std::uint32_t alpha, bool fast) -> std::uint32_t
 		{
 			const std::uint32_t inverseAlpha = 256u - alpha;
 
 			if (depth == 2)
 			{
-				const std::uint32_t channelCount = useMmx && fast ? 4u : 3u;
+				const std::uint32_t channelCount = hud || (useMmx && fast) ? 4u : 3u;
 				std::uint32_t result = 0;
 
 				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
@@ -1036,6 +1041,7 @@ namespace NXBasics
 				fastSourceColour = g16BitPixelConverter->PackColor(*colour);
 		}
 
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		const auto blendPixel = [&] (const std::byte* address, std::uint32_t alpha, bool fast)
 		{
 			if (depth == 2)
@@ -1043,7 +1049,7 @@ namespace NXBasics
 				const std::uint32_t destination = readWord(address);
 				const bool mmxPixel = useMmx && fast;
 				const std::uint32_t source = mmxPixel ? fastSourceColour : sourceColour;
-				const std::uint32_t channelCount = mmxPixel ? 4u : 3u;
+				const std::uint32_t channelCount = hud || mmxPixel ? 4u : 3u;
 				std::uint32_t result = 0;
 
 				for (std::uint32_t channel = 0; channel < channelCount; ++channel)

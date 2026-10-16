@@ -7,7 +7,7 @@
 
 namespace NXSys2DApp
 {
-	class CDDDisplay;
+	class CDisplay;
 
 	class CWindow
 	{
@@ -44,12 +44,14 @@ namespace NXSys2DApp
 			return mWindowActive;
 		}
 
+		bool IsMouseCaptureAllowed() const { return mWindowActive && mApplicationActive && !mMouseCaptureSuspended; }
+
 		bool IsInitialized() const
 		{
 			return mInitialized;
 		}
 
-		CDDDisplay* GetDisplay() const
+		CDisplay* GetDisplay() const
 		{
 			return mDisplay;
 		}
@@ -57,7 +59,7 @@ namespace NXSys2DApp
 	private:
 		void l_DeleteDisplay();
 
-		static constexpr const char* WindowClassName = "Funatics Software Application Window";
+		static constexpr const wchar_t* WindowClassName = L"OpenVikings.Remaster.Window";
 
 		// Original function: FUN_0047b638
 		static LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
@@ -66,8 +68,8 @@ namespace NXSys2DApp
 		bool mApplicationActive;        // +0x04
 		bool mWindowActive;             // +0x05
 		bool mInitialized;              // +0x06
-		std::byte mPadding07;            // +0x07
-		CDDDisplay* mDisplay;            // +0x08
+		bool mMouseCaptureSuspended;    // Remaster state in the former padding byte.
+		CDisplay* mDisplay;              // +0x08
 		HINSTANCE mInstance;             // +0x0C
 		int mShowCommand;                // +0x10
 	};

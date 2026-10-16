@@ -24,6 +24,8 @@
 #include "SwitchIdentifiers.h"
 #include "WorldDisplayElementAccess.h"
 #include "XBitmap.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBitmapFileBMP.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -329,9 +331,14 @@ namespace
 		}
 		if (key == 'B')
 		{
-			NXBasics::CFile::FileSystem_Tool_CreateDirectory("screenshots"); char filename[200]; NXBasics::Runtime_PrintString(filename, "screenshots\\c2_%4.4d.bmp", gInGameKeyboardHistory.screenshotCounter++); auto* source = desktop->GetDisplayBitmap(); const auto area = source->GetRectangle();
+			NXBasics::CFile::FileSystem_Tool_CreateDirectory("screenshots"); char filename[200]; NXBasics::Runtime_PrintString(filename, "screenshots\\c2_%4.4d.bmp", gInGameKeyboardHistory.screenshotCounter++); auto* source = desktop->GetDisplayBitmap(); auto area = source->GetRectangle();
+			auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+			if (presentation->IsHudBitmap(source)) { area.width = presentation->GetWidth(); area.height = presentation->GetHeight(); }
 			{
-				NXBasics::CBitmap bitmap(area.width, area.height, 2); source->CopyIntoBitmap(&bitmap, 0, 0); NXBasics::CBitmapFileBMP writer; writer.Open(area.width, area.height, filename); writer.WriteBitmap(&bitmap); writer.Close(); writer.Close();
+				NXBasics::CBitmap bitmap(area.width, area.height, 2);
+				if (presentation->IsHudBitmap(source)) presentation->CopyCompositedFrame(&bitmap);
+				else source->CopyIntoBitmap(&bitmap, 0, 0);
+				NXBasics::CBitmapFileBMP writer; writer.Open(area.width, area.height, filename); writer.WriteBitmap(&bitmap); writer.Close(); writer.Close();
 			} manager->MiscWindows_StringOutputWindow_PrintStringV(StringTool_GetMiscMenuStringPtr(84)); return confirm();
 		}
 		return false;

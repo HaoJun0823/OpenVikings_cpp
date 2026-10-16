@@ -13,6 +13,8 @@ namespace NMasterControlProgram
 	// Original function: FUN_004017a7
 	void CMasterControlProgram::DisplayResolution_SetDirectly(std::int32_t width, std::int32_t height, std::uint32_t depth, bool updateStoredResolution, bool saveOptions, bool applicationFlag)
 	{
+		// Remaster: old saved/intro depth settings no longer select a 16-bit render mode.
+		depth = 32;
 		if (updateStoredResolution)
 		{
 			mDisplayWidth = width;

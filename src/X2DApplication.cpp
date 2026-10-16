@@ -7,305 +7,15 @@
 #include "XMMouseManager.h"
 #include "XSystemManager.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
 #include <cstring>
-#include <ddraw.h>
 #include <new>
-#include <vector>
 #include <Windows.h>
 
 #pragma comment(lib, "Ole32.lib")
-#pragma comment(lib, "Version.lib")
-#pragma comment(lib, "dxguid.lib")
-
-namespace
-{
-	using DirectDrawCreateFunction = HRESULT(WINAPI*)(GUID*, LPDIRECTDRAW*, IUnknown*);
-	using DirectDrawCreateExFunction = HRESULT(WINAPI*)(GUID*, void**, REFIID, IUnknown*);
-
-	// Complete Windows probe region 00554D64..00554D73.
-	struct SFullscreenModeProbe
-	{
-		std::uint32_t width, height, depth; std::uint8_t found; std::byte padding[3];
-	};
-	static SFullscreenModeProbe gFullscreenModeProbe{ };
-
-	// Original function: FUN_00478fe7; enumeration continues after a match.
-	static HRESULT CALLBACK CheckFullscreenDisplayModeCallback(LPDDSURFACEDESC2 description, LPVOID)
-	{
-		constexpr DWORD required = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-		if ((description->dwFlags & required) != required) return DDENUMRET_OK;
-		const auto& format = description->ddpfPixelFormat;
-		std::uint32_t depth;
-		if ((format.dwFlags & DDPF_PALETTEINDEXED8) != 0) depth = 8;
-		else if ((format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 16) depth = 16;
-		else if ((format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 32) depth = 32;
-		else return DDENUMRET_OK;
-		if (description->dwWidth == gFullscreenModeProbe.width && description->dwHeight == gFullscreenModeProbe.height && depth == gFullscreenModeProbe.depth) gFullscreenModeProbe.found = 1;
-		return DDENUMRET_OK;
-	}
-
-	// Original function: FUN_0047a5aa
-	void GetDXVersion(DWORD* directXVersion, DWORD* directXPlatform)
-	{
-		*directXVersion = 0;
-		*directXPlatform = 0;
-
-		OSVERSIONINFOA versionInformation{ };
-		versionInformation.dwOSVersionInfoSize = sizeof(versionInformation);
-
-		if (!GetVersionExA(&versionInformation))
-		{
-			return;
-		}
-
-		if (versionInformation.dwPlatformId == VER_PLATFORM_WIN32_NT)
-		{
-			*directXPlatform = VER_PLATFORM_WIN32_NT;
-
-			if (versionInformation.dwMajorVersion < 4)
-			{
-				return;
-			}
-
-			if (versionInformation.dwMajorVersion == 4)
-			{
-				*directXVersion = 0x0200;
-
-				HMODULE directInputModule = LoadLibraryA("DINPUT.DLL");
-
-				if (directInputModule == nullptr)
-				{
-					OutputDebugStringA("Couldn't LoadLibrary DInput\r\n");
-					return;
-				}
-
-				const FARPROC directInputCreate = GetProcAddress(directInputModule, "DirectInputCreateA");
-
-				FreeLibrary(directInputModule);
-
-				if (directInputCreate == nullptr)
-				{
-					OutputDebugStringA("Couldn't GetProcAddress DInputCreate\r\n");
-					return;
-				}
-
-				*directXVersion = 0x0300;
-				return;
-			}
-
-			// Windows NT 5 and newer continue with the DirectDraw tests below.
-		}
-		else
-		{
-			*directXPlatform = VER_PLATFORM_WIN32_WINDOWS;
-		}
-
-		HMODULE directDrawModule = LoadLibraryA("DDRAW.DLL");
-
-		if (directDrawModule == nullptr)
-		{
-			*directXPlatform = 0;
-			return;
-		}
-
-		const auto directDrawCreate = reinterpret_cast<DirectDrawCreateFunction>(GetProcAddress(directDrawModule, "DirectDrawCreate"));
-
-		if (directDrawCreate == nullptr)
-		{
-			*directXPlatform = 0;
-			FreeLibrary(directDrawModule);
-			OutputDebugStringA("Couldn't LoadLibrary DDraw\r\n");
-			return;
-		}
-
-		IDirectDraw* directDraw = nullptr;
-
-		if (FAILED(directDrawCreate(nullptr, &directDraw, nullptr)) || directDraw == nullptr)
-		{
-			*directXPlatform = 0;
-			FreeLibrary(directDrawModule);
-			OutputDebugStringA("Couldn't create DDraw\r\n");
-			return;
-		}
-
-		*directXVersion = 0x0100;
-
-		IDirectDraw2* directDraw2 = nullptr;
-
-		if (FAILED(directDraw->QueryInterface(IID_IDirectDraw2, reinterpret_cast<void**>(&directDraw2))))
-		{
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			OutputDebugStringA("Couldn't QI DDraw2\r\n");
-			return;
-		}
-
-		directDraw2->Release();
-		*directXVersion = 0x0200;
-
-		HMODULE directInputModule = LoadLibraryA("DINPUT.DLL");
-
-		if (directInputModule == nullptr)
-		{
-			OutputDebugStringA("Couldn't LoadLibrary DInput\r\n");
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		const FARPROC directInputCreate = GetProcAddress(directInputModule, "DirectInputCreateA");
-		FreeLibrary(directInputModule);
-
-		if (directInputCreate == nullptr)
-		{
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			OutputDebugStringA("Couldn't GetProcAddress DInputCreate\r\n");
-			return;
-		}
-
-		*directXVersion = 0x0300;
-
-		DDSURFACEDESC surfaceDescription{ };
-		surfaceDescription.dwSize = sizeof(surfaceDescription);
-		surfaceDescription.dwFlags = DDSD_CAPS;
-		surfaceDescription.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-
-		if (FAILED(directDraw->SetCooperativeLevel(nullptr, DDSCL_NORMAL)))
-		{
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			*directXVersion = 0;
-			OutputDebugStringA("Couldn't Set coop level\r\n");
-			return;
-		}
-
-		IDirectDrawSurface* surface = nullptr;
-
-		if (FAILED(directDraw->CreateSurface(&surfaceDescription, &surface, nullptr)) || surface == nullptr)
-		{
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			*directXVersion = 0;
-			OutputDebugStringA("Couldn't CreateSurface\r\n");
-			return;
-		}
-
-		IDirectDrawSurface3* surface3 = nullptr;
-
-		if (FAILED(surface->QueryInterface(IID_IDirectDrawSurface3, reinterpret_cast<void**>(&surface3))))
-		{
-			surface->Release();
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		*directXVersion = 0x0500;
-		surface3->Release();
-
-		IDirectDrawSurface4* surface4 = nullptr;
-
-		if (FAILED(surface->QueryInterface(IID_IDirectDrawSurface4, reinterpret_cast<void**>(&surface4))))
-		{
-			surface->Release();
-			directDraw->Release();
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		*directXVersion = 0x0600;
-		surface4->Release();
-		surface->Release();
-		directDraw->Release();
-
-		// CLSID_DirectMusic and IID_IDirectMusic from the legacy DirectMusic API.
-		constexpr GUID directMusicClassId = { 0x636B9F10, 0x0C7D, 0x11D1,{ 0x95, 0xB2, 0, 0x20, 0xAF, 0xDC, 0x74, 0x21 } };
-		constexpr GUID directMusicInterfaceId = { 0x6536115A, 0x7B2D, 0x11D2,{ 0xBA, 0x18, 0, 0, 0xF8, 0x75, 0xAC, 0x12 } };
-
-		const HRESULT initializeResult = CoInitialize(nullptr);
-		IUnknown* directMusic = nullptr;
-
-		if (SUCCEEDED(CoCreateInstance(directMusicClassId, nullptr, CLSCTX_INPROC_SERVER, directMusicInterfaceId, reinterpret_cast<void**>(&directMusic))))
-		{
-			*directXVersion = 0x0601;
-			directMusic->Release();
-		}
-		else
-		{
-			OutputDebugStringA("Couldn't create CLSID_DirectMusic\r\n");
-
-			if (SUCCEEDED(initializeResult))
-			{
-				CoUninitialize();
-			}
-
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		if (SUCCEEDED(initializeResult))
-		{
-			CoUninitialize();
-		}
-
-		DWORD versionHandle = 0;
-		const DWORD versionInfoSize = GetFileVersionInfoSizeA("dplayx.dll", &versionHandle);
-
-		if (versionInfoSize == 0)
-		{
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		std::vector<std::byte> versionInfo(versionInfoSize);
-
-		if (!GetFileVersionInfoA("dplayx.dll", 0, versionInfoSize, versionInfo.data()))
-		{
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		VS_FIXEDFILEINFO* fixedVersionInfo = nullptr;
-		UINT fixedVersionInfoSize = 0;
-
-		if (!VerQueryValueA(versionInfo.data(), "\\", reinterpret_cast<void**>(&fixedVersionInfo), &fixedVersionInfoSize) || fixedVersionInfo == nullptr)
-		{
-			FreeLibrary(directDrawModule);
-			return;
-		}
-
-		if (fixedVersionInfo->dwFileVersionMS > 0x00040006 || (fixedVersionInfo->dwFileVersionMS == 0x00040006 && fixedVersionInfo->dwFileVersionLS >= 0x00030206))
-		{
-			*directXVersion = 0x0602;
-		}
-
-		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
-
-		if (directDrawCreateEx != nullptr)
-		{
-			IDirectDraw7* directDraw7 = nullptr;
-
-			if (SUCCEEDED(directDrawCreateEx(nullptr, reinterpret_cast<void**>(&directDraw7), IID_IDirectDraw7, nullptr)) && directDraw7 != nullptr)
-			{
-				*directXVersion = 0x0700;
-				directDraw7->Release();
-			}
-		}
-
-		FreeLibrary(directDrawModule);
-
-		HMODULE direct3D8Module = LoadLibraryA("D3D8.DLL");
-
-		if (direct3D8Module != nullptr)
-		{
-			*directXVersion = 0x0800;
-			FreeLibrary(direct3D8Module);
-		}
-	}
-}
 
 namespace NXSys2DApp
 {
@@ -331,11 +41,11 @@ namespace NXSys2DApp
 
 		screenWidth = 800;
 		screenHeight = 600;
-		screenDepth = 16;
+		screenDepth = 32;
 
 		minimumScreenWidth = 640;
 		minimumScreenHeight = 400;
-		minimumScreenDepth = 8;
+		minimumScreenDepth = 32;
 
 		maximumScreenWidth = 1600;
 		maximumScreenHeight = 1200;
@@ -368,7 +78,6 @@ namespace NXSys2DApp
 
 		mMouseWheelMessage = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
 
-		GetDXVersion(&mDirectXVersion, &mDirectXPlatform);
 		l_GetDesktopDisplayMode();
 		l_GetFullscreenDisplayModes();
 	}
@@ -381,7 +90,7 @@ namespace NXSys2DApp
 	// Original function: FUN_00478c02
 	bool CApplication::SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation)
 	{
-		CDDDisplay* display = mWindow->GetDisplay();
+		CDisplay* display = GetDisplay();
 
 		if (display == nullptr)
 		{
@@ -390,9 +99,9 @@ namespace NXSys2DApp
 
 		if (!skipDisplayModeValidation)
 		{
-			const bool fullscreen = IsFullscreen();
+			const bool targetFullscreen = IsFullscreen();
 
-			if (!CanDisplayModeBeActivated(fullscreen, static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), depth))
+			if (!CanDisplayModeBeActivated(targetFullscreen, static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), depth))
 			{
 				NXSysMisc::XWS_WarningBoxV("NXSys2DApp::CApplication::SetDisplayMode\n\n display mode not available (%d*%d-%d)", width, height, depth);
 				return false;
@@ -406,7 +115,7 @@ namespace NXSys2DApp
 			return false;
 		}
 
-		NXSysMouseManager::CMouseManager::sTheObjectPtr->ResetWindowsMouseState();
+		if (auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr) mouse->ResetWindowsMouseState();
 
 		return true;
 	}
@@ -476,121 +185,14 @@ namespace NXSys2DApp
 		return mWindow->IsApplicationActive();
 	}
 
-	// Original function: FUN_00478d16
-	int CApplication::GetDisplayWidth() const
-	{
-		const auto* displaySystem = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-		const auto* displayData = *reinterpret_cast<std::byte* const*>(displaySystem + 0x08);
-
-		if (displayData == nullptr)
-		{
-			return 0;
-		}
-
-		return *reinterpret_cast<const std::int32_t*>(displayData + 0x04);
-	}
-
-	// Original function: FUN_00478d27
-	int CApplication::GetDisplayHeight() const
-	{
-		const auto* displaySystem = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-		const auto* displayData = *reinterpret_cast<std::byte* const*>(displaySystem + 0x08);
-
-		if (displayData == nullptr)
-		{
-			return 0;
-		}
-
-		return *reinterpret_cast<const std::int32_t*>(displayData + 0x08);
-	}
-
-	// Original function: FUN_00478d38
-	int CApplication::GetWindowOffsetX() const
-	{
-		const auto* window = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-
-		if (window == nullptr)
-		{
-			return 0;
-		}
-
-		const auto* displayBackend = *reinterpret_cast<std::byte* const*>(window + 0x08);
-
-		if (displayBackend == nullptr)
-		{
-			return 0;
-		}
-
-		const bool fullscreen = *reinterpret_cast<const bool*>(displayBackend + 0x34);
-
-		if (fullscreen)
-		{
-			return 0;
-		}
-
-		return *reinterpret_cast<const std::int32_t*>(displayBackend + 0x38);
-	}
-
-	// Original function: FUN_00478d4b
-	int CApplication::GetWindowOffsetY() const
-	{
-		const auto* window = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-
-		if (window == nullptr)
-		{
-			return 0;
-		}
-
-		const auto* displayBackend = *reinterpret_cast<std::byte* const*>(window + 0x08);
-
-		if (displayBackend == nullptr)
-		{
-			return 0;
-		}
-
-		const bool fullscreen = *reinterpret_cast<const bool*>(displayBackend + 0x34);
-
-		if (fullscreen)
-		{
-			return 0;
-		}
-
-		return *reinterpret_cast<const std::int32_t*>(displayBackend + 0x3C);
-	}
-
-	// Original function: FUN_00478d5e
-	int CApplication::GetDisplayDepth() const
-	{
-		const auto* displaySystem = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-		const auto* displayData = *reinterpret_cast<std::byte* const*>(displaySystem + 0x08);
-
-		if (displayData == nullptr)
-		{
-			return 0;
-		}
-
-		return *reinterpret_cast<const std::int32_t*>(displayData + 0x0C);
-	}
-
-	// Original function: FUN_00478d6f
-	bool CApplication::IsFullscreen() const
-	{
-		const auto* displaySystem = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
-
-		if (displaySystem == nullptr)
-		{
-			return false;
-		}
-
-		const auto* displayData = *reinterpret_cast<std::byte* const*>(displaySystem + 0x08);
-
-		if (displayData == nullptr)
-		{
-			return false;
-		}
-
-		return *reinterpret_cast<const bool*>(displayData + 0x34);
-	}
+	// Remaster accessors use the backend interface rather than DirectDraw offsets.
+	CDisplay* CApplication::GetDisplay() const { return mWindow != nullptr ? mWindow->GetDisplay() : nullptr; }
+	int CApplication::GetDisplayWidth() const { const auto* display = GetDisplay(); return display != nullptr ? display->GetWidth() : 0; }
+	int CApplication::GetDisplayHeight() const { const auto* display = GetDisplay(); return display != nullptr ? display->GetHeight() : 0; }
+	int CApplication::GetDisplayDepth() const { const auto* display = GetDisplay(); return display != nullptr ? display->GetDepth() : 0; }
+	bool CApplication::IsFullscreen() const { const auto* display = GetDisplay(); return display != nullptr && display->IsFullscreen(); }
+	int CApplication::GetWindowOffsetX() const { const auto* display = GetDisplay(); return display != nullptr ? display->GetWindowOffsetX() : 0; }
+	int CApplication::GetWindowOffsetY() const { const auto* display = GetDisplay(); return display != nullptr ? display->GetWindowOffsetY() : 0; }
 
 	// Original function: FUN_00478d8a
 	void CApplication::l_GetDesktopDisplayMode()
@@ -612,156 +214,48 @@ namespace NXSys2DApp
 		mDisplayModeData.desktopDepth = 16;
 	}
 
-	// Original function: FUN_00478ddf
+	// Remaster: these are internal render sizes, independent of monitor modes.
 	void CApplication::l_GetFullscreenDisplayModes()
 	{
 		mDisplayModeData.fullscreenDisplayModeCount = 0;
-
-		HMODULE directDrawModule = LoadLibraryA("DDRAW.DLL");
-
-		if (directDrawModule == nullptr)
+		const auto add = [this](std::uint32_t width, std::uint32_t height)
 		{
-			return;
-		}
-
-		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
-
-		if (directDrawCreateEx != nullptr)
-		{
-			IDirectDraw7* directDraw = nullptr;
-
-			if (SUCCEEDED(directDrawCreateEx(nullptr, reinterpret_cast<void**>(&directDraw), IID_IDirectDraw7, nullptr)) && directDraw != nullptr)
+			if (!CDisplay::IsSupportedMode(width, height, 32)) return;
+			if (width < static_cast<std::uint32_t>(minimumScreenWidth) || height < static_cast<std::uint32_t>(minimumScreenHeight) || width > static_cast<std::uint32_t>(maximumScreenWidth) || height > static_cast<std::uint32_t>(maximumScreenHeight)) return;
+			for (std::uint32_t index = 0; index < mDisplayModeData.fullscreenDisplayModeCount; ++index)
 			{
-				directDraw->EnumDisplayModes(0, nullptr, &mDisplayModeData, &CApplication::l_EnumDisplayModesCallback);
-				directDraw->Release();
+				const auto& mode = mDisplayModeData.fullscreenDisplayModes[index];
+				if (mode.width == width && mode.height == height) return;
 			}
-		}
-
-		FreeLibrary(directDrawModule);
+			if (mDisplayModeData.fullscreenDisplayModeCount < 80) mDisplayModeData.fullscreenDisplayModes[mDisplayModeData.fullscreenDisplayModeCount++] = { width, height, 32 };
+		};
+		add(screenWidth, screenHeight);
+		add(mDisplayModeData.desktopWidth, mDisplayModeData.desktopHeight);
+		// Preserve usable game sizes even when a modern monitor does not advertise them.
+		for (const auto& mode : { SDisplayMode{640, 480, 0}, SDisplayMode{800, 600, 0}, SDisplayMode{1024, 768, 0}, SDisplayMode{1280, 720, 0}, SDisplayMode{1280, 1024, 0}, SDisplayMode{1600, 900, 0}, SDisplayMode{1600, 1200, 0} }) add(mode.width, mode.height);
+		DEVMODEW mode{ };
+		mode.dmSize = sizeof(mode);
+		for (DWORD index = 0; EnumDisplaySettingsW(nullptr, index, &mode); ++index) add(mode.dmPelsWidth, mode.dmPelsHeight);
+		const auto bySize = [](const SDisplayMode& left, const SDisplayMode& right)
+		{
+			const std::uint64_t leftPixels = static_cast<std::uint64_t>(left.width) * left.height;
+			const std::uint64_t rightPixels = static_cast<std::uint64_t>(right.width) * right.height;
+			if (leftPixels != rightPixels) return leftPixels < rightPixels;
+			if (left.width != right.width) return left.width < right.width;
+			return left.height < right.height;
+		};
+		std::sort(mDisplayModeData.fullscreenDisplayModes, mDisplayModeData.fullscreenDisplayModes + mDisplayModeData.fullscreenDisplayModeCount, bySize);
 	}
 
-	// Original function: FUN_00478e4e
-	HRESULT CALLBACK CApplication::l_EnumDisplayModesCallback(LPDDSURFACEDESC2 surfaceDescription, LPVOID context)
-	{
-		auto* displayModeData = static_cast<SDisplayModeData*>(context);
-
-		if (displayModeData->fullscreenDisplayModeCount == 80)
-		{
-			return DDENUMRET_CANCEL;
-		}
-
-		constexpr DWORD requiredFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
-
-		if ((surfaceDescription->dwFlags & requiredFlags) != requiredFlags)
-		{
-			return DDENUMRET_OK;
-		}
-
-		DWORD displayDepth = 0;
-		const DDPIXELFORMAT& pixelFormat = surfaceDescription->ddpfPixelFormat;
-
-		if ((pixelFormat.dwFlags & DDPF_PALETTEINDEXED8) != 0)
-		{
-			displayDepth = 8;
-		}
-		else if ((pixelFormat.dwFlags & DDPF_RGB) != 0 && pixelFormat.dwRGBBitCount == 16)
-		{
-			displayDepth = 16;
-		}
-		else if ((pixelFormat.dwFlags & DDPF_RGB) != 0 && pixelFormat.dwRGBBitCount == 32)
-		{
-			displayDepth = 32;
-		}
-		else
-		{
-			return DDENUMRET_OK;
-		}
-
-		const DWORD displayWidth = surfaceDescription->dwWidth;
-		const DWORD displayHeight = surfaceDescription->dwHeight;
-		const CApplication* application = sTheObjectPtr;
-
-		if (displayWidth < static_cast<DWORD>(application->minimumScreenWidth) ||
-			displayHeight < static_cast<DWORD>(application->minimumScreenHeight) ||
-			displayDepth < static_cast<DWORD>(application->minimumScreenDepth) ||
-			displayWidth > static_cast<DWORD>(application->maximumScreenWidth) ||
-			displayHeight > static_cast<DWORD>(application->maximumScreenHeight) ||
-			displayDepth > static_cast<DWORD>(application->maximumScreenDepth))
-		{
-			return DDENUMRET_OK;
-		}
-
-		SDisplayMode& displayMode = displayModeData->fullscreenDisplayModes[displayModeData->fullscreenDisplayModeCount];
-
-		displayMode.width = displayWidth;
-		displayMode.height = displayHeight;
-		displayMode.depth = displayDepth;
-
-		++displayModeData->fullscreenDisplayModeCount;
-
-		return DDENUMRET_OK;
-	}
-
-	// Original function: FUN_00478f52; this probes DirectDraw rather than cached modes.
 	bool CApplication::CheckFullscreenDisplayMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth) const
 	{
-		IDirectDraw7* directDraw = nullptr;
-		HMODULE module = LoadLibraryA("DDRAW.DLL");
-		if (module == nullptr)
-		{
-			FreeLibrary(nullptr);
-			return false;
-		}
-		const auto create = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(module, "DirectDrawCreateEx"));
-		if (create == nullptr || FAILED(create(nullptr, reinterpret_cast<void**>(&directDraw), IID_IDirectDraw7, nullptr)))
-		{
-			FreeLibrary(module);
-			return false;
-		}
-		gFullscreenModeProbe.width = width;
-		gFullscreenModeProbe.height = height;
-		gFullscreenModeProbe.depth = depth;
-		gFullscreenModeProbe.found = 0;
-		directDraw->EnumDisplayModes(0, nullptr, nullptr, &CheckFullscreenDisplayModeCallback);
-		directDraw->Release();
-		FreeLibrary(module);
-		return gFullscreenModeProbe.found != 0;
+		return CDisplay::IsSupportedMode(width, height, depth);
 	}
 
-	// Original function: FUN_00478efa
-	bool CApplication::CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const
+	bool CApplication::CanDisplayModeBeActivated(bool targetFullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const
 	{
-		if (!fullscreen)
-		{
-			if (width > mDisplayModeData.desktopWidth)
-			{
-				return false;
-			}
-
-			if (height > mDisplayModeData.desktopHeight)
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		if (mDisplayModeData.fullscreenDisplayModeCount == 0)
-		{
-			return true;
-		}
-
-		for (std::uint32_t index = 0; index < mDisplayModeData.fullscreenDisplayModeCount; ++index)
-		{
-			const SDisplayMode& displayMode = mDisplayModeData.fullscreenDisplayModes[index];
-
-			if (displayMode.width == width && displayMode.height == height && displayMode.depth == depth)
-			{
-				return true;
-			}
-		}
-
-		return false;
+		(void) targetFullscreen;
+		return CDisplay::IsSupportedMode(width, height, depth);
 	}
 
 	// Original function: FUN_00479169
@@ -783,39 +277,6 @@ namespace NXSys2DApp
 	// Original function: FUN_004791a6
 	bool CApplication::StartUp()
 	{
-		if (mDirectXVersion < 0x0700)
-		{
-			NXSysMisc::XWS_WarningBox("NXSysMisc::CApplication::StartUp\n\n DirectX 7.0 required");
-			return false;
-		}
-
-		HMODULE directDrawModule = LoadLibraryA("DDRAW.DLL");
-
-		if (directDrawModule == nullptr)
-		{
-			return false;
-		}
-
-		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
-
-		if (directDrawCreateEx == nullptr)
-		{
-			FreeLibrary(directDrawModule);
-			return false;
-		}
-
-		IDirectDraw7* directDraw = nullptr;
-		const HRESULT result = directDrawCreateEx(nullptr, reinterpret_cast<void**>(&directDraw), IID_IDirectDraw7, nullptr);
-
-		if (FAILED(result) || directDraw == nullptr)
-		{
-			FreeLibrary(directDrawModule);
-			return false;
-		}
-
-		directDraw->Release();
-		FreeLibrary(directDrawModule);
-
 		mWindow = new (std::nothrow) CWindow(instance, showCommand, screenWidth, screenHeight, screenDepth, fullscreen);
 
 		if (mWindow == nullptr || !mWindow->IsInitialized())
@@ -834,11 +295,11 @@ namespace NXSys2DApp
 	// Original function: FUN_0047929c
 	void CApplication::ShutDown()
 	{
-		delete mWindow;
-		mWindow = nullptr;
-
+		// Unregister foreground input before destroying its target HWND.
 		delete NXSysMouseManager::CMouseManager::sTheObjectPtr;
 		delete NXSysKeyManager::CKeyManager::sTheObjectPtr;
+		delete mWindow;
+		mWindow = nullptr;
 	}
 
 	// Original function: FUN_00479a54

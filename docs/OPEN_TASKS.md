@@ -2,6 +2,16 @@
 
 Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_STATE.md) has no open entries. Work below concerns semantic recovery, verification or deliberate later changes.
 
+## Active remaster work
+
+- The user accepted the current visual output on October 16, 2026 after the cursor flicker correction. The broader validation scenarios below remain targeted follow-ups rather than claimed completed checks.
+
+- The [window/presentation modernization](REMASTER_WINDOW_PRESENTATION.md) is implemented in source on `remaster`. On explicit build request, build/link Win32 and validate image/video/loading/menu transitions while confirming unchanged desktop resolution and refresh rate.
+- Validate borderless mouse confinement, edge scrolling, Alt+Enter, Alt+Tab, minimization, window resizing, mixed-DPI/multiple monitors, RGB565/BGRX colors and both cursor modes. Runtime results are pending.
+- In-game HUD and main-menu controls use a 768-pixel reference-height GUI plane over native-resolution scenery. The small minimap is 224 x 224 GUI pixels, with a thinner complete alpha frame/shadow and no left/bottom padding. Compare sizes at 1024 x 768 and 1440p, including tooltips, dialog dragging, map clicks, selection, campaign maps, menu/game transitions and composed screenshot export. Syntax/shader checks pass; runtime confirmation is pending.
+- Custom hardware cursors and loading indicators scale against the 768-pixel reference; films stretch to the full client area with bilinear filtering, excluding the original intro's encoded mattes. Check cursor hotspots/modes and resize behavior, loading transitions, video playback/skipping, and minimap top-frame click blocking. The narrow internal minimap edge is retained by user preference.
+- The MPEG decoder remains a separate legacy multimedia stream with nonexclusive offscreen surfaces; plan its replacement separately if removing all DirectDraw dependencies is desired.
+
 ## Current reconstruction work
 
 - Resolve [134 explicit member regions](UNKNOWN_MEMBER_TRIAGE.csv) and [12 numeric sites](RESIDUAL_ACCESS_EVIDENCE_LIMITS.md) where new Windows evidence permits. Also investigate the two transfer `path24` strings, the second network event queue/lock and serialized font words. Do not rename on shape alone.

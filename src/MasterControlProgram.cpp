@@ -21,6 +21,7 @@
 #include "XSystemMouseCursor.h"
 
 #include <cstddef>
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <new>
@@ -131,31 +132,24 @@ namespace NMasterControlProgram
 		applicationControl.commandLine = commandLine;
 		applicationControl.showCommand = showCommand;
 		applicationControl.fullscreen = true;
-		applicationControl.fullscreenToggle = false;
+		applicationControl.fullscreenToggle = true;
 
 		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_fullscreen"))
 		{
 			applicationControl.fullscreen = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("gfx_fullscreen") != 0;
 		}
 
-		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_fullscreen_toggle") ||
-			!applicationControl.fullscreen)
-		{
-			applicationControl.fullscreenToggle = true;
-		}
-
 		applicationControl.screenWidth = 800;
 		applicationControl.screenHeight = 600;
-		applicationControl.screenDepth = 16;
+		applicationControl.screenDepth = 32;
 
 		applicationControl.minimumScreenWidth = 800;
 		applicationControl.minimumScreenHeight = 600;
-		applicationControl.minimumScreenDepth = 16;
+		applicationControl.minimumScreenDepth = 32;
 
 		applicationControl.maximumScreenWidth = 10000;
 		applicationControl.maximumScreenHeight = 10000;
-		// Requested extension: expose the existing native 32-bit display paths.
-		// Windows Game.exe limits the selectable gameplay modes to 16 bits here.
+		// Remaster: all selectable render sizes use 32-bit color.
 		applicationControl.maximumScreenDepth = 32;
 
 		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_screen_width"))
@@ -166,11 +160,6 @@ namespace NMasterControlProgram
 		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_screen_height"))
 		{
 			applicationControl.screenHeight = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("gfx_screen_height");
-		}
-
-		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_screen_depth"))
-		{
-			applicationControl.screenDepth = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("gfx_screen_depth");
 		}
 
 		new (std::nothrow) NXSys2DApp::CApplication(applicationControl);
@@ -511,25 +500,13 @@ namespace NMasterControlProgram
 
 		++mProgressBarValue;
 
-		std::uint32_t heightBits;
-		std::uint32_t widthBits;
-
-		std::memcpy(&heightBits, static_cast<const std::byte*>(progressBar) + 0x14, sizeof(heightBits));
-		std::memcpy(&widthBits, static_cast<const std::byte*>(progressBar) + 0x10, sizeof(widthBits));
-
-		// Preserve 32-bit subtraction before interpreting the signed coordinates.
-		widthBits -= 84u;
-		heightBits -= 6u;
-
-		std::int32_t widthDifference;
-		std::int32_t top;
-
-		std::memcpy(&widthDifference, &widthBits, sizeof(widthDifference));
-		std::memcpy(&top, &heightBits, sizeof(top));
-
-		const std::int32_t left = widthDifference / 2;
-
-		NXBasics::SRectangle rectangle(left, top, 84, 4);
+		const auto& area = static_cast<NXBasics::CBitmap*>(progressBar)->GetRectangle();
+		// Remaster: scale the original 84 x 4 indicator and its bottom spacing
+		// against the same 768-pixel reference height as the menu and in-game HUD.
+		const std::int32_t barWidth = (std::min)(area.width, (std::max)(1, MulDiv(84, area.height, 768)));
+		const std::int32_t barHeight = (std::max)(1, MulDiv(4, area.height, 768));
+		const std::int32_t bottomSpacing = MulDiv(2, area.height, 768);
+		NXBasics::SRectangle rectangle((area.width - barWidth) / 2, area.height - bottomSpacing - barHeight, barWidth, barHeight);
 
 		// Preserve the original explicit destruction point.
 		alignas(NXBasics::CBitmap) std::byte bitmapStorage[sizeof(NXBasics::CBitmap)];
@@ -553,13 +530,15 @@ namespace NMasterControlProgram
 		const std::uint32_t doubledValue = mProgressBarValue << 1;
 		const std::int32_t position = static_cast<std::int32_t>(doubledValue % 84u);
 
-		for (std::int32_t offset = -7; offset <= 7; ++offset)
+		for (std::int32_t column = 0; column < barWidth; ++column)
 		{
+			const std::int32_t offset = column * 84 / barWidth - position;
 			const std::int32_t distance = offset < 0 ? -offset : offset;
+			if (distance > 7) continue;
 			const std::uint8_t intensity = static_cast<std::uint8_t>(255 - distance * 14);
 
 			NXBasics::SColorRGB lineColor(intensity, intensity, intensity);
-			temporaryBitmap->Draw_VerticalLine(position + offset, 0, 4, lineColor);
+			temporaryBitmap->Draw_VerticalLine(column, 0, barHeight, lineColor);
 		}
 
 		temporaryBitmap->~CBitmap();

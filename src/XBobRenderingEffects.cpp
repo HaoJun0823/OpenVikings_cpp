@@ -1,5 +1,6 @@
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "X2DDisplay.h"
 #include "XBobRendering.h"
 #include "XCPU.h"
 #include "XCrtFileAccess.h"
@@ -246,6 +247,7 @@ namespace NXBasics
 	// Original function: FUN_00466d39
 	void BobManager_PrintBob_UsingShadedAlpha(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette, std::int32_t brightness)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		BobDrawRegion region;
 		if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 4u)
 			return;
@@ -300,6 +302,7 @@ namespace NXBasics
 					result += channel == 2 ? limited >> 8 : (limited >> 8) & mask;
 				}
 			}
+			if (hud && depth == 2u) result = (result & 0x00FFFFFF) | ((((BobRead<std::uint32_t>(destination) >> 24) * (256u - alpha)) >> 8) << 24);
 			std::memcpy(destination, &result, depth == 1u ? 2u : 4u);
 		});
 		_mm_empty();
@@ -368,6 +371,7 @@ namespace NXBasics
 	// Original function: FUN_0049c80f
 	void BobManager_PrintBob_FX_DrawArea(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::int32_t strength)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		BobDrawRegion region;
 		if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || (region.type != 1u && region.type != 4u))
 			return;
@@ -387,7 +391,8 @@ namespace NXBasics
 			const std::uint32_t red = (((background & redMask) * inverseAlpha + (foreground & redMask) * alpha) >> 8) & redMask;
 			const std::uint32_t green = (((background & middleMask) * inverseAlpha + (foreground & middleMask) * alpha) >> 8) & middleMask;
 			const std::uint32_t blue = ((background & blueMask) * inverseAlpha + (foreground & blueMask) * alpha) >> 8;
-			const std::uint32_t result = red + green + blue;
+			const std::uint32_t coverage = hud && depth == 2u ? ((((background >> 24) * inverseAlpha) >> 8) << 24) : 0u;
+			const std::uint32_t result = (red + green + blue) | coverage;
 			std::memcpy(destination, &result, depth == 1u ? 2u : 4u);
 		});
 	}
@@ -426,6 +431,7 @@ namespace NXBasics
 	// Original function: FUN_0049d3e8; Windows blends only the inclusive source-byte range.
 	void BobManager_PrintBob_Glow_AddColor_OnlyBobByteRange(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::uint32_t strength, std::uint8_t firstIndex, std::uint8_t lastIndex)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		BobDrawRegion region;
 		if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1) return;
 		const auto depth = BobRead<std::uint32_t>(bitmap, 4);
@@ -439,7 +445,8 @@ namespace NXBasics
 			const auto index = BobRead<std::uint8_t>(source);
 			if (index < firstIndex || index > lastIndex) return;
 			const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
-			const auto result = BlendPackedColour(background, foreground, strength, inverse, redMask, greenMask, redMask);
+			auto result = BlendPackedColour(background, foreground, strength, inverse, redMask, greenMask, redMask);
+			if (hud && depth == 2u) result |= ((((background >> 24) * inverse) >> 8) << 24);
 			std::memcpy(destination, &result, depth == 1 ? 2u : 4u);
 		});
 	}
@@ -447,6 +454,7 @@ namespace NXBasics
 	// Original function: FUN_0046467d; arbitrary opacity, scalar and MMX branches.
 	void BobManager_PrintBob_UsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::uint32_t strength, std::int32_t x, std::int32_t y, CPalette* palette)
 	{
+		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
 		BobDrawRegion region;
 		if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1) return;
 		const auto depth = BobRead<std::uint32_t>(bitmap, 4);
@@ -489,7 +497,8 @@ namespace NXBasics
 				const auto foreground = depth == 1 ? BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source) * 2u) : BobRead<std::uint32_t>(table, BobRead<std::uint8_t>(source) * 4u);
 				const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
 				const auto inverseStrength = (depth == 1 && !mmx && region.wasClipped ? 255u : 256u) - strength;
-				const auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned, greenMask, depth == 1 ? NXBasics::Rgb565::RedProductMask : NXBasics::Rgb888::RedMaskUnsigned);
+				auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned, greenMask, depth == 1 ? NXBasics::Rgb565::RedProductMask : NXBasics::Rgb888::RedMaskUnsigned);
+				if (hud && depth == 2u) result |= ((((background >> 24) * inverseStrength) >> 8) << 24);
 				std::memcpy(destination, &result, depth == 1 ? 2u : 4u);
 			}
 		});

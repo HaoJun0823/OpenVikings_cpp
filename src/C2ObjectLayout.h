@@ -5270,13 +5270,6 @@ namespace NC2Layout
 		inline constexpr auto Window = 0x4C;
 	}
 
-	namespace DirectDrawDisplayOffset
-	{
-		inline constexpr auto BackSurface = 0x20;
-
-		inline constexpr auto DirectDraw = 0x18;
-	}
-
 	namespace FontOffset
 	{
 		inline constexpr auto Height = 8;

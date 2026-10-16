@@ -241,7 +241,7 @@ namespace NC2InGameGuiMiscWindows
 						entry.y = static_cast<std::int32_t>(index >> 1) * (entry.height + 2);
 						const bool selected = mode.width == static_cast<std::uint32_t>(app->GetDisplayWidth()) && mode.height == static_cast<std::uint32_t>(app->GetDisplayHeight()) && mode.depth == static_cast<std::uint32_t>(app->GetDisplayDepth());
 						char caption[100];
-						NXBasics::Runtime_PrintString(caption, "%d*%d/%d", mode.width, mode.height, mode.depth);
+						NXBasics::Runtime_PrintString(caption, "%u x %u", mode.width, mode.height);
 						BaseListBoxElement_Element_Add(list, nullptr, makeButton(entry, 0, SwitchIds::OptionsCommandRange::FirstResolution + index, true, selected, caption));
 					}
 					addList(rectangle, list);

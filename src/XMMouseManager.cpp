@@ -1,4 +1,5 @@
 #include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XBasicTypes.h"
 #include "XCrtFileAccess.h"
 #include "XMMouseManager.h"
@@ -37,13 +38,14 @@ namespace NXSysMouseManager
 		bool HasMouseFocus()
 		{
 			const auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
-			return application != nullptr && application->IsApplicationActive() && GetForegroundWindow() == application->GetWindowHandle();
+			return application != nullptr && application->IsMouseCaptureAllowed() && !IsIconic(application->GetWindowHandle()) && GetForegroundWindow() == application->GetWindowHandle();
 		}
 
 		bool MayConstrainCursor()
 		{
-			// A suspended process cannot release a cursor clip; absolute devices must not be warped.
-			return HasMouseFocus() && !IsDebuggerPresent() && !gRawMouse.absolutePositionValid;
+			// A suspended process cannot release a cursor clip. Absolute devices may
+			// be confined to the image, but must never be warped to a single pixel.
+			return HasMouseFocus() && !IsDebuggerPresent();
 		}
 
 		void ClearRawMovement()
@@ -195,8 +197,11 @@ namespace NXSysMouseManager
 			return;
 		}
 
-		const int mouseX = cursorPosition.x - application->GetWindowOffsetX();
-		const int mouseY = cursorPosition.y - application->GetWindowOffsetY();
+		const auto* display = application->GetDisplay();
+		if (display == nullptr) return;
+		const POINT gamePosition = display->ScreenToGame(cursorPosition);
+		const int mouseX = gamePosition.x;
+		const int mouseY = gamePosition.y;
 		const int fallbackDeltaX = gRawMouse.cursorPositionValid ? cursorPosition.x - gRawMouse.cursorPosition.x : 0;
 		const int fallbackDeltaY = gRawMouse.cursorPositionValid ? cursorPosition.y - gRawMouse.cursorPosition.y : 0;
 
@@ -207,7 +212,7 @@ namespace NXSysMouseManager
 			const int deltaY = gRawMouse.registered ? NXBasics::Runtime_TimeSigned32(gRawMouse.deltaY) : fallbackDeltaY;
 			l_SetState_Total(mLeftButton, mMiddleButton, mRightButton, mMouseX, mMouseY, deltaX, deltaY, 0);
 			l_UpdateWindowsMouseState();
-			mDirectInputCursorLocked = MayConstrainCursor();
+			mDirectInputCursorLocked = MayConstrainCursor() && !gRawMouse.absolutePositionValid;
 		}
 		else
 		{
@@ -255,16 +260,18 @@ namespace NXSysMouseManager
 	{
 		NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
 
-		if (!MayConstrainCursor())
+		const auto* display = application != nullptr ? application->GetDisplay() : nullptr;
+		if (!MayConstrainCursor() || display == nullptr)
 		{
 			ClipCursor(nullptr);
 			return;
 		}
 
-		if (mPositionCallback != nullptr && mPositionCallback())
+		if (mPositionCallback != nullptr && mPositionCallback() && !gRawMouse.absolutePositionValid)
 		{
-			const int cursorX = mMouseX + application->GetWindowOffsetX();
-			const int cursorY = mMouseY + application->GetWindowOffsetY();
+			const POINT cursor = display->GameToScreen({ mMouseX, mMouseY });
+			const int cursorX = cursor.x;
+			const int cursorY = cursor.y;
 
 			SetCursorPos(cursorX, cursorY);
 
@@ -275,31 +282,23 @@ namespace NXSysMouseManager
 
 		if (mMouseAreaEnabled)
 		{
-			const int windowOffsetX = application->GetWindowOffsetX();
-			const int windowOffsetY = application->GetWindowOffsetY();
-
-			RECT mouseArea{ };
-			mouseArea.left = mMouseAreaX + windowOffsetX;
-			mouseArea.top = mMouseAreaY + windowOffsetY;
-			mouseArea.right = mMouseAreaX + mMouseAreaWidth + windowOffsetX - 1;
-			mouseArea.bottom = mMouseAreaY + mMouseAreaHeight + windowOffsetY - 1;
-
-			ClipCursor(&mouseArea);
+			const POINT first = display->GameToScreen({ mMouseAreaX, mMouseAreaY });
+			const POINT last = display->GameToScreen({ mMouseAreaX + mMouseAreaWidth, mMouseAreaY + mMouseAreaHeight });
+			RECT mouseArea{ first.x, first.y, last.x, last.y };
+			RECT imageArea = display->GetPresentationRectangle();
+			MapWindowPoints(application->GetWindowHandle(), nullptr, reinterpret_cast<POINT*>(&imageArea), 2);
+			RECT clipped{ };
+			if (IntersectRect(&clipped, &mouseArea, &imageArea)) ClipCursor(&clipped);
+			else ClipCursor(nullptr);
 			return;
 		}
 
 		if (application->IsFullscreen())
 		{
-			const int windowOffsetX = application->GetWindowOffsetX();
-			const int windowOffsetY = application->GetWindowOffsetY();
-
-			RECT displayArea{ };
-			displayArea.left = windowOffsetX;
-			displayArea.top = windowOffsetY;
-			displayArea.right = application->GetDisplayWidth() + windowOffsetX;
-			displayArea.bottom = application->GetDisplayHeight() + windowOffsetY;
-
-			ClipCursor(&displayArea);
+			RECT displayArea = display->GetPresentationRectangle();
+			MapWindowPoints(application->GetWindowHandle(), nullptr, reinterpret_cast<POINT*>(&displayArea), 2);
+			if (displayArea.right > displayArea.left && displayArea.bottom > displayArea.top) ClipCursor(&displayArea);
+			else ClipCursor(nullptr);
 			return;
 		}
 

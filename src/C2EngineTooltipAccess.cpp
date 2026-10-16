@@ -18,6 +18,8 @@
 #include "GuiToolsBase.h"
 #include "InGameGuiSupportAccess.h"
 #include "XBitmap.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
 #include "XNumericConstants.h"
@@ -120,9 +122,28 @@ namespace NC2E2
 		return amount < 0.0f || amount > 0.0f;
 	}
 
+	static void Tooltip_UseHudPlane(NXBasics::CBitmap*& bitmap, std::int32_t& x, std::int32_t& y)
+	{
+		const auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+		auto* presentation = application != nullptr ? application->GetDisplay() : nullptr;
+		if (presentation == nullptr || !presentation->IsMainWorldBitmap(bitmap) || presentation->GetHudBitmap() == nullptr) return;
+		// Remaster: virtual world bitmaps may have a nonzero native clip origin.
+		for (const auto* source = bitmap; source->GetSourceBitmap() != nullptr; source = source->GetSourceBitmap())
+		{
+			x += source->GetSourceX();
+			y += source->GetSourceY();
+		}
+		std::int32_t point[2]{ x, y };
+		presentation->WorldToHud(point);
+		x = point[0];
+		y = point[1];
+		bitmap = presentation->GetHudBitmap();
+	}
+
 	// Original function: FUN_00498b3c; l_DE_DrawTooltipOverlay_House.
 	static void Display_DrawTooltipOverlay_House(void* display, std::uint32_t houseId, bool showGoods, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
 	{
+		Tooltip_UseHudPlane(bitmap, x, y);
 		const void* house = Tooltip_AddressAt(NC2Logic::CHouseArray::mStaticVars, houseId * NC2Logic::CHouseArray::ElementSize);
 		if (Tooltip_ReadField<std::uint32_t>(house, 0x0C) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
 			return;
@@ -204,6 +225,7 @@ namespace NC2E2
 			}
 		}
 
+		Tooltip_UseHudPlane(bitmap, x, y);
 		char text[100];
 		const std::uint32_t type = Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
 		if (type == 3u)

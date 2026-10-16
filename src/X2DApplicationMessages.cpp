@@ -18,31 +18,26 @@ namespace NXSys2DApp
 		// The finite budget still guarantees that the game receives an update.
 		for (std::uint32_t processedMessageCount = 0; processedMessageCount < 1024; ++processedMessageCount)
 		{
-			if (PeekMessageA(&message, nullptr, 0, 0, PM_NOREMOVE) == FALSE)
+			if (PeekMessageW(&message, nullptr, 0, 0, PM_NOREMOVE) == FALSE)
 			{
 				break;
 			}
 
-			if (GetMessageA(&message, nullptr, 0, 0) == 0)
+			if (GetMessageW(&message, nullptr, 0, 0) <= 0)
 			{
 				return false;
 			}
 
 			TranslateMessage(&message);
-			DispatchMessageA(&message);
+			DispatchMessageW(&message);
 
 			// Deliver each button transition before another can overwrite the
 			// aggregated GUI flags. A slow terrain redraw can queue both clicks.
 			if (message.message == WM_LBUTTONDOWN || message.message == WM_LBUTTONUP || message.message == WM_MBUTTONDOWN || message.message == WM_MBUTTONUP || message.message == WM_RBUTTONDOWN || message.message == WM_RBUTTONUP) break;
 		}
 
-		const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
-		const auto* messageControl = *reinterpret_cast<const std::uint8_t* const*>(objectBytes + 0x4C);
-
-		if (messageControl[5] != 0)
-		{
-			NXSysMouseManager::CMouseManager::sTheObjectPtr->UpdateMouseState();
-		}
+		// Update inactive input too, so stale presses and cursor constraints are cleared.
+		if (auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr) mouse->UpdateMouseState();
 
 		return true;
 	}
@@ -55,7 +50,7 @@ namespace NXSys2DApp
 		{
 			auto* mouseManager = NXSysMouseManager::CMouseManager::sTheObjectPtr;
 			if (mouseManager != nullptr) mouseManager->HandleRawMouseInput(reinterpret_cast<HRAWINPUT>(lParam));
-			return DefWindowProcA(windowHandle, message, wParam, lParam);
+			return DefWindowProcW(windowHandle, message, wParam, lParam);
 		}
 
 		if (windowMessageCallback != nullptr)
@@ -87,7 +82,10 @@ namespace NXSys2DApp
 
 					if (keyManager != nullptr)
 					{
-						keyManager->PushKey(0, static_cast<std::uint8_t>(wParam), true);
+						// The HWND is Unicode; the game's text input still uses its ANSI code page.
+						const WCHAR character = static_cast<WCHAR>(wParam);
+						char encoded[2]{ };
+						if (WideCharToMultiByte(CP_ACP, 0, &character, 1, encoded, sizeof(encoded), nullptr, nullptr) == 1) keyManager->PushKey(0, static_cast<std::uint8_t>(encoded[0]), true);
 					}
 
 					return 0;
@@ -186,6 +184,6 @@ namespace NXSys2DApp
 			}
 		}
 
-		return DefWindowProcA(windowHandle, message, wParam, lParam);
+		return DefWindowProcW(windowHandle, message, wParam, lParam);
 	}
 }

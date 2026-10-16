@@ -23,6 +23,8 @@ The export counters and screenshot counter remain distinct. Main-menu unlock str
 
 ## Authorized mouse adaptation
 
+On `remaster`, Alt+Enter switches between borderless fullscreen and a resizable window. Fullscreen confines the mouse to the aspect-correct displayed image and releases it on focus loss. Screen/game coordinate conversion accounts for scaling, black bars, monitor origin and DPI. Absolute devices are not warped. See [remaster presentation](REMASTER_WINDOW_PRESENTATION.md); runtime validation is pending and the debugger exemption described below still applies.
+
 The active manager uses foreground Raw Input for scroll deltas and legacy button/wheel messages, with normal pointer positions from `GetCursorPos`. It does not acquire the original DirectInput mouse. `WM_INPUT` still reaches `DefWindowProc` for cleanup. Absolute/remote devices establish baselines without an initial jump; registration failure falls back to cursor differences.
 
 Debugger mode disables cursor clipping/warping and keeps the cursor visible; focus loss releases restrictions and button state. Stale raw packets older than 250 ms are discarded while debugging. The bounded message pump processes up to 1024 messages and yields on button transitions so double-click selection sees the first release. Event timestamps preserve ordering; native 400-ms/four-pixel double-click detection remains.

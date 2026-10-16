@@ -28,6 +28,8 @@
 #include "StringInputHandler.h"
 #include "SwitchIdentifiers.h"
 #include "WorldDisplayElementAccess.h"
+#include "X2DApplication.h"
+#include "X2DDisplay.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
 #include "XGuiLists.h"
@@ -275,12 +277,16 @@ namespace NInGameGuiManager
 		if (mStaticVars.desktopInitialized)
 			return;
 
+		// Remaster: GUI coordinates are independent of the native world bitmap.
+		auto* presentation = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay();
+		presentation->ConfigureHud(width, height);
 		mStaticVars.displayWidth = width;
 		mStaticVars.displayHeight = height;
 		mStaticVars.displayDepth = depth;
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(316, 1);
 		if (allocation != nullptr)
 			::new (allocation) NXBaseGui::CDesktop(width, height, NXBasics::ConvertBitsToTDepth(static_cast<std::int32_t>(depth)));
+		if (presentation->GetWorldComposition() != nullptr) presentation->SetHudBitmap(NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap());
 
 		NC2GuiToolsBase::CGuiBaseDataManager::DynamicData_Load();
 		NXSysMouseManager::CMouseManager::sTheObjectPtr->SetPositionOverrideCallback(sl_IsMouseStoppedCallback);
@@ -434,6 +440,7 @@ namespace NInGameGuiManager
 			NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(type, InGameGuiManager_ls_Logic_CallbackFunction, 0);
 		if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
 			NXSysMouseManager::CMouseManager::sTheObjectPtr->SetPositionOverrideCallback(nullptr);
+		NXSys2DApp::CApplication::sTheObjectPtr->GetDisplay()->DisableHud();
 		mStaticVars.desktopInitialized = false;
 	}
 

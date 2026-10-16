@@ -1,271 +1,179 @@
 #include "X2DWindow.h"
-
 #include "X2DApplication.h"
 #include "X2DDisplay.h"
 #include "XCrtFileAccess.h"
 #include "XMMouseManager.h"
-
-#include <Windows.h>
+#include "XSystemMouseCursor.h"
 
 #include <new>
 
 namespace NXSys2DApp
 {
-	// Original function: FUN_0047b524
-	CWindow::CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen) :
-		mWindowHandle(nullptr),
-		mApplicationActive(false),
-		mWindowActive(false),
-		mInitialized(false),
-		mPadding07{ },
-
-		mDisplay(nullptr),
-		mInstance(instance),
-		mShowCommand(showCommand)
+	// Remaster replacement for Windows 0047B524: Unicode, DPI-aware, nonexclusive HWND.
+	CWindow::CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen) : mWindowHandle(nullptr), mApplicationActive(false), mWindowActive(false), mInitialized(false), mMouseCaptureSuspended(false), mDisplay(nullptr), mInstance(instance), mShowCommand(showCommand)
 	{
-		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(CDDDisplay));
-		if (allocation != nullptr) mDisplay = ::new(allocation) CDDDisplay(fullscreen);
-
-		WNDCLASSA windowClass{ };
-		windowClass.style = CS_HREDRAW | CS_VREDRAW;
+		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(CDisplay));
+		if (allocation == nullptr) return;
+		mDisplay = ::new(allocation) CDisplay(fullscreen);
+		WNDCLASSEXW windowClass{ sizeof(windowClass) };
 		windowClass.lpfnWndProc = &CWindow::WindowProcedure;
 		windowClass.hInstance = mInstance;
-		windowClass.hIcon = LoadIconA(nullptr, IDI_APPLICATION);
+		windowClass.hIcon = LoadIconW(nullptr, MAKEINTRESOURCEW(32512));
+		windowClass.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
 		windowClass.lpszClassName = WindowClassName;
-
-		RegisterClassA(&windowClass);
-
-		mWindowHandle = CreateWindowExA(WS_EX_TOPMOST, WindowClassName, WindowClassName, WS_POPUP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), nullptr, nullptr, mInstance, nullptr);
-
-		if (mWindowHandle == nullptr)
-		{
-			return;
-		}
-
-		ShowWindow(mWindowHandle, mShowCommand);
-		UpdateWindow(mWindowHandle);
-
+		if (RegisterClassExW(&windowClass) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) return;
+		const POINT cursor = [] { POINT point{ }; GetCursorPos(&point); return point; }();
+		MONITORINFO monitor{ sizeof(monitor) };
+		if (!GetMonitorInfoW(MonitorFromPoint(cursor, MONITOR_DEFAULTTOPRIMARY), &monitor)) return;
+		mWindowHandle = CreateWindowExW(0, WindowClassName, L"OpenVikings", WS_POPUP, monitor.rcMonitor.left, monitor.rcMonitor.top, monitor.rcMonitor.right - monitor.rcMonitor.left, monitor.rcMonitor.bottom - monitor.rcMonitor.top, nullptr, nullptr, mInstance, this);
+		if (mWindowHandle == nullptr) return;
 		if (!mDisplay->StartUp(mWindowHandle, width, height, depth))
 		{
-			OutputDebugStringA("NXSys2DApp::CWindow::CWindow\n Could not initialize the display.\r\n");
-
-			PostMessageA(mWindowHandle, WM_CLOSE, 0, 0);
+			MessageBoxW(mWindowHandle, L"Could not initialize Direct3D 11 / DXGI presentation.", L"OpenVikings", MB_OK | MB_ICONERROR);
 			return;
 		}
-
-		mApplicationActive = true;
-		mWindowActive = true;
+		mDisplay->UpdateWindowPlacement();
+		ShowWindow(mWindowHandle, mShowCommand == SW_SHOWMINIMIZED ? SW_SHOWMINIMIZED : SW_SHOW);
+		UpdateWindow(mWindowHandle);
+		mApplicationActive = GetForegroundWindow() == mWindowHandle;
+		mWindowActive = mApplicationActive && !IsIconic(mWindowHandle);
 		mInitialized = true;
 	}
 
-	// Original function: FUN_0047b638
 	LRESULT CALLBACK CWindow::WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		CApplication* application = CApplication::sTheObjectPtr;
-
-		if (application == nullptr)
+		auto* window = reinterpret_cast<CWindow*>(GetWindowLongPtrW(windowHandle, GWLP_USERDATA));
+		if (message == WM_NCCREATE)
 		{
-			return DefWindowProcA(windowHandle, message, wParam, lParam);
+			window = static_cast<CWindow*>(reinterpret_cast<CREATESTRUCTW*>(lParam)->lpCreateParams);
+			SetWindowLongPtrW(windowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(window));
+			window->mWindowHandle = windowHandle;
 		}
-
-		return application->HandleWindowMessage(windowHandle, message, wParam, lParam);
+		if (window == nullptr) return DefWindowProcW(windowHandle, message, wParam, lParam);
+		auto* application = CApplication::sTheObjectPtr;
+		LRESULT result;
+		if (application != nullptr && application->GetWindowHandle() == windowHandle) result = application->HandleWindowMessage(windowHandle, message, wParam, lParam);
+		else
+		{
+			result = window->HandleWindowMessage(windowHandle, message, wParam, lParam);
+			if (result != 0) result = DefWindowProcW(windowHandle, message, wParam, lParam);
+		}
+		if (message == WM_NCDESTROY)
+		{
+			SetWindowLongPtrW(windowHandle, GWLP_USERDATA, 0);
+			window->mWindowHandle = nullptr;
+		}
+		// Internal dispatch uses zero for handled messages. Win32 expects TRUE
+		// for a handled client cursor, after default processing has been suppressed.
+		if (message == WM_SETCURSOR && LOWORD(lParam) == HTCLIENT && result == 0) return TRUE;
+		return result;
 	}
 
-	// Original function: FUN_0047b662
 	LRESULT CWindow::HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
 	{
+		auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
 		switch (message)
 		{
-			case WM_DESTROY:
 			case WM_CLOSE:
+				ClipCursor(nullptr);
 				PostQuitMessage(0);
 				return 0;
-
-			case WM_MOVE:
-				if (mDisplay != nullptr)
-				{
-					mDisplay->SetWindowOffsets(static_cast<std::int16_t>(LOWORD(lParam)), static_cast<std::int16_t>(HIWORD(lParam)));
-				}
-
+			case WM_DESTROY:
+				ClipCursor(nullptr);
+				if (mInitialized) PostQuitMessage(0);
 				return 0;
-
 			case WM_ACTIVATE:
-				mWindowActive = LOWORD(wParam) != WA_INACTIVE;
-
-				if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
+				mWindowActive = LOWORD(wParam) != WA_INACTIVE && HIWORD(wParam) == 0;
+				if (!mWindowActive) ClipCursor(nullptr);
+				if (mouse != nullptr) mouse->Callback_WindowActivationChanged(mWindowActive);
+				return 0;
+			case WM_ACTIVATEAPP:
+				mApplicationActive = wParam != FALSE;
+				if (!mApplicationActive) ClipCursor(nullptr);
+				if (mouse != nullptr) mouse->Callback_WindowActivationChanged(mApplicationActive && mWindowActive);
+				if (auto* application = CApplication::sTheObjectPtr)
 				{
-					NXSysMouseManager::CMouseManager::sTheObjectPtr->Callback_WindowActivationChanged(mWindowActive);
+					if (application->applicationActivationCallback != nullptr) application->applicationActivationCallback();
 				}
-
-				return 1;
-
+				return 0;
+			case WM_KILLFOCUS:
+				ClipCursor(nullptr);
+				if (mouse != nullptr) mouse->Callback_WindowActivationChanged(false);
+				return 0;
+			case WM_ENTERSIZEMOVE:
+			case WM_ENTERMENULOOP:
+				mMouseCaptureSuspended = true;
+				ClipCursor(nullptr);
+				NXSysMisc::XWS_SystemMouseCursor_Show();
+				return 0;
+			case WM_EXITSIZEMOVE:
+			case WM_EXITMENULOOP:
+				mMouseCaptureSuspended = false;
+				if (mouse != nullptr) mouse->ResetWindowsMouseState();
+				return 0;
+			case WM_MOVE:
+			case WM_SIZE:
+				if (mouse != nullptr) mouse->ResetWindowsMouseState();
+				return 0;
+			case WM_DISPLAYCHANGE:
+				if (mInitialized && mDisplay != nullptr) mDisplay->UpdateWindowPlacement();
+				if (mouse != nullptr) mouse->ResetWindowsMouseState();
+				return 0;
+			case WM_DPICHANGED:
+				if (mDisplay != nullptr && mDisplay->IsFullscreen()) mDisplay->UpdateWindowPlacement();
+				else
+				{
+					const auto& bounds = *reinterpret_cast<const RECT*>(lParam);
+					SetWindowPos(windowHandle, nullptr, bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top, SWP_NOZORDER | SWP_NOACTIVATE);
+				}
+				if (mouse != nullptr) mouse->ResetWindowsMouseState();
+				return 0;
+			case WM_ERASEBKGND:
+				return 0;
 			case WM_PAINT:
 				{
 					PAINTSTRUCT paint{ };
-					const HDC deviceContext = BeginPaint(mWindowHandle, &paint);
-
-					if (deviceContext != nullptr)
-					{
-						RECT clientRectangle{ };
-						GetClientRect(mWindowHandle, &clientRectangle);
-						EndPaint(mWindowHandle, &paint);
-					}
-
+					BeginPaint(windowHandle, &paint);
+					EndPaint(windowHandle, &paint);
+					if (mInitialized && mDisplay != nullptr) mDisplay->Update();
 					return 0;
 				}
-
-			case WM_ACTIVATEAPP:
-				{
-					mApplicationActive = wParam != FALSE;
-
-					if (mApplicationActive && mDisplay != nullptr)
-					{
-						const HPALETTE palette = mDisplay->GetWindowsPalette();
-
-						const HDC deviceContext = GetDC(windowHandle);
-
-						if (deviceContext != nullptr)
-						{
-							if (palette != nullptr)
-							{
-								const HPALETTE previousPalette = SelectPalette(deviceContext, palette, FALSE);
-								RealizePalette(deviceContext);
-								SelectPalette(deviceContext, previousPalette, FALSE);
-							}
-
-							ReleaseDC(windowHandle, deviceContext);
-						}
-					}
-					else
-					{
-						ClipCursor(nullptr);
-					}
-
-					CApplication* application = CApplication::sTheObjectPtr;
-
-					if (application != nullptr && application->applicationActivationCallback != nullptr)
-					{
-						application->applicationActivationCallback();
-					}
-
-					return 0;
-				}
-
 			case WM_SETCURSOR:
-				if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
-				{
-					NXSysMouseManager::CMouseManager::sTheObjectPtr->ResetWindowsMouseState();
-				}
-
+				if (LOWORD(lParam) != HTCLIENT) return -1;
+				if (mouse != nullptr) mouse->ResetWindowsMouseState();
+				else NXSysMisc::XWS_SystemMouseCursor_Reset();
 				return 0;
-
 			case WM_SYSKEYUP:
-				if (wParam == VK_RETURN && windowHandle == mWindowHandle)
+				if (wParam == VK_RETURN)
 				{
-					CApplication* application = CApplication::sTheObjectPtr;
-
-					if (application != nullptr && application->fullscreenToggle)
-					{
-						application->ToggleFullscreen();
-						return 0;
-					}
+					auto* application = CApplication::sTheObjectPtr;
+					if (application != nullptr && application->fullscreenToggle) { application->ToggleFullscreen(); return 0; }
 				}
-
 				return -1;
-
-			case WM_QUERYNEWPALETTE:
-			case WM_PALETTECHANGED:
-				{
-					if (message == WM_PALETTECHANGED && reinterpret_cast<HWND>(wParam) == windowHandle)
-					{
-						return 0;
-					}
-
-					if (mDisplay == nullptr || mDisplay->GetWindowsPalette() == nullptr)
-					{
-						return 0;
-					}
-
-					const HDC deviceContext = GetDC(windowHandle);
-
-					if (deviceContext == nullptr)
-					{
-						return 0;
-					}
-
-					const HPALETTE previousPalette = SelectPalette(deviceContext, mDisplay->GetWindowsPalette(), FALSE);
-					const UINT changedColors = RealizePalette(deviceContext);
-
-					SelectPalette(deviceContext, previousPalette, FALSE);
-					ReleaseDC(windowHandle, deviceContext);
-
-					if (changedColors > 0)
-					{
-						InvalidateRect(windowHandle, nullptr, TRUE);
-						return -1;
-					}
-
-					return 0;
-				}
-
 			default:
 				return -1;
 		}
 	}
 
-	// Original function: FUN_0047b633; the native destructor forwards to 0047B868.
 	CWindow::~CWindow()
 	{
+		ClipCursor(nullptr);
+		mInitialized = false;
 		l_DeleteDisplay();
+		if (mWindowHandle != nullptr) DestroyWindow(mWindowHandle);
+		UnregisterClassW(WindowClassName, mInstance);
 	}
 
-	// Original function: FUN_0047b868; preserve capture, destruction, free and clear order.
 	void CWindow::l_DeleteDisplay()
 	{
-		CDDDisplay* display = mDisplay;
-		if (display != nullptr)
-		{
-			display->~CDDDisplay();
-			NXBasics::Runtime_Free(display);
-			mDisplay = nullptr;
-		}
+		if (mDisplay == nullptr) return;
+		mDisplay->~CDisplay();
+		NXBasics::Runtime_Free(mDisplay);
+		mDisplay = nullptr;
 	}
 
-	// Original function: FUN_0047b888
-	void CWindow::Update()
-	{
-		if (mDisplay != nullptr)
-		{
-			mDisplay->Update();
-		}
-	}
-
-	// Original function: FUN_0047b895
-	void CWindow::FlipToGDISurface()
-	{
-		if (mDisplay != nullptr)
-		{
-			mDisplay->FlipToGDISurface();
-		}
-	}
-
-	// Original function: FUN_0047b8a2
-	void CWindow::ToggleFullscreen()
-	{
-		if (mDisplay == nullptr)
-		{
-			return;
-		}
-
-		if (!mDisplay->ToggleFullscreen())
-		{
-			OutputDebugStringA("NXSys2DApp::CWindow::ToggleFullscreen failed.\r\n");
-			PostMessageA(mWindowHandle, WM_CLOSE, 0, 0);
-		}
-
-		if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
-		{
-			NXSysMouseManager::CMouseManager::sTheObjectPtr->ResetWindowsMouseState();
-		}
-	}
+	void CWindow::Update() { if (mDisplay != nullptr) mDisplay->Update(); }
+	// Kept for callers that show modal dialogs; DXGI never owns the desktop.
+	void CWindow::FlipToGDISurface() { ClipCursor(nullptr); }
+	void CWindow::ToggleFullscreen() { if (mDisplay != nullptr) mDisplay->ToggleFullscreen(); }
 }
