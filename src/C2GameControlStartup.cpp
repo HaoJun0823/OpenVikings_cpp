@@ -254,6 +254,15 @@ namespace NC2Logic
 		}
 
 		const auto startupMode = Read<std::uint32_t>(&gGameControlStartupData, NC2Layout::GameControlStartupOffset::Mode);
+		if (startupMode == SwitchIds::GameStartupMode::SingleMap && reader != nullptr && reader->SearchGroup("misc_maptype") && reader->SearchCommand("maptype") && reader->GetInt() == SwitchIds::GameMapType::Multiplayer)
+		{
+			// Remaster: the single-player frontend controls slot zero; AI fills the other human slots on multiplayer maps.
+			for (std::uint32_t player = 1; player < NC2Runtime::GameControlLimits::Players; ++player)
+			{
+				auto* data = PlayerData(gameControl, player);
+				if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::ActiveFlag) != 0 && Read<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Type) == 1) Write<std::uint32_t>(data, NC2Layout::GameControlPlayerOffset::Type, 2);
+			}
+		}
 		if (startupMode != SwitchIds::GameStartupMode::None)
 		{
 			if (startupMode == SwitchIds::GameStartupMode::MultiplayerMap || startupMode == SwitchIds::GameStartupMode::MultiplayerContinue)
