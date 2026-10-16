@@ -726,8 +726,6 @@ namespace NC2E2
 	// Original function: FUN_0047c713
 	void Display_Destruct(void* display)
 	{
-		Display_ExitSpecialOverlays(display);
-
 		C2DEngineDisplayManager::sTheObjectPtr->UnregisterDisplayObject(display);
 
 		Display_ExitScrollVariables(display);
@@ -958,27 +956,6 @@ namespace NC2E2
 		std::memcpy(bytes + 0x70, &drawFlags, sizeof(drawFlags));
 
 		bytes[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{ 1 };
-	}
-
-	// Original function: FUN_0047d335
-	void Display_ExitSpecialOverlays(void* display)
-	{
-		auto* displayBytes = static_cast<std::byte*>(display);
-
-		const auto releaseBuffer = [displayBytes] (std::size_t offset)
-		{
-			void* buffer;
-			std::memcpy(&buffer, displayBytes + offset, sizeof(buffer));
-
-			NXBasics::Runtime_Free(buffer);
-
-			buffer = nullptr;
-			std::memcpy(displayBytes + offset, &buffer, sizeof(buffer));
-		};
-
-		releaseBuffer(NC2Layout::EngineDisplayOffset::RainColorTable);
-		releaseBuffer(NC2Layout::EngineDisplayOffset::SnowColorTable);
-		releaseBuffer(NC2Layout::EngineDisplayOffset::SandColorTable);
 	}
 
 	// Original function: FUN_0047cb4d

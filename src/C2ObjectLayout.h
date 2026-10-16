@@ -394,11 +394,9 @@ namespace NC2Layout
 		inline constexpr auto MapRectanglePixelY = 0x990;
 
 		inline constexpr auto RainEnabled = 0x928;
-		inline constexpr auto RainColorTable = 0x92C;
 		inline constexpr auto SnowEnabled = 0x930;
-		inline constexpr auto SnowColorTable = 0x934;
 		inline constexpr auto SandEnabled = 0x938;
-		inline constexpr auto SandColorTable = 0x93C;
+
 		inline constexpr auto WorldPixelX = 0x954;
 		inline constexpr auto WorldPixelY = 0x958;
 		inline constexpr auto BufferWidth = 0x964;
@@ -1806,7 +1804,6 @@ namespace NC2Layout
 		inline constexpr auto Tribute = 0x3C;
 		inline constexpr auto StaticLandscapeFramesUnsigned = 12u;
 		inline constexpr auto PixelChannelValue32 = 4;
-		inline constexpr auto PixelChannelMask16 = 2;
 		inline constexpr auto MissionOnscreenTextRowUnsigned = 0x191u;
 		inline constexpr auto HelpGoodIdUnsigned = 4u;
 		inline constexpr auto MissionInfoArgumentUnsigned = 4u;
@@ -3122,7 +3119,6 @@ namespace NC2Layout
 		inline constexpr auto FollowVehicleUniqueId = 0x234;
 		inline constexpr auto DarkenVariant = 0x238;
 		inline constexpr auto DarkenPalette = 0x23C;
-		inline constexpr auto DarkenHighColorTable = 0x240;
 	}
 
 	namespace WorldGuiStateOffset
@@ -5612,27 +5608,7 @@ namespace NC2Layout
 
 		inline constexpr auto Display = 0x30;
 
-		inline constexpr auto DarkenTable = 0x38;
-
 		inline constexpr auto DarkenPalette = 0x34;
-	}
-
-	namespace HighColorConverterOffset
-	{
-		inline constexpr auto GreenAdjustment = 0x30;
-		inline constexpr auto BlueAdjustment = 0x34;
-		inline constexpr auto RedAdjustment = 0x2C;
-		inline constexpr auto RedLeftShift = 0x20;
-		inline constexpr auto RedRightShift = 0x14;
-		inline constexpr auto UsesRgb565 = 0x3A;
-
-		inline constexpr auto BlueMask = 0x10;
-
-
-		inline constexpr auto GreenMask = 0x0E;
-
-
-		inline constexpr auto RedMask = 0x0C;
 	}
 
 	namespace GroupSelectionElementOffset

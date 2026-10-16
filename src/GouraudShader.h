@@ -33,19 +33,13 @@ namespace NToolGouraudShader
 		void XShade_Alpha();
 		void XShade_VertexColor_Alpha();
 		void l_SetupAndClip();
-		void XShade_16Bit();
 		void XShade_32Bit();
-		void XShade_VertexColor_16Bit();
 		void XShade_VertexColor_32Bit();
-		void XShade_Alpha_16Bit();
 		void XShade_Alpha_32Bit();
-		void XShade_VertexColor_Alpha_16Bit();
 		void XShade_VertexColor_Alpha_32Bit();
 		void XShade_MMX();
-		void XShade_MMX_16Bit();
 		void XShade_MMX_32Bit();
 		void XShade_Alpha_MMX();
-		void XShade_Alpha_MMX_16Bit();
 		void XShade_Alpha_MMX_32Bit();
 	};
 

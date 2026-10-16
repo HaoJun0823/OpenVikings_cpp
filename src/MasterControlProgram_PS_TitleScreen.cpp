@@ -244,10 +244,7 @@ namespace
 		}
 		if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0)
 		{
-			std::uint32_t depth = NC2Runtime::DisplayDepthBits::TrueColor;
-			if (!(NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() || NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth() == NC2Runtime::DisplayDepthBits::TrueColor) || (NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() && !NXSys2DApp::CApplication::sTheObjectPtr->CheckFullscreenDisplayMode(NC2Runtime::TitleScreenGeometry::IntroWidth, NC2Runtime::TitleScreenGeometry::IntroHeight, NC2Runtime::DisplayDepthBits::TrueColor))) depth = NC2Runtime::DisplayDepthBits::HighColor;
-			if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("intro_screen_depth")) depth = static_cast<std::uint32_t>(NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("intro_screen_depth"));
-			NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(NC2Runtime::TitleScreenGeometry::IntroWidth, NC2Runtime::TitleScreenGeometry::IntroHeight, depth, false, false, true);
+			NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(NC2Runtime::TitleScreenGeometry::IntroWidth, NC2Runtime::TitleScreenGeometry::IntroHeight, NC2Runtime::DisplayDepthBits::TrueColor, false, false, true);
 		}
 		TitleScreen_GfxData_Load(manager);
 		if (Read<std::uint8_t>(manager, NC2Layout::TitleScreenManagerOffset::FmvMode) != 0) TitleScreen_FMV_Start(manager);

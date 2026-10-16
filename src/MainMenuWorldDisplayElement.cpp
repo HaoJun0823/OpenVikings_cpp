@@ -33,8 +33,6 @@ namespace NC2MainMenuGuiWorldElement
 		auto* palette = Read<NXBasics::CPalette*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette);
 		if (palette != nullptr) NXBasics::CPalette::DeleteOriginal(palette, 1);
 		Write<NXBasics::CPalette*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette, nullptr);
-		NXBasics::Runtime_Free(Read<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable));
-		Write<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable, nullptr);
 	}
 
 	// Original function: FUN_004dac4e; remap the full destination, respecting its stride.
@@ -44,17 +42,7 @@ namespace NC2MainMenuGuiWorldElement
 		const std::uint32_t width = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::Width);
 		const std::uint32_t height = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::Height);
 		const std::uint32_t stride = Read<std::uint32_t>(bitmap, NC2Layout::BitmapStorageOffset::RowPixelCount);
-		if (depth == 1)
-		{
-			auto* pixels = Read<std::uint16_t*>(bitmap, NC2Layout::BitmapStorageOffset::HighColorMemory);
-			const auto* table = Read<const std::uint16_t*>(element, NC2Layout::MenuWorldElementOffset::DarkenTable);
-			for (std::uint32_t row = 0; row < height; ++row)
-			{
-				for (std::uint32_t column = 0; column < width; ++column) pixels[column] = table[pixels[column]];
-				pixels += stride;
-			}
-		}
-		else if (depth == 2)
+		if (depth == 2)
 		{
 			auto* pixels = Read<std::uint32_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory);
 			const auto* table = NXBasics::Palette_GetTrueColorTablePtr(Read<void*>(element, NC2Layout::MenuWorldElementOffset::DarkenPalette));
@@ -245,23 +233,10 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
 	return false;
 }
 
-// Original function: FUN_004dab77; build the menu's high-color remapping table.
+// Original function: FUN_004dab77; remaster retains only the 32-bit palette remap.
 void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void* element)
 {
 	using namespace NC2Lifetime;
 	auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\menu_remap.pcx");
 	Write(element, NC2Layout::MenuWorldElementOffset::DarkenPalette, palette);
-	if (Read<std::int32_t>(Read<void*>(element, NC2Layout::MenuWorldElementOffset::Bitmap), NC2Layout::BitmapStorageOffset::Depth) != 1) return;
-	auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(131072, 1));
-	Write(element, NC2Layout::MenuWorldElementOffset::DarkenTable, table);
-	const auto* paletteTable = NXBasics::Palette_GetHighColorTablePtr(palette);
-	const void* converter = NXBasics::g16BitPixelConverter;
-	for (std::uint32_t value = 0; value < 0x10000; ++value)
-	{
-		const std::uint32_t red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedAdjustment) & 31u)) << 3;
-		const std::uint32_t green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenAdjustment) & 31u)) << 3;
-		const std::uint32_t blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueAdjustment) & 31u)) << 3;
-		const std::uint32_t maximum = red > green ? red : green;
-		table[value] = paletteTable[maximum > blue ? maximum : blue];
-	}
 }

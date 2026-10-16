@@ -708,19 +708,6 @@ namespace NC2InGameGuiWorldElement
 		NXBasics::Runtime_PrintString(path, "data\\gui\\palettes\\ingame_remap_%2.2d.pcx", variant);
 		auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture(path);
 		Write(element, NC2Layout::WorldGuiElementOffset::DarkenPalette, palette);
-		if (Read<std::uint32_t>(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Bitmap), NC2Layout::BitmapStorageOffset::Depth) != 1) return;
-		auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(131072));
-		Write(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable, table);
-		const auto* colours = NXBasics::Palette_GetHighColorTablePtr(palette);
-		const auto* converter = NXBasics::g16BitPixelConverter;
-		for (std::uint32_t value = 0; value < 0x10000; ++value)
-		{
-			const auto red = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::RedMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::RedAdjustment) & 31u)) << 3;
-			const auto green = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::GreenMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::GreenAdjustment) & 31u)) << 3;
-			const auto blue = ((value & Read<std::uint16_t>(converter, NC2Layout::HighColorConverterOffset::BlueMask)) >> (Read<std::uint8_t>(converter, NC2Layout::HighColorConverterOffset::BlueAdjustment) & 31u)) << 3;
-			const auto brightness = red > green ? (red > blue ? red : blue) : (green > blue ? green : blue);
-			table[value] = colours[brightness];
-		}
 	}
 
 	// Original function: FUN_004bb669.
@@ -734,10 +721,7 @@ namespace NC2InGameGuiWorldElement
 			auto* methods = *static_cast<TDeletingDestructor**>(palette);
 			methods[3](palette, 1);
 		}
-		void* lookupTable = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable);
 		WorldDisplayElement_WriteField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenPalette, nullptr);
-		NXBasics::Runtime_Free(lookupTable);
-		WorldDisplayElement_WriteField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable, nullptr);
 	}
 
 	// Original function: FUN_004bb6a6; CWorldDisplayElement::l_DarkenBitmap_Do.
@@ -748,7 +732,7 @@ namespace NC2InGameGuiWorldElement
 			return;
 
 		const std::uint32_t depth = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 4);
-		if (depth != 1u && depth != 2u)
+		if (depth != 2u)
 			return;
 
 		const std::uint32_t width = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 0x10);
@@ -777,22 +761,6 @@ namespace NC2InGameGuiWorldElement
 				}
 				const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pixels)) + (rowPixels - width) * 4u;
 				pixels = reinterpret_cast<std::uint32_t*>(static_cast<std::uintptr_t>(address));
-			}
-		}
-		else
-		{
-			auto* pixels = WorldDisplayElement_ReadField<std::uint16_t*>(bitmap, 0x28);
-			const auto* table = WorldDisplayElement_ReadField<const std::uint16_t*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable);
-
-			for (std::uint32_t y = 0; y < height; ++y)
-			{
-				for (std::uint32_t x = 0; x < width; ++x)
-				{
-					*pixels = table[*pixels];
-					++pixels;
-				}
-				const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pixels)) + (rowPixels - width) * 2u;
-				pixels = reinterpret_cast<std::uint16_t*>(static_cast<std::uintptr_t>(address));
 			}
 		}
 	}

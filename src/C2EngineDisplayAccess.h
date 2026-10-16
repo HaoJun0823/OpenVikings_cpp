@@ -195,9 +195,6 @@ namespace NC2E2
 	std::uint32_t Display_DE_ObjectsToMark_Animal_GetMarkType(const void* display, std::uint32_t animalId);
 	std::uint32_t Display_DE_ObjectsToMark_Vehicle_GetMarkType(const void* display, std::uint32_t vehicleId);
 
-	// Original function: FUN_0047d335
-	void Display_ExitSpecialOverlays(void* display);
-
 	// Original function: FUN_0048143c
 	void Display_InitScrollVariables(void* display);
 

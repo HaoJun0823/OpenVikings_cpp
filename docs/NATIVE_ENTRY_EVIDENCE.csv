@@ -340,9 +340,9 @@ Address,Source,WindowsEvidence,NamingEvidence
 0049EB91,src/C2MapResourceManagers.cpp,Windows ASM and original Game.exe; entry 0049EB91; source body and callers audited,
 00410C2D,src/XRandom.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NXBasics::CRandom::CRandom
 00410C3F,src/XRandom.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NXBasics::CRandom::SetSeed
-0047D37B,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw
-0047D64A,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw
-0047D918,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw
+0047D37B,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; 32-bit remaster preserves movement and density with adapted color storage; see docs/REMASTER_WINDOW_PRESENTATION.md,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw
+0047D64A,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; 32-bit remaster preserves movement and density with adapted color storage; see docs/REMASTER_WINDOW_PRESENTATION.md,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw
+0047D918,src/C2EngineWeatherDrawing.cpp,Full Windows ASM instruction bytes match Game.exe; 32-bit remaster preserves movement and density with adapted color storage; see docs/REMASTER_WINDOW_PRESENTATION.md,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw
 00484D77,src/C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Snow_GetDensity
 00484E80,src/C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Rain_GetDensity
 00484F85,src/C2EngineLifetimeAccess.cpp,Full Windows ASM instruction bytes match Game.exe; see src/C2EngineLifetimeAccess.cpp,NC2E2::CE2MapWeatherManagerSectorManager::Sand_GetDensity

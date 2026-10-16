@@ -126,11 +126,7 @@ namespace
 		}
 		if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) != 0)
 		{
-			std::uint32_t depth = 32;
-			auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
-			if (!(application->IsFullscreen() || NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth() == 32) || (NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen() && !NXSys2DApp::CApplication::sTheObjectPtr->CheckFullscreenDisplayMode(640, 480, 32))) depth = 16;
-			if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("intro_screen_depth")) depth = static_cast<std::uint32_t>(NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("intro_screen_depth"));
-			NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(640, 480, depth, false, false, true);
+			NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->DisplayResolution_SetDirectly(640, 480, 32, false, false, true);
 		}
 		PreIngameFmv_GfxData_Load(manager);
 		if (Read<std::uint8_t>(manager, NC2Layout::PreIngameFmvOffset::FmvRequested) != 0) PreIngameFmv_StartVideo(manager);

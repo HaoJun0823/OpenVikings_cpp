@@ -7,7 +7,6 @@
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XNumericConstants.h"
-#include "XPixelFormatConverter.h"
 #include "XRandom.h"
 
 #include <algorithm>
@@ -16,7 +15,6 @@
 namespace NC2E2
 {
 	using NC2Lifetime::Read;
-	using NC2Lifetime::Write;
 
 	namespace
 	{
@@ -59,22 +57,14 @@ namespace NC2E2
 			return Signed(origin * scale) / 10;
 		}
 
-		std::uint16_t* Weather_GetColorTable(void* display, std::uint32_t tableOffset, std::uint32_t redAdd, std::uint32_t greenAdd, std::uint32_t blueAdd, std::uint32_t divisor)
+		// Remaster: apply the original channel additions/divisor directly to BGRX,
+		// retaining 8-bit precision without format-specific lookup allocations.
+		std::uint32_t Weather_AdjustColor(std::uint32_t pixel, std::uint32_t redAdd, std::uint32_t greenAdd, std::uint32_t blueAdd, std::uint32_t divisor)
 		{
-			auto* table = Read<std::uint16_t*>(display, tableOffset);
-			if (table != nullptr) return table;
-			table = static_cast<std::uint16_t*>(NXBasics::Runtime_AllocateWithNewHandler(NC2Runtime::WeatherGrid::ColorTableBytes));
-			Write(display, tableOffset, table);
-			auto* converter = NXBasics::g16BitPixelConverter;
-			// The Windows overlay uses adjustment fields as x86 shift counts, not the packing right shifts.
-			for (std::uint32_t pixel = 0; pixel < NC2Runtime::WeatherGrid::ColorTableEntries; ++pixel)
-			{
-				const auto red = ((((pixel & Read<std::uint16_t>(converter, NXBasics::PixelConverter16Offset::RedMask)) >> (Read<std::uint32_t>(converter, NXBasics::PixelConverter16Offset::RedAdjustment) & 31u)) * 8u) + redAdd) / divisor;
-				const auto green = ((((pixel & Read<std::uint16_t>(converter, NXBasics::PixelConverter16Offset::GreenMask)) >> (Read<std::uint32_t>(converter, NXBasics::PixelConverter16Offset::GreenAdjustment) & 31u)) * 8u) + greenAdd) / divisor;
-				const auto blue = ((((pixel & Read<std::uint16_t>(converter, NXBasics::PixelConverter16Offset::BlueMask)) >> (Read<std::uint32_t>(converter, NXBasics::PixelConverter16Offset::BlueAdjustment) & 31u)) * 8u) + blueAdd) / divisor;
-				table[pixel] = converter->PackColor((std::min) (red, 255u), (std::min) (green, 255u), (std::min) (blue, 255u));
-			}
-			return table;
+			const auto red = (std::min)((((pixel >> 16) & 255u) + redAdd) / divisor, 255u);
+			const auto green = (std::min)((((pixel >> 8) & 255u) + greenAdd) / divisor, 255u);
+			const auto blue = (std::min)(((pixel & 255u) + blueAdd) / divisor, 255u);
+			return (pixel & 0xFF000000u) | (red << 16) | (green << 8) | blue;
 		}
 
 		bool Weather_IsInside(std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height)
@@ -83,7 +73,7 @@ namespace NC2E2
 		}
 	}
 
-	// Original function: FUN_0047d37b.
+	// Original function: FUN_0047d37b; remaster writes 32-bit BGRX pixels.
 	void Display_l_DE_SpecialOverlay_Rain_Draw(void* display)
 	{
 		if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::RainEnabled) == 0) return;
@@ -103,9 +93,8 @@ namespace NC2E2
 		const auto time = Signed(timeGetTime() * 2u);
 		const auto originY = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelY, NC2Layout::EngineDisplayOffset::BufferHeight, 10);
 		const auto originX = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelX, NC2Layout::EngineDisplayOffset::BufferWidth, 10);
-		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 1) return;
-		auto* pixels = Read<std::uint16_t*>(bitmap, NXBasics::BitmapOffset::HighColorMemory);
-		const auto* table = Weather_GetColorTable(display, NC2Layout::EngineDisplayOffset::RainColorTable, 50, 50, 70, 1);
+		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 2) return;
+		auto* pixels = Read<std::uint32_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory);
 		for (std::int32_t remaining = count; remaining > 0; --remaining)
 		{
 			const auto horizontal = random.Get() % 10u;
@@ -116,13 +105,13 @@ namespace NC2E2
 			const auto y = Signed((random.Get() + static_cast<std::uint32_t>(driftY)) % static_cast<std::uint32_t>(height));
 			if (!Weather_IsInside(x, y, width, height)) continue;
 			auto* pixel = pixels + static_cast<std::uint32_t>(y) * stride + static_cast<std::uint32_t>(x);
-			pixel[-static_cast<std::ptrdiff_t>(stride)] = table[pixel[-static_cast<std::ptrdiff_t>(stride)]];
-			*pixel = table[*pixel];
-			pixel[stride] = table[pixel[stride]];
+			pixel[-static_cast<std::ptrdiff_t>(stride)] = Weather_AdjustColor(pixel[-static_cast<std::ptrdiff_t>(stride)], 50, 50, 70, 1);
+			*pixel = Weather_AdjustColor(*pixel, 50, 50, 70, 1);
+			pixel[stride] = Weather_AdjustColor(pixel[stride], 50, 50, 70, 1);
 		}
 	}
 
-	// Original function: FUN_0047d64a.
+	// Original function: FUN_0047d64a; remaster writes 32-bit BGRX pixels.
 	void Display_l_DE_SpecialOverlay_Snow_Draw(void* display)
 	{
 		if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::SnowEnabled) == 0) return;
@@ -141,9 +130,8 @@ namespace NC2E2
 		const auto time = Signed(timeGetTime());
 		const auto originY = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelY, NC2Layout::EngineDisplayOffset::BufferHeight, 9);
 		const auto originX = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelX, NC2Layout::EngineDisplayOffset::BufferWidth, 9);
-		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 1) return;
-		auto* pixels = Read<std::uint16_t*>(bitmap, NXBasics::BitmapOffset::HighColorMemory);
-		const auto* table = Weather_GetColorTable(display, NC2Layout::EngineDisplayOffset::SnowColorTable, 170, 170, 170, 1);
+		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 2) return;
+		auto* pixels = Read<std::uint32_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory);
 		for (std::int32_t index = 0; index < count; ++index)
 		{
 			const auto horizontal = random.Get() % 10u;
@@ -154,16 +142,17 @@ namespace NC2E2
 			const auto y = Signed((random.Get() + static_cast<std::uint32_t>(driftY)) % static_cast<std::uint32_t>(height));
 			if (!Weather_IsInside(x, y, width, height)) continue;
 			auto* pixel = pixels + static_cast<std::uint32_t>(y) * stride + static_cast<std::uint32_t>(x);
-			*pixel = NXBasics::IntegerRange::UInt16MaximumSigned;
+			// The old 0x7FFF center was format-dependent; BGRX uses opaque white.
+			*pixel = (*pixel & 0xFF000000u) | 0x00FFFFFFu;
 			if ((index & 1) != 0) continue;
-			pixel[-1] = table[pixel[-1]];
-			pixel[1] = table[pixel[1]];
-			pixel[-static_cast<std::ptrdiff_t>(stride)] = table[pixel[-static_cast<std::ptrdiff_t>(stride)]];
-			pixel[stride] = table[pixel[stride]];
+			pixel[-1] = Weather_AdjustColor(pixel[-1], 170, 170, 170, 1);
+			pixel[1] = Weather_AdjustColor(pixel[1], 170, 170, 170, 1);
+			pixel[-static_cast<std::ptrdiff_t>(stride)] = Weather_AdjustColor(pixel[-static_cast<std::ptrdiff_t>(stride)], 170, 170, 170, 1);
+			pixel[stride] = Weather_AdjustColor(pixel[stride], 170, 170, 170, 1);
 		}
 	}
 
-	// Original function: FUN_0047d918.
+	// Original function: FUN_0047d918; remaster writes 32-bit BGRX pixels.
 	void Display_l_DE_SpecialOverlay_Sand_Draw(void* display)
 	{
 		if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::SandEnabled) == 0) return;
@@ -182,9 +171,8 @@ namespace NC2E2
 		const auto time = Signed(timeGetTime());
 		const auto originY = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelY, NC2Layout::EngineDisplayOffset::BufferHeight, 9);
 		const auto originX = Weather_GetOrigin(display, NC2Layout::EngineDisplayOffset::WorldPixelX, NC2Layout::EngineDisplayOffset::BufferWidth, 9);
-		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 1) return;
-		auto* pixels = Read<std::uint16_t*>(bitmap, NXBasics::BitmapOffset::HighColorMemory);
-		const auto* table = Weather_GetColorTable(display, NC2Layout::EngineDisplayOffset::SandColorTable, 300, 300, 200, 3);
+		if (Read<std::uint32_t>(bitmap, NXBasics::BitmapOffset::Depth) != 2) return;
+		auto* pixels = Read<std::uint32_t*>(bitmap, NC2Layout::BitmapStorageOffset::TrueColorMemory);
 		for (std::int32_t remaining = count; remaining > 0; --remaining)
 		{
 			const auto horizontal = random.Get() % 20u;
@@ -195,7 +183,7 @@ namespace NC2E2
 			const auto y = Signed((random.Get() + static_cast<std::uint32_t>(driftY)) % static_cast<std::uint32_t>(height));
 			if (!Weather_IsInside(x, y, width, height)) continue;
 			auto* pixel = pixels + static_cast<std::uint32_t>(y) * stride + static_cast<std::uint32_t>(x);
-			const auto color = table[*pixel];
+			const auto color = Weather_AdjustColor(*pixel, 300, 300, 200, 3);
 			pixel[1] = color;
 			*pixel = color;
 			pixel[-2] = color;

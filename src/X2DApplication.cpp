@@ -211,7 +211,7 @@ namespace NXSys2DApp
 
 		mDisplayModeData.desktopWidth = 1024;
 		mDisplayModeData.desktopHeight = 768;
-		mDisplayModeData.desktopDepth = 16;
+		mDisplayModeData.desktopDepth = 32;
 	}
 
 	// Remaster: these are internal render sizes, independent of monitor modes.

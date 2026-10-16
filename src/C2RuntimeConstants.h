@@ -106,8 +106,6 @@ namespace NC2Runtime
 		inline constexpr auto FullPercentage = 100;
 		inline constexpr auto DensityMaximum = 10000;
 		inline constexpr auto DensityUnitsPerPercent = 100u;
-		inline constexpr auto ColorTableBytes = 131072;
-		inline constexpr auto ColorTableEntries = 0x10000;
 	}
 
 	namespace WeatherType
@@ -672,8 +670,6 @@ namespace NC2Runtime
 
 	namespace DisplayDepthBits
 	{
-		inline constexpr auto HighColor = 16;
-
 		inline constexpr auto TrueColor = 32;
 	}
 

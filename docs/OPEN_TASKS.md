@@ -7,10 +7,12 @@ Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_ST
 - The user accepted the current visual output on October 16, 2026 after the cursor flicker correction. The broader validation scenarios below remain targeted follow-ups rather than claimed completed checks.
 
 - The [window/presentation modernization](REMASTER_WINDOW_PRESENTATION.md) is implemented in source on `remaster`. On explicit build request, build/link Win32 and validate image/video/loading/menu transitions while confirming unchanged desktop resolution and refresh rate.
-- Validate borderless mouse confinement, edge scrolling, Alt+Enter, Alt+Tab, minimization, window resizing, mixed-DPI/multiple monitors, RGB565/BGRX colors and both cursor modes. Runtime results are pending.
+- Validate borderless mouse confinement, edge scrolling, Alt+Enter, Alt+Tab, minimization, window resizing, mixed-DPI/multiple monitors, RGB565 input conversion/BGRX output and both cursor modes. Runtime results are pending.
 - In-game HUD and main-menu controls use a 768-pixel reference-height GUI plane over native-resolution scenery. The small minimap is 224 x 224 GUI pixels, with a thinner complete alpha frame/shadow and no left/bottom padding. Compare sizes at 1024 x 768 and 1440p, including tooltips, dialog dragging, map clicks, selection, campaign maps, menu/game transitions and composed screenshot export. Syntax/shader checks pass; runtime confirmation is pending.
 - Custom hardware cursors and loading indicators scale against the 768-pixel reference; films stretch to the full client area with bilinear filtering, excluding the original intro's encoded mattes. Check cursor hotspots/modes and resize behavior, loading transitions, video playback/skipping, and minimap top-frame click blocking. The narrow internal minimap edge is retained by user preference.
 - The MPEG decoder remains a separate legacy multimedia stream with nonexclusive offscreen surfaces; plan its replacement separately if removing all DirectDraw dependencies is desired.
+- Obsolete 16-bit output fallbacks, terrain shader variants and darkening tables are removed. Compare terrain/alpha/palette darkening and video transitions after building explicitly. See [cleanup scope](REMASTER_WINDOW_PRESENTATION.md#removal-of-obsolete-16-bit-output-paths).
+- Rain, snow and sand overlays are now ported to 32-bit BGRX and connected in their original foreground order. The user confirmed the current implementation works in-game. Broader coverage of all three effects, camera scrolling, density changes and the original detail/zoom gates remains a follow-up. Source/Windows evidence and syntax checks pass. Weather simulation and savegame support are unchanged.
 
 ## Current reconstruction work
 
@@ -20,7 +22,7 @@ Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_ST
 - Run campaign progression, submap return/unlocks, tribute and save/load checks, including duplicate campaign/map metadata. Verify multiplayer transfers, checksums and deterministic progression separately.
 - Validate village production, stock flow, housing, family/education, resource searches, movement, combat, vehicles, walls/gates/guides and assistant phases under sustained play.
 - Retest the [remaining reported issues](GAMEPLAY_RENDERING_BUG_REVIEW.md): picked-up objects, landed arrows, keyboard confirmation feedback and pottery fire. Miners' resource assignment, pottery smoke, catapult chests and the rapid animal increase are closed by user confirmation.
-- Verify fullscreen/focus/surface restoration, 16/32-bit rendering, mouse wheel/remote input, DirectSound/DirectMusic/CD playback and FMV transitions. The DataX adaptation is implemented; playback is not certified by path existence.
+- Verify fullscreen/focus restoration, 32-bit rendering and legacy source conversion, mouse wheel/remote input, DirectSound/DirectMusic/CD playback and FMV transitions. The DataX adaptation is implemented; playback is not certified by path existence.
 - Decide separately whether to retain the local scout-radius **500** edit; Windows uses **20**. No decision or source change is made by this cleanup.
 
 ## Renewed roadmap

@@ -198,13 +198,14 @@ namespace NXSys2DApp
 
 	bool CDisplay::IsSupportedMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth)
 	{
-		return width > 0 && height > 0 && width <= 8192 && height <= 8192 && static_cast<std::uint64_t>(width) * height <= 16777216 && (depth == 8 || depth == 16 || depth == 32);
+		return width > 0 && height > 0 && width <= 8192 && height <= 8192 && static_cast<std::uint64_t>(width) * height <= 16777216 && depth == 32;
 	}
 
 	// Replaces the exclusive DirectDraw startup at Windows 0047ABDC..0047B056.
 	bool CDisplay::StartUp(HWND windowHandle, std::int32_t width, std::int32_t height, std::int32_t depth)
 	{
 		mWindowHandle = windowHandle;
+		// Legacy bitmap inputs still need RGB565 conversion; output is always 32-bit.
 		NXBasics::g16BitPixelConverter->SetColorMasks(0xF800, 0x07E0, 0x001F);
 		NXBasics::g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, 0x000000FF);
 		if (!SetDisplayMode(width, height, depth)) return false;
