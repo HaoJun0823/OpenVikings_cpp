@@ -93,7 +93,7 @@ Other known issues will be addressed in subsequent updates. Multiplayer and netw
 
 Cultures was created by **Funatics Software**. OpenVikings is a community project built out of appreciation for these games.
 
-Related projects include the [C# OpenVikings project](https://github.com/Ravo92/OpenVikings_reversing) and [Cultures Saga Patches](https://github.com/Basssiiie/cultures-saga-patches), whose community fixes help inform our bug investigations.
+Related projects include the [Open Northland](https://github.com/s-nems/open-northland) and [Cultures Saga Patches](https://github.com/Basssiiie/cultures-saga-patches), whose community fixes help inform our bug investigations.
 
 ## License
 
