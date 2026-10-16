@@ -9,7 +9,6 @@ OpenVikings reconstructs the Windows version of Cultures: 8th Wonder of the Worl
 | Inventory | State |
 | --- | --- |
 | Known native entries | **5,063 / 5,063 implemented**, completion checkpoint October 12 |
-| Temporary link stubs | **0**, [ledger](TEMPORARY_LINK_STUBS.csv) is header-only |
 | Registered production files | **307 CPP + 288 headers = 595**, all in [`src/`](../src/) |
 | Function naming map | **3,151 distinct Windows address rows** |
 | Fields identified in recent member-analysis passes | **95**, [evidence](RECOVERED_MEMBER_FIELDS.csv) |
