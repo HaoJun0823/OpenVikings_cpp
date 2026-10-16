@@ -100,7 +100,7 @@ namespace NC2Logic
 			std::memset(record.atomicIds, NXBasics::IntegerRange::UInt8MaximumSigned, sizeof(record.atomicIds));
 			reader.SetCurrentLineToGroupStart();
 
-			// These local helpers organize one original loader, retaining raw signed offsets.
+			// Remaster validates selectors before accessing the native record layout.
 			const auto readExperienceRequirement = [&] (std::uint32_t base, std::uint32_t limit)
 			{
 				const auto id = static_cast<std::uint32_t>(reader.GetInt());
@@ -111,7 +111,8 @@ namespace NC2Logic
 				{
 					const auto job = reader.GetInt();
 					const auto count = Read<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount);
-					// Windows does not cap this three-entry storage region.
+					// These are experience-type IDs (0..77), not human job IDs (0..55).
+					if (job < 0 || job >= 78 || count >= 3) continue;
 					Write<std::int32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::Jobs + count * NC2Layout::RecordSize::TribeEnableItemUnsigned, job);
 					Write<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount, Read<std::uint32_t>(&record, entry + NC2Layout::TribeExperienceRequirementOffset::JobCount) + 1);
 				}
@@ -120,12 +121,12 @@ namespace NC2Logic
 			const auto readBuildRequirement = [&] (std::uint32_t base, std::int32_t limit, std::uint32_t countOffset, std::uint32_t itemsOffset, std::int32_t itemLimit)
 			{
 				const auto id = reader.GetInt();
-				if (id >= limit) return;
+				if (id < 0 || id >= limit) return;
 				const auto entry = base + static_cast<std::uint32_t>(id) * 0x198u;
 				while (reader.GetTypeOfNextParameter() == 3)
 				{
 					const auto value = reader.GetInt();
-					if (value >= itemLimit) return;
+					if (value < 0 || value >= itemLimit) return;
 					const auto count = Read<std::uint32_t>(&record, entry + countOffset);
 					if (count >= 50) return;
 					Write<std::int32_t>(&record, entry + itemsOffset + count * NC2Layout::RecordSize::TribeEnableItemUnsigned, value);
@@ -137,7 +138,7 @@ namespace NC2Logic
 			{
 				const auto job = reader.GetInt();
 				const auto value = reader.GetInt();
-				if (job >= 56 || (inclusiveLimit ? value > itemLimit : value >= itemLimit)) return;
+				if (job < 0 || job >= 56 || value < 0 || (inclusiveLimit ? value > itemLimit : value >= itemLimit)) return;
 				const auto entry = 0x6928u + static_cast<std::uint32_t>(job) * 0x400u;
 				const auto count = Read<std::uint32_t>(&record, entry + countOffset);
 				if (count >= 50) return;
@@ -203,7 +204,7 @@ namespace NC2Logic
 						{
 							const auto job = reader.GetInt();
 							const auto good = reader.GetInt();
-							if (job >= 56 || good >= 66) break;
+							if (job < 0 || job >= 56 || good < 0 || good >= 66) break;
 							Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::FirstJobDefaultGoodUnsigned + static_cast<std::uint32_t>(job) * NC2Layout::RecordSize::TribeJobEnablesUnsigned, good);
 							Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::GoodProductionUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, job);
 							break;
@@ -212,13 +213,14 @@ namespace NC2Logic
 						{
 							const auto good = reader.GetInt();
 							const auto house = reader.GetInt();
-							if (good < 66 && house < 55) Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::FirstGoodProductionHouseUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, house);
+							if (good >= 0 && good < 66 && house >= 0 && house < 55) Write<std::int32_t>(&record, NC2Layout::StaticTribeOffset::FirstGoodProductionHouseUnsigned + static_cast<std::uint32_t>(good) * NC2Layout::RecordSize::TribeGoodProductionUnsigned, house);
 							break;
 						}
 					case SwitchIds::TribeTypeToken::SetAtomic:
 						{
 							const auto job = static_cast<std::uint32_t>(reader.GetInt());
 							const auto state = static_cast<std::uint32_t>(reader.GetInt());
+							if (job >= 56 || state >= 92) break;
 							const auto atomic = CStaticAtomicAnimationDataManager::GetAtomicId(reader.GetString());
 							if (atomic == NXBasics::IntegerRange::UInt32Maximum) break;
 							const auto offset = 0x20u + (job * 92u + state) * 4u;

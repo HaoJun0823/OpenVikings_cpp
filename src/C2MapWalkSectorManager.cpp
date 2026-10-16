@@ -328,18 +328,9 @@ namespace NC2Logic
 		if (water->continentId != 0)
 		{
 			l_Sectors_SpecialSectorFloodFill(*water, cursor);
-			// Windows retains EBX from the land scan but resets EAX to seven.
-			// Keep these indices distinct, including the first read below the count array.
+			// Remaster: water flood-fill groups have their own counts and scan origin.
 			std::int32_t group = 7;
-			do
-			{
-				std::uint32_t countWord;
-				std::memcpy(&countWord, reinterpret_cast<const std::byte*>(&mStaticVars) + 0x3E2C + countScanIndex * 4, sizeof(countWord));
-				if (countWord != 0)
-					break;
-				--countScanIndex;
-				--group;
-			} while (countScanIndex >= 0);
+			while (group >= 0 && mStaticVars.floodFillPointCounts[group] == 0) --group;
 			std::uint32_t point = 0;
 			while (group >= 0 && water->basePointCount < 3u)
 			{

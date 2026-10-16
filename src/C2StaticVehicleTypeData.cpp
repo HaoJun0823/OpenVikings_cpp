@@ -116,7 +116,8 @@ namespace NC2Logic
 					case SwitchIds::VehicleTypeToken::LogicPassenger:
 						{
 							const std::int32_t passengerType = reader.GetInt();
-							// Retain the original unchecked signed index as wrapped byte addressing.
+							// Passenger permissions are indexed by the 56 human job types.
+							if (passengerType < 0 || passengerType >= 56) break;
 							NC2Lifetime::Write<std::uint8_t>(&record, NC2Layout::StaticVehicleTypeOffset::AllowedPassengerTypesUnsigned + static_cast<std::uint32_t>(passengerType), 1);
 							break;
 						}

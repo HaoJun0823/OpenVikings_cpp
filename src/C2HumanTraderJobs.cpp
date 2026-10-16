@@ -99,12 +99,14 @@ namespace NC2Logic
 		{
 			auto* vehicle = Vehicle(human);
 			std::uint32_t door = 0;
-			Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+			const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
+			const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+			if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0) || !Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, revision)) { Fail(human, 1); return false; }
 			if (!Human_l_StartAtomicWalkAndBring(human, Vehicle_GetMapPositionRef(vehicle), &door))
 			{
+				Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, revision);
 				Fail(human, 1); return false;
 			}
-			Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
 			TargetVehicle(human);
 			return true;
 		}
@@ -142,13 +144,14 @@ namespace NC2Logic
 			auto* vehicle = Vehicle(human);
 			std::uint32_t door = 0;
 			Write(human, NC2Layout::HumanOffset::RequestedGood, good);
-			Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+			const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+			if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0) || !Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, revision)) { Fail(human, 1); return; }
 			if (!Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door))
 			{
+				Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, revision);
 				Fail(human, 1); return;
 			}
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
-			Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
 			TargetVehicle(human);
 		}
 	}
@@ -644,7 +647,7 @@ namespace NC2Logic
 				if (Vehicle_Stock_GetAmountOfGoods(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood)) > 0)
 				{
 					std::uint32_t door = 0;
-					Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+					if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0)) { Fail(human, 1); return true; }
 					if (Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door)) TargetVehicle(human);
 					else Fail(human, 1);
 					return true;

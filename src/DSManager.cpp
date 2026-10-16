@@ -186,61 +186,77 @@ namespace NDSManager
 	// Original function: FUN_0040499b
 	bool ls_WaveFile_Load(void* soundDevice, const char* fileName, void** sound, std::uint8_t** waveData)
 	{
+		if (sound == nullptr || waveData == nullptr) return false;
 		*sound = nullptr;
 		*waveData = nullptr;
-
-		if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true))
-			return false;
-
+		if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true)) return false;
 		NXBasics::CFile file(fileName, true);
-		const std::uint32_t fileSize = file.GetSize();
-
+		const auto fileSize = file.GetSize();
+		if (fileSize < 12u) return false;
 		*waveData = static_cast<std::uint8_t*>(NXBasics::Runtime_AllocateWithNewHandler(fileSize, 1));
+		if (*waveData == nullptr) return false;
 		file.Read(*waveData, fileSize);
-
-		if (fileSize > 0x38u)
-		{
-			const auto readTag = [] (const std::uint8_t* source) -> std::uint32_t
-			{
-				std::uint32_t value;
-				std::memcpy(&value, source, sizeof(value));
-				return value;
-			};
-
-			if (readTag(*waveData) == NC2DataIds::WaveTag::Riff && readTag(*waveData + 0x08) == NC2DataIds::WaveTag::Wave && readTag(*waveData + 0x0C) == NC2DataIds::WaveTag::Format)
-			{
-				static_assert(sizeof(WAVEFORMATEX) == 18);
-				static_assert(offsetof(WAVEFORMATEX, cbSize) == 0x10);
-
-				WAVEFORMATEX format;
-				std::memset(&format, 0, sizeof(format));
-
-				std::memcpy(&format.wFormatTag, *waveData + 0x14, sizeof(format.wFormatTag));
-				std::memcpy(&format.nChannels, *waveData + 0x16, sizeof(format.nChannels));
-				std::memcpy(&format.nSamplesPerSec, *waveData + 0x18, sizeof(format.nSamplesPerSec));
-				std::memcpy(&format.nAvgBytesPerSec, *waveData + 0x1C, sizeof(format.nAvgBytesPerSec));
-				std::memcpy(&format.nBlockAlign, *waveData + 0x20, sizeof(format.nBlockAlign));
-				std::memcpy(&format.wBitsPerSample, *waveData + 0x22, sizeof(format.wBitsPerSample));
-
-				if (format.wFormatTag == WAVE_FORMAT_PCM)
-				{
-					// The original assumes sample data starts at the fixed offset 0x38.
-					const std::int32_t result = Sound_CreateFromMemory(soundDevice, sound, *waveData + 0x38, fileSize - 0x38u, &format, 0xE0u);
-
-					if (result < 0)
-						*sound = nullptr;
-				}
-			}
-		}
-
-		if (*sound == nullptr)
+		if (file.GetPosition() != fileSize)
 		{
 			NXBasics::Runtime_Free(*waveData);
 			*waveData = nullptr;
 			return false;
 		}
-
-		return true;
+		const auto readTag = [] (const std::uint8_t* source) -> std::uint32_t
+		{
+			std::uint32_t value;
+			std::memcpy(&value, source, sizeof(value));
+			return value;
+		};
+		// Remaster: walk bounded RIFF chunks, including optional chunks and odd-byte padding.
+		const auto* data = *waveData;
+		WAVEFORMATEX format{};
+		std::uint8_t* samples = nullptr;
+		std::uint32_t sampleBytes = 0;
+		bool formatFound = false, valid = true;
+		const auto riffSize = readTag(data + 4);
+		valid = valid && readTag(data) == NC2DataIds::WaveTag::Riff && readTag(data + 8) == NC2DataIds::WaveTag::Wave && riffSize >= 4u && riffSize <= fileSize - 8u;
+		if (valid)
+		{
+			const auto end = riffSize + 8u;
+			std::uint32_t offset = 12;
+			while (offset < end)
+			{
+				if (end - offset < 8u) { valid = false; break; }
+				const auto tag = readTag(data + offset);
+				const auto size = readTag(data + offset + 4);
+				offset += 8;
+				if (size > end - offset) { valid = false; break; }
+				if (tag == NC2DataIds::WaveTag::Format && !formatFound)
+				{
+					if (size < 16u) { valid = false; break; }
+					std::memcpy(&format, data + offset, 16);
+					formatFound = true;
+				}
+				if (tag == NC2DataIds::WaveTag::Data && samples == nullptr)
+				{
+					samples = *waveData + offset;
+					sampleBytes = size;
+				}
+				offset += size;
+				if ((size & 1u) != 0)
+				{
+					if (offset == end) { valid = false; break; }
+					++offset;
+				}
+			}
+		}
+		const auto alignment = static_cast<std::uint32_t>(format.nChannels) * (format.wBitsPerSample / 8u);
+		const auto byteRate = static_cast<std::uint64_t>(alignment) * format.nSamplesPerSec;
+		valid = valid && formatFound && format.wFormatTag == WAVE_FORMAT_PCM && format.nChannels != 0 && format.nSamplesPerSec != 0 && (format.wBitsPerSample == 8 || format.wBitsPerSample == 16 || format.wBitsPerSample == 24 || format.wBitsPerSample == 32) && alignment != 0 && alignment == format.nBlockAlign && byteRate == format.nAvgBytesPerSec && samples != nullptr && sampleBytes != 0;
+		if (valid && sampleBytes % alignment == 0)
+		{
+			if (Sound_CreateFromMemory(soundDevice, sound, samples, sampleBytes, &format, 0xE0u) < 0) *sound = nullptr;
+		}
+		if (*sound != nullptr) return true;
+		NXBasics::Runtime_Free(*waveData);
+		*waveData = nullptr;
+		return false;
 	}
 
 	// Original function: FUN_00404aac
@@ -340,22 +356,22 @@ namespace NDSManager
 		if (!NXBasics::CFile::FileSystem_Tool_GetRealFilename(fileName, resolvedFileName))
 			return false;
 
-		std::uint32_t index = 0;
-
-		for (; index < 1000u; ++index)
+		std::uint32_t firstFree = 1000;
+		for (std::uint32_t candidate = 0; candidate < 1000u; ++candidate)
 		{
-			const SPreloadWave& entry = mPreloadWaves[index];
-
-			// The original stops searching at the first inactive entry.
+			const SPreloadWave& entry = mPreloadWaves[candidate];
 			if (entry.active == 0)
-				break;
-
-			if (NXBasics::Runtime_CompareStringsIgnoreCase(fileName, entry.fileName) == 0)
 			{
-				*identifier = index;
+				if (firstFree == 1000u) firstFree = candidate;
+				continue;
+			}
+			if (entry.fileName != nullptr && NXBasics::Runtime_CompareStringsIgnoreCase(fileName, entry.fileName) == 0)
+			{
+				*identifier = candidate;
 				return true;
 			}
 		}
+		const auto index = firstFree;
 
 		if (index == 1000u)
 			return false;
@@ -948,26 +964,29 @@ namespace NDSManager
 
 		if (result < 0)
 		{
-			// The original does not release the context on this failure path.
+			NXBasics::Runtime_Free(context);
 			return result;
 		}
 
 		auto* wrapper = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(12u, 1));
 
-		if (wrapper != nullptr)
+		if (wrapper == nullptr)
 		{
-			std::memcpy(wrapper, &buffer, sizeof(buffer));
-			std::memcpy(wrapper + 0x04, &sampleBytes, sizeof(sampleBytes));
-			std::memcpy(wrapper + 0x08, &context, sizeof(context));
-
-			Sound_FillBuffer(wrapper, buffer);
-
-			// The original ignores the fill result and reloads the buffer.
-			std::memcpy(&buffer, wrapper, sizeof(buffer));
-			buffer->SetCurrentPosition(0);
+			buffer->Release();
+			NXBasics::Runtime_Free(context);
+			return NXBasics::Runtime_TimeSigned32(0x8007000Eu);
 		}
-
-		// A failed wrapper allocation still returns success in the original.
+		std::memcpy(wrapper, &buffer, sizeof(buffer));
+		std::memcpy(wrapper + 0x04, &sampleBytes, sizeof(sampleBytes));
+		std::memcpy(wrapper + 0x08, &context, sizeof(context));
+		const auto fillResult = Sound_FillBuffer(wrapper, buffer);
+		if (fillResult < 0)
+		{
+			Sound_Destroy(wrapper);
+			NXBasics::Runtime_Free(wrapper);
+			return fillResult;
+		}
+		buffer->SetCurrentPosition(0);
 		*sound = wrapper;
 		return 0;
 	}
@@ -1053,8 +1072,12 @@ namespace NDSManager
 		void* waveContext;
 		std::memcpy(&waveContext, soundStorage + 0x08, sizeof(waveContext));
 
-		// The original ignores the reset result.
-		Wave_Reset(waveContext);
+		const auto resetResult = Wave_Reset(waveContext);
+		if (resetResult < 0)
+		{
+			directSoundBuffer->Unlock(destination, lockedBytes, nullptr, 0);
+			return resetResult;
+		}
 
 		std::memcpy(&waveContext, soundStorage + 0x08, sizeof(waveContext));
 
@@ -1062,7 +1085,7 @@ namespace NDSManager
 
 		if (readResult < 0)
 		{
-			// Preserve the original return without unlocking the buffer.
+			directSoundBuffer->Unlock(destination, lockedBytes, nullptr, 0);
 			return readResult;
 		}
 
@@ -1082,10 +1105,7 @@ namespace NDSManager
 			std::memset(fillDestination, silence, lockedBytes - bytesRead);
 		}
 
-		// The original ignores the unlock result.
-		directSoundBuffer->Unlock(destination, lockedBytes, nullptr, 0);
-
-		return 0;
+		return directSoundBuffer->Unlock(destination, lockedBytes, nullptr, 0);
 	}
 
 	// Original function: FUN_00405591
@@ -1371,21 +1391,18 @@ namespace NDSManager
 			std::memcpy(&startAddress, storage + 0x48, sizeof(startAddress));
 			std::memcpy(&cursorAddress, storage + 0x4C, sizeof(cursorAddress));
 
-			// Preserve unsigned 32-bit address wraparound and comparison.
-			const std::uint32_t endAddress = startAddress + totalBytes;
-			const std::uint32_t requestedEnd = cursorAddress + requestedBytes;
-			std::uint32_t copiedBytes = requestedBytes;
-
-			if (requestedEnd > endAddress)
-				copiedBytes = startAddress - cursorAddress + totalBytes;
+			if (cursorAddress < startAddress || cursorAddress - startAddress > totalBytes || (destination == nullptr && requestedBytes != 0)) return NXBasics::Runtime_TimeSigned32(0x80070057u);
+			const auto remaining = totalBytes - (cursorAddress - startAddress);
+			const auto copiedBytes = requestedBytes < remaining ? requestedBytes : remaining;
 
 			const void* source = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(cursorAddress));
-			std::memmove(destination, source, copiedBytes);
+			if (copiedBytes != 0) std::memmove(destination, source, copiedBytes);
 
 			if (bytesRead != nullptr)
 				*bytesRead = copiedBytes;
 
-			// The original does not advance the memory cursor.
+			cursorAddress += copiedBytes;
+			std::memcpy(storage + 0x4C, &cursorAddress, sizeof(cursorAddress));
 			return 0;
 		}
 
@@ -1469,6 +1486,7 @@ namespace NDSManager
 			return;
 
 		const std::uint32_t index = l_Jingle_FindIndex(NC2E2::CE2StaticDataSoundFXManager::sTheObjectPtr, jingleEvent);
+		if (index == NXBasics::IntegerRange::UInt32Maximum) return;
 		const std::uint32_t identifier = index + 0x87E85u;
 
 		if (sTheObjectPtr->FireAndForget_IsRunning(identifier))
@@ -1491,18 +1509,19 @@ namespace NDSManager
 	// Original function: FUN_0048e1e1
 	std::uint32_t CManager::l_Jingle_FindIndex(const void* staticSoundData, std::uint32_t event)
 	{
-		if (sTheObjectPtr == nullptr || sTheObjectPtr->mInitialized == 0)
-			return 0;
+		if (staticSoundData == nullptr || sTheObjectPtr == nullptr || sTheObjectPtr->mInitialized == 0)
+			return NXBasics::IntegerRange::UInt32Maximum;
 
 		const auto* storage = static_cast<const std::byte*>(staticSoundData);
 		std::uint32_t count;
 		std::memcpy(&count, storage + 0x1E8, sizeof(count));
 
 		if (count == 0)
-			return 0;
+			return NXBasics::IntegerRange::UInt32Maximum;
 
 		std::uint32_t recordAddress;
 		std::memcpy(&recordAddress, storage + 0x1EC, sizeof(recordAddress));
+		if (recordAddress == 0) return NXBasics::IntegerRange::UInt32Maximum;
 
 		for (std::uint32_t index = 0; index < count; ++index)
 		{
@@ -1515,6 +1534,6 @@ namespace NDSManager
 			recordAddress += 0x80u;
 		}
 
-		return 0;
+		return NXBasics::IntegerRange::UInt32Maximum;
 	}
 }

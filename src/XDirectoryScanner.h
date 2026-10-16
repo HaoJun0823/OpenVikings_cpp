@@ -179,8 +179,8 @@ namespace NXBasics
 					return true;
 
 				default:
-					// The original retries indefinitely for an unsupported mode.
-					break;
+					// Remaster: completed, stopped and invalid scanners have no next entry.
+					return false;
 			}
 		}
 	}

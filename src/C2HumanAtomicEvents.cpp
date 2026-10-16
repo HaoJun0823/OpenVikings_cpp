@@ -170,7 +170,8 @@ namespace NC2Logic
 					return;
 				}
 			case WorkingExperienceEvent:
-				// This credits the current job, independently of the selected school target.
+				// Remaster: school training grants its selected skill, not unrelated current-job experience.
+				if (Read<std::uint32_t>(human, HumanAtomicActionOffset) == JobTrainingAction) return;
 				if ((Read<std::uint32_t>(human, HumanFlagsOffset) & ExperienceGainBlockedFlag) == 0 && (Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusInProgress || Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusCompleted)) Human_l_JobExperience_Gain(human);
 				return;
 			case JobTrainingEvent:

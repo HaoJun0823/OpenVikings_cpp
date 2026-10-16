@@ -23,11 +23,11 @@ namespace NC2Logic
 		return NC2Lifetime::Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::InsideVehicleFlag) != 0;
 	}
 
-	// Original function: FUN_004413b3; the door lookup result is not tested.
+	// Original function: FUN_004413b3; remaster rejects a failed door search.
 	bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace)
 	{
 		std::uint32_t point = 0;
-		Vehicle_Door_GetEntryPoint(vehicle, &point, requiredSpace);
+		if (!Vehicle_Door_GetEntryPoint(vehicle, &point, requiredSpace)) return false;
 		return MapMigPoint_IsInsideMap(&point) && GameMap_Continent_GetContinentTyp(NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ContinentId)) == 1;
 	}
 
@@ -111,81 +111,99 @@ namespace NC2Logic
 		return false;
 	}
 
-	// Original function: FUN_0044bd6c; the retained counter is updated before clearing occupancy.
+	// Original function: FUN_0044bd6c; remaster retains partial reservations and clears exhausted records.
 	static void VehicleStock_RemoveHumanFromList(void* stock, std::uint32_t revision, std::int32_t delta)
 	{
+		if (revision == NXBasics::IntegerRange::UInt32Maximum || delta == 0) return;
 		for (std::uint32_t slot = 0; slot < 21; ++slot)
 		{
 			const auto offset = NC2Layout::VehicleStockOffset::HumanReservations + slot * NC2Layout::RecordSize::VehicleStockReservation;
 			if (Read<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::HumanRevision) != revision) continue;
-			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount, Read<std::uint32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount) - static_cast<std::uint32_t>(delta));
-			NC2Lifetime::Write<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag, 0);
+			const auto current = Read<std::int32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount);
+			if ((current > 0 && delta < 0) || (current < 0 && delta > 0)) return;
+			auto next = static_cast<std::int64_t>(current) - delta;
+			if ((current >= 0 && next < 0) || (current <= 0 && next > 0)) next = 0;
+			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount, static_cast<std::int32_t>(next));
+			if (next == 0)
+			{
+				NC2Lifetime::Write<std::uint32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::HumanRevision, 0);
+				NC2Lifetime::Write<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag, 0);
+			}
 			return;
 		}
 	}
 
-	// Original function: FUN_0044bd0d; a full reservation list is silently left unchanged.
-	static void VehicleStock_AddHumanToList(void* stock, std::uint32_t revision, std::int32_t delta)
+	// Original function: FUN_0044bd0d; remaster reports capacity failure before changing future stock.
+	static bool VehicleStock_AddHumanToList(void* stock, std::uint32_t revision, std::int32_t delta)
 	{
-		if (VehicleStock_IsHumanInList(stock, revision))
-		{
-			VehicleStock_RemoveHumanFromList(stock, revision, NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta)));
-			return;
-		}
+		if (revision == NXBasics::IntegerRange::UInt32Maximum || delta == 0) return true;
+		const bool existing = VehicleStock_IsHumanInList(stock, revision);
 		for (std::uint32_t slot = 0; slot < 21; ++slot)
 		{
 			const auto offset = NC2Layout::VehicleStockOffset::HumanReservations + slot * NC2Layout::RecordSize::VehicleStockReservation;
-			if (Read<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag) != 0) continue;
-			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount, Read<std::uint32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount) + static_cast<std::uint32_t>(delta));
-			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::HumanRevision, revision);
-			NC2Lifetime::Write<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag, 1);
-			return;
+			const bool active = Read<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag) != 0;
+			if (existing ? (!active || Read<std::uint32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::HumanRevision) != revision) : active) continue;
+			const auto current = existing ? Read<std::int32_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount) : 0;
+			const auto next = static_cast<std::int64_t>(current) + delta;
+			if (next < -2147483648LL || next > 2147483647LL) return false;
+			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::RetainedAmount, static_cast<std::int32_t>(next));
+			NC2Lifetime::Write(stock, offset + NC2Layout::VehicleStockReservationOffset::HumanRevision, next == 0 ? 0u : revision);
+			NC2Lifetime::Write<std::uint8_t>(stock, offset + NC2Layout::VehicleStockReservationOffset::AllocatedFlag, next != 0 ? 1 : 0);
+			return true;
 		}
+		return false;
 	}
 
-	// Original function: FUN_0044ba8a; reservation removal uses the requested delta.
+	// Original function: FUN_0044ba8a; remaster updates the reservation by the actual stock change.
 	bool Vehicle_Stock_ModifyAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision)
 	{
-		if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return false;
-		const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
-		const auto slot = static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId));
-		std::uint32_t applied;
+		const auto found = Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId);
+		if (found < 0) return false;
+		const auto slot = static_cast<std::uint32_t>(found);
+		const auto current = static_cast<std::int32_t>(Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::StockAmounts + slot));
+		auto applied = delta;
 		if (delta < 0)
 		{
-			if (NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta)) > NXBasics::Runtime_TimeSigned32(Vehicle_Stock_GetAmountOfGoods(vehicle, goodId))) return false;
-			applied = static_cast<std::uint32_t>(delta);
+			if (static_cast<std::int64_t>(current) + delta < 0) return false;
 		}
 		else
 		{
-			const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalAmount(vehicle));
-			applied = static_cast<std::uint32_t>(delta > available ? available : delta);
+			const auto capacity = Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots;
+			const auto available = static_cast<std::int64_t>(capacity) - Vehicle_Stock_GetTotalAmount(vehicle);
+			if (available <= 0) applied = 0;
+			else if (applied > available) applied = static_cast<std::int32_t>(available);
+			if (applied > 255 - current) applied = 255 - current;
 		}
-		NC2Lifetime::Write(vehicle, NC2Layout::VehicleOffset::StockAmounts + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::StockAmounts + slot) + applied));
-		if (!Vehicle_Passengers_IsCarrierAttached(vehicle)) Vehicle_Stock_SetWantedAmount(vehicle, goodId, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::StockAmounts + slot));
-		VehicleStock_RemoveHumanFromList(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::StockAmountsSigned, humanRevision, delta);
+		if (delta != 0 && applied == 0) return false;
+		NC2Lifetime::Write(vehicle, NC2Layout::VehicleOffset::StockAmounts + slot, static_cast<std::uint8_t>(current + applied));
+		if (!Vehicle_Passengers_IsCarrierAttached(vehicle)) Vehicle_Stock_SetWantedAmount(vehicle, goodId, static_cast<std::uint32_t>(current + applied));
+		VehicleStock_RemoveHumanFromList(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::StockAmountsSigned, humanRevision, applied);
 		return true;
 	}
 
-	// Original function: FUN_0044bba6; the reservation records receive the requested, unclamped delta.
+	// Original function: FUN_0044bba6; remaster keeps the ledger and byte-sized future stock consistent.
 	bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision)
 	{
-		if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return false;
-		const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
-		const auto slot = static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId));
-		std::uint32_t applied;
+		const auto found = Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId);
+		if (found < 0) return false;
+		const auto slot = static_cast<std::uint32_t>(found);
+		const auto current = static_cast<std::int32_t>(Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::FutureStockAmounts + slot));
+		auto applied = delta;
 		if (delta < 0)
 		{
-			const auto negative = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta));
-			if (negative > NXBasics::Runtime_TimeSigned32(Vehicle_Stock_GetFutureAmount(vehicle, goodId))) return false;
-			applied = static_cast<std::uint32_t>(delta);
+			if (static_cast<std::int64_t>(current) + delta < 0) return false;
 		}
 		else
 		{
-			const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalFutureAmount(vehicle));
-			applied = static_cast<std::uint32_t>(delta > available ? available : delta);
+			const auto capacity = Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots;
+			const auto available = static_cast<std::int64_t>(capacity) - Vehicle_Stock_GetTotalFutureAmount(vehicle);
+			if (available <= 0) applied = 0;
+			else if (applied > available) applied = static_cast<std::int32_t>(available);
+			if (applied > 255 - current) applied = 255 - current;
 		}
-		NC2Lifetime::Write(vehicle, NC2Layout::VehicleOffset::FutureStockAmounts + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::FutureStockAmounts + slot) + applied));
-		VehicleStock_AddHumanToList(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::StockAmountsSigned, humanRevision, delta);
+		if (delta != 0 && applied == 0) return false;
+		if (!VehicleStock_AddHumanToList(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::StockAmountsSigned, humanRevision, applied)) return false;
+		NC2Lifetime::Write(vehicle, NC2Layout::VehicleOffset::FutureStockAmounts + slot, static_cast<std::uint8_t>(current + applied));
 		return true;
 	}
 
@@ -198,6 +216,8 @@ namespace NC2Logic
 	// Original function: FUN_004378a1; each candidate advances the same packed cursor.
 	static bool Vehicle_Door_ValidateEntryPoint(void* point, std::uint32_t requiredSpace)
 	{
+		if (!MapMigPoint_IsInsideMap(point)) return false;
+		const auto original = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
 		const auto* cell = GameMap_GetConstMapMicroPointPtr(point);
 		const auto continent = Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::ContinentId);
 		if ((Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
@@ -212,6 +232,7 @@ namespace NC2Logic
 			cell = GameMap_GetConstMapMicroPointPtr(point);
 			if (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::ContinentId) == continent && (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, NC2Layout::MapMicroPointOffset::WalkingFlags) & 7u)) return true;
 		}
+		NC2Lifetime::Write(point, NC2Layout::MapCoordinatePairOffset::Coordinates, original);
 		return false;
 	}
 
@@ -366,7 +387,7 @@ namespace NC2Logic
 		const auto slot = Vehicle_Passengers_GetAttachedHumanSlot(vehicle, humanId);
 		if (slot == -1) return false;
 		std::uint32_t entry = 0;
-		Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+		if (!Vehicle_Door_GetEntryPoint(vehicle, &entry, 0)) return false;
 		if (Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize), NC2Layout::MapCoordinatePairOffset::Coordinates) != entry) return false;
 		NC2Lifetime::Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::HumanPassengerInsideFlags + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::VehiclePassenger, 1);
 		return true;
@@ -394,7 +415,7 @@ namespace NC2Logic
 		if (Read<std::uint8_t>(vehicle, offset) != 0)
 		{
 			std::uint32_t point = 0;
-			Vehicle_Door_GetEntryPoint(vehicle, &point, 0);
+			if (!Vehicle_Door_GetEntryPoint(vehicle, &point, 0)) return false;
 			Human_VehicleMisc_Leave(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize, &point);
 			NC2Lifetime::Write<std::uint8_t>(vehicle, offset, 0);
 		}

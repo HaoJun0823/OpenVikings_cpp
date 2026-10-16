@@ -823,7 +823,12 @@ namespace NC2InGameGuiOverviewDisplay
 					++count;
 				}
 			}
-			// DIV faults are retained for empty rectangles; sums wrap at 32 bits.
+			// Remaster: an empty sample has the same black fallback as a missing pattern.
+			if (count == 0)
+			{
+				OverviewDisplay_SetColor(color, 0, 0, 0);
+				return;
+			}
 			const std::uint32_t averageRed = OverviewDisplay_DivideUnsigned(red, count);
 			const std::uint32_t averageGreen = OverviewDisplay_DivideUnsigned(green, count);
 			const std::uint32_t averageBlue = OverviewDisplay_DivideUnsigned(blue, count);

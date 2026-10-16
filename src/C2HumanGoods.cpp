@@ -1188,18 +1188,19 @@ namespace NC2Logic
 		auto* vehicle = Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize : nullptr;
 		auto reserveVehicle = [human, good, vehicle] ()
 		{
+			if (!Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId))) return false;
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6);
 			Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
 			Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
-			Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+			return true;
 		};
 		if (Human_Misc_IsHidden(human))
 		{
 			if (vehicle != nullptr)
 			{
-				if (Vehicle_Stock_CanStoreGoodType(vehicle, good))
+				if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && reserveVehicle())
 				{
-					reserveVehicle(); startPile(6); return;
+					startPile(6); return;
 				}
 			}
 			else
@@ -1235,9 +1236,8 @@ namespace NC2Logic
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 23); return;
 			}
 		}
-		if (vehicle != nullptr && Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFullSoon(vehicle))
+		if (vehicle != nullptr && Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFullSoon(vehicle) && reserveVehicle())
 		{
-			reserveVehicle();
 			if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::FlushStock) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FillStockBringAway);
 			startPile(-1);
 			return;

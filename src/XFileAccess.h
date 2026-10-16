@@ -563,6 +563,7 @@ namespace NXBasics
 
 				const char* prefix = pathRecord.path;
 
+				if (std::strlen(prefix) + std::strlen(temporaryName) >= 260u) continue;
 				std::strcpy(fileName, prefix);
 				std::strcat(fileName, temporaryName);
 
@@ -595,8 +596,8 @@ namespace NXBasics
 
 		if (!tryOpen(getArchiveFileName(CFile::mStaticVars.fileLibraries[selectedArchiveIndex])))
 		{
-			// This fallback runs even when searchPaths is false.
-			// The original advances the path and archive indices together.
+			if (!searchPaths) return reportFailure();
+			// Remaster: every search prefix applies to the selected archive, not a different slot.
 			for (std::uint32_t index = 0; index < 5; ++index)
 			{
 				const auto& pathRecord = CFile::mStaticVars.additionalLoadPaths[index];
@@ -608,8 +609,10 @@ namespace NXBasics
 
 				const char* prefix = pathRecord.path;
 
+				const auto* archiveName = getArchiveFileName(CFile::mStaticVars.fileLibraries[selectedArchiveIndex]);
+				if (std::strlen(prefix) + std::strlen(archiveName) >= sizeof(temporaryName)) continue;
 				std::strcpy(temporaryName, prefix);
-				std::strcat(temporaryName, getArchiveFileName(CFile::mStaticVars.fileLibraries[index]));
+				std::strcat(temporaryName, archiveName);
 
 				if (tryOpen(temporaryName))
 				{

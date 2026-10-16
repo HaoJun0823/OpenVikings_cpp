@@ -78,7 +78,7 @@ namespace NC2Logic
 				{
 					const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
 					std::uint32_t entry = 0;
-					Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+					if (!Vehicle_Door_GetEntryPoint(vehicle, &entry, 0)) return false;
 					const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
 					if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) return false;
 					return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), NC2Layout::MapCoordinatePairOffset::Coordinates) == entry;

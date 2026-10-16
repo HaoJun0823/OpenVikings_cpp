@@ -2,6 +2,8 @@
 
 [Original-behavior finding: OA163](RECONSTRUCTION_NOTES.md#oa163). The user reports that school attendance also gains experience in the pupil's current job, independently of the selected learning target: a miller can unlock baker while studying another job, and a collector can unlock several collector-related professions such as smith and carpenter.
 
+**Remaster update, October 16, 2026:** RM023 in [the remaster ledger](REMASTER_BUGFIXES.md) now suppresses working-experience event 28 during job-training atomic action 89. Selected training event 29 is unchanged. This is an intentional remaster policy correction; the original branch and the historical evidence below remain intact. Existing saved experience/unlocks are preserved.
+
 ## Confirmed Windows behavior
 
 - `00468678` dispatches atomic-animation events. The original `Game.exe` jump table at `00468AD8` maps event 28 to `00468961` and event 29 to `00468992`.
@@ -23,4 +25,4 @@ The Mac header supplies the matching names `CHuman::l_JobExperience_Gain`, `CHum
 
 The animation definitions are loaded from `data\logic\atomicanimations\atomicanimations.ini`; their original contents were not found in the inspected workspaces. The smallest follow-up is the animation-89 definition and the relevant job-experience/tribe prerequisite records, or a focused original-game reproduction. Do not claim that every collector-related job unlocks immediately or regardless of thresholds and player allowances.
 
-Status: **Preserved / original observation; school trigger and exact unlock examples reported by the user, not independently reproduced. Renewed: open.** Keep the confirmed Windows behavior during faithful reconstruction. Before a Renewed change, verify the original data/trigger and decide whether school should grant working experience; any correction belongs to the subsequent Renewed phase.
+Status: **Legacy: preserved. Remaster: RM023 implemented.** The historical school trigger and exact unlock examples remain user-reported rather than independently reproduced. The user authorized removing unrelated working experience from training on `remaster`; no runtime reproduction or test result is claimed.

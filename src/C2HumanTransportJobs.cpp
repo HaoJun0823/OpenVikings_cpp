@@ -98,8 +98,7 @@ namespace NC2Logic
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 1);
 			return;
 		}
-		Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
-		if (!SameContinent(human, &door))
+		if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0) || !SameContinent(human, &door))
 		{
 			Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 1); return;
 		}
@@ -150,8 +149,8 @@ namespace NC2Logic
 					return;
 				}
 				std::uint32_t door = 0;
-				Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
-				if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || SameContinent(human, &door))
+				const bool hasDoor = Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+				if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || (hasDoor && SameContinent(human, &door)))
 				{
 					const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
 					if (circulation == 2)
@@ -184,11 +183,14 @@ namespace NC2Logic
 								return;
 							}
 						}
-						else if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && Vehicle_Stock_GetFutureAmount(vehicle, cargo) < Vehicle_Stock_GetAmountOfWantedGoods(vehicle, cargo) && !Vehicle_Stock_IsFullSoon(vehicle) && Human_l_StartAtomicWalkAndBring(human, Vehicle_GetMapPositionRef(vehicle), &door))
+						else if (Vehicle_Stock_CanStoreGoodType(vehicle, cargo) && Vehicle_Stock_GetFutureAmount(vehicle, cargo) < Vehicle_Stock_GetAmountOfWantedGoods(vehicle, cargo) && !Vehicle_Stock_IsFullSoon(vehicle))
 						{
-							TargetVehicle(human);
-							Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
-							return;
+							const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+							if (Vehicle_Stock_ModifyFutureAmount(vehicle, cargo, 1, revision))
+							{
+								if (Human_l_StartAtomicWalkAndBring(human, Vehicle_GetMapPositionRef(vehicle), &door)) { TargetVehicle(human); return; }
+								Vehicle_Stock_ModifyFutureAmount(vehicle, cargo, -1, revision);
+							}
 						}
 						Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human);
 						return;
@@ -216,7 +218,7 @@ namespace NC2Logic
 		if (IsUsable(vehicle))
 		{
 			std::uint32_t door = 0;
-			Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+			if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0)) return false;
 			if (Human_IsAtTargetPoint(human))
 			{
 				const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition);
@@ -245,7 +247,7 @@ namespace NC2Logic
 		return false;
 	}
 
-	// Original function: FUN_0046d8e0; reservation changes precede walking, even if walking fails.
+	// Original function: FUN_0046d8e0; remaster rolls back reservations when walking fails.
 	bool Human_l_StartTask_ExecuteJob_Carrier_FlushVehicle(void* human)
 	{
 		auto* vehicle = Vehicle(human);
@@ -253,14 +255,15 @@ namespace NC2Logic
 		for (std::uint32_t good = 0; good < 66; ++good)
 		{
 			if (!Vehicle_Stock_CanStoreGoodType(vehicle, good) || Vehicle_Stock_GetAmountOfWantedGoods(vehicle, good) >= Vehicle_Stock_GetFutureAmount(vehicle, good)) continue;
-			Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+			const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+			if (!Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, revision)) continue;
 			Write(human, NC2Layout::HumanOffset::RequestedGood, good);
 			std::uint32_t door = 0;
-			Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
-			if (Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door))
+			if (Vehicle_Door_GetEntryPoint(vehicle, &door, 0) && Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door))
 			{
 				TargetVehicle(human); return true;
 			}
+			Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, revision);
 		}
 		return false;
 	}
@@ -271,7 +274,7 @@ namespace NC2Logic
 		auto* vehicle = Vehicle(human);
 		if (!IsUsable(vehicle)) return false;
 		std::uint32_t door = 0, real = 0, work = 0, good = 0;
-		Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
+		if (!Vehicle_Door_GetEntryPoint(vehicle, &door, 0)) return false;
 		if (Human_FindGoodsDemandedForVehicle(human, &real, &work, &good, &door))
 		{
 			Write(human, NC2Layout::HumanOffset::RequestedGood, good);

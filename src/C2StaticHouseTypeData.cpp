@@ -111,27 +111,27 @@ namespace NC2Logic
 						}
 						break;
 					case SwitchIds::HouseTypeToken::LogicStock:
-						if (record.stockCount != 66)
+						if (record.stockCount < 66)
 						{
 							const std::int32_t goodType = reader.GetInt();
 							std::int32_t maximumAmount = reader.GetInt();
 							const std::uint8_t flag = reader.GetInt() != 0;
-							if (goodType > 66) break;
+							if (goodType < 0 || goodType >= 66) break;
 							if (maximumAmount > 1000) maximumAmount = 1000;
 							const auto offset = record.stockCount * 12u + 0x64u;
 							NC2Lifetime::Write<std::int32_t>(&record, offset, goodType);
 							NC2Lifetime::Write<std::int32_t>(&record, offset + NC2Layout::StaticHouseStockOffset::MaximumAmountUnsigned, maximumAmount);
 							NC2Lifetime::Write<std::uint8_t>(&record, offset + NC2Layout::StaticHouseStockOffset::IsOutputStockUnsigned, flag);
-							// Preserve signed IDs and the original ID-66 write into +0x484.
+							// Remaster: only validated good IDs may update the reverse index.
 							NC2Lifetime::Write<std::uint32_t>(&record, NC2Layout::StaticHouseTypeOffset::StockIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned, record.stockCount);
 							++record.stockCount;
 						}
 						break;
 					case SwitchIds::HouseTypeToken::LogicProduction:
-						if (record.productionCount != 20)
+						if (record.productionCount < 20)
 						{
 							const std::int32_t goodType = reader.GetInt();
-							if (goodType >= 66) break;
+							if (goodType < 0 || goodType >= 66) break;
 							NC2Lifetime::Write<std::int32_t>(&record, NC2Layout::StaticHouseTypeOffset::ProductionGoodsUnsigned + record.productionCount * NC2Layout::RecordSize::HouseTypeIndexUnsigned, goodType);
 							NC2Lifetime::Write<std::uint32_t>(&record, NC2Layout::StaticHouseTypeOffset::ProductionIndicesUnsigned + static_cast<std::uint32_t>(goodType) * NC2Layout::RecordSize::HouseTypeIndexUnsigned, record.productionCount);
 							++record.productionCount;

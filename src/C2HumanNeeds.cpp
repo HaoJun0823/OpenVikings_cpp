@@ -430,8 +430,9 @@ namespace NC2Logic
 			for (std::uint32_t good = 16; good < 24; ++good)
 			{
 				if (Vehicle_Stock_GetAmountOfGoods(vehicle, good) == 0) continue;
-				Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
-				Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+				const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+				if (!Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, revision)) continue;
+				if (!Vehicle_Stock_ModifyAmount(vehicle, good, -1, revision)) { Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, revision); continue; }
 				Write(human, NC2Layout::HumanOffset::CarriedGood, good);
 				CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
@@ -440,7 +441,7 @@ namespace NC2Logic
 			const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
 			if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) goto failed;
 			std::uint32_t entry = 0;
-			Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+			if (!Vehicle_Door_GetEntryPoint(vehicle, &entry, 0)) goto failed;
 			const auto good = Human_FindFood_Complex(human, &real, &work, &entry);
 			if (good == 0) goto failed;
 			if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)

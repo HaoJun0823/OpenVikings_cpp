@@ -560,8 +560,13 @@ namespace NC2Logic
 			if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFullSoon(vehicle))
 			{
 				if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) Human_StopCurrentGoodCirculationMode(human);
-				Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
-				Vehicle_Stock_ModifyAmount(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+				const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+				if (!Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, revision)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
+				if (!Vehicle_Stock_ModifyAmount(vehicle, good, 1, revision))
+				{
+					Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, revision);
+					Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return;
+				}
 				Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
 				CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
 			}

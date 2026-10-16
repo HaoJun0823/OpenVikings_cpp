@@ -67,10 +67,10 @@ namespace NC2E2
 
 		if (index < 0)
 			index = 0;
-		else if (index > 31)
+		else if (index > 30)
 			index = 30;
 
-		// The original permits index 31 despite allocating only 31 palettes.
+		// Remaster: all brightness values must stay within the 31 allocated palettes.
 		std::uint32_t baseAddress;
 		std::memcpy(&baseAddress, static_cast<const std::byte*>(colorData) + 0x24, sizeof(baseAddress));
 

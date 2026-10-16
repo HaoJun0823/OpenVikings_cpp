@@ -265,14 +265,17 @@ namespace NC2InGameGuiBase
 			if (command == SwitchIds::TextButtonCommand::GetPlainCaption)
 			{
 				auto* output = reinterpret_cast<char*>(param2);
+				if (output == nullptr || param3 == 0) return false;
 				*output = '\0';
 				const char* caption = Read<char*>(element, NC2Layout::GuiTextButtonOffset::Caption);
+				if (caption == nullptr) return true;
 				while (*caption == '{')
 				{
 					do
 					{
 						++caption;
-					} while (*caption != '}');
+					} while (*caption != '}' && *caption != '\0');
+					if (*caption == '\0') return true;
 					++caption;
 				}
 				std::strncpy(output, caption, param3 - 1u);

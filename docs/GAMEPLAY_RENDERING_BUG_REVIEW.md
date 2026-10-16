@@ -33,4 +33,4 @@ Particle drawing/expired-arrow placement deliberately use a checked map accessor
 - “Die Rebellion” hostile music is confirmed by the user to match the original. Preserve original player/map data; see [missions](MISSIONS.md).
 - Green road pixels came from a manipulated PCX; the original texture has no such pixels. No renderer fix is justified by that report.
 - Fullscreen green/magenta corruption after Alt-Tab was also reported in the original. Cause and restoration fixes remain [future work](OPEN_TASKS.md), not a verified reconstruction correction.
-- School working-experience side effects remain a [separate original observation](SCHOOL_EXPERIENCE_OBSERVATION.md), with unverified animation schedule and exact unlock examples.
+- School working-experience side effects are documented as a [separate original observation](SCHOOL_EXPERIENCE_OBSERVATION.md). Remaster correction RM023 now suppresses unrelated working experience during training; the historical animation schedule and exact unlock examples remain evidence limits.

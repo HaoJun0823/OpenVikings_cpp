@@ -307,8 +307,8 @@ namespace NHyperLinkTextSystem
 							*comma = '\0';
 							const auto file = resources->GetTextFileId(argument);
 							*comma = ',';
-							// Windows passes the comma itself to atoi, yielding zero for ordinary input.
-							entity = Controller(8, Runtime_StringToInteger(comma), file);
+							// Remaster: the anchor starts after the filename separator.
+							entity = Controller(8, Runtime_StringToInteger(comma + 1), file);
 							append = true;
 						}
 						break;
@@ -361,22 +361,26 @@ namespace NHyperLinkTextSystem
 		{
 			CFile file(filename, true);
 			const auto size = file.GetSize();
+			if (size == NXBasics::IntegerRange::UInt32Maximum) return false;
 			allocation = static_cast<char*>(Runtime_AllocateWithNewHandler(size + 1, 1));
+			if (allocation == nullptr) return false;
 			file.Read(allocation, size);
+			if (file.GetPosition() != size) { Runtime_Free(allocation); return false; }
 			allocation[size] = '\0';
 		}
 		char* text = allocation;
 		if (block != nullptr && std::strlen(block) != 0)
 		{
 			char beginMarker[100], endMarker[100];
+			if (std::strlen(block) > sizeof(beginMarker) - sizeof("[blockstart:]")) { Runtime_Free(allocation); return false; }
 			Runtime_PrintString(beginMarker, "[blockstart:%s]", block);
 			Runtime_PrintString(endMarker, "[blockend:%s]", block);
 			text = std::strstr(allocation, beginMarker);
-			if (text == nullptr) return false;
+			if (text == nullptr) { Runtime_Free(allocation); return false; }
 			text += std::strlen(beginMarker);
 			if (text[0] == '\r' && text[1] == '\n') text += 2;
 			char* end = std::strstr(text, endMarker);
-			if (end == nullptr) return false;
+			if (end == nullptr) { Runtime_Free(allocation); return false; }
 			*end = '\0';
 		}
 		if (!insertLineBreaks) AddString(text);

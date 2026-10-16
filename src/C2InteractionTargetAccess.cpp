@@ -193,7 +193,7 @@ namespace NC2Logic
 					const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::ObjectId) * CVehicleArray::ElementSize;
 					if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::ObjectRevision) != Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)) return false;
 					std::uint32_t entry = 0;
-					Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+					if (!Vehicle_Door_GetEntryPoint(vehicle, &entry, 0)) return false;
 					if (Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::WorkPosition) != entry) return false;
 					return Read<std::uint32_t>(target, NC2Layout::InteractionTargetDataOffset::RealPosition) == Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), NC2Layout::MapCoordinatePairOffset::Coordinates);
 				}
