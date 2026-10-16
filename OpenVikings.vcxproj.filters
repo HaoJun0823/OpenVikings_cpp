@@ -330,13 +330,7 @@
     <ClCompile Include="src\X2DWindow.cpp">
       <Filter>Platform\Window</Filter>
     </ClCompile>
-    <ClCompile Include="src\XCrtFileAccess.cpp">
-      <Filter>Runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="src\XCrtCompiler.cpp">
-      <Filter>Runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="src\XCrtMath.cpp">
+    <ClCompile Include="src\XRuntime.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
     <ClCompile Include="src\C2AnimalIterator.cpp">
@@ -680,9 +674,6 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="src\XCrtFileAccess.h">
-      <Filter>Runtime</Filter>
-    </ClInclude>
-    <ClInclude Include="src\XCrtStartup.h">
       <Filter>Runtime</Filter>
     </ClInclude>
     <ClInclude Include="src\C2AnimalIterator.h">

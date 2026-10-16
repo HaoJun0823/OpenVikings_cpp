@@ -7,10 +7,7 @@
 #include "XFontMetrics.h"
 #include "XGuiElementAccess.h"
 #include <Windows.h>
-
-// Established original CRT sine/cosine boundaries remain separate reconstruction targets.
-extern double __cdecl Runtime_Sin(double);
-extern double __cdecl Runtime_Cos(double);
+#include <cmath>
 
 namespace NC2InGameGuiBase
 {
@@ -158,8 +155,8 @@ namespace NC2InGameGuiBase
 	{
 		const auto halfWidth = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2;
 		const auto halfHeight = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2;
-		const float x = static_cast<float>(Runtime_Sin(static_cast<double>(angle)) * halfWidth);
-		const double y = -(Runtime_Cos(static_cast<double>(angle)) * halfHeight);
+		const float x = static_cast<float>(std::sin(static_cast<double>(angle)) * halfWidth);
+		const double y = -(std::cos(static_cast<double>(angle)) * halfHeight);
 		const auto coordinate = [] (double value, std::int32_t center, std::int32_t offset)
 		{
 			return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(value)) + static_cast<std::uint32_t>(center) + static_cast<std::uint32_t>(offset));

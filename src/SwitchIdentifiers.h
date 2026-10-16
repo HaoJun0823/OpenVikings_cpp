@@ -1821,22 +1821,7 @@ namespace SwitchIds
 		inline constexpr auto PreIngameFmv = 15;
 	}
 
-	namespace RuntimePrecisionControl
-	{
-		inline constexpr auto Extended64 = 0x00000000u;
-		inline constexpr auto Double53 = 0x00010000u;
-	}
 
-	namespace RuntimeSignal
-	{
-		inline constexpr auto Interrupt = 2;
-		inline constexpr auto IllegalInstruction = 4;
-		inline constexpr auto FloatingPoint = 8;
-		inline constexpr auto SegmentationViolation = 11;
-		inline constexpr auto Terminate = 15;
-		inline constexpr auto Break = 21;
-		inline constexpr auto Abort = 22;
-	}
 
 	namespace SavegameChunk
 	{

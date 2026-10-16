@@ -2,6 +2,17 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-16 · 18:15 CEST — A modern foundation for the game
+
+The remaster now uses the current Microsoft C++ runtime and Windows services for its shared system functions. This removes a large compatibility layer inherited from the original executable and simplifies future maintenance.
+
+- Removed the reconstructed legacy runtime, custom small-block heaps and private compiler/math backends.
+- Removed dependency on discovering internal functions in old Windows runtime DLLs.
+- Moved file access, memory management, text handling and shutdown callbacks to supported runtime services.
+- Replaced custom x87 math bridges with standard math functions and moved the remaining MMX blending instructions to SSE2.
+- Kept the existing game-data formats, 32-bit Windows target and application initialization order.
+- Kept networking modernization reserved for its separate project.
+
 ## 2026-10-16 · 16:45 CEST — Gameplay, audio and loading fixes
 
 This update addresses inherited problems in education, equipment, transport, file loading and the interface. It also makes custom game data safer to load, while keeping the original game's data formats and the 32-bit Windows target.

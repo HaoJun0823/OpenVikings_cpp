@@ -1,14 +1,12 @@
 #include "ApplicationGlobals.h"
 #include "DMManager.h"
 #include "XCrtFileAccess.h"
+#include <cmath>
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <Windows.h>
-
-// Original CRT log10 entry; its existing runtime implementation remains external.
-extern double __cdecl Runtime_Log10(double value);
 
 namespace NDMManager
 {
@@ -392,7 +390,7 @@ namespace NDMManager
 		std::int32_t attenuation = -10000;
 		if (currentVolume != 0)
 		{
-			const double logarithm = Runtime_Log10(static_cast<double>(currentVolume) * static_cast<double>(0.01f));
+			const double logarithm = std::log10(static_cast<double>(currentVolume) * static_cast<double>(0.01f));
 			// Bounded finite result; the original converts toward zero with FUN_004e6f4c.
 			attenuation = -500 - static_cast<std::int32_t>(logarithm * -2000.0);
 		}

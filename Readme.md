@@ -13,6 +13,7 @@ Build a settlement, help your villagers learn new trades, explore the world and 
 - **A clearer view:** Correct aspect ratios, a larger minimap with an improved frame, and smoother fullscreen videos.
 - **Weather restored:** Rain, snow and sandstorms render in the 32-bit graphics path.
 - **Better solo play:** AI takes over the other active human starting positions when you launch a multiplayer map in single-player mode.
+- **A modern runtime:** Current C++ and Windows services replace the reconstructed legacy runtime and private x87/compiler backends.
 
 ## Project status
 

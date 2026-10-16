@@ -43,10 +43,7 @@
 #include "XStorableIO.h"
 #include <new>
 #include <utility>
-
-// Original CRT cosine/sine entries; known library boundaries.
-extern double __cdecl Runtime_Cos(double);
-extern double __cdecl Runtime_Sin(double);
+#include <cmath>
 
 namespace NC2E2
 {
@@ -1126,9 +1123,9 @@ namespace NC2E2
 		const std::int32_t angle = NXBasics::Runtime_Rand() % 361;
 		Write<std::int32_t>(state, NC2Layout::ParticleWindOffset::AngleDegrees, angle);
 		const double radians = (static_cast<double>(static_cast<std::uint32_t>(angle)) * 0.005555555555555556) * 3.1415927410125732;
-		const double cosine = Runtime_Cos(radians);
+		const double cosine = std::cos(radians);
 		Write<double>(state, NC2Layout::ParticleWindOffset::Cosine, cosine);
-		const double sine = Runtime_Sin(radians);
+		const double sine = std::sin(radians);
 		Write<double>(state, NC2Layout::ParticleWindOffset::Sine, sine);
 		Write<double>(state, NC2Layout::ParticleWindOffset::DeltaMapX, Read<double>(state, NC2Layout::ParticleWindOffset::HorizontalScale) * Read<double>(state, NC2Layout::ParticleWindOffset::Cosine));
 		Write<double>(state, NC2Layout::ParticleWindOffset::DeltaMapY, sine * Read<double>(state, NC2Layout::ParticleWindOffset::VerticalScale));

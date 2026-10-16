@@ -1,7 +1,7 @@
 #include "ApplicationStartup.h"
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
-#include "XCrtStartup.h"
+#include "XCrtFileAccess.h"
 
 #include <cstdint>
 #include <new>
@@ -79,16 +79,14 @@ namespace
 	}
 }
 
-// Hosted entry for the reconstructed startup at FUN_004e709e.
+// Remaster entry: use the supported MSVC startup instead of reconstructing FUN_004e709e.
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
 {
 	// Remaster: use physical monitor pixels, including mixed-DPI desktops.
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-	// The reconstructed startup obtains these values from the Win32 APIs.
-	(void) instance;
-	(void) previousInstance;
-	(void) commandLine;
-	(void) showCommand;
-
-	return NXBasics::Runtime_RunApplication(WindowsApplicationEntry, NApplicationStartup::gApplicationInitializers, NApplicationStartup::gApplicationInitializers + NApplicationStartup::ApplicationInitializerCount);
+	// The hosting UCRT owns heap, descriptors, environment, exceptions and exit callbacks.
+	// Only the game's explicit initializers remain in their established order.
+	for (const auto initialize : NApplicationStartup::gApplicationInitializers)
+		if (initialize != nullptr) initialize();
+	return WindowsApplicationEntry(instance, previousInstance, commandLine, showCommand);
 }

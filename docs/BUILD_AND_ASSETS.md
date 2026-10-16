@@ -6,13 +6,13 @@ Reviewed October 16, 2026 from `OpenVikings.vcxproj` and current path consumers.
 
 Open [OpenVikings.slnx](../OpenVikings.slnx) with Visual Studio C++ tools, **MSVC v145**, targeting **x86/Win32** and **C++17**. Select Debug or Release. Outputs are `OpenVikings/<Configuration>/`, PDBs are beneath `symbols/`, and intermediates beneath `obj/`.
 
-Production sources and headers are in [`src/`](../src/). The project and its semantic Visual Studio filters reference those paths. The resource script, icon and legacy import definition remain in the repository root; the resource script includes `src/resource.h`.
+Production sources and headers are in [`src/`](../src/). The project and its semantic Visual Studio filters reference those paths. The resource script and icon remain in the repository root; the resource script includes `src/resource.h`.
 
-Release uses `/O2`, `/Gy`, `/MD`, `/GS`, `/fp:precise`, `/Zi`, `/DEBUG:FULL`, `/OPT:REF`, `/OPT:NOICF` and nonincremental linking. Identical folding stays disabled for function-pointer identity. `XCrtMath.cpp` retains its IA32/strict floating-point overrides; `XCrtCompiler.cpp` has special raw-entry code-generation settings. Do not generalize those files' ABI to ordinary C++ calls.
+Release uses `/O2`, `/Gy`, `/MD`, `/GS`, `/fp:precise`, `/Zi`, `/DEBUG:FULL`, `/OPT:REF`, `/OPT:NOICF` and nonincremental linking. Identical folding stays disabled for function-pointer identity. Both configurations explicitly use SSE2 and `/fp:precise`; Debug uses `/MDd`. The reconstructed CRT/compiler/x87 units and their special compiler overrides have been removed.
 
 The project links Windows/DirectX imports directly. On `remaster`, mouse input uses Windows Raw Input; the unused DirectInput mouse class, export definition, generated import library, linker alias and `dinput8.lib` dependency have been removed. No custom DirectInput import-generation step is needed. The main target is not x64.
 
-Runtime also depends on the [verified legacy compiler/math backends](RUNTIME_COMPATIBILITY.md). A historical successful build does not certify the current working tree or backend availability on another installation.
+The game uses the supported MSVC/UCRT runtime; deployment requires the matching x86 Visual C++ runtime. Private `msvcrt.dll` and `msvbvm60.dll` code discovery is no longer required. See [runtime scope and compatibility](RUNTIME_COMPATIBILITY.md). A historical successful build does not certify the current working tree.
 
 The `remaster` frontend targets Windows 10 version 1703 or later with Per Monitor V2 awareness and links `d3d11.lib`, `dxgi.lib` and `d3dcompiler.lib` for borderless flip-model presentation. `ddraw.lib` remains solely for the isolated legacy FMV decoder. Output and intermediate directories are unchanged. See [remaster presentation](REMASTER_WINDOW_PRESENTATION.md).
 

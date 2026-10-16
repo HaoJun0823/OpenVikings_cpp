@@ -14,7 +14,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <mmintrin.h>
 
 namespace NXBasics
 {
@@ -712,7 +711,6 @@ namespace NXBasics
 
 		if (depth != 1 && depth != 2)
 		{
-			_mm_empty();
 			return;
 		}
 
@@ -928,8 +926,6 @@ namespace NXBasics
 				}
 			}
 		}
-
-		_mm_empty();
 	}
 
 	// Original function: FUN_004660c6
@@ -1012,7 +1008,6 @@ namespace NXBasics
 
 		if (depth != 1 && depth != 2)
 		{
-			_mm_empty();
 			return;
 		}
 
@@ -1193,7 +1188,5 @@ namespace NXBasics
 				}
 			}
 		}
-
-		_mm_empty();
 	}
 }

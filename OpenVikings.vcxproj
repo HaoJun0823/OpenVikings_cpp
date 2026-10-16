@@ -108,17 +108,7 @@
     <ClCompile Include="src\XBobRenderingEffects.cpp" />
     <ClCompile Include="src\XBTokenList.cpp" />
     <ClCompile Include="src\XCPU.cpp" />
-    <ClCompile Include="src\XCrtFileAccess.cpp" />
-    <ClCompile Include="src\XCrtCompiler.cpp">
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <SupportJustMyCode>false</SupportJustMyCode>
-    </ClCompile>
-    <ClCompile Include="src\XCrtMath.cpp">
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-      <FloatingPointModel>Strict</FloatingPointModel>
-    </ClCompile>
+    <ClCompile Include="src\XRuntime.cpp" />
     <ClCompile Include="src\XDiagnostics.cpp" />
     <ClCompile Include="src\XFile.cpp" />
     <ClCompile Include="src\XFont.cpp" />
@@ -229,7 +219,6 @@
     <ClInclude Include="src\XCPU.h" />
     <ClInclude Include="src\XCrtFileAccess.h" />
     <ClInclude Include="src\OriginalStrings.h" />
-    <ClInclude Include="src\XCrtStartup.h" />
     <ClInclude Include="src\XDirectoryScanner.h" />
     <ClInclude Include="src\XFont.h" />
     <ClInclude Include="src\XFontMetrics.h" />
@@ -311,6 +300,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <ProgramDataBaseFileName>$(OutDir)symbols\$(TargetName).compiler.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
@@ -325,6 +317,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

@@ -13,9 +13,6 @@
 #include <cmath>
 #include <cstring>
 
-extern double __cdecl Runtime_Cos(double);
-extern double __cdecl Runtime_Sin(double);
-
 namespace NC2E2
 {
 	using namespace NC2Lifetime;
@@ -520,8 +517,8 @@ namespace NC2E2
 		if (angle > 360) angle = 0;
 		Write(wind, NC2Layout::ParticleWindOffset::AngleDegrees, angle);
 		const double radians = static_cast<double>(angle) * 0.005555555555555556 * 3.1415927410125732;
-		Write(wind, NC2Layout::ParticleWindOffset::Cosine, Runtime_Cos(radians));
-		Write(wind, NC2Layout::ParticleWindOffset::Sine, Runtime_Sin(radians));
+		Write(wind, NC2Layout::ParticleWindOffset::Cosine, std::cos(radians));
+		Write(wind, NC2Layout::ParticleWindOffset::Sine, std::sin(radians));
 		Write(wind, NC2Layout::ParticleWindOffset::HorizontalSpeed, RandUnsigned() % 5u);
 		Write(wind, NC2Layout::ParticleWindOffset::VerticalSpeed, RandUnsigned() % 5u);
 		if (Read<std::uint32_t>(wind, NC2Layout::ParticleWindOffset::HorizontalSpeed) >= 5) Write<std::uint32_t>(wind, NC2Layout::ParticleWindOffset::HorizontalSpeed, 4);

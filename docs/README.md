@@ -9,7 +9,7 @@ Reviewed October 16, 2026. This directory contains current guidance and evidence
 | [Reverse-engineering rules](REVERSE_ENGINEERING_STATE.md) | Source authority, naming and evidence conventions |
 | [Architecture](ARCHITECTURE.md) | Source entry points and ownership constraints |
 | [Build and assets](BUILD_AND_ASSETS.md) | Win32 build settings, game files and DataX adaptation |
-| [Runtime compatibility](RUNTIME_COMPATIBILITY.md) | Legacy CRT bindings and floating-point limits |
+| [Runtime compatibility](RUNTIME_COMPATIBILITY.md) | Modern runtime replacement, ownership and numeric differences |
 | [Controls](CONTROLS.md) | Input routing, cheats and authorized mouse changes |
 | [Remaster presentation](REMASTER_WINDOW_PRESENTATION.md) | Borderless window, D3D11/DXGI output, DPI and cursor integration |
 | [Remaster bug fixes](REMASTER_BUGFIXES.md) | Frozen legacy policy, community-patch comparison and intentional corrections |
@@ -28,4 +28,4 @@ Machine-readable evidence:
 - [Data symbols](DATA_SYMBOL_NAME_MAP.csv) and [layout evidence](LAYOUT_EVIDENCE.csv): established storage roles, offsets and widths.
 - [Recovered fields](RECOVERED_MEMBER_FIELDS.csv), [unknown member triage](UNKNOWN_MEMBER_TRIAGE.csv) and [numeric accesses](REMAINING_NUMERIC_ACCESS_INVENTORY.csv): current naming work.
 - [Campaign maps](CAMPAIGN_MAP_COVERAGE.csv), [mission dispatch](MISSION_DISPATCH_COVERAGE.csv) and [building data](BUILDING_LIST.csv): audited Windows asset/interpreter data, not gameplay pass rates.
-- [Math backend evidence](RUNTIME_BACKEND_EVIDENCE.csv): inspected native leaves and data regions.
+- [Math backend evidence](RUNTIME_BACKEND_EVIDENCE.csv): historical native leaves and data regions from the removed legacy bindings.

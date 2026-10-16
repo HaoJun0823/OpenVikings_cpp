@@ -16,7 +16,7 @@ This is a current entry-point map, not a list of unfinished functions. Native ad
 | Rendering | [display](../src/C2EngineDisplayAccess.cpp), [house drawing](../src/C2EngineHouseDrawing.cpp), [particles](../src/C2EngineParticleDrawing.cpp) |
 | Audio/video | [DirectMusic](../src/DMManager.cpp), [video](../src/WindowsVideoPlayer.cpp) |
 | Network | [runtime](../src/NetworkRuntime.cpp), [ownership/layout](../src/NetworkShutdown.h), [game control](../src/C2GameControlNetwork.cpp) |
-| Legacy runtime | [CRT](../src/XCrtFileAccess.cpp), [math](../src/XCrtMath.cpp), [compiler support](../src/XCrtCompiler.cpp) |
+| Runtime | [Supported-runtime services](../src/XRuntime.cpp), [caller facade](../src/XCrtFileAccess.h), [scope](RUNTIME_COMPATIBILITY.md) |
 
 ## Storage and ownership constraints
 

@@ -20,8 +20,6 @@
 #include <cmath>
 #include <cstring>
 
-extern double __cdecl Runtime_Sin(double value);
-
 namespace NC2E2
 {
 	using namespace NC2Lifetime;
@@ -338,11 +336,11 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 		const double centerPhase = static_cast<double>(shiftedY) + shiftedX + Read<std::int32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) * 0.5 + time;
 		const double centerMotionPhase = centerPhase * 0.01 + centerPhase * 0.2;
 		std::int32_t centerPixel[2] = { origin[0], origin[1] };
-		centerPixel[0] = add(centerPixel[0], truncate(Runtime_Sin(gFishMotionFrequencies.horizontal * centerMotionPhase) * 20.0));
-		centerPixel[0] = add(centerPixel[0], truncate(Runtime_Sin((centerPhase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0));
-		centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin(centerPhase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0));
-		centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin(gFishMotionFrequencies.vertical * centerMotionPhase) * 20.0));
-		centerPixel[1] = add(centerPixel[1], truncate(Runtime_Sin((centerPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0));
+		centerPixel[0] = add(centerPixel[0], truncate(std::sin(gFishMotionFrequencies.horizontal * centerMotionPhase) * 20.0));
+		centerPixel[0] = add(centerPixel[0], truncate(std::sin((centerPhase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0));
+		centerPixel[1] = add(centerPixel[1], truncate(std::sin(centerPhase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0));
+		centerPixel[1] = add(centerPixel[1], truncate(std::sin(gFishMotionFrequencies.vertical * centerMotionPhase) * 20.0));
+		centerPixel[1] = add(centerPixel[1], truncate(std::sin((centerPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0));
 		if ((Read<std::uint8_t>(display, NC2Layout::WorldDisplayOffset::DrawFlagsByte2) & 1u) != 0)
 		{
 			Display_l_DE_Debug_DrawRange(display, Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::MapPosition), 0, &white);
@@ -356,29 +354,29 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
 		auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + gStaticPalettes.fishPaletteId, DE_Hightlighting_GetHighlightBrightness(display, &centerPoint));
 		for (std::int32_t index = 0; index < Read<std::int32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount); ++index)
 		{
-			const double scatterX = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.000002) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterX + 1.0) * 30.0;
-			const double scatterY = Runtime_Sin((Runtime_Sin(3.1415926535 * time * 0.0000001) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterY) * 30.0;
+			const double scatterX = std::sin((std::sin(3.1415926535 * time * 0.000002) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterX + 1.0) * 30.0;
+			const double scatterY = std::sin((std::sin(3.1415926535 * time * 0.0000001) + NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(swarm, NC2Layout::FishSwarmOffset::FishCount) - static_cast<std::uint32_t>(index))) * gFishMotionFrequencies.scatterY) * 30.0;
 			double currentX = origin[0], currentY = origin[1], previousX = origin[0], previousY = origin[1];
 			const double phase = static_cast<double>(shiftedY) + shiftedX + index + time;
 			const double motionPhase = phase * 0.01 + phase * 0.2;
-			currentX += Runtime_Sin(motionPhase * gFishMotionFrequencies.horizontal) * 20.0;
-			currentX += Runtime_Sin((phase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0;
-			currentY += Runtime_Sin(phase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0;
-			currentY += Runtime_Sin(motionPhase * gFishMotionFrequencies.vertical) * 20.0;
-			currentY += Runtime_Sin((phase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0;
+			currentX += std::sin(motionPhase * gFishMotionFrequencies.horizontal) * 20.0;
+			currentX += std::sin((phase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0;
+			currentY += std::sin(phase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0;
+			currentY += std::sin(motionPhase * gFishMotionFrequencies.vertical) * 20.0;
+			currentY += std::sin((phase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0;
 			const double previousPhase = static_cast<double>(shiftedY) + shiftedX + index + time - 5.0;
 			const double previousMotionPhase = previousPhase * 0.01 + previousPhase * 0.2;
-			previousX += Runtime_Sin(previousMotionPhase * gFishMotionFrequencies.horizontal) * 20.0;
-			previousX += Runtime_Sin((previousPhase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0;
-			previousY += Runtime_Sin(previousPhase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0;
-			previousY += Runtime_Sin(previousMotionPhase * gFishMotionFrequencies.vertical) * 20.0;
+			previousX += std::sin(previousMotionPhase * gFishMotionFrequencies.horizontal) * 20.0;
+			previousX += std::sin((previousPhase + 8.0) * gFishMotionFrequencies.horizontalSecondary) * 90.0;
+			previousY += std::sin(previousPhase * 0.1 * gFishMotionFrequencies.horizontalSecondary) * 60.0;
+			previousY += std::sin(previousMotionPhase * gFishMotionFrequencies.vertical) * 20.0;
 			currentX += scatterX;
 			currentY += scatterY;
 			const double deltaX = previousX + scatterX - currentX;
-			const double deltaY = previousY + Runtime_Sin((previousPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0 + scatterY - currentY;
+			const double deltaY = previousY + std::sin((previousPhase + 10.0) * gFishMotionFrequencies.verticalSecondary) * 20.0 + scatterY - currentY;
 			double angle;
-			if (deltaY > 0.000001) angle = NXBasics::Runtime_Atan(deltaX / deltaY);
-			else if (deltaY < -0.000001) angle = NXBasics::Runtime_Atan(deltaX / deltaY) + 3.1415926535;
+			if (deltaY > 0.000001) angle = std::atan(deltaX / deltaY);
+			else if (deltaY < -0.000001) angle = std::atan(deltaX / deltaY) + 3.1415926535;
 			else angle = deltaX > 0.0 ? 3.1415926535 * 0.5 : 3.1415926535 * -0.5;
 			while (angle < 0.0) angle += 3.1415926535 * 2.0;
 			while (angle >= 3.1415926535 * 2.0) angle -= 3.1415926535 * 2.0;
