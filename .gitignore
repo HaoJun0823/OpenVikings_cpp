@@ -11,6 +11,9 @@
 *.gch
 *.pch
 
+# Visual Studio resource editor cache
+*.aps
+
 # Linker files
 *.ilk
 
