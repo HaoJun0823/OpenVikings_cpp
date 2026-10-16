@@ -138,719 +138,719 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2GameMapIO.cpp">
+    <ClCompile Include="src\C2GameMapIO.cpp">
       <Filter>Logic\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameTime.cpp">
+    <ClCompile Include="src\C2GameTime.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameState.cpp">
+    <ClCompile Include="src\C2GameState.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameControlNetwork.cpp">
+    <ClCompile Include="src\C2GameControlNetwork.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameControlStartup.cpp">
+    <ClCompile Include="src\C2GameControlStartup.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2PlayerCenterPosition.cpp">
+    <ClCompile Include="src\C2PlayerCenterPosition.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_WorldDisplay.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram.cpp">
+    <ClCompile Include="src\MasterControlProgram.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="MasterPropertyManager.cpp">
+    <ClCompile Include="src\MasterPropertyManager.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="WinMain.cpp">
+    <ClCompile Include="src\WinMain.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_DisplayResolution.cpp">
+    <ClCompile Include="src\MasterControlProgram_DisplayResolution.cpp">
       <Filter>Application\Display</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp">
+    <ClCompile Include="src\MasterControlProgram_HardwareMouseCursor.cpp">
       <Filter>Application\Display</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_InGame.cpp">
+    <ClCompile Include="src\MasterControlProgram_PS_InGame.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_MainMenu.cpp">
+    <ClCompile Include="src\MasterControlProgram_PS_MainMenu.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp">
+    <ClCompile Include="src\MasterControlProgram_PS_PreIngameFmv.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_System.cpp">
+    <ClCompile Include="src\MasterControlProgram_PS_System.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp">
+    <ClCompile Include="src\MasterControlProgram_PS_TitleScreen.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="DSManager.cpp">
+    <ClCompile Include="src\DSManager.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="CRC16.cpp">
+    <ClCompile Include="src\CRC16.cpp">
       <Filter>Core\Checksums</Filter>
     </ClCompile>
-    <ClCompile Include="CRC32.cpp">
+    <ClCompile Include="src\CRC32.cpp">
       <Filter>Core\Checksums</Filter>
     </ClCompile>
-    <ClCompile Include="FileCompressor.cpp">
+    <ClCompile Include="src\FileCompressor.cpp">
       <Filter>Core\Compression</Filter>
     </ClCompile>
-    <ClCompile Include="XFile.cpp">
+    <ClCompile Include="src\XFile.cpp">
       <Filter>Core\Files</Filter>
     </ClCompile>
-    <ClCompile Include="XIniFileReader.cpp">
+    <ClCompile Include="src\XIniFileReader.cpp">
       <Filter>Core\Files</Filter>
     </ClCompile>
-    <ClCompile Include="XMemory.cpp">
+    <ClCompile Include="src\XMemory.cpp">
       <Filter>Core\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="XStorable.cpp">
+    <ClCompile Include="src\XStorable.cpp">
       <Filter>Core\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="XStorableIO.cpp">
+    <ClCompile Include="src\XStorableIO.cpp">
       <Filter>Core\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="XBTokenList.cpp">
+    <ClCompile Include="src\XBTokenList.cpp">
       <Filter>Core\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="XStringArray.cpp">
+    <ClCompile Include="src\XStringArray.cpp">
       <Filter>Core\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="DirectXErrorText.cpp">
+    <ClCompile Include="src\DirectXErrorText.cpp">
       <Filter>Diagnostics</Filter>
     </ClCompile>
-    <ClCompile Include="XDiagnostics.cpp">
+    <ClCompile Include="src\XDiagnostics.cpp">
       <Filter>Diagnostics</Filter>
     </ClCompile>
-    <ClCompile Include="XMMessageDialogs.cpp">
+    <ClCompile Include="src\XMMessageDialogs.cpp">
       <Filter>Diagnostics</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2AnimalSoundManager.cpp">
+    <ClCompile Include="src\C2E2AnimalSoundManager.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="C2CallbackManager.cpp">
+    <ClCompile Include="src\C2CallbackManager.cpp">
       <Filter>Engine\Callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataAnimalSounds.cpp">
+    <ClCompile Include="src\C2E2StaticDataAnimalSounds.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataGroups.cpp">
+    <ClCompile Include="src\C2E2StaticDataGroups.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataPalettes.cpp">
+    <ClCompile Include="src\C2E2StaticDataPalettes.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataTerrain.cpp">
+    <ClCompile Include="src\C2E2StaticDataTerrain.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataMapMoveables.cpp">
+    <ClCompile Include="src\C2E2StaticDataMapMoveables.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataHumanMisc.cpp">
+    <ClCompile Include="src\C2E2StaticDataHumanMisc.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataSoundFX.cpp">
+    <ClCompile Include="src\C2E2StaticDataSoundFX.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
-    <ClCompile Include="X2DDisplay.cpp">
+    <ClCompile Include="src\X2DDisplay.cpp">
       <Filter>Graphics\Display</Filter>
     </ClCompile>
-    <ClCompile Include="XFontMetrics.cpp">
+    <ClCompile Include="src\XFontMetrics.cpp">
       <Filter>Graphics\Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="XBitmap.cpp">
+    <ClCompile Include="src\XBitmap.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="XBobRendering.cpp">
+    <ClCompile Include="src\XBobRendering.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="XBobRenderingEffects.cpp">
+    <ClCompile Include="src\XBobRenderingEffects.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="GuiToolsBase.cpp">
+    <ClCompile Include="src\GuiToolsBase.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiManager.cpp">
+    <ClCompile Include="src\InGameGuiManager.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiManager_State.cpp">
+    <ClCompile Include="src\InGameGuiManager_State.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager.cpp">
+    <ClCompile Include="src\MainMenuGuiManager.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_Access.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_Access.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_Lists.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_Lists.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_Commands.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_Commands.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_Network.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_Network.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager_Screens.cpp">
+    <ClCompile Include="src\MainMenuGuiManager_Screens.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="StringInputHandler.cpp">
+    <ClCompile Include="src\StringInputHandler.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkRuntime.cpp">
+    <ClCompile Include="src\NetworkRuntime.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="NetworkShutdown.cpp">
+    <ClCompile Include="src\NetworkShutdown.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="XMDirectInputMouse.cpp">
+    <ClCompile Include="src\XMDirectInputMouse.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
-    <ClCompile Include="XMKeyManager.cpp">
+    <ClCompile Include="src\XMKeyManager.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
-    <ClCompile Include="XMMouseManager.cpp">
+    <ClCompile Include="src\XMMouseManager.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
-    <ClCompile Include="XSystemMouseCursor.cpp">
+    <ClCompile Include="src\XSystemMouseCursor.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
-    <ClCompile Include="XCPU.cpp">
+    <ClCompile Include="src\XCPU.cpp">
       <Filter>Platform\System</Filter>
     </ClCompile>
-    <ClCompile Include="X2DApplication.cpp">
+    <ClCompile Include="src\X2DApplication.cpp">
       <Filter>Platform\Window</Filter>
     </ClCompile>
-    <ClCompile Include="X2DApplicationMessages.cpp">
+    <ClCompile Include="src\X2DApplicationMessages.cpp">
       <Filter>Platform\Window</Filter>
     </ClCompile>
-    <ClCompile Include="X2DWindow.cpp">
+    <ClCompile Include="src\X2DWindow.cpp">
       <Filter>Platform\Window</Filter>
     </ClCompile>
-    <ClCompile Include="XCrtFileAccess.cpp">
+    <ClCompile Include="src\XCrtFileAccess.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="XCrtCompiler.cpp">
+    <ClCompile Include="src\XCrtCompiler.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="XCrtMath.cpp">
+    <ClCompile Include="src\XCrtMath.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
-    <ClCompile Include="C2AnimalIterator.cpp">
+    <ClCompile Include="src\C2AnimalIterator.cpp">
       <Filter>Engine\Iterators</Filter>
     </ClCompile>
-    <ClCompile Include="C2HumanIterator.cpp">
+    <ClCompile Include="src\C2HumanIterator.cpp">
       <Filter>Engine\Iterators</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapSectorGridCursor.cpp">
+    <ClCompile Include="src\C2MapSectorGridCursor.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapGeometry.cpp">
+    <ClCompile Include="src\C2MapGeometry.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapPathfinderSearch.cpp">
+    <ClCompile Include="src\C2MapPathfinderSearch.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2HumanSoundAccess.cpp">
+    <ClCompile Include="src\C2E2HumanSoundAccess.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapArea.cpp">
+    <ClCompile Include="src\C2MapArea.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="C2ControlStartup.cpp">
+    <ClCompile Include="src\C2ControlStartup.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2CampaignStaticDataManager.cpp">
+    <ClCompile Include="src\C2CampaignStaticDataManager.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2StaticStringsManager.cpp">
+    <ClCompile Include="src\C2StaticStringsManager.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2Debug.cpp">
+    <ClCompile Include="src\C2Debug.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameEngineStartup.cpp">
+    <ClCompile Include="src\C2GameEngineStartup.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="MasterControlProgram_GameStartup.cpp">
+    <ClCompile Include="src\MasterControlProgram_GameStartup.cpp">
       <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="C2AnimalAccess.cpp">
+    <ClCompile Include="src\C2AnimalAccess.cpp">
       <Filter>Engine\Animals</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameMapContinents.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2GameMapConnectivity.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2GameMapAccess.cpp">
+    <ClCompile Include="src\C2GameMapContinents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2GameMapConnectivity.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2GameMapAccess.cpp">
       <Filter>Engine\Map</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineDisplayAccess.cpp">
+    <ClCompile Include="src\C2EngineDisplayAccess.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="WorldDisplayElementAccess.cpp">
+    <ClCompile Include="src\WorldDisplayElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineDrawingAccess.cpp">
+    <ClCompile Include="src\C2EngineDrawingAccess.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineLandscapeDrawing.cpp">
+    <ClCompile Include="src\C2EngineLandscapeDrawing.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineMoveableDrawing.cpp">
+    <ClCompile Include="src\C2EngineMoveableDrawing.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="XSystemManager.cpp">
+    <ClCompile Include="src\XSystemManager.cpp">
       <Filter>Platform\System</Filter>
     </ClCompile>
-    <ClCompile Include="XPixelFormatConverter.cpp">
+    <ClCompile Include="src\XPixelFormatConverter.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2LevelOfDetailManager.cpp">
+    <ClCompile Include="src\C2E2LevelOfDetailManager.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineDisplayManager.cpp">
+    <ClCompile Include="src\C2EngineDisplayManager.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2StringIO.cpp">
+    <ClCompile Include="src\C2StringIO.cpp">
       <Filter>Logic\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="C2LanguageTools.cpp">
+    <ClCompile Include="src\C2LanguageTools.cpp">
       <Filter>Logic\Language</Filter>
     </ClCompile>
-    <ClCompile Include="XPictureAccess.cpp">
+    <ClCompile Include="src\XPictureAccess.cpp">
       <Filter>Core\Graphics\Pictures</Filter>
     </ClCompile>
-    <ClCompile Include="XGuiDesktop.cpp">
+    <ClCompile Include="src\XGuiDesktop.cpp">
       <Filter>Core\GUI\Desktop</Filter>
     </ClCompile>
-    <ClCompile Include="XList.cpp">
+    <ClCompile Include="src\XList.cpp">
       <Filter>Core\Containers</Filter>
     </ClCompile>
-    <ClCompile Include="XBobManager.cpp">
+    <ClCompile Include="src\XBobManager.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="XFont.cpp">
+    <ClCompile Include="src\XFont.cpp">
       <Filter>Graphics\Fonts</Filter>
     </ClCompile>
-    <ClCompile Include="XPalette.cpp">
+    <ClCompile Include="src\XPalette.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="XRemapTable.cpp">
+    <ClCompile Include="src\XRemapTable.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
-    <ClCompile Include="XPicture.cpp">
+    <ClCompile Include="src\XPicture.cpp">
       <Filter>Core\Graphics\Pictures</Filter>
     </ClCompile>
-    <ClCompile Include="DMManager.cpp">
+    <ClCompile Include="src\DMManager.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="C2LogicObjectArrays.cpp">
+    <ClCompile Include="src\C2LogicObjectArrays.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2IoHelper.cpp">
+    <ClCompile Include="src\C2IoHelper.cpp">
       <Filter>Logic\Serialization</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapSectorAttachment.cpp">
+    <ClCompile Include="src\C2MapSectorAttachment.cpp">
       <Filter>Engine\Map</Filter>
     </ClCompile>
-    <ClCompile Include="C2MapWalkSectorManager.cpp">
+    <ClCompile Include="src\C2MapWalkSectorManager.cpp">
       <Filter>Engine\Map</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2AmbientSoundManagerAccess.cpp">
+    <ClCompile Include="src\C2E2AmbientSoundManagerAccess.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineTooltipAccess.cpp">
+    <ClCompile Include="src\C2EngineTooltipAccess.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2OverviewObjectIterators.cpp">
+    <ClCompile Include="src\C2OverviewObjectIterators.cpp">
       <Filter>Engine\Iterators</Filter>
     </ClCompile>
-    <ClCompile Include="CDAudioManager.cpp">
+    <ClCompile Include="src\CDAudioManager.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="GuiBitmapToolElementAccess.cpp">
+    <ClCompile Include="src\GuiBitmapToolElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="XGuiElementAccess.cpp">
+    <ClCompile Include="src\XGuiElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp">
+    <ClCompile Include="src\InGameGuiOverviewDisplayAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiOverviewHandler.cpp">
+    <ClCompile Include="src\InGameGuiOverviewHandler.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiOverviewWindowAccess.cpp">
+    <ClCompile Include="src\InGameGuiOverviewWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiInputAccess.cpp">
+    <ClCompile Include="src\InGameGuiInputAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiSupportAccess.cpp">
+    <ClCompile Include="src\InGameGuiSupportAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiMessageManagerAccess.cpp">
+    <ClCompile Include="src\InGameGuiMessageManagerAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiMessageMiniButtonAccess.cpp">
+    <ClCompile Include="src\InGameGuiMessageMiniButtonAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C2GameMapIO.h">
+    <ClInclude Include="src\C2GameMapIO.h">
       <Filter>Logic\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameTime.h">
+    <ClInclude Include="src\C2GameTime.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameControlNetwork.h">
+    <ClInclude Include="src\C2GameControlNetwork.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameControlStartup.h">
+    <ClInclude Include="src\C2GameControlStartup.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2PlayerCenterPosition.h">
+    <ClInclude Include="src\C2PlayerCenterPosition.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="ApplicationGlobals.h">
+    <ClInclude Include="src\ApplicationGlobals.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="ApplicationStartup.h">
+    <ClInclude Include="src\ApplicationStartup.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="MasterControlProgram.h">
+    <ClInclude Include="src\MasterControlProgram.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="MasterPropertyManager.h">
+    <ClInclude Include="src\MasterPropertyManager.h">
       <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="DSManager.h">
+    <ClInclude Include="src\DSManager.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="CRC16.h">
+    <ClInclude Include="src\CRC16.h">
       <Filter>Core\Checksums</Filter>
     </ClInclude>
-    <ClInclude Include="CRC32.h">
+    <ClInclude Include="src\CRC32.h">
       <Filter>Core\Checksums</Filter>
     </ClInclude>
-    <ClInclude Include="FileCompressor.h">
+    <ClInclude Include="src\FileCompressor.h">
       <Filter>Core\Compression</Filter>
     </ClInclude>
-    <ClInclude Include="XDirectoryScanner.h">
+    <ClInclude Include="src\XDirectoryScanner.h">
       <Filter>Core\Files</Filter>
     </ClInclude>
-    <ClInclude Include="XFile.h">
+    <ClInclude Include="src\XFile.h">
       <Filter>Core\Files</Filter>
     </ClInclude>
-    <ClInclude Include="XFileAccess.h">
+    <ClInclude Include="src\XFileAccess.h">
       <Filter>Core\Files</Filter>
     </ClInclude>
-    <ClInclude Include="XIniFileReader.h">
+    <ClInclude Include="src\XIniFileReader.h">
       <Filter>Core\Files</Filter>
     </ClInclude>
-    <ClInclude Include="XMemory.h">
+    <ClInclude Include="src\XMemory.h">
       <Filter>Core\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="XStorable.h">
+    <ClInclude Include="src\XStorable.h">
       <Filter>Core\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="XStorableIO.h">
+    <ClInclude Include="src\XStorableIO.h">
       <Filter>Core\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="XBTokenList.h">
+    <ClInclude Include="src\XBTokenList.h">
       <Filter>Core\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="XStringArray.h">
+    <ClInclude Include="src\XStringArray.h">
       <Filter>Core\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="XStringMemory.h">
+    <ClInclude Include="src\XStringMemory.h">
       <Filter>Core\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="XBasicTypes.h">
+    <ClInclude Include="src\XBasicTypes.h">
       <Filter>Core\Types</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXErrorText.h">
+    <ClInclude Include="src\DirectXErrorText.h">
       <Filter>Diagnostics</Filter>
     </ClInclude>
-    <ClInclude Include="XDiagnostics.h">
+    <ClInclude Include="src\XDiagnostics.h">
       <Filter>Diagnostics</Filter>
     </ClInclude>
-    <ClInclude Include="XMMessageDialogs.h">
+    <ClInclude Include="src\XMMessageDialogs.h">
       <Filter>Diagnostics</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2AnimalSoundManager.h">
+    <ClInclude Include="src\C2E2AnimalSoundManager.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="C2CallbackManager.h">
+    <ClInclude Include="src\C2CallbackManager.h">
       <Filter>Engine\Callbacks</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataAnimalSounds.h">
+    <ClInclude Include="src\C2E2StaticDataAnimalSounds.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataGroups.h">
+    <ClInclude Include="src\C2E2StaticDataGroups.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataPalettes.h">
+    <ClInclude Include="src\C2E2StaticDataPalettes.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataTerrain.h">
+    <ClInclude Include="src\C2E2StaticDataTerrain.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataMapMoveables.h">
+    <ClInclude Include="src\C2E2StaticDataMapMoveables.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataHumanMisc.h">
+    <ClInclude Include="src\C2E2StaticDataHumanMisc.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataSoundFX.h">
+    <ClInclude Include="src\C2E2StaticDataSoundFX.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="dpaddr.h">
+    <ClInclude Include="src\dpaddr.h">
       <Filter>External\DirectPlay</Filter>
     </ClInclude>
-    <ClInclude Include="dplay8.h">
+    <ClInclude Include="src\dplay8.h">
       <Filter>External\DirectPlay</Filter>
     </ClInclude>
-    <ClInclude Include="X2DDisplay.h">
+    <ClInclude Include="src\X2DDisplay.h">
       <Filter>Graphics\Display</Filter>
     </ClInclude>
-    <ClInclude Include="XFontMetrics.h">
+    <ClInclude Include="src\XFontMetrics.h">
       <Filter>Graphics\Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="XBitmap.h">
+    <ClInclude Include="src\XBitmap.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XBitmapTools.h">
+    <ClInclude Include="src\XBitmapTools.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XBobRendering.h">
+    <ClInclude Include="src\XBobRendering.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XPaletteAccess.h">
+    <ClInclude Include="src\XPaletteAccess.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="GuiToolsBase.h">
+    <ClInclude Include="src\GuiToolsBase.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiManager.h">
+    <ClInclude Include="src\InGameGuiManager.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuGuiManager.h">
+    <ClInclude Include="src\MainMenuGuiManager.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="MainMenuGuiManager_Access.h">
+    <ClInclude Include="src\MainMenuGuiManager_Access.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="StringInputHandler.h">
+    <ClInclude Include="src\StringInputHandler.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="FileTransferManager.h">
+    <ClInclude Include="src\FileTransferManager.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="NetworkShutdown.h">
+    <ClInclude Include="src\NetworkShutdown.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="XMDirectInputMouse.h">
+    <ClInclude Include="src\XMDirectInputMouse.h">
       <Filter>Platform\Input</Filter>
     </ClInclude>
-    <ClInclude Include="XMKeyManager.h">
+    <ClInclude Include="src\XMKeyManager.h">
       <Filter>Platform\Input</Filter>
     </ClInclude>
-    <ClInclude Include="XMMouseManager.h">
+    <ClInclude Include="src\XMMouseManager.h">
       <Filter>Platform\Input</Filter>
     </ClInclude>
-    <ClInclude Include="XSystemMouseCursor.h">
+    <ClInclude Include="src\XSystemMouseCursor.h">
       <Filter>Platform\Input</Filter>
     </ClInclude>
-    <ClInclude Include="XCPU.h">
+    <ClInclude Include="src\XCPU.h">
       <Filter>Platform\System</Filter>
     </ClInclude>
-    <ClInclude Include="XSystemManager.h">
+    <ClInclude Include="src\XSystemManager.h">
       <Filter>Platform\System</Filter>
     </ClInclude>
-    <ClInclude Include="X2DApplication.h">
+    <ClInclude Include="src\X2DApplication.h">
       <Filter>Platform\Window</Filter>
     </ClInclude>
-    <ClInclude Include="X2DWindow.h">
+    <ClInclude Include="src\X2DWindow.h">
       <Filter>Platform\Window</Filter>
     </ClInclude>
-    <ClInclude Include="OriginalStrings.h">
+    <ClInclude Include="src\OriginalStrings.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="src\resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="XCrtFileAccess.h">
+    <ClInclude Include="src\XCrtFileAccess.h">
       <Filter>Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="XCrtStartup.h">
+    <ClInclude Include="src\XCrtStartup.h">
       <Filter>Runtime</Filter>
     </ClInclude>
-    <ClInclude Include="C2AnimalIterator.h">
+    <ClInclude Include="src\C2AnimalIterator.h">
       <Filter>Engine\Iterators</Filter>
     </ClInclude>
-    <ClInclude Include="C2HumanIterator.h">
+    <ClInclude Include="src\C2HumanIterator.h">
       <Filter>Engine\Iterators</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapSectorGridCursor.h">
+    <ClInclude Include="src\C2MapSectorGridCursor.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapGeometry.h">
+    <ClInclude Include="src\C2MapGeometry.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapPathfinderSearch.h">
+    <ClInclude Include="src\C2MapPathfinderSearch.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2HumanSoundAccess.h">
+    <ClInclude Include="src\C2E2HumanSoundAccess.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapArea.h">
+    <ClInclude Include="src\C2MapArea.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="C2ControlStartup.h">
+    <ClInclude Include="src\C2ControlStartup.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2CampaignStaticDataManager.h">
+    <ClInclude Include="src\C2CampaignStaticDataManager.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2StaticStringsManager.h">
+    <ClInclude Include="src\C2StaticStringsManager.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2Debug.h">
+    <ClInclude Include="src\C2Debug.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameEngineStartup.h">
+    <ClInclude Include="src\C2GameEngineStartup.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameState.h">
+    <ClInclude Include="src\C2GameState.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AnimalAccess.h">
+    <ClInclude Include="src\C2AnimalAccess.h">
       <Filter>Engine\Animals</Filter>
     </ClInclude>
-    <ClInclude Include="C2GameMapAccess.h">
+    <ClInclude Include="src\C2GameMapAccess.h">
       <Filter>Engine\Map</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineDisplayAccess.h">
+    <ClInclude Include="src\C2EngineDisplayAccess.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="WorldDisplayElementAccess.h">
+    <ClInclude Include="src\WorldDisplayElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineDrawingAccess.h">
+    <ClInclude Include="src\C2EngineDrawingAccess.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineLandscapeDrawing.h">
+    <ClInclude Include="src\C2EngineLandscapeDrawing.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineMoveableDrawing.h">
+    <ClInclude Include="src\C2EngineMoveableDrawing.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="XPixelFormatConverter.h">
+    <ClInclude Include="src\XPixelFormatConverter.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2LevelOfDetailManager.h">
+    <ClInclude Include="src\C2E2LevelOfDetailManager.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineDisplayManager.h">
+    <ClInclude Include="src\C2EngineDisplayManager.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
-    <ClInclude Include="C2StringIO.h">
+    <ClInclude Include="src\C2StringIO.h">
       <Filter>Logic\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="C2LanguageTools.h">
+    <ClInclude Include="src\C2LanguageTools.h">
       <Filter>Logic\Language</Filter>
     </ClInclude>
-    <ClInclude Include="XPictureAccess.h">
+    <ClInclude Include="src\XPictureAccess.h">
       <Filter>Core\Graphics\Pictures</Filter>
     </ClInclude>
-    <ClInclude Include="XGuiDesktop.h">
+    <ClInclude Include="src\XGuiDesktop.h">
       <Filter>Core\GUI\Desktop</Filter>
     </ClInclude>
-    <ClInclude Include="XGuiElementAccess.h">
+    <ClInclude Include="src\XGuiElementAccess.h">
       <Filter>Core\GUI\Desktop</Filter>
     </ClInclude>
-    <ClInclude Include="XList.h">
+    <ClInclude Include="src\XList.h">
       <Filter>Core\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="XGuiLists.h">
+    <ClInclude Include="src\XGuiLists.h">
       <Filter>Core\Containers</Filter>
     </ClInclude>
-    <ClInclude Include="XBobManager.h">
+    <ClInclude Include="src\XBobManager.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XFont.h">
+    <ClInclude Include="src\XFont.h">
       <Filter>Graphics\Fonts</Filter>
     </ClInclude>
-    <ClInclude Include="XPalette.h">
+    <ClInclude Include="src\XPalette.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XRemapTable.h">
+    <ClInclude Include="src\XRemapTable.h">
       <Filter>Graphics\Images</Filter>
     </ClInclude>
-    <ClInclude Include="XPicture.h">
+    <ClInclude Include="src\XPicture.h">
       <Filter>Core\Graphics\Pictures</Filter>
     </ClInclude>
-    <ClInclude Include="DMManager.h">
+    <ClInclude Include="src\DMManager.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="C2LogicObjectArrays.h">
+    <ClInclude Include="src\C2LogicObjectArrays.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="XMemoryChecksum.h">
+    <ClInclude Include="src\XMemoryChecksum.h">
       <Filter>Core\Checksums</Filter>
     </ClInclude>
-    <ClInclude Include="C2IoHelper.h">
+    <ClInclude Include="src\C2IoHelper.h">
       <Filter>Logic\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapSectorAttachment.h">
+    <ClInclude Include="src\C2MapSectorAttachment.h">
       <Filter>Engine\Map</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapWalkSectorManager.h">
+    <ClInclude Include="src\C2MapWalkSectorManager.h">
       <Filter>Engine\Map</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2AmbientSoundManagerAccess.h">
+    <ClInclude Include="src\C2E2AmbientSoundManagerAccess.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineObjectData.h">
+    <ClInclude Include="src\C2EngineObjectData.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineTerrainData.h">
+    <ClInclude Include="src\C2EngineTerrainData.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
-    <ClInclude Include="C2LogicIOAccess.h">
+    <ClInclude Include="src\C2LogicIOAccess.h">
       <Filter>Logic\Serialization</Filter>
     </ClInclude>
-    <ClInclude Include="C2OverviewObjectIterators.h">
+    <ClInclude Include="src\C2OverviewObjectIterators.h">
       <Filter>Engine\Iterators</Filter>
     </ClInclude>
-    <ClInclude Include="CDAudioManager.h">
+    <ClInclude Include="src\CDAudioManager.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="GuiBitmapToolElementAccess.h">
+    <ClInclude Include="src\GuiBitmapToolElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiOverviewDisplayAccess.h">
+    <ClInclude Include="src\InGameGuiOverviewDisplayAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiOverviewHandler.h">
+    <ClInclude Include="src\InGameGuiOverviewHandler.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiOverviewWindowAccess.h">
+    <ClInclude Include="src\InGameGuiOverviewWindowAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiInputAccess.h">
+    <ClInclude Include="src\InGameGuiInputAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiSupportAccess.h">
+    <ClInclude Include="src\InGameGuiSupportAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiWindowState.h">
+    <ClInclude Include="src\InGameGuiWindowState.h">
       <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -865,338 +865,338 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2LogicLifetimeAccess.cpp">
+    <ClCompile Include="src\C2LogicLifetimeAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineLifetimeAccess.cpp">
+    <ClCompile Include="src\C2EngineLifetimeAccess.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="C2EngineHumanName.cpp">
+    <ClCompile Include="src\C2EngineHumanName.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClInclude Include="C2LogicLifetimeAccess.h">
+    <ClInclude Include="src\C2LogicLifetimeAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2EngineLifetimeAccess.h">
+    <ClInclude Include="src\C2EngineLifetimeAccess.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="C2LifetimeAccess.h">
+    <ClInclude Include="src\C2LifetimeAccess.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="C2LifetimeGlobals.h">
+    <ClInclude Include="src\C2LifetimeGlobals.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2CleanMapsManager.cpp">
+    <ClCompile Include="src\C2CleanMapsManager.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2CleanMapsManager.h">
+    <ClInclude Include="src\C2CleanMapsManager.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2SavegamesManager.cpp">
+    <ClCompile Include="src\C2SavegamesManager.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2SavegamesManager.h">
+    <ClInclude Include="src\C2SavegamesManager.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2SavegameIO.cpp">
+    <ClCompile Include="src\C2SavegameIO.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameMapSaving.cpp">
+    <ClCompile Include="src\C2GameMapSaving.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2GameMapExploration.cpp">
+    <ClCompile Include="src\C2GameMapExploration.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2MissionScriptData.cpp">
+    <ClCompile Include="src\C2MissionScriptData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2MissionScriptData.h">
+    <ClInclude Include="src\C2MissionScriptData.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2ScriptObjectAccess.cpp">
+    <ClCompile Include="src\C2ScriptObjectAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2MissionExecution.cpp">
+    <ClCompile Include="src\C2MissionExecution.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2ScriptObjectAccess.h">
+    <ClInclude Include="src\C2ScriptObjectAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2MissionExecution.h">
+    <ClInclude Include="src\C2MissionExecution.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2SavegameStateAccess.cpp">
+    <ClCompile Include="src\C2SavegameStateAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIMovementMessages.cpp">
+    <ClCompile Include="src\C2AIMovementMessages.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AISavegameAccess.cpp">
+    <ClCompile Include="src\C2AISavegameAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIConditions.cpp">
+    <ClCompile Include="src\C2AIConditions.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AITaskAccess.cpp">
+    <ClCompile Include="src\C2AITaskAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIObjectAccess.cpp">
+    <ClCompile Include="src\C2AIObjectAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIResourceAccess.cpp">
+    <ClCompile Include="src\C2AIResourceAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIVillageAccess.cpp">
+    <ClCompile Include="src\C2AIVillageAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIAssistantAccess.cpp">
+    <ClCompile Include="src\C2AIAssistantAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AISinglePlayerAccess.cpp">
+    <ClCompile Include="src\C2AISinglePlayerAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AISoldierAccess.cpp">
+    <ClCompile Include="src\C2AISoldierAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIHighLevelAccess.cpp">
+    <ClCompile Include="src\C2AIHighLevelAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIGuideAccess.cpp">
+    <ClCompile Include="src\C2AIGuideAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIRoadAccess.cpp">
+    <ClCompile Include="src\C2AIRoadAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIAnimalDiplomacy.cpp">
+    <ClCompile Include="src\C2AIAnimalDiplomacy.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIHumanRequests.cpp">
+    <ClCompile Include="src\C2AIHumanRequests.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIProduction.cpp">
+    <ClCompile Include="src\C2AIProduction.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIMilitaryAccess.cpp">
+    <ClCompile Include="src\C2AIMilitaryAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIConstruction.cpp">
+    <ClCompile Include="src\C2AIConstruction.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIManagerAccess.cpp">
+    <ClCompile Include="src\C2AIManagerAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="C2AIGlobalGoods.cpp">
+    <ClCompile Include="src\C2AIGlobalGoods.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2SavegameIO.h">
+    <ClInclude Include="src\C2SavegameIO.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2SavegameStateAccess.h">
+    <ClInclude Include="src\C2SavegameStateAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIMovementMessages.h">
+    <ClInclude Include="src\C2AIMovementMessages.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AISavegameAccess.h">
+    <ClInclude Include="src\C2AISavegameAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIConditions.h">
+    <ClInclude Include="src\C2AIConditions.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AITaskAccess.h">
+    <ClInclude Include="src\C2AITaskAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIObjectAccess.h">
+    <ClInclude Include="src\C2AIObjectAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIResourceAccess.h">
+    <ClInclude Include="src\C2AIResourceAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIVillageAccess.h">
+    <ClInclude Include="src\C2AIVillageAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIAssistantAccess.h">
+    <ClInclude Include="src\C2AIAssistantAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AISinglePlayerAccess.h">
+    <ClInclude Include="src\C2AISinglePlayerAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AISoldierAccess.h">
+    <ClInclude Include="src\C2AISoldierAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIHighLevelAccess.h">
+    <ClInclude Include="src\C2AIHighLevelAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIGuideAccess.h">
+    <ClInclude Include="src\C2AIGuideAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIRoadAccess.h">
+    <ClInclude Include="src\C2AIRoadAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIAnimalDiplomacy.h">
+    <ClInclude Include="src\C2AIAnimalDiplomacy.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIHumanRequests.h">
+    <ClInclude Include="src\C2AIHumanRequests.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIProduction.h">
+    <ClInclude Include="src\C2AIProduction.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIMilitaryAccess.h">
+    <ClInclude Include="src\C2AIMilitaryAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIConstruction.h">
+    <ClInclude Include="src\C2AIConstruction.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIManagerAccess.h">
+    <ClInclude Include="src\C2AIManagerAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2AIGlobalGoods.h">
+    <ClInclude Include="src\C2AIGlobalGoods.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="C2MapGuid.h">
+    <ClInclude Include="src\C2MapGuid.h">
       <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticTrianglePatternTypeData.cpp">
+    <ClCompile Include="src\C2StaticTrianglePatternTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2StaticTrianglePatternTypeData.h">
+    <ClInclude Include="src\C2StaticTrianglePatternTypeData.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2StaticLandscapeTypeData.cpp">
+    <ClCompile Include="src\C2StaticLandscapeTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2StaticLandscapeTypeData.h">
+    <ClInclude Include="src\C2StaticLandscapeTypeData.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="XBasicTypes.cpp">
+    <ClCompile Include="src\XBasicTypes.cpp">
       <Filter>Core\Types</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticGoodTypeData.cpp">
+    <ClCompile Include="src\C2StaticGoodTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2StaticGoodTypeData.h">
+    <ClInclude Include="src\C2StaticGoodTypeData.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClCompile Include="C2EngineLandscapeAccess.cpp">
+    <ClCompile Include="src\C2EngineLandscapeAccess.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClInclude Include="C2EngineLandscapeAccess.h">
+    <ClInclude Include="src\C2EngineLandscapeAccess.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticHouseTypeData.cpp">
+    <ClCompile Include="src\C2StaticHouseTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2StaticHouseTypeData.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="C2StaticVehicleTypeData.cpp">
-      <Filter>Logic</Filter>
-    </ClCompile>
-    <ClInclude Include="C2StaticVehicleTypeData.h">
+    <ClInclude Include="src\C2StaticHouseTypeData.h">
       <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticAtomicAnimationData.cpp">
+    <ClCompile Include="src\C2StaticVehicleTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClInclude Include="C2StaticAtomicAnimationData.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="C2StaticTribeTypeData.cpp">
-      <Filter>Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="C2StaticActorTypeDataAccess.cpp">
-      <Filter>Logic</Filter>
-    </ClCompile>
-    <ClInclude Include="C2StaticTribeTypeData.h">
-      <Filter>Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="C2StaticActorTypeDataAccess.h">
+    <ClInclude Include="src\C2StaticVehicleTypeData.h">
       <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XGuiWindowAccess.cpp">
+    <ClCompile Include="src\C2StaticAtomicAnimationData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="src\C2StaticAtomicAnimationData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\C2StaticTribeTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\C2StaticActorTypeDataAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="src\C2StaticTribeTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\C2StaticActorTypeDataAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\XGuiWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="XGuiDesktop_Attachment.cpp">
+    <ClCompile Include="src\XGuiDesktop_Attachment.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GuiTextToolElementAccess.cpp">
+    <ClCompile Include="src\GuiTextToolElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GuiClockToolElementAccess.cpp">
+    <ClCompile Include="src\GuiClockToolElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="GuiListBoxElementAccess.cpp">
+    <ClCompile Include="src\GuiListBoxElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="WindowsVideoPlayer.cpp">
+    <ClCompile Include="src\WindowsVideoPlayer.cpp">
       <Filter>Application\Display</Filter>
     </ClCompile>
-    <ClCompile Include="C2StringAccess.cpp">
+    <ClCompile Include="src\C2StringAccess.cpp">
       <Filter>Logic\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="C2HouseAccess.cpp">
+    <ClCompile Include="src\C2HouseAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiKeyAssignmentManager.cpp">
+    <ClCompile Include="src\InGameGuiKeyAssignmentManager.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="C2VehicleAccess.cpp">
+    <ClCompile Include="src\C2VehicleAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiBaseAccess.cpp">
+    <ClCompile Include="src\InGameGuiBaseAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiStringOutputWindow.cpp">
+    <ClCompile Include="src\InGameGuiStringOutputWindow.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClInclude Include="XGuiWindowAccess.h">
+    <ClInclude Include="src\XGuiWindowAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GuiTextToolElementAccess.h">
+    <ClInclude Include="src\GuiTextToolElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GuiClockToolElementAccess.h">
+    <ClInclude Include="src\GuiClockToolElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GuiListBoxElementAccess.h">
+    <ClInclude Include="src\GuiListBoxElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsVideoPlayer.h">
+    <ClInclude Include="src\WindowsVideoPlayer.h">
       <Filter>Application\Display</Filter>
     </ClInclude>
-    <ClInclude Include="C2StringAccess.h">
+    <ClInclude Include="src\C2StringAccess.h">
       <Filter>Logic\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="C2HouseAccess.h">
+    <ClInclude Include="src\C2HouseAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiKeyAssignmentManager.h">
+    <ClInclude Include="src\InGameGuiKeyAssignmentManager.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="C2VehicleAccess.h">
+    <ClInclude Include="src\C2VehicleAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiBaseAccess.h">
+    <ClInclude Include="src\InGameGuiBaseAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="InGameGuiStringOutputWindow.h">
+    <ClInclude Include="src\InGameGuiStringOutputWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1206,396 +1206,396 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2PlayerStatisticAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2PlayerStatisticAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2PlayerStatisticAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2PlayerStatisticAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2UserNetworkCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2UserNetworkCommandAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanCommandAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2UserMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2InteractionTargetAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2UserMessageAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanMessageAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2InteractionTargetAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2UserNetworkCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2UserNetworkCommandAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanCommandAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2UserMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2InteractionTargetAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2UserMessageAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanMessageAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2InteractionTargetAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TemporaryLinkStubs.cpp"><Filter>Diagnostics</Filter></ClCompile>
+    <ClCompile Include="src\TemporaryLinkStubs.cpp"><Filter>Diagnostics</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainMenuWorldDisplayElement.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="MainMenuWorldDisplayElement.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\MainMenuWorldDisplayElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\MainMenuWorldDisplayElement.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2GameMapLoading.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2MapResourceManagers.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MapResourceManagers.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="XPack.cpp"><Filter>Core\Memory</Filter></ClCompile>
-    <ClInclude Include="XPack.h"><Filter>Core\Memory</Filter></ClInclude>
+    <ClCompile Include="src\C2GameMapLoading.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2MapResourceManagers.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MapResourceManagers.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\XPack.cpp"><Filter>Core\Memory</Filter></ClCompile>
+    <ClInclude Include="src\XPack.h"><Filter>Core\Memory</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HyperLinkTextSystem.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="HyperLinkTextSystem.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\HyperLinkTextSystem.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\HyperLinkTextSystem.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiManager_MessageHandlers.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiManager_MessageHandlers.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiOptionsWindowAccess.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiOptionsWindowAccess.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiGlobalGameSettingsWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiGlobalGameSettingsWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiConstructionSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiConstructionSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiHelpWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHelpWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiMissionInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClCompile Include="InGameGuiSavegameIO.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiMissionInfoWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiManager_MessageHandlers.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiManager_MessageHandlers.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiOptionsWindowAccess.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiOptionsWindowAccess.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiGlobalGameSettingsWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiGlobalGameSettingsWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiConstructionSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiConstructionSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHelpWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHelpWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiMissionInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\InGameGuiSavegameIO.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiMissionInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GouraudShader.cpp"><Filter>Core\Graphics</Filter></ClCompile>
-    <ClInclude Include="GouraudShader.h"><Filter>Core\Graphics</Filter></ClInclude>
-    <ClCompile Include="C2EngineGroundDrawing.cpp"><Filter>Engine\Display</Filter></ClCompile>
-    <ClCompile Include="C2EngineMapTerrainAccess.cpp"><Filter>Engine\Map</Filter></ClCompile>
-    <ClInclude Include="C2EngineMapTerrainAccess.h"><Filter>Engine\Map</Filter></ClInclude>
-    <ClCompile Include="C2EngineMapIO.cpp"><Filter>Engine\Map</Filter></ClCompile>
-    <ClCompile Include="C2EngineMacroMaps.cpp"><Filter>Engine\Map</Filter></ClCompile>
-    <ClInclude Include="C2EngineMacroMaps.h"><Filter>Engine\Map</Filter></ClInclude>
-    <ClInclude Include="C2EngineMapIO.h"><Filter>Engine\Map</Filter></ClInclude>
-    <ClCompile Include="C2E2StaticDataTransitions.cpp"><Filter>Engine\StaticData</Filter></ClCompile>
+    <ClCompile Include="src\GouraudShader.cpp"><Filter>Core\Graphics</Filter></ClCompile>
+    <ClInclude Include="src\GouraudShader.h"><Filter>Core\Graphics</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineGroundDrawing.cpp"><Filter>Engine\Display</Filter></ClCompile>
+    <ClCompile Include="src\C2EngineMapTerrainAccess.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineMapTerrainAccess.h"><Filter>Engine\Map</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineMapIO.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClCompile Include="src\C2EngineMacroMaps.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineMacroMaps.h"><Filter>Engine\Map</Filter></ClInclude>
+    <ClInclude Include="src\C2EngineMapIO.h"><Filter>Engine\Map</Filter></ClInclude>
+    <ClCompile Include="src\C2E2StaticDataTransitions.cpp"><Filter>Engine\StaticData</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MissionStartObjects.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MissionStartObjects.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MissionStartObjects.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MissionStartObjects.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MapMoveableAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MapMoveableAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanJobAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanJobAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanMerchantAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanMerchantAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanUserControl.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanUserControl.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanInitialization.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2DefaultInteraction.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2DefaultInteraction.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanTaskAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanTaskAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanGoodieTasks.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanGoodieTasks.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanAtomicEvents.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanAtomicEvents.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanNeeds.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanNeeds.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanWalking.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanGoods.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanProduction.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanEquipment.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanFamily.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2MapLandscapeChanges.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanWalking.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanGoods.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanProduction.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanEquipment.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanFamily.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MapMoveableAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MapMoveableAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanJobAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanJobAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanMerchantAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanMerchantAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanUserControl.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanUserControl.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanInitialization.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2DefaultInteraction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2DefaultInteraction.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanTaskAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanTaskAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanGoodieTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanGoodieTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanAtomicEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanAtomicEvents.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanNeeds.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanNeeds.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanWalking.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanGoods.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanProduction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanEquipment.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanFamily.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2MapLandscapeChanges.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanWalking.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanGoods.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanProduction.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanEquipment.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanFamily.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MapPathfinderSectorSearch.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2MapSectorRouting.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2GuideRouting.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanScout.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2HumanChest.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2VehicleLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2VehicleSimulation.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2VehicleSimulation.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2MapResourceTools.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MapResourceTools.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanWorkCommands.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2GuideAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MapPathfinderSectorSearch.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2GuideRouting.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanScout.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanChest.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2VehicleLifecycle.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2HumanWorkCommands.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2GuideAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MapPathfinderSectorSearch.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2MapSectorRouting.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2GuideRouting.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanScout.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanChest.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2VehicleLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2VehicleSimulation.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2VehicleSimulation.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MapResourceTools.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MapResourceTools.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanWorkCommands.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2GuideAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MapPathfinderSectorSearch.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2GuideRouting.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanScout.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanChest.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2VehicleLifecycle.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2HumanWorkCommands.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2GuideAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineSelectionAccess.cpp">
+    <ClCompile Include="src\C2EngineSelectionAccess.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiSelectionAccess.cpp">
+    <ClCompile Include="src\InGameGuiSelectionAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiSelectionWindowAccess.cpp">
+    <ClCompile Include="src\InGameGuiSelectionWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClInclude Include="InGameGuiSelectionWindowAccess.h">
+    <ClInclude Include="src\InGameGuiSelectionWindowAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClCompile Include="InGameGuiHumanJobWindows.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClCompile Include="InGameGuiHumanActionButtons.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHumanEquipmentWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClInclude Include="InGameGuiHumanJobWindows.h"><Filter>GUI</Filter></ClInclude>
-    <ClInclude Include="InGameGuiHumanActionButtons.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiTraderConfigWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiTraderConfigWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClCompile Include="InGameGuiMessageText.cpp">
+    <ClCompile Include="src\InGameGuiHumanEquipmentWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\InGameGuiHumanJobWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\InGameGuiHumanActionButtons.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHumanEquipmentWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="src\InGameGuiHumanJobWindows.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="src\InGameGuiHumanActionButtons.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiTraderConfigWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiTraderConfigWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiMessageText.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiMessageWindowAccess.cpp">
+    <ClCompile Include="src\InGameGuiMessageWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="InGameGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiMousePointer.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiMousePointer.h"><Filter>GUI</Filter></ClInclude>
 
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2WallRoadPathfinder.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2WallRoadPathfinder.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2WallRoadConstruction.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2WallRoadConstruction.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2ChecksumTools.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2GameChecksum.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2ObjectMemberConstructors.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2ObjectMemberConstructors.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2GameChecksum.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2ChecksumTools.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanConstruction.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanConstruction.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="InGameGuiWallRoadWindows.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiWallRoadWindows.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\C2WallRoadPathfinder.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2WallRoadPathfinder.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2WallRoadConstruction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2WallRoadConstruction.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2ChecksumTools.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2GameChecksum.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2ObjectMemberConstructors.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2ObjectMemberConstructors.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2GameChecksum.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2ChecksumTools.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanConstruction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanConstruction.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiWallRoadWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiWallRoadWindows.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XBitmapFileBMP.cpp"><Filter>Graphics\Images</Filter></ClCompile>
-    <ClInclude Include="XBitmapFileBMP.h"><Filter>Graphics\Images</Filter></ClInclude>
-    <ClCompile Include="C2EngineMapExport.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClCompile Include="src\XBitmapFileBMP.cpp"><Filter>Graphics\Images</Filter></ClCompile>
+    <ClInclude Include="src\XBitmapFileBMP.h"><Filter>Graphics\Images</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineMapExport.cpp"><Filter>Engine</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2TributeAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2TributeAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2TributeAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2TributeAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiDiplomacyWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiDiplomacyWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiDiplomacyWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiDiplomacyWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiTechTreeWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiTechTreeWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClInclude Include="InGameGuiTechTreeData.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiTechTreeWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiTechTreeWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="src\InGameGuiTechTreeData.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHumanListWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHumanListWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHumanListWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHumanListWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiStatisticsWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiStatisticsWindow.h"><Filter>GUI</Filter></ClInclude>
-    <ClInclude Include="InGameGuiStatisticsData.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiStatisticsWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiStatisticsWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="src\InGameGuiStatisticsData.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiObservationWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiObservationWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiObservationWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiObservationWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MissionOnscreenInfoAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MissionOnscreenInfoAccess.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\C2MissionOnscreenInfoAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MissionOnscreenInfoAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiMissionOnscreenInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiMissionOnscreenInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiNetworkInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiNetworkInfoWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiNetworkInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiNetworkInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiSimpleSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiSimpleSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiSimpleSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiSimpleSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiLandscapeSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiLandscapeSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiLandscapeSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiLandscapeSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiGroupSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiGroupSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiGroupSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiGroupSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseRemoveWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHouseRemoveWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHouseRemoveWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHouseRemoveWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseUserControl.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HouseUserControl.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HouseUserControl.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HouseUserControl.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiVehicleInhabitantsElements.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiVehicleInhabitantsElements.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiVehicleInhabitantsElements.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiVehicleInhabitantsElements.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiSingleVehicleWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiSingleVehicleWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiSingleVehicleWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiSingleVehicleWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseInhabitantsElement.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHouseInhabitantsElement.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHouseInhabitantsElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHouseInhabitantsElement.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseGoodTypeElement.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHouseGoodTypeElement.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHouseGoodTypeElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHouseGoodTypeElement.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseWindow.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClInclude Include="InGameGuiHouseWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="src\InGameGuiHouseWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="src\InGameGuiHouseWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainMenuGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\MainMenuGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseBuildPosition.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HouseBuildPosition.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2VehicleIterator.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2VehicleIterator.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HouseBuildPosition.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HouseBuildPosition.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2VehicleIterator.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2VehicleIterator.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseConstruction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HouseConstruction.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HouseLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HousePeriodic.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HousePeriodic.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MilitaryTargetSearch.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MilitaryTargetSearch.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MilitaryTargetSearch.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MilitaryTargetSearch.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HappinessEvents.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HappinessEvents.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HappinessEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HappinessEvents.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HappinessRecalculation.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HappinessRecalculation.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanMilitaryJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanMilitaryJobs.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2MilitaryLandscapeTargets.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2MilitarySectorTargets.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2HumanMilitaryJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanMilitaryJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MilitaryLandscapeTargets.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2MilitarySectorTargets.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanLandscapeSearch.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanLandscapeSearch.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanMapCollection.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanMapCollection.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanCollectionEvents.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanCollectionEvents.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanLandscapeSearch.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanLandscapeSearch.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanMapCollection.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanMapCollection.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanCollectionEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanCollectionEvents.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanSocialJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanSocialJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanSocialJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanSocialJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanAnimalJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanAnimalJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanAnimalJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanAnimalJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AnimalTasks.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2AnimalTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2AnimalTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2AnimalTasks.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanTransportJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanTransportJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanTransportJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanTransportJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanTraderJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanTraderJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanTraderJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanTraderJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanVehicleJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanVehicleJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanVehicleJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanVehicleJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanHuntingJobs.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanHuntingJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanHuntingJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanHuntingJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanAttackTasks.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanAttackTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanAttackTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanAttackTasks.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MilitaryDamage.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MilitaryDamage.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MilitaryDamage.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MilitaryDamage.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2VehicleAnimalPassengers.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2VehicleAnimalPassengers.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2VehicleAnimalPassengers.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2VehicleAnimalPassengers.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2WeaponHits.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClCompile Include="C2DelayedActionManager.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2DelayedActionManager.h"><Filter>Logic</Filter></ClInclude>
-    <ClCompile Include="C2HumanWeaponEvents.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2HumanWeaponEvents.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2WeaponHits.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="src\C2DelayedActionManager.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2DelayedActionManager.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2HumanWeaponEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2HumanWeaponEvents.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AnimalMilitaryTasks.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2AnimalMilitaryTasks.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2MilitaryAttackPointSearch.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2AnimalMilitaryTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2AnimalMilitaryTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2MilitaryAttackPointSearch.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2E2StaticDataHouses.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2E2StaticDataHouses.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2E2StaticDataHouses.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2E2StaticDataHouses.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineHouseDrawing.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2EngineHouseDrawing.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineHouseDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineHouseDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineGuideDrawing.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2EngineGuideDrawing.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineGuideDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineGuideDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineParticleDrawing.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClCompile Include="C2EngineWeatherDrawing.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2EngineWeatherDrawing.h"><Filter>Engine</Filter></ClInclude>
-    <ClCompile Include="XRandom.cpp"><Filter>Core</Filter></ClCompile>
-    <ClInclude Include="XRandom.h"><Filter>Core</Filter></ClInclude>
-    <ClInclude Include="C2EngineParticleDrawing.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineParticleDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClCompile Include="src\C2EngineWeatherDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineWeatherDrawing.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\XRandom.cpp"><Filter>Core</Filter></ClCompile>
+    <ClInclude Include="src\XRandom.h"><Filter>Core</Filter></ClInclude>
+    <ClInclude Include="src\C2EngineParticleDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2E2StaticDataParticles.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2E2StaticDataParticles.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2E2StaticDataParticles.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2E2StaticDataParticles.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineParticleSimulation.cpp"><Filter>Engine</Filter></ClCompile>
-    <ClInclude Include="C2EngineParticleSimulation.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="src\C2EngineParticleSimulation.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="src\C2EngineParticleSimulation.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MultiPlayerGoalAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2MultiPlayerGoalAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2MultiPlayerGoalAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2MultiPlayerGoalAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XGuiLists.cpp"><Filter>GUI</Filter></ClCompile>
-    <ClCompile Include="HyperLinkTextSystemLifetime.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\XGuiLists.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="src\HyperLinkTextSystemLifetime.cpp"><Filter>GUI</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AIBuildingAccess.cpp"><Filter>Logic</Filter></ClCompile>
-    <ClInclude Include="C2AIBuildingAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="src\C2AIBuildingAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="src\C2AIBuildingAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SwitchIdentifiers.h"><Filter>Core\Types</Filter></ClInclude>
-    <ClInclude Include="XResultIdentifiers.h"><Filter>Diagnostics</Filter></ClInclude>
+    <ClInclude Include="src\SwitchIdentifiers.h"><Filter>Core\Types</Filter></ClInclude>
+    <ClInclude Include="src\XResultIdentifiers.h"><Filter>Diagnostics</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C2ObjectLayout.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="C2DataIds.h"><Filter>Logic</Filter></ClInclude>
-    <ClInclude Include="XNumericConstants.h"><Filter>Core\Types</Filter></ClInclude>
-    <ClInclude Include="XWindowsResultCodes.h"><Filter>Diagnostics</Filter></ClInclude>
-    <ClInclude Include="C2RuntimeConstants.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2ObjectLayout.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\C2DataIds.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="src\XNumericConstants.h"><Filter>Core\Types</Filter></ClInclude>
+    <ClInclude Include="src\XWindowsResultCodes.h"><Filter>Diagnostics</Filter></ClInclude>
+    <ClInclude Include="src\C2RuntimeConstants.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

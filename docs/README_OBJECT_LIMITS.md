@@ -62,10 +62,10 @@ These capacities are software-defined. Moving the application to 64 bit does not
 
 ## Source references
 
-- [C2LogicObjectArrays.h](../C2LogicObjectArrays.h): default capacities and array-handler fields.
-- [C2LogicObjectArrays.cpp](../C2LogicObjectArrays.cpp): allocation, full-array handling and generic savegame capacity loading.
-- [C2LogicLifetimeAccess.cpp](../C2LogicLifetimeAccess.cpp): marker, map-moveable, merchant and pathfinder constructors.
-- [C2MapMoveableAccess.cpp](../C2MapMoveableAccess.cpp): dependent pathfinder allocation and signed 16-bit map-cell list heads.
-- [C2SavegameStateAccess.cpp](../C2SavegameStateAccess.cpp): map-moveable and pathfinder load constructors.
+- [C2LogicObjectArrays.h](../src/C2LogicObjectArrays.h): default capacities and array-handler fields.
+- [C2LogicObjectArrays.cpp](../src/C2LogicObjectArrays.cpp): allocation, full-array handling and generic savegame capacity loading.
+- [C2LogicLifetimeAccess.cpp](../src/C2LogicLifetimeAccess.cpp): marker, map-moveable, merchant and pathfinder constructors.
+- [C2MapMoveableAccess.cpp](../src/C2MapMoveableAccess.cpp): dependent pathfinder allocation and signed 16-bit map-cell list heads.
+- [C2SavegameStateAccess.cpp](../src/C2SavegameStateAccess.cpp): map-moveable and pathfinder load constructors.
 
 The Windows disassembly and original executable are authoritative for behavior. This was a source and binary inspection; no limits were changed, and no build or gameplay stress test was performed.

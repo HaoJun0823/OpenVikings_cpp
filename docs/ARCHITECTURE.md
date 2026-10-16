@@ -4,19 +4,19 @@ This is a current entry-point map, not a list of unfinished functions. Native ad
 
 | Area | Main sources |
 | --- | --- |
-| Startup/state transitions | [MasterControlProgram.cpp](../MasterControlProgram.cpp), [game startup](../MasterControlProgram_PS_InGame.cpp) |
-| Human jobs, needs and events | [job setup](../C2HumanJobAccess.cpp), [atomic events](../C2HumanAtomicEvents.cpp), [walking](../C2HumanWalking.cpp) |
-| Commands/context actions | [default interaction](../C2DefaultInteraction.cpp), [network commands](../C2UserNetworkCommandAccess.cpp) |
-| Houses and production | [lifecycle](../C2HouseLifecycle.cpp), [construction](../C2HouseConstruction.cpp), [periodic updates](../C2HousePeriodic.cpp) |
-| Object storage/savegames | [arrays](../C2LogicObjectArrays.cpp), [lifetime](../C2LogicLifetimeAccess.cpp), [savegame I/O](../C2SavegameIO.cpp) |
-| Pathfinding/resources | [map search](../C2MapPathfinderSearch.cpp), [sector search](../C2MapPathfinderSectorSearch.cpp), [resources](../C2MapResourceManagers.cpp) |
-| Computer AI | [manager](../C2AIManagerAccess.cpp), [village](../C2AIVillageAccess.cpp), [military](../C2AIMilitaryAccess.cpp), [assistant](../C2AIAssistantAccess.cpp) |
-| Campaign interpreter | [mission dispatch](../C2MissionExecution.cpp), [start objects](../C2MissionStartObjects.cpp), [script data](../C2MissionScriptData.cpp) |
-| GUI/input | [manager](../InGameGuiManager.cpp), [messages/keyboard](../InGameGuiManager_MessageHandlers.cpp), [desktop](../XGuiDesktop.cpp), [mouse](../XMMouseManager.cpp) |
-| Rendering | [display](../C2EngineDisplayAccess.cpp), [house drawing](../C2EngineHouseDrawing.cpp), [particles](../C2EngineParticleDrawing.cpp) |
-| Audio/video | [DirectMusic](../DMManager.cpp), [video](../WindowsVideoPlayer.cpp) |
-| Network | [runtime](../NetworkRuntime.cpp), [ownership/layout](../NetworkShutdown.h), [game control](../C2GameControlNetwork.cpp) |
-| Legacy runtime | [CRT](../XCrtFileAccess.cpp), [math](../XCrtMath.cpp), [compiler support](../XCrtCompiler.cpp) |
+| Startup/state transitions | [MasterControlProgram.cpp](../src/MasterControlProgram.cpp), [game startup](../src/MasterControlProgram_PS_InGame.cpp) |
+| Human jobs, needs and events | [job setup](../src/C2HumanJobAccess.cpp), [atomic events](../src/C2HumanAtomicEvents.cpp), [walking](../src/C2HumanWalking.cpp) |
+| Commands/context actions | [default interaction](../src/C2DefaultInteraction.cpp), [network commands](../src/C2UserNetworkCommandAccess.cpp) |
+| Houses and production | [lifecycle](../src/C2HouseLifecycle.cpp), [construction](../src/C2HouseConstruction.cpp), [periodic updates](../src/C2HousePeriodic.cpp) |
+| Object storage/savegames | [arrays](../src/C2LogicObjectArrays.cpp), [lifetime](../src/C2LogicLifetimeAccess.cpp), [savegame I/O](../src/C2SavegameIO.cpp) |
+| Pathfinding/resources | [map search](../src/C2MapPathfinderSearch.cpp), [sector search](../src/C2MapPathfinderSectorSearch.cpp), [resources](../src/C2MapResourceManagers.cpp) |
+| Computer AI | [manager](../src/C2AIManagerAccess.cpp), [village](../src/C2AIVillageAccess.cpp), [military](../src/C2AIMilitaryAccess.cpp), [assistant](../src/C2AIAssistantAccess.cpp) |
+| Campaign interpreter | [mission dispatch](../src/C2MissionExecution.cpp), [start objects](../src/C2MissionStartObjects.cpp), [script data](../src/C2MissionScriptData.cpp) |
+| GUI/input | [manager](../src/InGameGuiManager.cpp), [messages/keyboard](../src/InGameGuiManager_MessageHandlers.cpp), [desktop](../src/XGuiDesktop.cpp), [mouse](../src/XMMouseManager.cpp) |
+| Rendering | [display](../src/C2EngineDisplayAccess.cpp), [house drawing](../src/C2EngineHouseDrawing.cpp), [particles](../src/C2EngineParticleDrawing.cpp) |
+| Audio/video | [DirectMusic](../src/DMManager.cpp), [video](../src/WindowsVideoPlayer.cpp) |
+| Network | [runtime](../src/NetworkRuntime.cpp), [ownership/layout](../src/NetworkShutdown.h), [game control](../src/C2GameControlNetwork.cpp) |
+| Legacy runtime | [CRT](../src/XCrtFileAccess.cpp), [math](../src/XCrtMath.cpp), [compiler support](../src/XCrtCompiler.cpp) |
 
 ## Storage and ownership constraints
 

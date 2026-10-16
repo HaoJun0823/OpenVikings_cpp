@@ -6,6 +6,8 @@ Reviewed October 16, 2026 from `OpenVikings.vcxproj` and current path consumers.
 
 Open [OpenVikings.slnx](../OpenVikings.slnx) with Visual Studio C++ tools, **MSVC v145**, targeting **x86/Win32** and **C++17**. Select Debug or Release. Outputs are `OpenVikings/<Configuration>/`, PDBs are beneath `symbols/`, and intermediates beneath `obj/`.
 
+Production sources and headers are in [`src/`](../src/). The project and its semantic Visual Studio filters reference those paths. The resource script, icon and legacy import definition remain in the repository root; the resource script includes `src/resource.h`.
+
 Release uses `/O2`, `/Gy`, `/MD`, `/GS`, `/fp:precise`, `/Zi`, `/DEBUG:FULL`, `/OPT:REF`, `/OPT:NOICF` and nonincremental linking. Identical folding stays disabled for function-pointer identity. `XCrtMath.cpp` retains its IA32/strict floating-point overrides; `XCrtCompiler.cpp` has special raw-entry code-generation settings. Do not generalize those files' ABI to ordinary C++ calls.
 
 The project links Windows/DirectX imports and generates the legacy DirectInput import library from [LegacyDirectInput.def](../LegacyDirectInput.def) before linking. Do not add library pragmas or redirect the legacy ABI merely to suppress an import failure. The main target is not x64.
@@ -30,4 +32,4 @@ The path review established that the assembly-reference Game.exe differs from th
 
 Music uses the original external `gedx8musicdrv.dll` with SGT/DLS assets. FMV uses the reconstructed Windows COM/DirectDraw path and available codecs; those external implementations were not reconstructed. Asset presence alone does not establish successful playback. Inspect actual runtime diagnostics before changing routing or substituting media behavior.
 
-Source consumers: [startup/music/cursors](../MasterControlProgram.cpp), [title/pictures](../MasterControlProgram_PS_TitleScreen.cpp), [pre-game FMV](../MasterControlProgram_PS_PreIngameFmv.cpp).
+Source consumers: [startup/music/cursors](../src/MasterControlProgram.cpp), [title/pictures](../src/MasterControlProgram_PS_TitleScreen.cpp), [pre-game FMV](../src/MasterControlProgram_PS_PreIngameFmv.cpp).

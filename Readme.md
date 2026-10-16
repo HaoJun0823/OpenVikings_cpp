@@ -67,6 +67,8 @@ These are development goals. The detailed [roadmap](docs/OPEN_TASKS.md#renewed-r
 
 ## Building
 
+All C++ sources and headers are in [`src/`](src/). The solution, Visual Studio project and Windows resources remain in the repository root; shared guides and evidence inventories are in [`docs/`](docs/).
+
 Open `OpenVikings.slnx` in Visual Studio with the Windows C++ development tools installed. The project currently specifies the **MSVC v145 toolset** and **C++17**.
 
 Select **x86 (Win32)** and either **Debug** or **Release**. Executable outputs are placed in `OpenVikings/Debug/` or `OpenVikings/Release/`, with PDB symbols in `symbols/` and intermediate products in `obj/` beneath the selected configuration directory.

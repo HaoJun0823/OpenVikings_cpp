@@ -4,9 +4,9 @@ Campaign progression uses the shared Windows mission interpreter, not a separate
 
 | Component | Windows entry / source |
 | --- | --- |
-| Goal checks | `0041E45E`, table `0041F8FB`; [C2MissionExecution.cpp](../C2MissionExecution.cpp) |
+| Goal checks | `0041E45E`, table `0041F8FB`; [C2MissionExecution.cpp](../src/C2MissionExecution.cpp) |
 | Result execution | `0041F9F7`, table `00422E43`; same source |
-| Script/start data | [C2MissionScriptData.cpp](../C2MissionScriptData.cpp), [C2MissionStartObjects.cpp](../C2MissionStartObjects.cpp) |
+| Script/start data | [C2MissionScriptData.cpp](../src/C2MissionScriptData.cpp), [C2MissionStartObjects.cpp](../src/C2MissionStartObjects.cpp) |
 | Map identity | Metadata parsing `00416424`, `00416608`, `004167A1`; use campaign/map IDs, not directory names |
 
 The [dispatch table](MISSION_DISPATCH_COVERAGE.csv) records **63 goal IDs and 103 result IDs**. These are branches, not 166 distinct native functions. The [35-map asset audit](CAMPAIGN_MAP_COVERAGE.csv) has no missing source dispatch IDs: 27 story assets (12 main/15 submaps), seven tutorials and one additional maptype-1 asset. It records 1,157 mission groups, 1,572 goals and 4,228 actions. These are audited asset counts, not completed playthroughs or assumptions about a modified installation.

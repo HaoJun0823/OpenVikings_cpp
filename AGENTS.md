@@ -23,7 +23,7 @@ These instructions are mandatory for all work in this repository.
 - Aim for **functional equivalence**, not binary identity.
 - Do not invent behavior that is not supported by Windows assembly and the original Windows `Game.exe`. Use the current C++ implementation for integration context; use Mac only for naming.
 - Do not create new fake `FUN_XXXXXXXX` helper implementations merely to make the project compile.
-  - User-authorized exception (2026-10-03): temporary link-only dummies are permitted for the missing original functions so Debug/Release can produce an executable. Keep them isolated in `TemporaryLinkStubs.cpp`, list them in `docs/TEMPORARY_LINK_STUBS.csv`, and exclude them from reconstruction-completion counts. Remove each dummy when its real implementation is connected. A successful build with dummies does not establish functional equivalence.
+  - User-authorized exception (2026-10-03): temporary link-only dummies are permitted for the missing original functions so Debug/Release can produce an executable. Keep them isolated in `src/TemporaryLinkStubs.cpp`, list them in `docs/TEMPORARY_LINK_STUBS.csv`, and exclude them from reconstruction-completion counts. Remove each dummy when its real implementation is connected. A successful build with dummies does not establish functional equivalence.
 - Unresolved original `FUN_XXXXXXXX` calls may remain in translated functions until that function is analyzed properly.
 - Never silently replace an unknown original routine with a guessed standard-library operation unless the match has been established.
 - Preserve original control-flow semantics where they materially affect behavior.
@@ -68,6 +68,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 - The main target is **Win32/x86** unless a specific subproject explicitly says otherwise.
 - Do not enable or migrate the main reverse-engineered game target to x64 as part of unrelated work.
 - Keep `OpenVikings.vcxproj` and `OpenVikings.vcxproj.filters` synchronized with all production source/header additions, renames and removals. Assign files to the appropriate Visual Studio filters.
+- Keep production `.cpp` and `.h` files in `src/`; the solution, project and Windows resource script remain in the repository root.
 - Do **not** add `#pragma comment(lib, "winmm.lib")`.
 - Do **not** add `#pragma comment(lib, "dinput.lib")` merely to solve imports; the project already handles the Windows imports appropriately.
 - Avoid introducing new CRT dependencies when the current reconstruction deliberately uses project runtime wrappers.

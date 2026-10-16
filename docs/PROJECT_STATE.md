@@ -1,6 +1,6 @@
 # Project state
 
-Reviewed October 16, 2026 against source baseline `453e430` and the current working tree.
+Reviewed October 16, 2026 against source baseline `e385046` and the subsequent source-directory reorganization.
 
 OpenVikings reconstructs the Windows version of Cultures: 8th Wonder of the World. The main target is **Windows x86, C++17, MSVC v145**. Original Windows assembly and Game.exe determine behavior; Mac references supply names only.
 
@@ -8,7 +8,7 @@ OpenVikings reconstructs the Windows version of Cultures: 8th Wonder of the Worl
 | --- | --- |
 | Known native entries | **5,063 / 5,063 implemented**, completion checkpoint October 12 |
 | Temporary link stubs | **0**, [ledger](TEMPORARY_LINK_STUBS.csv) is header-only |
-| Registered production files | **307 CPP + 288 headers = 595** |
+| Registered production files | **307 CPP + 288 headers = 595**, all in [`src/`](../src/) |
 | Function naming map | **3,151 distinct Windows address rows** |
 | Fields identified in recent member-analysis passes | **95**, [evidence](RECOVERED_MEMBER_FIELDS.csv) |
 | Explicit unknown member declarations/regions | **134 in 56 files**, [triage](UNKNOWN_MEMBER_TRIAGE.csv) |
@@ -20,6 +20,6 @@ The latest member-naming pass recorded twelve implementation-unit Win32 syntax c
 
 Current work is naming/layout analysis and runtime regression validation. [Open tasks](OPEN_TASKS.md) separates those from future modernization. The [gameplay review](GAMEPLAY_RENDERING_BUG_REVIEW.md) distinguishes source corrections from user-confirmed fixes.
 
-The working tree contains a user edit setting scout exploration radius to **500**; the native/committed value is **20**. This documentation cleanup leaves that edit unchanged. Other authorized compatibility changes are summarized in [controls](CONTROLS.md), [assets](BUILD_AND_ASSETS.md) and the gameplay review.
+The working tree contains a user edit in [C2HumanJobAccess.cpp](../src/C2HumanJobAccess.cpp) setting scout exploration radius to **500**; the native/committed value is **20**. It remains excluded from commits. Other authorized compatibility changes are summarized in [controls](CONTROLS.md), [assets](BUILD_AND_ASSETS.md) and the gameplay review.
 
 Start with the [documentation index](README.md); detailed reconstruction history belongs in Git, not repeated progress snapshots.

@@ -23,7 +23,7 @@ Particle drawing/expired-arrow placement deliberately use a checked map accessor
 
 ## Exploration radius
 
-[Human_SetupCurrentJobType](../C2HumanJobAccess.cpp) writes `ExplorationRadius` (+0xB7C); [walking](../C2HumanWalking.cpp) passes it to map exploration. Windows `0044AC97..0044ACD3` selects values at `004F3B8C/90/94/98`: scout **20**, hero **20**, other adult **10**, child **5**. These are map-point radii, not screen pixels or attack ranges. The current working tree has a user edit setting scouts to **500**; this is distinct from native/HEAD behavior and remains untouched.
+[Human_SetupCurrentJobType](../src/C2HumanJobAccess.cpp) writes `ExplorationRadius` (+0xB7C); [walking](../src/C2HumanWalking.cpp) passes it to map exploration. Windows `0044AC97..0044ACD3` selects values at `004F3B8C/90/94/98`: scout **20**, hero **20**, other adult **10**, child **5**. These are map-point radii, not screen pixels or attack ranges. The current working tree has a user edit setting scouts to **500**; this is distinct from native/HEAD behavior and remains untouched.
 
 ## Original/data observations
 

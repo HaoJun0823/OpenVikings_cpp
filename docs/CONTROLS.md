@@ -1,6 +1,6 @@
 # Input and hidden commands
 
-Current routing lives in [InGameGuiManager_MessageHandlers.cpp](../InGameGuiManager_MessageHandlers.cpp), [key assignments](../InGameGuiKeyAssignmentManager.cpp), [desktop](../XGuiDesktop.cpp) and [mouse manager](../XMMouseManager.cpp). Configurable shortcuts should be read from the assignment manager/current options rather than treated as one fixed keyboard layout.
+Current routing lives in [InGameGuiManager_MessageHandlers.cpp](../src/InGameGuiManager_MessageHandlers.cpp), [key assignments](../src/InGameGuiKeyAssignmentManager.cpp), [desktop](../src/XGuiDesktop.cpp) and [mouse manager](../src/XMMouseManager.cpp). Configurable shortcuts should be read from the assignment manager/current options rather than treated as one fixed keyboard layout.
 
 ## Keyboard routing
 

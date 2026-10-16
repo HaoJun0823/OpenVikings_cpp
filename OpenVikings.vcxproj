@@ -11,255 +11,255 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2GameMapIO.cpp" />
-    <ClCompile Include="C2GameTime.cpp" />
-    <ClCompile Include="C2GameState.cpp" />
-    <ClCompile Include="C2GameControlNetwork.cpp" />
-    <ClCompile Include="C2GameControlStartup.cpp" />
-    <ClCompile Include="C2PlayerCenterPosition.cpp" />
-    <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp" />
-    <ClCompile Include="C2AnimalAccess.cpp" />
-    <ClCompile Include="C2ControlStartup.cpp" />
-    <ClCompile Include="C2CampaignStaticDataManager.cpp" />
-    <ClCompile Include="C2StaticStringsManager.cpp" />
-    <ClCompile Include="C2Debug.cpp" />
-    <ClCompile Include="C2GameEngineStartup.cpp" />
-    <ClCompile Include="C2AnimalIterator.cpp" />
-    <ClCompile Include="C2HumanIterator.cpp" />
-    <ClCompile Include="C2CallbackManager.cpp" />
-    <ClCompile Include="C2E2AmbientSoundManagerAccess.cpp" />
-    <ClCompile Include="C2E2AnimalSoundManager.cpp" />
-    <ClCompile Include="C2E2LevelOfDetailManager.cpp" />
-    <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
-    <ClCompile Include="C2E2StaticDataGroups.cpp" />
-    <ClCompile Include="C2E2StaticDataPalettes.cpp" />
-    <ClCompile Include="C2E2StaticDataTerrain.cpp" />
-    <ClCompile Include="C2E2StaticDataMapMoveables.cpp" />
-    <ClCompile Include="C2E2StaticDataHumanMisc.cpp" />
-    <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
-    <ClCompile Include="C2EngineDisplayAccess.cpp" />
-    <ClCompile Include="C2EngineDisplayManager.cpp" />
-    <ClCompile Include="C2EngineDrawingAccess.cpp" />
-    <ClCompile Include="C2EngineLandscapeDrawing.cpp" />
-    <ClCompile Include="C2EngineMoveableDrawing.cpp" />
-    <ClCompile Include="C2EngineTooltipAccess.cpp" />
-    <ClCompile Include="C2GameMapContinents.cpp" />
-    <ClCompile Include="C2GameMapConnectivity.cpp" />
-    <ClCompile Include="C2GameMapAccess.cpp" />
-    <ClCompile Include="C2IoHelper.cpp" />
-    <ClCompile Include="C2LanguageTools.cpp" />
-    <ClCompile Include="C2LogicObjectArrays.cpp" />
-    <ClCompile Include="C2MapGeometry.cpp" />
-    <ClCompile Include="C2MapPathfinderSearch.cpp" />
-    <ClCompile Include="C2E2HumanSoundAccess.cpp" />
-    <ClCompile Include="C2MapArea.cpp" />
-    <ClCompile Include="C2MapSectorAttachment.cpp" />
-    <ClCompile Include="C2MapSectorGridCursor.cpp" />
-    <ClCompile Include="C2MapWalkSectorManager.cpp" />
-    <ClCompile Include="C2OverviewObjectIterators.cpp" />
-    <ClCompile Include="C2StringIO.cpp" />
-    <ClCompile Include="CDAudioManager.cpp" />
-    <ClCompile Include="CRC16.cpp" />
-    <ClCompile Include="CRC32.cpp" />
-    <ClCompile Include="DirectXErrorText.cpp" />
-    <ClCompile Include="DMManager.cpp" />
-    <ClCompile Include="DSManager.cpp" />
-    <ClCompile Include="FileCompressor.cpp" />
-    <ClCompile Include="GuiBitmapToolElementAccess.cpp" />
-    <ClCompile Include="XGuiElementAccess.cpp" />
-    <ClCompile Include="GuiToolsBase.cpp" />
-    <ClCompile Include="InGameGuiManager.cpp" />
-    <ClCompile Include="InGameGuiManager_State.cpp" />
-    <ClCompile Include="InGameGuiInputAccess.cpp" />
-    <ClCompile Include="InGameGuiSupportAccess.cpp" />
-    <ClCompile Include="InGameGuiMessageManagerAccess.cpp" />
-    <ClCompile Include="InGameGuiMessageMiniButtonAccess.cpp" />
-    <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp" />
-    <ClCompile Include="InGameGuiOverviewHandler.cpp" />
-    <ClCompile Include="InGameGuiOverviewWindowAccess.cpp" />
-    <ClCompile Include="MainMenuGuiManager.cpp" />
-    <ClCompile Include="MainMenuGuiManager_Access.cpp" />
-    <ClCompile Include="MainMenuGuiManager_Lists.cpp" />
-    <ClCompile Include="MainMenuGuiManager_Commands.cpp" />
-    <ClCompile Include="MainMenuGuiManager_Network.cpp" />
-    <ClCompile Include="MainMenuGuiManager_Screens.cpp" />
-    <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
-    <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp" />
-    <ClCompile Include="MasterControlProgram_PS_InGame.cpp" />
-    <ClCompile Include="MasterControlProgram_PS_MainMenu.cpp" />
-    <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp" />
-    <ClCompile Include="MasterControlProgram_PS_System.cpp" />
-    <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp" />
-    <ClCompile Include="MasterPropertyManager.cpp" />
-    <ClCompile Include="NetworkRuntime.cpp" />
-    <ClCompile Include="NetworkShutdown.cpp" />
-    <ClCompile Include="StringInputHandler.cpp" />
-    <ClCompile Include="WinMain.cpp" />
-    <ClCompile Include="MasterControlProgram.cpp" />
-    <ClCompile Include="MasterControlProgram_GameStartup.cpp" />
-    <ClCompile Include="WorldDisplayElementAccess.cpp" />
-    <ClCompile Include="X2DApplication.cpp" />
-    <ClCompile Include="X2DApplicationMessages.cpp" />
-    <ClCompile Include="X2DDisplay.cpp" />
-    <ClCompile Include="X2DWindow.cpp" />
-    <ClCompile Include="XBitmap.cpp" />
-    <ClCompile Include="XBobManager.cpp" />
-    <ClCompile Include="XBobRendering.cpp" />
-    <ClCompile Include="XBobRenderingEffects.cpp" />
-    <ClCompile Include="XBTokenList.cpp" />
-    <ClCompile Include="XCPU.cpp" />
-    <ClCompile Include="XCrtFileAccess.cpp" />
-    <ClCompile Include="XCrtCompiler.cpp">
+    <ClCompile Include="src\C2GameMapIO.cpp" />
+    <ClCompile Include="src\C2GameTime.cpp" />
+    <ClCompile Include="src\C2GameState.cpp" />
+    <ClCompile Include="src\C2GameControlNetwork.cpp" />
+    <ClCompile Include="src\C2GameControlStartup.cpp" />
+    <ClCompile Include="src\C2PlayerCenterPosition.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_WorldDisplay.cpp" />
+    <ClCompile Include="src\C2AnimalAccess.cpp" />
+    <ClCompile Include="src\C2ControlStartup.cpp" />
+    <ClCompile Include="src\C2CampaignStaticDataManager.cpp" />
+    <ClCompile Include="src\C2StaticStringsManager.cpp" />
+    <ClCompile Include="src\C2Debug.cpp" />
+    <ClCompile Include="src\C2GameEngineStartup.cpp" />
+    <ClCompile Include="src\C2AnimalIterator.cpp" />
+    <ClCompile Include="src\C2HumanIterator.cpp" />
+    <ClCompile Include="src\C2CallbackManager.cpp" />
+    <ClCompile Include="src\C2E2AmbientSoundManagerAccess.cpp" />
+    <ClCompile Include="src\C2E2AnimalSoundManager.cpp" />
+    <ClCompile Include="src\C2E2LevelOfDetailManager.cpp" />
+    <ClCompile Include="src\C2E2StaticDataAnimalSounds.cpp" />
+    <ClCompile Include="src\C2E2StaticDataGroups.cpp" />
+    <ClCompile Include="src\C2E2StaticDataPalettes.cpp" />
+    <ClCompile Include="src\C2E2StaticDataTerrain.cpp" />
+    <ClCompile Include="src\C2E2StaticDataMapMoveables.cpp" />
+    <ClCompile Include="src\C2E2StaticDataHumanMisc.cpp" />
+    <ClCompile Include="src\C2E2StaticDataSoundFX.cpp" />
+    <ClCompile Include="src\C2EngineDisplayAccess.cpp" />
+    <ClCompile Include="src\C2EngineDisplayManager.cpp" />
+    <ClCompile Include="src\C2EngineDrawingAccess.cpp" />
+    <ClCompile Include="src\C2EngineLandscapeDrawing.cpp" />
+    <ClCompile Include="src\C2EngineMoveableDrawing.cpp" />
+    <ClCompile Include="src\C2EngineTooltipAccess.cpp" />
+    <ClCompile Include="src\C2GameMapContinents.cpp" />
+    <ClCompile Include="src\C2GameMapConnectivity.cpp" />
+    <ClCompile Include="src\C2GameMapAccess.cpp" />
+    <ClCompile Include="src\C2IoHelper.cpp" />
+    <ClCompile Include="src\C2LanguageTools.cpp" />
+    <ClCompile Include="src\C2LogicObjectArrays.cpp" />
+    <ClCompile Include="src\C2MapGeometry.cpp" />
+    <ClCompile Include="src\C2MapPathfinderSearch.cpp" />
+    <ClCompile Include="src\C2E2HumanSoundAccess.cpp" />
+    <ClCompile Include="src\C2MapArea.cpp" />
+    <ClCompile Include="src\C2MapSectorAttachment.cpp" />
+    <ClCompile Include="src\C2MapSectorGridCursor.cpp" />
+    <ClCompile Include="src\C2MapWalkSectorManager.cpp" />
+    <ClCompile Include="src\C2OverviewObjectIterators.cpp" />
+    <ClCompile Include="src\C2StringIO.cpp" />
+    <ClCompile Include="src\CDAudioManager.cpp" />
+    <ClCompile Include="src\CRC16.cpp" />
+    <ClCompile Include="src\CRC32.cpp" />
+    <ClCompile Include="src\DirectXErrorText.cpp" />
+    <ClCompile Include="src\DMManager.cpp" />
+    <ClCompile Include="src\DSManager.cpp" />
+    <ClCompile Include="src\FileCompressor.cpp" />
+    <ClCompile Include="src\GuiBitmapToolElementAccess.cpp" />
+    <ClCompile Include="src\XGuiElementAccess.cpp" />
+    <ClCompile Include="src\GuiToolsBase.cpp" />
+    <ClCompile Include="src\InGameGuiManager.cpp" />
+    <ClCompile Include="src\InGameGuiManager_State.cpp" />
+    <ClCompile Include="src\InGameGuiInputAccess.cpp" />
+    <ClCompile Include="src\InGameGuiSupportAccess.cpp" />
+    <ClCompile Include="src\InGameGuiMessageManagerAccess.cpp" />
+    <ClCompile Include="src\InGameGuiMessageMiniButtonAccess.cpp" />
+    <ClCompile Include="src\InGameGuiOverviewDisplayAccess.cpp" />
+    <ClCompile Include="src\InGameGuiOverviewHandler.cpp" />
+    <ClCompile Include="src\InGameGuiOverviewWindowAccess.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_Access.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_Lists.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_Commands.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_Network.cpp" />
+    <ClCompile Include="src\MainMenuGuiManager_Screens.cpp" />
+    <ClCompile Include="src\MasterControlProgram_DisplayResolution.cpp" />
+    <ClCompile Include="src\MasterControlProgram_HardwareMouseCursor.cpp" />
+    <ClCompile Include="src\MasterControlProgram_PS_InGame.cpp" />
+    <ClCompile Include="src\MasterControlProgram_PS_MainMenu.cpp" />
+    <ClCompile Include="src\MasterControlProgram_PS_PreIngameFmv.cpp" />
+    <ClCompile Include="src\MasterControlProgram_PS_System.cpp" />
+    <ClCompile Include="src\MasterControlProgram_PS_TitleScreen.cpp" />
+    <ClCompile Include="src\MasterPropertyManager.cpp" />
+    <ClCompile Include="src\NetworkRuntime.cpp" />
+    <ClCompile Include="src\NetworkShutdown.cpp" />
+    <ClCompile Include="src\StringInputHandler.cpp" />
+    <ClCompile Include="src\WinMain.cpp" />
+    <ClCompile Include="src\MasterControlProgram.cpp" />
+    <ClCompile Include="src\MasterControlProgram_GameStartup.cpp" />
+    <ClCompile Include="src\WorldDisplayElementAccess.cpp" />
+    <ClCompile Include="src\X2DApplication.cpp" />
+    <ClCompile Include="src\X2DApplicationMessages.cpp" />
+    <ClCompile Include="src\X2DDisplay.cpp" />
+    <ClCompile Include="src\X2DWindow.cpp" />
+    <ClCompile Include="src\XBitmap.cpp" />
+    <ClCompile Include="src\XBobManager.cpp" />
+    <ClCompile Include="src\XBobRendering.cpp" />
+    <ClCompile Include="src\XBobRenderingEffects.cpp" />
+    <ClCompile Include="src\XBTokenList.cpp" />
+    <ClCompile Include="src\XCPU.cpp" />
+    <ClCompile Include="src\XCrtFileAccess.cpp" />
+    <ClCompile Include="src\XCrtCompiler.cpp">
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
-    <ClCompile Include="XCrtMath.cpp">
+    <ClCompile Include="src\XCrtMath.cpp">
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <FloatingPointModel>Strict</FloatingPointModel>
     </ClCompile>
-    <ClCompile Include="XDiagnostics.cpp" />
-    <ClCompile Include="XFile.cpp" />
-    <ClCompile Include="XFont.cpp" />
-    <ClCompile Include="XFontMetrics.cpp" />
-    <ClCompile Include="XGuiDesktop.cpp" />
-    <ClCompile Include="XIniFileReader.cpp" />
-    <ClCompile Include="XList.cpp" />
-    <ClCompile Include="XMDirectInputMouse.cpp" />
-    <ClCompile Include="XMemory.cpp" />
-    <ClCompile Include="XMKeyManager.cpp" />
-    <ClCompile Include="XMMessageDialogs.cpp" />
-    <ClCompile Include="XMMouseManager.cpp" />
-    <ClCompile Include="XPalette.cpp" />
-    <ClCompile Include="XPicture.cpp" />
-    <ClCompile Include="XPictureAccess.cpp" />
-    <ClCompile Include="XPixelFormatConverter.cpp" />
-    <ClCompile Include="XRemapTable.cpp" />
-    <ClCompile Include="XStorable.cpp" />
-    <ClCompile Include="XStorableIO.cpp" />
-    <ClCompile Include="XStringArray.cpp" />
-    <ClCompile Include="XSystemMouseCursor.cpp" />
-    <ClCompile Include="XSystemManager.cpp" />
+    <ClCompile Include="src\XDiagnostics.cpp" />
+    <ClCompile Include="src\XFile.cpp" />
+    <ClCompile Include="src\XFont.cpp" />
+    <ClCompile Include="src\XFontMetrics.cpp" />
+    <ClCompile Include="src\XGuiDesktop.cpp" />
+    <ClCompile Include="src\XIniFileReader.cpp" />
+    <ClCompile Include="src\XList.cpp" />
+    <ClCompile Include="src\XMDirectInputMouse.cpp" />
+    <ClCompile Include="src\XMemory.cpp" />
+    <ClCompile Include="src\XMKeyManager.cpp" />
+    <ClCompile Include="src\XMMessageDialogs.cpp" />
+    <ClCompile Include="src\XMMouseManager.cpp" />
+    <ClCompile Include="src\XPalette.cpp" />
+    <ClCompile Include="src\XPicture.cpp" />
+    <ClCompile Include="src\XPictureAccess.cpp" />
+    <ClCompile Include="src\XPixelFormatConverter.cpp" />
+    <ClCompile Include="src\XRemapTable.cpp" />
+    <ClCompile Include="src\XStorable.cpp" />
+    <ClCompile Include="src\XStorableIO.cpp" />
+    <ClCompile Include="src\XStringArray.cpp" />
+    <ClCompile Include="src\XSystemMouseCursor.cpp" />
+    <ClCompile Include="src\XSystemManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C2GameMapIO.h" />
-    <ClInclude Include="C2GameTime.h" />
-    <ClInclude Include="C2GameControlNetwork.h" />
-    <ClInclude Include="C2GameControlStartup.h" />
-    <ClInclude Include="C2PlayerCenterPosition.h" />
-    <ClInclude Include="ApplicationGlobals.h" />
-    <ClInclude Include="ApplicationStartup.h" />
-    <ClInclude Include="C2ControlStartup.h" />
-    <ClInclude Include="C2CampaignStaticDataManager.h" />
-    <ClInclude Include="C2StaticStringsManager.h" />
-    <ClInclude Include="C2Debug.h" />
-    <ClInclude Include="C2GameEngineStartup.h" />
-    <ClInclude Include="C2GameState.h" />
-    <ClInclude Include="C2AnimalAccess.h" />
-    <ClInclude Include="C2AnimalIterator.h" />
-    <ClInclude Include="C2HumanIterator.h" />
-    <ClInclude Include="C2CallbackManager.h" />
-    <ClInclude Include="C2E2AmbientSoundManagerAccess.h" />
-    <ClInclude Include="C2E2AnimalSoundManager.h" />
-    <ClInclude Include="C2E2LevelOfDetailManager.h" />
-    <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
-    <ClInclude Include="C2E2StaticDataGroups.h" />
-    <ClInclude Include="C2E2StaticDataPalettes.h" />
-    <ClInclude Include="C2E2StaticDataTerrain.h" />
-    <ClInclude Include="C2E2StaticDataMapMoveables.h" />
-    <ClInclude Include="C2E2StaticDataHumanMisc.h" />
-    <ClInclude Include="C2E2StaticDataSoundFX.h" />
-    <ClInclude Include="C2EngineDisplayAccess.h" />
-    <ClInclude Include="C2EngineDisplayManager.h" />
-    <ClInclude Include="C2EngineDrawingAccess.h" />
-    <ClInclude Include="C2EngineLandscapeDrawing.h" />
-    <ClInclude Include="C2EngineMoveableDrawing.h" />
-    <ClInclude Include="C2EngineObjectData.h" />
-    <ClInclude Include="C2EngineTerrainData.h" />
-    <ClInclude Include="C2GameMapAccess.h" />
-    <ClInclude Include="C2IoHelper.h" />
-    <ClInclude Include="C2LanguageTools.h" />
-    <ClInclude Include="C2LogicObjectArrays.h" />
-    <ClInclude Include="C2LogicIOAccess.h" />
-    <ClInclude Include="C2MapGeometry.h" />
-    <ClInclude Include="C2MapPathfinderSearch.h" />
-    <ClInclude Include="C2E2HumanSoundAccess.h" />
-    <ClInclude Include="C2MapArea.h" />
-    <ClInclude Include="C2MapSectorAttachment.h" />
-    <ClInclude Include="C2MapSectorGridCursor.h" />
-    <ClInclude Include="C2MapWalkSectorManager.h" />
-    <ClInclude Include="C2OverviewObjectIterators.h" />
-    <ClInclude Include="C2StringIO.h" />
-    <ClInclude Include="CDAudioManager.h" />
-    <ClInclude Include="CRC16.h" />
-    <ClInclude Include="CRC32.h" />
-    <ClInclude Include="DirectXErrorText.h" />
-    <ClInclude Include="DMManager.h" />
-    <ClInclude Include="dpaddr.h" />
-    <ClInclude Include="dplay8.h" />
-    <ClInclude Include="DSManager.h" />
-    <ClInclude Include="FileCompressor.h" />
-    <ClInclude Include="FileTransferManager.h" />
-    <ClInclude Include="GuiBitmapToolElementAccess.h" />
-    <ClInclude Include="GuiToolsBase.h" />
-    <ClInclude Include="InGameGuiManager.h" />
-    <ClInclude Include="InGameGuiInputAccess.h" />
-    <ClInclude Include="InGameGuiSupportAccess.h" />
-    <ClInclude Include="InGameGuiWindowState.h" />
-    <ClInclude Include="InGameGuiOverviewDisplayAccess.h" />
-    <ClInclude Include="InGameGuiOverviewHandler.h" />
-    <ClInclude Include="InGameGuiOverviewWindowAccess.h" />
-    <ClInclude Include="MainMenuGuiManager.h" />
-    <ClInclude Include="MainMenuGuiManager_Access.h" />
-    <ClInclude Include="MasterControlProgram.h" />
-    <ClInclude Include="MasterPropertyManager.h" />
-    <ClInclude Include="NetworkShutdown.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="StringInputHandler.h" />
-    <ClInclude Include="WorldDisplayElementAccess.h" />
-    <ClInclude Include="X2DApplication.h" />
-    <ClInclude Include="X2DDisplay.h" />
-    <ClInclude Include="X2DWindow.h" />
-    <ClInclude Include="XBasicTypes.h" />
-    <ClInclude Include="XBitmap.h" />
-    <ClInclude Include="XBitmapTools.h" />
-    <ClInclude Include="XBobManager.h" />
-    <ClInclude Include="XBobRendering.h" />
-    <ClInclude Include="XBTokenList.h" />
-    <ClInclude Include="XCPU.h" />
-    <ClInclude Include="XCrtFileAccess.h" />
-    <ClInclude Include="OriginalStrings.h" />
-    <ClInclude Include="XCrtStartup.h" />
-    <ClInclude Include="XDirectoryScanner.h" />
-    <ClInclude Include="XFont.h" />
-    <ClInclude Include="XFontMetrics.h" />
-    <ClInclude Include="XGuiDesktop.h" />
-    <ClInclude Include="XGuiElementAccess.h" />
-    <ClInclude Include="XGuiLists.h" />
-    <ClInclude Include="XList.h" />
-    <ClInclude Include="XMemoryChecksum.h" />
-    <ClInclude Include="XPalette.h" />
-    <ClInclude Include="XPicture.h" />
-    <ClInclude Include="XPictureAccess.h" />
-    <ClInclude Include="XRemapTable.h" />
-    <ClInclude Include="XSystemManager.h" />
-    <ClInclude Include="XDiagnostics.h" />
-    <ClInclude Include="XFile.h" />
-    <ClInclude Include="XFileAccess.h" />
-    <ClInclude Include="XIniFileReader.h" />
-    <ClInclude Include="XMDirectInputMouse.h" />
-    <ClInclude Include="XMemory.h" />
-    <ClInclude Include="XMKeyManager.h" />
-    <ClInclude Include="XMMessageDialogs.h" />
-    <ClInclude Include="XMMouseManager.h" />
-    <ClInclude Include="XPaletteAccess.h" />
-    <ClInclude Include="XPixelFormatConverter.h" />
-    <ClInclude Include="XStorable.h" />
-    <ClInclude Include="XStorableIO.h" />
-    <ClInclude Include="XStringArray.h" />
-    <ClInclude Include="XStringMemory.h" />
-    <ClInclude Include="XSystemMouseCursor.h" />
+    <ClInclude Include="src\C2GameMapIO.h" />
+    <ClInclude Include="src\C2GameTime.h" />
+    <ClInclude Include="src\C2GameControlNetwork.h" />
+    <ClInclude Include="src\C2GameControlStartup.h" />
+    <ClInclude Include="src\C2PlayerCenterPosition.h" />
+    <ClInclude Include="src\ApplicationGlobals.h" />
+    <ClInclude Include="src\ApplicationStartup.h" />
+    <ClInclude Include="src\C2ControlStartup.h" />
+    <ClInclude Include="src\C2CampaignStaticDataManager.h" />
+    <ClInclude Include="src\C2StaticStringsManager.h" />
+    <ClInclude Include="src\C2Debug.h" />
+    <ClInclude Include="src\C2GameEngineStartup.h" />
+    <ClInclude Include="src\C2GameState.h" />
+    <ClInclude Include="src\C2AnimalAccess.h" />
+    <ClInclude Include="src\C2AnimalIterator.h" />
+    <ClInclude Include="src\C2HumanIterator.h" />
+    <ClInclude Include="src\C2CallbackManager.h" />
+    <ClInclude Include="src\C2E2AmbientSoundManagerAccess.h" />
+    <ClInclude Include="src\C2E2AnimalSoundManager.h" />
+    <ClInclude Include="src\C2E2LevelOfDetailManager.h" />
+    <ClInclude Include="src\C2E2StaticDataAnimalSounds.h" />
+    <ClInclude Include="src\C2E2StaticDataGroups.h" />
+    <ClInclude Include="src\C2E2StaticDataPalettes.h" />
+    <ClInclude Include="src\C2E2StaticDataTerrain.h" />
+    <ClInclude Include="src\C2E2StaticDataMapMoveables.h" />
+    <ClInclude Include="src\C2E2StaticDataHumanMisc.h" />
+    <ClInclude Include="src\C2E2StaticDataSoundFX.h" />
+    <ClInclude Include="src\C2EngineDisplayAccess.h" />
+    <ClInclude Include="src\C2EngineDisplayManager.h" />
+    <ClInclude Include="src\C2EngineDrawingAccess.h" />
+    <ClInclude Include="src\C2EngineLandscapeDrawing.h" />
+    <ClInclude Include="src\C2EngineMoveableDrawing.h" />
+    <ClInclude Include="src\C2EngineObjectData.h" />
+    <ClInclude Include="src\C2EngineTerrainData.h" />
+    <ClInclude Include="src\C2GameMapAccess.h" />
+    <ClInclude Include="src\C2IoHelper.h" />
+    <ClInclude Include="src\C2LanguageTools.h" />
+    <ClInclude Include="src\C2LogicObjectArrays.h" />
+    <ClInclude Include="src\C2LogicIOAccess.h" />
+    <ClInclude Include="src\C2MapGeometry.h" />
+    <ClInclude Include="src\C2MapPathfinderSearch.h" />
+    <ClInclude Include="src\C2E2HumanSoundAccess.h" />
+    <ClInclude Include="src\C2MapArea.h" />
+    <ClInclude Include="src\C2MapSectorAttachment.h" />
+    <ClInclude Include="src\C2MapSectorGridCursor.h" />
+    <ClInclude Include="src\C2MapWalkSectorManager.h" />
+    <ClInclude Include="src\C2OverviewObjectIterators.h" />
+    <ClInclude Include="src\C2StringIO.h" />
+    <ClInclude Include="src\CDAudioManager.h" />
+    <ClInclude Include="src\CRC16.h" />
+    <ClInclude Include="src\CRC32.h" />
+    <ClInclude Include="src\DirectXErrorText.h" />
+    <ClInclude Include="src\DMManager.h" />
+    <ClInclude Include="src\dpaddr.h" />
+    <ClInclude Include="src\dplay8.h" />
+    <ClInclude Include="src\DSManager.h" />
+    <ClInclude Include="src\FileCompressor.h" />
+    <ClInclude Include="src\FileTransferManager.h" />
+    <ClInclude Include="src\GuiBitmapToolElementAccess.h" />
+    <ClInclude Include="src\GuiToolsBase.h" />
+    <ClInclude Include="src\InGameGuiManager.h" />
+    <ClInclude Include="src\InGameGuiInputAccess.h" />
+    <ClInclude Include="src\InGameGuiSupportAccess.h" />
+    <ClInclude Include="src\InGameGuiWindowState.h" />
+    <ClInclude Include="src\InGameGuiOverviewDisplayAccess.h" />
+    <ClInclude Include="src\InGameGuiOverviewHandler.h" />
+    <ClInclude Include="src\InGameGuiOverviewWindowAccess.h" />
+    <ClInclude Include="src\MainMenuGuiManager.h" />
+    <ClInclude Include="src\MainMenuGuiManager_Access.h" />
+    <ClInclude Include="src\MasterControlProgram.h" />
+    <ClInclude Include="src\MasterPropertyManager.h" />
+    <ClInclude Include="src\NetworkShutdown.h" />
+    <ClInclude Include="src\resource.h" />
+    <ClInclude Include="src\StringInputHandler.h" />
+    <ClInclude Include="src\WorldDisplayElementAccess.h" />
+    <ClInclude Include="src\X2DApplication.h" />
+    <ClInclude Include="src\X2DDisplay.h" />
+    <ClInclude Include="src\X2DWindow.h" />
+    <ClInclude Include="src\XBasicTypes.h" />
+    <ClInclude Include="src\XBitmap.h" />
+    <ClInclude Include="src\XBitmapTools.h" />
+    <ClInclude Include="src\XBobManager.h" />
+    <ClInclude Include="src\XBobRendering.h" />
+    <ClInclude Include="src\XBTokenList.h" />
+    <ClInclude Include="src\XCPU.h" />
+    <ClInclude Include="src\XCrtFileAccess.h" />
+    <ClInclude Include="src\OriginalStrings.h" />
+    <ClInclude Include="src\XCrtStartup.h" />
+    <ClInclude Include="src\XDirectoryScanner.h" />
+    <ClInclude Include="src\XFont.h" />
+    <ClInclude Include="src\XFontMetrics.h" />
+    <ClInclude Include="src\XGuiDesktop.h" />
+    <ClInclude Include="src\XGuiElementAccess.h" />
+    <ClInclude Include="src\XGuiLists.h" />
+    <ClInclude Include="src\XList.h" />
+    <ClInclude Include="src\XMemoryChecksum.h" />
+    <ClInclude Include="src\XPalette.h" />
+    <ClInclude Include="src\XPicture.h" />
+    <ClInclude Include="src\XPictureAccess.h" />
+    <ClInclude Include="src\XRemapTable.h" />
+    <ClInclude Include="src\XSystemManager.h" />
+    <ClInclude Include="src\XDiagnostics.h" />
+    <ClInclude Include="src\XFile.h" />
+    <ClInclude Include="src\XFileAccess.h" />
+    <ClInclude Include="src\XIniFileReader.h" />
+    <ClInclude Include="src\XMDirectInputMouse.h" />
+    <ClInclude Include="src\XMemory.h" />
+    <ClInclude Include="src\XMKeyManager.h" />
+    <ClInclude Include="src\XMMessageDialogs.h" />
+    <ClInclude Include="src\XMMouseManager.h" />
+    <ClInclude Include="src\XPaletteAccess.h" />
+    <ClInclude Include="src\XPixelFormatConverter.h" />
+    <ClInclude Include="src\XStorable.h" />
+    <ClInclude Include="src\XStorableIO.h" />
+    <ClInclude Include="src\XStringArray.h" />
+    <ClInclude Include="src\XStringMemory.h" />
+    <ClInclude Include="src\XSystemMouseCursor.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenVikings.rc" />
@@ -364,512 +364,512 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ItemGroup>
-    <ClCompile Include="C2LogicLifetimeAccess.cpp" />
-    <ClCompile Include="C2EngineLifetimeAccess.cpp" />
-    <ClCompile Include="C2EngineHumanName.cpp" />
-    <ClInclude Include="C2LogicLifetimeAccess.h" />
-    <ClInclude Include="C2EngineLifetimeAccess.h" />
-    <ClInclude Include="C2LifetimeAccess.h" />
-    <ClInclude Include="C2LifetimeGlobals.h" />
+    <ClCompile Include="src\C2LogicLifetimeAccess.cpp" />
+    <ClCompile Include="src\C2EngineLifetimeAccess.cpp" />
+    <ClCompile Include="src\C2EngineHumanName.cpp" />
+    <ClInclude Include="src\C2LogicLifetimeAccess.h" />
+    <ClInclude Include="src\C2EngineLifetimeAccess.h" />
+    <ClInclude Include="src\C2LifetimeAccess.h" />
+    <ClInclude Include="src\C2LifetimeGlobals.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2CleanMapsManager.cpp" />
-    <ClInclude Include="C2CleanMapsManager.h" />
-    <ClCompile Include="C2SavegamesManager.cpp" />
-    <ClInclude Include="C2SavegamesManager.h" />
-    <ClCompile Include="C2SavegameIO.cpp" />
-    <ClCompile Include="C2GameMapSaving.cpp" />
-    <ClCompile Include="C2GameMapExploration.cpp" />
-    <ClCompile Include="C2MissionScriptData.cpp" />
-    <ClInclude Include="C2MissionScriptData.h" />
-    <ClCompile Include="C2ScriptObjectAccess.cpp" />
-    <ClCompile Include="C2MissionExecution.cpp" />
-    <ClInclude Include="C2ScriptObjectAccess.h" />
-    <ClInclude Include="C2MissionExecution.h" />
-    <ClCompile Include="C2SavegameStateAccess.cpp" />
-    <ClCompile Include="C2AISavegameAccess.cpp" />
-    <ClCompile Include="C2AIConditions.cpp" />
-    <ClCompile Include="C2AITaskAccess.cpp" />
-    <ClCompile Include="C2AIObjectAccess.cpp" />
-    <ClCompile Include="C2AIResourceAccess.cpp" />
-    <ClCompile Include="C2AIVillageAccess.cpp" />
-    <ClCompile Include="C2AIAssistantAccess.cpp" />
-    <ClCompile Include="C2AISinglePlayerAccess.cpp" />
-    <ClCompile Include="C2AISoldierAccess.cpp" />
-    <ClCompile Include="C2AIHighLevelAccess.cpp" />
-    <ClCompile Include="C2AIGuideAccess.cpp" />
-    <ClCompile Include="C2AIRoadAccess.cpp" />
-    <ClCompile Include="C2AIAnimalDiplomacy.cpp" />
-    <ClCompile Include="C2AIHumanRequests.cpp" />
-    <ClCompile Include="C2AIProduction.cpp" />
-    <ClCompile Include="C2AIMilitaryAccess.cpp" />
-    <ClCompile Include="C2AIConstruction.cpp" />
-    <ClCompile Include="C2AIManagerAccess.cpp" />
-    <ClCompile Include="C2AIGlobalGoods.cpp" />
-    <ClCompile Include="C2AIMovementMessages.cpp" />
-    <ClInclude Include="C2SavegameIO.h" />
-    <ClInclude Include="C2SavegameStateAccess.h" />
-    <ClInclude Include="C2AISavegameAccess.h" />
-    <ClInclude Include="C2AIConditions.h" />
-    <ClInclude Include="C2AITaskAccess.h" />
-    <ClInclude Include="C2AIObjectAccess.h" />
-    <ClInclude Include="C2AIResourceAccess.h" />
-    <ClInclude Include="C2AIVillageAccess.h" />
-    <ClInclude Include="C2AIAssistantAccess.h" />
-    <ClInclude Include="C2AISinglePlayerAccess.h" />
-    <ClInclude Include="C2AISoldierAccess.h" />
-    <ClInclude Include="C2AIHighLevelAccess.h" />
-    <ClInclude Include="C2AIGuideAccess.h" />
-    <ClInclude Include="C2AIRoadAccess.h" />
-    <ClInclude Include="C2AIAnimalDiplomacy.h" />
-    <ClInclude Include="C2AIHumanRequests.h" />
-    <ClInclude Include="C2AIProduction.h" />
-    <ClInclude Include="C2AIMilitaryAccess.h" />
-    <ClInclude Include="C2AIConstruction.h" />
-    <ClInclude Include="C2AIManagerAccess.h" />
-    <ClInclude Include="C2AIGlobalGoods.h" />
-    <ClInclude Include="C2AIMovementMessages.h" />
-    <ClInclude Include="C2MapGuid.h" />
+    <ClCompile Include="src\C2CleanMapsManager.cpp" />
+    <ClInclude Include="src\C2CleanMapsManager.h" />
+    <ClCompile Include="src\C2SavegamesManager.cpp" />
+    <ClInclude Include="src\C2SavegamesManager.h" />
+    <ClCompile Include="src\C2SavegameIO.cpp" />
+    <ClCompile Include="src\C2GameMapSaving.cpp" />
+    <ClCompile Include="src\C2GameMapExploration.cpp" />
+    <ClCompile Include="src\C2MissionScriptData.cpp" />
+    <ClInclude Include="src\C2MissionScriptData.h" />
+    <ClCompile Include="src\C2ScriptObjectAccess.cpp" />
+    <ClCompile Include="src\C2MissionExecution.cpp" />
+    <ClInclude Include="src\C2ScriptObjectAccess.h" />
+    <ClInclude Include="src\C2MissionExecution.h" />
+    <ClCompile Include="src\C2SavegameStateAccess.cpp" />
+    <ClCompile Include="src\C2AISavegameAccess.cpp" />
+    <ClCompile Include="src\C2AIConditions.cpp" />
+    <ClCompile Include="src\C2AITaskAccess.cpp" />
+    <ClCompile Include="src\C2AIObjectAccess.cpp" />
+    <ClCompile Include="src\C2AIResourceAccess.cpp" />
+    <ClCompile Include="src\C2AIVillageAccess.cpp" />
+    <ClCompile Include="src\C2AIAssistantAccess.cpp" />
+    <ClCompile Include="src\C2AISinglePlayerAccess.cpp" />
+    <ClCompile Include="src\C2AISoldierAccess.cpp" />
+    <ClCompile Include="src\C2AIHighLevelAccess.cpp" />
+    <ClCompile Include="src\C2AIGuideAccess.cpp" />
+    <ClCompile Include="src\C2AIRoadAccess.cpp" />
+    <ClCompile Include="src\C2AIAnimalDiplomacy.cpp" />
+    <ClCompile Include="src\C2AIHumanRequests.cpp" />
+    <ClCompile Include="src\C2AIProduction.cpp" />
+    <ClCompile Include="src\C2AIMilitaryAccess.cpp" />
+    <ClCompile Include="src\C2AIConstruction.cpp" />
+    <ClCompile Include="src\C2AIManagerAccess.cpp" />
+    <ClCompile Include="src\C2AIGlobalGoods.cpp" />
+    <ClCompile Include="src\C2AIMovementMessages.cpp" />
+    <ClInclude Include="src\C2SavegameIO.h" />
+    <ClInclude Include="src\C2SavegameStateAccess.h" />
+    <ClInclude Include="src\C2AISavegameAccess.h" />
+    <ClInclude Include="src\C2AIConditions.h" />
+    <ClInclude Include="src\C2AITaskAccess.h" />
+    <ClInclude Include="src\C2AIObjectAccess.h" />
+    <ClInclude Include="src\C2AIResourceAccess.h" />
+    <ClInclude Include="src\C2AIVillageAccess.h" />
+    <ClInclude Include="src\C2AIAssistantAccess.h" />
+    <ClInclude Include="src\C2AISinglePlayerAccess.h" />
+    <ClInclude Include="src\C2AISoldierAccess.h" />
+    <ClInclude Include="src\C2AIHighLevelAccess.h" />
+    <ClInclude Include="src\C2AIGuideAccess.h" />
+    <ClInclude Include="src\C2AIRoadAccess.h" />
+    <ClInclude Include="src\C2AIAnimalDiplomacy.h" />
+    <ClInclude Include="src\C2AIHumanRequests.h" />
+    <ClInclude Include="src\C2AIProduction.h" />
+    <ClInclude Include="src\C2AIMilitaryAccess.h" />
+    <ClInclude Include="src\C2AIConstruction.h" />
+    <ClInclude Include="src\C2AIManagerAccess.h" />
+    <ClInclude Include="src\C2AIGlobalGoods.h" />
+    <ClInclude Include="src\C2AIMovementMessages.h" />
+    <ClInclude Include="src\C2MapGuid.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticTrianglePatternTypeData.cpp" />
-    <ClInclude Include="C2StaticTrianglePatternTypeData.h" />
-    <ClCompile Include="C2StaticLandscapeTypeData.cpp" />
-    <ClInclude Include="C2StaticLandscapeTypeData.h" />
-    <ClCompile Include="XBasicTypes.cpp" />
+    <ClCompile Include="src\C2StaticTrianglePatternTypeData.cpp" />
+    <ClInclude Include="src\C2StaticTrianglePatternTypeData.h" />
+    <ClCompile Include="src\C2StaticLandscapeTypeData.cpp" />
+    <ClInclude Include="src\C2StaticLandscapeTypeData.h" />
+    <ClCompile Include="src\XBasicTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticGoodTypeData.cpp" />
-    <ClInclude Include="C2StaticGoodTypeData.h" />
-    <ClCompile Include="C2EngineLandscapeAccess.cpp" />
-    <ClInclude Include="C2EngineLandscapeAccess.h" />
+    <ClCompile Include="src\C2StaticGoodTypeData.cpp" />
+    <ClInclude Include="src\C2StaticGoodTypeData.h" />
+    <ClCompile Include="src\C2EngineLandscapeAccess.cpp" />
+    <ClInclude Include="src\C2EngineLandscapeAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticHouseTypeData.cpp" />
-    <ClInclude Include="C2StaticHouseTypeData.h" />
+    <ClCompile Include="src\C2StaticHouseTypeData.cpp" />
+    <ClInclude Include="src\C2StaticHouseTypeData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticVehicleTypeData.cpp" />
-    <ClInclude Include="C2StaticVehicleTypeData.h" />
+    <ClCompile Include="src\C2StaticVehicleTypeData.cpp" />
+    <ClInclude Include="src\C2StaticVehicleTypeData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticAtomicAnimationData.cpp" />
-    <ClInclude Include="C2StaticAtomicAnimationData.h" />
+    <ClCompile Include="src\C2StaticAtomicAnimationData.cpp" />
+    <ClInclude Include="src\C2StaticAtomicAnimationData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2StaticTribeTypeData.cpp" />
-    <ClCompile Include="C2StaticActorTypeDataAccess.cpp" />
-    <ClInclude Include="C2StaticTribeTypeData.h" />
-    <ClInclude Include="C2StaticActorTypeDataAccess.h" />
+    <ClCompile Include="src\C2StaticTribeTypeData.cpp" />
+    <ClCompile Include="src\C2StaticActorTypeDataAccess.cpp" />
+    <ClInclude Include="src\C2StaticTribeTypeData.h" />
+    <ClInclude Include="src\C2StaticActorTypeDataAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XGuiWindowAccess.cpp" />
-    <ClCompile Include="XGuiDesktop_Attachment.cpp" />
-    <ClCompile Include="GuiTextToolElementAccess.cpp" />
-    <ClCompile Include="GuiClockToolElementAccess.cpp" />
-    <ClCompile Include="GuiListBoxElementAccess.cpp" />
-    <ClCompile Include="WindowsVideoPlayer.cpp" />
-    <ClCompile Include="C2StringAccess.cpp" />
-    <ClCompile Include="C2HouseAccess.cpp" />
-    <ClCompile Include="InGameGuiKeyAssignmentManager.cpp" />
-    <ClCompile Include="C2VehicleAccess.cpp" />
-    <ClCompile Include="InGameGuiBaseAccess.cpp" />
-    <ClCompile Include="InGameGuiStringOutputWindow.cpp" />
-    <ClInclude Include="XGuiWindowAccess.h" />
-    <ClInclude Include="GuiTextToolElementAccess.h" />
-    <ClInclude Include="GuiClockToolElementAccess.h" />
-    <ClInclude Include="GuiListBoxElementAccess.h" />
-    <ClInclude Include="WindowsVideoPlayer.h" />
-    <ClInclude Include="C2StringAccess.h" />
-    <ClInclude Include="C2HouseAccess.h" />
-    <ClInclude Include="InGameGuiKeyAssignmentManager.h" />
-    <ClInclude Include="C2VehicleAccess.h" />
-    <ClInclude Include="InGameGuiBaseAccess.h" />
-    <ClInclude Include="InGameGuiStringOutputWindow.h" />
+    <ClCompile Include="src\XGuiWindowAccess.cpp" />
+    <ClCompile Include="src\XGuiDesktop_Attachment.cpp" />
+    <ClCompile Include="src\GuiTextToolElementAccess.cpp" />
+    <ClCompile Include="src\GuiClockToolElementAccess.cpp" />
+    <ClCompile Include="src\GuiListBoxElementAccess.cpp" />
+    <ClCompile Include="src\WindowsVideoPlayer.cpp" />
+    <ClCompile Include="src\C2StringAccess.cpp" />
+    <ClCompile Include="src\C2HouseAccess.cpp" />
+    <ClCompile Include="src\InGameGuiKeyAssignmentManager.cpp" />
+    <ClCompile Include="src\C2VehicleAccess.cpp" />
+    <ClCompile Include="src\InGameGuiBaseAccess.cpp" />
+    <ClCompile Include="src\InGameGuiStringOutputWindow.cpp" />
+    <ClInclude Include="src\XGuiWindowAccess.h" />
+    <ClInclude Include="src\GuiTextToolElementAccess.h" />
+    <ClInclude Include="src\GuiClockToolElementAccess.h" />
+    <ClInclude Include="src\GuiListBoxElementAccess.h" />
+    <ClInclude Include="src\WindowsVideoPlayer.h" />
+    <ClInclude Include="src\C2StringAccess.h" />
+    <ClInclude Include="src\C2HouseAccess.h" />
+    <ClInclude Include="src\InGameGuiKeyAssignmentManager.h" />
+    <ClInclude Include="src\C2VehicleAccess.h" />
+    <ClInclude Include="src\InGameGuiBaseAccess.h" />
+    <ClInclude Include="src\InGameGuiStringOutputWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2PlayerStatisticAccess.cpp" />
-    <ClInclude Include="C2PlayerStatisticAccess.h" />
+    <ClCompile Include="src\C2PlayerStatisticAccess.cpp" />
+    <ClInclude Include="src\C2PlayerStatisticAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2UserNetworkCommandAccess.cpp" />
-    <ClInclude Include="C2UserNetworkCommandAccess.h" />
-    <ClCompile Include="C2HumanCommandAccess.cpp" />
-    <ClInclude Include="C2HumanCommandAccess.h" />
-    <ClCompile Include="C2UserMessageAccess.cpp" />
-    <ClCompile Include="C2HumanMessageAccess.cpp" />
-    <ClCompile Include="C2InteractionTargetAccess.cpp" />
-    <ClInclude Include="C2UserMessageAccess.h" />
-    <ClInclude Include="C2HumanMessageAccess.h" />
-    <ClInclude Include="C2InteractionTargetAccess.h" />
+    <ClCompile Include="src\C2UserNetworkCommandAccess.cpp" />
+    <ClInclude Include="src\C2UserNetworkCommandAccess.h" />
+    <ClCompile Include="src\C2HumanCommandAccess.cpp" />
+    <ClInclude Include="src\C2HumanCommandAccess.h" />
+    <ClCompile Include="src\C2UserMessageAccess.cpp" />
+    <ClCompile Include="src\C2HumanMessageAccess.cpp" />
+    <ClCompile Include="src\C2InteractionTargetAccess.cpp" />
+    <ClInclude Include="src\C2UserMessageAccess.h" />
+    <ClInclude Include="src\C2HumanMessageAccess.h" />
+    <ClInclude Include="src\C2InteractionTargetAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TemporaryLinkStubs.cpp" />
+    <ClCompile Include="src\TemporaryLinkStubs.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainMenuWorldDisplayElement.cpp" />
-    <ClInclude Include="MainMenuWorldDisplayElement.h" />
+    <ClCompile Include="src\MainMenuWorldDisplayElement.cpp" />
+    <ClInclude Include="src\MainMenuWorldDisplayElement.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2GameMapLoading.cpp" />
-    <ClCompile Include="C2MapResourceManagers.cpp" />
-    <ClInclude Include="C2MapResourceManagers.h" />
-    <ClCompile Include="XPack.cpp" />
-    <ClInclude Include="XPack.h" />
+    <ClCompile Include="src\C2GameMapLoading.cpp" />
+    <ClCompile Include="src\C2MapResourceManagers.cpp" />
+    <ClInclude Include="src\C2MapResourceManagers.h" />
+    <ClCompile Include="src\XPack.cpp" />
+    <ClInclude Include="src\XPack.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HyperLinkTextSystem.cpp" />
-    <ClInclude Include="HyperLinkTextSystem.h" />
+    <ClCompile Include="src\HyperLinkTextSystem.cpp" />
+    <ClInclude Include="src\HyperLinkTextSystem.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiManager_MessageHandlers.cpp" />
-    <ClInclude Include="InGameGuiManager_MessageHandlers.h" />
-    <ClCompile Include="InGameGuiOptionsWindowAccess.cpp" />
-    <ClInclude Include="InGameGuiOptionsWindowAccess.h" />
-    <ClCompile Include="InGameGuiGlobalGameSettingsWindow.cpp" />
-    <ClInclude Include="InGameGuiGlobalGameSettingsWindow.h" />
-    <ClCompile Include="InGameGuiConstructionSelectionWindow.cpp" />
-    <ClInclude Include="InGameGuiConstructionSelectionWindow.h" />
-    <ClCompile Include="InGameGuiHelpWindow.cpp" />
-    <ClInclude Include="InGameGuiHelpWindow.h" />
-    <ClCompile Include="InGameGuiMissionInfoWindow.cpp" />
-    <ClCompile Include="InGameGuiSavegameIO.cpp" />
-    <ClInclude Include="InGameGuiMissionInfoWindow.h" />
+    <ClCompile Include="src\InGameGuiManager_MessageHandlers.cpp" />
+    <ClInclude Include="src\InGameGuiManager_MessageHandlers.h" />
+    <ClCompile Include="src\InGameGuiOptionsWindowAccess.cpp" />
+    <ClInclude Include="src\InGameGuiOptionsWindowAccess.h" />
+    <ClCompile Include="src\InGameGuiGlobalGameSettingsWindow.cpp" />
+    <ClInclude Include="src\InGameGuiGlobalGameSettingsWindow.h" />
+    <ClCompile Include="src\InGameGuiConstructionSelectionWindow.cpp" />
+    <ClInclude Include="src\InGameGuiConstructionSelectionWindow.h" />
+    <ClCompile Include="src\InGameGuiHelpWindow.cpp" />
+    <ClInclude Include="src\InGameGuiHelpWindow.h" />
+    <ClCompile Include="src\InGameGuiMissionInfoWindow.cpp" />
+    <ClCompile Include="src\InGameGuiSavegameIO.cpp" />
+    <ClInclude Include="src\InGameGuiMissionInfoWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GouraudShader.cpp">
+    <ClCompile Include="src\GouraudShader.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-    <ClInclude Include="GouraudShader.h" />
-    <ClCompile Include="C2EngineGroundDrawing.cpp" />
-    <ClCompile Include="C2EngineMapTerrainAccess.cpp" />
-    <ClInclude Include="C2EngineMapTerrainAccess.h" />
-    <ClCompile Include="C2EngineMapIO.cpp" />
-    <ClCompile Include="C2EngineMacroMaps.cpp" />
-    <ClInclude Include="C2EngineMacroMaps.h" />
-    <ClInclude Include="C2EngineMapIO.h" />
-    <ClCompile Include="C2E2StaticDataTransitions.cpp" />
+    <ClInclude Include="src\GouraudShader.h" />
+    <ClCompile Include="src\C2EngineGroundDrawing.cpp" />
+    <ClCompile Include="src\C2EngineMapTerrainAccess.cpp" />
+    <ClInclude Include="src\C2EngineMapTerrainAccess.h" />
+    <ClCompile Include="src\C2EngineMapIO.cpp" />
+    <ClCompile Include="src\C2EngineMacroMaps.cpp" />
+    <ClInclude Include="src\C2EngineMacroMaps.h" />
+    <ClInclude Include="src\C2EngineMapIO.h" />
+    <ClCompile Include="src\C2E2StaticDataTransitions.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MissionStartObjects.cpp" />
-    <ClInclude Include="C2MissionStartObjects.h" />
+    <ClCompile Include="src\C2MissionStartObjects.cpp" />
+    <ClInclude Include="src\C2MissionStartObjects.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MapMoveableAccess.cpp" />
-    <ClInclude Include="C2MapMoveableAccess.h" />
-    <ClCompile Include="C2HumanJobAccess.cpp" />
-    <ClInclude Include="C2HumanJobAccess.h" />
-    <ClCompile Include="C2HumanMerchantAccess.cpp" />
-    <ClInclude Include="C2HumanMerchantAccess.h" />
-    <ClCompile Include="C2HumanUserControl.cpp" />
-    <ClInclude Include="C2HumanUserControl.h" />
-    <ClCompile Include="C2HumanInitialization.cpp" />
-    <ClCompile Include="C2DefaultInteraction.cpp" />
-    <ClInclude Include="C2DefaultInteraction.h" />
-    <ClInclude Include="C2HumanInitialization.h" />
-    <ClCompile Include="C2HumanTaskAccess.cpp" />
-    <ClCompile Include="C2HumanGoodieTasks.cpp" />
-    <ClCompile Include="C2HumanAtomicEvents.cpp" />
-    <ClCompile Include="C2HumanNeeds.cpp" />
-    <ClCompile Include="C2HumanWalking.cpp" />
-    <ClCompile Include="C2HumanGoods.cpp" />
-    <ClCompile Include="C2HumanProduction.cpp" />
-    <ClCompile Include="C2HumanEquipment.cpp" />
-    <ClCompile Include="C2HumanFamily.cpp" />
-    <ClCompile Include="C2MapLandscapeChanges.cpp" />
-    <ClInclude Include="C2HumanTaskAccess.h" />
-    <ClInclude Include="C2HumanGoodieTasks.h" />
-    <ClInclude Include="C2HumanAtomicEvents.h" />
-    <ClInclude Include="C2HumanNeeds.h" />
-    <ClInclude Include="C2HumanWalking.h" />
-    <ClInclude Include="C2HumanGoods.h" />
-    <ClInclude Include="C2HumanProduction.h" />
-    <ClInclude Include="C2HumanEquipment.h" />
-    <ClInclude Include="C2HumanFamily.h" />
+    <ClCompile Include="src\C2MapMoveableAccess.cpp" />
+    <ClInclude Include="src\C2MapMoveableAccess.h" />
+    <ClCompile Include="src\C2HumanJobAccess.cpp" />
+    <ClInclude Include="src\C2HumanJobAccess.h" />
+    <ClCompile Include="src\C2HumanMerchantAccess.cpp" />
+    <ClInclude Include="src\C2HumanMerchantAccess.h" />
+    <ClCompile Include="src\C2HumanUserControl.cpp" />
+    <ClInclude Include="src\C2HumanUserControl.h" />
+    <ClCompile Include="src\C2HumanInitialization.cpp" />
+    <ClCompile Include="src\C2DefaultInteraction.cpp" />
+    <ClInclude Include="src\C2DefaultInteraction.h" />
+    <ClInclude Include="src\C2HumanInitialization.h" />
+    <ClCompile Include="src\C2HumanTaskAccess.cpp" />
+    <ClCompile Include="src\C2HumanGoodieTasks.cpp" />
+    <ClCompile Include="src\C2HumanAtomicEvents.cpp" />
+    <ClCompile Include="src\C2HumanNeeds.cpp" />
+    <ClCompile Include="src\C2HumanWalking.cpp" />
+    <ClCompile Include="src\C2HumanGoods.cpp" />
+    <ClCompile Include="src\C2HumanProduction.cpp" />
+    <ClCompile Include="src\C2HumanEquipment.cpp" />
+    <ClCompile Include="src\C2HumanFamily.cpp" />
+    <ClCompile Include="src\C2MapLandscapeChanges.cpp" />
+    <ClInclude Include="src\C2HumanTaskAccess.h" />
+    <ClInclude Include="src\C2HumanGoodieTasks.h" />
+    <ClInclude Include="src\C2HumanAtomicEvents.h" />
+    <ClInclude Include="src\C2HumanNeeds.h" />
+    <ClInclude Include="src\C2HumanWalking.h" />
+    <ClInclude Include="src\C2HumanGoods.h" />
+    <ClInclude Include="src\C2HumanProduction.h" />
+    <ClInclude Include="src\C2HumanEquipment.h" />
+    <ClInclude Include="src\C2HumanFamily.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MapPathfinderSectorSearch.cpp" />
-    <ClCompile Include="C2MapSectorRouting.cpp" />
-    <ClCompile Include="C2GuideRouting.cpp" />
-    <ClCompile Include="C2HumanScout.cpp" />
-    <ClCompile Include="C2HumanChest.cpp" />
-    <ClCompile Include="C2VehicleLifecycle.cpp" />
-    <ClCompile Include="C2VehicleSimulation.cpp" />
-    <ClInclude Include="C2VehicleSimulation.h" />
-    <ClCompile Include="C2MapResourceTools.cpp" />
-    <ClInclude Include="C2MapResourceTools.h" />
-    <ClCompile Include="C2HumanWorkCommands.cpp" />
-    <ClCompile Include="C2GuideAccess.cpp" />
-    <ClInclude Include="C2MapPathfinderSectorSearch.h" />
-    <ClInclude Include="C2GuideRouting.h" />
-    <ClInclude Include="C2HumanScout.h" />
-    <ClInclude Include="C2HumanChest.h" />
-    <ClInclude Include="C2VehicleLifecycle.h" />
-    <ClInclude Include="C2HumanWorkCommands.h" />
-    <ClInclude Include="C2GuideAccess.h" />
+    <ClCompile Include="src\C2MapPathfinderSectorSearch.cpp" />
+    <ClCompile Include="src\C2MapSectorRouting.cpp" />
+    <ClCompile Include="src\C2GuideRouting.cpp" />
+    <ClCompile Include="src\C2HumanScout.cpp" />
+    <ClCompile Include="src\C2HumanChest.cpp" />
+    <ClCompile Include="src\C2VehicleLifecycle.cpp" />
+    <ClCompile Include="src\C2VehicleSimulation.cpp" />
+    <ClInclude Include="src\C2VehicleSimulation.h" />
+    <ClCompile Include="src\C2MapResourceTools.cpp" />
+    <ClInclude Include="src\C2MapResourceTools.h" />
+    <ClCompile Include="src\C2HumanWorkCommands.cpp" />
+    <ClCompile Include="src\C2GuideAccess.cpp" />
+    <ClInclude Include="src\C2MapPathfinderSectorSearch.h" />
+    <ClInclude Include="src\C2GuideRouting.h" />
+    <ClInclude Include="src\C2HumanScout.h" />
+    <ClInclude Include="src\C2HumanChest.h" />
+    <ClInclude Include="src\C2VehicleLifecycle.h" />
+    <ClInclude Include="src\C2HumanWorkCommands.h" />
+    <ClInclude Include="src\C2GuideAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineSelectionAccess.cpp" />
-    <ClCompile Include="InGameGuiSelectionAccess.cpp" />
-    <ClCompile Include="InGameGuiSelectionWindowAccess.cpp" />
-    <ClInclude Include="InGameGuiSelectionWindowAccess.h" />
-    <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp" />
-    <ClCompile Include="InGameGuiHumanJobWindows.cpp" />
-    <ClCompile Include="InGameGuiHumanActionButtons.cpp" />
-    <ClInclude Include="InGameGuiHumanEquipmentWindow.h" />
-    <ClInclude Include="InGameGuiHumanJobWindows.h" />
-    <ClInclude Include="InGameGuiHumanActionButtons.h" />
-    <ClCompile Include="InGameGuiTraderConfigWindow.cpp" />
-    <ClInclude Include="InGameGuiTraderConfigWindow.h" />
-    <ClCompile Include="InGameGuiMessageText.cpp" />
-    <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
-    <ClCompile Include="InGameGuiMousePointer.cpp" />
-    <ClInclude Include="InGameGuiMousePointer.h" />
+    <ClCompile Include="src\C2EngineSelectionAccess.cpp" />
+    <ClCompile Include="src\InGameGuiSelectionAccess.cpp" />
+    <ClCompile Include="src\InGameGuiSelectionWindowAccess.cpp" />
+    <ClInclude Include="src\InGameGuiSelectionWindowAccess.h" />
+    <ClCompile Include="src\InGameGuiHumanEquipmentWindow.cpp" />
+    <ClCompile Include="src\InGameGuiHumanJobWindows.cpp" />
+    <ClCompile Include="src\InGameGuiHumanActionButtons.cpp" />
+    <ClInclude Include="src\InGameGuiHumanEquipmentWindow.h" />
+    <ClInclude Include="src\InGameGuiHumanJobWindows.h" />
+    <ClInclude Include="src\InGameGuiHumanActionButtons.h" />
+    <ClCompile Include="src\InGameGuiTraderConfigWindow.cpp" />
+    <ClInclude Include="src\InGameGuiTraderConfigWindow.h" />
+    <ClCompile Include="src\InGameGuiMessageText.cpp" />
+    <ClCompile Include="src\InGameGuiMessageWindowAccess.cpp" />
+    <ClCompile Include="src\InGameGuiMousePointer.cpp" />
+    <ClInclude Include="src\InGameGuiMousePointer.h" />
 
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2WallRoadPathfinder.cpp" />
-    <ClInclude Include="C2WallRoadPathfinder.h" />
-    <ClCompile Include="C2WallRoadConstruction.cpp" />
-    <ClInclude Include="C2WallRoadConstruction.h" />
-    <ClCompile Include="C2ChecksumTools.cpp" />
-    <ClCompile Include="C2GameChecksum.cpp" />
-    <ClCompile Include="C2ObjectMemberConstructors.cpp" />
-    <ClInclude Include="C2ObjectMemberConstructors.h" />
-    <ClInclude Include="C2GameChecksum.h" />
-    <ClInclude Include="C2ChecksumTools.h" />
-    <ClCompile Include="C2HumanConstruction.cpp" />
-    <ClInclude Include="C2HumanConstruction.h" />
-    <ClCompile Include="InGameGuiWallRoadWindows.cpp" />
-    <ClInclude Include="InGameGuiWallRoadWindows.h" />
+    <ClCompile Include="src\C2WallRoadPathfinder.cpp" />
+    <ClInclude Include="src\C2WallRoadPathfinder.h" />
+    <ClCompile Include="src\C2WallRoadConstruction.cpp" />
+    <ClInclude Include="src\C2WallRoadConstruction.h" />
+    <ClCompile Include="src\C2ChecksumTools.cpp" />
+    <ClCompile Include="src\C2GameChecksum.cpp" />
+    <ClCompile Include="src\C2ObjectMemberConstructors.cpp" />
+    <ClInclude Include="src\C2ObjectMemberConstructors.h" />
+    <ClInclude Include="src\C2GameChecksum.h" />
+    <ClInclude Include="src\C2ChecksumTools.h" />
+    <ClCompile Include="src\C2HumanConstruction.cpp" />
+    <ClInclude Include="src\C2HumanConstruction.h" />
+    <ClCompile Include="src\InGameGuiWallRoadWindows.cpp" />
+    <ClInclude Include="src\InGameGuiWallRoadWindows.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XBitmapFileBMP.cpp" />
-    <ClInclude Include="XBitmapFileBMP.h" />
-    <ClCompile Include="C2EngineMapExport.cpp" />
+    <ClCompile Include="src\XBitmapFileBMP.cpp" />
+    <ClInclude Include="src\XBitmapFileBMP.h" />
+    <ClCompile Include="src\C2EngineMapExport.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2TributeAccess.cpp" />
-    <ClInclude Include="C2TributeAccess.h" />
+    <ClCompile Include="src\C2TributeAccess.cpp" />
+    <ClInclude Include="src\C2TributeAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiDiplomacyWindow.cpp" />
-    <ClInclude Include="InGameGuiDiplomacyWindow.h" />
+    <ClCompile Include="src\InGameGuiDiplomacyWindow.cpp" />
+    <ClInclude Include="src\InGameGuiDiplomacyWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiTechTreeWindow.cpp" />
-    <ClInclude Include="InGameGuiTechTreeWindow.h" />
-    <ClInclude Include="InGameGuiTechTreeData.h" />
+    <ClCompile Include="src\InGameGuiTechTreeWindow.cpp" />
+    <ClInclude Include="src\InGameGuiTechTreeWindow.h" />
+    <ClInclude Include="src\InGameGuiTechTreeData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHumanListWindow.cpp" />
-    <ClInclude Include="InGameGuiHumanListWindow.h" />
+    <ClCompile Include="src\InGameGuiHumanListWindow.cpp" />
+    <ClInclude Include="src\InGameGuiHumanListWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiStatisticsWindow.cpp" />
-    <ClInclude Include="InGameGuiStatisticsWindow.h" />
-    <ClInclude Include="InGameGuiStatisticsData.h" />
+    <ClCompile Include="src\InGameGuiStatisticsWindow.cpp" />
+    <ClInclude Include="src\InGameGuiStatisticsWindow.h" />
+    <ClInclude Include="src\InGameGuiStatisticsData.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiObservationWindow.cpp" />
-    <ClInclude Include="InGameGuiObservationWindow.h" />
+    <ClCompile Include="src\InGameGuiObservationWindow.cpp" />
+    <ClInclude Include="src\InGameGuiObservationWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MissionOnscreenInfoAccess.cpp" />
-    <ClInclude Include="C2MissionOnscreenInfoAccess.h" />
-    <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp" />
-    <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h" />
+    <ClCompile Include="src\C2MissionOnscreenInfoAccess.cpp" />
+    <ClInclude Include="src\C2MissionOnscreenInfoAccess.h" />
+    <ClCompile Include="src\InGameGuiMissionOnscreenInfoWindow.cpp" />
+    <ClInclude Include="src\InGameGuiMissionOnscreenInfoWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiNetworkInfoWindow.cpp" />
-    <ClInclude Include="InGameGuiNetworkInfoWindow.h" />
+    <ClCompile Include="src\InGameGuiNetworkInfoWindow.cpp" />
+    <ClInclude Include="src\InGameGuiNetworkInfoWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiSimpleSelectionWindows.cpp" />
-    <ClInclude Include="InGameGuiSimpleSelectionWindows.h" />
+    <ClCompile Include="src\InGameGuiSimpleSelectionWindows.cpp" />
+    <ClInclude Include="src\InGameGuiSimpleSelectionWindows.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiLandscapeSelectionWindow.cpp" />
-    <ClInclude Include="InGameGuiLandscapeSelectionWindow.h" />
+    <ClCompile Include="src\InGameGuiLandscapeSelectionWindow.cpp" />
+    <ClInclude Include="src\InGameGuiLandscapeSelectionWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiGroupSelectionWindows.cpp" />
-    <ClInclude Include="InGameGuiGroupSelectionWindows.h" />
+    <ClCompile Include="src\InGameGuiGroupSelectionWindows.cpp" />
+    <ClInclude Include="src\InGameGuiGroupSelectionWindows.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseRemoveWindow.cpp" />
-    <ClInclude Include="InGameGuiHouseRemoveWindow.h" />
+    <ClCompile Include="src\InGameGuiHouseRemoveWindow.cpp" />
+    <ClInclude Include="src\InGameGuiHouseRemoveWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseUserControl.cpp" />
-    <ClInclude Include="C2HouseUserControl.h" />
+    <ClCompile Include="src\C2HouseUserControl.cpp" />
+    <ClInclude Include="src\C2HouseUserControl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiVehicleInhabitantsElements.cpp" />
-    <ClInclude Include="InGameGuiVehicleInhabitantsElements.h" />
+    <ClCompile Include="src\InGameGuiVehicleInhabitantsElements.cpp" />
+    <ClInclude Include="src\InGameGuiVehicleInhabitantsElements.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiSingleVehicleWindow.cpp" />
-    <ClInclude Include="InGameGuiSingleVehicleWindow.h" />
+    <ClCompile Include="src\InGameGuiSingleVehicleWindow.cpp" />
+    <ClInclude Include="src\InGameGuiSingleVehicleWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseInhabitantsElement.cpp" />
-    <ClInclude Include="InGameGuiHouseInhabitantsElement.h" />
+    <ClCompile Include="src\InGameGuiHouseInhabitantsElement.cpp" />
+    <ClInclude Include="src\InGameGuiHouseInhabitantsElement.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseGoodTypeElement.cpp" />
-    <ClInclude Include="InGameGuiHouseGoodTypeElement.h" />
+    <ClCompile Include="src\InGameGuiHouseGoodTypeElement.cpp" />
+    <ClInclude Include="src\InGameGuiHouseGoodTypeElement.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InGameGuiHouseWindow.cpp" />
-    <ClInclude Include="InGameGuiHouseWindow.h" />
+    <ClCompile Include="src\InGameGuiHouseWindow.cpp" />
+    <ClInclude Include="src\InGameGuiHouseWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MainMenuGuiMousePointer.cpp" />
+    <ClCompile Include="src\MainMenuGuiMousePointer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseBuildPosition.cpp" />
-    <ClInclude Include="C2HouseBuildPosition.h" />
-    <ClCompile Include="C2VehicleIterator.cpp" />
-    <ClInclude Include="C2VehicleIterator.h" />
+    <ClCompile Include="src\C2HouseBuildPosition.cpp" />
+    <ClInclude Include="src\C2HouseBuildPosition.h" />
+    <ClCompile Include="src\C2VehicleIterator.cpp" />
+    <ClInclude Include="src\C2VehicleIterator.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseConstruction.cpp" />
+    <ClCompile Include="src\C2HouseConstruction.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HouseLifecycle.cpp" />
+    <ClCompile Include="src\C2HouseLifecycle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HousePeriodic.cpp" />
+    <ClCompile Include="src\C2HousePeriodic.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MilitaryTargetSearch.cpp" />
-    <ClInclude Include="C2MilitaryTargetSearch.h" />
+    <ClCompile Include="src\C2MilitaryTargetSearch.cpp" />
+    <ClInclude Include="src\C2MilitaryTargetSearch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HappinessEvents.cpp" />
-    <ClInclude Include="C2HappinessEvents.h" />
+    <ClCompile Include="src\C2HappinessEvents.cpp" />
+    <ClInclude Include="src\C2HappinessEvents.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HappinessRecalculation.cpp" />
+    <ClCompile Include="src\C2HappinessRecalculation.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanMilitaryJobs.cpp" />
-    <ClInclude Include="C2HumanMilitaryJobs.h" />
-    <ClCompile Include="C2MilitaryLandscapeTargets.cpp" />
-    <ClCompile Include="C2MilitarySectorTargets.cpp" />
+    <ClCompile Include="src\C2HumanMilitaryJobs.cpp" />
+    <ClInclude Include="src\C2HumanMilitaryJobs.h" />
+    <ClCompile Include="src\C2MilitaryLandscapeTargets.cpp" />
+    <ClCompile Include="src\C2MilitarySectorTargets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanLandscapeSearch.cpp" />
-    <ClInclude Include="C2HumanLandscapeSearch.h" />
-    <ClCompile Include="C2HumanMapCollection.cpp" />
-    <ClInclude Include="C2HumanMapCollection.h" />
-    <ClCompile Include="C2HumanCollectionEvents.cpp" />
-    <ClInclude Include="C2HumanCollectionEvents.h" />
+    <ClCompile Include="src\C2HumanLandscapeSearch.cpp" />
+    <ClInclude Include="src\C2HumanLandscapeSearch.h" />
+    <ClCompile Include="src\C2HumanMapCollection.cpp" />
+    <ClInclude Include="src\C2HumanMapCollection.h" />
+    <ClCompile Include="src\C2HumanCollectionEvents.cpp" />
+    <ClInclude Include="src\C2HumanCollectionEvents.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanSocialJobs.cpp" />
-    <ClInclude Include="C2HumanSocialJobs.h" />
+    <ClCompile Include="src\C2HumanSocialJobs.cpp" />
+    <ClInclude Include="src\C2HumanSocialJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanAnimalJobs.cpp" />
-    <ClInclude Include="C2HumanAnimalJobs.h" />
+    <ClCompile Include="src\C2HumanAnimalJobs.cpp" />
+    <ClInclude Include="src\C2HumanAnimalJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AnimalTasks.cpp" />
-    <ClInclude Include="C2AnimalTasks.h" />
+    <ClCompile Include="src\C2AnimalTasks.cpp" />
+    <ClInclude Include="src\C2AnimalTasks.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanTransportJobs.cpp" />
-    <ClInclude Include="C2HumanTransportJobs.h" />
+    <ClCompile Include="src\C2HumanTransportJobs.cpp" />
+    <ClInclude Include="src\C2HumanTransportJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanTraderJobs.cpp" />
-    <ClInclude Include="C2HumanTraderJobs.h" />
+    <ClCompile Include="src\C2HumanTraderJobs.cpp" />
+    <ClInclude Include="src\C2HumanTraderJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanVehicleJobs.cpp" />
-    <ClInclude Include="C2HumanVehicleJobs.h" />
+    <ClCompile Include="src\C2HumanVehicleJobs.cpp" />
+    <ClInclude Include="src\C2HumanVehicleJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanHuntingJobs.cpp" />
-    <ClInclude Include="C2HumanHuntingJobs.h" />
+    <ClCompile Include="src\C2HumanHuntingJobs.cpp" />
+    <ClInclude Include="src\C2HumanHuntingJobs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2HumanAttackTasks.cpp" />
-    <ClInclude Include="C2HumanAttackTasks.h" />
+    <ClCompile Include="src\C2HumanAttackTasks.cpp" />
+    <ClInclude Include="src\C2HumanAttackTasks.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MilitaryDamage.cpp" />
-    <ClInclude Include="C2MilitaryDamage.h" />
+    <ClCompile Include="src\C2MilitaryDamage.cpp" />
+    <ClInclude Include="src\C2MilitaryDamage.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2VehicleAnimalPassengers.cpp" />
-    <ClInclude Include="C2VehicleAnimalPassengers.h" />
+    <ClCompile Include="src\C2VehicleAnimalPassengers.cpp" />
+    <ClInclude Include="src\C2VehicleAnimalPassengers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2WeaponHits.cpp" />
-    <ClCompile Include="C2DelayedActionManager.cpp" />
-    <ClInclude Include="C2DelayedActionManager.h" />
-    <ClCompile Include="C2HumanWeaponEvents.cpp" />
-    <ClInclude Include="C2HumanWeaponEvents.h" />
+    <ClCompile Include="src\C2WeaponHits.cpp" />
+    <ClCompile Include="src\C2DelayedActionManager.cpp" />
+    <ClInclude Include="src\C2DelayedActionManager.h" />
+    <ClCompile Include="src\C2HumanWeaponEvents.cpp" />
+    <ClInclude Include="src\C2HumanWeaponEvents.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AnimalMilitaryTasks.cpp" />
-    <ClInclude Include="C2AnimalMilitaryTasks.h" />
-    <ClInclude Include="C2MilitaryAttackPointSearch.h" />
+    <ClCompile Include="src\C2AnimalMilitaryTasks.cpp" />
+    <ClInclude Include="src\C2AnimalMilitaryTasks.h" />
+    <ClInclude Include="src\C2MilitaryAttackPointSearch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2E2StaticDataHouses.cpp" />
-    <ClInclude Include="C2E2StaticDataHouses.h" />
+    <ClCompile Include="src\C2E2StaticDataHouses.cpp" />
+    <ClInclude Include="src\C2E2StaticDataHouses.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineHouseDrawing.cpp" />
-    <ClInclude Include="C2EngineHouseDrawing.h" />
+    <ClCompile Include="src\C2EngineHouseDrawing.cpp" />
+    <ClInclude Include="src\C2EngineHouseDrawing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineGuideDrawing.cpp" />
-    <ClInclude Include="C2EngineGuideDrawing.h" />
+    <ClCompile Include="src\C2EngineGuideDrawing.cpp" />
+    <ClInclude Include="src\C2EngineGuideDrawing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineParticleDrawing.cpp" />
-    <ClCompile Include="C2EngineWeatherDrawing.cpp" />
-    <ClInclude Include="C2EngineWeatherDrawing.h" />
-    <ClCompile Include="XRandom.cpp" />
-    <ClInclude Include="XRandom.h" />
-    <ClInclude Include="C2EngineParticleDrawing.h" />
+    <ClCompile Include="src\C2EngineParticleDrawing.cpp" />
+    <ClCompile Include="src\C2EngineWeatherDrawing.cpp" />
+    <ClInclude Include="src\C2EngineWeatherDrawing.h" />
+    <ClCompile Include="src\XRandom.cpp" />
+    <ClInclude Include="src\XRandom.h" />
+    <ClInclude Include="src\C2EngineParticleDrawing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2E2StaticDataParticles.cpp" />
-    <ClInclude Include="C2E2StaticDataParticles.h" />
+    <ClCompile Include="src\C2E2StaticDataParticles.cpp" />
+    <ClInclude Include="src\C2E2StaticDataParticles.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2EngineParticleSimulation.cpp" />
-    <ClInclude Include="C2EngineParticleSimulation.h" />
+    <ClCompile Include="src\C2EngineParticleSimulation.cpp" />
+    <ClInclude Include="src\C2EngineParticleSimulation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2MultiPlayerGoalAccess.cpp" />
-    <ClInclude Include="C2MultiPlayerGoalAccess.h" />
+    <ClCompile Include="src\C2MultiPlayerGoalAccess.cpp" />
+    <ClInclude Include="src\C2MultiPlayerGoalAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="XGuiLists.cpp" />
-    <ClCompile Include="HyperLinkTextSystemLifetime.cpp" />
+    <ClCompile Include="src\XGuiLists.cpp" />
+    <ClCompile Include="src\HyperLinkTextSystemLifetime.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C2AIBuildingAccess.cpp" />
-    <ClInclude Include="C2AIBuildingAccess.h" />
+    <ClCompile Include="src\C2AIBuildingAccess.cpp" />
+    <ClInclude Include="src\C2AIBuildingAccess.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SwitchIdentifiers.h" />
-    <ClInclude Include="XResultIdentifiers.h" />
+    <ClInclude Include="src\SwitchIdentifiers.h" />
+    <ClInclude Include="src\XResultIdentifiers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C2ObjectLayout.h"></ClInclude>
-    <ClInclude Include="C2DataIds.h"></ClInclude>
-    <ClInclude Include="XNumericConstants.h"></ClInclude>
-    <ClInclude Include="XWindowsResultCodes.h"></ClInclude>
-    <ClInclude Include="C2RuntimeConstants.h"></ClInclude>
+    <ClInclude Include="src\C2ObjectLayout.h"></ClInclude>
+    <ClInclude Include="src\C2DataIds.h"></ClInclude>
+    <ClInclude Include="src\XNumericConstants.h"></ClInclude>
+    <ClInclude Include="src\XWindowsResultCodes.h"></ClInclude>
+    <ClInclude Include="src\C2RuntimeConstants.h"></ClInclude>
   </ItemGroup>
 </Project>
