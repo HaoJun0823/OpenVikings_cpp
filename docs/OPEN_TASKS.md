@@ -4,6 +4,10 @@ Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_ST
 
 ## Active remaster work
 
+- The original branch `reversed-game-authentic-behaviour` and its bug register are frozen by user instruction. Track intentional remaster corrections in [the separate bug-fix ledger](REMASTER_BUGFIXES.md); do not rewrite the historical OB/OA findings.
+- Validate RM001–RM005: training-counter unlocks, concurrent vehicle builders, attack targets beyond eighteen map points, border markers and escaped-particle retirement. Source/Windows and warning-free syntax checks pass; runtime confirmation is pending. The separate working-experience observation OA163 remains open.
+- Validate RM006–RM009: unavailable audio-device recovery returns without hanging, fades start from the current gain and finish correctly, zero-duration fades apply immediately, and master-volume changes preserve per-sound volume/pan and explicit jingle overrides. Include mid-fade changes, fade to zero, stop/replay and quality changes. Source/Windows and warning-free syntax checks pass; game checks are pending. Player-facing changes are in [the player changelog](CHANGELOG_REMASTER.md).
+- Networking is excluded by explicit user instruction. Defer network bugs, transfer/command handling and modernization together to a separate later project; do not start that block as an automatic follow-up.
 - The user accepted the current visual output on October 16, 2026 after the cursor flicker correction. The broader validation scenarios below remain targeted follow-ups rather than claimed completed checks.
 
 - The [window/presentation modernization](REMASTER_WINDOW_PRESENTATION.md) is implemented in source on `remaster`. On explicit build request, build/link Win32 and validate image/video/loading/menu transitions while confirming unchanged desktop resolution and refresh rate.
@@ -31,9 +35,9 @@ Reviewed October 16, 2026. The [known-entry implementation inventory](PROJECT_ST
 These are planned changes beyond faithful reconstruction; none is implied complete by the source-entry total.
 
 - **Legacy runtime:** inventory CRT/compiler/x87 callers, then decide per component whether to retain, replace or remove it. Validate precision, rounding, exceptions, allocation, save formats and multiplayer determinism before substitution.
-- **Original bugs:** reconcile and validate the [OB/OA register](RECONSTRUCTION_NOTES.md). Reproduce fullscreen corruption after Alt-Tab and the [school working-experience observation](SCHOOL_EXPERIENCE_OBSERVATION.md); distinguish source evidence from user-reported triggers.
-- **Community patches:** review [Cultures Saga Patches](https://github.com/Basssiiie/cultures-saga-patches) for school, vehicle/soldier freezes, AI guide crashes, limits, transfers and usability. Check executable-version/address correspondence before adoption; no patch collection is applied here.
+- **Original bugs:** preserve the historical [OB/OA register](RECONSTRUCTION_NOTES.md) and fix deliberate remaster changes through [the separate ledger](REMASTER_BUGFIXES.md). Continue targeted validation of the remaining findings, including the [school working-experience observation](SCHOOL_EXPERIENCE_OBSERVATION.md).
+- **Community patches:** all 24 modules at commit `ead57f3` are [compared with our findings](REMASTER_BUGFIXES.md). Five gameplay corrections and four separate OB audio corrections are implemented in source, with runtime validation pending. Network work is deferred by user instruction; limits, UI and balance changes remain separate pending decisions. No external executable patcher is run.
 - **64-bit Windows:** audit pointer assumptions, callbacks, layouts and dependencies while retaining established file formats.
 - **Larger settlements/worlds:** coordinate [object capacities](README_OBJECT_LIMITS.md), supporting pools, IDs, savegames and performance.
-- **Networking:** replace DirectPlay after defining session, discovery, transfer, synchronization and compatibility requirements.
+- **Networking (deferred by user):** a separate later refactoring project will cover existing bugs and replace DirectPlay after defining session, discovery, transfer, synchronization and compatibility requirements. No network implementation changes belong to the current block.
 - **Performance:** profile first, then evaluate SIMD, multicore and GPU work with compatible fallbacks and deterministic simulation order.

@@ -166,11 +166,12 @@ namespace NC2Logic
 		void* marker = static_cast<std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker;
 		if (Read<std::uint8_t>(marker, NC2Layout::MarkerOffset::Allocated) != 0 && static_cast<CArrayHandler*>(array)->Element_Free(id, true)) Marker_Exit(marker);
 	}
-	// Original function: FUN_0040ba7d; invalid points retain the original slot reservation.
+	// Original function: FUN_0040ba7d; remaster initializes in-map border markers and rejects invalid points before reserving a slot.
 	std::int32_t __fastcall MarkerArray_AllocateMarker(void* array, void*, std::uint32_t type, const void* point, std::uint32_t human)
 	{
+		if (!MapMigPoint_IsInsideMap(point)) return -1;
 		const auto id = static_cast<CArrayHandler*>(array)->Element_Allocate();
-		if (id == -1 || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
+		if (id == -1) return -1;
 		if (!Marker_Init(static_cast<std::byte*>(gMarkerEntries) + id * NC2Layout::RecordSize::Marker, id, type, point, human))
 		{
 			MarkerArray_FreeMarker(array, nullptr, id); return -1;

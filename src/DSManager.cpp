@@ -20,10 +20,44 @@
 
 namespace NDSManager
 {
+	namespace
+	{
+		// Remaster-only state for the singleton mixer; native object and save layouts stay unchanged.
+		struct SRemasterMixState
+		{
+			std::uint32_t preloadVolume[1000];
+			std::uint32_t preloadPan[1000];
+			std::uint32_t transientVolume[40];
+			std::uint32_t transientMultiplier[40];
+			bool transientOverride[40];
+		};
+		SRemasterMixState gRemasterMix{};
+
+		std::uint32_t ClampRemasterVolume(std::uint32_t volume)
+		{
+			return volume > 100u ? 100u : volume;
+		}
+
+		void ApplyRemasterSoundMix(void* sound, std::uint32_t volume, std::uint32_t multiplier, std::uint32_t pan)
+		{
+			if (sound == nullptr) return;
+			const auto effectiveVolume = ClampRemasterVolume(volume) * ClampRemasterVolume(multiplier) / 100u;
+			const auto attenuation = effectiveVolume == 0 ? DSBVOLUME_MIN : (static_cast<std::int32_t>(effectiveVolume) - 100) * 20;
+			const auto position = (static_cast<std::int32_t>(pan > 128u ? 128u : pan) - 64) * 156;
+			Sound_SetVolumeAndPan(sound, attenuation, position);
+		}
+	}
+
 	// Original function: FUN_0040471f
 	CManager::CManager(void* window, bool initialize)
 	{
 		std::memset(this, 0, sizeof(*this));
+		std::memset(&gRemasterMix, 0, sizeof(gRemasterMix));
+		for (std::uint32_t index = 0; index < 1000u; ++index)
+		{
+			gRemasterMix.preloadVolume[index] = 100;
+			gRemasterMix.preloadPan[index] = 64;
+		}
 
 		sTheObjectPtr = this;
 		mWindow = window;
@@ -79,60 +113,22 @@ namespace NDSManager
 				continue;
 			}
 
-			const std::int32_t targetVolume = transition.targetVolume;
-			const double target = static_cast<double>(targetVolume);
-			const double current = transition.currentVolume;
-			const double rate = transition.changePerMillisecond;
-
-			// The negated comparison also advances an unordered current value.
-			const bool advance = !(current + 1.0 > target) || current - 1.0 >= target;
-
-			if (!advance)
-			{
-				// Both comparisons are false for zero and NaN.
-				if (rate > 0.0 || rate < 0.0)
-				{
-					PreloadWave_ChangeVolume(transition.identifier, static_cast<std::uint32_t>(targetVolume), false, 0u);
-					transition.changePerMillisecond = 0.0;
-
-					if (transition.targetVolume == 0)
-						transition.active = 0;
-				}
-
-				continue;
-			}
-
-			const std::uint32_t now = ::timeGetTime();
-			const std::uint32_t elapsed = now - transition.lastUpdate;
+			const auto now = ::timeGetTime();
+			const auto elapsed = now - transition.lastUpdate;
 			transition.lastUpdate = now;
-
-			if (elapsed == 0)
-				continue;
-
-			const double next = static_cast<double>(elapsed) * rate + current;
+			const auto target = static_cast<double>(transition.targetVolume);
+			auto next = transition.currentVolume + static_cast<double>(elapsed) * transition.changePerMillisecond;
+			const bool finished = transition.changePerMillisecond >= 0.0 ? next >= target : next <= target;
+			if (finished) next = target;
 			transition.currentVolume = next;
-
-			if (rate > 0.0)
+			const auto identifier = transition.identifier;
+			const auto volume = next > 0.0 && next < 1.0 ? 1u : static_cast<std::uint32_t>(next);
+			gRemasterMix.preloadVolume[identifier] = volume;
+			ApplyRemasterSoundMix(mPreloadWaves[identifier].sound, volume, mMainVolume, gRemasterMix.preloadPan[identifier]);
+			if (finished)
 			{
-				if (next > target)
-					transition.currentVolume = target;
-			}
-			else
-			{
-				if (!(next >= target))
-					transition.currentVolume = target;
-			}
-
-			if (transition.currentVolume > 1.0)
-			{
-				std::uint32_t volume = 0;
-
-				// Avoid an out-of-range floating-to-integer conversion.
-				// The original invalid conversion supplies a zero low DWORD.
-				if (transition.currentVolume < 9223372036854775808.0)
-					volume = static_cast<std::uint32_t>(static_cast<std::int64_t>(transition.currentVolume));
-
-				PreloadWave_ChangeVolume(transition.identifier, volume, false, 0u);
+				transition.active = 0;
+				if (transition.targetVolume == 0) PreloadWave_Stop(identifier);
 			}
 		}
 	}
@@ -263,38 +259,14 @@ namespace NDSManager
 		for (std::uint32_t identifier = 0; identifier < 1000u; ++identifier)
 		{
 			SPreloadWave& entry = mPreloadWaves[identifier];
-
-			if (entry.active == 0)
-				continue;
-
-			bool transitionActive = false;
-
-			for (const SVolumeTransition& transition : mVolumeTransitions)
-			{
-				if (transition.active != 0 && transition.identifier == identifier)
-				{
-					transitionActive = true;
-					break;
-				}
-			}
-
-			if (transitionActive)
-				continue;
-
-			if (entry.sound != nullptr)
-			{
-				const std::uint32_t attenuationBits = (mMainVolume - 100u) * 5u * 4u;
-				Sound_SetVolumeAndPan(entry.sound, NXBasics::Runtime_TimeSigned32(attenuationBits), 0);
-			}
+			if (entry.active != 0) ApplyRemasterSoundMix(entry.sound, gRemasterMix.preloadVolume[identifier], mMainVolume, gRemasterMix.preloadPan[identifier]);
 		}
-
-		for (SFireAndForgetWave& slot : mFireAndForgetWaves)
+		for (std::uint32_t index = 0; index < 40u; ++index)
 		{
-			if (slot.active != 0 && slot.sound != nullptr)
-			{
-				const std::uint32_t attenuationBits = (mMainVolume - 100u) * 5u * 4u;
-				Sound_SetVolumeAndPan(slot.sound, NXBasics::Runtime_TimeSigned32(attenuationBits), 0);
-			}
+			SFireAndForgetWave& slot = mFireAndForgetWaves[index];
+			if (slot.active == 0) continue;
+			const auto multiplier = gRemasterMix.transientOverride[index] ? gRemasterMix.transientMultiplier[index] : mMainVolume;
+			ApplyRemasterSoundMix(slot.sound, gRemasterMix.transientVolume[index], multiplier, 64);
 		}
 	}
 
@@ -390,6 +362,8 @@ namespace NDSManager
 
 		SPreloadWave& entry = mPreloadWaves[index];
 		std::memset(&entry, 0, sizeof(entry));
+		gRemasterMix.preloadVolume[index] = 100;
+		gRemasterMix.preloadPan[index] = 64;
 
 		if (!ls_WaveFile_Load(mSoundDevice, resolvedFileName, &entry.sound, &entry.waveData))
 		{
@@ -426,7 +400,7 @@ namespace NDSManager
 	// Original function: FUN_00404ced
 	bool CManager::PreloadWave_Play(std::uint32_t identifier, std::uint32_t volume, std::uint32_t repeatCount, std::uint32_t pan, bool transitionRequested, std::uint32_t durationMilliseconds)
 	{
-		if (mInitialized == 0)
+		if (mInitialized == 0 || identifier >= 1000u)
 			return false;
 
 		const std::uint32_t entryOffset = identifier << 4;
@@ -436,6 +410,7 @@ namespace NDSManager
 		if (entry->active == 0)
 			return false;
 
+		volume = ClampRemasterVolume(volume);
 		const std::uint32_t volumeProduct = mMainVolume * volume;
 		const std::uint32_t effectiveVolume = volumeProduct / 100u;
 
@@ -445,9 +420,14 @@ namespace NDSManager
 		if (entry->sound != nullptr && Sound_IsPlaying(entry->sound) != 0)
 			return false;
 
+		gRemasterMix.preloadVolume[identifier] = volume;
+		gRemasterMix.preloadPan[identifier] = pan > 128u ? 128u : pan;
+		for (SVolumeTransition& transition : mVolumeTransitions)
+			if (transition.identifier == identifier) transition.active = 0;
+
 		bool transitionCreated = false;
 
-		if (transitionRequested)
+		if (transitionRequested && durationMilliseconds != 0)
 		{
 			std::uint32_t index = 0;
 
@@ -465,20 +445,15 @@ namespace NDSManager
 				transition->targetVolume = NXBasics::Runtime_TimeSigned32(volume);
 				transition->active = 1;
 
-				// The original does not reject a zero duration.
+				// Zero-duration requests bypass transition creation.
 				transition->changePerMillisecond = static_cast<double>(volume) / static_cast<double>(durationMilliseconds);
 
 				transitionCreated = true;
 			}
 		}
 
-		if (entry->sound != nullptr)
-		{
-			const std::uint32_t panBits = (pan - 64u) * 156u;
-			const std::uint32_t attenuationBits = transitionCreated ? 0xFFFFF830u : (effectiveVolume * 5u - 500u) * 4u;
-
-			Sound_SetVolumeAndPan(entry->sound, NXBasics::Runtime_TimeSigned32(attenuationBits), NXBasics::Runtime_TimeSigned32(panBits));
-		}
+		if (transitionCreated) gRemasterMix.preloadVolume[identifier] = 0;
+		ApplyRemasterSoundMix(entry->sound, gRemasterMix.preloadVolume[identifier], mMainVolume, gRemasterMix.preloadPan[identifier]);
 
 		if (entry->sound != nullptr)
 		{
@@ -520,92 +495,53 @@ namespace NDSManager
 		return Sound_IsPlaying(sound) != 0;
 	}
 
-	// Original function: FUN_00404e5c
+	// Original function: FUN_00404e5c; remaster fades start from the current logical gain and retain pan.
 	bool CManager::PreloadWave_ChangeVolume(std::uint32_t identifier, std::uint32_t volume, bool transitionRequested, std::uint32_t durationMilliseconds)
 	{
-		if (!PreloadWave_IsRunning(identifier))
-			return false;
-
-		if (transitionRequested)
+		if (identifier >= 1000u || !PreloadWave_IsRunning(identifier)) return false;
+		volume = ClampRemasterVolume(volume);
+		SVolumeTransition* selected = nullptr;
+		if (transitionRequested && durationMilliseconds != 0)
 		{
-			std::uint32_t firstFree = 10;
-			std::uint32_t index = 0;
-
-			for (; index < 10u; ++index)
+			for (SVolumeTransition& transition : mVolumeTransitions)
 			{
-				const SVolumeTransition& entry = mVolumeTransitions[index];
-
-				if (entry.active != 0)
+				if (transition.active != 0 && transition.identifier == identifier)
 				{
-					if (entry.identifier == identifier)
-						break;
+					selected = &transition; break;
 				}
-				else if (firstFree == 10u)
-				{
-					firstFree = index;
-				}
+				if (selected == nullptr && transition.active == 0) selected = &transition;
 			}
-
-			if (index != 10u)
+			if (selected != nullptr)
 			{
-				SVolumeTransition* entry = &mVolumeTransitions[index];
-				entry->lastUpdate = ::timeGetTime();
-				entry->targetVolume = NXBasics::Runtime_TimeSigned32(volume);
-
-				// The original does not reject a zero duration.
-				entry->changePerMillisecond = (static_cast<double>(volume) - entry->currentVolume) / static_cast<double>(durationMilliseconds);
-
+				const auto current = selected->active != 0 ? selected->currentVolume : static_cast<double>(gRemasterMix.preloadVolume[identifier]);
+				selected->identifier = identifier;
+				selected->targetVolume = static_cast<std::int32_t>(volume);
+				selected->currentVolume = current;
+				selected->changePerMillisecond = (static_cast<double>(volume) - current) / static_cast<double>(durationMilliseconds);
+				selected->lastUpdate = ::timeGetTime();
+				selected->active = 1;
 				return true;
 			}
-
-			if (firstFree != 10u)
-			{
-				SVolumeTransition& entry = mVolumeTransitions[firstFree];
-				entry.lastUpdate = ::timeGetTime();
-				entry.targetVolume = NXBasics::Runtime_TimeSigned32(volume);
-				entry.active = 1;
-				entry.identifier = identifier;
-				entry.currentVolume = static_cast<double>(volume);
-
-				// The original leaves changePerMillisecond unchanged here.
-				return true;
-			}
-
-			// A full transition table falls through to immediate application.
 		}
-
-		if (volume != 0)
-		{
-			const std::uint32_t entryOffset = identifier << 4;
-			const auto* storage = reinterpret_cast<const std::byte*>(this);
-
-			void* sound;
-			std::memcpy(&sound, storage + entryOffset + 0x28, sizeof(sound));
-
-			if (sound != nullptr)
-			{
-				const std::uint32_t product = mMainVolume * volume;
-				const std::uint32_t effectiveVolume = product / 100u;
-				const std::uint32_t attenuationBits = (effectiveVolume - 100u) * 5u * 4u;
-
-				Sound_SetVolumeAndPan(sound, NXBasics::Runtime_TimeSigned32(attenuationBits), 0);
-			}
-		}
-		else
-		{
-			PreloadWave_Stop(identifier);
-		}
-
+		// Immediate changes and a full fade table apply the requested value directly.
+		for (SVolumeTransition& transition : mVolumeTransitions)
+			if (transition.identifier == identifier) transition.active = 0;
+		gRemasterMix.preloadVolume[identifier] = volume;
+		if (volume == 0) return PreloadWave_Stop(identifier);
+		ApplyRemasterSoundMix(mPreloadWaves[identifier].sound, volume, mMainVolume, gRemasterMix.preloadPan[identifier]);
 		return true;
 	}
 
 	// Original function: FUN_00404f5c
 	bool CManager::PreloadWave_Stop(std::uint32_t identifier)
 	{
-		if (mInitialized == 0)
+		if (mInitialized == 0 || identifier >= 1000u)
 			return false;
 
-		// Preserve the original index calculation without adding a range check.
+		for (SVolumeTransition& transition : mVolumeTransitions)
+			if (transition.identifier == identifier) transition.active = 0;
+
+		// Preserve the native storage layout after validating the identifier.
 		const std::uint32_t entryOffset = identifier << 4;
 		const auto* storage = reinterpret_cast<const std::byte*>(this);
 
@@ -701,8 +637,8 @@ namespace NDSManager
 		if (!NXBasics::CFile::FileSystem_Tool_GetRealFilename(fileName, resolvedFileName))
 			return false;
 
-		// Preserve 32-bit multiplication before unsigned division.
-		const std::uint32_t volumeMultiplier = useVolumeOverride ? volumeOverride : mMainVolume;
+		volume = ClampRemasterVolume(volume);
+		const std::uint32_t volumeMultiplier = useVolumeOverride ? ClampRemasterVolume(volumeOverride) : mMainVolume;
 		const std::uint32_t volumeProduct = volume * volumeMultiplier;
 		const std::uint32_t effectiveVolume = volumeProduct / 100u;
 
@@ -718,13 +654,10 @@ namespace NDSManager
 			return false;
 		}
 
-		if (slot.sound != nullptr)
-		{
-			const std::uint32_t attenuationBits = (effectiveVolume * 5u - 500u) * 4u;
-			const std::int32_t attenuation = NXBasics::Runtime_TimeSigned32(attenuationBits);
-
-			Sound_SetVolumeAndPan(slot.sound, attenuation, 0);
-		}
+		gRemasterMix.transientVolume[slotIndex] = volume;
+		gRemasterMix.transientMultiplier[slotIndex] = volumeMultiplier;
+		gRemasterMix.transientOverride[slotIndex] = useVolumeOverride;
+		ApplyRemasterSoundMix(slot.sound, volume, volumeMultiplier, 64);
 
 		if (!deferPlayback)
 		{
@@ -1176,17 +1109,9 @@ namespace NDSManager
 		if ((status & NXBasics::BitMask::Bit1) == 0)
 			return 1;
 
-		for (;;)
-		{
-			const HRESULT restoreResult = directSoundBuffer->Restore();
-
-			if (restoreResult == NXBasics::Runtime_TimeSigned32(SwitchIds::DirectXResult::Code_DSERR_BUFFERLOST))
-				::Sleep(10);
-
-			// Every nonzero result is retried, not only DSERR_BUFFERLOST.
-			if (restoreResult == 0)
-				break;
-		}
+		// Remaster: one attempt per request. A device error must not block the game thread.
+		const HRESULT restoreResult = directSoundBuffer->Restore();
+		if (FAILED(restoreResult)) return restoreResult;
 
 		if (restored != nullptr)
 			*restored = 1;

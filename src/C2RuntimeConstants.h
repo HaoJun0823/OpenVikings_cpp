@@ -884,7 +884,8 @@ namespace NC2Runtime
 
 		inline constexpr auto WorkCenterDistanceUnsigned = 40u;
 
-		inline constexpr auto WeaponModeWorkCenterDistanceUnsigned = 18u;
+		// Remaster: accept the supported attack radius instead of repeatedly rejecting targets beyond 18.
+		inline constexpr auto WeaponModeWorkCenterDistanceUnsigned = 30u;
 
 		inline constexpr auto PositionSearchRadius = 5;
 

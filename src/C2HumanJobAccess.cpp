@@ -518,15 +518,17 @@ namespace NC2Logic
 		for (std::uint32_t i = 0; i < requirement.jobCount; ++i) experience += Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + static_cast<std::uint32_t>(requirement.jobs[i]) * NC2Layout::RecordSize::HumanJobValueUnsigned);
 		return experience >= requirement.requiredExperience;
 	}
-	// Original function: FUN_0042d912.
-	bool Human_DoesEducationAllowJobChange(const void* human, std::uint32_t job)
+	// Original function: FUN_0042d912; remaster disables the unrelated-job training-counter shortcut.
+	bool Human_DoesEducationAllowJobChange(const void* /*human*/, std::uint32_t /*job*/)
 	{
-		return Read<std::uint32_t>(human, NC2Layout::HumanOffset::EducationLevel) >= gStaticTribeTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)].jobTraining[job];
+		// Human_l_JobTraining_Train explicitly unlocks the selected job on completion.
+		return false;
 	}
-	// Original function: FUN_0042d938.
-	bool Human_DoesEducationAllowGoodProduction(const void* human, std::uint32_t good)
+	// Original function: FUN_0042d938; remaster keeps partial training out of general good unlocks.
+	bool Human_DoesEducationAllowGoodProduction(const void* /*human*/, std::uint32_t /*good*/)
 	{
-		return Read<std::uint32_t>(human, NC2Layout::HumanOffset::EducationLevel) >= gStaticTribeTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)].goodTraining[good];
+		// The selected training good is granted by the same completed-training path.
+		return false;
 	}
 
 	// Original function: FUN_0042d9fa.

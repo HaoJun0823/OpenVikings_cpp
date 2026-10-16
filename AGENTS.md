@@ -4,6 +4,15 @@ This repository is a reverse-engineering/reimplementation project for the Window
 
 These instructions are mandatory for all work in this repository.
 
+### Remaster policy (user-authorized October 16, 2026)
+
+- `reversed-game-authentic-behaviour` is the frozen legacy reference, including original defects and its original-behavior register. Do not change that branch or apply remaster fixes to it.
+- On `remaster`, intentional corrections of original bugs are authorized. Establish the original behavior from Windows evidence, label intentional changes, and record scope and validation in `docs/REMASTER_BUGFIXES.md`. Keep `docs/RECONSTRUCTION_NOTES.md` as the historical register rather than rewriting its findings as fixed behavior.
+- This exception permits behavior changes for remaster bug fixes; the Win32 target, ownership rules, build restrictions and prohibition on new tests remain in force.
+- Networking is explicitly excluded from the current bug-fix work. The user reserved network fixes and modernization for a separate later refactoring project.
+- On `remaster`, every update to `docs/CHANGELOG_REMASTER.md` must also update the full player-facing changelog in the root `README.md` shown on GitHub. Keep the entries and their release/validation status synchronized, in English. A link alone is not sufficient. Do not apply these README updates to the frozen legacy branch.
+- Keep the remaster GitHub README welcoming and easy to scan for players and contributors: explain the project, features, status, setup, contributions and disclaimer. Keep reconstruction inventories, internal agent workflows and extensive documentation indexes in `docs/`, rather than making them the README's focus.
+
 ## 1. Source-of-truth hierarchy
 
 1. **Windows x86 assembly is authoritative for behavior.**
@@ -50,7 +59,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 
 ## 4. Naming and code style
 
-- **All code comments must be in English.**
+- **Use English for all authored content:** code comments, documentation, changelogs, commit messages and user-facing responses. This is the user's standing instruction, regardless of the language of their messages. Preserve original quoted strings and established identifiers when needed as evidence.
 - Do not use inline assembly in C++ source. Use established C++ numeric helpers or documented platform APIs and record any remaining floating-point precision/status differences.
 - Function declarations, definitions, and ordinary function-call argument lists must stay on one line. Do not vertically wrap parameters.
 - Keep names semantic and stable. Prefer original class/function names recovered from the Mac build when they match Windows behavior.

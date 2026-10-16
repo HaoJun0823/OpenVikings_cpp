@@ -207,7 +207,14 @@ namespace NC2E2
 			// Deferred movement can carry a previously visible particle outside the map.
 			// Use the original checked accessor before visibility and brightness lookups.
 			const auto* micro = NC2Logic::GameMap_GetMapMicroPointPtr(point);
-			if (micro == nullptr || ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0))
+			if (micro == nullptr)
+			{
+				// Remaster: retire escaped particles instead of retaining an active, undrawable entry.
+				Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0);
+				if (Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex) == index) Write(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex, previous);
+				continue;
+			}
+			if ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0)
 			{
 				previous = index; continue;
 			}

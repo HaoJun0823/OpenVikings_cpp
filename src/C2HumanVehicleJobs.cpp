@@ -210,7 +210,11 @@ namespace NC2Logic
 			}
 		}
 		void* site = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId));
-		if (Read<std::uint32_t>(site, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(site)) return;
+		if (Read<std::uint32_t>(site, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(site))
+		{
+			// Remaster: another builder may have completed this site; end the startup task instead of retrying it forever.
+			Fail(human, 2); return;
+		}
 		if (House_Construction_CanUseOneGoodNow(site)) House_Construction_DoUseOneGood(site);
 		if (!House_Construction_IsUseGoodRunning(site) && House_Repair_IsFinished(site))
 		{

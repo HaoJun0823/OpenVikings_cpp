@@ -12,6 +12,8 @@ Reviewed October 16, 2026. This directory contains current guidance and evidence
 | [Runtime compatibility](RUNTIME_COMPATIBILITY.md) | Legacy CRT bindings and floating-point limits |
 | [Controls](CONTROLS.md) | Input routing, cheats and authorized mouse changes |
 | [Remaster presentation](REMASTER_WINDOW_PRESENTATION.md) | Borderless window, D3D11/DXGI output, DPI and cursor integration |
+| [Remaster bug fixes](REMASTER_BUGFIXES.md) | Frozen legacy policy, community-patch comparison and intentional corrections |
+| [Player changelog](CHANGELOG_REMASTER.md) | Player-facing remaster changes and current validation status |
 | [Missions](MISSIONS.md) | Shared campaign interpreter and map audit |
 | [Object limits](README_OBJECT_LIMITS.md) | Capacities and dependent pools |
 | [Gameplay issues](GAMEPLAY_RENDERING_BUG_REVIEW.md) | Corrections, user confirmations and pending checks |
