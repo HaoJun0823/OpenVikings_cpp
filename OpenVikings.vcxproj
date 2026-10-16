@@ -107,7 +107,6 @@
     <ClCompile Include="src\XBobRendering.cpp" />
     <ClCompile Include="src\XBobRenderingEffects.cpp" />
     <ClCompile Include="src\XBTokenList.cpp" />
-    <ClCompile Include="src\XCPU.cpp" />
     <ClCompile Include="src\XRuntime.cpp" />
     <ClCompile Include="src\XDiagnostics.cpp" />
     <ClCompile Include="src\XFile.cpp" />
@@ -216,7 +215,6 @@
     <ClInclude Include="src\XBobManager.h" />
     <ClInclude Include="src\XBobRendering.h" />
     <ClInclude Include="src\XBTokenList.h" />
-    <ClInclude Include="src\XCPU.h" />
     <ClInclude Include="src\XCrtFileAccess.h" />
     <ClInclude Include="src\OriginalStrings.h" />
     <ClInclude Include="src\XDirectoryScanner.h" />

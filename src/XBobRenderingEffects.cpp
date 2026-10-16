@@ -2,7 +2,6 @@
 #include "XBitmap.h"
 #include "X2DDisplay.h"
 #include "XBobRendering.h"
-#include "XCPU.h"
 #include "XCrtFileAccess.h"
 #include "XDiagnostics.h"
 #include "XNumericConstants.h"
@@ -131,21 +130,18 @@ namespace NXBasics
 			}
 		}
 
-		std::uint32_t ScaleMmxColour(std::uint32_t colour, std::uint32_t brightness)
+		std::uint32_t ScaleColourSse2(std::uint32_t colour, std::uint32_t brightness)
 		{
 			const std::uint32_t half = brightness >> 1;
 			const std::uint32_t repeated = half | ((half >> 16) | (half << 16));
-			std::uint32_t result = 0;
-			for (std::uint32_t channel = 0; channel < 4; ++channel)
-			{
-				const std::uint32_t factor = (repeated >> ((channel & 1u) * 16u)) & NXBasics::IntegerRange::UInt16Maximum;
-				const std::uint32_t scaled = static_cast<std::uint16_t>(((colour >> (channel * 8u)) & NXBasics::IntegerRange::UInt8Maximum) * factor) >> 6;
-				result |= (std::min) (scaled, 255u) << (channel * 8u);
-			}
-			return result;
+			const auto zero = _mm_setzero_si128();
+			const auto channels = _mm_unpacklo_epi8(_mm_cvtsi32_si128(static_cast<int>(colour)), zero);
+			const auto product = _mm_mullo_epi16(channels, _mm_set1_epi32(static_cast<int>(repeated)));
+			const auto scaled = _mm_srli_epi16(product, 6);
+			return static_cast<std::uint32_t>(_mm_cvtsi128_si32(_mm_packus_epi16(scaled, zero)));
 		}
 
-		std::uint32_t PackMmxHighColour(std::uint32_t colour, bool rgb565)
+		std::uint32_t PackHighColour(std::uint32_t colour, bool rgb565)
 		{
 			const std::uint32_t mask = rgb565 ? 63u : 31u;
 			return ((colour >> 3) & mask) | ((colour >> (rgb565 ? 5u : 6u)) & (mask << 5)) | ((colour >> (rgb565 ? 8u : 9u)) & (mask << (rgb565 ? 11u : 10u)));
@@ -257,10 +253,9 @@ namespace NXBasics
 			return;
 		const bool rgb565 = depth == 1u && BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0;
 		const std::uint32_t greenMask = rgb565 ? NXBasics::Rgb565::GreenMaskUnsigned : NXBasics::Rgb555::GreenMask;
-		const bool mmx = CPU_HasMMX();
 		const std::uint32_t* trueTable = nullptr;
 		const std::uint32_t* conversionTable = nullptr;
-		if (depth == 1u && mmx)
+		if (depth == 1u)
 		{
 			trueTable = Palette_GetTrueColorTablePtr(palette);
 			conversionTable = g16BitPixelConverter->GetTrueColorConvertTablePtr();
@@ -271,9 +266,9 @@ namespace NXBasics
 			const std::uint32_t index = BobRead<std::uint8_t>(source);
 			const std::uint32_t alpha = BobRead<std::uint8_t>(source, 1);
 			std::uint32_t result = 0;
-			if (mmx && unchecked)
+			if (unchecked)
 			{
-				const std::uint32_t foreground = ScaleMmxColour(depth == 1u ? trueTable[index] : BobRead<std::uint32_t>(table, index * 4u), factor);
+				const std::uint32_t foreground = ScaleColourSse2(depth == 1u ? trueTable[index] : BobRead<std::uint32_t>(table, index * 4u), factor);
 				const std::uint32_t background = depth == 1u ? conversionTable[BobRead<std::uint16_t>(destination)] : BobRead<std::uint32_t>(destination);
 				for (std::uint32_t channel = 0; channel < 4; ++channel)
 				{
@@ -282,7 +277,7 @@ namespace NXBasics
 					result |= ((std::min) (sum, 65535u) >> 8) << shift;
 				}
 				if (depth == 1u)
-					result = PackMmxHighColour(result, rgb565);
+					result = PackHighColour(result, rgb565);
 			}
 			else
 			{
@@ -326,16 +321,11 @@ namespace NXBasics
 	}
 
 	// Original function: FUN_0049bf5a
-	void BobManager_PrintBob_Shade_MMX(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette, std::int32_t brightness)
+	void BobManager_PrintBob_Shade_SSE2(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette, std::int32_t brightness)
 	{
 		BobDrawRegion region;
 		if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1u)
 			return;
-		if (!CPU_HasMMX())
-		{
-			BobManager_PrintBob(bobManager, bobId, bitmap, x, y, palette);
-			return;
-		}
 		const std::uint32_t depth = BobRead<std::uint32_t>(bitmap, 4);
 		if (depth != 1u && depth != 2u)
 			return;
@@ -347,10 +337,10 @@ namespace NXBasics
 				result = ScalePaletteColour(palette, BobRead<std::uint8_t>(source), static_cast<std::uint32_t>(brightness), depth == 1u ? static_cast<const void*>(g16BitPixelConverter) : g32BitPixelConverter, depth == 1u);
 			else
 			{
-				result = ScaleMmxColour(BobRead<std::uint32_t>(palette, 4u + BobRead<std::uint8_t>(source) * 4u), static_cast<std::uint32_t>(brightness));
+				result = ScaleColourSse2(BobRead<std::uint32_t>(palette, 4u + BobRead<std::uint8_t>(source) * 4u), static_cast<std::uint32_t>(brightness));
 				if (depth == 1u)
 				{
-					result = PackMmxHighColour(result, rgb565);
+					result = PackHighColour(result, rgb565);
 					// Paired pixels pass through PSRLW/PACKSSDW/PSLLW and lose bit zero.
 					if (pixel < (count & ~1u))
 						result &= NXBasics::BitMask::WordExceptBit0;
@@ -443,7 +433,7 @@ namespace NXBasics
 		});
 	}
 
-	// Original function: FUN_0046467d; arbitrary opacity, scalar and MMX branches.
+	// Original function: FUN_0046467d; arbitrary opacity; packed SSE2 and clipped scalar branches.
 	void BobManager_PrintBob_UsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::uint32_t strength, std::int32_t x, std::int32_t y, CPalette* palette)
 	{
 		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
@@ -458,13 +448,12 @@ namespace NXBasics
 		const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
 		if (table == nullptr) return;
 		const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? NXBasics::Rgb565::PairedGreenMask : NXBasics::Rgb555::PairedGreenMask) : NXBasics::Rgb888::GreenMaskUnsigned;
-		const bool mmx = CPU_HasMMX();
 		// SSE2 blending does not share registers with the floating-point return ABI.
 		const auto inverse = TransparencyFactors(0x01000100u - strength * 0x10001u);
 		const auto alpha = TransparencyFactors(strength * 0x10001u);
 		DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&] (std::byte* destination, const std::byte* source, bool unchecked, std::uint32_t, std::uint32_t, std::uint32_t pixel, std::uint32_t count)
 		{
-			if (mmx && unchecked)
+			if (unchecked)
 			{
 				if (depth == 1)
 				{
@@ -488,7 +477,7 @@ namespace NXBasics
 			{
 				const auto foreground = depth == 1 ? BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source) * 2u) : BobRead<std::uint32_t>(table, BobRead<std::uint8_t>(source) * 4u);
 				const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
-				const auto inverseStrength = (depth == 1 && !mmx && region.wasClipped ? 255u : 256u) - strength;
+				const auto inverseStrength = 256u - strength;
 				auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned, greenMask, depth == 1 ? NXBasics::Rgb565::RedProductMask : NXBasics::Rgb888::RedMaskUnsigned);
 				if (hud && depth == 2u) result |= ((((background >> 24) * inverseStrength) >> 8) << 24);
 				std::memcpy(destination, &result, depth == 1 ? 2u : 4u);

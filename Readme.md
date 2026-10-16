@@ -14,6 +14,7 @@ Build a settlement, help your villagers learn new trades, explore the world and 
 - **Weather restored:** Rain, snow and sandstorms render in the 32-bit graphics path.
 - **Better solo play:** AI takes over the other active human starting positions when you launch a multiplayer map in single-player mode.
 - **A modern runtime:** Current C++ and Windows services replace the reconstructed legacy runtime and private x87/compiler backends.
+- **Updated rendering internals:** SSE2 handles packed sprite and terrain shading, replacing the old MMX paths.
 
 ## Project status
 

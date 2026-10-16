@@ -2,6 +2,16 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-16 · 20:48 CEST — Rendering without MMX
+
+The remaining legacy MMX rendering paths now use SSE2 throughout, completing the graphics-side cleanup after the runtime replacement.
+
+- Moved packed sprite brightness, transparency and terrain shading calculations to SSE2.
+- Preserved the existing integer rounding, color saturation and HUD transparency rules.
+- Removed obsolete MMX processor detection and rendering switches.
+- Updated renderer names and callers to match their SSE2 implementation.
+- Kept music playback and networking unchanged.
+
 ## 2026-10-16 · 18:15 CEST — A modern foundation for the game
 
 The remaster now uses the current Microsoft C++ runtime and Windows services for its shared system functions. This removes a large compatibility layer inherited from the original executable and simplifies future maintenance.

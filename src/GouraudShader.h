@@ -37,10 +37,10 @@ namespace NToolGouraudShader
 		void XShade_VertexColor_32Bit();
 		void XShade_Alpha_32Bit();
 		void XShade_VertexColor_Alpha_32Bit();
-		void XShade_MMX();
-		void XShade_MMX_32Bit();
-		void XShade_Alpha_MMX();
-		void XShade_Alpha_MMX_32Bit();
+		void XShade_SSE2();
+		void XShade_SSE2_32Bit();
+		void XShade_Alpha_SSE2();
+		void XShade_Alpha_SSE2_32Bit();
 	};
 
 	static_assert(sizeof(SVertex) == 32);

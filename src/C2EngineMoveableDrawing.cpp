@@ -693,7 +693,7 @@ namespace NC2E2
 			if (NXBasics::BobManager_GetBobType(dynamic.bodyBobManager, dynamic.bodyBobId) == 4)
 				NXBasics::BobManager_PrintBob_UsingShadedAlpha(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, drawY, bodyPalette, brightness);
 			else if (!transparent)
-				NXBasics::BobManager_PrintBob_Shade_MMX(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, drawY, bodyPalette, brightness);
+				NXBasics::BobManager_PrintBob_Shade_SSE2(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, drawY, bodyPalette, brightness);
 			else
 				NXBasics::BobManager_PrintBob_UsingTransparency(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, 128u, drawX, drawY, bodyPalette);
 			drawn = true;
@@ -701,7 +701,7 @@ namespace NC2E2
 		if (dynamic.headBobManager != nullptr && dynamic.headBobId != NXBasics::IntegerRange::UInt32Maximum)
 		{
 			if (!transparent)
-				NXBasics::BobManager_PrintBob_Shade_MMX(dynamic.headBobManager, dynamic.headBobId, bitmap, drawX, drawY, headPalette, brightness);
+				NXBasics::BobManager_PrintBob_Shade_SSE2(dynamic.headBobManager, dynamic.headBobId, bitmap, drawX, drawY, headPalette, brightness);
 			else
 				NXBasics::BobManager_PrintBob_UsingTransparency(dynamic.headBobManager, dynamic.headBobId, bitmap, 128u, drawX, drawY, headPalette);
 			drawn = true;

@@ -2,13 +2,13 @@
 #include "C2ObjectLayout.h"
 #include "GouraudShader.h"
 #include "XBitmap.h"
-#include "XCPU.h"
 #include "XPalette.h"
 #include "XPixelFormatConverter.h"
 
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <emmintrin.h>
 
 namespace NToolGouraudShader
 {
@@ -107,12 +107,12 @@ namespace NToolGouraudShader
 			if (rightX > shader.clipRight) row.width = Add(row.width, Sub(shader.clipRight, rightX));
 		}
 
-		// Remaster: retain the original 32-bit scalar/MMX arithmetic only.
-		template<bool vertexColor, bool alpha, bool mmx> void Shade(CGouraudShader& shader)
+		// Remaster: retain scalar vertex-color arithmetic and use SSE2 for packed shading.
+		template<bool vertexColor, bool alpha, bool simd> void Shade(CGouraudShader& shader)
 		{
 			const void* converter = NXBasics::g32BitPixelConverter;
 			U masks[3], leftShifts[3];
-			if constexpr (!mmx) for (int i = 0; i != 3; ++i)
+			if constexpr (!simd) for (int i = 0; i != 3; ++i)
 			{
 				// BGR order; scalar 32-bit Windows routines leave blue unshifted.
 				const U channel = 2 - i;
@@ -131,27 +131,30 @@ namespace NToolGouraudShader
 				I light = row.attributes[2].value >> 7, dLight = row.attributes[2].delta >> 7;
 				I vertex[3] = { row.attributes[5].value >> 8, row.attributes[4].value >> 8, row.attributes[3].value >> 8 };
 				I dVertex[3] = { row.attributes[5].delta >> 8, row.attributes[4].delta >> 8, row.attributes[3].delta >> 8 };
-				std::int16_t mmxLight = static_cast<std::int16_t>(row.attributes[2].value >> 12);
-				const std::int16_t mmxDelta = static_cast<std::int16_t>(row.attributes[2].delta >> 12);
+				auto packedLight = _mm_set1_epi16(static_cast<std::int16_t>(row.attributes[2].value >> 12));
+				const auto packedDelta = _mm_set1_epi16(static_cast<std::int16_t>(row.attributes[2].delta >> 12));
 				for (I pixel = 0; pixel < row.width; ++pixel)
 				{
-					const U offset = mmx ? (U(u) >> 16) | ((U(v) >> 16) << 8) : U((v >> 8) & ~255) + U(u >> 16);
+					const U offset = simd ? (U(u) >> 16) | ((U(v) >> 16) << 8) : U((v >> 8) & ~255) + U(u >> 16);
 					const auto* color = colors + shader.texture[offset] * 4;
 					U old = alpha ? Read<U>(destination, 0) : 0;
 					const U coverage = alpha ? shader.alphaTexture[offset] : 0;
 					U result = 0;
-					if constexpr (mmx)
+					if constexpr (simd)
 					{
-						U channels[4]{ };
-						const U expanded = old;
-						for (int i = 0; i != 4; ++i)
+						const auto zero = _mm_setzero_si128();
+						const auto channels = _mm_unpacklo_epi8(_mm_cvtsi32_si128(Bits(Read<U>(color, 0))), zero);
+						const auto product = _mm_mullo_epi16(_mm_srli_epi16(channels, 4), packedLight);
+						auto shaded = _mm_packus_epi16(_mm_srli_epi16(product, 7), zero);
+						if constexpr (alpha)
 						{
-							const auto product = static_cast<std::uint16_t>((color[i] >> 4) * static_cast<std::uint16_t>(mmxLight));
-							channels[i] = std::min<U>(product >> 7, 255);
-							if constexpr (alpha) channels[i] = std::min<U>(channels[i] * coverage + ((expanded >> (i * 8)) & 255) * (256 - coverage), 65535) >> 8;
+							const auto background = _mm_unpacklo_epi8(_mm_cvtsi32_si128(Bits(old)), zero);
+							const auto foreground = _mm_mullo_epi16(_mm_unpacklo_epi8(shaded, zero), _mm_set1_epi16(static_cast<short>(coverage)));
+							const auto retained = _mm_mullo_epi16(background, _mm_set1_epi16(static_cast<short>(256 - coverage)));
+							shaded = _mm_packus_epi16(_mm_srli_epi16(_mm_adds_epu16(foreground, retained), 8), zero);
 						}
-						result = channels[0] | (channels[1] << 8) | (channels[2] << 16) | (channels[3] << 24);
-						mmxLight = static_cast<std::int16_t>(std::clamp<I>(I(mmxLight) + I(mmxDelta), -32768, 32767));
+						result = static_cast<U>(_mm_cvtsi128_si32(shaded));
+						packedLight = _mm_adds_epi16(packedLight, packedDelta);
 					}
 					else
 					{
@@ -186,7 +189,7 @@ namespace NToolGouraudShader
 					destination += 4;
 					u = Add(u, row.attributes[0].delta);
 					v = Add(v, row.attributes[1].delta);
-					if constexpr (!mmx) light = Add(light, dLight);
+					if constexpr (!simd) light = Add(light, dLight);
 					if constexpr (vertexColor) for (int i = 0; i != 3; ++i) vertex[i] = Add(vertex[i], dVertex[i]);
 				}
 			}
@@ -271,10 +274,7 @@ namespace NToolGouraudShader
 	// Original function: FUN_0049a9ab.
 	void CGouraudShader::XShade()
 	{
-		if (NXBasics::CPU_HasMMX())
-		{
-			XShade_MMX(); return;
-		} l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_32Bit();
+		XShade_SSE2();
 	}
 	// Original function: FUN_0049abf0.
 	void CGouraudShader::XShade_32Bit()
@@ -284,10 +284,7 @@ namespace NToolGouraudShader
 	// Original function: FUN_0049ada7.
 	void CGouraudShader::XShade_Alpha()
 	{
-		if (NXBasics::CPU_HasMMX())
-		{
-			XShade_Alpha_MMX(); return;
-		} l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_Alpha_32Bit();
+		XShade_Alpha_SSE2();
 	}
 	// Original function: FUN_0049b089.
 	void CGouraudShader::XShade_Alpha_32Bit()
@@ -295,22 +292,22 @@ namespace NToolGouraudShader
 		Shade<false, true, false>(*this);
 	}
 	// Original function: FUN_0049f5d5.
-	void CGouraudShader::XShade_MMX()
+	void CGouraudShader::XShade_SSE2()
 	{
-		if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_MMX_32Bit();
+		if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_SSE2_32Bit();
 	}
 	// Original function: FUN_0049f7fb.
-	void CGouraudShader::XShade_MMX_32Bit()
+	void CGouraudShader::XShade_SSE2_32Bit()
 	{
 		Shade<false, false, true>(*this);
 	}
 	// Original function: FUN_0049f951.
-	void CGouraudShader::XShade_Alpha_MMX()
+	void CGouraudShader::XShade_Alpha_SSE2()
 	{
-		if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_Alpha_MMX_32Bit();
+		if (vertices[0].brightness != 0 || vertices[1].brightness != 0 || vertices[2].brightness != 0) for (auto& vertex : vertices) vertex.brightness = std::max<I>(vertex.brightness, 5); l_SetupAndClip(); if (Read<I>(bitmap, NC2Layout::BitmapStorageOffset::BytesPerPixel) == 4) XShade_Alpha_SSE2_32Bit();
 	}
 	// Original function: FUN_0049fbdb.
-	void CGouraudShader::XShade_Alpha_MMX_32Bit()
+	void CGouraudShader::XShade_Alpha_SSE2_32Bit()
 	{
 		Shade<false, true, true>(*this);
 	}

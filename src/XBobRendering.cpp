@@ -3,7 +3,6 @@
 #include "XBitmap.h"
 #include "X2DDisplay.h"
 #include "XBobRendering.h"
-#include "XCPU.h"
 #include "XCrtFileAccess.h"
 #include "XDiagnostics.h"
 #include "XNumericConstants.h"
@@ -14,9 +13,22 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <emmintrin.h>
 
 namespace NXBasics
 {
+	// Asset alpha is a byte; preserve the original division by 256 and optional fourth channel.
+	static std::uint32_t BlendColourSse2(std::uint32_t background, std::uint32_t foreground, std::uint32_t alpha, bool includeFourthChannel)
+	{
+		const auto zero = _mm_setzero_si128();
+		const auto destination = _mm_unpacklo_epi8(_mm_cvtsi32_si128(static_cast<int>(background)), zero);
+		const auto source = _mm_unpacklo_epi8(_mm_cvtsi32_si128(static_cast<int>(foreground)), zero);
+		const auto retained = _mm_mullo_epi16(destination, _mm_set1_epi16(static_cast<short>(256u - alpha)));
+		const auto applied = _mm_mullo_epi16(source, _mm_set1_epi16(static_cast<short>(alpha)));
+		const auto result = _mm_packus_epi16(_mm_srli_epi16(_mm_add_epi16(retained, applied), 8), zero);
+		return static_cast<std::uint32_t>(_mm_cvtsi128_si32(result)) & (includeFourthChannel ? 0xFFFFFFFFu : 0x00FFFFFFu);
+	}
+
 	static std::byte* ShadowAddress(const void* base, std::uint32_t offset)
 	{
 		const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
@@ -717,7 +729,6 @@ namespace NXBasics
 		const std::uint16_t* highColorTable = nullptr;
 		const std::uint32_t* trueColorTable = nullptr;
 		std::uint32_t greenMask = 0;
-		bool useMmx;
 
 		if (depth == 2)
 		{
@@ -726,7 +737,6 @@ namespace NXBasics
 			if (trueColorTable == nullptr)
 				return;
 
-			useMmx = CPU_HasMMX();
 		}
 		else
 		{
@@ -738,13 +748,8 @@ namespace NXBasics
 			const auto* converterBytes = reinterpret_cast<const std::byte*>(g16BitPixelConverter);
 			greenMask = converterBytes[0x3A] != std::byte{ 0 } ? 0x07E0u : 0x03E0u;
 
-			useMmx = CPU_HasMMX();
-
-			if (useMmx)
-			{
-				// The original requests this table but does not consume the result.
-				Palette_GetTrueColorTablePtr(palette);
-			}
+			// The original requests this table but does not consume the result.
+			Palette_GetTrueColorTablePtr(palette);
 		}
 
 		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
@@ -754,23 +759,10 @@ namespace NXBasics
 
 			if (depth == 2)
 			{
-				const std::uint32_t channelCount = hud || (useMmx && fast) ? 4u : 3u;
-				std::uint32_t result = 0;
-
-				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
-				{
-					const std::uint32_t shift = channel * 8u;
-					const std::uint32_t destinationChannel = (destination >> shift) & NXBasics::IntegerRange::UInt8Maximum;
-					const std::uint32_t sourceChannel = (source >> shift) & NXBasics::IntegerRange::UInt8Maximum;
-					const std::uint32_t blendedChannel = (destinationChannel * inverseAlpha + sourceChannel * alpha) >> 8;
-
-					result |= blendedChannel << shift;
-				}
-
-				return result;
+				return BlendColourSse2(destination, source, alpha, hud || fast);
 			}
 
-			if (useMmx && fast)
+			if (fast)
 			{
 				const std::uint32_t otherMask = (~greenMask) & NXBasics::IntegerRange::UInt16Maximum;
 				const std::uint32_t destinationOther = destination & otherMask;
@@ -871,9 +863,9 @@ namespace NXBasics
 
 				if (fast)
 				{
-					if (depth == 1 && useMmx)
+					if (depth == 1)
 					{
-						// Preserve the paired destination read and write of the MMX loop.
+						// Preserve the paired destination read and write of the packed loop.
 						while (count >= 2)
 						{
 							const std::uint32_t destinationPair = readWord(output);
@@ -1014,7 +1006,6 @@ namespace NXBasics
 		std::uint32_t sourceColour = 0;
 		std::uint32_t fastSourceColour = 0;
 		std::uint32_t greenMask = 0;
-		bool useMmx;
 
 		if (depth == 2)
 		{
@@ -1022,7 +1013,6 @@ namespace NXBasics
 			sourceColour |= static_cast<std::uint32_t>(colour->green) << 8;
 			sourceColour |= static_cast<std::uint32_t>(colour->red) << 16;
 
-			useMmx = CPU_HasMMX();
 		}
 		else
 		{
@@ -1030,10 +1020,7 @@ namespace NXBasics
 			greenMask = converterBytes[0x3A] != std::byte{ 0 } ? 0x07E0u : 0x03E0u;
 			sourceColour = g16BitPixelConverter->PackColor(*colour);
 
-			useMmx = CPU_HasMMX();
-
-			if (useMmx)
-				fastSourceColour = g16BitPixelConverter->PackColor(*colour);
+			fastSourceColour = g16BitPixelConverter->PackColor(*colour);
 		}
 
 		const bool hud = NXSys2DApp::IsRemasterHudBitmap(bitmap);
@@ -1042,20 +1029,8 @@ namespace NXBasics
 			if (depth == 2)
 			{
 				const std::uint32_t destination = readWord(address);
-				const bool mmxPixel = useMmx && fast;
-				const std::uint32_t source = mmxPixel ? fastSourceColour : sourceColour;
-				const std::uint32_t channelCount = hud || mmxPixel ? 4u : 3u;
-				std::uint32_t result = 0;
-
-				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
-				{
-					const std::uint32_t shift = channel * 8u;
-					const std::uint32_t destinationChannel = (destination >> shift) & NXBasics::IntegerRange::UInt8Maximum;
-					const std::uint32_t sourceChannel = (source >> shift) & NXBasics::IntegerRange::UInt8Maximum;
-
-					result |= blendChannel(destinationChannel, sourceChannel, alpha) << shift;
-				}
-
+				const std::uint32_t source = fast ? fastSourceColour : sourceColour;
+				const std::uint32_t result = BlendColourSse2(destination, source, alpha, hud || fast);
 				std::memcpy(const_cast<std::byte*>(address), &result, sizeof(result));
 			}
 			else
@@ -1067,9 +1042,9 @@ namespace NXBasics
 				const std::uint32_t inverseAlpha = 256u - alpha;
 				std::uint32_t result;
 
-				if (useMmx && fast)
+				if (fast)
 				{
-					// Reproduce the independent MMX byte lanes without changing rounding.
+					// Reproduce the independent packed byte lanes without changing rounding.
 					const std::uint32_t otherMask = (~greenMask) & NXBasics::IntegerRange::UInt16Maximum;
 					const std::uint32_t destinationOther = destination & otherMask;
 					const std::uint32_t sourceOther = fastSourceColour & otherMask;
@@ -1130,7 +1105,7 @@ namespace NXBasics
 					const std::uint32_t pixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY + currentX;
 					output = offsetAddress(readPointer(bitmap, pixelPointerOffset), pixelIndex * pixelBytes);
 
-					if (depth == 2 && useMmx)
+					if (depth == 2)
 					{
 						fastSourceColour = readWord(colour);
 					}

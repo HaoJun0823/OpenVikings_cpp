@@ -410,7 +410,7 @@ namespace NC2E2
 			if (brightness >= 254 && brightness <= 258)
 				NXBasics::BobManager_PrintBob(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
 			else
-				NXBasics::BobManager_PrintBob_Shade_MMX(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+				NXBasics::BobManager_PrintBob_Shade_SSE2(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
 		}
 		else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
 		{

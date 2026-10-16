@@ -318,9 +318,6 @@
     <ClCompile Include="src\XSystemMouseCursor.cpp">
       <Filter>Platform\Input</Filter>
     </ClCompile>
-    <ClCompile Include="src\XCPU.cpp">
-      <Filter>Platform\System</Filter>
-    </ClCompile>
     <ClCompile Include="src\X2DApplication.cpp">
       <Filter>Platform\Window</Filter>
     </ClCompile>
@@ -654,9 +651,6 @@
     </ClInclude>
     <ClInclude Include="src\XSystemMouseCursor.h">
       <Filter>Platform\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="src\XCPU.h">
-      <Filter>Platform\System</Filter>
     </ClInclude>
     <ClInclude Include="src\XSystemManager.h">
       <Filter>Platform\System</Filter>

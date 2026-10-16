@@ -303,7 +303,7 @@ namespace NC2InGameGuiBase
 		const auto x = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2 : 0;
 		const auto y = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2 : 0;
 		if (type == 4) NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, bobId, bitmap, x, y, palette, highlighted ? 0xC0 : 0x80);
-		else if (highlighted) NXBasics::BobManager_PrintBob_Shade_MMX(resources.windowBobManager, bobId, bitmap, x, y, palette, 0xC0);
+		else if (highlighted) NXBasics::BobManager_PrintBob_Shade_SSE2(resources.windowBobManager, bobId, bitmap, x, y, palette, 0xC0);
 		else NXBasics::BobManager_PrintBob(resources.windowBobManager, bobId, bitmap, x, y, palette);
 	}
 
