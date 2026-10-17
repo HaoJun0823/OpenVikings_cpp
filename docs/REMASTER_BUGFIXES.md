@@ -186,6 +186,18 @@ Map-resource requirements served by collector job 8 now use detached workers at 
 
 Validation: 769 original Windows ASM instruction sequences matched `Game.exe` across production-stock gating, collection, pile delivery, carrier and command-slot regions. Four affected implementation units pass warning-free Win32 `/Zs /arch:SSE2 /fp:precise /W4` with the CRT compatibility deprecation define. No Debug/Release build, new tests or game execution was performed; in-game collection/delivery, interruption and save/load confirmation remain pending.
 
+## Primary-monitor startup (RM035)
+
+On October 18, 2026 the user reported that the remaster always starts on the monitor under the mouse and requested the Windows primary monitor as the default. The remaster constructor in `X2DWindow.cpp` sampled `GetCursorPos` and passed that point to `MonitorFromPoint`; `MONITOR_DEFAULTTOPRIMARY` was only a fallback, not an instruction to ignore the supplied point. This is a correction to the modern frontend, not a newly established original-game defect.
+
+Startup now passes the fixed virtual-desktop origin (0, 0), which belongs to the primary monitor, to `MonitorFromPoint` and uses the returned monitor bounds for HWND creation. The existing placement routine then selects that HWND's monitor for either borderless coverage or initial windowed centering. Later window movement, fullscreen toggles, DPI/topology handling, internal render sizes and desktop modes retain their existing paths. No gameplay, save layout, ownership or network changes are introduced. Microsoft documents this primary-monitor lookup in [The Old New Thing](https://devblogs.microsoft.com/oldnewthing/20070809-00/?p=25643).
+
+Validation: the changed window unit passes Win32 MSVC `/Zs /arch:SSE2 /fp:precise /W4` without warnings. The startup and subsequent placement paths were inspected. No Debug/Release build, new tests or game execution was performed. Runtime confirmation remains pending with the pointer on a secondary display, in both startup modes and with a changed Windows primary-display assignment.
+
+## Player confirmations — October 18, 2026
+
+The user positively tested RM029 (wooden-spearman sleep animation), RM031 (stonemason material colors) and RM032 (pottery oven fire). These reported defects are closed by user play-test confirmation. This does not establish coverage of every save/load, interruption or custom-data scenario. RM033 cake visibility and RM030 vehicle labels remain pending user confirmation.
+
 ## First-block verification and boundaries
 
 - The five gameplay evidence ranges for marker allocation, both education queries, vehicle-builder startup, attack startup and particle sorting match **1,173** ASM instruction byte sequences against the reference Windows `Game.exe`. Five additional audio ranges match **447** instruction sequences. These **1,620** matches verify original evidence provenance, not runtime correctness of the intentional changes.

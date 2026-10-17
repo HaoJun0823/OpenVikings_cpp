@@ -22,9 +22,10 @@ namespace NXSys2DApp
 		windowClass.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
 		windowClass.lpszClassName = WindowClassName;
 		if (RegisterClassExW(&windowClass) == 0 && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) return;
-		const POINT cursor = [] { POINT point{ }; GetCursorPos(&point); return point; }();
+		// The virtual desktop origin belongs to the primary monitor.
+		constexpr POINT primaryMonitorPoint{ 0, 0 };
 		MONITORINFO monitor{ sizeof(monitor) };
-		if (!GetMonitorInfoW(MonitorFromPoint(cursor, MONITOR_DEFAULTTOPRIMARY), &monitor)) return;
+		if (!GetMonitorInfoW(MonitorFromPoint(primaryMonitorPoint, MONITOR_DEFAULTTOPRIMARY), &monitor)) return;
 		mWindowHandle = CreateWindowExW(0, WindowClassName, L"OpenVikings", WS_POPUP, monitor.rcMonitor.left, monitor.rcMonitor.top, monitor.rcMonitor.right - monitor.rcMonitor.left, monitor.rcMonitor.bottom - monitor.rcMonitor.top, nullptr, nullptr, mInstance, this);
 		if (mWindowHandle == nullptr) return;
 		if (!mDisplay->StartUp(mWindowHandle, width, height, depth))

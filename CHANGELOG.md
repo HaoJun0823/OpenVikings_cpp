@@ -2,6 +2,13 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 01:25 CEST — Start on the primary monitor
+
+The game now opens on your Windows primary monitor, even when the mouse pointer is on another screen.
+
+- Applied the default to both borderless fullscreen and windowed startup.
+- Confirmed successful player retests of the spearman sleep animation, stonemason colors and pottery oven fire.
+
 ## 2026-10-17 · 03:35 CEST — AI collectors work at resource flags
 
 Computer villages can now harvest known nearby deposits without tying each collector to a warehouse. Dedicated warehouse carriers bring the resources back from the collection flags, helping economies recover when their starting stock runs out.
