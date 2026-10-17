@@ -3,6 +3,7 @@
 #include "C2AISoldierAccess.h"
 #include "C2AITaskAccess.h"
 #include "C2GameControlNetwork.h"
+#include "C2GameMapAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanEquipment.h"
 #include "C2HumanIterator.h"
@@ -14,9 +15,11 @@
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "C2MapMoveableAccess.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2MilitaryTargetSearch.h"
 #include "C2MissionStartObjects.h"
 #include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleIterator.h"
 #include "SwitchIdentifiers.h"
@@ -47,6 +50,18 @@ namespace NC2Logic
 			// Windows constant region 004F3B38..004F3B77: maxima 10000, critical levels 1000.
 			if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Food) < 1000) Write<std::int32_t>(human, NC2Layout::HumanOffset::Food, 10000);
 			if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Stamina) < 1000) Write<std::int32_t>(human, NC2Layout::HumanOffset::Stamina, 10000);
+		}
+		struct SRemasterAttackApproach
+		{
+			std::uint32_t target, radius, point;
+		};
+		bool __cdecl slRemasterReachableAttackApproach(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+		{
+			auto& approach = *static_cast<SRemasterAttackApproach*>(callback->userData);
+			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+			if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(&approach.target, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&approach.target, NC2Layout::MapCoordinatePairOffset::Y))) > approach.radius) return false;
+			approach.point = Read<std::uint32_t>(point, NC2Layout::MapCoordinatePairOffset::Coordinates);
+			return true;
 		}
 	}
 	// Original function: FUN_00472c02.
@@ -153,7 +168,19 @@ namespace NC2Logic
 		auto point = Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates);
 		if (!Tool_Map_GetNotBlockedPosition(&point, Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::TaskDescription) == 1)) return false;
 		const auto* position = Human_GetMapPositionRef(human);
-		if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(position[0], position[1], Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y))) >= radius)
+		bool reachableApproach = false;
+		if (radius != 0 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::TaskDescription) == 2 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Moving)
+		{
+			// Retry within the task's accepted radius instead of another isolated free tile.
+			SRemasterAttackApproach approach{ Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates), radius, point };
+			if (CMapPathfinderElement::SearchOverMap(position, NC2Runtime::PathfinderSearchLimits::MaximumRadiusUnsigned, true, slRemasterReachableAttackApproach, &approach, false, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)))
+			{
+				point = approach.point;
+				reachableApproach = true;
+			}
+		}
+		const void* distanceTarget = reachableApproach ? destination : &point;
+		if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(position[0], position[1], Read<std::int16_t>(distanceTarget, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(distanceTarget, NC2Layout::MapCoordinatePairOffset::Y))) >= radius)
 		{
 			Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, MapMigPoint_GetLong(&point), 0);
 			Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Moving);

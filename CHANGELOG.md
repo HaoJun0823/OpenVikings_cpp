@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 01:50 CEST — Reachable approach points for AI attacks
+
+AI attack groups can now retry a failed march toward a reachable position within their existing approach radius. This addresses the northern COOP gold raid getting stuck on an isolated free tile surrounded by blocked ground.
+
+- Search from the soldier's position when retrying an attack movement.
+- Preserve the original attack area, wave timers, troop requirements and movement commands.
+- Keep the invalid-route crash protection in place.
+
 ## 2026-10-18 · 01:30 CEST — Reject invalid walking routes safely
 
 Walking routes now reject invalid steps before accessing map data. This guards the path that crashed while a villager requested its next direction.
