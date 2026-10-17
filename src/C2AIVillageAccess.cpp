@@ -23,6 +23,7 @@
 #include "C2OverviewObjectIterators.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2VehicleAccess.h"
+#include "SwitchIdentifiers.h"
 
 namespace NC2Logic
 {
@@ -220,6 +221,8 @@ namespace NC2Logic
 				if (match == candidates.count) continue;
 				if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return -2;
 				const auto job = Read<std::uint32_t>(data, NC2Layout::AIResourceGoodOffset::WorkerJob);
+				// Remaster collectors work at flags; this house only receives their goods.
+				if (Read<std::uint32_t>(data, NC2Layout::AIResourceGoodOffset::Type) == 1 && job == SwitchIds::HumanJob::Collector) return id;
 				if (job == 0 || House_Inhabitants_IsFreeWorkSlotAvailable(house, job)) return id;
 				House_GetHouseTypeDataPtr(house);
 				for (std::uint32_t slot = 0; slot < 20; ++slot)

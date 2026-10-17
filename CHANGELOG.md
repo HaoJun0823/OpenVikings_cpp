@@ -2,6 +2,16 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-17 · 03:35 CEST — AI collectors work at resource flags
+
+Computer villages can now harvest known nearby deposits without tying each collector to a warehouse. Dedicated warehouse carriers bring the resources back from the collection flags, helping economies recover when their starting stock runs out.
+
+- Let collectors leave harvested goods near their work flags for carriers to pick up.
+- Update collection sites even when the warehouse has none of the required resource left.
+- Assign and reuse qualified warehouse carriers while respecting existing worker-slot limits and active construction assignments.
+- Pause collection when the destination is full and resume it as capacity becomes available.
+- Preserve existing save layouts and use normal harvesting, hauling and pathfinding; gameplay validation is pending.
+
 ## 2026-10-16 · 20:48 CEST — Rendering without MMX
 
 The remaining legacy MMX rendering paths now use SSE2 throughout, completing the graphics-side cleanup after the runtime replacement.

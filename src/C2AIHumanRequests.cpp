@@ -1,4 +1,5 @@
 #include "C2AIHumanRequests.h"
+#include "C2AIProduction.h"
 #include "C2AISinglePlayerAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
@@ -96,6 +97,7 @@ namespace NC2Logic
 		for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
 		{
 			const auto* human = Human(id);
+			if (Remaster_AIGoods_IsFieldLogisticsHuman(human)) continue;
 			if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human) || Human_IsJobScout(human) || Human_IsJobTrader(human) || Human_IsAttachedToLearnHouse(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
 			const auto signedType = static_cast<std::int32_t>(type);
 			if (signedType > 0 && signedType <= 4)
@@ -117,6 +119,7 @@ namespace NC2Logic
 		for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
 		{
 			const auto* human = Human(id);
+			if (Remaster_AIGoods_IsFieldLogisticsHuman(human)) continue;
 			if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human)) continue;
 			if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) continue;
 			if (Human_IsJobScout(human) || Human_IsJobTrader(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id) || Human_IsSexFemale(human) || Human_UserControl_IsPriorityCommandInQueue(human)) continue;

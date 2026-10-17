@@ -1,4 +1,5 @@
 #include "C2AIObjectAccess.h"
+#include "C2AIProduction.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanWalking.h"
@@ -30,6 +31,16 @@ namespace NC2Logic
 	bool AIHighLevelHandler_IsObjectUsed(const void* handler, const void* target)
 	{
 		const auto* bytes = static_cast<const std::byte*>(handler);
+		// Remaster logistics reservations survive save/load through jobs and command queues.
+		if (Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::Type) == 1)
+		{
+			const auto id = Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectIdOrMapPoint);
+			if (CHumanArray::sTheObjectPtr != nullptr && id < static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mCapacity))
+			{
+				const auto* human = GetHumanPtr(static_cast<std::int32_t>(id));
+				if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(target, NC2Layout::TargetDataOffset::ObjectRevision) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(handler, NC2Layout::AIHighLevelOffset::PlayerId) && Remaster_AIGoods_IsWarehouseCarrier(human)) return true;
+			}
+		}
 		if (AIScout_IsObjectUsed(bytes + 0x94E8, target)) return true;
 		if (AIScout_IsObjectUsed(bytes + NC2Layout::AIHighLevelOffset::GuideManager, target)) return true;
 		if (AITradeManager_IsObjectUsed(bytes + 0x74D4, target)) return true;
@@ -198,7 +209,9 @@ namespace NC2Logic
 		if (AIGoodManager_Producer_IsHumanValid(producer))
 		{
 			auto* human = Human(producer);
-			if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
+			// Remaster: retiring a flag collector must also cancel a pending collector job change.
+			if (Human_UserControl_GetNextJobType(human) == SwitchIds::HumanJob::Collector && Human_IsAbleToDoJob(human, SwitchIds::HumanJob::Civilist)) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::ChangeJob, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), SwitchIds::HumanJob::Civilist, 0);
+			else if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
 		}
 		Write<std::uint32_t>(producer, NC2Layout::AIGoodProducerOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
 	}
