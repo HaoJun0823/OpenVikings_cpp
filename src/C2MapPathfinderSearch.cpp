@@ -222,6 +222,7 @@ namespace NC2Logic
 		}
 		if (Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState) == NC2Runtime::PathfinderSearchState::SearchRequiredUnsigned)
 		{
+			if (!MapMigPoint_IsInsideMap(currentPoint) || !MapMigPoint_IsInsideMap(destination)) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
 			if (Read<std::uint32_t>(currentPoint, NC2Layout::MapMigPointOffset::Coordinates) == Read<std::uint32_t>(destination, NC2Layout::MapMigPointOffset::Coordinates)) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
 			const auto sourceContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), NC2Layout::MapMicroPointOffset::ContinentId);
 			const auto destinationContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::ContinentId);
@@ -230,18 +231,26 @@ namespace NC2Logic
 			Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::RouteAvailable);
 		}
 		auto index = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex);
+		// Remaster: reject corrupt cursors before indexing the twenty-run buffer.
+		if (index > NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
 		// Index 20 means all twenty runs were consumed. Do not read beyond the original array.
 		if ((index == NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned || Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun) == 0) && Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState) == NC2Runtime::PathfinderSearchState::RouteAvailableUnsigned)
 		{
 			if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius))) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
 			index = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex);
 		}
+		if (index >= NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
 		const auto direction = Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRuns + index * NC2Layout::RecordSize::PathfinderDirectionRun);
-		const auto count = static_cast<std::uint8_t>(Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun) - 1u);
+		const auto remaining = Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun);
+		if (direction > SwitchIds::HexagonDirection::South || remaining == 0) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
+		auto point = Read<std::uint32_t>(currentPoint, NC2Layout::MapMigPointOffset::Coordinates);
+		if (!MapMigPoint_IsInsideMap(&point)) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
+		MapMigPoint_MoveCursorUnwrapped(point, direction);
+		// Validate before committing the step or reading its unchecked micro-point pointer.
+		if (!MapMigPoint_IsInsideMap(&point)) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
+		const auto count = static_cast<std::uint8_t>(remaining - 1u);
 		Write(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + index * NC2Layout::RecordSize::PathfinderDirectionRun, count);
 		if (count == 0) Write(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunIndex, index + 1u);
-		auto point = Read<std::uint32_t>(currentPoint, NC2Layout::MapMigPointOffset::Coordinates);
-		MapMigPoint_MoveCursorUnwrapped(point, direction);
 		Write(currentPoint, NC2Layout::MapMigPointOffset::Coordinates, point);
 		const auto blockedAreaSteps = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps);
 		if (blockedAreaSteps != 0) Write(pathfinder, NC2Layout::MapPathfinderOffset::BlockedAreaSteps, blockedAreaSteps - 1u);
@@ -268,6 +277,7 @@ namespace NC2Logic
 	// Original function: FUN_00447CF1. Local, sector and guide searches retain their distinct native order.
 	bool MapPathfinderElement_l_FindWayAndBuildVectorList(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
 	{
+		if (!MapMigPoint_IsInsideMap(source) || !MapMigPoint_IsInsideMap(destination)) return false;
 		const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags);
 		if ((flags & NXBasics::BitMask::Bit7) != 0) return false;
 		const bool vehicle = Read<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance) != 0;
@@ -392,6 +402,8 @@ namespace NC2Logic
 			else blockedArea = false;
 		}
 		if (runs < NC2Runtime::PathfinderSearchLimits::DirectionRunsUnsigned) Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::DirectionRunCounts + runs * NC2Layout::RecordSize::PathfinderDirectionRun, 0);
+		// A successful search can still yield no runs; never consume the stale direction byte.
+		if (runs == 0) return false;
 		Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::RouteAvailable);
 		return true;
 	}

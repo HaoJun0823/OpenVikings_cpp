@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 01:30 CEST — Reject invalid walking routes safely
+
+Walking routes now reject invalid steps before accessing map data. This guards the path that crashed while a villager requested its next direction.
+
+- Reject empty route results and invalid direction/count entries instead of consuming stale steps.
+- Check route-buffer indices and map bounds before committing movement.
+- Use the existing failed-path handling so villagers can respond through their normal task logic.
+
 ## 2026-10-18 · 01:25 CEST — Start on the primary monitor
 
 The game now opens on your Windows primary monitor, even when the mouse pointer is on another screen.
