@@ -9,6 +9,7 @@ Walking routes now reject invalid steps before accessing map data. This guards t
 - Reject empty route results and invalid direction/count entries instead of consuming stale steps.
 - Check route-buffer indices and map bounds before committing movement.
 - Use the existing failed-path handling so villagers can respond through their normal task logic.
+- The player confirmed that the previously affected save no longer crashes.
 
 ## 2026-10-18 · 01:25 CEST — Start on the primary monitor
 

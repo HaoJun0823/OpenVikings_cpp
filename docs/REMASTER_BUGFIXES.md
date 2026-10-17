@@ -206,6 +206,8 @@ Validation: 189 complete Windows ASM instruction sequences at the run consumer, 
 
 ## Player confirmations — October 18, 2026
 
+The user confirms that the affected save no longer crashes with RM036. The originating invalid-route state remains unresolved. A subsequent report that the northern COOP enemy no longer attacks was investigated read-only: its military handler is active, but all attack-task conditions are currently false. The original map gates settlement raids on the target player having twenty soldiers and schedules separate gold raids with thirty-minute pauses. See [the saved-state analysis](COOP_AI_ATTACK_SCHEDULE.md); no further AI behavior change was justified by this saved state.
+
 The user positively tested RM029 (wooden-spearman sleep animation), RM031 (stonemason material colors) and RM032 (pottery oven fire). These reported defects are closed by user play-test confirmation. This does not establish coverage of every save/load, interruption or custom-data scenario. RM033 cake visibility and RM030 vehicle labels remain pending user confirmation.
 
 ## First-block verification and boundaries
