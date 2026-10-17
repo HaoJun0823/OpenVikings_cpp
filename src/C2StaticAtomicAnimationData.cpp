@@ -47,6 +47,18 @@ namespace NC2Logic
 			}
 			return *std::launder(reinterpret_cast<NXBasics::CTokenList*>(storage.tokenList));
 		}
+
+		void Remaster_RepairVikingBakerCakeVisibility(SStaticAtomicAnimationData& animation)
+		{
+			// Original cake production omits the house exit/entry events present in bread production.
+			constexpr SStaticAtomicAnimationEventData original[6] = { { 77, 34, 14 }, { 80, 1, -100 }, { 80, 1, -100 }, { 80, 2, -100 }, { 143, 34, 15 }, { 199, 21, 0 } };
+			static_assert(sizeof(animation.events) / sizeof(animation.events[0]) >= 8);
+			if (std::strcmp(animation.name, "viking_baker_produce_candy") != 0 || animation.length != 200 || animation.eventCount != 6 || animation.startDirection != -1 || animation.endDirection != -1 || animation.interruptable != 0 || std::memcmp(animation.events, original, sizeof(original)) != 0) return;
+			std::memmove(animation.events + 1, animation.events, sizeof(original));
+			animation.events[0] = { 0, SwitchIds::AtomicAnimationEvent::LeaveHouse, 0 };
+			animation.events[7] = { 199, SwitchIds::AtomicAnimationEvent::EnterHouse, 0 };
+			animation.eventCount = 8;
+		}
 	}
 
 	// Original function: FUN_0041418E.
@@ -100,6 +112,7 @@ namespace NC2Logic
 						}
 				}
 			}
+			Remaster_RepairVikingBakerCakeVisibility(*record);
 		}
 	}
 

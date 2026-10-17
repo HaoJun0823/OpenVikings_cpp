@@ -28,9 +28,11 @@
 #include "XBitmap.h"
 #include "XBobRendering.h"
 #include "XNumericConstants.h"
+#include "XPalette.h"
 
 #include <algorithm>
 #include <cstring>
+#include <optional>
 #include <windows.h>
 
 namespace NC2E2
@@ -112,6 +114,31 @@ namespace NC2E2
 				job = ParentJob(job);
 				if (job == 0) return nullptr;
 			}
+		}
+
+		std::uint32_t Remaster_GetVikingMasonMaterialRanges(std::uint32_t tribe, std::uint32_t job, std::uint32_t action, std::uint32_t done, std::uint32_t total)
+		{
+			if (tribe != 1 || job != SwitchIds::HumanJob::Mason || (action != 54 && action != 55) || total == 0) return 0;
+			const auto* animation = FindAnimation(tribe, job, action, 0);
+			if (animation == nullptr || animation->animationMode != NC2Runtime::MoveableAnimationMode::Compound) return 0;
+			const auto progress = (done * 10000u) / total;
+			const auto* parts = reinterpret_cast<const SE2StaticDataMapMoveableAnimationPart*>(static_cast<std::uintptr_t>(animation->headSequenceOrPartAddress));
+			for (std::uint32_t index = 0; index < animation->bodySequenceOrPartCount; ++index)
+			{
+				const auto& part = parts[index];
+				if (progress < part.startPercent * 100u || progress >= part.endPercent * 100u) continue;
+				if (part.type == NC2Runtime::MoveableAnimationPartType::Walk)
+				{
+					// Original compound parts carry rubble (3), stone blocks (26) or marble (27).
+					return part.walkGood == 3 || part.walkGood == 26 || part.walkGood == 27 ? (1u << 14) | (1u << 15) : 0;
+				}
+				if (part.type == NC2Runtime::MoveableAnimationPartType::AtomicAnimation)
+				{
+					// The original Artist examine/hit sprites put their stone in accessory range 13.
+					return part.atomicAction == 54 && (part.atomicSubId == 1 || part.atomicSubId == 2) ? 1u << 13 : 0;
+				}
+			}
+			return 0;
 		}
 
 		void SetFrame(SE2DynamicDataMapMoveableData& dynamic, std::uint32_t bodySequence, std::uint32_t headSequence, std::uint32_t frame)
@@ -407,7 +434,29 @@ namespace NC2E2
 		const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId);
 		const bool specialHero = tribe == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 47;
 		const auto* effect = (NC2Logic::Human_IsJobHero(human) || (flags & (1u << 19)) != 0) && !specialHero ? Tool_PlayerColors_GetColorRef(player) : nullptr;
-		sl_DoDrawMapMoveable(moveable, dynamic, tribe, job, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame), AtomicLength(human, NC2Layout::HumanOffset::AtomicAnimationId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationStartCount), HumanBody(dynamic), HumanHead(dynamic), bitmap, x, y, brightness, marking, player, NC2Logic::Human_Misc_IsHidden(human), centered, (flags & (1u << 14)) != 0, effect, -1, -1, display, false);
+		auto* bodyPalette = HumanBody(dynamic);
+		std::optional<NXBasics::CPalette> materialPalette;
+		const auto action = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction);
+		const bool atomicActive = Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) != 0;
+		if (tribe == 1 && job == SwitchIds::HumanJob::Mason && atomicActive && !NC2Logic::Human_Misc_IsHidden(human) && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) == 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) == 0)
+		{
+			const auto ranges = Remaster_GetVikingMasonMaterialRanges(tribe, job, action, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame), AtomicLength(human, NC2Layout::HumanOffset::AtomicAnimationId));
+			const auto greyId = ranges == 0 ? -1 : E2StaticDataPalettesManager_GetPalette16Id("colors grey");
+			if (greyId != -1)
+			{
+				const auto& grey = gStaticPalettes.palettes16[greyId];
+				if (grey.palette256Id >= 0 && grey.palette256Id < gStaticPalettes.palette256Count && grey.colorRange < 16 && gStaticPalettes.palettes256[grey.palette256Id].palette != nullptr)
+				{
+					// Remaster: use a draw-local palette; appearance, saved palettes and gameplay RNG stay intact.
+					materialPalette.emplace(*bodyPalette);
+					const auto* source = reinterpret_cast<const std::byte*>(gStaticPalettes.palettes256[grey.palette256Id].palette) + NC2Layout::PaletteOffset::Colors + grey.colorRange * NC2Runtime::HumanPaletteRange::BytesUnsigned;
+					for (std::uint32_t range = 13; range < 16; ++range)
+						if ((ranges & (1u << range)) != 0) std::memcpy(reinterpret_cast<std::byte*>(&*materialPalette) + NC2Layout::PaletteOffset::Colors + range * NC2Runtime::HumanPaletteRange::BytesUnsigned, source, NC2Runtime::HumanPaletteRange::Bytes);
+					bodyPalette = &*materialPalette;
+				}
+			}
+		}
+		sl_DoDrawMapMoveable(moveable, dynamic, tribe, job, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), atomicActive, action, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame), AtomicLength(human, NC2Layout::HumanOffset::AtomicAnimationId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationStartCount), bodyPalette, HumanHead(dynamic), bitmap, x, y, brightness, marking, player, NC2Logic::Human_Misc_IsHidden(human), centered, (flags & (1u << 14)) != 0, effect, -1, -1, display, false);
 		auto iconY = AddOffset(y, -56);
 		const bool tallSoldier = tribe == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32;
 		if (tallSoldier) iconY = AddOffset(iconY, -16);

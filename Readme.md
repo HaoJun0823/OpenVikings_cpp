@@ -15,6 +15,10 @@ Build a settlement, help your villagers learn new trades, explore the world and 
 - **Better solo play:** AI takes over the other active human starting positions when you launch a multiplayer map in single-player mode.
 - **A modern runtime:** Current C++ and Windows services replace the reconstructed legacy runtime and private x87/compiler backends.
 - **Updated rendering internals:** SSE2 handles packed sprite and terrain shading, replacing the old MMX paths.
+- **Corrected sleep animations:** Viking wooden-spear soldiers lie down and get up at the intended pace when sleeping.
+- **Clear vehicle controls:** Catapult and other vehicle action buttons display the correct translated labels and tooltips.
+- **Natural stone colors:** The Viking stonemason's work animation shows rubble, stone blocks and marble in stone colors instead of metallic shades.
+- **Livelier workshops:** Viking potters have an oven fire when making bricks, and bakers show their complete cake-baking animation.
 
 ## Project status
 

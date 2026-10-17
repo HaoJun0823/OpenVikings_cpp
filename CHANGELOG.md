@@ -12,6 +12,38 @@ Computer villages can now harvest known nearby deposits without tying each colle
 - Pause collection when the destination is full and resume it as capacity becomes available.
 - Preserve existing save layouts and use normal harvesting, hauling and pathfinding; gameplay validation is pending.
 
+## 2026-10-17 · 02:54 CEST — Complete pottery and cake-baking animations
+
+Viking workshops now show the missing parts of two production animations: the potter's oven burns while making bricks, and the baker appears while preparing cake.
+
+- Restored the small oven fire missing from brick production, matching pottery and roof-tile production.
+- Restored the baker's missing house-exit and house-entry events so the existing cake-baking animation is visible.
+- Kept cake visible through the final carrying step, which previously switched to a bread graphic.
+- Preserved the working bread sequence and production durations; repairs target the exact affected original data.
+
+## 2026-10-17 · 02:38 CEST — Stone colors at the stonemason
+
+The Viking stonemason's building animation now keeps rubble, stone blocks and marble in their intended stone colors. A shared accessory color range could previously make the material look bronze or gold.
+
+- Corrected the material colors while examining and shaping stone.
+- Applied the proper grey shades when carrying materials through the building animation.
+- Preserved villagers' appearance outside these phases, production timing and saved appearance data.
+
+## 2026-10-17 · 02:21 CEST — Clear vehicle action labels
+
+Catapult and other vehicle action buttons now display the correct localized labels and help text. Misassigned text entries previously showed unrelated cargo instructions and an unfilled quantity placeholder.
+
+- Restored the correct labels and tooltips for disembarking passengers, unloading goods and docking ships.
+- Applied the correction to the shared vehicle window, using the existing translations for the selected language.
+
+## 2026-10-17 · 02:05 CEST — Natural sleep animations for Viking spearmen
+
+Viking wooden-spear soldiers now lie down, rest and stand up at the intended pace. The original animation was missing most of its resting phase, stretching the movement across the entire sleep action.
+
+- Restored the missing resting frames using the matching iron-spear animation as the reference.
+- Kept sleep duration and stamina recovery unchanged.
+- Applied the correction when loading the exact affected original sequence, preserving customized and already-corrected animations.
+
 ## 2026-10-16 · 20:48 CEST — Rendering without MMX
 
 The remaining legacy MMX rendering paths now use SSE2 throughout, completing the graphics-side cleanup after the runtime replacement.

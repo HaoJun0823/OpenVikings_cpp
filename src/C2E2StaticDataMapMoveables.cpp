@@ -138,6 +138,80 @@ namespace NC2E2
 			return -1;
 		}
 
+		void Remaster_RepairVikingWoodenSpearmanSleepFrames(const void* manager, const SE2StaticDataMapMoveableAnimationData& animation, std::uint32_t* frames, std::uint32_t& count)
+		{
+			// The original wooden-spearman list omits 159 resting frames from a 237-tick sleep.
+			// Restore the hold used by the iron spearman with the same body sequence.
+			constexpr std::uint32_t originalCount = 78;
+			constexpr std::uint32_t correctedCount = 237;
+			constexpr std::uint32_t holdStart = 42;
+			constexpr std::uint32_t missingFrames = correctedCount - originalCount;
+			static_assert(correctedCount <= NC2Runtime::MoveableAnimationLimits::FramesPerList);
+			if (animation.tribe != 1 || animation.job != SwitchIds::HumanJob::SoldierSpearWooden || animation.action != 8 || animation.inHouseSubId != 0 || animation.animationMode != NC2Runtime::MoveableAnimationMode::ProgressFrames || animation.headSequenceOrPartAddress != NXBasics::IntegerRange::UInt32Maximum || count != originalCount) return;
+			const auto sequence = SearchBobSequence(manager, "human_man_Warrior_spear_sleep");
+			if (sequence < 0 || animation.bodySequenceOrPartCount != static_cast<std::uint32_t>(sequence)) return;
+			// Match every original frame so corrected or customized assets remain untouched.
+			for (std::uint32_t index = 0; index < 35; ++index)
+				if (frames[index] != index || frames[originalCount - index - 1u] != index) return;
+			for (std::uint32_t index = 35; index < 43; ++index)
+				if (frames[index] != ((index - 35u) % 2u == 0 ? 36u : 35u)) return;
+			std::memmove(frames + holdStart + missingFrames, frames + holdStart, (originalCount - holdStart) * sizeof(*frames));
+			for (std::uint32_t index = holdStart; index < holdStart + missingFrames; ++index) frames[index] = 36;
+			count = correctedCount;
+		}
+
+		template<std::size_t Count> bool Remaster_MatchesCompoundParts(const SE2StaticDataMapMoveableAnimationPart* parts, const SE2StaticDataMapMoveableAnimationPart (&original)[Count])
+		{
+			for (std::size_t index = 0; index < Count; ++index)
+			{
+				// The loader leaves the final word uninitialized for non-walking parts.
+				if (std::memcmp(parts + index, original + index, offsetof(SE2StaticDataMapMoveableAnimationPart, walkEndOffsetY)) != 0) return false;
+				if (original[index].type == NC2Runtime::MoveableAnimationPartType::Walk && parts[index].walkEndOffsetY != original[index].walkEndOffsetY) return false;
+			}
+			return true;
+		}
+
+		void Remaster_RepairVikingPotterBrickFire(const SE2StaticDataMapMoveableAnimationData& animation, SE2StaticDataMapMoveableAnimationPart* parts, std::uint32_t& count)
+		{
+			// Original brick production omits the fire used by its matching crockery/tile sequences.
+			if (animation.tribe != 1 || animation.job != SwitchIds::HumanJob::Potter || animation.action != 52 || animation.inHouseSubId != 0 || animation.animationMode != NC2Runtime::MoveableAnimationMode::Compound || count != 7) return;
+			constexpr SE2StaticDataMapMoveableAnimationPart original[7] = {
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 0, 0, { 2 }, { 2 }, { -57 }, 22 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 0, 10, { 7 }, { 2 }, { -59 }, 35 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 10, 20, { 0 }, { 2 }, { -31 }, 40 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 20, 75, { 56 }, { 1 }, { 5 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 75, 85, { 22 }, { 0 }, { 6 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 85, 95, { 3 }, { 24 }, { -59 }, 35 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 95, 100, { 5 }, { 24 }, { -57 }, 22 }
+			};
+			static_assert(8 <= NC2Runtime::MoveableAnimationLimits::CompoundParts);
+			if (!Remaster_MatchesCompoundParts(parts, original)) return;
+			const auto fire = E2StaticDataLandscapesManager_GetLandscapeId("fx fire small");
+			if (fire < 0) return;
+			std::memmove(parts + 1, parts, sizeof(original));
+			parts[0] = { NC2Runtime::MoveableAnimationPartType::LandscapeOverlayUnsigned, 1, 99, { fire }, { 93 }, { 36 }, 0 };
+			++count;
+		}
+
+		void Remaster_RepairVikingBakerCakeCarry(const SE2StaticDataMapMoveableAnimationData& animation, SE2StaticDataMapMoveableAnimationPart* parts, std::uint32_t count)
+		{
+			if (animation.tribe != 1 || animation.job != SwitchIds::HumanJob::Baker || animation.action != 48 || animation.inHouseSubId != 0 || animation.animationMode != NC2Runtime::MoveableAnimationMode::Compound || count != 10) return;
+			constexpr SE2StaticDataMapMoveableAnimationPart original[10] = {
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 0, 0, { 3 }, { 11 }, { 75 }, 29 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 0, 2, { 2 }, { 11 }, { 64 }, 44 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 2, 9, { 3 }, { 11 }, { 18 }, 25 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 9, 25, { 47 }, { 1 }, { 5 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 25, 30, { 3 }, { 20 }, { -42 }, 16 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 30, 60, { 47 }, { 2 }, { 5 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 60, 70, { 5 }, { 0 }, { 5 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned, 70, 80, { 47 }, { 2 }, { 5 }, 0 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 80, 95, { 0 }, { 20 }, { 64 }, 44 },
+				{ NC2Runtime::MoveableAnimationPartType::WalkUnsigned, 95, 100, { 5 }, { 19 }, { 75 }, 29 }
+			};
+			if (!Remaster_MatchesCompoundParts(parts, original)) return;
+			parts[9].walkGood = 20; // Keep carrying cake instead of switching to bread for the final step.
+		}
+
 		template<class T> void InsertSorted(void* manager, std::uint32_t base, T* record, bool sortByWalkSpeed)
 		{
 			const auto tribeOffset = record->tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned;
@@ -334,11 +408,14 @@ namespace NC2E2
 						}
 						if (animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames)
 						{
+						Remaster_RepairVikingWoodenSpearmanSleepFrames(manager, *animation, frames, frameCount);
 							CopyFrames(animation->frames, frames, frameCount);
 							for (std::uint32_t direction = 0; direction < 8; ++direction) CopyFrames(animation->directionFrames[direction], directionFrames[direction], directionCounts[direction]);
 						}
 						if (animation->animationMode == NC2Runtime::MoveableAnimationMode::Compound && partCount != 0)
 						{
+							Remaster_RepairVikingPotterBrickFire(*animation, parts, partCount);
+							Remaster_RepairVikingBakerCakeCarry(*animation, parts, partCount);
 							animation->bodySequenceOrPartCount = partCount;
 							auto* data = Allocate<SE2StaticDataMapMoveableAnimationPart>(partCount);
 							std::memcpy(data, parts, partCount * NC2Layout::RecordSize::MoveableAnimationPartUnsigned);

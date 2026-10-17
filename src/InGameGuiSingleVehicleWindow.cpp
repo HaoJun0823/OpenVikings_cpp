@@ -580,8 +580,9 @@ namespace NC2InGameGuiSelection
 			if (NC2Logic::Logic_UserControl_GetVehicleCommands(Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId), &commands, false))
 			{
 				constexpr std::uint32_t actions[3]{ 3,14,4 };
-				constexpr std::uint32_t captions[3]{ 11,13,15 };
-				constexpr std::uint32_t tips[3]{ 12,14,16 };
+				// Windows 004AA2A3..004AA354 uses string IDs 0x11..0x16 for disembark, unload and dock.
+				constexpr std::uint32_t captions[3]{ 17,19,21 };
+				constexpr std::uint32_t tips[3]{ 18,20,22 };
 				for (std::uint32_t index = 0; index < 3; ++index)
 				{
 					const auto command = 10006 + index;
