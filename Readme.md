@@ -55,6 +55,8 @@ For a useful bug report, include the revision you played, the map or savegame, s
 
 Keep pull requests focused and explain what changes for players. Please do not upload original game assets. Contributor notes and technical references are available in [the documentation](docs/README.md).
 
+Also do not miss out the [CulturesNation official Discord Server](https://discord.gg/S3JTYnF)!
+
 ## Changelog
 
 Read the [dated development updates and full changelog](CHANGELOG.md) for gameplay fixes, graphics and audio improvements, and project maintenance.
