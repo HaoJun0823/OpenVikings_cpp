@@ -67,6 +67,7 @@ compile_commands.json
 
 # Local analysis scripts and generated scratch artifacts
 /.codex-work/
+Agents.md
 
 # vcpkg
 vcpkg_installed/
