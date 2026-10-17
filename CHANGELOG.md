@@ -44,6 +44,7 @@ Viking workshops now show the missing parts of two production animations: the po
 - Restored the baker's missing house-exit and house-entry events so the existing cake-baking animation is visible.
 - Kept cake visible through the final carrying step, which previously switched to a bread graphic.
 - Preserved the working bread sequence and production durations; repairs target the exact affected original data.
+- Player retests confirmed the pottery fire and cake animation on October 18.
 
 ## 2026-10-17 · 02:38 CEST — Stone colors at the stonemason
 

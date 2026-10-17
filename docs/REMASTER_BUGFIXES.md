@@ -216,7 +216,7 @@ Validation: actual saved walking/blocking planes decoded read-only; the old targ
 
 The user confirms that the affected save no longer crashes with RM036. The originating invalid-route state remains unresolved. The initial northern-enemy analysis found inactive attack conditions at 05:57, but a later 06:22 snapshot establishes an active wave blocked by an unreachable adjusted target; RM037 addresses that separate movement fault. The original attack thresholds and schedule remain unchanged. See [the saved-state follow-up](COOP_AI_ATTACK_SCHEDULE.md).
 
-The user positively tested RM029 (wooden-spearman sleep animation), RM031 (stonemason material colors) and RM032 (pottery oven fire). These reported defects are closed by user play-test confirmation. This does not establish coverage of every save/load, interruption or custom-data scenario. RM033 cake visibility and RM030 vehicle labels remain pending user confirmation.
+The user positively tested RM029 (wooden-spearman sleep animation), RM031 (stonemason material colors), RM032 (pottery oven fire) and RM033 (cake animation). These reported defects are closed by user play-test confirmation. This does not establish coverage of every save/load, interruption or custom-data scenario. RM030 vehicle labels remain pending user confirmation.
 
 ## First-block verification and boundaries
 
