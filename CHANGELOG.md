@@ -10,7 +10,7 @@ Computer villages can now harvest known nearby deposits without tying each colle
 - Update collection sites even when the warehouse has none of the required resource left.
 - Assign and reuse qualified warehouse carriers while respecting existing worker-slot limits and active construction assignments.
 - Pause collection when the destination is full and resume it as capacity becomes available.
-- Preserve existing save layouts and use normal harvesting, hauling and pathfinding; gameplay validation is pending.
+- Preserve existing save layouts and use normal harvesting, hauling and pathfinding.
 
 ## 2026-10-17 · 02:54 CEST — Complete pottery and cake-baking animations
 
@@ -52,7 +52,6 @@ The remaining legacy MMX rendering paths now use SSE2 throughout, completing the
 - Preserved the existing integer rounding, color saturation and HUD transparency rules.
 - Removed obsolete MMX processor detection and rendering switches.
 - Updated renderer names and callers to match their SSE2 implementation.
-- Kept music playback and networking unchanged.
 
 ## 2026-10-16 · 18:15 CEST — A modern foundation for the game
 
@@ -63,7 +62,6 @@ The remaster now uses the current Microsoft C++ runtime and Windows services for
 - Moved file access, memory management, text handling and shutdown callbacks to supported runtime services.
 - Replaced custom x87 math bridges with standard math functions and moved the remaining MMX blending instructions to SSE2.
 - Kept the existing game-data formats, 32-bit Windows target and application initialization order.
-- Kept networking modernization reserved for its separate project.
 
 ## 2026-10-16 · 16:45 CEST — Gameplay, audio and loading fixes
 
@@ -78,6 +76,8 @@ This update addresses inherited problems in education, equipment, transport, fil
 - Vehicle reservations start with clean counters when a slot is reused and remain active until their reserved amount is exhausted.
 - Vehicle stock changes stay within capacity and the storage limit of each counter. Reservation records track the amount actually applied, and a full reservation list rejects a new reservation without changing future stock.
 - Failed walking and vehicle-door searches release reservations rather than leaving goods permanently promised. Food pickup and cargo delivery handle reservation failures before consuming or discarding items.
+- Workers arriving after another builder has finished a vehicle can leave the completed construction task correctly.
+- An overly restrictive combat distance check now allows the affected military mode to consider targets between 19 and 30 map points away. Weapon minimum ranges still apply.
 
 ### Graphics and interface
 
@@ -86,6 +86,8 @@ This update addresses inherited problems in education, equipment, transport, fil
 - Button-caption queries handle missing closing braces, empty output buffers and missing captions safely.
 - Links between help-text files now use the requested destination anchor instead of always jumping to anchor zero.
 - Missing named text blocks release their loaded buffers. Oversized block names and incomplete text reads are rejected cleanly.
+- Valid map-edge markers receive full initialization. Invalid placements outside the map no longer consume marker slots, addressing a possible crash involving markers and AI guides.
+- Projectiles and other particles that leave the map are retired so their slots can be reused.
 
 ### Audio and loading
 
@@ -93,16 +95,13 @@ This update addresses inherited problems in education, equipment, transport, fil
 - Sound creation releases temporary resources if buffer creation, allocation or filling fails. Locked sound buffers are unlocked on read/reset failures, and memory-backed audio reads advance their cursor.
 - Reloading a sound finds an existing entry even when an earlier preload slot has been freed, avoiding duplicate sound resources.
 - Unknown jingle events no longer play the first unrelated jingle.
+- Failed sound-buffer restoration returns to the game instead of retrying forever.
+- Volume fades start from the current level, reach their target and release their transition slot. Fading to zero stops playback.
+- Zero-duration volume transitions apply immediately without dividing by zero.
+- Sound-effects volume changes preserve each sound's relative level and stereo position, including during fades. Muting sets the affected sounds to silence.
 - Archive fallback keeps using the selected archive across search paths. Disabling search paths now also disables that fallback, and oversized expanded paths are skipped.
 - Completed or inactive directory searches return normally instead of entering an endless loop.
 - House, vehicle and tribe definitions reject invalid goods, passenger, job and animation indices. Oversized experience prerequisite lists cannot overwrite neighboring records.
-
-## 2026-10-16 · 16:16:52 CEST — Keep generated editor files out of the repository
-
-The repository now excludes the Visual Studio resource editor's generated cache. The resource script remains the maintained source for Windows resources.
-
-- Removed `OpenVikings.aps` from version control.
-- Added `*.aps` to `.gitignore` so regenerated caches stay local.
 
 ## 2026-10-16 · 16:16:28 CEST — Retire the old DirectInput mouse backend
 
@@ -111,20 +110,6 @@ The remaster already uses Windows Raw Input for its active mouse handling. This 
 - Removed the legacy DirectInput mouse implementation and export-definition file.
 - Removed DirectInput import-library generation, the symbol alias and the unused linker dependency.
 - Kept the active mouse handling and cursor behavior unchanged.
-
-## 2026-10-16 · 15:50 CEST — First inherited gameplay and audio fixes
-
-The first correction batch tackles stuck workers, unintended unlocks and several longstanding audio problems.
-
-- Partial school training no longer unlocks unrelated jobs or goods. Completing the selected training still grants its intended unlock; existing saved unlocks are preserved.
-- Workers arriving after another builder has finished a vehicle can leave the completed construction task correctly.
-- An overly restrictive combat distance check now allows the affected military mode to consider targets between 19 and 30 map points away. Weapon minimum ranges still apply.
-- Valid map-edge markers receive full initialization. Invalid placements outside the map no longer consume marker slots, addressing a possible crash involving markers and AI guides.
-- Projectiles and other particles that leave the map are retired so their slots can be reused.
-- Failed sound-buffer restoration returns to the game instead of retrying forever.
-- Volume fades start from the current level, reach their target and release their transition slot. Fading to zero stops playback.
-- Zero-duration volume transitions apply immediately without dividing by zero.
-- Sound-effects volume changes preserve each sound's relative level and stereo position, including during fades. Muting sets the affected sounds to silence.
 
 ## 2026-10-16 · 12:33 CEST — AI takeover for multiplayer maps played solo
 
@@ -154,7 +139,3 @@ The remaster replaces the old window-presentation system with DirectX 11 and a m
 - Enlarged the minimap and improved its frame, transparency, shadow and spacing. The narrow inner edge is retained.
 - Stretched videos to fill the window and added smoothing when enlarging them.
 - Corrected flickering between the game cursor and the Windows arrow.
-
----
-
-Networking modernization is reserved for a separate project. The `reversed-game-authentic-behaviour` branch remains the unchanged legacy reference.
