@@ -214,8 +214,11 @@ namespace NC2Logic
 	// Original function: FUN_0040b502.
 	std::int32_t CHumanArray::AllocateHuman(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
 	{
+		// Remaster: reject invalid positions before consuming a pool reservation.
+		if (point == nullptr || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
+		if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId)) == 0) return -1;
 		const auto id = Element_Allocate();
-		if (id == -1 || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
+		if (id == -1) return -1;
 		if (!Human_Init(Human(id), id, player, tribe, job, point, missionCheck, flags))
 		{
 			FreeHuman(id); return -1;
