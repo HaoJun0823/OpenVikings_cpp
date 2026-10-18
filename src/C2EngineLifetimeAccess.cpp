@@ -1293,7 +1293,7 @@ namespace NC2E2
 		if (cd != nullptr && cd->IsStillPlaying()) cd->StopTrack();
 		if (mode == 1)
 		{
-			if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, NC2Layout::DirectMusicManagerOffset::CurrentEventId) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+			if (NDMManager::HasPendingOrActiveEvent(gDirectMusicManager)) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
 			return;
 		}
 		if (gameTime % 120u != 0) gWorldMusicState.eventVariant = WorldMusic_GetEventVariant();
@@ -1316,7 +1316,7 @@ namespace NC2E2
 	// Original function: FUN_00485ed7.
 	void WorldMusic_UpdateCdTrack()
 	{
-		if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, NC2Layout::DirectMusicManagerOffset::CurrentEventId) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+		if (NDMManager::HasPendingOrActiveEvent(gDirectMusicManager)) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
 		auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
 		if (cd == nullptr || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") != 3) return;
 		const auto current = cd->GetCurrentTrack();

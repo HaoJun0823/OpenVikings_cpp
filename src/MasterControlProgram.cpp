@@ -303,6 +303,8 @@ namespace NMasterControlProgram
 	CMasterControlProgram::~CMasterControlProgram()
 	{
 		System_ProgramState_EndCurrent();
+		// Remaster: retire the music apartment before the main COM/window teardown.
+		if (gDirectMusicManager != nullptr) NDMManager::Exit(gDirectMusicManager);
 		NNetwork::Network_ShutDown();
 		GameEngine_ShutDownEngine();
 		ProgressBar_Exit();

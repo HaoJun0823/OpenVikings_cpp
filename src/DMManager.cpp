@@ -6,6 +6,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <atomic>
+#include <cstdio>
+#include <mutex>
+#include <new>
+#include <process.h>
 #include <Windows.h>
 
 namespace NDMManager
@@ -250,6 +255,213 @@ namespace NDMManager
 		WriteField<char*>(manager, 0x220, DuplicateString(message));
 	}
 
+	// Remaster: the native manager layout stays intact. Its driver state belongs
+	// exclusively to this thread; the game only submits commands and reads volume.
+	enum class MusicCommandType { Process, Prepare, Start, Reset };
+	struct MusicCommand
+	{
+		MusicCommandType type{};
+		std::int32_t eventId = 0;
+		std::uint32_t parameter = 0;
+		std::int32_t mode = 0;
+	};
+	struct RemasterMusicWorker
+	{
+		void* manager = nullptr;
+		char* directory = nullptr;
+		std::int32_t mode = 0;
+		HANDLE thread = nullptr;
+		HANDLE wake = nullptr;
+		std::mutex mutex;
+		MusicCommand commands[128]{};
+		std::size_t first = 0;
+		std::size_t count = 0;
+		bool stopping = false;
+		bool accepting = true;
+		bool musicRequested = false;
+		bool overflowReported = false;
+		std::atomic<std::int32_t> volume{70};
+	};
+	// The game already owns one DirectMusic singleton. Only the game thread
+	// publishes/retires its sidecar, and retirement joins before freeing anything.
+	static RemasterMusicWorker* gMusicWorker = nullptr;
+	static thread_local bool gOnMusicThread = false;
+
+	static void ReportMusicError(void* manager)
+	{
+		char* message = ReadField<char*>(manager, 0x220);
+		if (message == nullptr) return;
+		if (*message != '\0')
+		{
+			OutputDebugStringA("DMManager reports error: ");
+			OutputDebugStringA(message);
+			OutputDebugStringA("\r\n");
+		}
+		NXBasics::Runtime_Free(message);
+		WriteField<char*>(manager, 0x220, nullptr);
+	}
+
+	static std::uint8_t EnqueueMusicCommand(void* manager, MusicCommand command)
+	{
+		auto* worker = gMusicWorker;
+		if (worker == nullptr || worker->manager != manager) return 0;
+		const std::lock_guard<std::mutex> lock(worker->mutex);
+		if (!worker->accepting || worker->stopping) return 0;
+		// Repeated world-music updates must not accumulate during a slow driver init.
+		if (worker->count != 0)
+		{
+			const auto& previous = worker->commands[(worker->first + worker->count - 1) % 128];
+			if (previous.type == command.type && previous.eventId == command.eventId && previous.parameter == command.parameter && previous.mode == command.mode) return 1;
+		}
+		if (worker->count == 128)
+		{
+			if (!worker->overflowReported) OutputDebugStringA("DMManager: music command queue full; request rejected.\r\n");
+			worker->overflowReported = true;
+			return 0;
+		}
+		worker->commands[(worker->first + worker->count) % 128] = command;
+		++worker->count;
+		if (command.type == MusicCommandType::Reset || (command.type == MusicCommandType::Process && command.mode == 1)) worker->musicRequested = false;
+		else if ((command.type == MusicCommandType::Start || (command.type == MusicCommandType::Process && command.mode == 2)) && command.eventId > 0 && command.eventId < 39 && !(command.eventId >= 22 && command.eventId < 31) && worker->volume.load() > 0) worker->musicRequested = true;
+		SetEvent(worker->wake);
+		return 1;
+	}
+
+	static unsigned __stdcall RemasterMusicThread(void* context)
+	{
+		auto* worker = static_cast<RemasterMusicWorker*>(context);
+		void* manager = worker->manager;
+		gOnMusicThread = true;
+		const DWORD started = timeGetTime();
+		// The existing DLL imports CoInitialize (STA). Keep creation, playback,
+		// message dispatch and destruction in one apartment, with no COM handoff.
+		const HRESULT apartment = CoInitialize(nullptr);
+		const bool ready = SUCCEEDED(apartment) && Init(manager, worker->mode, worker->directory) != 0;
+		if (FAILED(apartment)) SetErrorMessage(manager, "DMManager: music thread COM initialization failed.");
+		char timing[160];
+		std::snprintf(timing, sizeof(timing), "DMManager: asynchronous initialization %s after %lu ms.\r\n", ready ? "ready" : "failed", static_cast<unsigned long>(timeGetTime() - started));
+		OutputDebugStringA(timing);
+		ReportMusicError(manager);
+		if (ready) MainVolume_Set(manager, worker->volume.load());
+		for (; ready;)
+		{
+			MSG message;
+			while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
+			{
+				if (message.message == WM_QUIT)
+				{
+					const std::lock_guard<std::mutex> lock(worker->mutex);
+					worker->stopping = true;
+					break;
+				}
+				TranslateMessage(&message);
+				DispatchMessageW(&message);
+			}
+			MusicCommand command;
+			bool haveCommand = false;
+			{
+				const std::lock_guard<std::mutex> lock(worker->mutex);
+				if (worker->stopping) break;
+				if (worker->count != 0)
+				{
+					command = worker->commands[worker->first];
+					worker->first = (worker->first + 1) % 128;
+					--worker->count;
+					haveCommand = true;
+				}
+			}
+			const auto wantedVolume = worker->volume.load();
+			if (ReadField<std::int32_t>(manager, 0x1C) != wantedVolume) MainVolume_Set(manager, wantedVolume);
+			if (haveCommand)
+			{
+				switch (command.type)
+				{
+				case MusicCommandType::Process: ProcessEvent(manager, command.eventId, command.parameter, command.mode); break;
+				case MusicCommandType::Prepare: PrepareEvent(manager, command.eventId, command.parameter); break;
+				case MusicCommandType::Start: StartEvent(manager, command.eventId, command.parameter); break;
+				case MusicCommandType::Reset: ResetAllSegments(manager); break;
+				}
+			}
+			Update(manager);
+			ReportMusicError(manager);
+			if (!haveCommand && MsgWaitForMultipleObjectsEx(1, &worker->wake, 20, QS_ALLINPUT, MWMO_INPUTAVAILABLE) == WAIT_FAILED)
+			{
+				SetErrorMessage(manager, "DMManager: music thread wait failed.");
+				break;
+			}
+		}
+		{
+			const std::lock_guard<std::mutex> lock(worker->mutex);
+			worker->accepting = false;
+			worker->musicRequested = false;
+			worker->count = 0;
+		}
+		Exit(manager);
+		ReportMusicError(manager);
+		if (SUCCEEDED(apartment)) CoUninitialize();
+		return 0;
+	}
+
+	static std::uint8_t StartMusicWorker(void* manager, std::int32_t mode, const char* directory)
+	{
+		if (manager == nullptr) return 0;
+		if (gMusicWorker != nullptr) return gMusicWorker->manager == manager ? 1 : 0;
+		auto* worker = new (std::nothrow) RemasterMusicWorker;
+		if (worker == nullptr) { SetErrorMessage(manager, "DMManager: music worker allocation failed."); return 0; }
+		worker->manager = manager;
+		worker->mode = mode;
+		worker->volume.store(ReadField<std::int32_t>(manager, 0x1C));
+		worker->directory = DuplicateString(directory);
+		worker->wake = CreateEventW(nullptr, FALSE, FALSE, nullptr);
+		if ((directory == nullptr || worker->directory != nullptr) && worker->wake != nullptr)
+		{
+			gMusicWorker = worker;
+			worker->thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, RemasterMusicThread, worker, 0, nullptr));
+			if (worker->thread != nullptr) return 1;
+			gMusicWorker = nullptr;
+		}
+		if (worker->wake != nullptr) CloseHandle(worker->wake);
+		NXBasics::Runtime_Free(worker->directory);
+		delete worker;
+		SetErrorMessage(manager, "DMManager: could not start the music thread.");
+		return 0;
+	}
+
+	static std::uint8_t StopMusicWorker(void* manager)
+	{
+		auto* worker = gMusicWorker;
+		if (worker == nullptr || worker->manager != manager) return 0;
+		{
+			const std::lock_guard<std::mutex> lock(worker->mutex);
+			worker->stopping = true;
+			worker->accepting = false;
+			worker->musicRequested = false;
+			worker->count = 0;
+		}
+		SetEvent(worker->wake);
+		// Shutdown alone joins: never unload a DLL or free its manager mid-call.
+		DWORD signaled = 0;
+		if (FAILED(CoWaitForMultipleHandles(0, INFINITE, 1, &worker->thread, &signaled))) WaitForSingleObject(worker->thread, INFINITE);
+		WriteField<std::int32_t>(manager, 0x1C, worker->volume.load());
+		CloseHandle(worker->thread);
+		CloseHandle(worker->wake);
+		NXBasics::Runtime_Free(worker->directory);
+		gMusicWorker = nullptr;
+		delete worker;
+		return 1;
+	}
+
+	bool HasPendingOrActiveEvent(const void* manager)
+	{
+		if (manager == nullptr) return false;
+		if (gMusicWorker != nullptr && gMusicWorker->manager == manager)
+		{
+			const std::lock_guard<std::mutex> lock(gMusicWorker->mutex);
+			return gMusicWorker->musicRequested;
+		}
+		return ReadField<std::uint32_t>(manager, 0x14) != 0;
+	}
+
 	// Original deleting destructor: FUN_00403561; native slot at 004F3330.
 	static void* __fastcall DeletingDestructor(void* manager, void* unusedEdx, std::uint32_t flags)
 	{
@@ -284,6 +496,7 @@ namespace NDMManager
 	// Original function: FUN_004035b6; remaster releases each acquired driver resource on failure.
 	std::uint8_t Init(void* manager, std::int32_t mode, const char* directory)
 	{
+		if (!gOnMusicThread) return StartMusicWorker(manager, mode, directory);
 		char* replacement = DuplicateString(directory);
 		if (directory != nullptr && replacement == nullptr) return 0;
 		if (char* previous = ReadField<char*>(manager, 0x21C)) NXBasics::Runtime_Free(previous);
@@ -339,6 +552,7 @@ namespace NDMManager
 	// Original function: FUN_0040372f; error messages are replaced without stopping cleanup.
 	std::uint8_t Exit(void* manager)
 	{
+		if (!gOnMusicThread) return StopMusicWorker(manager);
 		if (ReadField<std::uint8_t>(manager, 4) == 0) return 0;
 		ResetAllSegments(manager);
 		WriteField<std::uint8_t>(manager, 4, 0);
@@ -367,6 +581,11 @@ namespace NDMManager
 	// Original function: FUN_00403858; the timer is read even for an inactive manager.
 	std::uint8_t Update(void* manager)
 	{
+		if (!gOnMusicThread)
+		{
+			if (manager != nullptr && gMusicWorker == nullptr) ReportMusicError(manager);
+			return 1;
+		}
 		const std::uint32_t now = timeGetTime();
 		if (ReadField<std::uint8_t>(manager, 4) == 0 || ReadField<std::uint8_t>(manager, 5) == 0 || NXBasics::Runtime_TimeSigned32(now - ReadField<std::uint32_t>(manager, 8)) < 0) return 1;
 		void* audiopath = ReadField<void*>(manager, 0x38);
@@ -382,12 +601,31 @@ namespace NDMManager
 	// Original function: FUN_0040392e.
 	std::int32_t MainVolume_Get(const void* manager)
 	{
+		if (manager == nullptr) return 0;
+		if (!gOnMusicThread && gMusicWorker != nullptr && gMusicWorker->manager == manager) return gMusicWorker->volume.load();
 		return ReadField<std::int32_t>(manager, 0x1C);
 	}
 
 	// Original function: FUN_00403932; exact PE constants at 004F3338/004F3340.
 	std::uint8_t MainVolume_Set(void* manager, std::int32_t volume)
 	{
+		if (manager == nullptr) return 0;
+		if (!gOnMusicThread)
+		{
+			const auto bounded = volume < 0 ? 0 : volume > 100 ? 100 : volume;
+			if (gMusicWorker == nullptr) { WriteField(manager, 0x1C, bounded); return 0; }
+			if (gMusicWorker->manager != manager) return 0;
+			bool accepting;
+			{
+				const std::lock_guard<std::mutex> lock(gMusicWorker->mutex);
+				gMusicWorker->volume.store(bounded);
+				if (bounded == 0) gMusicWorker->musicRequested = false;
+				accepting = gMusicWorker->accepting && !gMusicWorker->stopping;
+			}
+			// Volume is a latest-value mailbox, so slider changes cannot fill the queue.
+			SetEvent(gMusicWorker->wake);
+			return accepting ? 1 : 0;
+		}
 		WriteField(manager, 0x1C, volume);
 		if (volume > 100) WriteField<std::int32_t>(manager, 0x1C, 100);
 		else if (volume < 0) WriteField<std::int32_t>(manager, 0x1C, 0);
@@ -412,6 +650,7 @@ namespace NDMManager
 	// Original function: FUN_004038bd
 	std::uint8_t ProcessEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter, std::int32_t mode)
 	{
+		if (!gOnMusicThread) return EnqueueMusicCommand(manager, { MusicCommandType::Process, eventId, eventParameter, mode });
 		auto* managerBytes = static_cast<std::byte*>(manager);
 
 		std::uint8_t stateFlag;
@@ -457,6 +696,7 @@ namespace NDMManager
 	// Original function: FUN_004039d8
 	void ResetAllSegments(void* manager)
 	{
+		if (!gOnMusicThread) { EnqueueMusicCommand(manager, { MusicCommandType::Reset }); return; }
 		auto* entries = static_cast<std::byte*>(manager) + 0x3C;
 
 		for (std::uint32_t index = 0; index < 20; ++index)
@@ -476,6 +716,7 @@ namespace NDMManager
 	// Original function: FUN_00403a08
 	std::uint8_t PrepareEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter)
 	{
+		if (!gOnMusicThread) return EnqueueMusicCommand(manager, { MusicCommandType::Prepare, eventId, eventParameter });
 		if (eventId <= 1 || eventId >= 39)
 		{
 			return 0;
@@ -581,6 +822,7 @@ namespace NDMManager
 	// Original function: FUN_00403c0e
 	std::uint8_t StartEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter)
 	{
+		if (!gOnMusicThread) return EnqueueMusicCommand(manager, { MusicCommandType::Start, eventId, eventParameter });
 		if (eventId <= 1 || eventId >= 39)
 		{
 			return 0;

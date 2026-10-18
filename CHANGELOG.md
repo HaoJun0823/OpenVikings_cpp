@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 12:23 CEST — Background music initialization
+
+DirectMusic now initializes on a dedicated music thread so its startup work can run alongside the menu and game.
+
+- Keep music loading and playback commands off the main thread.
+- Retain queued music requests and the latest volume setting while initialization completes.
+- Stop the music thread before releasing its driver during shutdown.
+
 ## 2026-10-18 · 10:54 CEST — A standalone savegame editor
 
 A desktop tool can now inspect Windows Cultures saves and edit existing villagers, building inventories and save information.

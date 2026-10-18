@@ -127,23 +127,7 @@ namespace NMasterControlProgram
 		if (gDirectMusicManager != nullptr)
 		{
 			NDMManager::Update(gDirectMusicManager);
-
-			auto** errorMessage = reinterpret_cast<char**>(reinterpret_cast<std::byte*>(gDirectMusicManager) + 0x220);
-
-			if (*errorMessage != nullptr)
-			{
-				if (**errorMessage != '\0')
-				{
-					char buffer[300];
-
-					NXBasics::Runtime_PrintString(buffer, "DMManager reports error: %s\r\n", *errorMessage);
-
-					OutputDebugStringA(buffer);
-				}
-
-				NXBasics::Runtime_Free(*errorMessage);
-				*errorMessage = nullptr;
-			}
+			// Remaster: the music thread reports and releases its own error strings.
 		}
 
 		if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
