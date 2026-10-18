@@ -70,14 +70,23 @@ namespace
 	bool CopyClipboardText(char* destination, std::int32_t capacity)
 	{
 		if (destination == nullptr || capacity <= 1 || !::OpenClipboard(nullptr)) return false;
-		const auto text = static_cast<const char*>(::GetClipboardData(CF_TEXT));
+		const HANDLE handle = ::GetClipboardData(CF_TEXT);
+		const auto size = handle != nullptr ? ::GlobalSize(handle) : 0;
+		const auto text = size != 0 ? static_cast<const char*>(::GlobalLock(handle)) : nullptr;
 		bool copied = false;
-		// The original treats the clipboard handle as a pointer without GlobalLock.
-		if (text != nullptr && std::strlen(text) != 0)
+		// Remaster: clipboard text can be movable memory; bound the terminator search.
+		if (text != nullptr)
 		{
-			std::strncpy(destination, text, capacity - 1);
-			destination[capacity - 1] = '\0';
-			copied = true;
+			const auto* end = static_cast<const char*>(std::memchr(text, '\0', size));
+			if (end != nullptr && end != text)
+			{
+				const auto length = static_cast<std::size_t>(end - text);
+				const auto count = length < static_cast<std::size_t>(capacity - 1) ? length : static_cast<std::size_t>(capacity - 1);
+				std::memcpy(destination, text, count);
+				destination[count] = '\0';
+				copied = true;
+			}
+			::GlobalUnlock(handle);
 		}
 		::CloseClipboard();
 		return copied;
