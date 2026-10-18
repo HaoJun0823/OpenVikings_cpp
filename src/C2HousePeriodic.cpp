@@ -3,6 +3,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
+#include "C2GuideRouting.h"
 #include "C2HappinessEvents.h"
 #include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -16,6 +17,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2MilitaryTargetSearch.h"
 #include "C2MissionStartObjects.h"
 #include "C2ObjectLayout.h"
@@ -23,12 +25,65 @@
 #include "C2StaticHouseTypeData.h"
 #include "C2VehicleAccess.h"
 #include "XCrtFileAccess.h"
+#include "XNumericConstants.h"
 
 namespace NC2Logic
 {
 	using namespace NC2Lifetime;
 
 	void __fastcall House_Misc_Destroy_House(void* house, void* unusedEdx);
+
+	namespace
+	{
+		// Remaster: use the normal human walking radius (Windows 004F4300).
+		constexpr std::uint32_t kBuilderWalkingRadius = 50;
+
+		bool Remaster_BuilderCanWalkBetween(const void* source, const void* destination)
+		{
+			if (!MapMigPoint_IsInsideMap(source) || !MapMigPoint_IsInsideMap(destination)) return false;
+			if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+			if (Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) == Read<std::uint32_t>(destination, NC2Layout::MapCoordinatePairOffset::Coordinates)) return true;
+			SMapPathfinderElementStorage probe{};
+			// This bounded search uses scratch state, not the human's active path or start quota.
+			return MapPathfinderElement_l_FindWayDirectedWithResitance(&probe, source, destination, kBuilderWalkingRadius);
+		}
+
+		bool Remaster_BuilderCanReachHouse(const void* human, const void* house, std::uint32_t continent)
+		{
+			const void* source = Human_GetMapPositionRef(human);
+			std::uint32_t work = 0;
+			if (!House_Construction_GetNextWorkPoint(house, source, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, source, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) return false;
+			if (Remaster_BuilderCanWalkBetween(source, &work)) return true;
+			if (gGuideManager == nullptr || CGuideArray::sTheObjectPtr == nullptr) return false;
+			std::int32_t sourceGuide = -1, targetGuide = -1;
+			if (GuideManager_GetNextGuideId(gGuideManager, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), kBuilderWalkingRadius, source, &work, targetGuide, sourceGuide) == -1) return false;
+			// The native same-guide case only writes the destination-side output.
+			if (sourceGuide == -1) sourceGuide = targetGuide;
+			const auto guidePoint = [&] (std::int32_t id, std::uint32_t& point)
+			{
+				if (id < 0 || id >= CGuideArray::sTheObjectPtr->mCapacity) return false;
+				const auto* guide = CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize;
+				if (Read<std::uint8_t>(guide, NC2Layout::GuideOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(guide, NC2Layout::GuideOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) return false;
+				Guide_GetMovePoint(guide, &point);
+				return MapMigPoint_IsInsideMap(&point);
+			};
+			std::uint32_t sourcePoint = 0, currentPoint = 0;
+			if (!guidePoint(sourceGuide, sourcePoint) || !guidePoint(targetGuide, currentPoint)) return false;
+			if (!Remaster_BuilderCanWalkBetween(source, &sourcePoint) || !Remaster_BuilderCanWalkBetween(&currentPoint, &work)) return false;
+			// The native graph search returns the predecessor of its first argument.
+			// Validate every leg toward the work point, including links blocked since their last update.
+			for (std::int32_t checked = 0; checked < CGuideArray::sTheObjectPtr->mCapacity; ++checked)
+			{
+				if (targetGuide == sourceGuide) return true;
+				const auto previous = GuideManager_GetNextGuideId(gGuideManager, targetGuide, sourceGuide);
+				std::uint32_t previousPoint = 0;
+				if (previous == targetGuide || !guidePoint(previous, previousPoint) || !Remaster_BuilderCanWalkBetween(&previousPoint, &currentPoint)) return false;
+				targetGuide = previous;
+				currentPoint = previousPoint;
+			}
+			return false;
+		}
+	}
 
 	// Original function: FUN_0040ace5.
 	void __fastcall HouseArray_DoOneGameTick(void* array, void*)
@@ -202,6 +257,7 @@ namespace NC2Logic
 						if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
 						const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(position, NC2Layout::MapCoordinatePairOffset::Y), Read<std::int16_t>(base, NC2Layout::MapCoordinatePairOffset::X), Read<std::int16_t>(base, NC2Layout::MapCoordinatePairOffset::Y)));
 						if (selected != nullptr && distance >= bestDistance) continue;
+						if (!Remaster_BuilderCanReachHouse(human, house, continent)) continue;
 						selected = human;
 						bestDistance = distance;
 						if (distance < 15) break;

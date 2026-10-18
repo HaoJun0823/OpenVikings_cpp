@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 02:26 CEST — Recruit builders for reachable construction sites
+
+Building sites now check whether a free builder can reach their working position before assigning them. Nearby work remains available directly; longer journeys require a usable connected signpost route.
+
+- Skip unreachable candidates and keep looking for another available builder.
+- Check access to the construction work point and every leg of the chosen signpost route.
+- Keep automatic recruitment on the same landmass and preserve manual assignments.
+
 ## 2026-10-18 · 02:25 CEST — Follow connected signposts to workshops
 
 Villagers now approach the nearby end of a signpost route and follow it toward their destination. This fixes workers repeatedly failing to return with materials despite having a connected signpost network.
