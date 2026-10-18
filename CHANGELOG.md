@@ -8,7 +8,7 @@ The reachable approach correction needed a follow-up: interrupting an idle soldi
 
 - Finish processing that soldier after issuing an attack or regrouping movement retry.
 - Let the normal human command processing execute the selected approach order.
-- In-game confirmation of the northern wave is still pending.
+- The player confirmed that the northern enemy attacks again on October 18, 2026.
 
 ## 2026-10-18 · 01:50 CEST — Reachable approach points for AI attacks
 
