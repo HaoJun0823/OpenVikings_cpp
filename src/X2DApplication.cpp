@@ -316,7 +316,7 @@ namespace NXSys2DApp
 	{
 		static_assert(sizeof(WIN32_FIND_DATAA) == 320);
 		char path[260];
-		char actualVolumeName[260];
+		char actualVolumeName[260]{};
 		WIN32_FIND_DATAA foundFile;
 
 		for (char drive = 'c'; drive <= 'z'; ++drive)
@@ -326,13 +326,12 @@ namespace NXSys2DApp
 				continue;
 
 			NXBasics::Runtime_PrintString(path, OriginalStrings::CDDriveRootNameFormat, static_cast<int>(drive));
-			::GetVolumeInformationA(path, actualVolumeName, 100, nullptr, nullptr, nullptr, nullptr, 0);
+			if (!::GetVolumeInformationA(path, actualVolumeName, sizeof(actualVolumeName), nullptr, nullptr, nullptr, nullptr, 0)) continue;
 			if (NXBasics::Runtime_CompareStringsIgnoreCase(actualVolumeName, volumeName) != 0)
 				continue;
 
-			DWORD bytesPerSector;
-			DWORD freeClusters;
-			::GetDiskFreeSpaceA(path, nullptr, &bytesPerSector, &freeClusters, nullptr);
+			DWORD sectorsPerCluster = 0, bytesPerSector = 0, freeClusters = 0, totalClusters = 0;
+			if (!::GetDiskFreeSpaceA(path, &sectorsPerCluster, &bytesPerSector, &freeClusters, &totalClusters)) continue;
 			// A matching volume with free clusters terminates the entire original scan.
 			if (freeClusters != 0)
 				return 0;

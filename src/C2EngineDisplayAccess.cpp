@@ -372,9 +372,12 @@ namespace NC2E2
 		{
 			void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
 			NXBasics::CBitmap* bitmap = allocation == nullptr ? nullptr : ::new (allocation) NXBasics::CBitmap(100, 100, NXBasics::ConvertBitsToTDepth(static_cast<std::int32_t>(depth)));
-			// Repeated startup overwrites both pointers without releasing the old bitmap.
+			// Remaster: retain the existing owner on failure and release it on replacement.
+			if (bitmap == nullptr) return;
+			NXBasics::CBitmap* previous = gDesktopOwnedBobBitmap;
 			gDesktopOwnedBobBitmap = bitmap;
 			NXBasics::CBobManager::mStaticVars = bitmap;
+			delete previous;
 		}
 		else
 		{

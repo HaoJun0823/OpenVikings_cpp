@@ -779,8 +779,9 @@ namespace NXBasics
 				return other + green;
 			}
 
-			// Preserve the scalar RGB555 red-mask defect.
-			const std::uint32_t red = (((destination & NXBasics::BitMask::WordExceptBits0Through10) * inverseAlpha + (source & NXBasics::BitMask::WordExceptBits0Through10) * alpha) >> 8) & NXBasics::BitMask::WordExceptBits0Through10;
+			// Remaster: use the red field belonging to the selected 16-bit format.
+			const std::uint32_t redMask = greenMask == 0x03E0u ? 0x7C00u : 0xF800u;
+			const std::uint32_t red = (((destination & redMask) * inverseAlpha + (source & redMask) * alpha) >> 8) & redMask;
 			const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (source & greenMask) * alpha) >> 8) & greenMask;
 			const std::uint32_t blue = ((destination & NXBasics::BitMask::Low5Bits) * inverseAlpha + (source & NXBasics::BitMask::Low5Bits) * alpha) >> 8;
 
@@ -1061,8 +1062,9 @@ namespace NXBasics
 				}
 				else
 				{
-					// The scalar path uses 0xF800 even with the RGB555 green mask.
-					const std::uint32_t red = (((destination & NXBasics::BitMask::WordExceptBits0Through10) * inverseAlpha + (sourceColour & NXBasics::BitMask::WordExceptBits0Through10) * alpha) >> 8) & NXBasics::BitMask::WordExceptBits0Through10;
+					// Remaster: RGB555 red occupies bits 10..14.
+					const std::uint32_t redMask = greenMask == 0x03E0u ? 0x7C00u : 0xF800u;
+					const std::uint32_t red = (((destination & redMask) * inverseAlpha + (sourceColour & redMask) * alpha) >> 8) & redMask;
 					const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (sourceColour & greenMask) * alpha) >> 8) & greenMask;
 					const std::uint32_t blue = ((destination & NXBasics::BitMask::Low5Bits) * inverseAlpha + (sourceColour & NXBasics::BitMask::Low5Bits) * alpha) >> 8;
 
