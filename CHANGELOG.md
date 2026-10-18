@@ -11,6 +11,17 @@ A desktop tool can now inspect Windows Cultures saves and edit existing villager
 - Undo or redo edits and export a readable JSON overview.
 - Save edits to a new file while preserving unknown blocks, untouched compressed data and the source save.
 
+## 2026-10-18 · 10:45 CEST — Safer loading and audio recovery
+
+Loading and resource failure paths now reject invalid input and release their owned resources more consistently.
+
+- Check archive tables, expanded paths and local map/save packing before copying data.
+- Close directory searches and release sound-device resources after failed operations.
+- Skip unknown sounds and invalid sound-group links instead of selecting unrelated audio.
+- Keep music recovery, menu refresh and autosave timing correct across clock wrap.
+- Keep villager slots available for rejected creation requests, preserve desktop bitmap ownership and correct RGB555 red blending.
+- Lock and bound clipboard text before pasting into menu fields.
+
 ## 2026-10-18 · 02:26 CEST — Recruit builders for reachable construction sites
 
 Building sites now check whether a free builder can reach their working position before assigning them. Nearby work remains available directly; longer journeys require a usable connected signpost route.
