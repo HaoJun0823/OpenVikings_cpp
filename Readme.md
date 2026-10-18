@@ -58,6 +58,17 @@ Keep the original `gedx8musicdrv.dll` available alongside the executable for mus
 
 The project uses **C++17**. It does not currently target x64. Install the x86 Visual C++ runtime matching your build when running it on another PC.
 
+## Savegame editor
+
+Open [SavegameEditor.cmd](tools/savegame_editor/SavegameEditor.cmd) to edit a Windows Cultures `.sav` file with the standalone desktop editor. It requires **Python 3.10 or newer with Tkinter** and no third-party packages. You can also run `python tools/savegame_editor/editor.py` or pass a save filename on the command line.
+
+- Edit villager names, needs, hitpoints, equipment condition and experience values.
+- Edit stored goods in completed buildings, using your game data to identify the correct stock slots.
+- Change save descriptions, map display names and slot IDs; inspect file blocks or export a JSON overview.
+- Undo and redo edits, then save a new copy. The editor preserves untouched data and refuses to overwrite the source or an existing file.
+
+Choose **Game data...** and select your game installation for building, good, job and experience names. When opening a save inside an installation containing `DataX/libs`, the editor finds it automatically. Names come from the game's internal definitions. Maps, object creation, job changes and linked mission state are outside the editor's current editing scope.
+
 ## Contributing
 
 Bug reports, code improvements and help checking the game are welcome.

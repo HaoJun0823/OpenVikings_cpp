@@ -2,6 +2,15 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 10:54 CEST — A standalone savegame editor
+
+A desktop tool can now inspect Windows Cultures saves and edit existing villagers, building inventories and save information.
+
+- Change villager names, needs, hitpoints, equipment condition and experience values.
+- Read your own game definitions to show building names and the correct goods for each stock slot.
+- Undo or redo edits and export a readable JSON overview.
+- Save edits to a new file while preserving unknown blocks, untouched compressed data and the source save.
+
 ## 2026-10-18 · 02:26 CEST — Recruit builders for reachable construction sites
 
 Building sites now check whether a free builder can reach their working position before assigning them. Nearby work remains available directly; longer journeys require a usable connected signpost route.
