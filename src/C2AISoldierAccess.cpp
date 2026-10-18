@@ -536,12 +536,14 @@ namespace NC2Logic
 					{
 						if (Distance(soldier + NC2Layout::AISoldierOffset::MovementDestination, soldier + NC2Layout::AISoldierOffset::TaskMapPoint) > 10) Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Waiting);
 						else if (Distance(&position, soldier + NC2Layout::AISoldierOffset::MovementDestination) <= Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::MovementRadius)) AISingleSoldier_Tool_StopVAAndVCTask(soldier);
-						else if (!busyWalking()) AISinglePlayerHandler_l_SingleSoldiers_Let_GotoPosition(handler, i, soldier + NC2Layout::AISoldierOffset::MovementDestination, Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::MovementRadius));
+						// Queuing a retry can interrupt idle and reset the human task status.
+						// Keep its reachable destination instead of falling through to another command.
+						else if (!busyWalking() && AISinglePlayerHandler_l_SingleSoldiers_Let_GotoPosition(handler, i, soldier + NC2Layout::AISoldierOffset::MovementDestination, Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::MovementRadius))) continue;
 					}
 					else if (phase == 1)
 					{
 						if (Distance(soldier + NC2Layout::AISoldierOffset::MovementDestination, task + NC2Layout::AICombinedTaskOffset::FormationPosition) > 10 || Distance(&position, task + NC2Layout::AICombinedTaskOffset::FormationPosition) <= Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::FormationRadius)) Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Waiting);
-						else if (!busyWalking()) AISinglePlayerHandler_l_SingleSoldiers_Let_GotoPosition(handler, i, task + NC2Layout::AICombinedTaskOffset::FormationPosition, Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::FormationRadius));
+						else if (!busyWalking() && AISinglePlayerHandler_l_SingleSoldiers_Let_GotoPosition(handler, i, task + NC2Layout::AICombinedTaskOffset::FormationPosition, Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::FormationRadius))) continue;
 					}
 				}
 				else if (Distance(&position, soldier + NC2Layout::AISoldierOffset::MovementDestination) <= Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::MovementRadius)) AISingleSoldier_Tool_StopVAAndVCTask(soldier);

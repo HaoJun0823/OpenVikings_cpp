@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 02:04 CEST — Preserve AI attack movement retries
+
+The reachable approach correction needed a follow-up: interrupting an idle soldier could cause the AI to replace the new movement order with the old unreachable target immediately.
+
+- Finish processing that soldier after issuing an attack or regrouping movement retry.
+- Let the normal human command processing execute the selected approach order.
+- In-game confirmation of the northern wave is still pending.
+
 ## 2026-10-18 · 01:50 CEST — Reachable approach points for AI attacks
 
 AI attack groups can now retry a failed march toward a reachable position within their existing approach radius. This addresses the northern COOP gold raid getting stuck on an isolated free tile surrounded by blocked ground.
