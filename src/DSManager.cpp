@@ -72,14 +72,10 @@ namespace NDSManager
 	// Original function: FUN_00404762
 	CManager::~CManager()
 	{
-		if (mInitialized != 0)
-		{
-			for (std::uint32_t identifier = 0; identifier < 1000u; ++identifier)
-				PreloadWave_Unload(identifier);
-
-			FireAndForget_StopAll();
-			l_Device_Exit();
-		}
+		// Remaster: a failed quality/device change can leave owned preload names.
+		for (SPreloadWave& entry : mPreloadWaves) entry.Exit();
+		for (SFireAndForgetWave& slot : mFireAndForgetWaves) slot.Exit();
+		l_Device_Exit();
 
 		sTheObjectPtr = nullptr;
 	}
@@ -316,12 +312,14 @@ namespace NDSManager
 		}
 
 		mSoundDevice = wrapper;
-
-		// The original calls the initializer even when allocation returned null.
+		if (wrapper == nullptr) return false;
 		const std::int32_t result = SoundDevice_Initialize(wrapper, mWindow, 2u, channels, samplesPerSecond, bitsPerSample);
 
 		if (result < 0)
+		{
+			l_Device_Exit();
 			return false;
+		}
 
 		mInitialized = 1;
 		return true;
@@ -403,7 +401,7 @@ namespace NDSManager
 			const std::uint32_t nameBytes = static_cast<std::uint32_t>(std::strlen(fileName)) + 1u;
 			duplicatedName = static_cast<char*>(NXBasics::Runtime_AllocateWithNewHandler(nameBytes, 1));
 
-			// The original copies without checking allocation success.
+			if (duplicatedName == nullptr) { entry.Exit(); return false; }
 			std::strcpy(duplicatedName, fileName);
 		}
 
@@ -750,7 +748,7 @@ namespace NDSManager
 		static_assert(offsetof(CManager, mFireAndForgetWaves) == 0x3E9C);
 
 		std::uint32_t oldestIndex = 0;
-		std::uint32_t oldestSequence = NXBasics::IntegerRange::Int32Maximum;
+		std::uint32_t oldestAge = 0;
 		std::uint32_t index = 0;
 
 		while (index < 40u)
@@ -760,10 +758,11 @@ namespace NDSManager
 			if (slot.active == 0)
 				break;
 
-			// Preserve the unsigned comparison and the original initial limit.
-			if (slot.sequence < oldestSequence)
+			// Remaster: unsigned age handles both the signed boundary and counter wrap.
+			const auto age = mNextSequence - slot.sequence;
+			if (age > oldestAge)
 			{
-				oldestSequence = slot.sequence;
+				oldestAge = age;
 				oldestIndex = index;
 			}
 
@@ -899,17 +898,9 @@ namespace NDSManager
 		format.nAvgBytesPerSec = static_cast<std::uint32_t>(format.nBlockAlign) * samplesPerSecond;
 
 		const HRESULT formatResult = primaryBuffer->SetFormat(&format);
-
-		if (formatResult < 0)
-		{
-			// The original returns without releasing the primary buffer.
-			return formatResult;
-		}
-
 		if (primaryBuffer != nullptr)
 			primaryBuffer->Release();
-
-		return 0;
+		return formatResult;
 	}
 
 	// Original function: FUN_00405358
@@ -1417,49 +1408,18 @@ namespace NDSManager
 
 		*bytesRead = 0;
 
-		MMIOINFO info;
-
-		if (::mmioGetInfo(file, &info, 0) != 0)
-			return NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
-
 		std::uint32_t remainingBytes;
 		std::memcpy(&remainingBytes, storage + 0x1C, sizeof(remainingBytes));
-
-		const std::uint32_t copiedBytes = requestedBytes < remainingBytes ? requestedBytes : remainingBytes;
-		remainingBytes -= copiedBytes;
-
-		// The original commits this change before attempting the read.
+		const auto wanted = requestedBytes < remainingBytes ? requestedBytes : remainingBytes;
+		if (wanted > INT32_MAX) return NXBasics::Runtime_TimeSigned32(0x80070057u);
+		if (wanted == 0) return 0;
+		// Remaster: let MMIO own buffering and commit only the bytes actually read.
+		const auto actual = ::mmioRead(file, static_cast<char*>(destination), static_cast<LONG>(wanted));
+		if (actual < 0) return NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
+		*bytesRead = static_cast<std::uint32_t>(actual);
+		remainingBytes -= *bytesRead;
 		std::memcpy(storage + 0x1C, &remainingBytes, sizeof(remainingBytes));
-
-		auto* output = static_cast<std::uint8_t*>(destination);
-
-		for (std::uint32_t index = 0; index < copiedBytes; ++index)
-		{
-			if (info.pchNext == info.pchEndRead)
-			{
-				std::memcpy(&file, storage + 0x14, sizeof(file));
-
-				if (::mmioAdvance(file, &info, MMIO_READ) != 0)
-					return NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
-
-				if (info.pchNext == info.pchEndRead)
-					return NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
-			}
-
-			const auto value = static_cast<std::uint8_t>(*info.pchNext);
-			char* next = info.pchNext + 1;
-
-			output[index] = value;
-			info.pchNext = next;
-		}
-
-		std::memcpy(&file, storage + 0x14, sizeof(file));
-
-		if (::mmioSetInfo(file, &info, 0) != 0)
-			return NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
-
-		*bytesRead = copiedBytes;
-		return 0;
+		return *bytesRead == wanted ? 0 : NXBasics::Runtime_TimeSigned32(NXBasics::ComResult::Failure);
 	}
 
 	// Original function: FUN_00485fdd

@@ -233,6 +233,7 @@ namespace NDMManager
 		if (source == nullptr) return nullptr;
 		const std::size_t bytes = std::strlen(source) + 1;
 		auto* copy = static_cast<char*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+		if (copy == nullptr) return nullptr;
 		std::memcpy(copy, source, bytes);
 		return copy;
 	}
@@ -270,7 +271,7 @@ namespace NDMManager
 		return manager;
 	}
 
-	// Original function: FUN_0040357d; Exit intentionally retains partial-init failures.
+	// Original function: FUN_0040357d; remaster Init unwinds partial initialization.
 	void Destruct(void* manager)
 	{
 		WriteField(manager, 0, gManagerVirtualTable + 0);
@@ -280,48 +281,54 @@ namespace NDMManager
 		gDirectMusicManager = nullptr;
 	}
 
-	// Original function: FUN_004035b6; driver failures do not unwind acquired resources.
+	// Original function: FUN_004035b6; remaster releases each acquired driver resource on failure.
 	std::uint8_t Init(void* manager, std::int32_t mode, const char* directory)
 	{
+		char* replacement = DuplicateString(directory);
+		if (directory != nullptr && replacement == nullptr) return 0;
 		if (char* previous = ReadField<char*>(manager, 0x21C)) NXBasics::Runtime_Free(previous);
-		WriteField<char*>(manager, 0x21C, DuplicateString(directory));
+		WriteField<char*>(manager, 0x21C, replacement);
 		WriteField(manager, 0x10, mode);
 		if (ReadField<std::uint8_t>(manager, 4) != 0) return ReadField<std::uint8_t>(manager, 4);
 		const HMODULE module = LoadLibraryA("gedx8musicdrv.dll");
 		WriteField(manager, 0x20, module);
-		if (module == nullptr)
+		const auto fail = [manager] (const char* message, bool globalStarted) -> std::uint8_t
 		{
-			SetErrorMessage(manager, "DMManager: LoadLibrary failed.");
-			return ReadField<std::uint8_t>(manager, 4);
-		}
+			SetErrorMessage(manager, message);
+			if (globalStarted)
+			{
+				if (void* instance = ReadField<void*>(manager, 0x30)) DriverFunction<DriverDestroyInstanceFn>(manager, 0x0C)(instance);
+				DriverFunction<DriverGlobalFn>(manager, 4)();
+			}
+			if (HMODULE loaded = ReadField<HMODULE>(manager, 0x20)) FreeLibrary(loaded);
+			std::memset(static_cast<std::byte*>(manager) + 0x20, 0, 0x1C);
+			WriteField<std::uint8_t>(manager, 4, 0);
+			WriteField<std::uint8_t>(manager, 5, 0);
+			return 0;
+		};
+		if (module == nullptr)
+			return fail("DMManager: LoadLibrary failed.", false);
 		const FARPROC entry = GetProcAddress(module, "GetInterface2");
 		WriteField(manager, 0x2C, entry);
 		if (entry == nullptr)
-		{
-			SetErrorMessage(manager, "DMManager: GetProcAddress failed.");
-			return ReadField<std::uint8_t>(manager, 4);
-		}
+			return fail("DMManager: GetProcAddress failed.", false);
 		using GetInterfaceFn = void(__cdecl*)(void*);
 		reinterpret_cast<GetInterfaceFn>(entry)(static_cast<std::byte*>(manager) + 0x28);
 		const void* interfaceData = ReadField<void*>(manager, 0x28);
+		if (interfaceData == nullptr) return fail("DMManager: GetInterface2 failed.", false);
 		WriteField(manager, 0x24, ReadField<void*>(interfaceData, 4));
+		if (ReadField<void*>(manager, 0x24) == nullptr) return fail("DMManager: missing driver table.", false);
 		DriverFunction<DriverGlobalFn>(manager, 0)();
 		void* instance = DriverFunction<DriverCreateInstanceFn>(manager, 8)();
 		WriteField(manager, 0x30, instance);
 		if (instance == nullptr)
-		{
-			SetErrorMessage(manager, "DMManager: geCreateInstance failed.");
-			return ReadField<std::uint8_t>(manager, 4);
-		}
+			return fail("DMManager: geCreateInstance failed.", true);
 		std::uint32_t configuration[3] = { 0, 0, 0 };
 		const std::int32_t selectedMode = ReadField<std::int32_t>(manager, 0x10);
 		configuration[1] = selectedMode == 1 ? 16u : selectedMode == 2 ? 8u : 64u;
 		configuration[2] = selectedMode == 1 ? 22050u : selectedMode == 2 ? 11025u : 44100u;
 		if (DriverFunction<InitSynthesizerFn>(manager, 0x10)(ReadField<void*>(manager, 0x30), configuration) == 0)
-		{
-			SetErrorMessage(manager, "DMManager: geInitSynthesizer failed.");
-			return ReadField<std::uint8_t>(manager, 4);
-		}
+			return fail("DMManager: geInitSynthesizer failed.", true);
 		WriteField(manager, 0x34, configuration[1]);
 		WriteField<std::uint32_t>(manager, 0x14, 0);
 		WriteField<std::uint32_t>(manager, 0x18, 0);
@@ -361,7 +368,7 @@ namespace NDMManager
 	std::uint8_t Update(void* manager)
 	{
 		const std::uint32_t now = timeGetTime();
-		if (ReadField<std::uint8_t>(manager, 4) == 0 || ReadField<std::uint8_t>(manager, 5) == 0 || now < ReadField<std::uint32_t>(manager, 8)) return 1;
+		if (ReadField<std::uint8_t>(manager, 4) == 0 || ReadField<std::uint8_t>(manager, 5) == 0 || NXBasics::Runtime_TimeSigned32(now - ReadField<std::uint32_t>(manager, 8)) < 0) return 1;
 		void* audiopath = ReadField<void*>(manager, 0x38);
 		if (audiopath != nullptr && DriverFunction<SetAudiopathVolumeFn>(manager, 0x3C)(ReadField<void*>(manager, 0x30), audiopath, 0, 300) == 0)
 		{

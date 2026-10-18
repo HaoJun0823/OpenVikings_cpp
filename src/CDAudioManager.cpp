@@ -3,6 +3,7 @@
 #include "XCrtFileAccess.h"
 
 #include <cstring>
+#include <cstdio>
 
 namespace NCDAudioManager
 {
@@ -248,10 +249,9 @@ namespace NCDAudioManager
 	// Original function: FUN_00404283; Windows-only helper name inferred from its writes.
 	void CCDAudioManager::l_RecordMciError(MCIERROR error)
 	{
-		char text[200];
-		::mciGetErrorStringA(error, text, sizeof(text));
-		std::strcpy(mLastError, OriginalStrings::CDAudioErrorPrefix);
-		std::strcat(mLastError, text);
+		char text[200]{};
+		if (!::mciGetErrorStringA(error, text, sizeof(text))) std::snprintf(text, sizeof(text), "MCI error %lu", static_cast<unsigned long>(error));
+		std::snprintf(mLastError, sizeof(mLastError), "%s%s", OriginalStrings::CDAudioErrorPrefix, text);
 	}
 
 	// Original function: FUN_004042c7; Windows-only mixer helper.
@@ -261,53 +261,47 @@ namespace NCDAudioManager
 		static_assert(sizeof(MIXERCONTROLA) == 148);
 		static_assert(sizeof(MIXERLINECONTROLSA) == 24);
 		bool found = false;
-		if (::mixerGetNumDevs() != 0)
+		for (std::uint32_t device = 0; device < ::mixerGetNumDevs(); ++device)
 		{
-			std::uint32_t device = 0;
-			do
+			HMIXER candidate = nullptr;
+			if (::mixerOpen(&candidate, device, 0, 0, 0) != MMSYSERR_NOERROR) continue;
+			MIXERCONTROLDETAILS details{};
+			MIXERCONTROLDETAILS_UNSIGNED volume{};
+			const auto query = [&] () -> bool
 			{
-				do
+				MIXERLINEA line{};
+				line.cbStruct = sizeof(line);
+				line.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC;
+				if (::mixerGetLineInfoA(reinterpret_cast<HMIXEROBJ>(candidate), &line, MIXER_GETLINEINFOF_COMPONENTTYPE) != MMSYSERR_NOERROR)
 				{
-					if (::mixerOpen(&mMixer, device, 0, 0, 0) != MMSYSERR_NOERROR)
-						break;
-
-					MIXERLINEA line{ };
-					line.cbStruct = sizeof(line);
-					line.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_COMPACTDISC;
-					if (::mixerGetLineInfoA(reinterpret_cast<HMIXEROBJ>(mMixer), &line, MIXER_GETLINEINFOF_COMPONENTTYPE) != MMSYSERR_NOERROR)
-					{
-						line.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY;
-						if (::mixerGetLineInfoA(reinterpret_cast<HMIXEROBJ>(mMixer), &line, MIXER_GETLINEINFOF_COMPONENTTYPE) != MMSYSERR_NOERROR)
-							break;
-					}
-
-					MIXERCONTROLA control{ };
-					MIXERLINECONTROLSA controls{ };
-					controls.cbStruct = sizeof(controls);
-					controls.dwLineID = line.dwLineID;
-					controls.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
-					controls.cControls = 1;
-					controls.cbmxctrl = sizeof(control);
-					controls.pamxctrl = &control;
-					if (::mixerGetLineControlsA(reinterpret_cast<HMIXEROBJ>(mMixer), &controls, MIXER_GETLINECONTROLSF_ONEBYTYPE) != MMSYSERR_NOERROR)
-						break;
-
-					std::memset(&mVolumeDetails, 0, sizeof(mVolumeDetails));
-					std::memset(&mVolume, 0, sizeof(mVolume));
-					mVolumeDetails.cbStruct = sizeof(mVolumeDetails);
-					mVolumeDetails.dwControlID = control.dwControlID;
-					mVolumeDetails.cChannels = 1;
-					mVolumeDetails.cbDetails = sizeof(mVolume);
-					mVolumeDetails.paDetails = &mVolume;
-					if (::mixerGetControlDetailsA(reinterpret_cast<HMIXEROBJ>(mMixer), &mVolumeDetails, 0) != MMSYSERR_NOERROR)
-						break;
-					found = true;
-				} while (false);
-				// Windows continues after success and does not close earlier handles here.
-			} while (++device < ::mixerGetNumDevs());
+					line.dwComponentType = MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY;
+					if (::mixerGetLineInfoA(reinterpret_cast<HMIXEROBJ>(candidate), &line, MIXER_GETLINEINFOF_COMPONENTTYPE) != MMSYSERR_NOERROR) return false;
+				}
+				MIXERCONTROLA control{};
+				MIXERLINECONTROLSA controls{};
+				controls.cbStruct = sizeof(controls);
+				controls.dwLineID = line.dwLineID;
+				controls.dwControlType = MIXERCONTROL_CONTROLTYPE_VOLUME;
+				controls.cControls = 1;
+				controls.cbmxctrl = sizeof(control);
+				controls.pamxctrl = &control;
+				if (::mixerGetLineControlsA(reinterpret_cast<HMIXEROBJ>(candidate), &controls, MIXER_GETLINECONTROLSF_ONEBYTYPE) != MMSYSERR_NOERROR) return false;
+				details.cbStruct = sizeof(details);
+				details.dwControlID = control.dwControlID;
+				details.cChannels = 1;
+				details.cbDetails = sizeof(volume);
+				details.paDetails = &volume;
+				return ::mixerGetControlDetailsA(reinterpret_cast<HMIXEROBJ>(candidate), &details, 0) == MMSYSERR_NOERROR;
+			};
+			if (!query()) { ::mixerClose(candidate); continue; }
+			// Remaster: preserve last-usable selection without losing earlier handles.
+			if (mMixer != nullptr) ::mixerClose(mMixer);
+			mMixer = candidate;
+			mVolume = volume;
+			mVolumeDetails = details;
+			mVolumeDetails.paDetails = &mVolume;
+			found = true;
 		}
-		if (!found)
-			mMixer = nullptr;
 		return found;
 	}
 }
