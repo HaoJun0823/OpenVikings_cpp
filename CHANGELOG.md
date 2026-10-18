@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 02:25 CEST — Follow connected signposts to workshops
+
+Villagers now approach the nearby end of a signpost route and follow it toward their destination. This fixes workers repeatedly failing to return with materials despite having a connected signpost network.
+
+- Restore the direction of route traversal and the destination remembered between walking segments.
+- Approach the nearby signpost before continuing along longer routes.
+- Apply the correction to shared worker routing, including the leather delivery to a sewing workshop.
+
 ## 2026-10-18 · 02:04 CEST — Preserve AI attack movement retries
 
 The reachable approach correction needed a follow-up: interrupting an idle soldier could cause the AI to replace the new movement order with the old unreachable target immediately.

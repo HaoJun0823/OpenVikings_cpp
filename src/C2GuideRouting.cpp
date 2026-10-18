@@ -70,9 +70,9 @@ namespace NC2Logic
 	}
 
 	// Original function: FUN_0041B515. Native ordering prefers the first matching source/target link system.
-	std::int32_t GuideManager_GetNextGuideId(void* manager, std::int32_t player, std::uint32_t radius, const void* source, const void* destination, std::int32_t& sourceGuideId, std::int32_t& targetGuideId)
+	std::int32_t GuideManager_GetNextGuideId(void* manager, std::int32_t player, std::uint32_t radius, const void* source, const void* destination, std::int32_t& destinationGuideId, std::int32_t& approachGuideId)
 	{
-		sourceGuideId = -1;
+		destinationGuideId = -1;
 		SGuidePointSearch targetSearch;
 		targetSearch.player = static_cast<std::uint32_t>(player);
 		targetSearch.count = 0;
@@ -102,18 +102,20 @@ namespace NC2Logic
 		}
 		if (selectedTarget == -1) return -1;
 		std::uint32_t position = 0;
-		Guide_GetMovePoint(Guide(selectedTarget), &position);
+		// Windows 0041B649..0041B653 uses the source-side guide (EDI).
+		Guide_GetMovePoint(Guide(selectedSource), &position);
 		if (selectedTarget == selectedSource)
 		{
 			if (position == Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates)) return -1;
-			sourceGuideId = selectedSource;
+			destinationGuideId = selectedSource;
 			return selectedTarget;
 		}
-		const auto next = GuideManager_l_GetNextGuideIdNearSourceGuide(manager, selectedTarget, selectedSource);
-		targetGuideId = selectedTarget;
-		sourceGuideId = selectedSource;
+		// Search backwards from the destination to get a step adjacent to the source.
+		const auto next = GuideManager_l_GetNextGuideIdNearSourceGuide(manager, selectedSource, selectedTarget);
+		approachGuideId = selectedSource;
+		destinationGuideId = selectedTarget;
 		for (std::int32_t index = 0; index < sourceSearch.count; ++index) if (sourceSearch.guideIds[index] == next) return next;
-		return position == Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) ? next : selectedTarget;
+		return position == Read<std::uint32_t>(source, NC2Layout::MapCoordinatePairOffset::Coordinates) ? next : selectedSource;
 	}
 
 	// Original function: FUN_0041B6C7.
