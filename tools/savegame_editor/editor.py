@@ -14,6 +14,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from catalog import Catalog
+from map_export import MapExport
 from savegame import CHUNK_NAMES, HOUSE_FIELDS, HOUSES, HUMAN_FIELDS, HUMANS, SaveError, Savegame, inspect_file, u32
 
 
@@ -287,7 +288,7 @@ class Editor:
         toolbar = ttk.Frame(root, padding=12)
         toolbar.pack(fill="x")
         ttk.Label(toolbar, text="OpenVikings", font=("Segoe UI", 17, "bold")).pack(side="left", padx=(0, 20))
-        for title, command in (("Open save...", self.open_dialog), ("Save copy...", self.save_dialog), ("Undo", self.undo), ("Redo", self.redo), ("Game data...", self.game_data), ("Export JSON...", self.export)):
+        for title, command in (("Open save...", self.open_dialog), ("Save copy...", self.save_dialog), ("Undo", self.undo), ("Redo", self.redo), ("Game data...", self.game_data), ("Export JSON...", self.export), ("Export map...", self.export_map)):
             ttk.Button(toolbar, text=title, command=command).pack(side="left", padx=3)
         self.file_label = tk.StringVar(value="Open a .sav file to begin. The source save is never overwritten.")
         ttk.Label(root, textvariable=self.file_label, padding=(16, 0, 16, 10), foreground="#546174").pack(fill="x")
@@ -465,6 +466,19 @@ class Editor:
                 json.dump(report, output, ensure_ascii=False, indent=2)
         self.run_action(action)
 
+    def export_map(self):
+        if self.save is None:
+            return
+        def action():
+            self.flush_forms()
+            path = filedialog.asksaveasfilename(title="Choose a NEW folder for map.dat and map.ini", initialdir=self.save.path.parent if self.save.path else None, initialfile=(self.save.path.stem if self.save.path else "save") + "_map", filetypes=[("New map folder", "*")], confirmoverwrite=False, parent=self.root)
+            if not path:
+                return
+            report = MapExport(self.save, self.catalog).write(Path(path))
+            counts = report["counts"]
+            messagebox.showinfo("Map exported", f"Created a new map folder:\n{path}\n\nmap.dat and map.ini\ntext/eng/strings.ini and text/ger/strings.ini\n\n{counts['villagers']} villagers, {counts['buildings']} buildings, {counts['animals']} animals and {counts['vehicles']} vehicles.\n\nThis creates a new starting map. Health, needs and other running state use startup defaults. Mission definitions/progress, scripted AI and fractional inventory are not exported. The source save is unchanged.", parent=self.root)
+        self.run_action(action)
+
     def close(self):
         def action():
             if self.discard_ok():
@@ -477,7 +491,23 @@ def main():
     parser.add_argument("save", nargs="?", type=Path, help="Optional .sav to open")
     parser.add_argument("--inspect", type=Path, metavar="SAVE", help="Print a read-only JSON summary without opening the GUI")
     parser.add_argument("--game-dir", type=Path, help="Game root for optional type and stock definitions")
+    parser.add_argument("--export-map", type=Path, metavar="NEW_FOLDER", help="Export the positional save as map.dat, map.ini and name strings without opening the GUI")
     arguments = parser.parse_args()
+    if arguments.export_map:
+        if arguments.save is None:
+            parser.error("--export-map requires a positional save filename")
+        try:
+            game_dir = arguments.game_dir or next((parent for parent in arguments.save.resolve().parents if (parent / "DataX" / "libs").is_dir()), None)
+            if game_dir is None:
+                raise SaveError("Use --game-dir to select the matching game installation.")
+            catalog = Catalog()
+            catalog.load(game_dir)
+            report = MapExport(Savegame.open(arguments.save), catalog).write(arguments.export_map)
+            print(json.dumps(report, ensure_ascii=False, indent=2))
+            return 0
+        except ERRORS as error:
+            print(f"Savegame Editor: {error}", file=sys.stderr)
+            return 1
     if arguments.inspect:
         try:
             print(inspect_file(arguments.inspect))

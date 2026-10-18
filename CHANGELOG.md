@@ -2,6 +2,33 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-18 · 16:10 CEST — Preserve map-export unlocks and DAT compatibility
+
+The savegame map exporter now distinguishes permanent restrictions from items that have not yet been unlocked.
+
+- Emit `forbid` commands only for saved permission restrictions; keep allowed, locked items eligible for progression.
+- Write modified walking/building block planes with native RLE8 compression for readers that reject raw planes.
+- Clarify that mission definitions/progress and scripted AI are not included in the current starting-map export.
+
+## 2026-10-18 · 13:21 CEST — Export a saved world as a starting map
+
+The savegame editor now has an **Export map...** button that writes a new map folder from the loaded save.
+
+- Export terrain, graphics and fish data as `map.dat` and native startup settings as `map.ini`.
+- Write source-save provenance as a comment so `map.ini` contains only supported game sections.
+- Include players, buildings, whole-unit stock, villagers, animals, vehicles and signposts, with companion text files for names.
+- Prepare house placement masks and native pathfinding sectors for recreated starting objects.
+- Keep the source save unchanged and require a new destination folder. Mission definitions/progress, scripted AI and exact runtime state remain outside this starting-map export.
+
+## 2026-10-18 · 13:11 CEST — One engine, three game launchers
+
+The Visual Studio solution now shares one static engine library between separate game launchers. Each executable selects its own game profile.
+
+- Choose `OpenVikingsWeltwunder`, `OpenVikingsCultures2` or `OpenVikingsNorthland` as the startup project.
+- Keep shared engine code and build settings together, with separate project intermediates and symbols.
+- Begin experimental Cultures 2 support by skipping the later game's vertex-color palette and terrain tinting.
+- Keep Northland's launcher ready with a notice while its game-data loading remains to be implemented.
+
 ## 2026-10-18 · 12:23 CEST — Background music initialization
 
 DirectMusic now initializes on a dedicated music thread so its startup work can run alongside the menu and game.

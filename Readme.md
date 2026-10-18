@@ -33,10 +33,10 @@ Next steps include further bug fixes, performance improvements and support for l
 You will need:
 
 - Windows 10 version 1703 or later and a graphics device supporting DirectX 11.
-- Your own legally obtained copy of **Cultures: 8th Wonder of the World** and its original game data.
+- Your own legally obtained game and its original data. **8th Wonder of the World** is the main supported target; **Cultures 2** compatibility is experimental.
 - A build of OpenVikings from the `remaster` branch.
 
-Build the game using the instructions below, then prepare a game-data root with these folders from your original installation. Preserve the filenames and language subfolders:
+Build the game using the instructions below. For **8th Wonder of the World**, prepare a game-data root with these folders from your original installation. Preserve the filenames and language subfolders:
 
 ```text
 datax/
@@ -49,12 +49,23 @@ datax/
 
 Keep the original `gedx8musicdrv.dll` available alongside the executable for music. Films use the Windows media components and available codecs. Run OpenVikings with the game-data root as its working directory; set this in your shortcut or Visual Studio debugger settings.
 
+Each game has its own launcher, which selects its resource profile automatically. Use each game's own installation as its working directory. Initial **Cultures 2** compatibility skips the later game's vertex-color palette and terrain tinting; further loading differences are still being investigated. **Northland** currently displays a notice that its data loading is not implemented yet.
+
 ## Build from source
 
 1. Check out the `remaster` branch.
 2. Open `OpenVikings.slnx` in Visual Studio with the C++ desktop development tools, **MSVC v145** and a Windows SDK installed.
-3. Select **x86 (Win32)** and **Debug** or **Release**, then build the solution.
-4. Find the executable in `OpenVikings/Debug/` or `OpenVikings/Release/` and use it with your game-data setup.
+3. Select **x86 (Win32)** and **Debug** or **Release**.
+4. Right-click the desired game project and choose **Set as Startup Project**. Under **Properties > Debugging > Working Directory**, select that game's data root.
+5. Build the game project; its shared engine dependency builds automatically. Find the executable in `OpenVikings/Debug/` or `OpenVikings/Release/`.
+
+| Startup project | Executable | Status |
+| --- | --- | --- |
+| `OpenVikingsWeltwunder` | `OpenVikingsWeltwunder.exe` | Main supported target |
+| `OpenVikingsCultures2` | `OpenVikingsCultures2.exe` | Experimental resource compatibility |
+| `OpenVikingsNorthland` | `OpenVikingsNorthland.exe` | Launcher prepared; game loading pending |
+
+`OpenVikingsEngine` is the common static library, maintained in `OpenVikings.vcxproj`. It is linked into each game executable and cannot be started by itself. Shared build settings are in `OpenVikings.Build.props`; symbols stay in `symbols/` and each project has its own directory beneath `obj/`. Game selection requires no command-line argument.
 
 The project uses **C++17**. It does not currently target x64. Install the x86 Visual C++ runtime matching your build when running it on another PC.
 
@@ -65,9 +76,12 @@ Open [SavegameEditor.cmd](tools/savegame_editor/SavegameEditor.cmd) to edit a Wi
 - Edit villager names, needs, hitpoints, equipment condition and experience values.
 - Edit stored goods in completed buildings, using your game data to identify the correct stock slots.
 - Change save descriptions, map display names and slot IDs; inspect file blocks or export a JSON overview.
+- Export a new map folder with **map.dat**, **map.ini**, existing buildings, villagers, animals, vehicles and signposts. Companion text files preserve villager names.
 - Undo and redo edits, then save a new copy. The editor preserves untouched data and refuses to overwrite the source or an existing file.
 
-Choose **Game data...** and select your game installation for building, good, job and experience names. When opening a save inside an installation containing `DataX/libs`, the editor finds it automatically. Names come from the game's internal definitions. Maps, object creation, job changes and linked mission state are outside the editor's current editing scope.
+Choose **Game data...** and select your game installation for building, good, job and experience names. When opening a save inside an installation containing `DataX/libs`, the editor finds it automatically. Names come from the game's internal definitions. **Export map...** requires matching game data and a new output folder. It creates a new starting map; mission definitions/progress, scripted AI and exact runtime state are not exported. Terrain editing, object creation in saves, job changes and linked mission editing remain outside the editor's scope.
+
+Folder-based maps belong under `data/maps/<map-name>/`, including the generated `text` subfolder. The `UserMaps` folder continues to expect `.c2m` archives.
 
 ## Contributing
 

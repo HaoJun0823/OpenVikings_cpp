@@ -1,4 +1,5 @@
 #include "ApplicationStartup.h"
+#include "GameApplication.h"
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
 #include "XCrtFileAccess.h"
@@ -43,7 +44,7 @@ namespace
 	// Original function: FUN_00403487; the native WinMain entry uses RET 0x10.
 	int WINAPI WindowsApplicationEntry(HINSTANCE applicationInstance, HINSTANCE applicationPreviousInstance, LPSTR applicationCommandLine, int applicationShowCommand)
 	{
-		if (!InitializeSingleInstanceGuard("weltwunder"))
+		if (!InitializeSingleInstanceGuard(NRemaster::GetGameMutexName()))
 		{
 			return 0;
 		}
@@ -80,8 +81,15 @@ namespace
 }
 
 // Remaster entry: use the supported MSVC startup instead of reconstructing FUN_004e709e.
-int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
+int NRemaster::RunGame(EGameVariant variant, HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand)
 {
+	gGameVariant = variant;
+	// No Northland loading behavior is inferred from the Weltwunder reconstruction.
+	if (variant == EGameVariant::Northland)
+	{
+		MessageBoxW(nullptr, L"The Northland launcher is ready, but its game-data loading is not implemented yet.", L"OpenVikings - Northland", MB_OK | MB_ICONINFORMATION);
+		return ERROR_NOT_SUPPORTED;
+	}
 	// Remaster: use physical monitor pixels, including mixed-DPI desktops.
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	// The hosting UCRT owns heap, descriptors, environment, exceptions and exit callbacks.

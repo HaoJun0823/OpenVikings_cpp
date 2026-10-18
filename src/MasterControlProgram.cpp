@@ -5,6 +5,7 @@
 #include "CDAudioManager.h"
 #include "DMManager.h"
 #include "DSManager.h"
+#include "GameProfile.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
@@ -211,7 +212,7 @@ namespace NMasterControlProgram
 		HICON largeIcon = static_cast<HICON>(LoadImageA(applicationInstance, MAKEINTRESOURCEA(IDI_OPENVIKINGS_LARGE), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_SHARED));
 		SendMessageA(window, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(largeIcon));
 
-		SendMessageA(window, WM_SETTEXT, 0, reinterpret_cast<LPARAM>("Weltwunder"));
+		SendMessageA(window, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(NRemaster::GetGameWindowTitle()));
 
 		HardwareMouseCursor_Enable();
 

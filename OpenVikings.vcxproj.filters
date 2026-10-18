@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="Application">
@@ -165,7 +165,7 @@
     <ClCompile Include="src\MasterPropertyManager.cpp">
       <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="src\WinMain.cpp">
+    <ClCompile Include="src\GameApplication.cpp">
       <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="src\MasterControlProgram_DisplayResolution.cpp">
@@ -586,6 +586,12 @@
     <ClInclude Include="src\C2E2StaticDataPalettes.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
+    <ClInclude Include="src\GameProfile.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameApplication.h">
+      <Filter>Application</Filter>
+    </ClInclude>
     <ClInclude Include="src\C2E2StaticDataTerrain.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
@@ -832,16 +838,6 @@
     <ClInclude Include="src\InGameGuiWindowState.h">
       <Filter>GUI</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="OpenVikings.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="icon.ico">
-      <Filter>Resources</Filter>
-    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\C2LogicLifetimeAccess.cpp">

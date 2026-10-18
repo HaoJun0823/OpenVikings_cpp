@@ -1,5 +1,6 @@
 #include "C2E2StaticDataPalettes.h"
 #include "C2LifetimeGlobals.h"
+#include "GameProfile.h"
 #include "SwitchIdentifiers.h"
 #include "XBasicTypes.h"
 #include "XBTokenList.h"
@@ -170,7 +171,10 @@ namespace NC2E2
 		gStaticPalettes.guiBubblesPaletteId = E2StaticDataPalettesManager_GetPalette256Id("gui_bubbles");
 		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(1036, 1);
 		gStaticPalettes.blackPalette = allocation == nullptr ? nullptr : new (allocation) NXBasics::CPalette();
-		gStaticPalettes.vertexColorsPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\engine2d\\bin\\palettes\\misc\\vertexcolors.pcx");
+		// Cultures2.exe 00473DB0..00473E07 ends after the black palette;
+		// only Weltwunder 00480E39 adds the vertex-color palette load.
+		if (NRemaster::UsesVertexColors())
+			gStaticPalettes.vertexColorsPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\engine2d\\bin\\palettes\\misc\\vertexcolors.pcx");
 		return manager;
 	}
 

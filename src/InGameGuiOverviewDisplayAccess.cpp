@@ -720,7 +720,7 @@ namespace NC2InGameGuiOverviewDisplay
 						NC2Logic::MapMagPoint_ConstructFromMig(macroPoint, mapPoint, false);
 						const void* enginePoint = NC2E2::EngineMap_GetConstMapMacroPointPtr(macroPoint);
 						const std::uint32_t vertexColor = enginePoint == nullptr ? 0u : OverviewDisplay_Read<std::uint8_t>(enginePoint, 5);
-						if (vertexColor != 0)
+						if (vertexColor != 0 && NC2E2::gVertexColorsPalette != nullptr)
 						{
 							const NXBasics::SColorRGB tint = OverviewDisplay_ReadColor(NC2E2::gVertexColorsPalette, vertexColor * 4u + 4u);
 							const auto modulate = [] (std::uint8_t channel, std::uint8_t factor) -> std::uint32_t

@@ -219,7 +219,7 @@ namespace NC2E2
 			const I* coordinates = triangle == 0 ? pattern.coordinatesA : pattern.coordinatesB;
 			const unsigned indicesA[3] = { 4, 0, 2 }, indicesB[3] = { 2, 4, 0 };
 			const auto* indices = triangle == 0 ? indicesA : indicesB;
-			const bool colored = corners[0].color != 0 || corners[1].color != 0 || corners[2].color != 0;
+			const bool colored = gVertexColorsPalette != nullptr && (corners[0].color != 0 || corners[1].color != 0 || corners[2].color != 0);
 			for (unsigned i = 0; i != 3; ++i) AssignVertex(shader.vertices[i], corners[i], coordinates + indices[i], colored);
 			if (colored) shader.XShade_VertexColor();
 			else shader.XShade();
@@ -232,8 +232,10 @@ namespace NC2E2
 				AssignTexture(shader, transition.textureId);
 				shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition.alphaTextureId], NC2Layout::BitmapStorageOffset::RawMemory);
 				coordinates = triangle == 0 ? transition.coordinatesA[encoded % 6] : transition.coordinatesB[encoded % 6];
-				for (unsigned i = 0; i != 3; ++i) AssignVertex(shader.vertices[i], corners[i], coordinates + indices[i], true);
-				shader.XShade_VertexColor_Alpha();
+				const bool vertexColors = gVertexColorsPalette != nullptr;
+				for (unsigned i = 0; i != 3; ++i) AssignVertex(shader.vertices[i], corners[i], coordinates + indices[i], vertexColors);
+				if (vertexColors) shader.XShade_VertexColor_Alpha();
+				else shader.XShade_Alpha();
 			}
 		}
 		const auto drawOverlay = [&] (bool a, const SCorner& p, U mp, const SCorner& q, U mq, const SCorner& r, U mr)
