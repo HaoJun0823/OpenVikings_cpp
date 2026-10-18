@@ -157,6 +157,7 @@ namespace NC2E2
 				continue;
 
 			auto* staticManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
+			if (staticManager == nullptr || staticManager->staticSounds == nullptr || soundData->staticSoundId >= staticManager->staticSoundCount) continue;
 			std::byte* staticRecord = addressAt(staticManager->staticSounds, soundData->staticSoundId * 0x43Cu);
 
 			if (readWord(staticRecord, 0x28) == 0)

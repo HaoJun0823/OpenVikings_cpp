@@ -160,8 +160,10 @@ namespace NC2E2
 		const auto soundType = parameter1, point = parameter2, skipRunning = parameter3;
 		if (type != 0x17 || NDSManager::CManager::sTheObjectPtr == nullptr) return true;
 		const auto* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
+		if (display == nullptr) return true;
 		const auto x = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::X), y = Read<std::int16_t>(&point, NC2Layout::MapCoordinatePairOffset::Y);
 		const auto left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY), width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
+		if (width <= 0 || height <= 0) return true;
 		if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
 		const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
 		if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ExplorationMask) & (1u << player)) == 0) return true;
@@ -169,8 +171,9 @@ namespace NC2E2
 		const auto distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
 		if (distance > 64) return true;
 		auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
+		if (sounds == nullptr || sounds->staticSounds == nullptr || soundType >= 120u) return true;
 		const auto soundId = sounds->staticSoundIdsByType[soundType];
-		if (soundId == NXBasics::IntegerRange::UInt32Maximum) return true;
+		if (soundId >= sounds->staticSoundCount) return true;
 		const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * NC2Layout::RecordSize::StaticSoundFxUnsigned;
 		const auto count = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount);
 		if (count == 0) return true;
@@ -282,7 +285,7 @@ namespace NC2E2
 
 		const auto* record = static_cast<const std::byte*>(manager) + NC2Layout::HumanSoundManagerViewOffset::FirstScreamSoundIdUnsigned + (tribe * NC2Runtime::HumanSoundLimits::SexAgeCategoriesUnsigned + HumanSound_GetSexAgeIndex(human)) * NC2Layout::RecordSize::HumanSoundRecordUnsigned;
 		const std::uint32_t soundId = HumanSound_GetRespondingSoundId(record, responseType, selector);
-		if (soundId == NXBasics::IntegerRange::UInt32Maximum) return;
+		if (CE2StaticDataSoundFXManager::sTheObjectPtr == nullptr || CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds == nullptr || soundId >= CE2StaticDataSoundFXManager::sTheObjectPtr->staticSoundCount) return;
 		const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * NC2Layout::RecordSize::StaticSoundFxUnsigned;
 		if (Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount) == 0) return;
 		for (std::uint32_t index = 0; index < Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount); ++index)
@@ -305,6 +308,7 @@ namespace NC2E2
 	// Original function: FUN_00490eea. Visibility/attenuation are optional; pan is always calculated.
 	void Tool_Sound_PlaySoundOrientedOnDisplay(const void* point, std::uint32_t soundId, const void* display, bool skipRunning, bool attenuate)
 	{
+		if (point == nullptr || display == nullptr || CE2StaticDataSoundFXManager::sTheObjectPtr == nullptr || CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds == nullptr || soundId >= CE2StaticDataSoundFXManager::sTheObjectPtr->staticSoundCount) return;
 		if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, NC2Layout::DirectSoundManagerOffset::Initialized) == 0 || soundId == NXBasics::IntegerRange::UInt32Maximum) return;
 		const std::int32_t x = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::X);
 		const std::int32_t y = Read<std::int16_t>(point, NC2Layout::MapCoordinatePairOffset::Y);
@@ -312,6 +316,7 @@ namespace NC2E2
 		const std::int32_t top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY);
 		const std::int32_t width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth);
 		const std::int32_t height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
+		if (width <= 0 || height <= 0) return;
 		if (attenuate)
 		{
 			const std::int16_t right = static_cast<std::int16_t>(left + width - 1);

@@ -6,7 +6,7 @@
 namespace NC2E2
 {
 	// Physical Windows wave slots inferred from the fixed allocation and all observed indexing.
-	// The original parser's wave count remains unchecked; this model introduces no capacity guard.
+	// Remaster parsing validates these physical capacities before writing records.
 	struct SStaticSoundWaveStorage
 	{
 		std::uint32_t waveId, volume;
@@ -24,6 +24,9 @@ namespace NC2E2
 	{
 		char name[40]; std::uint32_t totalSelectionWeight, soundCount; SStaticAmbientWaveStorage sounds[40];
 	};
+	static_assert(sizeof(SStaticSoundFxStorage) == 0x43C);
+	static_assert(sizeof(SStaticAmbientWaveStorage) == 0x88);
+	static_assert(sizeof(SStaticAmbientSoundStorage) == 0x1570);
 
 	struct SJingleSoundData
 	{

@@ -110,6 +110,29 @@ namespace NC2E2
 			NXBasics::Runtime_AtExit(DestroySoundTokenList);
 		}
 
+		// Remaster: allocate replacement tables before releasing any existing owners.
+		const std::uint32_t counts[] = { reader.GetNumberOfGroups("SoundFXStatic"), reader.GetNumberOfGroups("SoundFXJingle"), reader.GetNumberOfGroups("SoundFXAmbient") };
+		const std::uint32_t strides[] = { sizeof(SStaticSoundFxStorage), sizeof(SJingleSoundData), sizeof(SStaticAmbientSoundStorage) };
+		void* replacements[3]{};
+		for (std::uint32_t i = 0; i < 3; ++i)
+		{
+			if (counts[i] > UINT32_MAX / strides[i]) { for (void* value : replacements) NXBasics::Runtime_Free(value); return; }
+			if (counts[i] == 0) continue;
+			replacements[i] = NXBasics::Runtime_AllocateWithNewHandler(counts[i] * strides[i], 1);
+			if (replacements[i] == nullptr) { for (void* value : replacements) NXBasics::Runtime_Free(value); return; }
+			std::memset(replacements[i], 0, counts[i] * strides[i]);
+		}
+		NXBasics::Runtime_Free(staticSounds);
+		NXBasics::Runtime_Free(jingles);
+		NXBasics::Runtime_Free(ambientSounds);
+		staticSounds = replacements[0];
+		jingles = static_cast<SJingleSoundData*>(replacements[1]);
+		ambientSounds = replacements[2];
+		staticSoundCount = jingleCount = ambientSoundCount = 0;
+		for (auto& id : staticSoundIdsByType) id = UINT32_MAX;
+		for (auto& id : patternGroupAmbientIds) id = UINT32_MAX;
+		for (auto& id : landscapeGroupAmbientIds) id = UINT32_MAX;
+
 		const auto addressAt = [] (void* base, std::uint32_t offset) -> std::byte*
 		{
 			const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
@@ -132,12 +155,10 @@ namespace NC2E2
 
 		if (groupCount != 0)
 		{
-			const std::uint32_t allocationBytes = groupCount * NC2Layout::RecordSize::StaticSoundFxUnsigned;
-			staticSounds = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
-			std::memset(staticSounds, 0, allocationBytes);
 
 			for (char* group = reader.GetFirstGroup("SoundFXStatic"); group != nullptr; group = reader.GetNextGroup("SoundFXStatic"))
 			{
+				if (staticSoundCount >= groupCount) break;
 				std::byte* record = addressAt(staticSounds, staticSoundCount * NC2Layout::RecordSize::StaticSoundFxUnsigned);
 				++staticSoundCount;
 
@@ -152,18 +173,20 @@ namespace NC2E2
 								const std::uint32_t recordIndex = staticSoundCount - 1u;
 								const std::uint32_t type = static_cast<std::uint32_t>(reader.GetInt());
 
-								// Writes staticSoundIdsByType using the original unchecked byte offset.
+								// Remaster: validate the physical 120-entry logic-sound map.
+								if (type >= 120u) break;
 								writeWord(addressAt(this, 0x08u + type * 4u), recordIndex);
 								break;
 							}
 
 						case SwitchIds::SoundFxToken::Name:
-							std::strcpy(reinterpret_cast<char*>(record), reader.GetString());
+							{ const char* name = reader.GetString(); if (name != nullptr && std::strlen(name) < 40u) std::strcpy(reinterpret_cast<char*>(record), name); }
 							break;
 
 						case SwitchIds::SoundFxToken::SFX:
 							{
 								const char* soundFileName = reader.GetString();
+								if (readWord(record + NC2Layout::StaticSoundFxOffset::WaveCount) >= 130u || soundFileName == nullptr || NDSManager::CManager::sTheObjectPtr == nullptr) break;
 
 								if (!NXBasics::CFile::FileSystem_Tool_FileExists(soundFileName, true))
 									break;
@@ -190,12 +213,10 @@ namespace NC2E2
 
 		if (groupCount != 0)
 		{
-			const std::uint32_t allocationBytes = groupCount << 7;
-			jingles = static_cast<SJingleSoundData*>(NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1));
-			std::memset(jingles, 0, allocationBytes);
 
 			for (char* group = reader.GetFirstGroup("SoundFXJingle"); group != nullptr; group = reader.GetNextGroup("SoundFXJingle"))
 			{
+				if (jingleCount >= groupCount) break;
 				std::byte* record = addressAt(jingles, jingleCount << 7);
 				++jingleCount;
 
@@ -212,7 +233,9 @@ namespace NC2E2
 						case SwitchIds::HumanMiscSoundToken::SFX:
 							{
 								char* soundFileName = reinterpret_cast<char*>(record + 4);
-								std::strcpy(soundFileName, reader.GetString());
+								const char* name = reader.GetString();
+								if (name == nullptr || std::strlen(name) >= 120u) break;
+								std::strcpy(soundFileName, name);
 
 								if (NXBasics::CFile::FileSystem_Tool_FileExists(soundFileName, true))
 									writeWord(record + 0x7C, static_cast<std::uint32_t>(reader.GetInt()));
@@ -228,14 +251,12 @@ namespace NC2E2
 
 		if (groupCount != 0)
 		{
-			const std::uint32_t allocationBytes = groupCount * NC2Layout::RecordSize::StaticAmbientSoundUnsigned;
-			ambientSounds = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
-			std::memset(ambientSounds, 0, allocationBytes);
 
 			alignas(4) std::byte soundData[136];
 
 			for (char* group = reader.GetFirstGroup("SoundFXAmbient"); group != nullptr; group = reader.GetNextGroup("SoundFXAmbient"))
 			{
+				if (ambientSoundCount >= groupCount) break;
 				std::byte* record = addressAt(ambientSounds, ambientSoundCount * NC2Layout::RecordSize::StaticAmbientSoundUnsigned);
 				++ambientSoundCount;
 
@@ -251,12 +272,12 @@ namespace NC2E2
 								const std::uint32_t recordIndex = ambientSoundCount - 1u;
 								const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gE2StaticDataLandscapesManager, groupName));
 
-								writeWord(addressAt(this, 0x388u + groupIndex * 4u), recordIndex);
+								if (groupIndex < 100u) writeWord(addressAt(this, 0x388u + groupIndex * 4u), recordIndex);
 								break;
 							}
 
 						case SwitchIds::AmbientSoundToken::Name:
-							std::strcpy(reinterpret_cast<char*>(record), reader.GetString());
+							{ const char* name = reader.GetString(); if (name != nullptr && std::strlen(name) < 40u) std::strcpy(reinterpret_cast<char*>(record), name); }
 							break;
 
 						case SwitchIds::AmbientSoundToken::PatternGroup:
@@ -265,14 +286,17 @@ namespace NC2E2
 								const std::uint32_t recordIndex = ambientSoundCount - 1u;
 								const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gE2StaticDataPatternManager, groupName));
 
-								writeWord(addressAt(this, 0x1F8u + groupIndex * 4u), recordIndex);
+								if (groupIndex < 100u) writeWord(addressAt(this, 0x1F8u + groupIndex * 4u), recordIndex);
 								break;
 							}
 
 						case SwitchIds::AmbientSoundToken::SFX:
 							{
 								char* soundFileName = reinterpret_cast<char*>(soundData);
-								std::strcpy(soundFileName, reader.GetString());
+								if (readWord(record + NC2Layout::StaticAmbientSoundOffset::SoundCount) >= 40u || NDSManager::CManager::sTheObjectPtr == nullptr) break;
+								const char* name = reader.GetString();
+								if (name == nullptr || std::strlen(name) >= 120u) break;
+								std::strcpy(soundFileName, name);
 
 								if (!NXBasics::CFile::FileSystem_Tool_FileExists(soundFileName, true))
 									break;
@@ -334,14 +358,14 @@ namespace NC2E2
 	// Original function: FUN_0048e19a
 	std::uint32_t CE2StaticDataSoundFXManager::GetStaticSoundFxIdByNamePtr(const char* name)
 	{
-		if (NDSManager::CManager::sTheObjectPtr == nullptr)
-			return 0;
+		if (name == nullptr || staticSounds == nullptr || NDSManager::CManager::sTheObjectPtr == nullptr)
+			return UINT32_MAX;
 
 		std::uint8_t initialized;
 		std::memcpy(&initialized, reinterpret_cast<const std::byte*>(NDSManager::CManager::sTheObjectPtr) + 4, sizeof(initialized));
 
 		if (initialized == 0 || staticSoundCount == 0)
-			return 0;
+			return UINT32_MAX;
 
 		std::uint32_t offset = 0;
 
@@ -356,7 +380,7 @@ namespace NC2E2
 			offset += NC2Layout::RecordSize::StaticSoundFxUnsigned;
 		}
 
-		return 0;
+		return UINT32_MAX;
 	}
 
 	// Original function: FUN_0048e199

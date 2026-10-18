@@ -72,8 +72,9 @@ namespace NC2E2
 			auto intensity = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SeenDamagedHouses) * 10u;
 			if (intensity > 100u) intensity = 100u;
 			const auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
+			if (sounds == nullptr || sounds->staticSounds == nullptr || NDSManager::CManager::sTheObjectPtr == nullptr) return;
 			const auto soundId = sounds->staticSoundIdsByType[41];
-			if (soundId == NXBasics::IntegerRange::UInt32Maximum) return;
+			if (soundId >= sounds->staticSoundCount) return;
 			const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
 			if (Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::WaveCount) == 0) return;
 			const auto wave = Read<std::uint32_t>(sound, NC2Layout::StaticSoundFxOffset::Waves);

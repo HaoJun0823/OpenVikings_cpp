@@ -125,7 +125,7 @@ namespace NC2E2
 					{
 						const auto group = Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::IdsUnsigned + index * NC2Layout::RecordSize::AmbientGroupIdUnsigned);
 						// Windows 83 /7 sign-extends the FF immediate to FFFFFFFF.
-						if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gPatternAmbientGroupCounts[group];
+						if (group < NC2Runtime::AmbientSoundLimits::GroupCount && CE2StaticDataSoundFXManager::sTheObjectPtr != nullptr && CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] < CE2StaticDataSoundFXManager::sTheObjectPtr->ambientSoundCount) ++gPatternAmbientGroupCounts[group];
 					}
 				}
 			}
@@ -182,7 +182,7 @@ namespace NC2E2
 				for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::Count); ++index)
 				{
 					const auto group = Read<std::uint32_t>(record, NC2Layout::TerrainAmbientGroupsOffset::IdsUnsigned + index * NC2Layout::RecordSize::AmbientGroupIdUnsigned);
-					if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gLandscapeAmbientGroupCounts[group];
+					if (group < NC2Runtime::AmbientSoundLimits::GroupCount && CE2StaticDataSoundFXManager::sTheObjectPtr != nullptr && CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] < CE2StaticDataSoundFXManager::sTheObjectPtr->ambientSoundCount) ++gLandscapeAmbientGroupCounts[group];
 				}
 			}
 		}

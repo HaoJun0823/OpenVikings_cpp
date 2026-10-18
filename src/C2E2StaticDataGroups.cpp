@@ -9,11 +9,12 @@ namespace NC2E2
 	// Original function: FUN_0048e5c5
 	std::int32_t StaticDataGroups_FindIndex(const void* groupData, const char* name)
 	{
+		if (groupData == nullptr || name == nullptr || std::strlen(name) >= 40u) return -1;
 		const auto* storage = static_cast<const std::byte*>(groupData);
 		std::int32_t count;
 		std::memcpy(&count, storage, sizeof(count));
 
-		if (count <= 0)
+		if (count <= 0 || count > 100)
 			return -1;
 
 		std::uint32_t entryAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(groupData)) + 4u;
@@ -35,6 +36,8 @@ namespace NC2E2
 	// Original function: FUN_0048e5f8
 	std::int32_t StaticDataGroups_AddName(void* groupData, const char* name)
 	{
+		// Remaster: an unrepresentable name must not create a truncated, unfindable group.
+		if (groupData == nullptr || name == nullptr || std::strlen(name) >= 40u) return -1;
 		const std::int32_t existingIndex = StaticDataGroups_FindIndex(groupData, name);
 
 		if (existingIndex != -1)
@@ -43,13 +46,14 @@ namespace NC2E2
 		std::uint32_t count;
 		std::memcpy(&count, groupData, sizeof(count));
 
-		if (count == 100u)
+		if (count >= 100u)
 			return -1;
 
 		const std::uint32_t entryAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(groupData)) + 4u + count * 0x28u;
 		auto* destination = reinterpret_cast<char*>(static_cast<std::uintptr_t>(entryAddress));
 
 		std::strncpy(destination, name, 39u);
+		destination[39] = '\0';
 
 		std::memcpy(&count, groupData, sizeof(count));
 		++count;
