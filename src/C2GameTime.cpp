@@ -83,8 +83,8 @@ namespace NC2Logic
 	{
 		if (gGameTime.maximizeSpeed != 0)
 		{
-			const std::uint32_t endTime = timeGetTime() + 500u;
-			while (timeGetTime() < endTime) GameTime_DoOneGameTick();
+			const std::uint32_t startTime = timeGetTime();
+			while (timeGetTime() - startTime < 500u) GameTime_DoOneGameTick();
 			gGameTime.lastRealTime = static_cast<double>(timeGetTime());
 			return;
 		}
@@ -256,7 +256,7 @@ namespace NC2Logic
 	void Game_l_Autosave_Update()
 	{
 		const auto& autosave = gGameStaticVars.autosave;
-		if (autosave.intervalTicks != 0 && gGameTime.tick >= autosave.lastSaveTick + autosave.intervalTicks) l_Autosave_Do();
+		if (autosave.intervalTicks != 0 && gGameTime.tick - autosave.lastSaveTick >= autosave.intervalTicks) l_Autosave_Do();
 	}
 
 }

@@ -94,7 +94,7 @@ namespace NMasterControlProgram
 	void CMasterControlProgram::System_ProgramState_MainMenu_Update()
 	{
 		const DWORD currentTime = timeGetTime();
-		if (mMainMenuLastMapChangeTick + 300000U <= currentTime)
+		if (currentTime - mMainMenuLastMapChangeTick >= 300000U)
 		{
 			l_MainMenu_Misc_GameMap_LoadRandomMap();
 		}
