@@ -69,6 +69,12 @@ compile_commands.json
 /.codex-work/
 Agents.md
 
+# Keep internal documentation local; publish only the root README and changelog.
+/docs/
+/*.md
+!/Readme.md
+!/CHANGELOG.md
+
 # vcpkg
 vcpkg_installed/
 

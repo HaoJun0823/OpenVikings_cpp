@@ -36,7 +36,18 @@ You will need:
 - Your own legally obtained copy of **Cultures: 8th Wonder of the World** and its original game data.
 - A build of OpenVikings from the `remaster` branch.
 
-Build the game using the instructions below, then set up the original game data following the [game-data setup guide](docs/BUILD_AND_ASSETS.md#original-data-and-current-datax-adaptation). The current setup expects a `datax` directory and the original music driver and media components. Run the executable with the game-data root as its working directory.
+Build the game using the instructions below, then prepare a game-data root with these folders from your original installation. Preserve the filenames and language subfolders:
+
+```text
+datax/
+  libs/       Original data archives (data0000.lib, ...)
+  dm2/        Original SGT/DLS music data
+  mouse/      Original .cur cursor files
+  pictures/   Original pre/post .bmp images
+  FMV/        Original films and language subfolders
+```
+
+Keep the original `gedx8musicdrv.dll` available alongside the executable for music. Films use the Windows media components and available codecs. Run OpenVikings with the game-data root as its working directory; set this in your shortcut or Visual Studio debugger settings.
 
 ## Build from source
 
@@ -45,7 +56,7 @@ Build the game using the instructions below, then set up the original game data 
 3. Select **x86 (Win32)** and **Debug** or **Release**, then build the solution.
 4. Find the executable in `OpenVikings/Debug/` or `OpenVikings/Release/` and use it with your game-data setup.
 
-The project uses **C++17**. It does not currently target x64.
+The project uses **C++17**. It does not currently target x64. Install the x86 Visual C++ runtime matching your build when running it on another PC.
 
 ## Contributing
 
@@ -53,7 +64,7 @@ Bug reports, code improvements and help checking the game are welcome.
 
 For a useful bug report, include the revision you played, the map or savegame, steps to reproduce the issue and what you expected to happen. Screenshots help with visual problems. If you can compare the behavior with the original game, include what you found.
 
-Keep pull requests focused and explain what changes for players. Please do not upload original game assets. Contributor notes and technical references are available in [the documentation](docs/README.md).
+Keep pull requests focused and explain what changes for players. Preserve the Win32 target and use the original Windows behavior as the reference, with intentional remaster changes clearly identified. Please do not upload original game assets.
 
 Also do not miss out the [CulturesNation official Discord Server](https://discord.gg/S3JTYnF)!
 
