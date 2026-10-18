@@ -86,6 +86,9 @@ namespace NC2Logic
 		NXBasics::CMemory* mPackingBuffer;  // +0x34: borrowed compression buffer owned by the save wrapper
 		std::uint32_t mChunkDepth;          // +0x38: number of open output chunks
 		std::uint32_t mChunkOffsets[5];     // +0x3C: output-header offsets by nesting level
+
+	private:
+		bool Remaster_EnsureMemoryCapacity(std::uint32_t additional);
 	};
 
 	static_assert(sizeof(void*) == 4, "CIoHelper requires an x86 build");

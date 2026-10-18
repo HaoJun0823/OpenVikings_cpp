@@ -50,7 +50,7 @@ namespace NXBasics
 		const std::uint32_t size = file.GetSize();
 
 		l_AllocateMemory(size);
-		file.Read(mData, size);
+		if (mSize == size && size != 0) file.Read(mData, size);
 	}
 
 	// Original function: FUN_0042f8f4
@@ -92,6 +92,13 @@ namespace NXBasics
 		if (size != 0)
 		{
 			auto* allocation = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(size, 1));
+			if (allocation == nullptr)
+			{
+				mSize = 0;
+				mData = nullptr;
+				ReportFatalError("NXBasics::CMemory: allocation failed");
+				return;
+			}
 			const std::uint32_t fillSize = mSize;
 
 			mData = allocation;
@@ -115,18 +122,20 @@ namespace NXBasics
 
 		std::uint8_t* oldData = mData;
 
-		mData = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(newSize, 1));
+		auto* replacement = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(newSize, 1));
+		if (replacement == nullptr) return false;
 
 		if (fillAdditionalBytes && newSize > mSize)
 		{
-			std::memset(mData + mSize, fillValue, newSize - mSize);
+			std::memset(replacement + mSize, fillValue, newSize - mSize);
 		}
 
 		const std::uint32_t copySize = mSize < newSize ? mSize : newSize;
 
-		std::memcpy(mData, oldData, copySize);
+		if (copySize != 0) std::memcpy(replacement, oldData, copySize);
 		Runtime_Free(oldData);
 
+		mData = replacement;
 		mSize = newSize;
 
 		return true;
