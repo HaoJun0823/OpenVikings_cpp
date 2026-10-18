@@ -8,7 +8,6 @@ The reachable approach correction needed a follow-up: interrupting an idle soldi
 
 - Finish processing that soldier after issuing an attack or regrouping movement retry.
 - Let the normal human command processing execute the selected approach order.
-- The player confirmed that the northern enemy attacks again on October 18, 2026.
 
 ## 2026-10-18 · 01:50 CEST — Reachable approach points for AI attacks
 
@@ -25,14 +24,12 @@ Walking routes now reject invalid steps before accessing map data. This guards t
 - Reject empty route results and invalid direction/count entries instead of consuming stale steps.
 - Check route-buffer indices and map bounds before committing movement.
 - Use the existing failed-path handling so villagers can respond through their normal task logic.
-- The player confirmed that the previously affected save no longer crashes.
 
 ## 2026-10-18 · 01:25 CEST — Start on the primary monitor
 
 The game now opens on your Windows primary monitor, even when the mouse pointer is on another screen.
 
 - Applied the default to both borderless fullscreen and windowed startup.
-- Confirmed successful player retests of the spearman sleep animation, stonemason colors and pottery oven fire.
 
 ## 2026-10-17 · 03:35 CEST — AI collectors work at resource flags
 
@@ -52,7 +49,6 @@ Viking workshops now show the missing parts of two production animations: the po
 - Restored the baker's missing house-exit and house-entry events so the existing cake-baking animation is visible.
 - Kept cake visible through the final carrying step, which previously switched to a bread graphic.
 - Preserved the working bread sequence and production durations; repairs target the exact affected original data.
-- Player retests confirmed the pottery fire and cake animation on October 18.
 
 ## 2026-10-17 · 02:38 CEST — Stone colors at the stonemason
 
