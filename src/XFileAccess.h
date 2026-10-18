@@ -206,75 +206,73 @@ namespace NXBasics
 	// Mac symbol: NXBasics::CSimpleFileLibrary::CSimpleFileLibrary(char const*).
 	inline void* Archive_Initialize(void* archive, const char* fileName)
 	{
-		auto* state = ::new (archive) SArchiveState;
-		std::memset(state, 0, sizeof(*state));
-
+		auto* state = ::new (archive) SArchiveState{};
+		// Remaster: construct a destructible empty archive on every failure path.
+		const auto fail = [state] () -> void*
+		{
+			for (std::uint32_t i = 0; i < state->directoryEntryCount; ++i) Runtime_Free(state->directoryEntries[i].name);
+			for (std::uint32_t i = 0; i < state->entryCount; ++i) Runtime_Free(state->entries[i].name);
+			Runtime_Free(state->directoryEntries);
+			Runtime_Free(state->entries);
+			if (state->archiveFile != nullptr) { state->archiveFile->~CFile(); Runtime_Free(state->archiveFile); }
+			std::memset(state, 0, sizeof(*state));
+			ReportFatalError("NXBasics::CSimpleFileLibrary: invalid, truncated or unavailable archive");
+			return state;
+		};
 		void* fileStorage = Runtime_AllocateWithNewHandler(272u, 1);
-		CFile* archiveFile = nullptr;
-
-		if (fileStorage != nullptr)
+		if (fileStorage == nullptr) return fail();
+		state->archiveFile = ::new (fileStorage) CFile(fileName, true);
+		std::int32_t descriptor;
+		std::memcpy(&descriptor, reinterpret_cast<const std::byte*>(state->archiveFile) + 4, sizeof(descriptor));
+		if (descriptor == -1) return fail();
+		const auto archiveSize = File_GetSize(state->archiveFile);
+		if (archiveSize < 12u || archiveSize == UINT32_MAX) return fail();
+		std::uint32_t remaining = archiveSize;
+		const auto read = [descriptor, &remaining] (void* data, std::uint32_t bytes) -> bool
 		{
-			archiveFile = ::new (fileStorage) CFile(fileName, true);
-		}
-
-		state->archiveFile = archiveFile;
-
-		// The original reads but does not validate this value.
-		std::uint32_t ignoredHeader;
-		File_Read(state->archiveFile, &ignoredHeader, 4u);
-		File_Read(state->archiveFile, &state->directoryEntryCount, 4u);
-		File_Read(state->archiveFile, &state->entryCount, 4u);
-
-		// Preserve the original reuse of the filename argument slot.
-		std::uint32_t nameLength = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(fileName));
-
-		if (state->directoryEntryCount != 0)
+			if (bytes > remaining || bytes > INT32_MAX || (bytes != 0 && Runtime_Read(static_cast<std::uint32_t>(descriptor), data, bytes) != static_cast<std::int32_t>(bytes))) return false;
+			remaining -= bytes;
+			return true;
+		};
+		std::uint32_t ignoredHeader = 0, directoryCount = 0, fileCount = 0;
+		if (!read(&ignoredHeader, 4) || !read(&directoryCount, 4) || !read(&fileCount, 4)) return fail();
+		// Each serialized directory needs at least 8 bytes and each file at least 12.
+		if (directoryCount > remaining / 8u || fileCount > (remaining - directoryCount * 8u) / 12u || directoryCount > UINT32_MAX / sizeof(SArchiveDirectoryEntry) || fileCount > UINT32_MAX / sizeof(SArchiveFileEntry)) return fail();
+		if (directoryCount != 0)
 		{
-			const std::uint32_t allocationBytes = state->directoryEntryCount << 3;
-			auto* tableStorage = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(allocationBytes, 1));
-			state->directoryEntries = reinterpret_cast<SArchiveDirectoryEntry*>(tableStorage);
-
-			const std::uint32_t clearBytes = state->directoryEntryCount << 3;
-			std::memset(tableStorage, 0, clearBytes);
-
-			for (std::uint32_t index = 0; index < state->directoryEntryCount; ++index)
-			{
-				auto* entry = ::new (tableStorage + index * 0x08u) SArchiveDirectoryEntry;
-
-				File_Read(state->archiveFile, &nameLength, 4u);
-
-				entry->name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
-				entry->name[nameLength] = '\0';
-
-				File_Read(state->archiveFile, entry->name, nameLength);
-				File_Read(state->archiveFile, &entry->value, 4u);
-			}
+			state->directoryEntries = static_cast<SArchiveDirectoryEntry*>(Runtime_AllocateWithNewHandler(directoryCount * sizeof(SArchiveDirectoryEntry), 1));
+			if (state->directoryEntries == nullptr) return fail();
+			std::memset(state->directoryEntries, 0, directoryCount * sizeof(SArchiveDirectoryEntry));
 		}
-
-		// Preserve allocation even when the file entry count is zero.
-		const std::uint32_t allocationBytes = state->entryCount << 4;
-		auto* tableStorage = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(allocationBytes, 1));
-		state->entries = reinterpret_cast<SArchiveFileEntry*>(tableStorage);
-
-		const std::uint32_t clearBytes = state->entryCount << 4;
-		std::memset(tableStorage, 0, clearBytes);
-
-		for (std::uint32_t index = 0; index < state->entryCount; ++index)
+		if (fileCount != 0)
 		{
-			auto* entry = ::new (tableStorage + index * 0x10u) SArchiveFileEntry;
-
-			File_Read(state->archiveFile, &nameLength, 4u);
-
-			entry->name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
-			entry->name[nameLength] = '\0';
-
-			File_Read(state->archiveFile, entry->name, nameLength);
-			entry->nameCheck = Archive_CalculateNameCheck(entry->name);
-
-			File_Read(state->archiveFile, &entry->fileOffset, 4u);
-			File_Read(state->archiveFile, &entry->fileSize, 4u);
+			state->entries = static_cast<SArchiveFileEntry*>(Runtime_AllocateWithNewHandler(fileCount * sizeof(SArchiveFileEntry), 1));
+			if (state->entries == nullptr) return fail();
+			std::memset(state->entries, 0, fileCount * sizeof(SArchiveFileEntry));
 		}
-
+		for (std::uint32_t i = 0; i < directoryCount; ++i)
+		{
+			std::uint32_t nameLength = 0;
+			if (!read(&nameLength, 4) || remaining < 4 || nameLength > remaining - 4u || nameLength == UINT32_MAX) return fail();
+			auto& entry = *::new (state->directoryEntries + i) SArchiveDirectoryEntry{};
+			entry.name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
+			if (entry.name == nullptr) return fail();
+			++state->directoryEntryCount;
+			entry.name[nameLength] = '\0';
+			if (!read(entry.name, nameLength) || !read(&entry.value, 4)) return fail();
+		}
+		for (std::uint32_t i = 0; i < fileCount; ++i)
+		{
+			std::uint32_t nameLength = 0;
+			if (!read(&nameLength, 4) || remaining < 8 || nameLength > remaining - 8u || nameLength == UINT32_MAX) return fail();
+			auto& entry = *::new (state->entries + i) SArchiveFileEntry{};
+			entry.name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
+			if (entry.name == nullptr) return fail();
+			++state->entryCount;
+			entry.name[nameLength] = '\0';
+			if (!read(entry.name, nameLength) || !read(&entry.fileOffset, 4) || !read(&entry.fileSize, 4) || entry.fileOffset > archiveSize || entry.fileSize > archiveSize - entry.fileOffset) return fail();
+			entry.nameCheck = Archive_CalculateNameCheck(entry.name);
+		}
 		return state;
 	}
 
@@ -421,10 +419,9 @@ namespace NXBasics
 		auto& fileName = *reinterpret_cast<char (*)[260]>(fileBytes + 0x08);
 
 		File_InitObject(file);
-
-		// The native reset already leaves this last byte zero after the 259-byte copy.
-		std::strncpy(fileName, inputFileName, sizeof(fileName) - 1);
-		fileName[sizeof(fileName) - 1] = '\0';
+		if (inputFileName == nullptr) return;
+		const char* prefix = "";
+		const char* suffix = inputFileName;
 
 		for (std::uint32_t index = 0; index < 5; ++index)
 		{
@@ -440,11 +437,20 @@ namespace NXBasics
 				continue;
 			}
 
-			// Preserve first-match selection and the original unchecked concatenation.
-			std::strcpy(fileName, record.replacementPath);
-			std::strcat(fileName, inputFileName + record.nameLength);
+			prefix = record.replacementPath;
+			suffix = inputFileName + record.nameLength;
 			break;
 		}
+		// Remaster: reject an unrepresentable path instead of opening a truncated name.
+		const auto prefixLength = std::strlen(prefix);
+		const auto suffixLength = std::strlen(suffix);
+		if (prefixLength >= sizeof(fileName) || suffixLength >= sizeof(fileName) - prefixLength)
+		{
+			ReportFatalError("NXBasics::CFile: expanded filename exceeds the supported path length");
+			return;
+		}
+		std::memcpy(fileName, prefix, prefixLength);
+		std::memcpy(fileName + prefixLength, suffix, suffixLength + 1);
 
 		std::int32_t length = static_cast<std::int32_t>(std::strlen(fileName));
 

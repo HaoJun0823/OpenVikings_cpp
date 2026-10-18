@@ -127,6 +127,7 @@ namespace NC2Logic
 		{
 			const char* root = DirectoryScanner_GetCurrentNamePtr(&scanner);
 			char filename[260];
+			if (root == nullptr || std::strlen(root) + sizeof("map.ini") > sizeof(filename)) continue;
 			std::strcpy(filename, root);
 			std::strcat(filename, "map.ini");
 			CFile::FileSystem_SystemPathName_Set("$maproot$", root);
@@ -139,6 +140,7 @@ namespace NC2Logic
 		for (bool found = DirectoryScanner_GetFirstMatchingFile(&scanner, IO_Tool_GetUserMapDirectoryNamePtr(), "c2m", false); found; found = DirectoryScanner_GetNextMatchingFile(&scanner))
 		{
 			const char* filename = DirectoryScanner_GetCurrentNamePtr(&scanner);
+			if (filename == nullptr) continue;
 			void* archive = Runtime_AllocateWithNewHandler(20, 1);
 			if (archive != nullptr)
 				archive = Archive_Initialize(archive, filename);

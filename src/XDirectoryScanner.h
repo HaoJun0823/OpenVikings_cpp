@@ -50,6 +50,8 @@ namespace NXBasics
 	{
 		auto* state = ::new (scanner) SDirectoryScannerState;
 		std::memset(state, 0, sizeof(*state));
+		const std::int32_t invalidHandle = -1;
+		std::memcpy(state->nativeSearchState, &invalidHandle, sizeof(invalidHandle));
 		return state;
 	}
 
@@ -67,9 +69,13 @@ namespace NXBasics
 		auto* state = static_cast<SDirectoryScannerState*>(scanner);
 
 		DirectoryScanner_Stop(scanner);
-		std::strcpy(state->path, path);
-
-		const std::size_t pathLength = std::strlen(state->path);
+		// A failed native close retains ownership; do not overwrite that handle.
+		if (state->mode == 2 || path == nullptr || (!directoriesOnly && extension == nullptr)) return false;
+		const std::size_t pathLength = std::strlen(path);
+		const auto slash = pathLength == 0 || path[pathLength - 1] != '\\' ? 1u : 0u;
+		const auto extensionLength = directoriesOnly ? 2u : std::strlen(extension) + (extension[0] == '.' ? 0u : 1u);
+		if (pathLength >= sizeof(state->path) - slash || extensionLength >= sizeof(state->extension) || pathLength + slash + 1u + extensionLength >= sizeof(state->path)) return false;
+		std::memmove(state->path, path, pathLength + 1);
 
 		if (pathLength == 0 || state->path[pathLength - 1] != '\\')
 		{
@@ -146,7 +152,10 @@ namespace NXBasics
 
 						if (result != 0)
 						{
-							// Preserve the original transition without closing the native handle.
+							// Remaster: release the native search before archive fallback.
+							if (Runtime_FindClose(searchHandle) != 0) return false;
+							const std::int32_t invalidHandle = -1;
+							std::memcpy(state->nativeSearchState, &invalidHandle, sizeof(invalidHandle));
 							state->mode = 3;
 							break;
 						}
@@ -196,13 +205,10 @@ namespace NXBasics
 			std::int32_t searchHandle;
 			std::memcpy(&searchHandle, state->nativeSearchState, sizeof(searchHandle));
 
-			// Preserve the original signed comparison.
-			if (searchHandle > 0)
+			if (searchHandle != -1)
 			{
-				Runtime_FindClose(searchHandle);
-
-				// The original clears the handle even when closing fails.
-				const std::int32_t clearedHandle = 0;
+				if (Runtime_FindClose(searchHandle) != 0) return;
+				const std::int32_t clearedHandle = -1;
 				std::memcpy(state->nativeSearchState, &clearedHandle, sizeof(clearedHandle));
 			}
 		}
@@ -218,7 +224,9 @@ namespace NXBasics
 
 		if (state->mode == 4)
 		{
+			if (state->libraryIndex >= 5) return nullptr;
 			const auto* archive = static_cast<const SArchiveState*>(CFile::mStaticVars.fileLibraries[state->libraryIndex]);
+			if (archive == nullptr) return nullptr;
 			const char* const* nameSlot = nullptr;
 
 			if (state->directoriesOnly != 0)
@@ -233,7 +241,7 @@ namespace NXBasics
 				nameSlot = &archive->entries[state->entryIndex].name;
 			}
 
-			// Preserve the original dereference even when the index is invalid.
+			if (nameSlot == nullptr || *nameSlot == nullptr || std::strlen(*nameSlot) >= sizeof(state->currentName)) return nullptr;
 			std::strcpy(state->currentName, *nameSlot);
 			return state->currentName;
 		}
@@ -242,13 +250,16 @@ namespace NXBasics
 		{
 			// The native result name starts at scanner offset 0x22C.
 			const char* nativeName = reinterpret_cast<const char*>(state->nativeSearchState + 0x18);
+			const auto pathLength = std::strlen(state->path);
+			const auto nameLength = std::strlen(nativeName);
+			const bool appendSlash = state->directoriesOnly != 0 && (nameLength == 0 || nativeName[nameLength - 1] != '\\');
+			if (pathLength + nameLength + (appendSlash ? 1u : 0u) >= sizeof(state->currentName)) return nullptr;
 
 			std::strcpy(state->currentName, state->path);
 			std::strcat(state->currentName, nativeName);
 
-			if (state->directoriesOnly != 0)
+			if (appendSlash)
 			{
-				// The original comparison against 0x5C20 can never match a signed byte.
 				std::strcat(state->currentName, "\\");
 			}
 
@@ -269,11 +280,13 @@ namespace NXBasics
 			return false;
 		}
 
-		char directory[256];
-		char baseName[256];
-		char extension[256];
+		char directory[260];
+		char baseName[260];
+		char extension[260];
 
-		Runtime_SplitPath(DirectoryScanner_GetCurrentNamePtr(scanner), nullptr, directory, baseName, extension);
+		const char* currentName = DirectoryScanner_GetCurrentNamePtr(scanner);
+		if (currentName == nullptr || std::strlen(currentName) >= sizeof(directory)) return false;
+		Runtime_SplitPath(currentName, nullptr, directory, baseName, extension);
 
 		std::uint32_t attributes;
 		std::memcpy(&attributes, state->nativeSearchState + 0x04, sizeof(attributes));
@@ -302,7 +315,7 @@ namespace NXBasics
 			++state->entryIndex;
 		}
 
-		for (;;)
+		for (; state->libraryIndex < 5;)
 		{
 			const auto* archive = static_cast<const SArchiveState*>(CFile::mStaticVars.fileLibraries[state->libraryIndex]);
 
@@ -312,7 +325,9 @@ namespace NXBasics
 				{
 					if (state->entryIndex < archive->directoryEntryCount)
 					{
-						char parentPath[256];
+						char parentPath[260];
+						const auto* name = archive->directoryEntries[state->entryIndex].name;
+						if (name == nullptr || std::strlen(name) >= sizeof(parentPath)) { ++state->entryIndex; continue; }
 						std::strcpy(parentPath, archive->directoryEntries[state->entryIndex].name);
 
 						const std::uint32_t positionBits = static_cast<std::uint32_t>(std::strlen(parentPath)) - 2u;
@@ -340,9 +355,11 @@ namespace NXBasics
 				}
 				else if (state->entryIndex < archive->entryCount)
 				{
-					char directory[256];
-					char baseName[256];
-					char extension[256];
+					char directory[260];
+					char baseName[260];
+					char extension[260];
+					const auto* name = archive->entries[state->entryIndex].name;
+					if (name == nullptr || std::strlen(name) >= sizeof(directory)) { ++state->entryIndex; continue; }
 
 					// Open dependency: original path splitting routine.
 					Runtime_SplitPath(archive->entries[state->entryIndex].name, nullptr, directory, baseName, extension);
@@ -369,6 +386,7 @@ namespace NXBasics
 
 			state->entryIndex = 0;
 		}
+		return false;
 	}
 	// Original function: FUN_00440240; count every matching entry, then stop the local search.
 	inline std::int32_t DirectoryScanner_GetNumberOfMatchingFiles(const char* path, const char* extension, bool directoriesOnly)

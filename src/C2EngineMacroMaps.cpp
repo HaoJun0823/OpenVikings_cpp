@@ -255,6 +255,7 @@ namespace NC2E2
 		while (found)
 		{
 			const char* name = NXBasics::DirectoryScanner_GetCurrentNamePtr(&scanner);
+			if (name == nullptr) { found = NXBasics::DirectoryScanner_GetNextMatchingFile(&scanner); continue; }
 			void* map = NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::MacroMap, 1);
 			if (map != nullptr) MacroMap_Construct(map, name);
 			Write(Read<void*>(manager, NC2Layout::MacroMapManagerOffset::Entries), index++ * NC2Layout::RecordSize::MacroMapPointerUnsigned, map);

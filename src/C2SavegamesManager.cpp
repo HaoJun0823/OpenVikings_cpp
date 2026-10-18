@@ -88,7 +88,9 @@ namespace NC2Logic
 		for (bool found = DirectoryScanner_GetFirstMatchingFile(&scanner, Tool_GetCurrentPlayerSavegameDirectoryNamePtr(), ".sav", false); found; found = DirectoryScanner_GetNextMatchingFile(&scanner))
 		{
 			const char* filename = DirectoryScanner_GetCurrentNamePtr(&scanner);
+			if (filename == nullptr) continue;
 			auto* data = static_cast<SSavegameInfoData*>(Runtime_AllocateWithNewHandler(sizeof(SSavegameInfoData), 1));
+			if (data == nullptr) continue;
 			std::memset(data, 0, sizeof(*data));
 			char basename[260];
 			Runtime_SplitPath(filename, nullptr, nullptr, basename, nullptr);

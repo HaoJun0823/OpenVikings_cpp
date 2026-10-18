@@ -19,6 +19,21 @@ namespace NXBasics
 {
 	namespace
 	{
+		bool CopyLegacyFindData(const _finddata32i64_t& native, void* destination)
+		{
+			// Remaster: keep the 280-byte ABI without truncating large file sizes.
+			if (native.size < 0 || static_cast<std::uint64_t>(native.size) >= UINT32_MAX) { errno = EOVERFLOW; return false; }
+			auto* result = static_cast<_finddata32_t*>(destination);
+			result->attrib = native.attrib;
+			result->time_create = native.time_create;
+			result->time_access = native.time_access;
+			result->time_write = native.time_write;
+			result->size = static_cast<_fsize_t>(native.size);
+			std::memcpy(result->name, native.name, sizeof(result->name));
+			result->name[sizeof(result->name) - 1] = '\0';
+			return true;
+		}
+
 		// Stable records retain the legacy pointer/EOF contract while FILE owns buffering.
 		// Records are reused only after close, as in the original stream table.
 		struct StreamStorage
@@ -188,9 +203,21 @@ namespace NXBasics
 	std::int32_t Runtime_FindFirst(const char* pattern, void* result)
 	{
 		static_assert(sizeof(_finddata32_t) == 280 && offsetof(_finddata32_t, name) == 20);
-		return static_cast<std::int32_t>(_findfirst32(pattern, static_cast<_finddata32_t*>(result)));
+		if (pattern == nullptr || result == nullptr) { errno = EINVAL; return -1; }
+		_finddata32i64_t native{};
+		const auto handle = _findfirst32i64(pattern, &native);
+		if (handle == -1) return -1;
+		do { if (CopyLegacyFindData(native, result)) return static_cast<std::int32_t>(handle); } while (_findnext32i64(handle, &native) == 0);
+		_findclose(handle);
+		return -1;
 	}
-	std::int32_t Runtime_FindNext(std::int32_t searchHandle, void* result) { return _findnext32(searchHandle, static_cast<_finddata32_t*>(result)); }
+	std::int32_t Runtime_FindNext(std::int32_t searchHandle, void* result)
+	{
+		if (result == nullptr) { errno = EINVAL; return -1; }
+		_finddata32i64_t native{};
+		while (_findnext32i64(searchHandle, &native) == 0) if (CopyLegacyFindData(native, result)) return 0;
+		return -1;
+	}
 	std::int32_t Runtime_FindClose(std::int32_t searchHandle) { return _findclose(searchHandle); }
 	char* Runtime_GetEnvironmentVariableLocked(const char* name) { return std::getenv(name); }
 	char* Runtime_GetLocalTimeString(char* destination)

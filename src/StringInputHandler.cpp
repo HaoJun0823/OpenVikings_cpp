@@ -174,8 +174,8 @@ namespace NC2InGameGuiBaseTextInputElement
 				break;
 		}
 
-		// Preserve unsigned subtraction, including the zero-limit underflow.
-		if (length > mMaximumLength - 1u)
+		// Remaster: a zero-capacity input accepts no inserted characters.
+		if (length >= mMaximumLength)
 		{
 			return 2;
 		}

@@ -141,6 +141,8 @@ namespace NXBasics
 	// Original function: FUN_004063f9
 	std::int32_t CFile::FileSystem_SystemPathName_Set(const char* systemPathName, const char* replacementPath)
 	{
+		// Remaster: reject oversized mappings before changing an existing record.
+		if (systemPathName == nullptr || replacementPath == nullptr || std::strlen(systemPathName) >= sizeof(mStaticVars.systemPathNames[0].systemPathName) || std::strlen(replacementPath) >= sizeof(mStaticVars.systemPathNames[0].replacementPath)) return -1;
 		const std::int32_t existingIndex = FileSystem_SystemPathName_GetId(systemPathName);
 
 		if (existingIndex != -1)
@@ -158,7 +160,7 @@ namespace NXBasics
 				continue;
 			}
 
-			// Preserve the original unchecked copies and write order.
+			// Both strings have been validated against their destination capacities.
 			std::strcpy(record.systemPathName, systemPathName);
 			std::strcpy(record.replacementPath, replacementPath);
 			record.nameLength = static_cast<std::uint32_t>(std::strlen(systemPathName));

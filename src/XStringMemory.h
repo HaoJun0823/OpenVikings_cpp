@@ -31,7 +31,8 @@ namespace NXBasics
 		const std::size_t byteCount = std::strlen(source) + 1;
 		auto* copy = static_cast<char*>(Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(byteCount), 1));
 
-		// The original copies without checking allocation success.
+		// Remaster: the allocation wrapper may return null after its handler declines retry.
+		if (copy == nullptr) return nullptr;
 		std::memcpy(copy, source, byteCount);
 		return copy;
 	}
