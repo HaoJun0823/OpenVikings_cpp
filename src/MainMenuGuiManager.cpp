@@ -1,4 +1,5 @@
 #include "C2CallbackManager.h"
+#include "XTextEncoding.h"
 #include "C2CleanMapsManager.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2GameEngineStartup.h"
@@ -412,7 +413,7 @@ namespace NC2MainMenuGuiManager
 	}
 
 	// Original function: FUN_004d31bc
-	bool CGuiManager::StringInput_HandleKeys(std::uint32_t key, char character)
+	bool CGuiManager::StringInput_HandleKeys(std::uint32_t key, std::uint32_t character)
 	{
 		if (textInput.mEditing == 0)
 			return false;
@@ -470,7 +471,7 @@ namespace NC2MainMenuGuiManager
 			std::memmove(errorTexts[1], errorTexts[0], movedCount * 202u);
 		}
 
-		std::strncpy(errorTexts[0], text, 0xC8);
+		NXBasics::Text_Copy(errorTexts[0], 0xC9, text);
 		errorTexts[0][0xC8] = '\0';
 
 		if (errorCount != 10u)
@@ -842,7 +843,7 @@ namespace NC2MainMenuGuiManager
 
 		// Each record contains a four-byte type followed by its text storage.
 		std::memset(chatHistoryStorage + 4, 0, 116);
-		std::strncpy(reinterpret_cast<char*>(chatHistoryStorage + 8), text, 0x6D);
+		NXBasics::Text_Copy(reinterpret_cast<char*>(chatHistoryStorage + 8), 0x6E, text);
 
 		std::memcpy(chatHistoryStorage + 4, &type, sizeof(type));
 
