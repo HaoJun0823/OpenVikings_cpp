@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 // Remaster selection; original object layouts and saved data remain unchanged.
 namespace NRemaster
 {
@@ -69,5 +71,56 @@ namespace NRemaster
 		// Cultures 2 ends the palette constructor before it.
 		// Northland is gated before engine startup until its loading is established.
 		return gGameVariant == EGameVariant::EighthWonder || gGameVariant == EGameVariant::DieSaga;
+	}
+
+	// Original layout: the campaign screens are not one screen but three sibling handlers,
+	// each pinned to one campaign id and its own node table:
+	//   screen 5  004D3167 cmp ecx,2  nodes 005089F8  (Nordland campaign)
+	//   screen 6  004D32F2 cmp ecx,3  nodes 00508A68  (Wunder campaign)
+	//   screen 7  004D347D cmp ecx,4  nodes 00508AD8  (Saga campaign)
+	// Die Saga keeps the same three screens, so the id follows the screen number for every
+	// variant that ships more than one campaign.
+	//
+	// Die Saga additionally offers user campaigns:
+	//   screen 8  lists campaign00 / campaign01 (saga table strings 16..19)
+	//   screen 9  004D380C test byte [map+120h], 80h   -> campaign 7 (campaign00)
+	//   screen 10 004D39C4 test byte [map+120h], 100h  -> campaign 8 (campaign01)
+	inline bool HasMultipleCampaigns()
+	{
+		return gGameVariant == EGameVariant::DieSaga;
+	}
+
+	// Campaign a campaign screen presents: the first campaign screen carries campaign 2,
+	// the second campaign 3 and the third campaign 4 (original screens 5, 6 and 7).
+	inline std::uint32_t GetCampaignIdForCampaignScreen(std::uint32_t campaignScreenIndex)
+	{
+		// Index 0 = first campaign screen, 1 = second, 2 = third.
+		return campaignScreenIndex < 3u ? campaignScreenIndex + 2u : 0u;
+	}
+
+	// User campaign packages: the first user campaign screen lists campaign00 (id 7)
+	// and the second lists campaign01 (id 8); both are chosen on the user campaign menu.
+	inline std::uint32_t GetUserCampaignIdForUserScreen(std::uint32_t userScreenIndex)
+	{
+		return userScreenIndex < 2u ? userScreenIndex + 7u : 0u;
+	}
+
+	// Engine screen numbers for the three campaign screens and the user campaign screens.
+	// These mirror SwitchIds::MainMenuScreen; the profile owns the grouping so the drawing
+	// and menu code do not repeat the numbers.
+	inline bool IsCampaignMapScreen(std::uint32_t engineScreen)
+	{
+		return engineScreen == 5u || engineScreen == 24u || engineScreen == 25u;
+	}
+
+	// 0 for the first campaign screen, 1 for the second, 2 for the third.
+	inline std::uint32_t GetCampaignScreenIndex(std::uint32_t engineScreen)
+	{
+		return engineScreen == 5u ? 0u : engineScreen == 24u ? 1u : engineScreen == 25u ? 2u : 0u;
+	}
+
+	inline bool IsUserCampaignScreen(std::uint32_t engineScreen)
+	{
+		return engineScreen == 26u || engineScreen == 27u || engineScreen == 28u;
 	}
 }
