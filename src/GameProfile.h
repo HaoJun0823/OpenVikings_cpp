@@ -12,6 +12,12 @@ namespace NRemaster
 
 	inline EGameVariant gGameVariant = EGameVariant::EighthWonder;
 
+	inline unsigned int GetGuiStringTableCount()
+	{
+		// Cultures2.exe 004CCD66 loads eleven tables; Odin/Wonders add two later.
+		return gGameVariant == EGameVariant::Cultures2 ? 11u : 13u;
+	}
+
 	inline const char* GetGameWindowTitle()
 	{
 		switch (gGameVariant)

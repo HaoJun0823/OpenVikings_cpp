@@ -2,6 +2,14 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-19 · 10:31 CEST — Cultures 2 menu resources
+
+The experimental Cultures 2 launcher now selects the original game's menu scenery and single-player menu texts.
+
+- Select the four Cultures 2 menu maps instead of requesting the later Weltwunder map.
+- Show Free Play, Campaign and Load Game using the Cultures 2 text table.
+- Load the original eleven GUI string tables and show the existing diagnostic text if a requested table is unavailable.
+
 ## 2026-10-18 · 16:10 CEST — Preserve map-export unlocks and DAT compatibility
 
 The savegame map exporter now distinguishes permanent restrictions from items that have not yet been unlocked.

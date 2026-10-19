@@ -49,7 +49,7 @@ datax/
 
 Keep the original `gedx8musicdrv.dll` available alongside the executable for music. Films use the Windows media components and available codecs. Run OpenVikings with the game-data root as its working directory; set this in your shortcut or Visual Studio debugger settings.
 
-Each game has its own launcher, which selects its resource profile automatically. Use each game's own installation as its working directory. Initial **Cultures 2** compatibility skips the later game's vertex-color palette and terrain tinting; further loading differences are still being investigated. **Northland** currently displays a notice that its data loading is not implemented yet.
+Each game has its own launcher, which selects its resource profile automatically. Use each game's own installation as its working directory. Initial **Cultures 2** compatibility uses its own menu-map selection and single-player menu texts, and skips the later game's vertex-color palette and terrain tinting. Further loading differences, campaign screens and gameplay compatibility are still being investigated. **Northland** currently displays a notice that its data loading is not implemented yet.
 
 ## Build from source
 

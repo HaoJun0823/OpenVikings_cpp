@@ -7,6 +7,7 @@
 #include "C2StringAccess.h"
 #include "C2StringIO.h"
 #include "DSManager.h"
+#include "GameProfile.h"
 #include "GuiToolsBase.h"
 #include "MasterPropertyManager.h"
 #include "XBasicTypes.h"
@@ -539,7 +540,7 @@ namespace NC2GuiToolsBase
 
 		char fileName[260];
 
-		for (std::size_t index = 0; index < 13; ++index)
+		for (std::size_t index = 0; index < NRemaster::GetGuiStringTableCount(); ++index)
 		{
 			NC2Logic::LanguageTool_GetFilename(fileNamePatterns[index], fileName, true);
 			mStaticVars.stringArrays[index] = NC2Logic::StringIO_CreateOutOfIniFile(fileName);
@@ -549,7 +550,7 @@ namespace NC2GuiToolsBase
 	// Original function: FUN_004e1da1
 	CGuiBaseStringsManager::~CGuiBaseStringsManager()
 	{
-		for (std::size_t index = 0; index < 13; ++index)
+		for (std::size_t index = 0; index < NRemaster::GetGuiStringTableCount(); ++index)
 		{
 			DestroyGuiStorableResource(mStaticVars.stringArrays[index]);
 			mStaticVars.stringArrays[index] = nullptr;
@@ -561,7 +562,8 @@ namespace NC2GuiToolsBase
 	// Original function: FUN_004e1dcb
 	char* CGuiBaseStringsManager::GetStringPtr(std::int32_t arrayId, std::uint32_t stringId)
 	{
-		if (arrayId >= 0 && arrayId < 13)
+		// Remaster: an unavailable optional table uses the existing diagnostic text.
+		if (arrayId >= 0 && arrayId < 13 && mStaticVars.stringArrays[arrayId] != nullptr)
 		{
 			char* text = mStaticVars.stringArrays[arrayId]->GetStringPtr(stringId);
 

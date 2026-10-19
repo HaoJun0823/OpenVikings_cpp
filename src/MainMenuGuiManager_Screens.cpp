@@ -6,6 +6,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2ObjectLayout.h"
 #include "C2SavegamesManager.h"
+#include "GameProfile.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiListBoxElementAccess.h"
 #include "GuiTextToolElementAccess.h"
@@ -155,10 +156,21 @@ namespace NC2MainMenuGuiManager
 				{
 					heading(title, 0x28);
 					auto rectangle = content;
-					button(rectangle, 0x14, 0x15, 0x1394, StringTool_GetOdin001StringPtr);
-					AdvanceRow(rectangle, 10); button(rectangle, 0x29, 0x2A, 0x1392);
-					AdvanceRow(rectangle, 10); button(rectangle, 0x16, 0x17, 0x1393, StringTool_GetOdin001StringPtr);
-					AdvanceRow(rectangle, 10); button(rectangle, 0x2D, 0x2E, 0x1395);
+					if (NRemaster::gGameVariant == NRemaster::EGameVariant::Cultures2)
+					{
+						// Cultures2.exe 004C0070..004C0231 uses only the main-menu table.
+						// Route its actions through the shared engine's semantic command IDs.
+						button(rectangle, 0x29, 0x2A, SwitchIds::MainMenuCommand::ShowMapList);
+						AdvanceRow(rectangle, 10); button(rectangle, 0x2B, 0x2C, SwitchIds::MainMenuCommand::ShowCampaignMap);
+						AdvanceRow(rectangle, 10); button(rectangle, 0x2D, 0x2E, SwitchIds::MainMenuCommand::ShowLoadGame);
+					}
+					else
+					{
+						button(rectangle, 0x14, 0x15, 0x1394, StringTool_GetOdin001StringPtr);
+						AdvanceRow(rectangle, 10); button(rectangle, 0x29, 0x2A, 0x1392);
+						AdvanceRow(rectangle, 10); button(rectangle, 0x16, 0x17, 0x1393, StringTool_GetOdin001StringPtr);
+						AdvanceRow(rectangle, 10); button(rectangle, 0x2D, 0x2E, 0x1395);
+					}
 					button(back, 0x14, 0x15, 0x138A);
 					break;
 				}
