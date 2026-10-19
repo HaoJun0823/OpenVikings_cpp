@@ -265,7 +265,7 @@ namespace NMasterControlProgram
 			GetCurrentDirectoryA(MAX_PATH - 1, directMusicPath);
 			// Original append routine 004e5c30 is strcat.
 			// Requested installation layout replaces original 004FE0A4's data directory with DataX.
-			std::strcat(directMusicPath, "\\datax\\dm2\\");
+			std::strcat(directMusicPath, NRemaster::GetMusicDirectorySuffix());
 
 			NDMManager::Init(gDirectMusicManager, 0, directMusicPath);
 

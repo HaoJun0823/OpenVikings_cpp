@@ -12,6 +12,17 @@ namespace NRemaster
 
 	inline EGameVariant gGameVariant = EGameVariant::EighthWonder;
 
+	inline unsigned int GetFirstAnimalTribe()
+	{
+		// The native 34-entry animal table starts at tribe 7 in Cultures 2, 8 later.
+		return gGameVariant == EGameVariant::Cultures2 ? 7u : 8u;
+	}
+
+	inline const char* GetMusicDirectorySuffix()
+	{
+		return gGameVariant == EGameVariant::Cultures2 ? "\\datax\\dm\\" : "\\datax\\dm2\\";
+	}
+
 	inline unsigned int GetGuiStringTableCount()
 	{
 		// Cultures2.exe 004CCD66 loads eleven tables; Odin/Wonders add two later.

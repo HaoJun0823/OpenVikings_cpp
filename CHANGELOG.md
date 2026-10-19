@@ -2,6 +2,15 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-19 · 10:51 CEST — Cultures 2 animals and compressed audio
+
+The Cultures 2 profile now uses its original animal-type selection and music directory, and the sound loader supports its compressed effects.
+
+- Resolve Cultures 2 animal names with its own allowed-type list and animal-table starting index.
+- Decode IMA-ADPCM WAV files for menu clicks, voices, work, combat and ambient effects.
+- Preserve short final audio blocks and the sound lengths recorded in the files.
+- Find Cultures 2 music under `DataX/DM`.
+
 ## 2026-10-19 · 10:31 CEST — Cultures 2 menu resources
 
 The experimental Cultures 2 launcher now selects the original game's menu scenery and single-player menu texts.
