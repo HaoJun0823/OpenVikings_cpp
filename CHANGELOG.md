@@ -2,6 +2,18 @@
 
 News and changes from the `remaster` branch. Times are local to Vienna, Austria; the entries below use CEST (UTC+02:00).
 
+## 2026-10-20 · 05:10 CEST — Die Saga launcher
+
+The solution gains a fourth launcher for **Cultures: Die Saga**, sharing the same engine library.
+
+- Select `OpenVikingsDieSaga` as the startup project to build `OpenVikingsDieSaga.exe`.
+- Identify the game's own disc by its `saga` volume name and `autorun.exe` marker instead of the Weltwunder pair.
+- Add the game's fourteenth GUI string table (`data\text\<language>\strings\saga\saga001.ini`) and widen the shared table array to hold it.
+- Keep the later game's vertex-color palette, `DataX/DM2` music directory, `8..41` animal-table range and four campaign screens.
+- Report `OpenVikings - Die Saga` as the window title and `saga` as the single-instance mutex.
+
+Game-data loading differences beyond these are not established yet, so the profile stays experimental.
+
 ## 2026-10-19 · 14:10 CEST — Correct Unicode text orientation
 
 Text drawn with Windows fallback fonts now preserves its upright bitmap orientation.
